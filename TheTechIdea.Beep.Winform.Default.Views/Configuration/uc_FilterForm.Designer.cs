@@ -592,10 +592,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepSimpleGrid1);
-            Controls.Add(beepTextBox1);
-            Controls.Add(beepNumericUpDown1);
-            Controls.Add(beepLabel1);
+            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
+            MainTemplatePanel.Controls.Add(beepTextBox1);
+            MainTemplatePanel.Controls.Add(beepNumericUpDown1);
+            MainTemplatePanel.Controls.Add(beepLabel1);
             Name = "uc_FilterForm";
             Size = new Size(1044, 738);
             ResumeLayout(false);

@@ -123,9 +123,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StartTimers(); // Restart timer if mouse is still in cascade
                 return;
             }
+            CloseCascade(); // Close the popup if mouse is outside the cascade
+                            // Close the entire cascade if mouse is outside
 
-            // Close the entire cascade if mouse is outside
-            CloseCascade();
         }
 
         public void CloseCascade()

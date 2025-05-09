@@ -467,7 +467,7 @@
             LogtextBox.UseThemeFont = true;
             LogtextBox.WordWrap = true;
             // 
-            // beepPanel1
+            // MainTemplatePanel
             // 
             beepPanel1.AnimationDuration = 500;
             beepPanel1.AnimationType = Vis.Modules.DisplayAnimationType.None;

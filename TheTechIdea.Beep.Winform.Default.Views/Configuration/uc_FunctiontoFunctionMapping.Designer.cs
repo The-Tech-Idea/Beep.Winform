@@ -210,7 +210,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepSimpleGrid1);
+            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
             Name = "uc_FunctiontoFunctionMapping";
             Size = new Size(1248, 753);
             ((System.ComponentModel.ISupportInitialize)functionToFunctionMappingViewModelBindingSource).EndInit();

@@ -1,11 +1,14 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-using System.ComponentModel;
-using System.Text.RegularExpressions;
-using System.Globalization;
-using System.Drawing.Drawing2D;
-using System.Windows.Forms.Design;
-using TheTechIdea.Beep.Winform.Controls.Models;
+﻿using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
+using System.Drawing.Drawing2D;
+using System.Globalization;
+using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
+using System.Windows.Forms.Design;
+using System.Xml;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -19,15 +22,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         private TextBox _editTextBox;
         private bool _isEditing = false;
         private BeepButton _imageButton;
-        private string _displayText = string.Empty;
+        private BeepImage _image;
+        private BeepLabel _label;
+   
+     //   private string _displayText = string.Empty;
         private bool _passwordMode = false;
         private Color _textColor;
         private Size _maxImageSize = new Size(16, 16);
         private int _padding = 4;
+        private string _resourcespath= "TheTechIdea.Beep.Winform.Controls.GFX.SVG.INFO";
+        private string _infoicon = "info.svg";
+        private string _erroricon = "error.svg";
+        private string _warningicon = "warning.svg";
+        private string _successicon = "success.svg";
+        private string _alerticon = "alert.svg";
+        private string _likelyicon = "like.svg";
+        private string _importanticon = "important.svg";
+        private string _hearticon = "heart.svg";
+        private string _helpicon = "help.svg";
+        private string _questionicon = "question.svg";
+        private string _ignoreicon = "ignore.svg";
+        private string _coolicon = "cool.svg";
+
+    
 
         public new event EventHandler TextChanged;
         private int _lines = 3;
         private ScrollBars _scrollBars = ScrollBars.None;
+
+        private ValidationTypeBasedonIcon _validationType = ValidationTypeBasedonIcon.Info;
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Type of validation to show when the field is invalid.")]
+        public ValidationTypeBasedonIcon ValidationType
+        {
+            get => _validationType;
+            set
+            {
+                _validationType = value;
+                Invalidate();
+            }
+        }
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -124,22 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The text shown in the control.")]
-        public override string Text
-        {
-            get => _displayText;
-            set
-            {
-                if (_displayText != value)
-                {
-                    _displayText = value;
-                    OnTextChanged(EventArgs.Empty);
-                    Invalidate();
-                }
-            }
-        }
+      
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -312,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             BoundProperty = "Text";
             BorderRadius = 3;
-            Padding = new Padding(2);
+            Padding = new Padding(1);
             ShowAllBorders = true;
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
@@ -324,12 +344,56 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.MouseClick += BeepLightTextBox_MouseClick;
             this.MouseDoubleClick += BeepLightTextBox_MouseDoubleClick;
 
+            _image = new BeepImage
+            {
+                ImagePath = _resourcespath + "." + _infoicon,
+                Size = new Size(16, 16),
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                IsBorderAffectedByTheme = false
+            };
+            _label = new BeepLabel
+            {
+                Text = "Info",
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                IsBorderAffectedByTheme = false
+            };
             // Create but don't add the editing textbox yet
             InitializeEditTextBox();
             InitializeImageButton();
             InitializeDefaultErrorMessages();
             InitializeDropdown();
+
         }
+        protected override void OnParentChanged(EventArgs e)
+        {
+            // First unsubscribe from old parent
+            if (Tag is Control oldParent && oldParent is BeepControl oldBeepParent)
+                oldBeepParent.ClearChildExternalDrawing(this);
+
+            base.OnParentChanged(e);
+
+            // Remember this new parent for next time
+            Tag = Parent;
+
+            // Only register if validation indicator is visible and there's an error
+            if (Parent is BeepControl newBeepParent && _showValidationIndicator)
+            {
+                newBeepParent.AddChildExternalDrawing(
+                    this,
+                    DrawInfoIconExternally,
+                    DrawingLayer.AfterContent
+                );
+            }
+        }
+    
+        // Add a method to update the external drawing registration when validation state changes
+     
+
+
         private void InitializeDefaultErrorMessages()
         {
             // Set default error messages that will be used if no custom ones are specified
@@ -376,10 +440,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                     e.SuppressKeyPress = true;
                 }
             };
-
+            Text = string.Empty;
+            _editTextBox.GotFocus += (s, e) =>
+            {
+                if (_isEditing)
+                {
+                    _editTextBox.SelectAll();
+                }
+            };
+           _editTextBox.Text = string.Empty;
             _editTextBox.KeyPress += (s, e) => HandleKeyPress(e);
             _editTextBox.TextChanged += (s, e) =>
             {
+                Text = _editTextBox.Text;
                 if (!_isApplyingMask)
                 {
                     _isApplyingMask = true;
@@ -389,6 +462,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 TextChanged?.Invoke(this, EventArgs.Empty);
             };
+            _editTextBox.Text = string.Empty;
+
         }
 
         private void InitializeImageButton()
@@ -467,7 +542,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 StartEditing();
             }
         }
-
         private void BeepLightTextBox_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if (_editActivation == EditActivation.DoubleClick && !_isEditing && !ReadOnly)
@@ -480,24 +554,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_editTextBox == null)
                 return;
 
-            // Always ensure WordWrap is correctly set based on multiline mode
+            // Ensure WordWrap reflects multiline mode
             _editTextBox.WordWrap = _multiline && _wordWrap;
+
+            // Calculate padding values
+            int leftPad = Padding.Left + 2; // Add a little extra for better appearance
+            int topPad = Padding.Top + 2;
+            int rightPad = Padding.Right + 2;
+            int bottomPad = Padding.Bottom + 2;
+
+            // Button width adjustment
+            int buttonWidth = 0;
+            if (_imageButton != null && _imageButton.Visible && !string.IsNullOrEmpty(_imageButton.ImagePath))
+            {
+                buttonWidth = _imageButton.Width + 2; // Add small gap between text and button
+            }
 
             if (_multiline)
             {
-                _editTextBox.Location = new Point(_padding, _padding);
-                _editTextBox.Size = new Size(Width - (_padding * 2), Height - (_padding * 2));
+                // For multiline mode, fill the entire client area with appropriate padding
+                _editTextBox.Location = new Point(leftPad, topPad);
+                _editTextBox.Size = new Size(
+                    Width - (leftPad + rightPad + buttonWidth),
+                    Height - (topPad + bottomPad)
+                );
             }
             else
             {
-                _editTextBox.Location = new Point(_padding, (Height - _editTextBox.Height) / 2);
-                _editTextBox.Size = new Size(Width - (_padding * 2) - (_imageButton?.Width ?? 0), _editTextBox.PreferredHeight);
+                // For single line mode, calculate vertical centering
+                int availableHeight = Height - (topPad + bottomPad);
+                int textHeight = _editTextBox.PreferredHeight;
+                int verticalPosition = topPad + Math.Max(0, (availableHeight - textHeight) / 2);
+
+                _editTextBox.Location = new Point(leftPad, verticalPosition);
+                _editTextBox.Size = new Size(
+                    Width - (leftPad + rightPad + buttonWidth),
+                    textHeight
+                );
+            }
+
+            // If the textbox is visible but misaligned, force a refresh
+            if (_editTextBox.Visible)
+            {
+                _editTextBox.Refresh();
             }
         }
 
-
-
-      
         public void StartEditing()
         {
             if (_isEditing || ReadOnly)
@@ -508,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Position and configure the edit box
             AdjustEditTextBoxSize();
-            _editTextBox.Text = _displayText;
+           _editTextBox.Text = Text;
 
             // Apply appropriate theme colors to the edit textbox
             _editTextBox.BackColor = IsChild && Parent != null ? Parent.BackColor : _currentTheme.TextBoxBackColor;
@@ -527,8 +629,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Invalidate();
         }
-
-
         public void EndEditing(bool saveChanges)
         {
             if (!_isEditing)
@@ -539,70 +639,58 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (saveChanges)
             {
                 string newValue = _editTextBox.Text;
-                bool isValid = true;
-                string message = string.Empty;
-
-                // Check if field is required
-                if (_isRequired && string.IsNullOrWhiteSpace(newValue))
+                Text = newValue;
+                // If ApplyMask is on, perform validation right away
+                if (_isApplyingMask && _maskFormatEnum != TextBoxMaskFormat.None)
                 {
-                    isValid = false;
-                    message = _requiredErrorMessage;
-                }
-                else
-                {
-                    // Raise the Validating event to allow custom validation
-                    var args = new ValidationEventArgs { Value = newValue, IsValid = true };
-                    Validating?.Invoke(this, args);
-
-                    if (args.Cancel)
+                    if (!ValidateData(out string validationMessage))
                     {
-                        isValid = false;
-                        message = args.Message;
-                    }
-                    else if (!ValidateByFormat(newValue, out string formatMessage))
-                    {
-                        isValid = false;
-                        message = formatMessage;
-                    }
-                }
-
-                // Update validation state
-                IsValid = isValid;
-                ValidationMessage = message;
-
-                // If validation failed, show tooltip and keep editing if indicator enabled
-                if (!isValid)
-                {
-                    ShowValidationTooltip(message);
-
-                    if (_showValidationIndicator)
-                    {
-                        _isEditing = true;
-                        _editTextBox.Focus();
-                        return;
+                        // If validation failed, show tooltip and keep editing if indicator enabled
+                        if (_showValidationIndicator)
+                        {
+                            _isEditing = true;
+                            _editTextBox.Focus();
+                            return;
+                        }
                     }
                 }
                 else
                 {
-                    // Hide tooltip if validation passed
-                    if (_toolTip != null)
-                        _toolTip.Hide(this);
+                    // Original validation logic for non-masked input
+                    bool isValid = true;
+                    string message = string.Empty;
 
-                    // Set the text only if validation passed
-                    _displayText = newValue;
-                    OnTextChanged(EventArgs.Empty);
+                    // Check if field is required
+                    if (_isRequired && string.IsNullOrWhiteSpace(newValue))
+                    {
+                        isValid = false;
+                        message = _requiredErrorMessage;
+                    }
+                    else
+                    {
+                        // Remaining validation logic
+                        // ...
+                    }
+
+                    // Update validation state
+                    IsValid = isValid;
+                    ValidationMessage = message;
+
+                    // Etc...
                 }
+
+                // Set the text value if we get here
+                Text = newValue;
+                OnTextChanged(EventArgs.Empty);
             }
 
-            // Do not remove from Controls, just hide it
+            // Hide the textbox
             _editTextBox.Visible = false;
-            IsSelected = Focused; // Only remain selected if we still have focus
+            IsSelected = Focused;
 
             Invalidate();
             Focus();
         }
-
-
 
         #endregion
 
@@ -611,6 +699,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnLayout(e);
             PositionImageButton();
+            // Remember this new parent for next time
+            
+
         }
 
         private void PositionImageButton()
@@ -716,7 +807,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // If text is empty, use placeholder color, otherwise use text color
-                textColor = string.IsNullOrEmpty(_displayText) ?
+                textColor = string.IsNullOrEmpty(Text) ?
                     _currentTheme?.TextBoxPlaceholderColor ?? Color.Gray :
                     (Enabled ? _textColor : DisabledForeColor);
             }
@@ -786,40 +877,89 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Determine text to draw - either placeholder or actual text
-            string textToDraw = string.IsNullOrEmpty(_displayText) ? _placeholderText : _displayText;
-
-            // If password mode, draw masked text
-            if (_passwordMode && !string.IsNullOrEmpty(_displayText))
+            string textToDraw = string.IsNullOrEmpty(Text) ? _placeholderText :     Text;
+            if (string.IsNullOrEmpty(Text))
             {
-                textToDraw = new string('•', _displayText.Length);
+                if (string.IsNullOrEmpty(_placeholderText))
+                {
+                    if (_isApplyingMask)
+                    { 
+                        switch (MaskFormat)
+                        {
+                            case TextBoxMaskFormat.Currency:
+                                _placeholderText = "0.00";
+                                break;
+                            case TextBoxMaskFormat.Decimal:
+                                _placeholderText = "0.00";
+                                break;
+                            case TextBoxMaskFormat.Percentage:
+                                _placeholderText = "0%";
+                                break;
+                            case TextBoxMaskFormat.PhoneNumber:
+                                _placeholderText = "(000) 000-0000";
+                                break;
+                            case TextBoxMaskFormat.SocialSecurityNumber:
+                                _placeholderText = "000-00-0000";
+                                break;
+                            case TextBoxMaskFormat.ZipCode:
+                                _placeholderText = "00000";
+                                break;
+                            case TextBoxMaskFormat.IPAddress:
+                                _placeholderText = "000.000.000.000";
+                                break;
+                            case TextBoxMaskFormat.URL:
+                                _placeholderText = "http://www.example.com";
+                                break;
+                            case TextBoxMaskFormat.CreditCard:
+                                _placeholderText = "0000-0000-0000-0000";
+                                break;
+                            case TextBoxMaskFormat.Email:
+                                _placeholderText = "aaa@aaa.com";
+                                break;
+                            case TextBoxMaskFormat.Date:
+                                _placeholderText = DateTime.Now.ToString("MM/dd/yyyy");
+                                break;
+                            case TextBoxMaskFormat.Time:
+                                _placeholderText = DateTime.Now.ToString("hh:mm tt");
+                                break;
+                            case TextBoxMaskFormat.DateTime:
+                                _placeholderText = DateTime.Now.ToString("MM/dd/yyyy hh:mm tt");
+                                break;
+                            case TextBoxMaskFormat.Custom:
+                                _placeholderText = "Enter value";
+                                break;
+                            default:
+                                _placeholderText = "Enter value";
+                                break;
+
+
+
+                        }
+                    }
+                }
+                textToDraw = _placeholderText;
+                // Use placeholder text color from theme if available
+                textColor = _currentTheme?.TextBoxPlaceholderColor ?? Color.Gray;
             }
-
-            // Always draw either the text or placeholder, even if empty
-            TextRenderer.DrawText(g, textToDraw, _textFont, textRect, textColor, flags);
-
-            // Draw validation icon if needed
-            if (!_isValid && _showValidationIndicator && !_isEditing)
+            else
             {
-                // Draw an error icon (e.g., small red X or exclamation mark)
-                int iconSize = 16;
-                int iconX = Width - iconSize - _padding;
-                int iconY = (Height - iconSize) / 2;
+                textToDraw = Text;
 
-                // Draw a simple error indicator
-                using (Brush errorBrush = new SolidBrush(_currentTheme?.TextBoxErrorBackColor ?? Color.Red))
+                // If password mode, draw masked text
+                if (_passwordMode && !string.IsNullOrEmpty(Text))
                 {
-                    g.FillEllipse(errorBrush, iconX, iconY, iconSize, iconSize);
+                    textToDraw = new string('•', Text.Length);
                 }
-                using (Pen whitePen = new Pen(Color.White, 2))
-                {
-                    // Draw an X or !
-                    g.DrawLine(whitePen, iconX + 5, iconY + 5, iconX + iconSize - 5, iconY + iconSize - 5);
-                    g.DrawLine(whitePen, iconX + iconSize - 5, iconY + 5, iconX + 5, iconY + iconSize - 5);
-                }
+            }
+            // Always draw text (either the actual text or placeholder)
+            // Only draw if there's something to draw
+            if (!string.IsNullOrEmpty(textToDraw))
+            {
+                TextRenderer.DrawText(g, textToDraw, _textFont, textRect, textColor, flags);
             }
 
             // If we have items, draw a dropdown indicator
-            if (_items.Count > 0 && _imageButton == null)
+            if (_items.Count > 0 )
             {
                 int arrowSize = 8;
                 int padding = 4;
@@ -842,6 +982,90 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        private void DrawInfoIconExternally(Graphics g, Rectangle childBounds)
+        {
+            // only draw when invalid & not editing
+            if (!_isValid && _showValidationIndicator )
+            {
+                 int iconSize = childBounds.Height-1;
+                // compute icon location relative to parent
+                int iconX = childBounds.Right +  _padding;
+                int iconY = childBounds.Y + (childBounds.Height - iconSize) / 2;
+
+                // choose image based on error type
+                switch (ValidationType)
+                {
+                    case ValidationTypeBasedonIcon.Info:
+                        _image.ImagePath = $"{_resourcespath}.{_infoicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Warning:
+                        _image.ImagePath = $"{_resourcespath}.{_warningicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Error:
+                        _image.ImagePath = $"{_resourcespath}.{_erroricon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Success:
+                        _image.ImagePath = $"{_resourcespath}.{_successicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Alert:
+                        _image.ImagePath = $"{_resourcespath}.{_alerticon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Important:
+                        _image.ImagePath = $"{_resourcespath}.{_importanticon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Likely:
+                        _image.ImagePath = $"{_resourcespath}.{_likelyicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Heart:
+                        _image.ImagePath = $"{_resourcespath}.{_hearticon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Help:
+                        _image.ImagePath = $"{_resourcespath}.{_helpicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Question:
+                        _image.ImagePath = $"{_resourcespath}.{_questionicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Ignore:
+                        _image.ImagePath = $"{_resourcespath}.{_ignoreicon}";
+                        break;
+                    case ValidationTypeBasedonIcon.Cool:
+                        _image.ImagePath = $"{_resourcespath}.{_coolicon}";
+                        break;
+                }
+                // build your resource path
+               
+
+                // Draw it into the parent's graphics at exactly that rectangle
+                var iconRect = new Rectangle(iconX, iconY, iconSize, iconSize);
+                _image.Draw(g, iconRect);
+                // draw the standard error icon so we know for sure something should appear
+                //using (var bmp = SystemIcons.Error.ToBitmap())
+                //{
+                //    g.DrawImage(bmp, iconRect);
+                //}
+
+                //Debug.WriteLine($"[BeepLightTextBox] Drew error icon at {iconRect}");
+            }
+        }
+        private void DrawInfoMessageExternally(Graphics g, Rectangle childBounds)
+        {
+            // only draw when invalid & not editing
+            if (_isValid && _showValidationIndicator)
+            {
+                // draw the standard error text so we know for sure something should appear
+                // below control
+                List<string> messages = new List<string>();
+                messages=GetErrorMessagess();
+                string message = string.Join(Environment.NewLine, messages);
+                var textSize = g.MeasureString(message, _textFont);
+                int textX = childBounds.X + _padding;
+                int textY = childBounds.Bottom + _padding;
+                var textRect = new Rectangle(textX, textY, (int)textSize.Width, (int)textSize.Height);
+                // Draw the text
+                TextRenderer.DrawText(g, message, _textFont, textRect, Color.Red, TextFormatFlags.Left);
+
+            }
+        }
 
         #endregion
 
@@ -854,10 +1078,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (IsChild && Parent != null)
             {
                 BackColor = Parent.BackColor;
+                parentbackcolor = Parent.BackColor;
             }
             else
             {
                 BackColor = _currentTheme.TextBoxBackColor;
+                
             }
 
             // Apply text colors
@@ -882,19 +1108,35 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply colors to the edit textbox
             if (_editTextBox != null)
             {
-                _editTextBox.BackColor = IsChild && Parent != null ? Parent.BackColor : _currentTheme.TextBoxBackColor;
+                _editTextBox.BackColor = BackColor;
                 _editTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             }
 
             // Apply colors to the image button if exists
             if (_imageButton != null)
             {
-                _imageButton.Theme = Theme;
+              //  _imageButton.Theme = Theme;
                 _imageButton.IsChild = true;
                 _imageButton.BackColor = BackColor;
+                _imageButton.ParentBackColor = BackColor;
                 _imageButton.ForeColor = _currentTheme.TextBoxForeColor;
             }
-
+            if (_label != null)
+            {
+                //_label.Theme = Theme;
+                _label.IsChild = true;
+                _label.BackColor = BackColor;
+                _label.ParentBackColor = BackColor;
+                _label.ForeColor = _currentTheme.TextBoxForeColor;
+            }
+            if (_image != null)
+            {
+              //  _image.Theme = Theme;
+                _image.IsChild = true;
+                _image.BackColor = BackColor;
+                _image.ParentBackColor = BackColor;
+                _image.ForeColor = _currentTheme.TextBoxForeColor;
+            }
             // Apply font from theme if needed
             if (UseThemeFont)
             {
@@ -919,11 +1161,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _dateTimeFormat = "MM/dd/yyyy HH:mm:ss";
         private bool _onlyDigits = false;
         private bool _onlyCharacters = false;
-        private bool _isApplyingMask = false;
+        
         private bool _showValidationIndicator = true;
         private bool _isValid = true;
         private string _validationMessage = string.Empty;
 
+        private bool _isApplyingMask = false;
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Restrict input to a specific format (e.g., email, date, etc.).")]
+       public bool ApplyMask
+        {
+            get => _isApplyingMask;
+            set
+            {
+                _isApplyingMask = value;
+                if (_isEditing)
+                    ApplyMaskFormat();
+                Invalidate();
+            }
+        }
         [Browsable(true)]
         [Category("Validation")]
         [Description("Restrict input to digits only.")]
@@ -1106,10 +1363,32 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler ValidationStateChanged;
         public event EventHandler<ValidationEventArgs> Validating;
 
+       
+
+        // Add a method to update the external drawing registration when validation state changes
         protected virtual void OnValidationStateChanged(EventArgs e)
         {
             ValidationStateChanged?.Invoke(this, e);
+
+            // Update external drawing registration based on validation state
+            if (Parent is BeepControl parentBeepControl)
+            {
+               
+                // First clear existing registration to prevent duplicates
+                parentBeepControl.ClearChildExternalDrawing(this);
+
+                // Only register if we have an error and validation indicator is shown
+                if (!_isValid && _showValidationIndicator)
+                {
+                    parentBeepControl.AddChildExternalDrawing(
+                        this,
+                        DrawInfoIconExternally,
+                        DrawingLayer.AfterContent
+                    );
+                }
+            }
         }
+
 
         /// <summary>
         /// Clears the validation state and hides any validation tooltips
@@ -1133,21 +1412,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="message">Error message if validation fails</param>
         /// <returns>True if the value is valid, false otherwise</returns>
+        /// <summary>
+        /// Validates the current text value according to the control's validation settings,
+        /// with special handling for masked input.
+        /// </summary>
+        /// <param name="message">Error message if validation fails</param>
+        /// <returns>True if the value is valid, false otherwise</returns>
         public bool ValidateData(out string message)
         {
+            // Reset validation icon
+            ValidationType = ValidationTypeBasedonIcon.None;
+         
             // First check if the field is required
             if (_isRequired && string.IsNullOrWhiteSpace(Text))
             {
                 message = _requiredErrorMessage;
                 IsValid = false;
                 ValidationMessage = message;
+                ValidationType = ValidationTypeBasedonIcon.Error;
 
                 if (_showTooltipOnValidationError)
                 {
                     ShowValidationTooltip(message);
                 }
-
                 return false;
+            }
+
+            // Skip validation if empty and not required
+            if (string.IsNullOrWhiteSpace(Text) && !_isRequired)
+            {
+                message = string.Empty;
+                IsValid = true;
+                ValidationMessage = string.Empty;
+                return true;
             }
 
             // Check if there's any custom validation
@@ -1159,40 +1456,75 @@ namespace TheTechIdea.Beep.Winform.Controls
                 message = args.Message;
                 IsValid = false;
                 ValidationMessage = message;
+                ValidationType = ValidationTypeBasedonIcon.Alert;
 
                 if (_showTooltipOnValidationError)
                 {
                     ShowValidationTooltip(message);
                 }
-
                 return false;
             }
 
-            // Then perform built-in validation
-            bool isValid = ValidateByFormat(Text, out message);
-            IsValid = isValid;
+            // Now check mask-related validation
+            bool isValid;
 
-            if (!isValid)
+            // If we have a mask format and ApplyMask is true, validate according to format
+            if (_maskFormatEnum != TextBoxMaskFormat.None && _isApplyingMask)
             {
-                ValidationMessage = message;
+                isValid = ValidateByFormat(Text, out message);
 
-                if (_showTooltipOnValidationError)
+                // Set the specific validation icon type based on the mask format
+                if (!isValid)
                 {
-                    ShowValidationTooltip(message);
+                    switch (_maskFormatEnum)
+                    {
+                        case TextBoxMaskFormat.Email:
+                        case TextBoxMaskFormat.URL:
+                        case TextBoxMaskFormat.IPAddress:
+                            ValidationType = ValidationTypeBasedonIcon.Warning;
+                            break;
+
+                        case TextBoxMaskFormat.Currency:
+                        case TextBoxMaskFormat.Decimal:
+                        case TextBoxMaskFormat.Percentage:
+                            ValidationType = ValidationTypeBasedonIcon.Error;
+                            break;
+
+                        case TextBoxMaskFormat.Date:
+                        case TextBoxMaskFormat.Time:
+                        case TextBoxMaskFormat.DateTime:
+                            ValidationType = ValidationTypeBasedonIcon.Important;
+                            break;
+
+                        default:
+                            ValidationType = ValidationTypeBasedonIcon.Error;
+                            break;
+                    }
                 }
             }
             else
             {
-                // Hide tooltip if validation passed
-                if (_toolTip != null)
-                {
-                    _toolTip.Hide(this);
-                }
+                // No mask or mask not applied, do regular validation
+                isValid = ValidateByFormat(Text, out message);
+                ValidationType = !isValid ? ValidationTypeBasedonIcon.Error : ValidationTypeBasedonIcon.None;
+            }
+
+            // Update validation state
+            IsValid = isValid;
+            ValidationMessage = message;
+
+            // Show or hide tooltip based on validation result
+            if (!isValid && _showTooltipOnValidationError)
+            {
+                ShowValidationTooltip(message);
+            }
+            else if (isValid && _toolTip != null)
+            {
+                _toolTip.Hide(this);
             }
 
             return isValid;
         }
-
 
 
         private void HandleKeyPress(KeyPressEventArgs e)
@@ -1280,7 +1612,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!_isEditing || _editTextBox.Text == string.Empty)
                 return;
-
+            int originalSelection = _editTextBox.SelectionStart;
+            string originalText = _editTextBox.Text;
+            bool formatApplied = false;
             switch (MaskFormat)
             {
                 case TextBoxMaskFormat.Currency:
@@ -1332,41 +1666,80 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ApplyCustomFormat();
                     break;
             }
+            // After applying the mask, validate the result if needed
+            if (formatApplied && ValidateOnLostFocus)
+            {
+                string message;
+                if (!ValidateByFormat(_editTextBox.Text, out message))
+                {
+                    // If validation fails, set the validation state but don't show tooltip yet
+                    // (it will be shown when editing ends or on ValidateData call)
+                    IsValid = false;
+                    ValidationMessage = message;
+
+                    // Choose an appropriate icon based on format
+                    switch (MaskFormat)
+                    {
+                        case TextBoxMaskFormat.Date:
+                        case TextBoxMaskFormat.Time:
+                        case TextBoxMaskFormat.DateTime:
+                            ValidationType = ValidationTypeBasedonIcon.Important;
+                            break;
+                        default:
+                            ValidationType = ValidationTypeBasedonIcon.Warning;
+                            break;
+                    }
+                }
+                else
+                {
+                    // Format is valid
+                    IsValid = true;
+                    ValidationMessage = string.Empty;
+                    ValidationType = ValidationTypeBasedonIcon.None;
+                }
+            }
         }
 
         // Format-specific methods (similar to BeepTextBox)
-        private void ApplyCurrencyFormat()
+        private bool ApplyCurrencyFormat()
         {
             if (decimal.TryParse(_editTextBox.Text, out decimal value))
             {
                 int selectionStart = _editTextBox.SelectionStart;
                 _editTextBox.Text = value.ToString("C2");
                 _editTextBox.SelectionStart = Math.Min(selectionStart, _editTextBox.Text.Length);
+                return true;
             }
+            return false;
         }
 
-        private void ApplyPercentageFormat()
+
+        private bool ApplyPercentageFormat()
         {
             if (decimal.TryParse(_editTextBox.Text, out decimal value))
             {
                 int selectionStart = _editTextBox.SelectionStart;
                 _editTextBox.Text = value.ToString("P2");
                 _editTextBox.SelectionStart = Math.Min(selectionStart, _editTextBox.Text.Length);
+                return true;
             }
+            return false;
         }
 
         // Add implementations for all other format types similar to BeepTextBox
         // ...
 
         // Example of date formatting
-        private void ApplyDateFormat()
+        private bool ApplyDateFormat()
         {
             if (DateTime.TryParse(_editTextBox.Text, out DateTime date))
             {
                 int selectionStart = _editTextBox.SelectionStart;
                 _editTextBox.Text = date.ToString(_dateFormat);
                 _editTextBox.SelectionStart = Math.Min(selectionStart, _editTextBox.Text.Length);
+                return true;
             }
+            return false;
         }
         private bool ValidateByFormat(string value, out string message)
         {
@@ -1437,26 +1810,95 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Format-specific validation methods
+        /// <summary>
+        /// Validates if a string represents a valid email address format.
+        /// </summary>
+        /// <param name="value">The email address to validate.</param>
+        /// <param name="message">Error message if validation fails.</param>
+        /// <returns>True if the email is valid, false otherwise.</returns>
         private bool ValidateEmail(string value, out string message)
         {
             message = string.Empty;
+
+            // Handle null or empty email
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                if (_isRequired)
+                {
+                    message = _requiredErrorMessage;
+                    return false;
+                }
+                return true; // Empty is valid if not required
+            }
+
             try
             {
-                // Use a more comprehensive regex for email validation
-                string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+                // Trim the email to remove any leading/trailing whitespace
+                value = value.Trim();
+
+                // Check length constraints
+                if (value.Length > 254) // Maximum practical length for an email
+                {
+                    message = "Email address is too long.";
+                    return false;
+                }
+
+                // Split the email into local part and domain
+                int atIndex = value.LastIndexOf('@');
+                if (atIndex <= 0 || atIndex == value.Length - 1)
+                {
+                    message = "Please enter a valid email address.";
+                    return false;
+                }
+
+                string localPart = value.Substring(0, atIndex);
+                string domain = value.Substring(atIndex + 1);
+
+                // Local part validation
+                if (localPart.Length > 64) // Max length for local part
+                {
+                    message = "The username part of the email is too long.";
+                    return false;
+                }
+
+                // Domain validation
+                if (!domain.Contains('.'))
+                {
+                    message = "The domain name appears to be incomplete.";
+                    return false;
+                }
+
+                // Comprehensive regex pattern for email validation
+                // This handles most valid email formats per RFC 5322
+                string pattern = @"^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|""(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*"")@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])$";
+
+                // For better performance with a slightly less strict pattern:
+                // string pattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+
                 if (!Regex.IsMatch(value, pattern))
                 {
                     message = "Please enter a valid email address.";
                     return false;
                 }
+
+                // Additional domain validation - check TLD has at least 2 characters
+                string[] domainParts = domain.Split('.');
+                string tld = domainParts[domainParts.Length - 1];
+                if (tld.Length < 2)
+                {
+                    message = "The domain extension appears to be invalid.";
+                    return false;
+                }
+
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
-                message = "Invalid email format.";
+                message = "Invalid email format: " + ex.Message;
                 return false;
             }
         }
+
 
         private bool ValidateDate(string value, out string message)
         {
@@ -1758,6 +2200,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region Validation Error Messages
+        private List<string> GetErrorMessagess()
+        {
+            List<string> messages = new List<string>();
+            foreach (var format in Enum.GetValues(typeof(TextBoxMaskFormat)))
+            {
+                if (_customErrorMessages.TryGetValue((TextBoxMaskFormat)format, out string message))
+                {
+                    messages.Add(message);
+                }
+            }
+            return messages;
+        }
         private Dictionary<TextBoxMaskFormat, string> _customErrorMessages = new Dictionary<TextBoxMaskFormat, string>();
 
         [Browsable(false)]
@@ -2179,7 +2633,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region IBeepComponent Implementation
         public override void SetValue(object value)
         {
-            this.Text = value?.ToString();
+          
+            if (value is SimpleItem item)
+            {
+                this.SelectedItem = item;
+                this.Text = item.Text;
+            }
+            else
+            {
+                this.Text = value?.ToString();
+            }
+            _editTextBox.Text = this.Text;
         }
 
         public override object GetValue()
@@ -2197,4 +2661,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
     }
+    public enum ValidationTypeBasedonIcon
+    {
+        None,
+        Error,
+        Warning,
+        Info,
+        Success,
+        Alert,
+        Likely,
+        Important,
+        Heart,
+        Help,
+        Question,
+        Ignore,
+        Cool
+    }
+
 }

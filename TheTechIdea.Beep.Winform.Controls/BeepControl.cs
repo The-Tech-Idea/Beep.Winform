@@ -171,6 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _text = value;
+                OnTextChanged(EventArgs.Empty);
                 _isControlinvalidated = true;
                 Invalidate();  // Trigger repaint when the text changes
             }
@@ -870,8 +871,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  BackColor = Color.Transparent;
             Padding = new Padding(0);
             UpdateDrawingRect();
+            ComponentName = "BeepControl";
 
-      
 
         }
     
@@ -947,8 +948,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Theme"
         #region "Painting"
-       
-
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
@@ -968,31 +967,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Defer the region update to prevent multiple repaints
                 this.BeginInvoke((MethodInvoker)delegate {
-                    UpdateControlRegion();
+                    UpdateControlRegion(); // This now handles the badge too
                 });
             }
             else
             {
                 // If handle is not created yet, call UpdateControlRegion directly
-                UpdateControlRegion();
+                UpdateControlRegion(); // This now handles the badge too
             }
 
             // Resume layout
             this.ResumeLayout();
         }
-
+        // Next, update the UpdateControlRegion method to properly include the badge area
         private void UpdateControlRegion()
         {
             if (Width <= 0 || Height <= 0)
                 return;
 
-            // Suppose we want a 10px border & 5px shadow
-            int border = BorderThickness; // e.g. 10
-            int shadow = ShowShadow ? shadowOffset : 0; // e.g. 5
+            // First update the region for the control shape (rounded or square)
+            int border = BorderThickness;
+            int shadow = ShowShadow ? shadowOffset : 0;
 
-            // If the path is the entire bounding box plus the shadow,
-            // we can define regionRect that includes those offsets. 
-            // For example:
             Rectangle regionRect = new Rectangle(
                 0,
                 0,
@@ -1000,28 +996,54 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Height
             );
 
-            // Then, if you’re rounding, maybe *inset* the corners 
-            // by half the border so the stroke is fully visible:
-            int halfPen = (int)Math.Ceiling(border / 2f);
-            // But you have to decide how you want the shadow area treated.
+            // Create the basic region for the control
+            Region controlRegion;
 
             if (IsRounded)
             {
-                // For illustration, let's do a corner radius that 
-                // doesn't cut off the shadow. We'll just apply 
-                // “regionRect” as the bounding rectangle:
                 using (GraphicsPath path = GetRoundedRectPath(regionRect, BorderRadius))
                 {
-                    // Possibly offset the path outward if needed
-                    // so the shadow is included within the region?
-
-                    this.Region = new Region(path);
+                    controlRegion = new Region(path);
                 }
             }
             else
             {
-                this.Region = new Region(regionRect);
+                controlRegion = new Region(regionRect);
             }
+
+            // Now, if we have a badge, expand the region to include it
+            if (!string.IsNullOrEmpty(BadgeText))
+            {
+                const int badgeSize = 22; // Same as in DrawBadgeExternally
+
+                // Badge position: top-right, slightly overlapping
+                int badgeX = Width - badgeSize / 2;
+                int badgeY = -badgeSize / 2;
+                var badgeRect = new Rectangle(badgeX, badgeY, badgeSize, badgeSize);
+
+                using (var badgePath = new GraphicsPath())
+                {
+                    // Add the appropriate shape for the badge
+                    switch (BadgeShape)
+                    {
+                        case BadgeShape.Circle:
+                            badgePath.AddEllipse(badgeRect);
+                            break;
+                        case BadgeShape.Rectangle:
+                            badgePath.AddRectangle(badgeRect);
+                            break;
+                        case BadgeShape.RoundedRectangle:
+                            badgePath.AddPath(GetRoundedRectPath(badgeRect, badgeRect.Height / 4), false);
+                            break;
+                    }
+
+                    // Union the badge shape with the control region
+                    controlRegion.Union(badgePath);
+                }
+            }
+
+            // Apply the combined region
+            this.Region = controlRegion;
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
@@ -1129,29 +1151,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Clear the entire buffer with the control's BackColor
                 g.Clear(BackColor);
                 // EXTERNAL DRAWING - BEFORE CONTENT LAYER
-                if (_externalDrawingLayer == DrawingLayer.BeforeContent)
-                {
-                    PerformExternalDrawing(g, ClientRectangle);
-                }
+    
+                    PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+           
 
                 // Draw the main content
                 DrawContent(g);
 
-                // EXTERNAL DRAWING - AFTER CONTENT LAYER
-                if (_externalDrawingLayer == DrawingLayer.AfterContent)
-                {
-                    PerformExternalDrawing(g, ClientRectangle);
-                }
-                // Draw the badge on top
-                if (!string.IsNullOrEmpty(BadgeText))
-                {
-                    DrawBadge(e.Graphics);
-                }
-                // EXTERNAL DRAWING - AFTER ALL LAYER
-                if (_externalDrawingLayer == DrawingLayer.AfterAll)
-                {
-                    PerformExternalDrawing(g, ClientRectangle);
-                }
+                // 3) AFTER CONTENT
+                PerformExternalDrawing(g, DrawingLayer.AfterContent);
+             
+                // 5) AFTER ALL
+                PerformExternalDrawing(g, DrawingLayer.AfterAll);
                 // Finally, render the entire off-screen buffer to the screen
                 buffer.Render(e.Graphics);
             }
@@ -2230,42 +2241,37 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnParentChanged(EventArgs e)
         {
-            base.OnParentChanged(e);
+            // Remember the previous parent
+            var oldParent = Tag as Control;
 
-            // Keep track of the old parent before calling base.OnParentChanged
-            Control oldParent = null;
-            if (Tag is Control)
-            {
-                oldParent = Tag as Control;
-            }
-
-            // Store the current parent temporarily in Tag
+            // Update Tag to the new parent
             Tag = Parent;
 
-            // Clean up any external drawing on old parent if it was a BeepControl
-            if (oldParent is BeepControl oldParentBeepControl)
+            // If the old parent was a BeepControl, clear just this child’s drawing handler
+            if (oldParent is BeepControl oldBeepParent)
             {
-                oldParentBeepControl.ClearExternalDrawing();
+                oldBeepParent.ClearChildExternalDrawing(this);
             }
-
-            // If we're being removed from the parent hierarchy completely
+            // register with new parent
+          
+            // If we’re completely removed (no new Parent), also sweep any remaining BeepControl on the Form
             if (Parent == null)
             {
-                // Find BeepControl parents in the form and clear their external drawing
-                Form parentForm = FindForm();
-                if (parentForm != null)
+                var form = FindForm();
+                if (form != null)
                 {
-                    foreach (Control c in parentForm.Controls)
+                    foreach (Control c in form.Controls)
                     {
                         if (c is BeepControl beepParent)
                         {
-                            beepParent.ClearExternalDrawing();
+                            beepParent.ClearChildExternalDrawing(this);
                         }
                     }
                 }
             }
-        }
 
+            base.OnParentChanged(e);
+        }
 
 
         #endregion "Util"
@@ -2864,13 +2870,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Gets or sets the text displayed inside the badge (for example, a counter).
         /// Set this to an empty string to hide the badge.
         /// </summary>
+        // First, update the BadgeText property to call UpdateRegionForBadge
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Text displayed inside the badge (e.g. a counter). Leave empty to hide the badge.")]
-        public string BadgeText
+        public virtual string BadgeText
         {
             get => _badgeText;
-            set { _badgeText = value; Invalidate(); }
+            set
+            {
+                if (_badgeText != value)
+                {
+                    _badgeText = value;
+                    UpdateRegionForBadge(); // Add this call to update the region
+                    if (Parent is BeepControl bc)
+                        bc.Invalidate(Bounds);
+                    else
+                        Invalidate();
+                }
+            }
         }
 
         private Color _badgeBackColor = Color.Red;
@@ -2929,117 +2947,82 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         /// <param name="g">The Graphics object to draw on.</param>
         // Replace the existing DrawBadge method
-        protected void DrawBadge(Graphics g)
+     
+        public void DrawBadgeExternally(Graphics g, Rectangle childBounds)
         {
+            Console.WriteLine(this.ComponentName);
+            // only draw if there's text
             if (string.IsNullOrEmpty(BadgeText))
                 return;
-
-            try
-            {
-                // Always prefer drawing on the parent for better positioning
-                Control parent = Parent;
-                if (parent != null)
-                {
-                    // Convert the top-right point of this control to parent's coordinate system
-                    Point topRightCorner = parent.PointToClient(this.PointToScreen(new Point(Width - 5, 0)));
-
-                    // Position badge to appear slightly outside the control's bounds
-                    Rectangle badgeArea = new Rectangle(
-                        topRightCorner.X - 10,  // Shift left slightly from the right edge
-                        topRightCorner.Y - 12,  // Position above the top edge of control
-                        22,  // Fixed size badge
-                        22
-                    );
-
-                    if (parent is BeepControl parentBeepControl)
-                    {
-                        // Use parent's external drawing mechanism for better integration
-                        parentBeepControl.SetExternalDrawing((parentG, _) => {
-                            // Draw badge on parent's surface at the specified location
-                            DrawBadgeImplementation(parentG, badgeArea);
-                        }, DrawingLayer.AfterAll);
-
-                        // The parent will handle drawing the badge
-                        return;
-                    }
-                    else
-                    {
-                        // If parent is not a BeepControl, we still want the badge to appear outside
-                        // We'll draw on our own surface but position it to appear at the edge
-                        Rectangle badgeRect = new Rectangle(
-                            Width - 12,  // Right aligned with slight inset
-                            -10,         // Position above the top edge
-                            22,          // Fixed size
-                            22
-                        );
-
-                        DrawBadgeImplementation(g, badgeRect);
-                    }
-                }
-                else
-                {
-                    // Fallback if no parent is available
-                    Rectangle badgeRect = new Rectangle(
-                        Width - 12,
-                        -10,
-                        22,
-                        22
-                    );
-
-                    DrawBadgeImplementation(g, badgeRect);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Log exception but don't crash
-                System.Diagnostics.Debug.WriteLine($"Error drawing badge: {ex.Message}");
-            }
+      
+            const int badgeSize = 22;
+            // place it top-right, slightly overlapping
+            int x = childBounds.Right - badgeSize / 2;
+            int y = childBounds.Y - badgeSize / 2;
+            var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
+          
+            // now call your existing routine
+            DrawBadgeImplementation(g, badgeRect);
         }
 
-        private void DrawBadgeImplementation(Graphics g, Rectangle badgeRect)
+        // Next, update the UpdateControlRegion method to properly include the badge area
+      
+        public void DrawBadgeImplementation(Graphics g, Rectangle badgeRect)
         {
-            // Set high quality rendering for the badge
+            // High-quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // Draw badge background with the appropriate shape
-            using (SolidBrush brush = new SolidBrush(BadgeBackColor))
+            // Background
+            using (var brush = new SolidBrush(BadgeBackColor))
             {
-                if (BadgeShape == BadgeShape.Circle)
+                switch (BadgeShape)
                 {
-                    g.FillEllipse(brush, badgeRect);
-                }
-                else if (BadgeShape == BadgeShape.RoundedRectangle)
-                {
-                    using (GraphicsPath path = GetRoundedRectPath(badgeRect, badgeRect.Height / 4))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                }
-                else
-                {
-                    g.FillRectangle(brush, badgeRect);
+                    case BadgeShape.Circle:
+                        g.FillEllipse(brush, badgeRect);
+                        break;
+
+                    case BadgeShape.RoundedRectangle:
+                        using (var path = GetRoundedRectPath(badgeRect, badgeRect.Height / 4))
+                            g.FillPath(brush, path);
+                        break;
+
+                    case BadgeShape.Rectangle:
+                        g.FillRectangle(brush, badgeRect);
+                        break;
+
+                    default:
+                        // fall back to circle if someone adds a new enum later
+                        g.FillEllipse(brush, badgeRect);
+                        break;
                 }
             }
 
-            // Draw text
-            using (Font scaledFont = GetScaledBadgeFont(g, BadgeText,
-                                     new Size(badgeRect.Width - 4, badgeRect.Height - 4), BadgeFont ?? Font))
+            // Text
+            using (var textBrush = new SolidBrush(BadgeForeColor))
+            using (var scaledFont = GetScaledBadgeFont(
+                       g,
+                       BadgeText,
+                       new Size(badgeRect.Width - 4, badgeRect.Height - 4),
+                       BadgeFont ?? Font))
             {
-                // Center the text in the badge
-                StringFormat format = new StringFormat
+                var fmt = new StringFormat
                 {
                     Alignment = StringAlignment.Center,
                     LineAlignment = StringAlignment.Center
                 };
-
-                using (Brush textBrush = new SolidBrush(BadgeForeColor))
-                {
-                    g.DrawString(BadgeText, scaledFont, textBrush, badgeRect, format);
-                }
+                g.DrawString(BadgeText, scaledFont, textBrush, badgeRect, fmt);
             }
         }
 
+        // Next, update the UpdateControlRegion method to properly include the badge area
+        // Finally, make sure UpdateRegionForBadge calls UpdateControlRegion
+        // or just replace it entirely (simpler approach):
+        public void UpdateRegionForBadge()
+        {
+            // Simply call the comprehensive method that now handles both control and badge
+            UpdateControlRegion();
+        }
 
         // Add this helper method to properly scale badge text
         // Replace the GetScaledBadgeFont method with this safer implementation
@@ -3095,91 +3078,212 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
-        #region "External Drawing"
         #region "External Drawing Support"
-        // Define the delegate for external drawing
-        public delegate void DrawExternalHandler(Graphics g, Rectangle rectangle);
-
-        // Direct field for external drawing handler (no event overhead)
-        private DrawExternalHandler _externalDrawingHandler;
-
-        // When the drawing should occur - options are BeforeContent, AfterContent, or AfterAll
+        // Delegate: child drawing gets parent Graphics plus its own Bounds
+        public delegate void DrawExternalHandler(Graphics parentGraphics, Rectangle childBounds);
+        // With this new dictionary that uses ExternalDrawingFunction
+        private readonly Dictionary<Control, ExternalDrawingFunction> _childExternalDrawers
+            = new Dictionary<Control, ExternalDrawingFunction>();
+        // When the drawing should occur
         public enum DrawingLayer
         {
-            BeforeContent,  // Draw before main content (background)
-            AfterContent,   // Draw after content but before borders/effects
-            AfterAll        // Draw on top of everything (foreground)
+            BeforeContent,
+            AfterContent,
+            AfterAll
         }
-
-        // Current drawing layer setting
+        public class ExternalDrawingFunction
+        {
+            public Control ChildControl { get; set; }
+            public DrawExternalHandler Handler { get; set; }
+            public DrawingLayer Layer { get; set; }
+            public ExternalDrawingFunction(DrawExternalHandler handler, DrawingLayer layer)
+            {
+                Handler = handler;
+                Layer = layer;
+            }
+            public bool IsValid => Handler != null;
+            public void Invoke(Graphics g, Rectangle childBounds)
+            {
+                Handler?.Invoke(g, childBounds);
+            }
+            public void Clear()
+            {
+                Handler = null;
+            }
+            public void Dispose()
+            {
+                Handler = null;
+            }
+            private bool _redraw= false;
+            public bool Redraw
+            {
+                get => _redraw;
+                set
+                {
+                    _redraw = value;
+                   
+                }
+            }
+            public void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    Handler = null;
+                }
+            }
+        }
+        // Global layer selector
         private DrawingLayer _externalDrawingLayer = DrawingLayer.AfterAll;
 
         [Browsable(true)]
         [Category("Behavior")]
-        [Description("Determines when external drawing occurs")]
+        [Description("Which layer to invoke child-registered drawing handlers at")]
         public DrawingLayer ExternalDrawingLayer
         {
             get => _externalDrawingLayer;
-            set
+            set { _externalDrawingLayer = value; Invalidate(); }
+        }
+
+
+        /// <summary>
+        /// Child calls this to hook its own drawing into the parent.
+        /// </summary>
+        /// <summary>
+        /// Child calls this to hook its own drawing into the parent.
+        /// </summary>
+        public void AddChildExternalDrawing(Control child, DrawExternalHandler handler, DrawingLayer layer = DrawingLayer.AfterAll)
+        {
+            if (child == null) throw new ArgumentNullException(nameof(child));
+
+            var drawingFunction = new ExternalDrawingFunction(handler, layer)
             {
-                _externalDrawingLayer = value;
+                ChildControl = child,
+                Redraw = true // Set to true by default so existing code continues to work
+            };
+
+            if (_childExternalDrawers.ContainsKey(child))
+            {
+                _childExternalDrawers[child] = drawingFunction;
+                _childExternalDrawers[child].Redraw = true;
+            }
+            else
+            {
+                _childExternalDrawers.Add(child, drawingFunction);
+            }
+        }
+
+        /// <summary>
+        /// Sets the redraw state for a child's external drawing function
+        /// </summary>
+        public void SetChildExternalDrawingRedraw(Control child, bool redraw)
+        {
+            if (child != null && _childExternalDrawers.TryGetValue(child, out var function))
+            {
+                function.Redraw = redraw;
+            }
+        }
+
+        /// <summary>
+        /// Function to Tell control that external function status updated
+        /// </summary>
+
+        /// <summary>
+        /// Remove a previously-registered handler for that child.
+        /// </summary>
+        /// <summary>
+        /// Remove a previously-registered handler for that child.
+        /// </summary>
+        public void ClearChildExternalDrawing(Control child)
+        {
+            if (child == null) return;
+
+            if (_childExternalDrawers.TryGetValue(child, out var function))
+            {
+                function.Dispose();
+                _childExternalDrawers.Remove(child);
                 Invalidate();
             }
         }
 
         /// <summary>
-        /// Sets an external drawing handler to customize the control's appearance.
-        /// This is more efficient than using events for high-frequency drawing operations.
+        /// Remove *all* child-registered handlers.
         /// </summary>
-        /// <param name="drawHandler">The drawing handler or null to clear</param>
-        /// <param name="layer">When the drawing should occur</param>
-        public void SetExternalDrawing(DrawExternalHandler drawHandler, DrawingLayer layer = DrawingLayer.AfterAll)
+        public void ClearAllChildExternalDrawing()
         {
-            _externalDrawingHandler = drawHandler;
-            _externalDrawingLayer = layer;
+            foreach (var function in _childExternalDrawers.Values)
+            {
+                function.Dispose();
+            }
+
+            _childExternalDrawers.Clear();
             Invalidate();
         }
 
         /// <summary>
-        /// Clears any external drawing handler
+        /// Invoke exactly those child-registered handlers whose Layer matches.
         /// </summary>
-        public void ClearExternalDrawing()
+        /// <summary>
+        /// Invoke exactly those child-registered handlers whose Layer matches and Redraw is true.
+        /// </summary>
+        private void PerformExternalDrawing(Graphics g, DrawingLayer layer)
         {
-            _externalDrawingHandler = null;
-            Invalidate();
+            foreach (var kvp in _childExternalDrawers)
+            {
+                var child = kvp.Key;
+                var drawingFunction = kvp.Value;
+
+                // Only execute if:
+                // 1. Child is visible
+                // 2. The layer matches
+                // 3. Redraw is true
+                // 4. The function is valid (has a handler)
+                if (!child.Visible || drawingFunction.Layer != layer || !drawingFunction.Redraw || !drawingFunction.IsValid)
+                    continue;
+           //     drawingFunction.Redraw = false; // Reset redraw state
+                // Pass the child's bounds so the handler knows where to draw
+                drawingFunction.Invoke(g, child.Bounds);
+            }
         }
 
-        // Internal method to invoke external drawing if set
-        private void PerformExternalDrawing(Graphics g, Rectangle rect)
-        {
-            _externalDrawingHandler?.Invoke(g, rect);
-        }
         #endregion
 
-        #endregion "External Drawing"
         #region "Dispose"
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                //// If the floating badge exists
-                //if (floatingBadgeForm != null && !floatingBadgeForm.IsDisposed)
-                //{
-                //    // Remove it from the parent’s Controls collection if it’s there
-                //    if (floatingBadgeForm.Parent != null)
-                //    {
-                //        floatingBadgeForm.Parent.Controls.Remove(floatingBadgeForm);
-                //    }
+                // 1) If we'd registered external drawing with our parent, clear it
+                if (Parent is BeepControl parentBeepControl)
+                {
+                    parentBeepControl.ClearChildExternalDrawing(this);
+                }
 
-                //    floatingBadgeForm.Dispose();
-                //    floatingBadgeForm = null;
-                //}
+                // 2) Clean up all drawing functions
+                foreach (var function in _childExternalDrawers.Values)
+                {
+                    function.Dispose(true);
+                }
+                _childExternalDrawers.Clear();
+
+                // 3) Stop & dispose any running animation timer
+                if (_animationTimer != null)
+                {
+                    _animationTimer.Stop();
+                    _animationTimer.Dispose();
+                    _animationTimer = null;
+                }
+
+                // 4) Dispose of the tooltip
+                _toolTip?.Dispose();
+                _toolTip = null;
             }
+
             base.Dispose(disposing);
         }
 
+
         #endregion "Dispose"
     }
-  
+
 }
 

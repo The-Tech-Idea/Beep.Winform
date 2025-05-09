@@ -874,7 +874,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 return (null, null);
             }
         }
-        #region "IBeep Logic"
+        #region "Validatition Logic"
 
         // Define format strings for various MaskFormats
         private static string _currencyFormat = "C2";       // Currency with 2 decimal places
@@ -1353,7 +1353,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             return double.TryParse(input, NumberStyles.Number, CultureInfo.CurrentCulture, out _);
         }
 
-        #endregion "Helper Validation Methods"
+        #endregion ""Validatition Logic"
 
         #endregion "IBeep Logic"
 

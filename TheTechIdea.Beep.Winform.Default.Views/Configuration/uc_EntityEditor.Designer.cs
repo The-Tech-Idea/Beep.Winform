@@ -207,7 +207,7 @@
             beepSimpleGrid1.UseThemeFont = true;
             beepSimpleGrid1.XOffset = 0;
             // 
-            // beepPanel1
+            // MainTemplatePanel
             // 
             beepPanel1.AnimationDuration = 500;
             beepPanel1.AnimationType = Vis.Modules.DisplayAnimationType.None;
@@ -954,8 +954,8 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepSimpleGrid1);
-            Controls.Add(beepPanel1);
+            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
+            MainTemplatePanel.Controls.Add(beepPanel1);
             Name = "uc_EntityEditor";
             Padding = new Padding(5);
             Size = new Size(979, 586);

@@ -45,7 +45,7 @@
             beepPanel1.SuspendLayout();
             SuspendLayout();
             // 
-            // beepPanel1
+            // MainTemplatePanel
             // 
             beepPanel1.Anchor = AnchorStyles.None;
             beepPanel1.AnimationDuration = 500;
@@ -1790,7 +1790,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepPanel1);
+            MainTemplatePanel.Controls.Add(beepPanel1);
             Name = "uc_CreateLocalDB";
             Size = new Size(448, 332);
             beepPanel1.ResumeLayout(false);

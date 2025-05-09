@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepSimpleGrid1);
+            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
             Name = "uc_ConnnectionDrivers";
             Size = new Size(1154, 724);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();

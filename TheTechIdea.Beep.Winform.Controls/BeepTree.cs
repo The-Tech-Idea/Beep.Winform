@@ -1235,6 +1235,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void button_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             MenuItemSelected?.Invoke(this, e);
+            ClosePopup();
         }
 
         public void ClosePopup()

@@ -201,7 +201,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepSimpleGrid1);
+            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
             Name = "uc_DataEdit";
             Size = new Size(918, 707);
             ResumeLayout(false);

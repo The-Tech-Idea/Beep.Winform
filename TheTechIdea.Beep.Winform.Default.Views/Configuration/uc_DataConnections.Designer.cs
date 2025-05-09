@@ -211,7 +211,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Controls.Add(beepSimpleGrid1);
+            MainTemplatePanel.Controls.Add(beepSimpleGrid1);
             Name = "uc_DataConnections";
             Size = new Size(953, 737);
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).EndInit();

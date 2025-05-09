@@ -923,5 +923,46 @@ namespace TheTechIdea.Beep.Winform.Controls
             DrawImageAndText(graphics);
         }
         #endregion "IBeep UI Component Implementation"
+        #region "Badge"
+        private BeepControl _lastBeepParent;
+
+
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            // unregister from old parent
+            if (_lastBeepParent != null)
+                _lastBeepParent.ClearChildExternalDrawing(this);
+
+            // register with new parent
+            if (Parent is BeepControl newBeepParent)
+            {
+                newBeepParent.AddChildExternalDrawing(
+                    this,
+                    DrawBadgeExternally,
+                    DrawingLayer.AfterAll
+                );
+            }
+
+            _lastBeepParent = Parent as BeepControl;
+        }
+        private void DrawBadgeExternally(Graphics g, Rectangle childBounds)
+        {
+            // only draw if there's text
+            if (string.IsNullOrEmpty(BadgeText))
+                return;
+
+            const int badgeSize = 22;
+            // place it top-right, slightly overlapping
+            int x = childBounds.Right - badgeSize / 2;
+            int y = childBounds.Y - badgeSize / 2;
+            var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
+
+            // now call your existing routine
+            DrawBadgeImplementation(g, badgeRect);
+        }
+
+        #endregion "Badge"
     }
 }

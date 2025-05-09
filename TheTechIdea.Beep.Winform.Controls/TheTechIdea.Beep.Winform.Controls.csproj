@@ -85,7 +85,6 @@
     <None Remove="GFX\SVG\cockroachdb.svg" />
     <None Remove="GFX\SVG\comment.svg" />
     <None Remove="GFX\SVG\continue.svg" />
-    <None Remove="GFX\SVG\cool.svg" />
     <None Remove="GFX\SVG\copy.svg" />
     <None Remove="GFX\SVG\couchbase.svg" />
     <None Remove="GFX\SVG\couchdb-1.svg" />
@@ -284,9 +283,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\abort.svg" />
-    <EmbeddedResource Include="GFX\SVG\alarm.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\alarm.svg" />
     <EmbeddedResource Include="GFX\SVG\alarmclock.svg" />
-    <EmbeddedResource Include="GFX\SVG\alert.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\alert.svg" />
     <EmbeddedResource Include="GFX\SVG\backwards.svg" />
     <EmbeddedResource Include="GFX\SVG\beep.svg" />
     <EmbeddedResource Include="GFX\SVG\beepsetup.svg" />
@@ -326,9 +325,9 @@
     <EmbeddedResource Include="GFX\SVG\go-back.svg" />
     <EmbeddedResource Include="GFX\SVG\hadoop.svg" />
     <EmbeddedResource Include="GFX\SVG\hbase.svg" />
-    <EmbeddedResource Include="GFX\SVG\heart.svg" />
-    <EmbeddedResource Include="GFX\SVG\ignore.svg" />
-    <EmbeddedResource Include="GFX\SVG\important.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\heart.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\ignore.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\important.svg" />
     <EmbeddedResource Include="GFX\SVG\information.svg" />
     <EmbeddedResource Include="GFX\SVG\input.svg" />
     <EmbeddedResource Include="GFX\SVG\json.svg" />
@@ -388,7 +387,7 @@
     <EmbeddedResource Include="GFX\SVG\back-button.svg" />
     <EmbeddedResource Include="GFX\SVG\back.svg" />
     <EmbeddedResource Include="GFX\SVG\comment.svg" />
-    <EmbeddedResource Include="GFX\SVG\dislike.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\dislike.svg" />
     <EmbeddedResource Include="GFX\SVG\doorclosed.svg" />
     <EmbeddedResource Include="GFX\SVG\dooropen.svg" />
     <EmbeddedResource Include="GFX\SVG\dropdown-select.svg" />
@@ -400,12 +399,12 @@
     <EmbeddedResource Include="GFX\SVG\firstrecord.svg" />
     <EmbeddedResource Include="GFX\SVG\floppy-disk.svg" />
     <EmbeddedResource Include="GFX\SVG\hamburger.svg" />
-    <EmbeddedResource Include="GFX\SVG\help.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\help.svg" />
     <EmbeddedResource Include="GFX\SVG\home.svg" />
-    <EmbeddedResource Include="GFX\SVG\info.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\info.svg" />
     <EmbeddedResource Include="GFX\SVG\l.svg" />
     <EmbeddedResource Include="GFX\SVG\lastrecord.svg" />
-    <EmbeddedResource Include="GFX\SVG\like.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\like.svg" />
     <EmbeddedResource Include="GFX\SVG\loading.svg" />
     <EmbeddedResource Include="GFX\SVG\mail.svg" />
     <EmbeddedResource Include="GFX\SVG\maximize.svg" />
@@ -441,7 +440,7 @@
     <EmbeddedResource Include="GFX\SVG\undo.svg" />
     <EmbeddedResource Include="GFX\SVG\user.svg" />
     <EmbeddedResource Include="GFX\SVG\vistadb.svg" />
-    <EmbeddedResource Include="GFX\SVG\warning.svg" />
+    <EmbeddedResource Include="GFX\SVG\INFO\warning.svg" />
     <EmbeddedResource Include="GFX\SVG\x.svg" />
     <EmbeddedResource Include="GFX\SVG\xls.svg" />
     <EmbeddedResource Include="GFX\SVG\yes.svg" />

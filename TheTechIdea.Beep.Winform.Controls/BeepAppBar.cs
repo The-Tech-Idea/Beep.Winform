@@ -471,9 +471,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 TextImageRelation = TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleLeft,
-                HideText = true
-            };
+                HideText = true,
+                Visible=false
 
+            };
+            _notificationButton.BadgeText = "1";
+             AddChildExternalDrawing(_notificationButton, _notificationButton.DrawBadgeExternally, DrawingLayer.AfterAll);
             // Initialize profile button
             _profileButton = new BeepButton
             {
@@ -785,6 +788,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bool isNotificationHovered = _hoveredComponentName == "Notification";
                 _notificationButton.IsHovered = isNotificationHovered;
+               
                 _notificationButton.Draw(g, notificationRect);
             }
 
@@ -841,8 +845,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
             out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect)
         {
-            int padding = 2;
-            int spacing = 5;
+            int padding = 5;
+            int spacing = 10;
 
             // Initialize rectangles with empty values
             logoRect = Rectangle.Empty;
@@ -965,11 +969,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     24 // Typical text height
                 );
             }
+           
+            AddChildExternalDrawing(_notificationButton, _notificationButton.DrawBadgeExternally, DrawingLayer.AfterAll);
+
         }
         #endregion "Draw Methods"
 
         #region "Event Handling"
-    
+
         #region "Mouse Events"
         protected override void OnMouseClick(MouseEventArgs e)
         {
@@ -1457,8 +1464,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Apply theme to buttons based on ApplyThemeButtons property
-           
 
+          
             // Force redraw
             Invalidate();
         }
@@ -1690,6 +1697,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 OnSelectedItemChanged(e.SelectedItem);
             }
+            ClosePopup();
         }
 
         public void ClosePopup()

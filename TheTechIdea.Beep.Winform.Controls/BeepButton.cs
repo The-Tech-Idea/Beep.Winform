@@ -845,7 +845,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawImageAndText(Graphics g)
         {
             Color color; Color backcolor;
-
+           
             if (_isColorFromTheme)
             {
                 color = _originalForColor;
@@ -1262,7 +1262,55 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate(); // Request the control be redrawn
         }
         #endregion Splash Animation
+        #region "Badge"
+        // after you change BadgeText, or on Resize, or on LocationChanged:
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+          
+        }
 
+        // if you have a BadgeText property override:
+        public override string BadgeText
+        {
+            get => base.BadgeText;
+            set
+            {
+                base.BadgeText = value;
+                UpdateRegionForBadge();
+                // tell parent to repaint
+                if (Parent is BeepControl bc) bc.Invalidate(this.Bounds);
+            }
+        }
+        // 2) Whenever our handle is created or resized, recalc the hole
+    
+
+      
+
+        private BeepControl _lastBeepParent;
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            // unregister from old parent
+            if (_lastBeepParent != null)
+                _lastBeepParent.ClearChildExternalDrawing(this);
+
+            // register with new parent
+            if (Parent is BeepControl newBeepParent)
+            {
+                newBeepParent.AddChildExternalDrawing(
+                    this,
+                    DrawBadgeExternally,
+                    DrawingLayer.AfterAll
+                );
+            }
+
+            _lastBeepParent = Parent as BeepControl;
+        }
+      
+
+        #endregion "Badge"
     }
 
 

@@ -541,7 +541,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.Lines = 3;
             beepLightTextBox1.LinkedProperty = null;
             beepLightTextBox1.Location = new Point(196, 146);
-            beepLightTextBox1.MaskFormat = TextBoxMaskFormat.Email;
+            beepLightTextBox1.MaskFormat = TextBoxMaskFormat.None;
             beepLightTextBox1.MaxDropdownHeight = 200;
             beepLightTextBox1.MaxDropdownWidth = 0;
             beepLightTextBox1.MaxImageSize = new Size(16, 16);
@@ -555,7 +555,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.ParentControl = null;
             beepLightTextBox1.PasswordMode = false;
             beepLightTextBox1.PhoneValidationMessage = "Please enter a valid phone number.";
-            beepLightTextBox1.PlaceholderText = "";
+            beepLightTextBox1.PlaceholderText = "aaa@aaa.com";
             beepLightTextBox1.PressedBackColor = Color.White;
             beepLightTextBox1.PressedBorderColor = Color.Gray;
             beepLightTextBox1.PressedForeColor = Color.Gray;

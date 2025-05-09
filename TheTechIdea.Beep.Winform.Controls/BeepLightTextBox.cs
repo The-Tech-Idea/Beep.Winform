@@ -461,6 +461,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 TextChanged?.Invoke(this, EventArgs.Empty);
+                // show pop up if needed when text is changed and items>0
+                if (_items.Count > 0 && !_isDropdownOpen)
+                {
+                    ShowDropdown();
+                }
             };
             _editTextBox.Text = string.Empty;
 
@@ -526,6 +531,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (e.SelectedItem != null)
                     {
                         SelectedItem = e.SelectedItem;
+                        Text = e.SelectedItem.Text;
+                        _editTextBox.Text = Text;
                         HideDropdown();
                     }
                 };
@@ -2406,11 +2413,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnLostFocus(e);
 
-            // Hide dropdown if it's open and focus is not on the dropdown
-            if (_isDropdownOpen && !_dropdownListForm.ContainsFocus && !_dropdownListForm.Focused)
-            {
-                HideDropdown();
-            }
+            //// Hide dropdown if it's open and focus is not on the dropdown
+            //if (_isDropdownOpen && !_dropdownListForm.ContainsFocus && !_dropdownListForm.Focused)
+            //{
+            //    HideDropdown();
+            //}
         }
 
         #endregion

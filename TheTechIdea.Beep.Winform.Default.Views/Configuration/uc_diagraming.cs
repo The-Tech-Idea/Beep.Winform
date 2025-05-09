@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 
@@ -63,7 +64,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             base.OnNavigatedTo(parameters);
          
+            beepLightTextBox1.Items.Clear();
+            foreach (var item in Editor.ConfigEditor.DataConnections)
+            {
+                var item1 = new SimpleItem();
+                item1.DisplayField = item.ConnectionName;
+                item1.Value = item.ConnectionName;
+                item1.Text = item.ConnectionName;
+                item1.Name = item.ConnectionName;
+                beepLightTextBox1.Items.Add(item1);
 
+            }
 
 
         }

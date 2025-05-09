@@ -1166,6 +1166,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Track which items are filtered out
         private HashSet<SimpleItem> _filteredOutItems = new HashSet<SimpleItem>();
+        public void Filter(string searchText)
+        {
+            _searchText = searchText;
+            if (_searchTextBox != null)
+                _searchTextBox.Text = searchText;
+            FilterItems();
+        }
         private void FilterItems()
         {
             // First, clear the filtered items collection

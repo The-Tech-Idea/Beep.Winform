@@ -23,7 +23,7 @@
 	
 	  <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.13.40008" />
     <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.13.40008" />
-    <PackageReference Include="TheTechIdea.Beep.AssemblyLoader" Version="2.0.5" />
+    <PackageReference Include="TheTechIdea.Beep.AssemblyLoader" Version="2.0.6" />
     <PackageReference Include="TheTechIdea.Beep.Container" Version="1.0.0.84" />
     <PackageReference Include="TheTechIdea.Beep.Container.AutoFac" Version="1.0.1" />
     <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.45" />

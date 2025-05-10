@@ -199,7 +199,11 @@ namespace TheTechIdea.Beep.Winform.Controls
              Size = new Size(finalWidth, neededHeight);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
         }
-     
+        public void Filter(string searchText)
+        {
+           
+            _beepListBox.Filter(searchText);
+        }
 
         private void BeepListBox_ItemClicked(object? sender, SimpleItem e)
         {

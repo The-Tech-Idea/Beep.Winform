@@ -540,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.LeftoffsetForDrawingRect = 0;
             beepLightTextBox1.Lines = 3;
             beepLightTextBox1.LinkedProperty = null;
-            beepLightTextBox1.Location = new Point(196, 146);
+            beepLightTextBox1.Location = new Point(209, 161);
             beepLightTextBox1.MaskFormat = TextBoxMaskFormat.None;
             beepLightTextBox1.MaxDropdownHeight = 200;
             beepLightTextBox1.MaxDropdownWidth = 0;

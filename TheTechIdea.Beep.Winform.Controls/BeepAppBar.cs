@@ -3,9 +3,8 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Windows.Forms;
+
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -1661,8 +1660,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             menuDialog.StartPosition = FormStartPosition.Manual;
             menuDialog.Location = screenLocation;
 
-            // Show the form
-            menuDialog.Show(this);
+            // Use the proper ShowPopup method from BeepPopupForm that takes a Control as a trigger
+            // This is crucial for the mouse event tracking to work correctly
+            menuDialog.ShowPopup(this, screenLocation);
 
             _isPopupOpen = true;
             Invalidate();
@@ -1707,8 +1707,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (menuDialog != null)
             {
+                _isPopupOpen = false;
                 menuDialog.SelectedItemChanged -= button_SelectedItemChanged;
-                menuDialog.CloseCascade();
+                menuDialog.Close();
                 //  menuDialog.Close();
                 menuDialog.Dispose();
                 menuDialog = null;

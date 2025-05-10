@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Drawing;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
+using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -14,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isClosing = false;
         private bool _isOpeningChild = false; // Flag to prevent closing during child creation
         private bool _justOpened = false; // Flag to indicate the popup was just opened
-        private int _closeTimeout = 500; // Time in milliseconds before checking if popup should close
+        private int _closeTimeout = 200; // Time in milliseconds before checking if popup should close
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
@@ -45,11 +42,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public static BeepPopupForm ActivePopupForm { get; private set; }
+        private bool _autoclose = true;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Indicates whether the popup should close automatically after a timeout.")]
+        public bool AutoClose
+        {
+            get => _autoclose;
+            set
+            {
+                _autoclose = value;
+                //if (_autoclose)
+                //{
+                //    _closeTimer.Start();
+                //}
+                //else
+                //{
+                //    _closeTimer.Stop();
+                //}
+            }
+        }
+
+
 
         public BeepPopupForm()
         {
             InitializePopupForm();
-           
+
         }
 
         //public BeepPopupForm(IBeepService beepService) : base(beepService)
@@ -63,8 +82,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
-            Padding = new Padding(2);
-
+            Padding = new Padding(4);
+            BorderRadius = 3;
+            BorderThickness = 2;
             _closeTimer = new System.Windows.Forms.Timer { Interval = _closeTimeout };
             _closeTimer.Tick += CloseTimer_Tick;
 
@@ -95,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Do not start the timer here; it will be started after the popup is shown
         }
 
-        public void StartTimers() => _closeTimer.Start();
+        public void StartTimers()  { if (_autoclose) _closeTimer.Start(); }
 
         public void StopTimers() => _closeTimer.Stop();
 

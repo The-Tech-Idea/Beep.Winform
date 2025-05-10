@@ -15,9 +15,9 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepiForm : Form
     {
         #region "Fields"
-        protected int _resizeMargin = 5; // Margin for resizing
+        protected int _resizeMargin = 10; // Margin for resizing
         protected int _borderRadius = 5;
-        protected int _borderThickness =3; // Thickness of the custom border
+        protected int _borderThickness =2; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -227,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+           // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             //e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             //e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
             //e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;

@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         // Configuration for when to activate editing
-        private EditActivation _editActivation = EditActivation.DoubleClick;
+        private EditActivation _editActivation = EditActivation.Click;
         public enum EditActivation { Click, DoubleClick, Manual }
 
         [Browsable(true)]
@@ -389,11 +389,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
             }
         }
-    
-        // Add a method to update the external drawing registration when validation state changes
-     
-
-
         private void InitializeDefaultErrorMessages()
         {
             // Set default error messages that will be used if no custom ones are specified
@@ -427,32 +422,67 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             _editTextBox.LostFocus += (s, e) => EndEditing(true);
+            // Consolidate KeyDown and KeyPress handling to prevent conflicts
             _editTextBox.KeyDown += (s, e) =>
             {
-                if (!_multiline && e.KeyCode == Keys.Enter) // Handle Enter key for single-line mode
+                // Handle navigation keys in KeyDown
+                if (!_multiline && e.KeyCode == Keys.Enter)
                 {
                     EndEditing(true);
                     e.SuppressKeyPress = true;
+                    e.Handled = true;
                 }
                 else if (e.KeyCode == Keys.Escape)
                 {
                     EndEditing(false);
                     e.SuppressKeyPress = true;
+                    e.Handled = true;
+                }
+                else if (_isDropdownOpen)
+                {
+                    // Handle dropdown navigation
+                    if (e.KeyCode == Keys.Escape || (e.KeyCode == Keys.Tab && !e.Shift))
+                    {
+                        HideDropdown();
+                        e.Handled = true;
+                    }
+                }
+                else if (_items.Count > 0 && e.KeyCode == Keys.Down)
+                {
+                    ShowDropdown();
+                    e.Handled = true;
                 }
             };
-            Text = string.Empty;
+
             _editTextBox.GotFocus += (s, e) =>
             {
                 if (_isEditing)
                 {
-                    _editTextBox.SelectAll();
+                    // Only select all text when initially receiving focus, not during typing
+                    if (_editTextBox.Text.Length > 0 && _editTextBox.SelectionLength == 0)
+                    {
+                        _editTextBox.SelectAll();
+                    }
                 }
             };
-           _editTextBox.Text = string.Empty;
-            _editTextBox.KeyPress += (s, e) => HandleKeyPress(e);
+         
+            // Only use KeyPress for character filtering, not for navigation
+            _editTextBox.KeyPress += (s, e) =>
+            {
+                // We'll keep the filtering logic in a separate method
+                HandleKeyPress(e);
+            };
+
             _editTextBox.TextChanged += (s, e) =>
             {
+                // Store caret position before making changes
+                int selectionStart = _editTextBox.SelectionStart;
+                int selectionLength = _editTextBox.SelectionLength;
+
+                // Update underlying text
                 Text = _editTextBox.Text;
+
+                // Apply mask formatting if needed
                 if (!_isApplyingMask)
                 {
                     _isApplyingMask = true;
@@ -460,17 +490,31 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _isApplyingMask = false;
                 }
 
-                TextChanged?.Invoke(this, EventArgs.Empty);
-                // show pop up if needed when text is changed and items>0
-                if (_items.Count > 0 && !_isDropdownOpen)
+                // Handle dropdown if needed
+                if (_items.Count > 0)
                 {
-                    ShowDropdown();
+                    if (!_isDropdownOpen)
+                    {
+                        ShowDropdown();
+                    }
+                    else if (_dropdownListForm != null)
+                    {
+                        _dropdownListForm.Filter(_editTextBox.Text);
+                    }
+                }
+
+                // Invoke custom TextChanged event
+                TextChanged?.Invoke(this, EventArgs.Empty);
+
+                // Make sure we still have focus
+                if (!_editTextBox.Focused)
+                {
+                    _editTextBox.Focus();
                 }
             };
             _editTextBox.Text = string.Empty;
 
         }
-
         private void InitializeImageButton()
         {
             if (_imageButton == null)
@@ -506,7 +550,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Controls.Add(_imageButton);
             }
         }
-
         private void InitializeDropdown()
         {
             if (_dropdownListForm == null)
@@ -523,7 +566,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _maxDropdownHeight
                     )
                 };
-
+                _dropdownListForm.AutoClose = false;
                 // Correctly subscribe to the SelectedItemChanged event with proper event args type
                 _dropdownListForm.SelectedItemChanged += (s, e) =>
                 {
@@ -606,7 +649,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _editTextBox.Refresh();
             }
         }
-
         public void StartEditing()
         {
             if (_isEditing || ReadOnly)
@@ -617,7 +659,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Position and configure the edit box
             AdjustEditTextBoxSize();
-           _editTextBox.Text = Text;
 
             // Apply appropriate theme colors to the edit textbox
             _editTextBox.BackColor = IsChild && Parent != null ? Parent.BackColor : _currentTheme.TextBoxBackColor;
@@ -629,16 +670,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Controls.Add(_editTextBox);
             }
 
+            // Set text after adding to controls to avoid text being cleared
+            _editTextBox.Text = Text;
+
             _editTextBox.Visible = true;
-            _editTextBox.BringToFront(); // Make sure it's on top
+            _editTextBox.BringToFront();
+
+            // Force a layout update before focusing to ensure control is properly positioned
+            Application.DoEvents();
+
+            // Set focus and select text as a separate operation
             _editTextBox.Focus();
             _editTextBox.SelectAll();
 
             Invalidate();
         }
+
         public void EndEditing(bool saveChanges)
         {
-            if (!_isEditing)
+            if (_isEditing)
                 return;
 
             _isEditing = false;
@@ -697,6 +747,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Invalidate();
             Focus();
+            if (_dropdownListForm != null && _dropdownListForm.Visible)
+            {
+                // If the dropdown is open, don't hide it
+                HideDropdown();
+            }
         }
 
         #endregion
@@ -1539,7 +1594,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Retrieve the current culture's decimal and group separators
             string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
             string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
-
+            // Don't handle special keys in KeyPress - we do that in KeyDown
+            if (e.KeyChar == (char)Keys.Escape || e.KeyChar == (char)Keys.Tab || e.KeyChar == (char)Keys.Enter)
+            {
+                return; // Let KeyDown handle these
+            }
             // Handle input restrictions based on OnlyDigits and OnlyCharacters
             if (OnlyDigits)
             {
@@ -2403,19 +2462,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseLeave(e);
             IsHovered = false;
+          
             // Hide any tooltips when the mouse leaves
             if (_toolTip != null)
             {
                 _toolTip.Hide(this);
             }
         }
+
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
 
             //// Hide dropdown if it's open and focus is not on the dropdown
-            //if (_isDropdownOpen && !_dropdownListForm.ContainsFocus && !_dropdownListForm.Focused)
+            //if (_dropdownListForm != null && _dropdownListForm.Visible)
             //{
+            //    // If the dropdown is open, don't hide it
             //    HideDropdown();
             //}
         }
@@ -2534,6 +2596,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             InitializeDropdown();
 
+            // Store active control to restore focus after dropdown appears
+            Control activeControl =_editTextBox;
+            bool wasEditing = _isEditing;
+
             // Set size and position
             int width = _maxDropdownWidth > 0 ? _maxDropdownWidth : Width;
 
@@ -2541,6 +2607,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 width,
                 _maxDropdownHeight
             );
+
+            // Configure dropdown form to maintain focus in textbox
+            _dropdownListForm.Deactivate += DropdownForm_Deactivate;
+            _dropdownListForm.Shown += DropdownForm_Shown;
 
             // Show the dropdown
             SimpleItem selectedItem = _dropdownListForm.ShowPopup(
@@ -2553,14 +2623,45 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isDropdownOpen = true;
             OnDropdownOpened(EventArgs.Empty);
 
-            // If item was selected (not closed without selection)
-            if (selectedItem != null)
+            // Restore focus to edit textbox immediately
+            if (wasEditing && _editTextBox != null)
             {
-                SelectedItem = selectedItem;
+                // Use BeginInvoke to ensure UI updates before focusing
+                BeginInvoke(new Action(() => {
+                    if (_editTextBox != null && _isEditing)
+                    {
+                        _editTextBox.Focus();
+                        // Preserve original caret position
+                        int selStart = _editTextBox.SelectionStart;
+                        _editTextBox.SelectionStart = selStart;
+                    }
+                }));
             }
+        }
 
-            _isDropdownOpen = false;
-            OnDropdownClosed(EventArgs.Empty);
+        private void DropdownForm_Shown(object sender, EventArgs e)
+        {
+            // When dropdown is shown, immediately set focus back to textbox
+            if (_editTextBox != null && _isEditing)
+            {
+                BeginInvoke(new Action(() => {
+                    _editTextBox.Focus();
+                }));
+            }
+        }
+
+        private void DropdownForm_Deactivate(object sender, EventArgs e)
+        {
+            // When dropdown loses focus, check if it's because we're focusing back on the textbox
+            if (!_editTextBox.Focused && _isEditing)
+            {
+                BeginInvoke(new Action(() => {
+                    if (_editTextBox != null && _isEditing)
+                    {
+                        _editTextBox.Focus();
+                    }
+                }));
+            }
         }
 
         /// <summary>
@@ -2571,10 +2672,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!_isDropdownOpen || _dropdownListForm == null)
                 return;
 
-            _dropdownListForm.Close();
+            // Unsubscribe from dropdown events
+            _dropdownListForm.Deactivate -= DropdownForm_Deactivate;
+            _dropdownListForm.Shown -= DropdownForm_Shown;
+
+            _dropdownListForm.Hide();
             _isDropdownOpen = false;
             OnDropdownClosed(EventArgs.Empty);
+
+            // Return focus to the textbox
+            BeginInvoke(new Action(() => {
+                if (_editTextBox != null && _isEditing)
+                {
+                    _editTextBox.Focus();
+                    // Preserve the caret position
+                    int currentPos = _editTextBox.SelectionStart;
+                    _editTextBox.SelectionStart = currentPos;
+                }
+            }));
         }
+
         /// <summary>
         /// Sets the dropdown items from a list of strings
         /// </summary>
@@ -2618,7 +2735,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-
+            if(e.KeyValue == (int)Keys.Enter)
+            {
+                // Handle Enter key to select the current item
+                if (_isDropdownOpen)
+                {
+                    HideDropdown();
+                    e.Handled = true;
+                }
+            }
+            if (e.KeyValue == (int)Keys.Escape)
+            {
+                // Handle Escape key to close the dropdown
+                if (_isDropdownOpen)
+                {
+                    HideDropdown();
+                    e.Handled = true;
+                }
+            }
+            // hide dropdown if the user presses Tab and leave the control
+            if (e.KeyCode == Keys.Tab && _isDropdownOpen)
+            {
+                HideDropdown();
+                e.Handled = true;
+            }
             // Handle keyboard navigation for the dropdown
             if (_items.Count > 0)
             {

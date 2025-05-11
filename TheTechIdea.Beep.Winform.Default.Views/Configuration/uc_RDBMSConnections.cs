@@ -55,52 +55,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             
         }
-        public override void Configure(Dictionary<string, object> settings)
-        {
-            base.Configure(settings);
-            viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
-            viewModel.DBWork.Units.Filter = "Category = " + DatasourceCategory.RDBMS;
-            BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
-            beepSimpleGrid1.CellValueChanged += BeepSimpleGrid1_CellValueChanged;
-            List<SimpleItem> versions = new List<SimpleItem>();
-            foreach (var item in viewModel.PackageNames)
-            {
-                SimpleItem driveritem = new SimpleItem();
-                driveritem.DisplayField = item;
-                driveritem.Text = item;
-                driveritem.Name = item;
-                driveritem.Value= item;
-                foreach (var DriversClasse in beepService.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
-                {
-                    SimpleItem itemversion = new SimpleItem();
-                    itemversion.DisplayField = DriversClasse.version;
-                    itemversion.Value = DriversClasse.version;
-                    itemversion.Text = DriversClasse.version;
-                    itemversion.Name = DriversClasse.version;
-                    itemversion.ParentItem = driveritem;
-                    itemversion.ParentValue = item;
-                    versions.Add(itemversion);
-                }
-                drivername.Items.Add(driveritem);
-            }
-           
-            BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
-            driverversion.ParentColumnName = "DriverName";
-            driverversion.Items = versions;
-            beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
-            beepSimpleGrid1.ShowCheckboxes = true;
-            // idx = 0;
-            //foreach (var item in viewModel.PackageVersions)
-            //{
-            //    SimpleItem driveritem = new SimpleItem();
-            //    driveritem.DisplayField = item;
-            //    driveritem.Value = idx++;
-            //    driveritem.Text = item;
-            //    driveritem.Name = item;
-            //    driverversion.Items.Add(driveritem);
-            //}
-        }
-
+      
         private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
         {
             viewModel.Save();
@@ -137,6 +92,52 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
 
         }
-     
+        public override void Configure(Dictionary<string, object> settings)
+        {
+            base.Configure(settings);
+            viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
+            viewModel.DBWork.Units.Filter = "Category = " + DatasourceCategory.RDBMS;
+            BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
+            beepSimpleGrid1.CellValueChanged += BeepSimpleGrid1_CellValueChanged;
+            List<SimpleItem> versions = new List<SimpleItem>();
+            foreach (var item in viewModel.PackageNames)
+            {
+                SimpleItem driveritem = new SimpleItem();
+                driveritem.DisplayField = item;
+                driveritem.Text = item;
+                driveritem.Name = item;
+                driveritem.Value = item;
+                foreach (var DriversClasse in beepService.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
+                {
+                    SimpleItem itemversion = new SimpleItem();
+                    itemversion.DisplayField = DriversClasse.version;
+                    itemversion.Value = DriversClasse.version;
+                    itemversion.Text = DriversClasse.version;
+                    itemversion.Name = DriversClasse.version;
+                    itemversion.ParentItem = driveritem;
+                    itemversion.ParentValue = item;
+                    versions.Add(itemversion);
+                }
+                drivername.Items.Add(driveritem);
+            }
+
+            BeepColumnConfig driverversion = beepSimpleGrid1.GetColumnByName("DriverVersion");
+            driverversion.ParentColumnName = "DriverName";
+            driverversion.Items = versions;
+            beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
+            beepSimpleGrid1.ShowCheckboxes = true;
+            // idx = 0;
+            //foreach (var item in viewModel.PackageVersions)
+            //{
+            //    SimpleItem driveritem = new SimpleItem();
+            //    driveritem.DisplayField = item;
+            //    driveritem.Value = idx++;
+            //    driveritem.Text = item;
+            //    driveritem.Name = item;
+            //    driverversion.Items.Add(driveritem);
+            //}
+        }
+
+
     }
 }

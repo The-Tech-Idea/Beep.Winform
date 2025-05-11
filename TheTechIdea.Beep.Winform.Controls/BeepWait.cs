@@ -15,6 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public  Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
         public BeepWait():base()
         {
+            BorderThickness = 1;
+            BorderRadius = 3;
             InitializeComponent();
             Progress.ProgressChanged += (sender, args) =>
             {

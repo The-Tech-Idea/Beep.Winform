@@ -1,7 +1,5 @@
 ﻿
-using Microsoft.VisualBasic.ApplicationServices;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.ConfigUtil;
@@ -15,9 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepiForm : Form
     {
         #region "Fields"
-        protected int _resizeMargin = 10; // Margin for resizing
-        protected int _borderRadius = 5;
-        protected int _borderThickness =2; // Thickness of the custom border
+        protected int _resizeMargin = 8; // Margin for resizing
+        protected int _borderRadius = 0;
+        protected int _borderThickness =8; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;

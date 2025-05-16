@@ -140,6 +140,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
+        public Color SelectedBorderColor { get; private set; }
+        public string? PlaceholderText { get; private set; }="Select an item...";
 
         public BeepComboBox()
         {
@@ -258,38 +260,87 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            BackColor = _currentTheme.ComboBoxBackColor;
 
+            if (_currentTheme == null)
+                return;
+
+            // Apply ComboBox-specific theme properties
+            BackColor = _currentTheme.ComboBoxBackColor;
+            ForeColor = _currentTheme.ComboBoxForeColor;
+            BorderColor = _currentTheme.ComboBoxBorderColor;
+
+            // Apply hover and selected state colors to set in the control's state machine
+            HoverBackColor = _currentTheme.ComboBoxHoverBackColor;
+            HoverForeColor = _currentTheme.ComboBoxHoverForeColor;
+            HoverBorderColor = _currentTheme.ComboBoxHoverBorderColor;
+
+            SelectedBackColor = _currentTheme.ComboBoxSelectedBackColor;
+            SelectedForeColor = _currentTheme.ComboBoxSelectedForeColor;
+            SelectedBorderColor = _currentTheme.ComboBoxSelectedBorderColor;
+
+            // Apply font if theme fonts are enabled
+            if (UseThemeFont)
+            {
+                if (_currentTheme.ComboBoxItemFont != null)
+                {
+                    _textFont = _currentTheme.ComboBoxItemFont;
+                    Font = _textFont;
+                }
+                else
+                {
+                    _textFont = _currentTheme.LabelSmall != null ?
+                        BeepThemesManager.ToFont(_currentTheme.LabelSmall) :
+                        new Font("Segoe UI", 9);
+                    Font = _textFont;
+                }
+            }
+
+            // Apply theme to the text box component
             if (_comboTextBox != null)
             {
+                _comboTextBox.Theme = Theme;
                 _comboTextBox.BackColor = _currentTheme.ComboBoxBackColor;
                 _comboTextBox.ForeColor = _currentTheme.ComboBoxForeColor;
                 _comboTextBox.BorderStyle = BorderStyle.None;
                 _comboTextBox.Multiline = false;
                 _comboTextBox.AutoSize = false;
+                _comboTextBox.TextFont = _textFont;
+
+                // Apply additional text box properties if needed
+                if (UseThemeFont && _currentTheme.ComboBoxItemFont != null)
+                {
+                    _comboTextBox.Font = _currentTheme.ComboBoxItemFont;
+                }
             }
 
+            // Apply theme to the dropdown button
             if (_dropDownButton != null)
             {
-                _dropDownButton.BackColor = _currentTheme.ButtonBackColor;
-                _dropDownButton.ForeColor = _currentTheme.ButtonForeColor;
                 _dropDownButton.Theme = Theme;
+                _dropDownButton.BackColor = _currentTheme.ComboBoxBackColor;
+                _dropDownButton.ForeColor = _currentTheme.ComboBoxForeColor;
+                _dropDownButton.BorderColor = _currentTheme.ComboBoxBorderColor;
+                _dropDownButton.ApplyThemeOnImage = _currentTheme.ApplyThemeToIcons;
+                _dropDownButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
                 SetDropDownButtonImage();
             }
 
+            // Apply theme to the list box popup
             if (_beepListBox != null)
             {
                 _beepListBox.Theme = Theme;
+
+                // Apply font to list items if theme fonts are enabled
+                if (UseThemeFont && _currentTheme.ComboBoxListFont != null)
+                {
+                    _beepListBox.Font = _currentTheme.ComboBoxListFont;
+                }
             }
 
-            if (UseThemeFont)
+            // Handle any popup form that's currently open
+            if (menuDialog != null)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                if (_comboTextBox != null)
-                {
-                    _comboTextBox.TextFont = _textFont;
-                }
-                Font = _textFont;
+                menuDialog.Theme = Theme;
             }
 
             Invalidate();
@@ -312,37 +363,157 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
+                if (_currentTheme == null)
+                    return;
+
                 graphics.SmoothingMode = SmoothingMode.AntiAlias;
                 graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                using (Region clipRegion = new Region(rectangle))
+                // Create a working rectangle that respects border thickness
+                Rectangle workingRect = rectangle;
+                if (BorderThickness > 0)
                 {
-                    graphics.Clip = clipRegion;
+                    workingRect.Inflate(-BorderThickness, -BorderThickness);
+                }
 
-                    using (SolidBrush backgroundBrush = new SolidBrush(_currentTheme.ComboBoxBackColor))
+                // Determine current state colors
+                Color backColor, foreColor, borderColor;
+
+                if (Focused || _isEditing || _isPopupOpen)
+                {
+                    // Selected/Focused state
+                    backColor = _currentTheme.ComboBoxSelectedBackColor != Color.Empty
+                        ? _currentTheme.ComboBoxSelectedBackColor
+                        : _currentTheme.ComboBoxBackColor;
+
+                    foreColor = _currentTheme.ComboBoxSelectedForeColor != Color.Empty
+                        ? _currentTheme.ComboBoxSelectedForeColor
+                        : _currentTheme.ComboBoxForeColor;
+
+                    borderColor = _currentTheme.ComboBoxSelectedBorderColor != Color.Empty
+                        ? _currentTheme.ComboBoxSelectedBorderColor
+                        : _currentTheme.ComboBoxBorderColor;
+                }
+                else if (IsHovered)
+                {
+                    // Hover state
+                    backColor = _currentTheme.ComboBoxHoverBackColor != Color.Empty
+                        ? _currentTheme.ComboBoxHoverBackColor
+                        : _currentTheme.ComboBoxBackColor;
+
+                    foreColor = _currentTheme.ComboBoxHoverForeColor != Color.Empty
+                        ? _currentTheme.ComboBoxHoverForeColor
+                        : _currentTheme.ComboBoxForeColor;
+
+                    borderColor = _currentTheme.ComboBoxHoverBorderColor != Color.Empty
+                        ? _currentTheme.ComboBoxHoverBorderColor
+                        : _currentTheme.ComboBoxBorderColor;
+                }
+                else
+                {
+                    // Normal state
+                    backColor = _currentTheme.ComboBoxBackColor;
+                    foreColor = _currentTheme.ComboBoxForeColor;
+                    borderColor = _currentTheme.ComboBoxBorderColor;
+                }
+
+                // Draw background
+                if (IsRounded && BorderRadius > 0)
+                {
+                    using (GraphicsPath path = GetRoundedRectPath(workingRect, BorderRadius))
+                    using (SolidBrush brush = new SolidBrush(backColor))
                     {
-                        graphics.FillRectangle(backgroundBrush, rectangle);
+                        graphics.FillPath(brush, path);
                     }
-
-                    string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
-                    if (!string.IsNullOrEmpty(textToDraw))
+                }
+                else
+                {
+                    using (SolidBrush brush = new SolidBrush(backColor))
                     {
-                        Rectangle textRect = new Rectangle(
-                            rectangle.X + _padding,
-                            rectangle.Y + _padding,
-                            rectangle.Width - _buttonWidth - (2 * _padding),
-                            rectangle.Height - (2 * _padding));
-
-                        TextRenderer.DrawText(
-                            graphics,
-                            textToDraw,
-                            _textFont,
-                            textRect,
-                            _currentTheme.ComboBoxForeColor,
-                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                        graphics.FillRectangle(brush, workingRect);
                     }
+                }
 
-                    graphics.ResetClip();
+                // Draw text
+                string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
+
+                if (!string.IsNullOrEmpty(textToDraw))
+                {
+                    // Calculate text rectangle with proper padding
+                    Rectangle textRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
+
+                    // Use TextRenderer for better text quality
+                    TextRenderer.DrawText(
+                        graphics,
+                        textToDraw,
+                        _textFont,
+                        textRect,
+                        foreColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+                else if (!string.IsNullOrEmpty(PlaceholderText) && !_isEditing)
+                {
+                    // Draw placeholder text if available and not editing
+                    Rectangle placeholderRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
+
+                    Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty
+                        ? _currentTheme.TextBoxPlaceholderColor
+                        : Color.FromArgb(150, foreColor);
+
+                    TextRenderer.DrawText(
+                        graphics,
+                        PlaceholderText,
+                        _textFont,
+                        placeholderRect,
+                        placeholderColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+
+                // Draw border if needed
+                if (BorderThickness > 0)
+                {
+                    if (IsRounded && BorderRadius > 0)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
+                        using (Pen pen = new Pen(borderColor, BorderThickness))
+                        {
+                            graphics.DrawPath(pen, path);
+                        }
+                    }
+                    else
+                    {
+                        using (Pen pen = new Pen(borderColor, BorderThickness))
+                        {
+                            // Draw border on the whole control (not the inner working rectangle)
+                            graphics.DrawRectangle(pen, new Rectangle(
+                                rectangle.X + BorderThickness / 2,
+                                rectangle.Y + BorderThickness / 2,
+                                rectangle.Width - BorderThickness,
+                                rectangle.Height - BorderThickness));
+                        }
+                    }
+                }
+
+                // Draw a divider between text area and dropdown button if needed
+                if (!_isEditing)
+                {
+                    int dividerX = rectangle.Right - _buttonWidth - _padding;
+                    using (Pen dividerPen = new Pen(Color.FromArgb(40, borderColor), 1))
+                    {
+                        graphics.DrawLine(
+                            dividerPen,
+                            new Point(dividerX, rectangle.Y + 4),
+                            new Point(dividerX, rectangle.Bottom - 4));
+                    }
                 }
             }
             catch (Exception ex)
@@ -350,7 +521,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 MiscFunctions.SendLog($"Error in BeepComboBox.Draw: {ex.Message}");
             }
         }
-
         public override void SetValue(object value)
         {
             if (value is SimpleItem item)

@@ -650,43 +650,81 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            // Store whether colors should be from theme for later restoration
+            bool wasColorFromTheme = _isColorFromTheme;
             _isColorFromTheme = true;
-         //   base.ApplyTheme();
+
+            // Don't call base.ApplyTheme() as we're implementing a custom version
+
+            // Handle parent background inheritance for child controls
             if (IsChild && Parent != null)
             {
                 BackColor = Parent.BackColor;
                 ParentBackColor = Parent.BackColor;
-            }else
-            {
-                BackColor = _currentTheme.ButtonBackColor;
-                
             }
-            beepImage.BackColor = BackColor;
+            else
+            {
+                // Apply default button background color
+                BackColor = _currentTheme.ButtonBackColor;
+            }
+
+            // Store original colors for state management
             _originalBackColor = BackColor;
-         
             ForeColor = _currentTheme.ButtonForeColor;
             _originalForColor = ForeColor;
+
+            // Apply all button state colors
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
-            DisabledBackColor=_currentTheme.DisabledBackColor;
+            SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+            SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
+            PressedBackColor = _currentTheme.ButtonPressedBackColor;
+            PressedForeColor = _currentTheme.ButtonPressedForeColor;
+            DisabledBackColor = _currentTheme.DisabledBackColor;
             DisabledForeColor = _currentTheme.DisabledForeColor;
             FocusBackColor = _currentTheme.ButtonSelectedBackColor;
             FocusForeColor = _currentTheme.ButtonSelectedForeColor;
-            
-          
-            PressedBackColor = _currentTheme.ButtonPressedBackColor;
-            PressedForeColor = _currentTheme.ButtonPressedForeColor;
 
-            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+            // Apply border colors
+            BorderColor = _currentTheme.ButtonBorderColor;
+
+            // Apply font from theme if configured to use theme fonts
             if (UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-                 Font = _textFont;
+                // Get font from button style or fall back to default style
+                _textFont = _currentTheme.ButtonStyle != null
+                    ? BeepThemesManager.ToFont(_currentTheme.ButtonStyle)
+                    : new Font("Segoe UI", 9f);
+
+                Font = _textFont;
             }
 
-            beepImage.Theme = Theme;
+            // Apply theme to child image control
+            if (beepImage != null)
+            {
+                beepImage.BackColor = BackColor;
+                beepImage.Theme = Theme;
+                beepImage.IsChild = true;
+                beepImage.ParentBackColor = BackColor;
+
+                // Apply SVG theming if configured
+                beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
+            }
+
+            // Apply SVG theming if enabled
             ApplyThemeToSvg();
-            Invalidate();  // Trigger repaint
+
+            // Handle popup list theming
+            if (_popupmode && menuDialog != null && !menuDialog.IsDisposed)
+            {
+                menuDialog.Theme = Theme;
+            }
+
+            // Restore the user's preference for color source
+            _isColorFromTheme = wasColorFromTheme;
+
+            // Force redraw with new theme
+            Invalidate();
         }
         public void ApplyThemeToSvg()
         {

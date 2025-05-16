@@ -581,7 +581,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.ShowTooltipOnValidationError = true;
             beepLightTextBox1.ShowTopBorder = true;
             beepLightTextBox1.ShowValidationIndicator = true;
-            beepLightTextBox1.Size = new Size(179, 36);
+
             beepLightTextBox1.SlideFrom = SlideDirection.Left;
             beepLightTextBox1.StaticNotMoving = false;
             beepLightTextBox1.TabIndex = 5;

@@ -31,9 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
         private bool childmenusisopen = false;
 
-        public  BeepPopupForm ActivePopupForm { get; private set; }
+        public BeepPopupForm ActivePopupForm { get; private set; }
         private BeepButton _activeMenuButton;
-        public  BeepButton ActiveMenuButton
+        public BeepButton ActiveMenuButton
         {
             get => _activeMenuButton;
             set
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public BeepPopupListForm CurrentMenuForm { get; private set; }
         #endregion "Properties"
-        public BeepMenuBar():base   ()
+        public BeepMenuBar() : base()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.OptimizedDoubleBuffer |
@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
             };
             //    items.ListChanged += Items_ListChanged;
-            
+
             _lastbuttonclicked = null;
             BoundProperty = "SelectedMenuItem";
             IsFrameless = true;
@@ -260,7 +260,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     MaxImageSize = new Size(_imagesize, _imagesize),
                     ImageAlign = ContentAlignment.MiddleLeft,
                     TextAlign = ContentAlignment.MiddleCenter,
-                    IsFrameless=true,
+                    IsFrameless = true,
                     ApplyThemeOnImage = false,
                     ApplyThemeToChilds = false,
                     IsShadowAffectedByTheme = false,
@@ -268,7 +268,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsRoundedAffectedByTheme = false,
                     IsChild = true,
                     ShowAllBorders = false,
-                    IsRounded=false,
+                    IsRounded = false,
                     Anchor = AnchorStyles.None,
                     TextFont = _textFont,
                     UseThemeFont = true,
@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //   // Console.WriteLine("InitMenu done.");
         }
-        
+
         private void Menu_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
             SimpleItem x = e.SelectedItem;
@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        
+
         private void Btn_Click(object? sender, EventArgs e)
         {
 
@@ -381,30 +381,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (item.Children.Count > 0)
             {
 
-               // ShowMainMenuBarList(item, btn);
+                // ShowMainMenuBarList(item, btn);
             }
             else
             {
                 currentMenu = items;
                 SelectedItem = item;
-              
+
                 //SelectedIndex = items.IndexOf(item);
 
             }
-            if(ActiveMenuButton != null && ActiveMenuButton!=btn)
+            if (ActiveMenuButton != null && ActiveMenuButton != btn)
             {
                 ActiveMenuButton.IsSelected = false;
                 ActiveMenuButton.ClosePopup();
             }
             _activeMenuButton = btn;
-            ActivePopupForm =btn.PopupListForm;
+            ActivePopupForm = btn.PopupListForm;
         }
         public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
         {
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                HandlersFactory.RunFunctionWithTreeHandler( item, MethodName);
+                HandlersFactory.RunFunctionWithTreeHandler(item, MethodName);
 
             }
             catch (Exception ex)
@@ -429,7 +429,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            //     base.ApplyTheme();
+            if (_currentTheme == null)
+                return;
+
+            // Apply theme to the main control
             if (IsChild && Parent != null)
             {
                 BackColor = Parent.BackColor;
@@ -437,83 +440,109 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                BackColor = _currentTheme.ButtonBackColor;
-
+                BackColor = _currentTheme.MenuBackColor;
             }
-            //// Console.WriteLine("ApplyTheme in menubar");
-            BackColor = _currentTheme.MenuBackColor;
+
+            // Apply colors
             ForeColor = _currentTheme.MenuForeColor;
-            container.BackColor = _currentTheme.MenuBackColor;
-         //  // Console.WriteLine($"Container {container.Width} BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}");  //BackColor {container.BackColor} and BackColro {BackColor} and Theme SideMenuBackColor {_currentTheme.SideMenuBackColor}dddddddddddddddddd
+            BorderColor = _currentTheme.MenuBorderColor;
+
+            // Apply to container
+            if (container != null)
+            {
+                container.BackColor = _currentTheme.MenuBackColor;
+            }
+
+            // Apply gradient if configured
+            if (_currentTheme.MenuGradiantStartColor != Color.Empty &&
+                _currentTheme.MenuGradiantEndColor != Color.Empty)
+            {
+                UseGradientBackground = true;
+                GradientStartColor = _currentTheme.MenuGradiantStartColor;
+                GradientEndColor = _currentTheme.MenuGradiantEndColor;
+
+                if (_currentTheme.MenuGradiantDirection != Color.Empty)
+                {
+                    // This is a bit unusual - the Direction is stored as a Color
+                    // But we need to convert it to a LinearGradientMode
+                    GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
+                }
+            }
+
+            // Apply font from theme
             if (UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-            }
-          // // Console.WriteLine("ApplyTheme in menubar 1");
-            Font = _textFont;
-          // // Console.WriteLine("ApplyTheme in menubar 2");
-            foreach (var item in Controls)
-            {
-             //  // Console.WriteLine("ApplyTheme in menubar 3");
-                if (item is BeepButton)
+                if (_currentTheme.MenuTitleFont != null)
                 {
-               //    // Console.WriteLine("ApplyTheme in menubar 4");
-                    BeepButton button = (BeepButton)item;
-                    //    btn.Theme = Theme;
-                    //btn.ApplyThemeOnImage = false;
-                    //btn.BackColor = _currentTheme.SideMenuBackColor;
-                    //btn.ForeColor = _currentTheme.SideMenuForeColor;
-                    //TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
+                    _textFont = _currentTheme.MenuTitleFont;
+                }
+                else
+                {
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                }
+                Font = _textFont;
+            }
 
-                    //}
-                    //else
-                    //{
-                    //    button.UseThemeFont = false;
-
-                    //}
-                    Font = _textFont;
-                    button.IsColorFromTheme = false;
-                    button.ParentBackColor = BackColor;
+            // Apply theme to all buttons
+            foreach (Control control in Controls)
+            {
+                if (control is BeepButton button)
+                {
+                    // Set button-specific properties
                     button.IsChild = true;
-                    button.Font = _textFont;
-                    // button.Theme = Theme;
+                    button.ParentBackColor = BackColor;
+
+                    // Apply colors from specialized menu theme settings
                     button.BackColor = _currentTheme.MenuBackColor;
                     button.ForeColor = _currentTheme.MenuItemForeColor;
                     button.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
                     button.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
                     button.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
                     button.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
+                    button.PressedBackColor = _currentTheme.ButtonPressedBackColor;
+                    button.PressedForeColor = _currentTheme.ButtonPressedForeColor;
                     button.DisabledBackColor = _currentTheme.DisabledBackColor;
                     button.DisabledForeColor = _currentTheme.DisabledForeColor;
                     button.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
                     button.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
+                    button.IsColorFromTheme = false;
 
-
-                    PressedBackColor = _currentTheme.MenuBackColor;
-                    PressedForeColor = _currentTheme.MenuForeColor;
-
-                    button.UseScaledFont = true;
-                    //    btn.IsChild = true;
+                    // Apply font settings
                     if (UseThemeFont)
                     {
                         button.UseThemeFont = true;
-                        button.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-
+                        if (_currentTheme.MenuItemUnSelectedFont != null)
+                        {
+                            button.Font = _currentTheme.MenuItemUnSelectedFont;
+                        }
+                        else
+                        {
+                            button.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                        }
                     }
                     else
                     {
                         button.TextFont = _textFont;
                     }
 
-                }
+                    button.UseScaledFont = true;
 
+                    // Apply popup-related settings
+                    if (button.PopupMode)
+                    {
+                        // If child popups exist, apply theme
+                        if (button.PopupListForm != null && !button.PopupListForm.IsDisposed)
+                        {
+                            button.PopupListForm.Theme = Theme;
+                        }
+                    }
+                }
             }
-           //// Console.WriteLine("ApplyTheme in menubar 5");
+
             Invalidate();
         }
-     
     }
-    public class MenuitemTracking
+        public class MenuitemTracking
     {
         public SimpleItem ParentItem { get; set; }
         public BeepPopupListForm Menu { get; set; }

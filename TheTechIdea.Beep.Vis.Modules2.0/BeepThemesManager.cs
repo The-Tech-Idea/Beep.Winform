@@ -62,7 +62,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             // Common “mid” gray for borders, disabled states, etc.
             // (You can adjust to 80,80,80 if you want a slightly lighter border color)
             BorderColor = Color.FromArgb(66, 66, 66),
-             
+
             // Disabled text
             DisabledForeColor = Color.FromArgb(120, 120, 120),
             // Disabled background
@@ -535,12 +535,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(33, 150, 243),
             ChartGridLineColor = Color.FromArgb(66, 66, 66),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(33, 150, 243),
-        Color.FromArgb(255, 87, 34),
-        Color.FromArgb(76, 175, 80),
-        Color.FromArgb(255, 167, 38)
-    },
+{
+    Color.FromArgb(33, 150, 243),
+    Color.FromArgb(255, 87, 34),
+    Color.FromArgb(76, 175, 80),
+    Color.FromArgb(255, 167, 38)
+},
 
             //------------------------------------------------------------------------------
             // Navigation
@@ -1123,7 +1123,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(103, 80, 164),
             InactiveBorderColor = Color.FromArgb(48, 48, 48),
 
-          
+
 
             // Gradient Properties
             GradientStartColor = Color.FromArgb(33, 33, 33),
@@ -1542,12 +1542,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(103, 80, 164),
             ChartGridLineColor = Color.FromArgb(48, 48, 48),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(103, 80, 164),
-        Color.FromArgb(255, 64, 129),
-        Color.FromArgb(54, 179, 126),
-        Color.FromArgb(246, 191, 38)
-    },
+{
+    Color.FromArgb(103, 80, 164),
+    Color.FromArgb(255, 64, 129),
+    Color.FromArgb(54, 179, 126),
+    Color.FromArgb(246, 191, 38)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(30, 30, 30),
@@ -2514,12 +2514,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(163, 163, 163),
             ChartGridLineColor = Color.FromArgb(210, 213, 216),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(163, 163, 163),
-        Color.FromArgb(200, 200, 200),
-        Color.FromArgb(50, 205, 50),
-        Color.FromArgb(255, 215, 0)
-    },
+{
+    Color.FromArgb(163, 163, 163),
+    Color.FromArgb(200, 200, 200),
+    Color.FromArgb(50, 205, 50),
+    Color.FromArgb(255, 215, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(230, 233, 236),
@@ -3480,12 +3480,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(0, 105, 148),
             ChartGridLineColor = Color.FromArgb(173, 216, 230),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(0, 150, 199),
-        Color.FromArgb(255, 165, 0),
-        Color.FromArgb(34, 139, 34),
-        Color.FromArgb(0, 105, 148)
-    },
+{
+    Color.FromArgb(0, 150, 199),
+    Color.FromArgb(255, 165, 0),
+    Color.FromArgb(34, 139, 34),
+    Color.FromArgb(0, 105, 148)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(0, 105, 148),
@@ -4448,12 +4448,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(255, 87, 34),
             ChartGridLineColor = Color.FromArgb(255, 218, 185),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(255, 105, 180),
-        Color.FromArgb(255, 87, 34),
-        Color.FromArgb(60, 179, 113),
-        Color.FromArgb(148, 0, 211)
-    },
+{
+    Color.FromArgb(255, 105, 180),
+    Color.FromArgb(255, 87, 34),
+    Color.FromArgb(60, 179, 113),
+    Color.FromArgb(148, 0, 211)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(255, 87, 34),
@@ -5415,12 +5415,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(34, 139, 34),
             ChartGridLineColor = Color.FromArgb(189, 183, 107),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(50, 205, 50),
-        Color.FromArgb(34, 139, 34),
-        Color.FromArgb(218, 165, 32),
-        Color.FromArgb(139, 69, 19)
-    },
+{
+    Color.FromArgb(50, 205, 50),
+    Color.FromArgb(34, 139, 34),
+    Color.FromArgb(218, 165, 32),
+    Color.FromArgb(139, 69, 19)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(34, 139, 34),
@@ -5942,7 +5942,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(50, 205, 50)
         };
-
         public static BeepTheme AutumnTheme => new BeepTheme
         {
             // Core theme properties
@@ -6385,12 +6384,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(204, 85, 0),
             ChartGridLineColor = Color.FromArgb(210, 180, 140),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(50, 205, 50),
-        Color.FromArgb(34, 139, 34),
-        Color.FromArgb(218, 165, 32),
-        Color.FromArgb(139, 69, 19)
-    },
+{
+    Color.FromArgb(50, 205, 50),
+    Color.FromArgb(34, 139, 34),
+    Color.FromArgb(218, 165, 32),
+    Color.FromArgb(139, 69, 19)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(204, 85, 0),
@@ -6898,7 +6897,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(218, 165, 32)
         };
-
         public static BeepTheme EarthyTheme => new BeepTheme
         {
             // Core theme properties
@@ -7339,12 +7337,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(101, 67, 33),
             ChartGridLineColor = Color.FromArgb(210, 180, 140),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(107, 142, 35),
-        Color.FromArgb(101, 67, 33),
-        Color.FromArgb(184, 134, 11),
-        Color.FromArgb(85, 107, 47)
-    },
+{
+    Color.FromArgb(107, 142, 35),
+    Color.FromArgb(101, 67, 33),
+    Color.FromArgb(184, 134, 11),
+    Color.FromArgb(85, 107, 47)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(101, 67, 33),
@@ -8293,12 +8291,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(70, 130, 180),
             ChartGridLineColor = Color.FromArgb(176, 196, 222),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(25, 25, 112),
-        Color.FromArgb(70, 130, 180),
-        Color.FromArgb(255, 250, 250),
-        Color.FromArgb(34, 139, 34)
-    },
+{
+    Color.FromArgb(25, 25, 112),
+    Color.FromArgb(70, 130, 180),
+    Color.FromArgb(255, 250, 250),
+    Color.FromArgb(34, 139, 34)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(70, 130, 180),
@@ -8806,7 +8804,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(25, 25, 112)
         };
-
         public static BeepTheme SpringTheme => new BeepTheme
         {
             // Core theme properties
@@ -9246,12 +9243,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(144, 238, 144),
             ChartGridLineColor = Color.FromArgb(173, 216, 230),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(255, 182, 193),
-        Color.FromArgb(144, 238, 144),
-        Color.FromArgb(255, 215, 0),
-        Color.FromArgb(50, 205, 50)
-    },
+{
+    Color.FromArgb(255, 182, 193),
+    Color.FromArgb(144, 238, 144),
+    Color.FromArgb(255, 215, 0),
+    Color.FromArgb(50, 205, 50)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(144, 238, 144),
@@ -9759,7 +9756,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(255, 182, 193)
         };
-
         public static BeepTheme CandyTheme => new BeepTheme
         {
             // Core theme properties
@@ -10199,12 +10195,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(255, 105, 180),
             ChartGridLineColor = Color.FromArgb(255, 192, 203),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(135, 206, 235),
-        Color.FromArgb(255, 105, 180),
-        Color.FromArgb(255, 215, 0),
-        Color.FromArgb(50, 205, 50)
-    },
+{
+    Color.FromArgb(135, 206, 235),
+    Color.FromArgb(255, 105, 180),
+    Color.FromArgb(255, 215, 0),
+    Color.FromArgb(50, 205, 50)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(255, 105, 180),
@@ -10712,7 +10708,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(135, 206, 235)
         };
-
         public static BeepTheme ZenTheme => new BeepTheme
         {
             // Core theme properties
@@ -11151,12 +11146,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(255, 105, 180),
             ChartGridLineColor = Color.FromArgb(255, 192, 203),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(135, 206, 235),
-        Color.FromArgb(255, 105, 180),
-        Color.FromArgb(255, 215, 0),
-        Color.FromArgb(50, 205, 50)
-    },
+{
+    Color.FromArgb(135, 206, 235),
+    Color.FromArgb(255, 105, 180),
+    Color.FromArgb(255, 215, 0),
+    Color.FromArgb(50, 205, 50)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(255, 105, 180),
@@ -11664,7 +11659,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             HighContrastMode = false,
             FocusIndicatorColor = Color.FromArgb(135, 206, 235)
         };
-
         public static BeepTheme RetroTheme => new BeepTheme
         {
             // Core theme properties
@@ -11695,7 +11689,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(255, 140, 0),
             InactiveBorderColor = Color.FromArgb(205, 133, 63),
 
-          
+
 
             // Gradient Properties (Retro gradient)
             GradientStartColor = Color.FromArgb(245, 222, 179),
@@ -12105,12 +12099,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(255, 140, 0),
             ChartGridLineColor = Color.FromArgb(205, 133, 63),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(0, 128, 128),
-        Color.FromArgb(255, 140, 0),
-        Color.FromArgb(218, 165, 32),
-        Color.FromArgb(107, 142, 35)
-    },
+{
+    Color.FromArgb(0, 128, 128),
+    Color.FromArgb(255, 140, 0),
+    Color.FromArgb(218, 165, 32),
+    Color.FromArgb(107, 142, 35)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(255, 140, 0),
@@ -12662,7 +12656,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(128, 0, 128),
             InactiveBorderColor = Color.FromArgb(184, 134, 11),
 
-          
+
             // Gradient Properties (Royal gradient)
             GradientStartColor = Color.FromArgb(245, 245, 220),
             GradientEndColor = Color.FromArgb(230, 230, 250), // Lavender (royal fade)
@@ -13071,12 +13065,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(128, 0, 128),
             ChartGridLineColor = Color.FromArgb(184, 134, 11),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(0, 35, 102),
-        Color.FromArgb(128, 0, 128),
-        Color.FromArgb(218, 165, 32),
-        Color.FromArgb(34, 139, 34)
-    },
+{
+    Color.FromArgb(0, 35, 102),
+    Color.FromArgb(128, 0, 128),
+    Color.FromArgb(218, 165, 32),
+    Color.FromArgb(34, 139, 34)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(128, 0, 128),
@@ -13606,8 +13600,8 @@ namespace TheTechIdea.Beep.Vis.Modules
             FontSize = 12f,
             IsDarkTheme = true,
 
-          // Base Colors(Updated Palette)
-    PrimaryColor = Color.FromArgb(255, 215, 0),     // Golden Yellow (softer than neon for readability)
+            // Base Colors(Updated Palette)
+            PrimaryColor = Color.FromArgb(255, 215, 0),     // Golden Yellow (softer than neon for readability)
             SecondaryColor = Color.FromArgb(255, 0, 255),   // Magenta (vibrant accent)
             AccentColor = Color.FromArgb(0, 255, 255),      // Cyan (bright complementary highlight)
             BackgroundColor = Color.FromArgb(30, 30, 30),   // Dark Gray (sleek base)
@@ -13730,7 +13724,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ButtonSelectedBackColor = Color.FromArgb(255, 0, 255), // Magenta when selected
             ButtonSelectedForeColor = Color.FromArgb(0, 0, 0),
             ButtonSelectedBorderColor = Color.FromArgb(200, 0, 200), // Darker magenta
-           
+
             ButtonErrorBackColor = Color.FromArgb(255, 69, 0),
             ButtonErrorForeColor = Color.FromArgb(255, 255, 255),
             ButtonErrorBorderColor = Color.FromArgb(200, 50, 0),
@@ -13902,7 +13896,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
             // Grid Colors
             GridBackColor = Color.FromArgb(50, 50, 50),
-            GridForeColor = Color.Black , //Color.FromArgb(255, 255, 255),
+            GridForeColor = Color.Black, //Color.FromArgb(255, 255, 255),
             GridHeaderBackColor = Color.FromArgb(255, 255, 0),
             GridHeaderForeColor = Color.FromArgb(0, 0, 0),
             GridHeaderBorderColor = Color.FromArgb(235, 235, 0),
@@ -14021,12 +14015,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(0, 255, 255),
             ChartGridLineColor = Color.FromArgb(255, 255, 0),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(255, 0, 255),
-        Color.FromArgb(255, 255, 0),
-        Color.FromArgb(0, 255, 255),
-        Color.FromArgb(0, 255, 0)
-    },
+{
+    Color.FromArgb(255, 0, 255),
+    Color.FromArgb(255, 255, 0),
+    Color.FromArgb(0, 255, 255),
+    Color.FromArgb(0, 255, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(255, 255, 0),
@@ -14987,12 +14981,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(189, 189, 189),
             ChartGridLineColor = Color.FromArgb(97, 97, 97),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(0, 150, 136),
-        Color.FromArgb(189, 189, 189),
-        Color.FromArgb(76, 175, 80),
-        Color.FromArgb(255, 152, 0)
-    },
+{
+    Color.FromArgb(0, 150, 136),
+    Color.FromArgb(189, 189, 189),
+    Color.FromArgb(76, 175, 80),
+    Color.FromArgb(255, 152, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(0, 150, 136),
@@ -15544,7 +15538,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(33, 150, 243),
             InactiveBorderColor = Color.FromArgb(189, 189, 189),
 
-            
+
             // Gradient Properties (Light gradient)
             GradientStartColor = Color.FromArgb(245, 245, 245),
             GradientEndColor = Color.FromArgb(255, 255, 255), // Pure White (smooth fade)
@@ -15953,12 +15947,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(129, 199, 132),
             ChartGridLineColor = Color.FromArgb(189, 189, 189),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(33, 150, 243),
-        Color.FromArgb(129, 199, 132),
-        Color.FromArgb(76, 175, 80),
-        Color.FromArgb(255, 152, 0)
-    },
+{
+    Color.FromArgb(33, 150, 243),
+    Color.FromArgb(129, 199, 132),
+    Color.FromArgb(76, 175, 80),
+    Color.FromArgb(255, 152, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(33, 150, 243),
@@ -16510,7 +16504,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(173, 216, 230),
             InactiveBorderColor = Color.FromArgb(221, 160, 221),
 
-           
+
 
             // Gradient Properties (Pastel gradient)
             GradientStartColor = Color.FromArgb(245, 245, 220),
@@ -16920,12 +16914,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(152, 251, 152),
             ChartGridLineColor = Color.FromArgb(221, 160, 221),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(173, 216, 230),
-        Color.FromArgb(255, 182, 193),
-        Color.FromArgb(152, 251, 152),
-        Color.FromArgb(144, 238, 144)
-    },
+{
+    Color.FromArgb(173, 216, 230),
+    Color.FromArgb(255, 182, 193),
+    Color.FromArgb(152, 251, 152),
+    Color.FromArgb(144, 238, 144)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(173, 216, 230),
@@ -17477,7 +17471,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(25, 25, 112),
             InactiveBorderColor = Color.FromArgb(169, 169, 169),
 
-          
+
 
             // Gradient Properties (Midnight gradient)
             GradientStartColor = Color.FromArgb(18, 18, 18),
@@ -17887,12 +17881,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(147, 112, 219),
             ChartGridLineColor = Color.FromArgb(169, 169, 169),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(25, 25, 112),
-        Color.FromArgb(147, 112, 219),
-        Color.FromArgb(60, 179, 113),
-        Color.FromArgb(255, 140, 0)
-    },
+{
+    Color.FromArgb(25, 25, 112),
+    Color.FromArgb(147, 112, 219),
+    Color.FromArgb(60, 179, 113),
+    Color.FromArgb(255, 140, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(25, 25, 112),
@@ -18444,7 +18438,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(0, 191, 255),
             InactiveBorderColor = Color.FromArgb(0, 255, 255),
 
-          
+
 
             // Gradient Properties (Neon gradient)
             GradientStartColor = Color.FromArgb(10, 10, 10),
@@ -18854,12 +18848,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(50, 205, 50),
             ChartGridLineColor = Color.FromArgb(0, 255, 255),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(255, 20, 147),
-        Color.FromArgb(0, 191, 255),
-        Color.FromArgb(50, 205, 50),
-        Color.FromArgb(0, 255, 127)
-    },
+{
+    Color.FromArgb(255, 20, 147),
+    Color.FromArgb(0, 191, 255),
+    Color.FromArgb(50, 205, 50),
+    Color.FromArgb(0, 255, 127)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(0, 191, 255),
@@ -19820,12 +19814,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(255, 140, 0),
             ChartGridLineColor = Color.FromArgb(160, 82, 45),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(85, 107, 47),
-        Color.FromArgb(139, 69, 19),
-        Color.FromArgb(255, 140, 0),
-        Color.FromArgb(107, 142, 35)
-    },
+{
+    Color.FromArgb(85, 107, 47),
+    Color.FromArgb(139, 69, 19),
+    Color.FromArgb(255, 140, 0),
+    Color.FromArgb(107, 142, 35)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(139, 69, 19),
@@ -20377,7 +20371,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(65, 105, 225),
             InactiveBorderColor = Color.FromArgb(106, 90, 205),
 
-           
+
             // Gradient Properties (Galaxy gradient)
             GradientStartColor = Color.FromArgb(15, 15, 30),
             GradientEndColor = Color.FromArgb(25, 25, 60),  // Dark Indigo (cosmic fade)
@@ -20786,12 +20780,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(255, 255, 255),
             ChartGridLineColor = Color.FromArgb(106, 90, 205),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(65, 105, 225),
-        Color.FromArgb(147, 112, 219),
-        Color.FromArgb(0, 255, 127),
-        Color.FromArgb(255, 140, 0)
-    },
+{
+    Color.FromArgb(65, 105, 225),
+    Color.FromArgb(147, 112, 219),
+    Color.FromArgb(0, 255, 127),
+    Color.FromArgb(255, 140, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(65, 105, 225),
@@ -21343,7 +21337,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(210, 180, 140),
             InactiveBorderColor = Color.FromArgb(188, 143, 143),
 
-         
+
 
             // Gradient Properties (Desert gradient)
             GradientStartColor = Color.FromArgb(245, 222, 179),
@@ -21753,12 +21747,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(244, 164, 96),
             ChartGridLineColor = Color.FromArgb(188, 143, 143),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(255, 165, 0),
-        Color.FromArgb(210, 180, 140),
-        Color.FromArgb(244, 164, 96),
-        Color.FromArgb(107, 142, 35)
-    },
+{
+    Color.FromArgb(255, 165, 0),
+    Color.FromArgb(210, 180, 140),
+    Color.FromArgb(244, 164, 96),
+    Color.FromArgb(107, 142, 35)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(210, 180, 140),
@@ -22720,12 +22714,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(245, 245, 220),
             ChartGridLineColor = Color.FromArgb(160, 82, 45),
             ChartDefaultSeriesColors = new List<Color>
-  {
-      Color.FromArgb(165, 42, 42),
-      Color.FromArgb(139, 69, 19),
-      Color.FromArgb(245, 245, 220),
-      Color.FromArgb(85, 107, 47)
-  },
+{
+    Color.FromArgb(165, 42, 42),
+    Color.FromArgb(139, 69, 19),
+    Color.FromArgb(245, 245, 220),
+    Color.FromArgb(85, 107, 47)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(139, 69, 19),
@@ -23248,6 +23242,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             FocusIndicatorColor = Color.FromArgb(165, 42, 42)
         };
         public static BeepTheme DefaultTheme => new BeepTheme
+
         {
             // Core theme properties
             ThemeGuid = Guid.NewGuid().ToString(),
@@ -25210,7 +25205,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(0, 123, 255),
             InactiveBorderColor = Color.FromArgb(0, 0, 0),
 
-          
+
 
             // Gradient Properties (Flat design avoids gradients)
             GradientStartColor = Color.FromArgb(255, 255, 255),
@@ -25620,12 +25615,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(40, 167, 69),
             ChartGridLineColor = Color.FromArgb(200, 200, 200),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(0, 123, 255),
-        Color.FromArgb(255, 65, 65),
-        Color.FromArgb(40, 167, 69),
-        Color.FromArgb(255, 193, 7)
-    },
+{
+    Color.FromArgb(0, 123, 255),
+    Color.FromArgb(255, 65, 65),
+    Color.FromArgb(40, 167, 69),
+    Color.FromArgb(255, 193, 7)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(0, 123, 255),
@@ -25833,7 +25828,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             CompanyDescriptionColor = Color.FromArgb(33, 33, 33),
             CompanyLinkColor = Color.FromArgb(0, 123, 255),
             CompanyButtonBackgroundColor = Color.FromArgb(0, 123, 255),
-            CompanyButtonTextColor = Color.FromArgb(255, 255,255),
+            CompanyButtonTextColor = Color.FromArgb(255, 255, 255),
             CompanyDropdownBackgroundColor = Color.FromArgb(245, 245, 245),
             CompanyDropdownTextColor = Color.FromArgb(33, 33, 33),
             CompanyLogoBackgroundColor = Color.FromArgb(255, 255, 255),
@@ -26177,7 +26172,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             ActiveBorderColor = Color.FromArgb(0, 255, 255),
             InactiveBorderColor = Color.FromArgb(255, 0, 255),
 
-          
+
 
             // Gradient Properties (Cyberpunk gradient)
             GradientStartColor = Color.FromArgb(20, 20, 20),
@@ -26587,12 +26582,12 @@ namespace TheTechIdea.Beep.Vis.Modules
             ChartLegendShapeColor = Color.FromArgb(57, 255, 20),
             ChartGridLineColor = Color.FromArgb(255, 0, 255),
             ChartDefaultSeriesColors = new List<Color>
-    {
-        Color.FromArgb(255, 0, 255),
-        Color.FromArgb(0, 255, 255),
-        Color.FromArgb(57, 255, 20),
-        Color.FromArgb(255, 215, 0)
-    },
+{
+    Color.FromArgb(255, 0, 255),
+    Color.FromArgb(0, 255, 255),
+    Color.FromArgb(57, 255, 20),
+    Color.FromArgb(255, 215, 0)
+},
 
             // Navigation and Breadcrumbs Colors
             NavigationBackColor = Color.FromArgb(255, 0, 255),

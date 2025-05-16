@@ -6,6 +6,129 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+    /// <summary>
+    /// Defines the color schemes for Material components
+    /// </summary>
+    public enum MaterialColorScheme
+    {
+        Primary,    // Primary theme color
+        Secondary,  // Secondary theme color
+        Error,      // For error states
+        Warning,    // For warning states
+        Info,       // For informational states
+        Success     // For success states
+    }
+
+    public enum ValidationTypeBasedonIcon
+    {
+        None,
+        Error,
+        Warning,
+        Info,
+        Success,
+        Alert,
+        Likely,
+        Important,
+        Heart,
+        Help,
+        Question,
+        Ignore,
+        Cool
+    }
+    // First, add the new enums for Material-UI TextField variants
+    public enum TextFieldVariant
+    {
+        Standard,  // Underline only
+        Filled,    // With background fill and underline
+        Outlined   // With outline border
+    }
+
+    public enum TextFieldSize
+    {
+        Small,
+        Medium
+    }
+
+    public enum TextFieldColor
+    {
+        Primary,
+        Secondary,
+        Error,
+        Warning,
+        Info,
+        Success
+    }
+    #region "React-Style UI Enums"
+    // Add this enum to define Material UI TextField variants
+    public enum MaterialTextFieldVariant
+    {
+        Standard,   // Bottom border only, label animates upward when focused or filled
+        Outlined,   // Full border outline, with floating label that moves to the border when focused
+        Filled      // Filled background with bottom border, label animates upward when focused
+    }
+    public enum ReactUIVariant
+    {
+        Default,
+        Outlined,
+        Filled,
+        Text,
+        Contained,
+        Ghost
+    }
+
+    public enum ReactUISize
+    {
+        ExtraSmall,
+        Small,
+        Medium,
+        Large,
+        ExtraLarge
+    }
+
+    public enum ReactUIColor
+    {
+        Primary,
+        Secondary,
+        Success,
+        Error,
+        Warning,
+        Info,
+        Default
+    }
+
+    public enum ReactUIDensity
+    {
+        Compact,
+        Standard,
+        Comfortable
+    }
+
+    public enum ReactUIElevation
+    {
+        None,
+        Low,
+        Medium,
+        High,
+        Custom
+    }
+
+    public enum ReactUIShape
+    {
+        Square,
+        Rounded,
+        Circular,
+        Pill
+    }
+
+    public enum ReactUIAnimation
+    {
+        None,
+        Ripple,
+        Fade,
+        Scale,
+        Slide
+    }
+    #endregion
     public enum ChevronDirection
     {
         Forward,   // arrows point to the right (→)

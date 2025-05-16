@@ -512,40 +512,112 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            //  base.ApplyTheme();
-            if (_currentTheme == null) { return; }
-            //base.ApplyTheme();
-            // Apply theme to the main menu panel (background gradient or solid color)
-            BackColor = _currentTheme.ListBackColor;
-            //  ForeColor = _currentTheme.ButtonForeColor;
+            base.ApplyTheme();
 
-            ForeColor = _currentTheme.ListItemForeColor;
+            if (_currentTheme == null)
+                return;
+
+            // Apply list-specific theme properties
+            BackColor = _currentTheme.ListBackColor;
+            ForeColor = _currentTheme.ListForeColor;
+            BorderColor = _currentTheme.ListBorderColor;
+
+            // Apply hover, selected and disabled states
             HoverBackColor = _currentTheme.ListItemHoverBackColor;
             HoverForeColor = _currentTheme.ListItemHoverForeColor;
+            HoverBorderColor = _currentTheme.ListItemHoverBorderColor;
+
             SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
             SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
+            SelectedBorderColor = _currentTheme.ListItemSelectedBorderColor;
+
+            // Apply disabled and focus states
             DisabledBackColor = _currentTheme.DisabledBackColor;
             DisabledForeColor = _currentTheme.DisabledForeColor;
+            DisabledBorderColor = _currentTheme.DisabledBorderColor;
+
             FocusBackColor = _currentTheme.ListItemSelectedBackColor;
             FocusForeColor = _currentTheme.ListItemSelectedForeColor;
 
-            // Apply theme to search textbox if it exists
-            if (_searchTextBox != null)
-            {
-                _searchTextBox.BackColor = _currentTheme?.TextBoxBackColor ?? Color.White;
-                _searchTextBox.ForeColor = _currentTheme?.TextBoxForeColor ?? Color.Black;
-                _searchTextBox.Font = UseThemeFont ?
-                   _currentTheme.GetQuestionFont() :
-                    _textFont;
-            }
-
+            // Set pressed state colors
             PressedBackColor = _currentTheme.ButtonPressedBackColor;
             PressedForeColor = _currentTheme.ButtonPressedForeColor;
-            //  _currentTheme.ButtonBackColor = _currentTheme.BackgroundColor;
-            // Apply theme to each item (button and highlight panel)
-            // SetColors();
+            PressedBorderColor = _currentTheme.ButtonPressedBorderColor;
+
+            // Apply appropriate font based on theme settings
+            if (UseThemeFont)
+            {
+                if (_currentTheme.ListUnSelectedFont != null)
+                {
+                    _textFont = _currentTheme.ListUnSelectedFont;
+                    Font = _textFont;
+                }
+                else if (_currentTheme.LabelMedium != null)
+                {
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
+                    Font = _textFont;
+                }
+                else
+                {
+                    _textFont = new Font("Segoe UI", 9);
+                    Font = _textFont;
+                }
+            }
+
+            // Apply theme to search box if it exists
+            if (_searchTextBox != null)
+            {
+                _searchTextBox.BackColor = _currentTheme.TextBoxBackColor;
+                _searchTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+                _searchTextBox.BorderStyle = BorderStyle.FixedSingle;
+
+                if (UseThemeFont)
+                {
+                    _searchTextBox.Font = _currentTheme.TextBoxFont ??
+                                         (_currentTheme.LabelSmall != null ?
+                                          BeepThemesManager.ToFont(_currentTheme.LabelSmall) :
+                                          _textFont);
+                }
+                else
+                {
+                    _searchTextBox.Font = _textFont;
+                }
+            }
+
+            // Apply theme to the component helpers used for drawing
+            if (_image != null)
+            {
+                _image.Theme = Theme;
+                _image.ApplyThemeOnImage = _currentTheme.ApplyThemeToIcons;
+            }
+
+            if (_label != null)
+            {
+                _label.Theme = Theme;
+                _label.TextFont = _textFont;
+            }
+
+            if (_button != null)
+            {
+                _button.Theme = Theme;
+                _button.TextFont = _textFont;
+            }
+
+            // Update each checkbox in _itemCheckBoxes if present
+            foreach (var checkBox in _itemCheckBoxes.Values)
+            {
+                checkBox.Theme = Theme;
+                if (UseThemeFont)
+                    checkBox.Font = _textFont;
+            }
+
+            // Ensure rounded properties match theme if needed
+            IsRounded = _currentTheme.BorderRadius > 0;
+            BorderRadius = IsRounded ? _currentTheme.BorderRadius : 0;
+
+            // Update the control layout
+            UpdateContentLayout();
             Invalidate();
-            // Optionally, apply any additional theming for the overall side menu layout here (e.g., ShowVerticalScrollBar, borders, or custom UI components)
         }
         public void SetColors()
         {
@@ -1084,6 +1156,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
+    
+
         // 1. First, update the InitializeSearchBox method to ensure the search box is properly created and styled:
         private void InitializeSearchBox()
         {

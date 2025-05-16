@@ -130,6 +130,91 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Diagramming Properties"
 
         #endregion "Diagramming Properties"
+        #region "React-Style UI Properties"
+        // Add these properties to BeepControl
+        [Category("React UI")]
+        [Description("Determines the visual variant style of the control similar to React components")]
+        public ReactUIVariant UIVariant { get; set; } = ReactUIVariant.Default;
+
+        [Category("React UI")]
+        [Description("Sets the size of the control similar to React component sizing")]
+        public ReactUISize UISize { get; set; } = ReactUISize.Medium;
+
+        [Category("React UI")]
+        [Description("Sets the color theme of the control similar to React component theme colors")]
+        public ReactUIColor UIColor { get; set; } = ReactUIColor.Primary;
+
+        [Category("React UI")]
+        [Description("Controls the density of the component layout similar to React components")]
+        public ReactUIDensity UIDensity { get; set; } = ReactUIDensity.Standard;
+
+        [Category("React UI")]
+        [Description("Sets the elevation/shadow level for the control")]
+        public ReactUIElevation UIElevation { get; set; } = ReactUIElevation.None;
+
+        [Category("React UI")]
+        [Description("Controls the corner shape of the UI element")]
+        public ReactUIShape UIShape { get; set; } = ReactUIShape.Rounded;
+
+        [Category("React UI")]
+        [Description("Sets the animation style for user interactions")]
+        public ReactUIAnimation UIAnimation { get; set; } = ReactUIAnimation.None;
+
+        [Category("React UI")]
+        [Description("Determines if the control should take full width of its container")]
+        public bool UIFullWidth { get; set; } = false;
+
+        [Category("React UI")]
+        [Description("Determines whether the component is disabled")]
+        public bool UIDisabled
+        {
+            get => !Enabled;
+            set => Enabled = !value;
+        }
+
+        [Category("React UI")]
+        [Description("Custom shadow/elevation level when UIElevation is set to Custom")]
+        public int UICustomElevation { get; set; } = 0;
+        // Add these properties to BeepControl
+        [Category("Material UI")]
+        [Description("Material UI TextField border style variant")]
+        public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
+
+        [Category("Material UI")]
+        [Description("Whether the label should float when the control is focused or has content")]
+        public bool FloatingLabel { get; set; } = true;
+
+        [Category("Material UI")]
+        [Description("Label text displayed with the control")]
+        public string LabelText { get; set; } = string.Empty;
+
+        [Category("Material UI")]
+        [Description("Helper text displayed below the control")]
+        public string HelperText { get; set; } = string.Empty;
+
+        [Category("Material UI")]
+        [Description("Color of the focused border/underline")]
+        public Color FocusBorderColor { get; set; } = Color.RoyalBlue;
+
+        // For Filled variant
+        [Category("Material UI")]
+        [Description("Background color when using the Filled variant")]
+        public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
+
+        [Category("Material UI")]
+        [Description("Whether to show a ripple effect on click (Material Design style)")]
+        public bool EnableRippleEffect { get; set; } = true;
+        // Ripple effect properties
+        private Point _rippleCenter;
+        private float _rippleSize = 0;
+        private bool _showRipple = false;
+        private float _rippleOpacity = 1.0f;
+        private System.Windows.Forms.Timer _rippleTimer;
+        private bool _showMaterialRipple = false;
+        private Point _rippleOrigin = Point.Empty;
+        private float _rippleRadius = 0;
+
+        #endregion
         #region "Public Properties"
 
         private bool _isselectedoptionon = false;
@@ -547,6 +632,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _borderRadius = value;
                 _isControlinvalidated = true;
+                UpdateControlRegion();
                 Invalidate();
             }
         }
@@ -771,15 +857,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        public Color FocusBorderColor
-        {
-            get => _focusBorderColor;
-            set
-            {
-                _focusBorderColor = value;
-                Invalidate();
-            }
-        }
+      
         public Color InactiveBorderColor
         {
             get => _selectedBorderColor;
@@ -808,8 +886,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-
-
+        public Color SelectedBorderColor { get; set; }
+        public Color DisabledBorderColor { get;  set; }
 
         public Color DisabledBackColor
         {
@@ -947,6 +1025,346 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
         }
         #endregion "Theme"
+        #region "React-Style UI Implementation"
+        /// <summary>
+        /// Applies React-style UI properties to the control's visual appearance
+        /// </summary>
+        public virtual void ApplyReactUIStyles(Graphics g)
+        {
+            // Apply shape based on UIShape
+            switch (UIShape)
+            {
+                case ReactUIShape.Square:
+                    IsRounded = false;
+                    BorderRadius = 0;
+                    break;
+                case ReactUIShape.Rounded:
+                    IsRounded = true;
+                    BorderRadius = GetSizeBasedValue(8, 4, 8, 12, 16);
+                    break;
+                case ReactUIShape.Circular:
+                    IsRounded = true;
+                    BorderRadius = Math.Min(Width, Height) / 2;
+                    break;
+                case ReactUIShape.Pill:
+                    IsRounded = true;
+                    BorderRadius = Height / 2;
+                    break;
+            }
+
+            // Apply elevation/shadows based on UIElevation
+            switch (UIElevation)
+            {
+                case ReactUIElevation.None:
+                    ShowShadow = false;
+                    break;
+                case ReactUIElevation.Low:
+                    ShowShadow = true;
+                    ShadowOpacity = 0.2f;
+                    ShadowOffset = 2;
+                    break;
+                case ReactUIElevation.Medium:
+                    ShowShadow = true;
+                    ShadowOpacity = 0.3f;
+                    ShadowOffset = 4;
+                    break;
+                case ReactUIElevation.High:
+                    ShowShadow = true;
+                    ShadowOpacity = 0.4f;
+                    ShadowOffset = 6;
+                    break;
+                case ReactUIElevation.Custom:
+                    ShowShadow = true;
+                    ShadowOpacity = 0.3f;
+                    ShadowOffset = UICustomElevation;
+                    break;
+            }
+
+            // Apply sizes based on UISize
+            if (UISize != ReactUISize.Medium)
+            {
+                // We'll implement padding and font size adjustments based on UISize
+                UpdateSizeBasedDimensions();
+            }
+
+            // Apply color scheme based on UIColor
+            ApplyColorScheme();
+
+            // Apply variant-specific styling
+            ApplyVariantStyling(g);
+
+            // Draw ripple effect if active
+            DrawRippleEffect(g);
+        }
+
+        /// <summary>
+        /// Returns a numeric value based on the current UISize
+        /// </summary>
+        private int GetSizeBasedValue(int xs, int sm, int md, int lg, int xl)
+        {
+            return UISize switch
+            {
+                ReactUISize.ExtraSmall => xs,
+                ReactUISize.Small => sm,
+                ReactUISize.Medium => md,
+                ReactUISize.Large => lg,
+                ReactUISize.ExtraLarge => xl,
+                _ => md
+            };
+        }
+
+        /// <summary>
+        /// Updates the control dimensions based on UISize
+        /// </summary>
+        private void UpdateSizeBasedDimensions()
+        {
+            // These would be your default padding values per size
+            Padding newPadding = UISize switch
+            {
+                ReactUISize.ExtraSmall => new Padding(4),
+                ReactUISize.Small => new Padding(6),
+                ReactUISize.Medium => new Padding(8),
+                ReactUISize.Large => new Padding(12),
+                ReactUISize.ExtraLarge => new Padding(16),
+                _ => new Padding(8)
+            };
+
+            // Only update padding if not specifically set by user
+            if (Padding == new Padding(0))
+            {
+                Padding = newPadding;
+            }
+
+            // Update font size if using theme font
+            if (UseThemeFont)
+            {
+                // Map UISize to TypeStyleFontSize
+                OverrideFontSize = UISize switch
+                {
+                    ReactUISize.ExtraSmall => TypeStyleFontSize.Small,
+                    ReactUISize.Small => TypeStyleFontSize.Medium,
+                    ReactUISize.Medium => TypeStyleFontSize.Large,
+                    ReactUISize.Large => TypeStyleFontSize.ExtraLarge,
+                    ReactUISize.ExtraLarge => TypeStyleFontSize.ExtraExtraLarge,
+                    _ => TypeStyleFontSize.Medium
+                };
+            }
+
+            // Apply UIDensity adjustments
+            if (UIDensity == ReactUIDensity.Compact)
+            {
+                Padding = new Padding(Padding.Left / 2, Padding.Top / 2, Padding.Right / 2, Padding.Bottom / 2);
+            }
+            else if (UIDensity == ReactUIDensity.Comfortable)
+            {
+                Padding = new Padding(Padding.Left * 2, Padding.Top * 2, Padding.Right * 2, Padding.Bottom * 2);
+            }
+        }
+
+        /// <summary>
+        /// Applies color scheme based on the current UIColor setting
+        /// </summary>
+        private void ApplyColorScheme()
+        {
+            // Define color schemes similar to React UI libraries
+            Color primaryColor, secondaryColor, backgroundColor, textColor, borderColor;
+
+            switch (UIColor)
+            {
+                case ReactUIColor.Primary:
+                    primaryColor = _currentTheme?.ButtonBackColor ?? Color.FromArgb(25, 118, 210);
+                    secondaryColor = _currentTheme?.ButtonHoverBackColor ?? Color.FromArgb(66, 165, 245);
+                    borderColor = _currentTheme?.ButtonBorderColor ?? Color.FromArgb(25, 118, 210);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = _currentTheme?.ButtonForeColor ?? Color.White;
+                    break;
+
+                case ReactUIColor.Secondary:
+                    primaryColor = Color.FromArgb(156, 39, 176);
+                    secondaryColor = Color.FromArgb(186, 104, 200);
+                    borderColor = Color.FromArgb(156, 39, 176);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = Color.White;
+                    break;
+
+                case ReactUIColor.Success:
+                    primaryColor = Color.FromArgb(46, 125, 50);
+                    secondaryColor = Color.FromArgb(76, 175, 80);
+                    borderColor = Color.FromArgb(46, 125, 50);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = Color.White;
+                    break;
+
+                case ReactUIColor.Error:
+                    primaryColor = Color.FromArgb(211, 47, 47);
+                    secondaryColor = Color.FromArgb(239, 83, 80);
+                    borderColor = Color.FromArgb(211, 47, 47);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = Color.White;
+                    break;
+
+                case ReactUIColor.Warning:
+                    primaryColor = Color.FromArgb(237, 108, 2);
+                    secondaryColor = Color.FromArgb(255, 152, 0);
+                    borderColor = Color.FromArgb(237, 108, 2);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = Color.White;
+                    break;
+
+                case ReactUIColor.Info:
+                    primaryColor = Color.FromArgb(2, 136, 209);
+                    secondaryColor = Color.FromArgb(3, 169, 244);
+                    borderColor = Color.FromArgb(2, 136, 209);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = Color.White;
+                    break;
+
+                default: // Default
+                    primaryColor = Color.FromArgb(158, 158, 158);
+                    secondaryColor = Color.FromArgb(189, 189, 189);
+                    borderColor = Color.FromArgb(158, 158, 158);
+                    backgroundColor = Color.FromArgb(255, 255, 255);
+                    textColor = Color.Black;
+                    break;
+            }
+
+            // Apply colors based on the variant
+            if (UIVariant == ReactUIVariant.Outlined || UIVariant == ReactUIVariant.Text)
+            {
+                // For outlined and text variants, we use the color as forecolor and transparent background
+                ForeColor = primaryColor;
+                BackColor = backgroundColor;
+                BorderColor = primaryColor;
+
+                // State colors
+                HoverForeColor = secondaryColor;
+                HoverBackColor = Color.FromArgb(10, primaryColor);
+                HoverBorderColor = secondaryColor;
+
+                PressedForeColor = primaryColor;
+                PressedBackColor = Color.FromArgb(20, primaryColor);
+                PressedBorderColor = primaryColor;
+            }
+            else
+            {
+                // For filled/contained variants
+                ForeColor = textColor;
+                BackColor = primaryColor;
+                BorderColor = primaryColor;
+
+                // State colors
+                HoverForeColor = textColor;
+                HoverBackColor = secondaryColor;
+                HoverBorderColor = secondaryColor;
+
+                PressedForeColor = textColor;
+                PressedBackColor = Color.FromArgb(
+                    Math.Max(0, primaryColor.R - 20),
+                    Math.Max(0, primaryColor.G - 20),
+                    Math.Max(0, primaryColor.B - 20));
+                PressedBorderColor = PressedBackColor;
+            }
+
+            // Disabled state
+            DisabledBackColor = Color.FromArgb(230, 230, 230);
+            DisabledForeColor = Color.FromArgb(150, 150, 150);
+            DisabledBorderColor = Color.FromArgb(200, 200, 200);
+        }
+
+        /// <summary>
+        /// Applies styling specific to the selected UIVariant
+        /// </summary>
+        private void ApplyVariantStyling(Graphics g)
+        {
+            switch (UIVariant)
+            {
+                case ReactUIVariant.Outlined:
+                    ShowAllBorders = true;
+                    BorderThickness = 1;
+                    break;
+
+                case ReactUIVariant.Text:
+                    ShowAllBorders = false;
+                    break;
+
+                case ReactUIVariant.Contained:
+                case ReactUIVariant.Filled:
+                    ShowAllBorders = false;
+                    // Additional visual elements could be added here
+                    break;
+
+                case ReactUIVariant.Ghost:
+                    BackColor = Color.Transparent;
+                    ShowAllBorders = false;
+                    break;
+
+                default: // Default
+                    ShowAllBorders = true;
+                    BorderThickness = 1;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Initiates a ripple effect animation from the specified point
+        /// </summary>
+        public void StartRippleEffect(Point center)
+        {
+            if (UIAnimation != ReactUIAnimation.Ripple)
+                return;
+
+            _rippleCenter = center;
+            _rippleSize = 0;
+            _showRipple = true;
+            _rippleOpacity = 1.0f;
+
+            if (_rippleTimer == null)
+            {
+                _rippleTimer = new System.Windows.Forms.Timer();
+                _rippleTimer.Interval = 20; // 50fps
+                _rippleTimer.Tick += (s, e) => {
+                    // Increase ripple size
+                    _rippleSize += Width / 20.0f;
+                    // Decrease opacity
+                    _rippleOpacity -= 0.05f;
+
+                    // Stop when ripple is big enough or fully transparent
+                    if (_rippleOpacity <= 0 || _rippleSize > Math.Max(Width, Height) * 2)
+                    {
+                        _showRipple = false;
+                        _rippleTimer.Stop();
+                    }
+
+                    Invalidate();
+                };
+            }
+
+            _rippleTimer.Start();
+        }
+
+        /// <summary>
+        /// Draws the ripple effect if it's active
+        /// </summary>
+        private void DrawRippleEffect(Graphics g)
+        {
+            if (!_showRipple || UIAnimation != ReactUIAnimation.Ripple)
+                return;
+
+            // Draw a circular ripple effect
+            using (var brush = new SolidBrush(Color.FromArgb(
+                (int)(_rippleOpacity * 64), // 25% opacity
+                ForeColor)))
+            {
+                float diameter = _rippleSize * 2;
+                g.FillEllipse(
+                    brush,
+                    _rippleCenter.X - _rippleSize,
+                    _rippleCenter.Y - _rippleSize,
+                    diameter,
+                    diameter);
+            }
+        }
+        #endregion "React-Style UI Implementation"
         #region "Painting"
         protected override void OnPaddingChanged(EventArgs e)
         {
@@ -1131,6 +1549,274 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return retval;
         }
+        /// <summary>
+        /// Draws the border according to Material-UI TextField styles
+        /// </summary>
+        /// <param name="g">Graphics object to draw on</param>
+        /// <param name="rect">Rectangle to draw within</param>
+        protected virtual void DrawMaterialBorder(Graphics g, Rectangle rect)
+        {
+            if (DesignMode)
+                return;
+
+            // Determine colors based on state
+            Color borderColor = this.BorderColor;
+            Color backgroundColor = this.BackColor;
+            int labelHeight = string.IsNullOrEmpty(LabelText) ? 0 : 16;
+
+            if (!Enabled)
+            {
+                borderColor = DisabledBorderColor;
+            }
+            else if (IsFocused)
+            {
+                borderColor = FocusBorderColor;
+            }
+            else if (IsHovered)
+            {
+                borderColor = HoverBorderColor;
+            }
+
+            Rectangle borderRect = rect;
+
+            // Draw based on variant
+            switch (MaterialBorderVariant)
+            {
+                case MaterialTextFieldVariant.Standard:
+                    // Standard has only a bottom line
+                    using (Pen underlinePen = new Pen(borderColor, 1))
+                    {
+                        // Draw underline at bottom
+                        g.DrawLine(underlinePen,
+                            borderRect.Left, borderRect.Bottom - 1,
+                            borderRect.Right, borderRect.Bottom - 1);
+
+                        // Draw thicker line when focused
+                        if (IsFocused)
+                        {
+                            using (Pen focusPen = new Pen(FocusBorderColor, 2))
+                            {
+                                g.DrawLine(focusPen,
+                                    borderRect.Left, borderRect.Bottom,
+                                    borderRect.Right, borderRect.Bottom);
+                            }
+                        }
+                    }
+                    break;
+
+                case MaterialTextFieldVariant.Outlined:
+                    // Outlined variant has a border all around
+                    using (Pen borderPen = new Pen(borderColor, 1))
+                    {
+                        // If the control is rounded and we want rounded borders
+                        if (IsRounded)
+                        {
+                            using (GraphicsPath path = GetRoundedRectPath(borderRect, BorderRadius))
+                            {
+                                g.DrawPath(borderPen, path);
+
+                                // If there's a label and we want it to appear as a notch in the border
+                                if (FloatingLabel && !string.IsNullOrEmpty(LabelText))
+                                {
+                                    // Measure the label to create a gap in the outline
+                                    Font labelFont = new Font(Font.FontFamily, Font.Size * 0.8f);
+                                    Size labelSize = TextRenderer.MeasureText(LabelText, labelFont);
+
+                                    // Create a small rect to "erase" part of the top border for the label
+                                    int labelX = borderRect.X + 10; // Position the label with some padding
+                                    Rectangle labelGapRect = new Rectangle(
+                                        labelX - 2, // Slightly wider than the text
+                                        borderRect.Y - labelSize.Height / 2, // Center on the border
+                                        labelSize.Width + 4, // Add some padding
+                                        labelSize.Height
+                                    );
+
+                                    using (SolidBrush backBrush = new SolidBrush(BackColor))
+                                    {
+                                        g.FillRectangle(backBrush, labelGapRect);
+                                    }
+
+                                    // Draw the floating label
+                                    using (SolidBrush brushLabel = new SolidBrush(IsFocused ? FocusBorderColor : borderColor))
+                                    {
+                                        g.DrawString(LabelText, labelFont, brushLabel,
+                                            labelX, borderRect.Y - labelSize.Height / 2);
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Draw a regular rectangle border
+                            g.DrawRectangle(borderPen, borderRect);
+
+                            // Draw the label for non-rounded borders if needed
+                            if (FloatingLabel && !string.IsNullOrEmpty(LabelText))
+                            {
+                                Font labelFont = new Font(Font.FontFamily, Font.Size * 0.8f);
+                                Size labelSize = TextRenderer.MeasureText(LabelText, labelFont);
+
+                                int labelX = borderRect.X + 10;
+                                Rectangle labelRect = new Rectangle(
+                                    labelX - 2, borderRect.Y - labelSize.Height / 2,
+                                    labelSize.Width + 4, labelSize.Height);
+
+                                using (SolidBrush backBrush = new SolidBrush(BackColor))
+                                {
+                                    g.FillRectangle(backBrush, labelRect);
+                                }
+
+                                using (SolidBrush brushLabel = new SolidBrush(IsFocused ? FocusBorderColor : borderColor))
+                                {
+                                    g.DrawString(LabelText, labelFont, brushLabel, labelX, borderRect.Y - labelSize.Height / 2);
+                                }
+                            }
+                        }
+                    }
+                    break;
+
+                case MaterialTextFieldVariant.Filled:
+                    // Filled variant has a colored background and bottom border
+                    using (SolidBrush fillBrush = new SolidBrush(FilledBackgroundColor))
+                    {
+                        // Create a filled background with a top-only rounded rectangle if rounded is on
+                        if (IsRounded)
+                        {
+                            using (GraphicsPath path = new GraphicsPath())
+                            {
+                                // Create a path with only the top corners rounded
+                                int radius = BorderRadius;
+                                int diameter = radius * 2;
+
+                                // Top-left corner
+                                path.AddArc(borderRect.X, borderRect.Y, diameter, diameter, 180, 90);
+                                // Top-right corner
+                                path.AddArc(borderRect.Right - diameter, borderRect.Y, diameter, diameter, 270, 90);
+                                // Bottom-right corner (no rounding)
+                                path.AddLine(borderRect.Right, borderRect.Bottom, borderRect.Left, borderRect.Bottom);
+                                // Close the path
+                                path.CloseFigure();
+
+                                g.FillPath(fillBrush, path);
+
+                                // Draw bottom border
+                                using (Pen underlinePen = new Pen(borderColor, 1))
+                                {
+                                    g.DrawLine(underlinePen,
+                                        borderRect.Left, borderRect.Bottom - 1,
+                                        borderRect.Right, borderRect.Bottom - 1);
+
+                                    if (IsFocused)
+                                    {
+                                        using (Pen focusPen = new Pen(FocusBorderColor, 2))
+                                        {
+                                            g.DrawLine(focusPen,
+                                                borderRect.Left, borderRect.Bottom,
+                                                borderRect.Right, borderRect.Bottom);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Fill the entire background for non-rounded style
+                            g.FillRectangle(fillBrush, borderRect);
+
+                            // Draw bottom border
+                            using (Pen underlinePen = new Pen(borderColor, 1))
+                            {
+                                g.DrawLine(underlinePen,
+                                    borderRect.Left, borderRect.Bottom - 1,
+                                    borderRect.Right, borderRect.Bottom - 1);
+
+                                if (IsFocused)
+                                {
+                                    using (Pen focusPen = new Pen(FocusBorderColor, 2))
+                                    {
+                                        g.DrawLine(focusPen,
+                                            borderRect.Left, borderRect.Bottom,
+                                            borderRect.Right, borderRect.Bottom);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            // Draw helper text if provided
+            if (!string.IsNullOrEmpty(HelperText))
+            {
+                Font helperFont = new Font(Font.FontFamily, Font.Size * 0.8f);
+                Color helperColor = IsValid ? Color.Gray : Color.Red;
+
+                Rectangle helperRect = new Rectangle(
+                    rect.X, rect.Bottom + 2,
+                    rect.Width, 20);
+
+                TextRenderer.DrawText(g, HelperText, helperFont, helperRect,
+                    helperColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+            }
+        }
+        /// <summary>
+        /// Starts a Material Design style ripple effect from the specified point
+        /// </summary>
+        protected void StartMaterialRipple(Point clickPosition)
+        {
+            if (!EnableRippleEffect)
+                return;
+
+            _showMaterialRipple = true;
+            _rippleOrigin = clickPosition;
+            _rippleRadius = 0;
+            _rippleOpacity = 0.5f;
+
+            // Create or reset ripple animation timer
+            if (_rippleTimer == null)
+            {
+                _rippleTimer = new Timer();
+                _rippleTimer.Interval = 20; // 50fps
+                _rippleTimer.Tick += (s, e) =>
+                {
+                    // Expand ripple and fade it out
+                    _rippleRadius += Math.Max(Width, Height) / 10f;
+                    _rippleOpacity -= 0.05f;
+
+                    if (_rippleOpacity <= 0)
+                    {
+                        _rippleTimer.Stop();
+                        _showMaterialRipple = false;
+                    }
+
+                    Invalidate();
+                };
+            }
+
+            _rippleTimer.Start();
+        }
+
+        /// <summary>
+        /// Draws the Material Design ripple effect if active
+        /// </summary>
+        protected void DrawMaterialRipple(Graphics g)
+        {
+            if (!_showMaterialRipple || !EnableRippleEffect)
+                return;
+
+            using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(
+                (int)(_rippleOpacity * 64), // 25% opacity
+                IsFocused ? FocusBorderColor : ForeColor)))
+            {
+                float diameter = _rippleRadius * 2;
+                g.FillEllipse(
+                    rippleBrush,
+                    _rippleOrigin.X - _rippleRadius,
+                    _rippleOrigin.Y - _rippleRadius,
+                    diameter,
+                    diameter);
+            }
+        }
         protected override void OnPaint(PaintEventArgs e)
         {
             // Use the current BufferedGraphicsContext to allocate a buffer
@@ -1163,6 +1849,7 @@ namespace TheTechIdea.Beep.Winform.Controls
              
                 // 5) AFTER ALL
                 PerformExternalDrawing(g, DrawingLayer.AfterAll);
+              
                 // Finally, render the entire off-screen buffer to the screen
                 buffer.Render(e.Graphics);
             }
@@ -1171,15 +1858,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Update drawing bounds as necessary
             UpdateDrawingRect();
-            // Adjust BackColor if this control is a child (inherit parent's backcolor)
-  
+
             // Determine shadow offset based on whether shadows should be drawn
             shadowOffset = ShowShadow ? 3 : 0;
 
             // Use an outer rectangle that covers the whole control
             Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
 
-            // Draw background: either with a gradient or a solid fill based on state.
+            // Apply React UI styles if enabled
+            if (UIVariant != ReactUIVariant.Default)
+            {
+                ApplyReactUIStyles(g);
+            }
+
+            // Draw background: either with a gradient or a solid fill based on state
             if (UseGradientBackground)
             {
                 using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
@@ -1190,70 +1882,83 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 Color backcolor = IsHovered ? HoveredBackcolor : BackColor;
-                Color forcolor = IsHovered ? HoverForeColor : ForeColor;
 
                 // Determine fill backcolor based on state
-                    if (Enabled)
+                if (Enabled)
+                {
+                    if (IsHovered)
                     {
-                        if (IsHovered)
-                        {
-                      //  forcolor = HoverForeColor;
-                             backcolor = HoverBackColor;
-                        }
-                        else if (IsSelected && IsSelectedOptionOn)
-                        {
-                              backcolor = SelectedBackColor;
-                        }
+                        backcolor = HoverBackColor;
                     }
-                    else
+                    else if (IsSelected && IsSelectedOptionOn)
                     {
-                     backcolor = DisabledBackColor;
-                  
+                        backcolor = SelectedBackColor;
                     }
-             
-           
+
+                    // For Filled variant in Material UI, use the FilledBackgroundColor
+                    if (MaterialBorderVariant == MaterialTextFieldVariant.Filled)
+                    {
+                        backcolor = FilledBackgroundColor;
+                    }
+                }
+                else
+                {
+                    backcolor = DisabledBackColor;
+                }
+
                 using (SolidBrush brush = new SolidBrush(backcolor))
-                    {
-                        g.FillRectangle(brush, DrawingRect);
-                    }
+                {
+                    g.FillRectangle(brush, DrawingRect);
+                }
             }
 
-            // Draw rounded border if needed
-            if (IsRounded)
+            //// Update rounded region if needed
+            //if (IsRounded)
+            //{
+            //    UpdateControlRegion();
+            //}
+
+            // Draw shadow if applicable
+            if (ShowShadow)
             {
-                UpdateControlRegion();
-
-             
+                DrawShadowUsingRectangle(g);
             }
 
-            // Draw shadow or custom borders if applicable
+            // Draw borders - with priority logic to prevent conflicts
             if (!_isframless)
             {
-                if (ShowShadow)
+                // Choose the appropriate border drawing method:
+                // 1. If Material UI is active, use DrawMaterialBorder
+                // 2. Otherwise use regular border drawing logic
+
+                if (MaterialBorderVariant != MaterialTextFieldVariant.Standard)
                 {
-                    DrawShadowUsingRectangle(g);
+                    // Use Material UI border styles
+                    DrawMaterialBorder(g, borderRectangle);
                 }
-                if (IsCustomeBorder)
+                else if (IsCustomeBorder)
                 {
+                    // Use custom border
                     DrawCustomBorder(g);
                 }
                 else if (ShowAllBorders && BorderThickness > 0)
                 {
+                    // Use standard borders
                     if (IsRounded)
                     {
                         using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
                         {
-                            using (Pen borderPen = new Pen(BorderColor, 1))
+                            using (Pen borderPen = new Pen(BorderColor, BorderThickness))
                             {
                                 borderPen.Alignment = PenAlignment.Inset;
                                 g.DrawPath(borderPen, path);
                             }
                         }
-                    }else
+                    }
+                    else
                     {
                         DrawBorder(g, borderRectangle);
                     }
-                        
                 }
             }
 
@@ -1262,18 +1967,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DrawFocusIndicator(g);
             }
-            if (HitList == null)
-                return;
 
-            foreach (var hitTest in HitList)
+            // Draw hit area components
+            if (HitList != null)
             {
-                if (hitTest.IsVisible)
+                foreach (var hitTest in HitList)
                 {
-                    if (hitTest.uIComponent == null) return;
-                    hitTest.uIComponent.Draw(g, hitTest.TargetRect);
+                    if (hitTest.IsVisible && hitTest.uIComponent != null)
+                    {
+                        hitTest.uIComponent.Draw(g, hitTest.TargetRect);
+                    }
                 }
             }
 
+            // Draw Material ripple effect if active
+            DrawMaterialRipple(g);
         }
         protected Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
@@ -1710,6 +2418,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            if (EnableRippleEffect && e.Button == MouseButtons.Left)
+            {
+                StartMaterialRipple(e.Location);
+            }
             base.OnMouseDown(e);
             if (DesignMode)
                 return;
@@ -3143,6 +3855,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _externalDrawingLayer;
             set { _externalDrawingLayer = value; Invalidate(); }
         }
+
+        public bool IsValid { get; private set; }
 
 
         /// <summary>

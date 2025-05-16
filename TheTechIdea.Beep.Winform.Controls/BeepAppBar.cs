@@ -715,15 +715,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             UpdateDrawingRect();
 
-            // Fill background
-            using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
-            {
-                g.FillRectangle(backgroundBrush, DrawingRect);
-            }
+          
 
-            // Enable anti-aliasing for smoother rendering
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            //// Enable anti-aliasing for smoother rendering
+            //g.SmoothingMode = SmoothingMode.AntiAlias;
+            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
             // Calculate layout positions
             CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
@@ -1345,167 +1341,158 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
 
-            // Apply theme to self
+            // Apply theme to main control
             BackColor = _currentTheme.AppBarBackColor;
+
+            // Apply gradient settings if available
+            if (_currentTheme.AppBarGradiantStartColor != Color.Empty)
+                GradientStartColor = _currentTheme.AppBarGradiantStartColor;
+            else
+                GradientStartColor = _currentTheme.GradientStartColor;
+
+            if (_currentTheme.AppBarGradiantEndColor != Color.Empty)
+                GradientEndColor = _currentTheme.AppBarGradiantEndColor;
+            else
+                GradientEndColor = _currentTheme.GradientEndColor;
+
+            if (_currentTheme.AppBarGradiantDirection != Color.Empty)
+                GradientDirection = LinearGradientMode.ForwardDiagonal; // Default
+            else
+                GradientDirection = _currentTheme.GradientDirection;
 
             // Apply theme to logo
             if (_logo != null)
             {
                 _logo.Theme = Theme;
                 _logo.BackColor = _currentTheme.AppBarBackColor;
+                _logo.ParentBackColor = _currentTheme.AppBarBackColor;
+                _logo.IsChild = true;
             }
 
             // Apply theme to title label
             if (_titleLabel != null)
             {
                 _titleLabel.Theme = Theme;
-                _titleLabel.ForeColor = _currentTheme.AppBarForeColor;
-                _titleLabel.BackColor = _currentTheme.AppBarBackColor;
+                _titleLabel.ForeColor = _currentTheme.AppBarTitleForeColor != Color.Empty ?
+                    _currentTheme.AppBarTitleForeColor : _currentTheme.AppBarForeColor;
+                _titleLabel.BackColor = _currentTheme.AppBarTitleBackColor != Color.Empty ?
+                    _currentTheme.AppBarTitleBackColor : _currentTheme.AppBarBackColor;
+                _titleLabel.ParentBackColor = _currentTheme.AppBarBackColor;
+                _titleLabel.IsChild = true;
 
                 if (UseThemeFont)
                 {
                     _titleLabel.UseThemeFont = true;
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+                    if (_currentTheme.AppBarTitleStyle != null)
+                        _textFont = BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
+                    else
+                        _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+
                     _titleLabel.Font = _textFont;
                 }
             }
-            ApplyThemeToButtons();
+
             // Apply theme to search box
             if (_searchBox != null)
             {
                 _searchBox.Theme = Theme;
-                //_searchBox.BackColor = _currentTheme.AppBarBackColor;
-                //_searchBox.ForeColor = _currentTheme.AppBarForeColor;
-                //_searchBox.BorderColor = _currentTheme.AppBarBackColor;
-                //_searchBox.HoverBackColor = ColorUtils.GetLighterColor(_currentTheme.AppBarBackColor, 10);
-                //_searchBox.HoverForeColor = _currentTheme.AppBarForeColor;
+                _searchBox.BackColor = _currentTheme.AppBarTextBoxBackColor != Color.Empty ?
+                    _currentTheme.AppBarTextBoxBackColor : _currentTheme.TextBoxBackColor;
+                _searchBox.ForeColor = _currentTheme.AppBarTextBoxForeColor != Color.Empty ?
+                    _currentTheme.AppBarTextBoxForeColor : _currentTheme.TextBoxForeColor;
+                _searchBox.BorderColor = _currentTheme.BorderColor;
+                _searchBox.HoverBackColor = _currentTheme.TextBoxHoverBackColor;
+                _searchBox.HoverForeColor = _currentTheme.TextBoxHoverForeColor;
+
+                if (_currentTheme.AppBarTextStyle != null && UseThemeFont)
+                {
+                    _searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.AppBarTextStyle);
+                }
             }
 
-            // Apply theme to notification button
-            if (_notificationButton != null)
-            {
-                //_notificationButton.Theme = Theme;
-                _notificationButton.ImageEmbededin = ImageEmbededin.AppBar;
-                _notificationButton.BackColor = _currentTheme.AppBarBackColor;
-                _notificationButton.ForeColor = _currentTheme.AppBarForeColor;
-                _notificationButton.ParentBackColor = _currentTheme.AppBarBackColor;
-                _notificationButton.HoverBackColor = _currentTheme.AppBarBackColor;
-                _notificationButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _notificationButton.IsColorFromTheme = false;
-                _notificationButton.ApplyTheme();
-            }
+            // Apply theme to all control buttons
+            ApplyThemeToButtons();
 
-            // Apply theme to profile button
-            if (_profileButton != null)
-            {
-                _profileButton.Theme = Theme;
-                _profileButton.ImageEmbededin = ImageEmbededin.AppBar;
-                _profileButton.BackColor = _currentTheme.AppBarBackColor;
-                _profileButton.ForeColor = _currentTheme.AppBarForeColor;
-                _profileButton.ParentBackColor = _currentTheme.AppBarBackColor;
-                _profileButton.HoverBackColor = _currentTheme.AppBarBackColor;
-                _profileButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _profileButton.ApplyTheme();
-            }
-
-            // Apply theme to theme button
-            if (_themeButton != null)
-            {
-                _themeButton.Theme = Theme;
-                _themeButton.ImageEmbededin = ImageEmbededin.AppBar;
-                _themeButton.BackColor = _currentTheme.AppBarBackColor;
-                _themeButton.ForeColor = _currentTheme.AppBarForeColor;
-                _themeButton.ParentBackColor = _currentTheme.AppBarBackColor;
-                _themeButton.HoverBackColor = _currentTheme.AppBarBackColor;
-                _themeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _themeButton.IsColorFromTheme = false;
-                _themeButton.ApplyTheme();
-            }
-
-            // Apply theme to window control buttons
-            if (_minimizeButton != null)
-            {
-                _minimizeButton.Theme = Theme;
-                _minimizeButton.ImageEmbededin = ImageEmbededin.AppBar;
-                _minimizeButton.BackColor = _currentTheme.AppBarBackColor;
-                _minimizeButton.ForeColor = _currentTheme.AppBarForeColor;
-                _minimizeButton.ParentBackColor = _currentTheme.AppBarBackColor;
-                _minimizeButton.HoverBackColor = _currentTheme.AppBarBackColor;
-                _minimizeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _minimizeButton.IsColorFromTheme = false;
-                _minimizeButton.ApplyTheme();
-            }
-
-            if (_maximizeButton != null)
-            {
-                _maximizeButton.Theme = Theme;
-                _maximizeButton.ImageEmbededin = ImageEmbededin.AppBar;
-                _maximizeButton.BackColor = _currentTheme.AppBarBackColor;
-                _maximizeButton.ForeColor = _currentTheme.AppBarForeColor;
-                _maximizeButton.ParentBackColor = _currentTheme.AppBarBackColor;
-                _maximizeButton.HoverBackColor = _currentTheme.AppBarBackColor;
-                _maximizeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _maximizeButton.IsColorFromTheme = false;
-                _maximizeButton.ApplyTheme();
-            }
-
-            if (_closeButton != null)
-            {
-                _closeButton.Theme = Theme;
-                _closeButton.ImageEmbededin = ImageEmbededin.AppBar;
-                _closeButton.BackColor = _currentTheme.AppBarBackColor;
-                _closeButton.ForeColor = _currentTheme.AppBarForeColor;
-                _closeButton.ParentBackColor = _currentTheme.AppBarBackColor;
-                _closeButton.HoverBackColor = _currentTheme.AppBarBackColor;
-                _closeButton.SelectedBackColor = _currentTheme.AppBarBackColor;
-                _closeButton.IsColorFromTheme = false;
-                _closeButton.ApplyTheme();
-            }
-
-            // Apply theme to buttons based on ApplyThemeButtons property
-
-          
             // Force redraw
             Invalidate();
         }
 
         private void ApplyThemeToButtons()
         {
-            // Apply theme to buttons based on ApplyThemeButtons property
+            // Apply theme setting to buttons
+            bool applyThemeOnImage = _applythemeonbuttons;
+
+            // Function to apply common settings to buttons
+            Action<BeepButton> applyToButton = (button) => {
+                if (button == null) return;
+
+                button.Theme = Theme;
+                button.ImageEmbededin = ImageEmbededin.AppBar;
+                button.BackColor = _currentTheme.AppBarButtonBackColor != Color.Empty ?
+                    _currentTheme.AppBarButtonBackColor : _currentTheme.AppBarBackColor;
+                button.ForeColor = _currentTheme.AppBarButtonForeColor != Color.Empty ?
+                    _currentTheme.AppBarButtonForeColor : _currentTheme.AppBarForeColor;
+                button.ParentBackColor = _currentTheme.AppBarBackColor;
+                button.HoverBackColor = _currentTheme.ButtonHoverBackColor;
+                button.HoverForeColor = _currentTheme.ButtonHoverForeColor;
+                button.SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+                button.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
+                button.IsColorFromTheme = false;
+                button.IsChild = true;
+                button.ApplyThemeOnImage = applyThemeOnImage;
+                button.ApplyTheme();
+            };
+
+            // Apply to notification button
             if (_notificationButton != null)
             {
-                _notificationButton.ApplyThemeOnImage = _applythemeonbuttons;
+                applyToButton(_notificationButton);
             }
 
+            // Apply to profile button
             if (_profileButton != null)
             {
-                _profileButton.ApplyThemeOnImage = _applythemeonbuttons;
+                applyToButton(_profileButton);
             }
 
+            // Apply to theme button
             if (_themeButton != null)
             {
-                _themeButton.ApplyThemeOnImage = _applythemeonbuttons;
+                applyToButton(_themeButton);
             }
 
+            // Apply to window control buttons with specific colors if defined
             if (_minimizeButton != null)
             {
-                _minimizeButton.ApplyThemeOnImage = _applythemeonbuttons;
+                applyToButton(_minimizeButton);
+                if (_currentTheme.AppBarMinButtonColor != Color.Empty)
+                {
+                    _minimizeButton.ForeColor = _currentTheme.AppBarMinButtonColor;
+                }
             }
 
             if (_maximizeButton != null)
             {
-                _maximizeButton.ApplyThemeOnImage = _applythemeonbuttons;
+                applyToButton(_maximizeButton);
+                if (_currentTheme.AppBarMaxButtonColor != Color.Empty)
+                {
+                    _maximizeButton.ForeColor = _currentTheme.AppBarMaxButtonColor;
+                }
             }
 
             if (_closeButton != null)
             {
-                _closeButton.ApplyThemeOnImage = _applythemeonbuttons;
+                applyToButton(_closeButton);
+                if (_currentTheme.AppBarCloseButtonColor != Color.Empty)
+                {
+                    _closeButton.ForeColor = _currentTheme.AppBarCloseButtonColor;
+                }
             }
         }
         #endregion "Theme and Styling"
 
         #region "Public Methods"
-       
+
 
         /// <summary>
         /// Shows a badge on the notification icon

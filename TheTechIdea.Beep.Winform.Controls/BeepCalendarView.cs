@@ -471,22 +471,71 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Overrides
         public override void ApplyTheme()
         {
-         //   base.ApplyTheme();
-            BackColor = _currentTheme.CardBackColor;
-            _leftArrow.Theme = Theme;
-            _rightArrow.Theme = Theme;
-             _timeList.Theme = Theme;
-            _okButton.Theme = Theme;
-            _cancelButton.Theme = Theme;
-            _okButton.IsRounded = IsRounded;
-            _cancelButton.IsRounded = IsRounded;
-             _okButton.BorderRadius = BorderRadius;
-            _cancelButton.BorderRadius = BorderRadius;
-            _okButton.BorderThickness = BorderThickness;
-            _cancelButton.BorderThickness = BorderThickness;
-            _okButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
-            _cancelButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
+            base.ApplyTheme();
 
+            if (_currentTheme == null)
+                return;
+
+            // Apply calendar-specific theme properties
+            BackColor = _currentTheme.CalendarBackColor;
+            ForeColor = _currentTheme.CalendarForeColor;
+            BorderColor = _currentTheme.CalendarBorderColor;
+
+            // Apply fonts if they exist in the theme and UseThemeFont is enabled
+            if (UseThemeFont)
+            {
+                if (_currentTheme.CalendarTitleFont != null)
+                    Font = _currentTheme.CalendarTitleFont;
+                else if (_currentTheme.TitleStyle != null)
+                    Font = _currentTheme.CalendarTitleFont;
+            }
+
+            // Apply theme to navigation arrows
+            if (_leftArrow != null)
+            {
+                _leftArrow.Theme = Theme;
+                _leftArrow.ApplyThemeOnImage = _currentTheme.ApplyThemeToIcons;
+            }
+
+            if (_rightArrow != null)
+            {
+                _rightArrow.Theme = Theme;
+                _rightArrow.ApplyThemeOnImage = _currentTheme.ApplyThemeToIcons;
+            }
+
+            // Apply theme to time list
+            if (_timeList != null)
+            {
+                _timeList.Theme = Theme;
+                _timeList.BackColor = _currentTheme.CalendarBackColor;
+                _timeList.ForeColor = _currentTheme.CalendarForeColor;
+            }
+
+            // Apply theme to buttons
+            if (_okButton != null)
+            {
+                _okButton.Theme = Theme;
+                _okButton.IsRounded = IsRounded;
+                _okButton.BorderRadius = BorderRadius;
+                _okButton.BorderThickness = BorderThickness;
+                _okButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
+                _okButton.BorderColor = _currentTheme.CalendarBorderColor;
+            }
+
+            if (_cancelButton != null)
+            {
+                _cancelButton.Theme = Theme;
+                _cancelButton.IsRounded = IsRounded;
+                _cancelButton.BorderRadius = BorderRadius;
+                _cancelButton.BorderThickness = BorderThickness;
+                _cancelButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
+                _cancelButton.BorderColor = _currentTheme.CalendarBorderColor;
+            }
+
+            // Update layout to apply the new theme
+            UpdateLayout();
+
+            // Force redraw
             Invalidate();
         }
 

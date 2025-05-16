@@ -188,12 +188,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return start + (end - start) * amount;
         }
-
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void DrawContent(Graphics g)
         {
-            base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
+            base.DrawContent(g);
+            UpdateDrawingRect();
+            Draw(g, DrawingRect);
+        }
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            
             int totalWidth = spacing;
             foreach (var item in dockItems)
             {
@@ -207,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (GraphicsPath path = CreateRoundedRectangle(dockRect, _dockCornerRadius))
             using (Brush dockBrush = new SolidBrush(_currentTheme.ButtonBackColor))
             {
-                e.Graphics.FillPath(dockBrush, path);
+                graphics.FillPath(dockBrush, path);
             }
 
             int currentX = (Width - totalWidth) / 2;
@@ -218,9 +221,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (item == _hoveredItem) yOffset -= _hoverOffset;
 
                 Rectangle drawRect = new Rectangle(currentX, yOffset, newSize, newSize);
-                item.Draw(e.Graphics, drawRect, drawRect);
+                item.Draw(graphics, drawRect, drawRect);
                 currentX += newSize + spacing;
             }
+        }
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -298,12 +307,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-          //  base.ApplyTheme();
-          BackColor = _currentTheme.PanelBackColor;
+            base.ApplyTheme(); // Add this line to ensure base functionality is preserved
+            BackColor = _currentTheme.PanelBackColor;
             ForeColor = _currentTheme.LabelForeColor;
+
+            // Apply themes to dock items
+            foreach (var item in dockItems)
+            {
+                item.Theme = Theme;
+                item.ApplyTheme();
+            }
+
             IsChild = true;
-            if(Parent!=null)         BackColor = Parent.BackColor;
-            IsChild = true;
+            if (Parent != null) BackColor = Parent.BackColor;
             IsFrameless = true;
             ShowAllBorders = false;
             IsBorderAffectedByTheme = false;

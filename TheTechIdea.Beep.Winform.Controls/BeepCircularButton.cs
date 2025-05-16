@@ -577,45 +577,92 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            //base.ApplyTheme();
-            //TextFont=BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            // Don't call base.ApplyTheme() since we're implementing a custom version
+
+            // Handle parent background inheritance for child controls
             if (IsChild && Parent != null)
             {
                 BackColor = Parent.BackColor;
                 ParentBackColor = Parent.BackColor;
             }
-            BackColor = _currentTheme.ButtonBackColor;
+            else
+            {
+                // Apply circular button background color
+                BackColor = _currentTheme.ButtonBackColor;
+            }
+
+            // Apply text color
             ForeColor = _currentTheme.ButtonForeColor;
+
+            // Apply all button state colors
             HoverBackColor = _currentTheme.ButtonHoverBackColor;
             HoverForeColor = _currentTheme.ButtonHoverForeColor;
             DisabledBackColor = _currentTheme.DisabledBackColor;
             DisabledForeColor = _currentTheme.DisabledForeColor;
             FocusBackColor = _currentTheme.ButtonSelectedBackColor;
             FocusForeColor = _currentTheme.ButtonSelectedForeColor;
-
-
+            SelectedBackColor = _currentTheme.ButtonSelectedBackColor;
+            SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
             PressedBackColor = _currentTheme.ButtonPressedBackColor;
             PressedForeColor = _currentTheme.ButtonPressedForeColor;
-            beepLabel.Theme = Theme;
-            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+
+            // Apply border colors if showing border
+            if (_showBorder)
+            {
+                BorderColor = _currentTheme.ButtonBorderColor;
+            }
+
+            // Handle embedded controls
+            if (beepLabel != null)
+            {
+                beepLabel.Theme = Theme;
+                beepLabel.BackColor = BackColor;
+                beepLabel.ForeColor = ForeColor;
+                beepLabel.IsChild = true;
+                beepLabel.ParentBackColor = BackColor;
+            }
+
+            if (beepImage != null)
+            {
+                beepImage.Theme = Theme;
+                beepImage.BackColor = BackColor;
+                beepImage.IsChild = true;
+                beepImage.ParentBackColor = BackColor;
+                beepImage.ImageEmbededin = ImageEmbededin.Button;
+
+                // Apply SVG theming if configured
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.ApplyThemeOnImage = true;
+                    beepImage.ApplyThemeToSvg();
+                }
+            }
+
+            // Apply font settings
             if (UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-               
+                // Use ButtonStyle typography if available, otherwise fallback to LabelSmall
+                if (_currentTheme.ButtonStyle != null)
+                {
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                }
+                else
+                {
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                }
+
+                Font = _textFont;
+
+                if (beepLabel != null)
+                {
+                    beepLabel.TextFont = _textFont;
+                }
             }
-            Font = _textFont;
-            beepLabel.TextFont = _textFont;
-            beepImage.ImageEmbededin = ImageEmbededin.Button;
-            beepImage.Theme = Theme;
-            
-            if (ApplyThemeOnImage)
-            {
-                beepImage.ApplyThemeOnImage = true;
-               
-                
-            }
-            
-           
+
+            // Apply animation colors
+           // SplashColor = Color.FromArgb(100, _currentTheme.ButtonPressedBackColor);
+
+            // Force redraw with new theme
             Invalidate();
         }
         private void BeepImage_MouseLeave(object? sender, EventArgs e)

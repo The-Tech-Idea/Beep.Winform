@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string ReturnValue { get; set; }
         public SimpleItem ReturnItem { get; private set; }
         public  List<SimpleItem> Items { get; set; }
-
+         
      
         private string Informationicon = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.information.svg";
         private string Warningicon = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.warning.svg";
@@ -186,6 +186,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.MinimizeBox = false;
             this.ShowInTaskbar = false;
             this.TopMost = true;
+            BorderRadius = 20;
+            BorderThickness = 1;
+            
+
         }
 
         private void SetDialogType()
@@ -777,9 +781,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // base.ApplyTheme();
             if (panel1 == null) return;
-            panel1.BackColor = _currentTheme.BackColor;
-            panel2.BackColor = _currentTheme.BackColor;
-            panel3.BackColor = _currentTheme.BackColor;
+           panel1.Theme = Theme;
+            panel1.GradientStartColor = _currentTheme.GradientStartColor;
+            panel1.GradientEndColor= _currentTheme.GradientEndColor;
+            panel1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            panel3.Theme= Theme;
+            panel3.GradientStartColor = _currentTheme.GradientStartColor;
+            panel3.GradientEndColor= _currentTheme.GradientEndColor;
+            panel3.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
             LeftButton.Theme = Theme;
             RightButton.Theme = Theme;
             MiddleButton.Theme = Theme;

@@ -711,11 +711,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Fill background
-            using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
-            {
-                graphics.FillRectangle(backgroundBrush, rectangle);
-            }
+            //// Fill background
+            //using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
+            //{
+            //    graphics.FillRectangle(backgroundBrush, rectangle);
+            //}
 
             // Calculate layout regions
             int padding = 5;
@@ -744,26 +744,60 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw title (if not collapsed or during animation)
             if (!isCollapsed || Width > (collapsedWidth + 20))
             {
-                Rectangle titleRect = new Rectangle(
-                    drawRectX + padding,
-                    yOffset,
-                    contentWidth,
-                    TitleSize.Height);
-
-                using (SolidBrush titleBrush = new SolidBrush(_currentTheme.AppBarTitleForeColor))
-                using (Font titleFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium))
+                // First check if the title is empty or null to avoid rendering issues
+                if (!string.IsNullOrEmpty(Title))
                 {
-                    StringFormat titleFormat = new StringFormat
+                    // Use the theme font if available, or fallback to a default
+                    Font titleFont = _currentTheme?.SideMenuTitleFont;
+                    if (titleFont == null)
                     {
-                        Alignment = StringAlignment.Center,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
+                        titleFont = new Font("Segoe UI", 12, FontStyle.Bold);
+                    }
 
-                    graphics.DrawString(Title, titleFont, titleBrush, titleRect, titleFormat);
+                    // Calculate the size needed to render the full text
+                    SizeF textSize = graphics.MeasureString(Title, titleFont);
+
+                    // Add extra vertical padding to prevent text from being cut off
+                    int verticalPadding = 10; // More padding for taller fonts
+                    int titleHeight = (int)Math.Ceiling(textSize.Height) + verticalPadding;
+
+                    // For very narrow widths, ensure we have adequate height for wrapped text
+                    if (contentWidth < textSize.Width)
+                    {
+                        // Estimate number of lines required
+                        double estimatedLines = Math.Max(1, Math.Ceiling(textSize.Width / contentWidth));
+                        titleHeight = (int)(titleHeight * estimatedLines);
+                    }
+
+                    // Update the stored title size for future use
+                    _titleSize = new Size(contentWidth, titleHeight);
+
+                    // Create rectangle with updated height
+                    Rectangle titleRect = new Rectangle(
+                        drawRectX + padding,
+                        yOffset,
+                        contentWidth,
+                        titleHeight);
+
+                    // Create the brush and string format for drawing
+                    using (SolidBrush titleBrush = new SolidBrush(
+                        _currentTheme?.SideMenuTitleTextColor ?? Color.White))
+                    {
+                        StringFormat titleFormat = new StringFormat
+                        {
+                            Alignment = StringAlignment.Center,
+                            LineAlignment = StringAlignment.Center,
+                            Trimming = StringTrimming.EllipsisCharacter,
+                            FormatFlags = StringFormatFlags.LineLimit | StringFormatFlags.NoClip
+                        };
+
+                        // Draw the title text
+                        graphics.DrawString(Title, titleFont, titleBrush, titleRect, titleFormat);
+                    }
+
+                    // Update the offset for the next element
+                    yOffset += titleHeight + padding;
                 }
-
-                yOffset += TitleSize.Height + padding;
             }
 
             // Draw toggle button
@@ -877,7 +911,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
                         using (Font itemFont = UseThemeFont ?
-                            BeepThemesManager.ToFont(_currentTheme.ButtonStyle) :
+                            _currentTheme.SideMenuTextFont :
                             ListButtonFont)
                         {
                             StringFormat textFormat = new StringFormat
@@ -982,7 +1016,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
                             using (Font itemFont = UseThemeFont ?
-                                BeepThemesManager.ToFont(_currentTheme.ButtonStyle) :
+                               _currentTheme.SideMenuTextFont :
                                 ListButtonFont)
                             {
                                 StringFormat textFormat = new StringFormat

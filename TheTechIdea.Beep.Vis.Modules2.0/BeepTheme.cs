@@ -19,6 +19,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string ThemeName => this.GetType().Name;
         public Color BackColor { get; set; }
         public Color PanelBackColor { get; set; }
+        public Color PanelGradiantStartColor { get; set; }
+        public Color PanelGradiantEndColor { get; set; }
+        public Color PanelGradiantMiddleColor { get; set; }
+        public Color PanelGradiantDirection { get; set; }
         public Color DisabledBackColor { get; set; }
         public Color DisabledForeColor { get; set; }
         public Color DisabledBorderColor { get; set; }
@@ -56,7 +60,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle AppBarSubTitleStyle { get; set; }
         public TypographyStyle AppBarTextStyle { get; set; }
 
-
+        public Color AppBarGradiantStartColor { get; set; }
+        public Color AppBarGradiantEndColor { get; set; }
+        public Color AppBarGradiantMiddleColor { get; set; }
+        public Color AppBarGradiantDirection { get; set; }
 
 
 
@@ -108,6 +115,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TextBoxErrorBackColor { get; set; }
         public Color TextBoxErrorForeColor { get; set; }
         public Color TextBoxErrorTextColor { get; set; }
+        public Color TextBoxErrorPlaceholderColor { get; set; }
+        public Color TextBoxErrorTextBoxColor { get; set; }
+        public Color TextBoxErrorTextBoxBorderColor { get; set; }
+        public Color TextBoxErrorTextBoxHoverColor { get; set; }
+        public Font  TextBoxFont { get; set; }
         //public Color TextBoxDisabledBackColor { get; set; }
         //public Color TextBoxDisabledForeColor { get; set; }
         //public Color TextBoxDisabledBorderColor { get; set; }
@@ -126,11 +138,28 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LabelDisabledBackColor { get; set; }
         public Color LabelDisabledForeColor { get; set; }
         public Color LabelDisabledBorderColor { get; set; }
+        public Font LabelFont { get; set; }
+        public Font SubLabelFont { get; set; }
+        public Color SubLabelForColor { get; set; }
+        public Color SubLabelBackColor { get; set; }
+        public Color SubLabelHoverBackColor { get; set; }
+        public Color SubLabelHoverForeColor { get; set; }
 
         // ComboBox Colors
         public Color ComboBoxBackColor { get; set; }
         public Color ComboBoxForeColor { get; set; }
         public Color ComboBoxBorderColor { get; set; }
+        public Color ComboBoxHoverBackColor { get; set; }
+        public Color ComboBoxHoverForeColor { get; set; }
+        public Color ComboBoxHoverBorderColor { get; set; }
+        public Color ComboBoxSelectedBackColor { get; set; }
+        public Color ComboBoxSelectedForeColor { get; set; }
+        public Color ComboBoxSelectedBorderColor { get; set; }
+        public Color ComboBoxErrorBackColor { get; set; }
+        public Color ComboBoxErrorForeColor { get; set; }
+        public Font  ComboBoxItemFont { get; set; }
+        public Font  ComboBoxListFont { get; set; }
+
 
         // CheckBox colors
         public Color CheckBoxBackColor { get; set; }
@@ -141,6 +170,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CheckBoxHoverBackColor { get; set; }
         public Color CheckBoxHoverForeColor { get; set; }
         public Color CheckBoxHoverBorderColor { get; set; }
+        public Font CheckBoxFont { get; set; }
 
         // Radio Button Colors
         public Color RadioButtonBackColor { get; set; }
@@ -151,6 +181,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color RadioButtonHoverBackColor { get; set; }
         public Color RadioButtonHoverForeColor { get; set; }
         public Color RadioButtonHoverBorderColor { get; set; }
+        public Font RadioButtonFont { get; set; }
         // Progress Bar Colors
         public Color ProgressBarBackColor { get; set; }
         public Color ProgressBarForeColor { get; set; }
@@ -160,6 +191,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ProgressBarHoverForeColor { get; set; }
         public Color ProgressBarHoverBorderColor { get; set; }
         public Color ProgressBarHoverInsideTextColor { get; set; }
+
 
 
         // ScrollBar Colors
@@ -211,6 +243,21 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DialogForeColor { get; set; }
 
         // give me  Dialog Button colors like ok , no ,yes, cancel and others
+        // i want to create font properties for each button
+        public Font DialogYesButtonFont { get; set; }
+        public Font DialogNoButtonFont { get; set; }
+        public Font DialogOkButtonFont { get; set; }
+        public Font DialogCancelButtonFont { get; set; }
+        public Font DialogWarningButtonFont { get; set; }
+        public Font DialogErrorButtonFont { get; set; }
+        public Font DialogInformationButtonFont { get; set; }
+        public Font DialogQuestionButtonFont { get; set; }
+        public Font DialogHelpButtonFont { get; set; }
+        public Font DialogCloseButtonFont { get; set; }
+        public Font DialogYesButtonHoverFont { get; set; }
+        public Font DialogNoButtonHoverFont { get; set; }
+        public Font DialogOkButtonHoverFont { get; set; }
+            
         public Color DialogYesButtonBackColor { get; set; }
         public Color DialogYesButtonForeColor { get; set; }
         public Color DialogYesButtonHoverBackColor { get; set; }
@@ -264,6 +311,19 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
         // Grid Colors
+        // Create properties for grid colors like header, row, cell, and other properties
+        // i want to create properties for each color and give them default values
+        // go ahead
+        public Font GridHeaderFont { get; set; }
+        public Font GridRowFont { get; set; }
+        public Font GridCellFont { get; set; }
+        public Font GridCellSelectedFont { get; set; }
+        public Font GridCellHoverFont { get; set; }
+        public Font GridCellErrorFont { get; set; }
+  
+        public Font GridColumnFont { get; set; }
+
+
         public Color GridBackColor { get; set; }
         public Color GridForeColor { get; set; }
         public Color GridHeaderBackColor { get; set; }
@@ -296,8 +356,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CardHeaderStyle { get; set; }
         public TypographyStyle CardparagraphStyle { get; set; }
         public TypographyStyle CardSubTitleStyle { get; set; }
+        public Color CardrGradiantStartColor { get; set; }
+        public Color CardGradiantEndColor { get; set; }
+        public Color CardGradiantMiddleColor { get; set; }
+        public Color CardGradiantDirection { get; set; }
 
         // Side Menu Colors
+        public Font SideMenuTitleFont { get; set; }
+        public Font SideMenuSubTitleFont { get; set; }
+        public Font SideMenuTextFont { get; set; }
         public Color SideMenuBackColor { get; set; }
         public Color SideMenuHoverBackColor { get; set; }
         public Color SideMenuSelectedBackColor { get; set; }
@@ -311,21 +378,33 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuSubTitleTextColor { get; set; }
         public Color SideMenuSubTitleBackColor { get; set; }
         public TypographyStyle SideMenuSubTitleStyle { get; set; }
+        public Color SideMenuGradiantStartColor { get; set; }
+        public Color SideMenuGradiantEndColor { get; set; }
+        public Color SideMenuGradiantMiddleColor { get; set; }
+        public Color SideMenuGradiantDirection { get; set; }
 
         //Dashboard Colors
+        public Font DashboardTitleFont { get; set; }
+        public Font DashboardSubTitleFont { get; set; }
         public Color DashboardBackColor { get; set; }
         public Color DashboardCardBackColor { get; set; }
         public Color DashboardCardHoverBackColor { get; set; }
         public Color DashboardTitleForeColor { get; set; }
         public Color DashboardTitleBackColor { get; set; }
+
         public TypographyStyle DashboardTitleStyle { get; set; }
         public Color DashboardSubTitleForeColor { get; set; }
         public Color DashboardSubTitleBackColor { get; set; }
         public TypographyStyle DashboardSubTitleStyle { get; set; }
-
+        public Color DashboardGradiantStartColor { get; set; }
+        public Color DashboardGradiantEndColor { get; set; }
+        public Color DashboardGradiantMiddleColor { get; set; }
+        public Color DashboardGradiantDirection { get; set; }
 
 
         // Chart colors
+        public Font ChartTitleFont { get; set; }
+        public Font ChartSubTitleFont { get; set; }
         public Color ChartBackColor { get; set; }
         public Color ChartLineColor { get; set; }
         public Color ChartFillColor { get; set; }
@@ -340,10 +419,16 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
         // Navigation and Breadcrumbs Colors
+        public Font NavigationTitleFont { get; set; }
+        public Font NavigationSelectedFont { get; set; }
+        public Font NavigationUnSelectedFont { get; set; }
+
         public Color NavigationBackColor { get; set; }
         public Color NavigationForeColor { get; set; }
         public Color NavigationHoverBackColor { get; set; }
         public Color NavigationHoverForeColor { get; set; }
+        public Color NavigationSelectedBackColor { get; set; }
+        public Color NavigationSelectedForeColor { get; set; }
 
         // Badge Colors
         public Color BadgeBackColor { get; set; }
@@ -351,6 +436,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color HighlightBackColor { get; set; }
 
         // Menu Colors with Menu Items
+        public Font MenuTitleFont { get; set; }
+        public Font MenuItemSelectedFont { get; set; }
+        public Font MenuItemUnSelectedFont { get; set; }
         public Color MenuBackColor {  get; set; }
         public Color MenuForeColor { get; set; }
         public Color MenuBorderColor { get; set; }
@@ -364,8 +452,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color MenuItemHoverBackColor { get; set; }
         public Color MenuItemSelectedForeColor { get; set; }
         public Color MenuItemSelectedBackColor { get; set; }
+        public Color MenuGradiantStartColor { get; set; }
+        public Color MenuGradiantEndColor { get; set; }
+        public Color MenuGradiantMiddleColor { get; set; }
+        public Color MenuGradiantDirection { get; set; }
 
         // Tree Color with TreeItems and nodes
+        public Font TreeTitleFont { get; set; }
+        public Font TreeNodeSelectedFont { get; set; }
+        public Font TreeNodeUnSelectedFont { get; set; }
         public Color TreeBackColor { get; set; }
         public Color TreeForeColor { get; set; }
         public Color TreeBorderColor { get; set; }
@@ -378,11 +473,20 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TreeNodeCheckedBoxBackColor { get; set; }
 
         // Calendar Colors
+        public Font CalendarTitleFont { get; set; }
+        public Font CalendarSelectedFont { get; set; }
+        public Font CalendarUnSelectedFont { get; set; }
         public Color CalendarBackColor { get; set; }
         public Color CalendarForeColor { get; set; }
         public Color CalendarTodayForeColor { get; set; }
-        
+        public Color CalendarBorderColor { get; set; }
+        public Color CalendarHoverBackColor { get; set; }
+        public Color CalendarHoverForeColor { get; set; }
+
         // List Colors
+        public Font ListTitleFont { get; set; }
+        public Font ListSelectedFont { get; set; }
+        public Font ListUnSelectedFont { get; set; }
         public Color ListBackColor { get; set; }
         public Color ListForeColor { get; set; }
         public Color ListBorderColor { get; set; }
@@ -408,6 +512,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StarRatingSelectedBorderColor { get; set; }
 
         // Stats Card Colors
+        public Font StatsTitleFont { get; set; }
+        public Font StatsSelectedFont { get; set; }
+        public Font StatsUnSelectedFont { get; set; }
         public Color StatsCardBackColor { get; set; }
         public Color StatsCardForeColor { get; set; }
         public Color StatsCardBorderColor { get; set; }
@@ -434,6 +541,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StatsCardTrendStyle { get; set; }
 
         // switch control colors
+        public Font SwitchTitleFont { get; set; }
+        public Font SwitchSelectedFont { get; set; }
+        public Font SwitchUnSelectedFont { get; set; }
         public Color SwitchBackColor { get; set; }
         public Color SwitchBorderColor { get; set; }
         public Color SwitchForeColor { get; set; }
@@ -445,7 +555,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SwitchHoverForeColor { get; set; }
 
         // Task Card control Colors
-
+        public Font TaskCardTitleFont { get; set; }
+        public Font TaskCardSelectedFont { get; set; }
+        public Font TaskCardUnSelectedFont { get; set; }
         public Color TaskCardBackColor { get; set; }
         public Color TaskCardForeColor { get; set; }
         public Color TaskCardBorderColor { get; set; }
@@ -470,6 +582,9 @@ namespace TheTechIdea.Beep.Vis.Modules
 
 
         // Testimony Colors
+        public Font TestimoniaTitleFont { get; set; }
+        public Font TestimoniaSelectedFont { get; set; }
+        public Font TestimoniaUnSelectedFont { get; set; }
         public Color TestimonialBackColor { get; set; } = Color.White;
         public Color TestimonialTextColor { get; set; } = Color.Black;
         public Color TestimonialNameColor { get; set; } = Color.DarkBlue;

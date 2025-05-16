@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 
@@ -21,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Company Profile")]
     public class BeepCompanyProfile : BeepControl
     {
-        private Panel popoverPanel;
+        #region Private Fields
         private BeepLabel lblCompanyName;
         private BeepLabel lblCompanyType;
         private BeepTextBox lblCompanyDesc;
@@ -34,23 +37,48 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepCircularButton btnCompanyLogo;
 
         private CompanyProfileViewType _viewType = CompanyProfileViewType.Classic;
+        private string _companyName = "Company Name";
+        private string _companyType = "Type";
+        private string _description = "Description";
+        private string _likes = "0 Likes";
+        private string _website = "www.example.com";
+        private string _logoPath = "";
 
+        // Layout rectangles for direct drawing
+        private Rectangle logoRect;
+        private Rectangle nameRect;
+        private Rectangle typeRect;
+        private Rectangle descRect;
+        private Rectangle likesRect;
+        private Rectangle websiteRect;
+        private Rectangle likeButtonRect;
+        private Rectangle profileButtonRect;
+        private Rectangle dropdownRect;
+
+        // Hit test areas
+        private ControlHitTest logoHitTest;
+        private ControlHitTest likeButtonHitTest;
+        private ControlHitTest profileButtonHitTest;
+        private ControlHitTest websiteHitTest;
+        private ControlHitTest dropdownHitTest;
+        #endregion
+
+        #region Constructor
         public BeepCompanyProfile()
         {
-            InitializeComponents();
-        }
-
-        private void InitializeComponents()
-        {
-            this.Size = new Size(400, 250);
+            this.Size = new Size(400, 350);
             this.Padding = new Padding(2);
 
-            popoverPanel = new Panel
-            {
-                Dock = DockStyle.Fill,
-                Padding = new Padding(15),
-                BorderStyle = BorderStyle.None
-            };
+            InitializeComponents();
+            SetupHitTesting();
+        }
+        #endregion
+
+        #region Component Initialization
+        private void InitializeComponents()
+        {
+            // Initialize components but don't add them to controls collection
+            // They will be used as "templates" for drawing
 
             lblCompanyName = new BeepLabel
             {
@@ -59,7 +87,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                AutoSize = true
+                AutoSize = true,
+                Text = _companyName
             };
 
             lblCompanyType = new BeepLabel
@@ -69,7 +98,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                AutoSize = true
+                AutoSize = true,
+                Text = _companyType
             };
 
             lblCompanyDesc = new BeepTextBox
@@ -82,7 +112,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ReadOnly = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                AutoSize = false
+                AutoSize = false,
+                Text = _description
             };
 
             lblLikes = new BeepLabel
@@ -92,12 +123,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsFrameless = true,
                 AutoSize = true,
                 IsShadowAffectedByTheme = false,
-                IsBorderAffectedByTheme = false
+                IsBorderAffectedByTheme = false,
+                Text = _likes
             };
 
             linkWebsite = new LinkLabel
             {
-                AutoSize = true
+                AutoSize = true,
+                Text = _website
             };
 
             btnLikePage = new BeepButton
@@ -132,7 +165,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsRounded = false,
                 Size = new Size(30, 30)
             };
-            btnDropdown.Click += (s, e) => dropdownMenu.Show(btnDropdown, new Point(0, btnDropdown.Height));
 
             btnCompanyLogo = new BeepCircularButton
             {
@@ -141,16 +173,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true
             };
 
-            this.Controls.Add(popoverPanel);
-            ApplyViewType();
-            ApplyTheme(EnumBeepThemes.DefaultTheme);
+            // Apply theme to components
+            ApplyTheme();
+
+            // Calculate layout based on view type
+            CalculateLayout();
         }
 
         private void SetDummyData()
         {
             CompanyName = "Sample Inc.";
             CompanyType = "Software Development";
-            Description = "A innovative company delivering cutting-edge software solutions.";
+            Description = "An innovative company delivering cutting-edge software solutions.";
             Likes = "5,678 Likes";
             Website = "www.sampleinc.com";
             LogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cat.svg";
@@ -167,6 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public void BeginInit() { }
+
         public void EndInit()
         {
             if (DesignMode)
@@ -174,152 +209,729 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SetDummyData();
             }
         }
+        #endregion
 
-        private void ApplyViewType()
+        #region Layout Calculation
+        private void CalculateLayout()
         {
-            popoverPanel.Controls.Clear();
-            lblCompanyName.Visible = true;
-            lblCompanyType.Visible = true;
-            lblCompanyDesc.Visible = true;
-            lblLikes.Visible = true;
-            linkWebsite.Visible = true;
-            btnLikePage.Visible = true;
-            btnCompanyProfile.Visible = true;
-            btnDropdown.Visible = true;
-            btnCompanyLogo.Visible = true;
-            lblCompanyName.TextAlign = ContentAlignment.MiddleLeft;
+            // Calculate layout based on the current view type
             switch (_viewType)
             {
                 case CompanyProfileViewType.Classic:
-                    SetupClassicView();
+                    CalculateClassicLayout();
                     break;
                 case CompanyProfileViewType.Compact:
-                    SetupCompactView();
+                    CalculateCompactLayout();
                     break;
                 case CompanyProfileViewType.Minimal:
-                    SetupMinimalView();
+                    CalculateMinimalLayout();
                     break;
                 case CompanyProfileViewType.SocialCard:
-                    SetupSocialCardView();
+                    CalculateSocialCardLayout();
                     break;
                 case CompanyProfileViewType.Detailed:
-                    SetupDetailedView();
+                    CalculateDetailedLayout();
                     break;
             }
-            popoverPanel.Controls.AddRange(new Control[] { lblCompanyName, lblCompanyType, lblCompanyDesc, lblLikes, linkWebsite, btnLikePage, btnCompanyProfile, btnDropdown, btnCompanyLogo });
-           
+
+            // Update hit testing areas
+            SetupHitTesting();
+
+            // Force redraw
+            Invalidate();
         }
 
-        private void SetupClassicView()
+        private void CalculateClassicLayout()
         {
-            this.Size = new Size(400, 350); // Adjusted height for better spacing
-            int padding = popoverPanel.Padding.Left;
+            int padding = 15;
 
-            btnCompanyLogo.Location = new Point(padding, padding); // 15, 15
-            lblCompanyName.Location = new Point(padding, padding + btnCompanyLogo.Height + 10); // 15, 85
-            lblCompanyType.Location = new Point(padding, padding + btnCompanyLogo.Height + 35); // 15, 110
-            lblCompanyDesc.Size = new Size(this.Width - (2 * padding), 80); // 370, 80
-            lblCompanyDesc.Location = new Point(padding, padding + btnCompanyLogo.Height + 60); // 15, 135
-            lblLikes.Location = new Point(padding, padding + btnCompanyLogo.Height + 150); // 15, 225
-            linkWebsite.Location = new Point(padding, padding + btnCompanyLogo.Height + 175); // 15, 250
-            btnLikePage.Location = new Point(padding, padding + btnCompanyLogo.Height + 210); // 15, 285
-            btnCompanyProfile.Location = new Point(padding + btnLikePage.Width + 10, padding + btnCompanyLogo.Height + 210); // 105, 285
-            btnDropdown.Location = new Point(this.Width - padding - btnDropdown.Width - 10, padding); // 345, 15
+            // Set the size for this view
+            this.Size = new Size(400, 350);
+
+            logoRect = new Rectangle(
+                padding, padding,
+                60, 60);
+
+            nameRect = new Rectangle(
+                padding,
+                padding + logoRect.Height + 10,
+                Width - (2 * padding),
+                25);
+
+            typeRect = new Rectangle(
+                padding,
+                nameRect.Bottom + 10,
+                Width - (2 * padding),
+                20);
+
+            descRect = new Rectangle(
+                padding,
+                typeRect.Bottom + 10,
+                Width - (2 * padding),
+                80);
+
+            likesRect = new Rectangle(
+                padding,
+                descRect.Bottom + 10,
+                Width / 2 - padding,
+                20);
+
+            websiteRect = new Rectangle(
+                padding,
+                likesRect.Bottom + 10,
+                Width - (2 * padding),
+                20);
+
+            likeButtonRect = new Rectangle(
+                padding,
+                websiteRect.Bottom + 20,
+                80,
+                30);
+
+            profileButtonRect = new Rectangle(
+                likeButtonRect.Right + 10,
+                websiteRect.Bottom + 20,
+                80,
+                30);
+
+            dropdownRect = new Rectangle(
+                Width - padding - 30,
+                padding,
+                30,
+                30);
         }
 
-        private void SetupCompactView()
+        private void CalculateCompactLayout()
         {
-            this.Size = new Size(250, 300); // Adjusted height for better spacing
-            int padding = popoverPanel.Padding.Left;
+            int padding = 15;
 
-            btnCompanyLogo.Location = new Point(padding, padding); // 15, 15
-            lblCompanyName.Location = new Point(padding, padding + btnCompanyLogo.Height + 10); // 15, 85
-            lblCompanyType.Location = new Point(padding, padding + btnCompanyLogo.Height + 35); // 15, 110
-            lblCompanyDesc.Size = new Size(this.Width - (2 * padding), 50); // 220, 50
-            lblCompanyDesc.Location = new Point(padding, padding + btnCompanyLogo.Height + 60); // 15, 135
-            lblLikes.Location = new Point(padding, padding + btnCompanyLogo.Height + 120); // 15, 195
-            linkWebsite.Location = new Point(padding, padding + btnCompanyLogo.Height + 145); // 15, 220
-            btnLikePage.Location = new Point(padding, padding + btnCompanyLogo.Height + 175); // 15, 250
-            btnCompanyProfile.Location = new Point(padding + btnLikePage.Width + 10, padding + btnCompanyLogo.Height + 175); // 105, 250
-            btnDropdown.Location = new Point(this.Width - padding - btnDropdown.Width - 10, padding); // 195, 15
+            // Set the size for this view
+            this.Size = new Size(250, 300);
+
+            logoRect = new Rectangle(
+                padding, padding,
+                60, 60);
+
+            nameRect = new Rectangle(
+                padding,
+                padding + logoRect.Height + 10,
+                Width - (2 * padding),
+                25);
+
+            typeRect = new Rectangle(
+                padding,
+                nameRect.Bottom + 10,
+                Width - (2 * padding),
+                20);
+
+            descRect = new Rectangle(
+                padding,
+                typeRect.Bottom + 10,
+                Width - (2 * padding),
+                50);
+
+            likesRect = new Rectangle(
+                padding,
+                descRect.Bottom + 10,
+                Width / 2 - padding,
+                20);
+
+            websiteRect = new Rectangle(
+                padding,
+                likesRect.Bottom + 10,
+                Width - (2 * padding),
+                20);
+
+            likeButtonRect = new Rectangle(
+                padding,
+                websiteRect.Bottom + 10,
+                80,
+                30);
+
+            profileButtonRect = new Rectangle(
+                likeButtonRect.Right + 10,
+                websiteRect.Bottom + 10,
+                80,
+                30);
+
+            dropdownRect = new Rectangle(
+                Width - padding - 30,
+                padding,
+                30,
+                30);
         }
 
-        private void SetupMinimalView()
+        private void CalculateMinimalLayout()
         {
+            int padding = 15;
+
+            // Set the size for this view
             this.Size = new Size(300, 200);
-            int padding = popoverPanel.Padding.Left;
 
-            btnCompanyLogo.Location = new Point((this.Width - btnCompanyLogo.Width) / 2, padding); // Centered, 15
-            lblCompanyName.Location = new Point(padding, padding + btnCompanyLogo.Height + 10); // 15, 85
-            lblCompanyName.Size = new Size(this.Width - 2 * padding, 20); // 270, 20
-           lblCompanyName.TextAlign = ContentAlignment.MiddleCenter;
-            btnCompanyProfile.Location = new Point((this.Width - btnCompanyProfile.Width) / 2, padding + btnCompanyLogo.Height + 50); // Centered, 125
+            // Center the logo
+            logoRect = new Rectangle(
+                (Width - 60) / 2,
+                padding,
+                60, 60);
 
-            lblCompanyType.Visible = false;
-            lblCompanyDesc.Visible = false;
-            lblLikes.Visible = false;
-            linkWebsite.Visible = false;
-            btnLikePage.Visible = false;
-            btnDropdown.Visible = false;
+            nameRect = new Rectangle(
+                padding,
+                logoRect.Bottom + 10,
+                Width - (2 * padding),
+                25);
+
+            // Center the profile button
+            profileButtonRect = new Rectangle(
+                (Width - 80) / 2,
+                nameRect.Bottom + 20,
+                80,
+                30);
+
+            // Hide other elements in minimal view
+            typeRect = Rectangle.Empty;
+            descRect = Rectangle.Empty;
+            likesRect = Rectangle.Empty;
+            websiteRect = Rectangle.Empty;
+            likeButtonRect = Rectangle.Empty;
+            dropdownRect = Rectangle.Empty;
         }
 
-        private void SetupSocialCardView()
+        private void CalculateSocialCardLayout()
         {
+            int padding = 15;
+
+            // Set the size for this view
             this.Size = new Size(300, 230);
-            int padding = popoverPanel.Padding.Left;
 
-            btnCompanyLogo.Location = new Point(padding, padding); // 15, 15
-            lblCompanyName.Location = new Point(padding, padding + btnCompanyLogo.Height + 10); // 15, 85
-            lblCompanyType.Location = new Point(padding, padding + btnCompanyLogo.Height + 35); // 15, 110
-            lblCompanyDesc.Size = new Size(this.Width - (2 * padding), 40); // 270, 40
-            lblCompanyDesc.Location = new Point(padding, padding + btnCompanyLogo.Height + 60); // 15, 135
-            lblLikes.Location = new Point(padding, padding + btnCompanyLogo.Height + 110); // 15, 185
-            linkWebsite.Location = new Point(padding + 100, padding + btnCompanyLogo.Height + 110); // 115, 185
-            btnLikePage.Size = new Size(60, 25);
-            btnLikePage.Location = new Point(padding, padding + btnCompanyLogo.Height + 140); // 15, 215
-            btnCompanyProfile.Size = new Size(60, 25);
-            btnCompanyProfile.Location = new Point(padding + btnLikePage.Width + 10, padding + btnCompanyLogo.Height + 140); // 85, 215
-            btnDropdown.Location = new Point(this.Width - padding - btnDropdown.Width - 10, padding); // 245, 15
+            logoRect = new Rectangle(
+                padding, padding,
+                60, 60);
+
+            nameRect = new Rectangle(
+                padding,
+                padding + logoRect.Height + 10,
+                Width - (2 * padding),
+                25);
+
+            typeRect = new Rectangle(
+                padding,
+                nameRect.Bottom + 5,
+                Width - (2 * padding),
+                20);
+
+            descRect = new Rectangle(
+                padding,
+                typeRect.Bottom + 5,
+                Width - (2 * padding),
+                40);
+
+            likesRect = new Rectangle(
+                padding,
+                descRect.Bottom + 10,
+                Width / 3 - padding,
+                20);
+
+            websiteRect = new Rectangle(
+                likesRect.Right + 10,
+                descRect.Bottom + 10,
+                Width - likesRect.Right - padding - 10,
+                20);
+
+            // Smaller buttons for social card
+            likeButtonRect = new Rectangle(
+                padding,
+                websiteRect.Bottom + 10,
+                60,
+                25);
+
+            profileButtonRect = new Rectangle(
+                likeButtonRect.Right + 10,
+                websiteRect.Bottom + 10,
+                60,
+                25);
+
+            dropdownRect = new Rectangle(
+                Width - padding - 30,
+                padding,
+                30,
+                30);
         }
 
-        private void SetupDetailedView()
+        private void CalculateDetailedLayout()
         {
-            this.Size = new Size(500,350);
-            int padding = popoverPanel.Padding.Left;
+            int padding = 15;
 
-            btnCompanyLogo.Location = new Point(padding, padding); // 15, 15
-            lblCompanyName.Location = new Point(padding, padding + btnCompanyLogo.Height + 10); // 15, 85
-            lblCompanyType.Location = new Point(padding, padding + btnCompanyLogo.Height + 35); // 15, 110
-            lblCompanyDesc.Size = new Size(this.Width - (2 * padding), 160); // 470, 160
-            lblCompanyDesc.Location = new Point(padding, padding + btnCompanyLogo.Height + 60); // 15, 135
-            lblLikes.Location = new Point(padding, padding + btnCompanyLogo.Height + 230); // 15, 305
-            linkWebsite.Location = new Point(padding + 70, padding + btnCompanyLogo.Height + 230); // 85, 305
-            btnLikePage.Location = new Point(padding, padding + btnCompanyLogo.Height + 260); // 15, 335
-            btnCompanyProfile.Location = new Point(padding + btnLikePage.Width + 10, padding + btnCompanyLogo.Height + 260); // 105, 335
-            btnDropdown.Location = new Point(this.Width - padding - btnDropdown.Width - 10, padding); // 445, 15
+            // Set the size for this view
+            this.Size = new Size(500, 350);
+
+            logoRect = new Rectangle(
+                padding, padding,
+                60, 60);
+
+            nameRect = new Rectangle(
+                padding,
+                padding + logoRect.Height + 10,
+                Width - (2 * padding),
+                30);
+
+            typeRect = new Rectangle(
+                padding,
+                nameRect.Bottom + 10,
+                Width - (2 * padding),
+                20);
+
+            // Larger description area for detailed view
+            descRect = new Rectangle(
+                padding,
+                typeRect.Bottom + 10,
+                Width - (2 * padding),
+                160);
+
+            likesRect = new Rectangle(
+                padding,
+                descRect.Bottom + 10,
+                Width / 4,
+                20);
+
+            websiteRect = new Rectangle(
+                likesRect.Right + 20,
+                descRect.Bottom + 10,
+                Width - likesRect.Right - padding - 20,
+                20);
+
+            likeButtonRect = new Rectangle(
+                padding,
+                websiteRect.Bottom + 20,
+                80,
+                30);
+
+            profileButtonRect = new Rectangle(
+                likeButtonRect.Right + 10,
+                websiteRect.Bottom + 20,
+                80,
+                30);
+
+            dropdownRect = new Rectangle(
+                Width - padding - 30,
+                padding,
+                30,
+                30);
+        }
+        #endregion
+
+        #region Hit Testing
+        private void SetupHitTesting()
+        {
+            // Clear existing hit areas
+            ClearHitList();
+
+            // Setup hit areas based on view type
+            switch (_viewType)
+            {
+                case CompanyProfileViewType.Classic:
+                case CompanyProfileViewType.Compact:
+                case CompanyProfileViewType.Detailed:
+                case CompanyProfileViewType.SocialCard:
+                    SetupStandardHitTesting();
+                    break;
+
+                case CompanyProfileViewType.Minimal:
+                    SetupMinimalHitTesting();
+                    break;
+            }
+        }
+        private void SetupStandardHitTesting()
+        {
+            // Company logo hit area
+            AddHitArea("CompanyLogo", logoRect, btnCompanyLogo, () => {
+                // Handle logo click (for example, open a detailed view)
+            });
+
+            // Like button hit area
+            if (!likeButtonRect.IsEmpty)
+            {
+                AddHitArea("LikeButton", likeButtonRect, btnLikePage, () => {
+                    // Handle like action
+                });
+            }
+
+            // Profile button hit area
+            if (!profileButtonRect.IsEmpty)
+            {
+                AddHitArea("ProfileButton", profileButtonRect, btnCompanyProfile, () => {
+                    // Handle profile action
+                });
+            }
+
+            // Website link hit area
+            if (!websiteRect.IsEmpty)
+            {
+                AddHitArea("WebsiteLink", websiteRect, null, () => {
+                    // Open website URL
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = Website.StartsWith("http") ? Website : "https://" + Website,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch { /* Handle exceptions */ }
+                });
+            }
+
+            // Dropdown menu hit area
+            if (!dropdownRect.IsEmpty)
+            {
+                AddHitArea("DropdownMenu", dropdownRect, btnDropdown, () => {
+                    // Show dropdown menu
+                    if (dropdownMenu != null)
+                    {
+                        dropdownMenu.Show(this, new Point(dropdownRect.X, dropdownRect.Bottom));
+                    }
+                });
+            }
         }
 
+        private void SetupMinimalHitTesting()
+        {
+            // Company logo hit area
+            AddHitArea("CompanyLogo", logoRect, btnCompanyLogo, () => {
+                // Handle logo click
+            });
+
+            // Profile button hit area (only button shown in minimal view)
+            if (!profileButtonRect.IsEmpty)
+            {
+                AddHitArea("ProfileButton", profileButtonRect, btnCompanyProfile, () => {
+                    // Handle profile action
+                });
+            }
+        }
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            // Handle click using hit testing
+            HitTest(e.Location);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Invalidate to update any hover effects
+            Invalidate();
+        }
+        #endregion
+
+        #region Drawing
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+
+            // Draw the company profile
+            Draw(g, DrawingRect);
+        }
+
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            if (_currentTheme == null)
+                return;
+
+            // Set high quality rendering
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            // Draw background
+            Color backgroundFill = _currentTheme.CompanyPopoverBackgroundColor != Color.Empty
+                ? _currentTheme.CompanyPopoverBackgroundColor
+                : _currentTheme.CardBackColor;
+
+            using (SolidBrush brush = new SolidBrush(backgroundFill))
+            {
+                graphics.FillRectangle(brush, rectangle);
+            }
+
+            // Draw components based on view type
+            switch (_viewType)
+            {
+                case CompanyProfileViewType.Classic:
+                case CompanyProfileViewType.Compact:
+                case CompanyProfileViewType.Detailed:
+                    DrawStandardView(graphics);
+                    break;
+
+                case CompanyProfileViewType.Minimal:
+                    DrawMinimalView(graphics);
+                    break;
+
+                case CompanyProfileViewType.SocialCard:
+                    DrawSocialCardView(graphics);
+                    break;
+            }
+        }
+
+        private void DrawStandardView(Graphics graphics)
+        {
+            // Draw company logo
+            if (!logoRect.IsEmpty && btnCompanyLogo != null)
+            {
+                btnCompanyLogo.Draw(graphics, logoRect);
+            }
+
+            // Draw company name
+            if (!nameRect.IsEmpty && lblCompanyName != null)
+            {
+                lblCompanyName.Draw(graphics, nameRect);
+            }
+
+            // Draw company type
+            if (!typeRect.IsEmpty && lblCompanyType != null)
+            {
+                lblCompanyType.Draw(graphics, typeRect);
+            }
+
+            // Draw company description
+            if (!descRect.IsEmpty && lblCompanyDesc != null)
+            {
+                lblCompanyDesc.Draw(graphics, descRect);
+            }
+
+            // Draw likes
+            if (!likesRect.IsEmpty && lblLikes != null)
+            {
+                lblLikes.Draw(graphics, likesRect);
+            }
+
+            // Draw website link
+            if (!websiteRect.IsEmpty)
+            {
+                // Custom drawing for LinkLabel since it doesn't inherit from BeepControl
+                Font linkFont = UseThemeFont && _currentTheme.LinkStyle != null
+                    ? BeepThemesManager.ToFont(_currentTheme.LinkStyle)
+                    : new Font("Segoe UI", 9, FontStyle.Underline);
+
+                Color linkColor = _currentTheme.CompanyLinkColor != Color.Empty
+                    ? _currentTheme.CompanyLinkColor
+                    : _currentTheme.LinkColor;
+
+                using (SolidBrush brush = new SolidBrush(linkColor))
+                {
+                    graphics.DrawString(Website, linkFont, brush, websiteRect);
+                }
+            }
+
+            // Draw like button
+            if (!likeButtonRect.IsEmpty && btnLikePage != null)
+            {
+                btnLikePage.Draw(graphics, likeButtonRect);
+            }
+
+            // Draw profile button
+            if (!profileButtonRect.IsEmpty && btnCompanyProfile != null)
+            {
+                btnCompanyProfile.Draw(graphics, profileButtonRect);
+            }
+
+            // Draw dropdown button
+            if (!dropdownRect.IsEmpty && btnDropdown != null)
+            {
+                btnDropdown.Draw(graphics, dropdownRect);
+            }
+        }
+
+        private void DrawMinimalView(Graphics graphics)
+        {
+            // In minimal view, we only draw logo, name, and profile button
+
+            // Draw company logo centered
+            if (!logoRect.IsEmpty && btnCompanyLogo != null)
+            {
+                btnCompanyLogo.Draw(graphics, logoRect);
+            }
+
+            // Draw company name with centered text alignment
+            if (!nameRect.IsEmpty && lblCompanyName != null)
+            {
+                // Override text alignment for minimal view
+                lblCompanyName.TextAlign = ContentAlignment.MiddleCenter;
+                lblCompanyName.Draw(graphics, nameRect);
+            }
+
+            // Draw profile button centered
+            if (!profileButtonRect.IsEmpty && btnCompanyProfile != null)
+            {
+                btnCompanyProfile.Draw(graphics, profileButtonRect);
+            }
+        }
+
+        private void DrawSocialCardView(Graphics graphics)
+        {
+            // Draw social card view which is similar to standard but with more compact layout
+            DrawStandardView(graphics);
+        }
+        #endregion
+
+        #region Theme
         public override void ApplyTheme()
         {
-            
-                popoverPanel.BackColor = _currentTheme.CompanyPopoverBackgroundColor;
-                lblCompanyName.ForeColor = _currentTheme.CompanyTitleColor;
-                lblCompanyType.ForeColor = _currentTheme.CompanySubtitleColor;
-                lblCompanyDesc.ForeColor = _currentTheme.CompanyDescriptionColor;
-                lblLikes.ForeColor = _currentTheme.CompanyDescriptionColor;
-                linkWebsite.LinkColor = _currentTheme.CompanyLinkColor;
-                btnLikePage.BackColor = _currentTheme.CompanyButtonBackgroundColor;
-                btnLikePage.ForeColor = _currentTheme.CompanyButtonTextColor;
-                btnCompanyProfile.BackColor = _currentTheme.CompanyButtonBackgroundColor;
-                btnCompanyProfile.ForeColor = _currentTheme.CompanyButtonTextColor;
-                dropdownMenu.BackColor = _currentTheme.CompanyDropdownBackgroundColor;
-                dropdownMenu.ForeColor = _currentTheme.CompanyDropdownTextColor;
-                btnDropdown.BackColor = _currentTheme.CompanyButtonBackgroundColor;
-                btnDropdown.ForeColor = _currentTheme.CompanyButtonTextColor;
-                btnCompanyLogo.BackColor = _currentTheme.CompanyLogoBackgroundColor;
-          
-        }
+            if (_currentTheme == null)
+                return;
 
+            // Apply theme to base control
+            base.ApplyTheme();
+
+            // Apply theme to company name label
+            if (lblCompanyName != null)
+            {
+                lblCompanyName.Theme = Theme;
+                lblCompanyName.ForeColor = _currentTheme.CompanyTitleColor != Color.Empty
+                    ? _currentTheme.CompanyTitleColor
+                    : _currentTheme.TitleStyle?.TextColor ?? _currentTheme.PrimaryTextColor;
+
+                // Apply theme font if using theme font is enabled
+                if (UseThemeFont && _currentTheme.TitleStyle != null)
+                {
+                    lblCompanyName.TextFont = BeepThemesManager.ToFont(_currentTheme.TitleStyle);
+                }
+            }
+
+            // Apply theme to company type label
+            if (lblCompanyType != null)
+            {
+                lblCompanyType.Theme = Theme;
+                lblCompanyType.ForeColor = _currentTheme.CompanySubtitleColor != Color.Empty
+                    ? _currentTheme.CompanySubtitleColor
+                    : _currentTheme.SubtitleStyle?.TextColor ?? _currentTheme.SecondaryTextColor;
+
+                // Apply theme font if using theme font is enabled
+                if (UseThemeFont && _currentTheme.SubtitleStyle != null)
+                {
+                    lblCompanyType.TextFont = BeepThemesManager.ToFont(_currentTheme.SubtitleStyle);
+                }
+            }
+
+            // Apply theme to company description textbox
+            if (lblCompanyDesc != null)
+            {
+                lblCompanyDesc.Theme = Theme;
+                lblCompanyDesc.ForeColor = _currentTheme.CompanyDescriptionColor != Color.Empty
+                    ? _currentTheme.CompanyDescriptionColor
+                    : _currentTheme.TextBoxForeColor;
+                lblCompanyDesc.BackColor = _currentTheme.CompanyPopoverBackgroundColor != Color.Empty
+                    ? _currentTheme.CompanyPopoverBackgroundColor
+                    : _currentTheme.CardBackColor;
+
+                // Apply theme font if using theme font is enabled
+                if (UseThemeFont && _currentTheme.BodyStyle != null)
+                {
+                    lblCompanyDesc.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
+                }
+            }
+
+            // Apply theme to likes label
+            if (lblLikes != null)
+            {
+                lblLikes.Theme = Theme;
+                lblLikes.ForeColor = _currentTheme.CompanyDescriptionColor != Color.Empty
+                    ? _currentTheme.CompanyDescriptionColor
+                    : _currentTheme.CaptionStyle?.TextColor ?? _currentTheme.SecondaryTextColor;
+
+                // Apply theme font if using theme font is enabled
+                if (UseThemeFont && _currentTheme.CaptionStyle != null)
+                {
+                    lblLikes.TextFont = BeepThemesManager.ToFont(_currentTheme.CaptionStyle);
+                }
+            }
+
+            // Apply theme to website link
+            if (linkWebsite != null)
+            {
+                linkWebsite.LinkColor = _currentTheme.CompanyLinkColor != Color.Empty
+                    ? _currentTheme.CompanyLinkColor
+                    : _currentTheme.LinkStyle?.TextColor ?? _currentTheme.LinkColor;
+
+                // Apply theme font if using theme font is enabled
+                if (UseThemeFont && _currentTheme.LinkStyle != null)
+                {
+                    linkWebsite.Font = BeepThemesManager.ToFont(_currentTheme.LinkStyle);
+                }
+            }
+
+            // Apply theme to like button
+            if (btnLikePage != null)
+            {
+                btnLikePage.Theme = Theme;
+                btnLikePage.BackColor = _currentTheme.CompanyButtonBackgroundColor != Color.Empty
+                    ? _currentTheme.CompanyButtonBackgroundColor
+                    : _currentTheme.ButtonBackColor;
+                btnLikePage.ForeColor = _currentTheme.CompanyButtonTextColor != Color.Empty
+                    ? _currentTheme.CompanyButtonTextColor
+                    : _currentTheme.ButtonForeColor;
+            }
+
+            // Apply theme to profile button
+            if (btnCompanyProfile != null)
+            {
+                btnCompanyProfile.Theme = Theme;
+                btnCompanyProfile.BackColor = _currentTheme.CompanyButtonBackgroundColor != Color.Empty
+                    ? _currentTheme.CompanyButtonBackgroundColor
+                    : _currentTheme.ButtonBackColor;
+                btnCompanyProfile.ForeColor = _currentTheme.CompanyButtonTextColor != Color.Empty
+                    ? _currentTheme.CompanyButtonTextColor
+                    : _currentTheme.ButtonForeColor;
+            }
+
+            // Apply theme to dropdown menu
+            if (dropdownMenu != null)
+            {
+                dropdownMenu.BackColor = _currentTheme.CompanyDropdownBackgroundColor != Color.Empty
+                    ? _currentTheme.CompanyDropdownBackgroundColor
+                    : _currentTheme.MenuBackColor;
+                dropdownMenu.ForeColor = _currentTheme.CompanyDropdownTextColor != Color.Empty
+                    ? _currentTheme.CompanyDropdownTextColor
+                    : _currentTheme.MenuForeColor;
+
+                // Apply font to dropdown menu items
+                if (UseThemeFont && _currentTheme.MenuItemUnSelectedFont != null)
+                {
+                    foreach (ToolStripItem item in dropdownMenu.Items)
+                    {
+                        item.Font = _currentTheme.MenuItemUnSelectedFont;
+                    }
+                }
+            }
+
+            // Apply theme to dropdown button
+            if (btnDropdown != null)
+            {
+                btnDropdown.Theme = Theme;
+                btnDropdown.BackColor = _currentTheme.CompanyButtonBackgroundColor != Color.Empty
+                    ? _currentTheme.CompanyButtonBackgroundColor
+                    : _currentTheme.ButtonBackColor;
+                btnDropdown.ForeColor = _currentTheme.CompanyButtonTextColor != Color.Empty
+                    ? _currentTheme.CompanyButtonTextColor
+                    : _currentTheme.ButtonForeColor;
+            }
+
+            // Apply theme to company logo button
+            if (btnCompanyLogo != null)
+            {
+                btnCompanyLogo.Theme = Theme;
+                btnCompanyLogo.BackColor = _currentTheme.CompanyLogoBackgroundColor != Color.Empty
+                    ? _currentTheme.CompanyLogoBackgroundColor
+                    : _currentTheme.ButtonBackColor;
+            }
+
+            // Force redraw with the new theme
+            Invalidate();
+        }
+        #endregion
+
+        #region Public Properties
         [Browsable(true)]
         [Category("Layout")]
         [Description("Switch between different company profile views.")]
@@ -328,8 +940,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _viewType;
             set
             {
-                _viewType = value;
-                ApplyViewType();
+                if (_viewType != value)
+                {
+                    _viewType = value;
+                    CalculateLayout();
+                }
             }
         }
 
@@ -337,48 +952,97 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Data")]
         public string CompanyName
         {
-            get => lblCompanyName.Text;
-            set => lblCompanyName.Text = value ?? "Company Name";
+            get => _companyName;
+            set
+            {
+                _companyName = value ?? "Company Name";
+                if (lblCompanyName != null)
+                {
+                    lblCompanyName.Text = _companyName;
+                }
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
         [Category("Data")]
         public string CompanyType
         {
-            get => lblCompanyType.Text;
-            set => lblCompanyType.Text = value ?? "Type";
+            get => _companyType;
+            set
+            {
+                _companyType = value ?? "Type";
+                if (lblCompanyType != null)
+                {
+                    lblCompanyType.Text = _companyType;
+                }
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
         [Category("Data")]
         public string Description
         {
-            get => lblCompanyDesc.Text;
-            set => lblCompanyDesc.Text = value ?? "Description";
+            get => _description;
+            set
+            {
+                _description = value ?? "Description";
+                if (lblCompanyDesc != null)
+                {
+                    lblCompanyDesc.Text = _description;
+                }
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
         [Category("Data")]
         public string Likes
         {
-            get => lblLikes.Text;
-            set => lblLikes.Text = value ?? "0 Likes";
+            get => _likes;
+            set
+            {
+                _likes = value ?? "0 Likes";
+                if (lblLikes != null)
+                {
+                    lblLikes.Text = _likes;
+                }
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
         [Category("Data")]
         public string Website
         {
-            get => linkWebsite.Text;
-            set => linkWebsite.Text = value ?? "www.example.com";
+            get => _website;
+            set
+            {
+                _website = value ?? "www.example.com";
+                if (linkWebsite != null)
+                {
+                    linkWebsite.Text = _website;
+                }
+                Invalidate();
+            }
         }
 
         [Browsable(true)]
         [Category("Data")]
         public string LogoPath
         {
-            get => btnCompanyLogo.ImagePath;
-            set => btnCompanyLogo.ImagePath = value;
+            get => _logoPath;
+            set
+            {
+                _logoPath = value;
+                if (btnCompanyLogo != null)
+                {
+                    btnCompanyLogo.ImagePath = _logoPath;
+                }
+                Invalidate();
+            }
         }
+        #endregion
     }
 }

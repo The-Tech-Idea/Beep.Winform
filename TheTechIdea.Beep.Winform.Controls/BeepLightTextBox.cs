@@ -2808,21 +2808,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
     }
-    public enum ValidationTypeBasedonIcon
-    {
-        None,
-        Error,
-        Warning,
-        Info,
-        Success,
-        Alert,
-        Likely,
-        Important,
-        Heart,
-        Help,
-        Question,
-        Ignore,
-        Cool
-    }
+   
 
 }

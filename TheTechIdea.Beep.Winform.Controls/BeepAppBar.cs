@@ -1355,9 +1355,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
                 GradientEndColor = _currentTheme.GradientEndColor;
 
-            if (_currentTheme.AppBarGradiantDirection != Color.Empty)
-                GradientDirection = LinearGradientMode.ForwardDiagonal; // Default
-            else
+            
                 GradientDirection = _currentTheme.GradientDirection;
 
             // Apply theme to logo

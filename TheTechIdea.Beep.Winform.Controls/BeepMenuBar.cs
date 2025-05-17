@@ -461,12 +461,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 GradientStartColor = _currentTheme.MenuGradiantStartColor;
                 GradientEndColor = _currentTheme.MenuGradiantEndColor;
 
-                if (_currentTheme.MenuGradiantDirection != Color.Empty)
-                {
-                    // This is a bit unusual - the Direction is stored as a Color
-                    // But we need to convert it to a LinearGradientMode
-                    GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
-                }
+                GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
+                
             }
 
             // Apply font from theme

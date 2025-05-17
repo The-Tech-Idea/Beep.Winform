@@ -140,8 +140,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
-        public Color SelectedBorderColor { get; private set; }
-        public string? PlaceholderText { get; private set; }="Select an item...";
+      
+        public string? PlaceholderText { get;  set; }="Select an item...";
 
         public BeepComboBox()
         {

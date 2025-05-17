@@ -886,6 +886,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+
         public Color SelectedBorderColor { get; set; }
         public Color DisabledBorderColor { get;  set; }
 

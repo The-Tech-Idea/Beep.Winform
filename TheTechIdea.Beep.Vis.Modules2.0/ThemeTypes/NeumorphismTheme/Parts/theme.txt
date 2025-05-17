@@ -1,0 +1,972 @@
+  public static BeepTheme NeumorphismTheme => new BeepTheme
+        {
+            // Core theme properties
+            ThemeGuid = Guid.NewGuid().ToString(),
+            FontFamily = "Roboto", // Commonly used in neumorphic designs
+            FontSize = 12f,
+            IsDarkTheme = false, // Neumorphism typically uses light or neutral tones
+
+            // Base Colors (Neumorphic Palette - Soft Grey Tones)
+            PrimaryColor = Color.FromArgb(163, 163, 163),    // Mid Grey for primary elements
+            SecondaryColor = Color.FromArgb(142, 142, 147),  // Slightly darker grey
+            AccentColor = Color.FromArgb(200, 200, 200),     // Lighter grey for accents
+            BackgroundColor = Color.FromArgb(239, 242, 245), // Light grey background
+            SurfaceColor = Color.FromArgb(230, 233, 236),    // Slightly darker surface
+            ErrorColor = Color.FromArgb(255, 99, 71),        // Tomato
+            WarningColor = Color.FromArgb(255, 215, 0),      // Amber
+            SuccessColor = Color.FromArgb(50, 205, 50),      // Lime green
+            OnPrimaryColor = Color.FromArgb(50, 50, 50),     // Dark grey for text on primary
+            OnBackgroundColor = Color.FromArgb(50, 50, 50),  // Dark grey for text on background
+
+            // UI Elements
+            BackColor = Color.FromArgb(239, 242, 245),
+            PanelBackColor = Color.FromArgb(230, 233, 236),
+            DisabledBackColor = Color.FromArgb(200, 200, 200),
+            DisabledForeColor = Color.FromArgb(150, 150, 150),
+            DisabledBorderColor = Color.FromArgb(180, 180, 180),
+            BorderColor = Color.FromArgb(210, 213, 216),     // Subtle border
+            ActiveBorderColor = Color.FromArgb(163, 163, 163),
+            InactiveBorderColor = Color.FromArgb(210, 213, 216),
+
+            // Gradient Properties (Soft neumorphic gradient)
+            GradientStartColor = Color.FromArgb(245, 248, 251),
+            GradientEndColor = Color.FromArgb(230, 233, 236),
+            GradientDirection = LinearGradientMode.Vertical,
+
+            // AppBar
+            AppBarBackColor = Color.FromArgb(230, 233, 236),
+            AppBarForeColor = Color.FromArgb(50, 50, 50),
+            AppBarButtonForeColor = Color.FromArgb(50, 50, 50),
+            AppBarButtonBackColor = Color.FromArgb(245, 248, 251),
+            AppBarTextBoxBackColor = Color.FromArgb(245, 248, 251),
+            AppBarTextBoxForeColor = Color.FromArgb(50, 50, 50),
+            AppBarLabelForeColor = Color.FromArgb(100, 100, 100),
+            AppBarLabelBackColor = Color.FromArgb(230, 233, 236),
+            AppBarTitleForeColor = Color.FromArgb(50, 50, 50),
+            AppBarTitleBackColor = Color.FromArgb(230, 233, 236),
+            AppBarSubTitleForeColor = Color.FromArgb(100, 100, 100),
+            AppBarSubTitleBackColor = Color.FromArgb(230, 233, 236),
+            AppBarCloseButtonColor = Color.FromArgb(255, 99, 71),
+            AppBarMaxButtonColor = Color.FromArgb(50, 205, 50),
+            AppBarMinButtonColor = Color.FromArgb(255, 215, 0),
+            AppBarTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 18f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            AppBarSubTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            AppBarTextStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+
+            // Styles
+            TitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 24f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            SubtitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            BodyStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            CaptionStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(150, 150, 150),
+                LineHeight = 1.2f
+            },
+            ButtonStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            LinkStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(163, 163, 163),
+                IsUnderlined = true,
+                LineHeight = 1.2f
+            },
+            OverlineStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(150, 150, 150),
+                LineHeight = 1.2f
+            },
+
+            // Button Colors (Neumorphic inset/outset effect)
+            ButtonHoverBackColor = Color.FromArgb(220, 223, 226),
+            ButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            ButtonHoverBorderColor = Color.FromArgb(200, 200, 200),
+            ButtonSelectedBorderColor = Color.FromArgb(163, 163, 163),
+            ButtonSelectedBackColor = Color.FromArgb(210, 213, 216),
+            ButtonSelectedForeColor = Color.FromArgb(50, 50, 50),
+            ButtonSelectedHoverBackColor = Color.FromArgb(200, 200, 200),
+            ButtonSelectedHoverForeColor = Color.FromArgb(50, 50, 50),
+            ButtonSelectedHoverBorderColor = Color.FromArgb(163, 163, 163),
+            ButtonBackColor = Color.FromArgb(230, 233, 236),
+            ButtonForeColor = Color.FromArgb(50, 50, 50),
+            ButtonBorderColor = Color.FromArgb(210, 213, 216),
+            ButtonErrorBackColor = Color.FromArgb(255, 99, 71),
+            ButtonErrorForeColor = Color.FromArgb(255, 255, 255),
+            ButtonErrorBorderColor = Color.FromArgb(255, 69, 41),
+            ButtonPressedBackColor = Color.FromArgb(200, 200, 200),
+            ButtonPressedForeColor = Color.FromArgb(50, 50, 50),
+            ButtonPressedBorderColor = Color.FromArgb(180, 180, 180),
+
+            // Textbox Colors
+            TextBoxBackColor = Color.FromArgb(230, 233, 236),
+            TextBoxForeColor = Color.FromArgb(50, 50, 50),
+            TextBoxBorderColor = Color.FromArgb(210, 213, 216),
+            TextBoxHoverBorderColor = Color.FromArgb(163, 163, 163),
+            TextBoxHoverBackColor = Color.FromArgb(220, 223, 226),
+            TextBoxHoverForeColor = Color.FromArgb(50, 50, 50),
+            TextBoxSelectedBorderColor = Color.FromArgb(163, 163, 163),
+            TextBoxSelectedBackColor = Color.FromArgb(230, 233, 236),
+            TextBoxSelectedForeColor = Color.FromArgb(50, 50, 50),
+            TextBoxPlaceholderColor = Color.FromArgb(150, 150, 150),
+            TextBoxErrorBorderColor = Color.FromArgb(255, 99, 71),
+            TextBoxErrorBackColor = Color.FromArgb(230, 233, 236),
+            TextBoxErrorForeColor = Color.FromArgb(50, 50, 50),
+            TextBoxErrorTextColor = Color.FromArgb(255, 99, 71),
+
+            // Label Colors
+            LabelBackColor = Color.FromArgb(230, 233, 236),
+            LabelForeColor = Color.FromArgb(50, 50, 50),
+            LabelBorderColor = Color.FromArgb(210, 213, 216),
+            LabelHoverBorderColor = Color.FromArgb(200, 200, 200),
+            LabelHoverBackColor = Color.FromArgb(220, 223, 226),
+            LabelHoverForeColor = Color.FromArgb(50, 50, 50),
+            LabelSelectedBorderColor = Color.FromArgb(163, 163, 163),
+            LabelSelectedBackColor = Color.FromArgb(230, 233, 236),
+            LabelSelectedForeColor = Color.FromArgb(50, 50, 50),
+            LabelDisabledBackColor = Color.FromArgb(200, 200, 200),
+            LabelDisabledForeColor = Color.FromArgb(150, 150, 150),
+            LabelDisabledBorderColor = Color.FromArgb(180, 180, 180),
+
+            // ComboBox Colors
+            ComboBoxBackColor = Color.FromArgb(230, 233, 236),
+            ComboBoxForeColor = Color.FromArgb(50, 50, 50),
+            ComboBoxBorderColor = Color.FromArgb(210, 213, 216),
+
+            // CheckBox Colors
+            CheckBoxBackColor = Color.FromArgb(230, 233, 236),
+            CheckBoxForeColor = Color.FromArgb(50, 50, 50),
+            CheckBoxBorderColor = Color.FromArgb(210, 213, 216),
+            CheckBoxSelectedForeColor = Color.FromArgb(50, 50, 50),
+            CheckBoxSelectedBackColor = Color.FromArgb(163, 163, 163),
+            CheckBoxHoverBackColor = Color.FromArgb(220, 223, 226),
+            CheckBoxHoverForeColor = Color.FromArgb(50, 50, 50),
+            CheckBoxHoverBorderColor = Color.FromArgb(200, 200, 200),
+
+            // Radio Button Colors
+            RadioButtonBackColor = Color.FromArgb(230, 233, 236),
+            RadioButtonForeColor = Color.FromArgb(50, 50, 50),
+            RadioButtonBorderColor = Color.FromArgb(210, 213, 216),
+            RadioButtonSelectedForeColor = Color.FromArgb(50, 50, 50),
+            RadioButtonSelectedBackColor = Color.FromArgb(163, 163, 163),
+            RadioButtonHoverBackColor = Color.FromArgb(220, 223, 226),
+            RadioButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            RadioButtonHoverBorderColor = Color.FromArgb(200, 200, 200),
+
+            // Progress Bar Colors
+            ProgressBarBackColor = Color.FromArgb(210, 213, 216),
+            ProgressBarForeColor = Color.FromArgb(163, 163, 163),
+            ProgressBarBorderColor = Color.FromArgb(200, 200, 200),
+            ProgressBarInsideTextColor = Color.FromArgb(50, 50, 50),
+            ProgressBarHoverBackColor = Color.FromArgb(200, 200, 200),
+            ProgressBarHoverForeColor = Color.FromArgb(163, 163, 163),
+            ProgressBarHoverBorderColor = Color.FromArgb(180, 180, 180),
+            ProgressBarHoverInsideTextColor = Color.FromArgb(50, 50, 50),
+
+            // ScrollBar Colors
+            ScrollBarBackColor = Color.FromArgb(230, 233, 236),
+            ScrollBarThumbColor = Color.FromArgb(200, 200, 200),
+            ScrollBarTrackColor = Color.FromArgb(210, 213, 216),
+            ScrollBarHoverThumbColor = Color.FromArgb(180, 180, 180),
+            ScrollBarHoverTrackColor = Color.FromArgb(200, 200, 200),
+            ScrollBarActiveThumbColor = Color.FromArgb(163, 163, 163),
+
+            // Status Bar Colors
+            StatusBarBackColor = Color.FromArgb(230, 233, 236),
+            StatusBarForeColor = Color.FromArgb(100, 100, 100),
+            StatusBarBorderColor = Color.FromArgb(210, 213, 216),
+            StatusBarHoverBackColor = Color.FromArgb(220, 223, 226),
+            StatusBarHoverForeColor = Color.FromArgb(50, 50, 50),
+            StatusBarHoverBorderColor = Color.FromArgb(200, 200, 200),
+
+            // Textbox Link Colors
+            LinkColor = Color.FromArgb(163, 163, 163),
+            VisitedLinkColor = Color.FromArgb(142, 142, 147),
+            HoverLinkColor = Color.FromArgb(200, 200, 200),
+
+            // ToolTip Colors
+            ToolTipBackColor = Color.FromArgb(230, 233, 236),
+            ToolTipForeColor = Color.FromArgb(50, 50, 50),
+            ToolTipBorderColor = Color.FromArgb(210, 213, 216),
+            ToolTipShadowColor = Color.FromArgb(200, 200, 200),
+            ToolTipShadowOpacity = Color.FromArgb(255, 200, 200, 200), // fully opaque gray
+            ToolTipTextColor = Color.FromArgb(50, 50, 50),
+            ToolTipLinkColor = Color.FromArgb(163, 163, 163),
+            ToolTipLinkHoverColor = Color.FromArgb(200, 200, 200),
+            ToolTipLinkVisitedColor = Color.FromArgb(142, 142, 147),
+
+            // Tab Colors
+            TabBackColor = Color.FromArgb(230, 233, 236),
+            TabForeColor = Color.FromArgb(100, 100, 100),
+            ActiveTabBackColor = Color.FromArgb(245, 248, 251),
+            ActiveTabForeColor = Color.FromArgb(50, 50, 50),
+            InactiveTabBackColor = Color.FromArgb(230, 233, 236),
+            InactiveTabForeColor = Color.FromArgb(150, 150, 150),
+            TabBorderColor = Color.FromArgb(210, 213, 216),
+            TabHoverBackColor = Color.FromArgb(220, 223, 226),
+            TabHoverForeColor = Color.FromArgb(50, 50, 50),
+            TabSelectedBackColor = Color.FromArgb(163, 163, 163),
+            TabSelectedForeColor = Color.FromArgb(50, 50, 50),
+            TabSelectedBorderColor = Color.FromArgb(163, 163, 163),
+            TabHoverBorderColor = Color.FromArgb(200, 200, 200),
+
+            // Dialog Colors
+            DialogBackColor = Color.FromArgb(230, 233, 236),
+            DialogForeColor = Color.FromArgb(50, 50, 50),
+            DialogYesButtonBackColor = Color.FromArgb(50, 205, 50),
+            DialogYesButtonForeColor = Color.FromArgb(255, 255, 255),
+            DialogYesButtonHoverBackColor = Color.FromArgb(70, 225, 70),
+            DialogYesButtonHoverForeColor = Color.FromArgb(255, 255, 255),
+            DialogYesButtonHoverBorderColor = Color.FromArgb(50, 205, 50),
+            DialogCancelButtonBackColor = Color.FromArgb(200, 200, 200),
+            DialogCancelButtonForeColor = Color.FromArgb(50, 50, 50),
+            DialogCancelButtonHoverBackColor = Color.FromArgb(180, 180, 180),
+            DialogCancelButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            DialogCancelButtonHoverBorderColor = Color.FromArgb(200, 200, 200),
+            DialogCloseButtonBackColor = Color.FromArgb(255, 99, 71),
+            DialogCloseButtonForeColor = Color.FromArgb(255, 255, 255),
+            DialogCloseButtonHoverBackColor = Color.FromArgb(255, 119, 91),
+            DialogCloseButtonHoverForeColor = Color.FromArgb(255, 255, 255),
+            DialogCloseButtonHoverBorderColor = Color.FromArgb(255, 99, 71),
+            DialogHelpButtonBackColor = Color.FromArgb(163, 163, 163),
+            DialogNoButtonBackColor = Color.FromArgb(200, 200, 200),
+            DialogNoButtonForeColor = Color.FromArgb(50, 50, 50),
+            DialogNoButtonHoverBackColor = Color.FromArgb(180, 180, 180),
+            DialogNoButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            DialogNoButtonHoverBorderColor = Color.FromArgb(200, 200, 200),
+            DialogOkButtonBackColor = Color.FromArgb(163, 163, 163),
+            DialogOkButtonForeColor = Color.FromArgb(50, 50, 50),
+            DialogOkButtonHoverBackColor = Color.FromArgb(183, 183, 183),
+            DialogOkButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            DialogOkButtonHoverBorderColor = Color.FromArgb(163, 163, 163),
+            DialogWarningButtonBackColor = Color.FromArgb(255, 215, 0),
+            DialogWarningButtonForeColor = Color.FromArgb(50, 50, 50),
+            DialogWarningButtonHoverBackColor = Color.FromArgb(255, 235, 20),
+            DialogWarningButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            DialogWarningButtonHoverBorderColor = Color.FromArgb(255, 215, 0),
+            DialogErrorButtonBackColor = Color.FromArgb(255, 99, 71),
+            DialogErrorButtonForeColor = Color.FromArgb(255, 255, 255),
+            DialogErrorButtonHoverBackColor = Color.FromArgb(255, 119, 91),
+            DialogErrorButtonHoverForeColor = Color.FromArgb(255, 255, 255),
+            DialogErrorButtonHoverBorderColor = Color.FromArgb(255, 99, 71),
+            DialogInformationButtonBackColor = Color.FromArgb(163, 163, 163),
+            DialogInformationButtonForeColor = Color.FromArgb(50, 50, 50),
+            DialogInformationButtonHoverBackColor = Color.FromArgb(183, 183, 183),
+            DialogInformationButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            DialogInformationButtonHoverBorderColor = Color.FromArgb(163, 163, 163),
+            DialogQuestionButtonBackColor = Color.FromArgb(163, 163, 163),
+            DialogQuestionButtonForeColor = Color.FromArgb(50, 50, 50),
+            DialogQuestionButtonHoverBackColor = Color.FromArgb(183, 183, 183),
+            DialogQuestionButtonHoverForeColor = Color.FromArgb(50, 50, 50),
+            DialogQuestionButtonHoverBorderColor = Color.FromArgb(163, 163, 163),
+
+            // Updated Grid Colors for NeumorphismTheme
+            GridBackColor = Color.FromArgb(239, 242, 245),           // Use the main background color for a seamless grid container
+            GridForeColor = Color.FromArgb(50, 50, 50),              // Dark text for high readability on light cells
+
+            // Header Colors: Using surface tones with subtle contrast
+            GridHeaderBackColor = Color.FromArgb(230, 233, 236),       // Matches the PanelBackColor for a soft header background
+            GridHeaderForeColor = Color.FromArgb(50, 50, 50),          // Dark text ensures headers stand out
+            GridHeaderBorderColor = Color.FromArgb(210, 213, 216),     // A very subtle border drawn from the UI's border color
+            GridHeaderHoverBackColor = Color.FromArgb(245, 248, 251),  // Slightly lighter than normal for a gentle hover effect
+            GridHeaderHoverForeColor = Color.FromArgb(50, 50, 50),     // Maintain contrast during hover
+            GridHeaderSelectedBackColor = Color.FromArgb(200, 200, 200),// Softly darker tone to indicate header selection
+            GridHeaderSelectedForeColor = Color.FromArgb(50, 50, 50),  // Keep header text readable during selection
+            GridHeaderHoverBorderColor = Color.FromArgb(210, 213, 216),// Consistent subtle border on hover
+            GridHeaderSelectedBorderColor = Color.FromArgb(210, 213, 216), // Match the overall delicate border styling
+
+            // Row Colors: Providing a gentle emphasis on row hover and selection
+            GridRowHoverBackColor = Color.FromArgb(245, 248, 251),     // Lightening the row background on hover
+            GridRowHoverForeColor = Color.FromArgb(50, 50, 50),        // Dark text remains legible on hover
+            GridRowSelectedBackColor = Color.FromArgb(230, 233, 236),   // Selected row shares the surface tone, highlighting without harsh contrast
+            GridRowSelectedForeColor = Color.FromArgb(50, 50, 50),      // Text remains dark for clarity
+            GridRowHoverBorderColor = Color.FromArgb(210, 213, 216),    // Light grid row borders on hover for subtle definition
+            GridRowSelectedBorderColor = Color.FromArgb(210, 213, 216), // Consistent border for selected rows
+
+            // Grid Lines and Row Defaults
+            GridLineColor = Color.FromArgb(210, 213, 216),             // Grid lines in a subtle tone that unifies the table layout
+            RowBackColor = Color.FromArgb(239, 242, 245),              // Standard row background matching the main background
+            RowForeColor = Color.FromArgb(50, 50, 50),                 // Text in dark grey for maximum readability
+            AltRowBackColor = Color.FromArgb(245, 248, 251),           // Alternate row background for slight visual differentiation
+            SelectedRowBackColor = Color.FromArgb(230, 233, 236),      // Consistent with GridRowSelectedBackColor
+            SelectedRowForeColor = Color.FromArgb(50, 50, 50),          // Dark text on the selected row for clear focus
+
+
+            // Card Colors
+            CardTextForeColor = Color.FromArgb(50, 50, 50),
+            CardBackColor = Color.FromArgb(230, 233, 236),
+            CardTitleForeColor = Color.FromArgb(50, 50, 50),
+            CardSubTitleForeColor = Color.FromArgb(100, 100, 100),
+            CardHeaderStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 18f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            CardparagraphStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            CardSubTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+
+            // Side Menu Colors
+            SideMenuBackColor = Color.FromArgb(230, 233, 236),
+            SideMenuHoverBackColor = Color.FromArgb(220, 223, 226),
+            SideMenuSelectedBackColor = Color.FromArgb(163, 163, 163),
+            SideMenuForeColor = Color.FromArgb(100, 100, 100),
+            SideMenuSelectedForeColor = Color.FromArgb(50, 50, 50),
+            SideMenuHoverForeColor = Color.FromArgb(50, 50, 50),
+            SideMenuBorderColor = Color.FromArgb(210, 213, 216),
+            SideMenuTitleTextColor = Color.FromArgb(50, 50, 50),
+            SideMenuTitleBackColor = Color.FromArgb(230, 233, 236),
+            SideMenuTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            SideMenuSubTitleTextColor = Color.FromArgb(100, 100, 100),
+            SideMenuSubTitleBackColor = Color.FromArgb(230, 233, 236),
+            SideMenuSubTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+
+            // Dashboard Colors
+            DashboardBackColor = Color.FromArgb(239, 242, 245),
+            DashboardCardBackColor = Color.FromArgb(230, 233, 236),
+            DashboardCardHoverBackColor = Color.FromArgb(220, 223, 226),
+            DashboardTitleForeColor = Color.FromArgb(50, 50, 50),
+            DashboardTitleBackColor = Color.FromArgb(239, 242, 245),
+            DashboardTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 24f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            DashboardSubTitleForeColor = Color.FromArgb(100, 100, 100),
+            DashboardSubTitleBackColor = Color.FromArgb(239, 242, 245),
+            DashboardSubTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+
+            // Chart Colors
+            ChartBackColor = Color.FromArgb(230, 233, 236),
+            ChartLineColor = Color.FromArgb(163, 163, 163),
+            ChartFillColor = Color.FromArgb(200, 200, 200),
+            ChartAxisColor = Color.FromArgb(210, 213, 216),
+            ChartTitleColor = Color.FromArgb(50, 50, 50),
+            ChartTextColor = Color.FromArgb(50, 50, 50),
+            ChartLegendBackColor = Color.FromArgb(245, 248, 251),
+            ChartLegendTextColor = Color.FromArgb(100, 100, 100),
+            ChartLegendShapeColor = Color.FromArgb(163, 163, 163),
+            ChartGridLineColor = Color.FromArgb(210, 213, 216),
+            ChartDefaultSeriesColors = new List<Color>
+{
+    Color.FromArgb(163, 163, 163),
+    Color.FromArgb(200, 200, 200),
+    Color.FromArgb(50, 205, 50),
+    Color.FromArgb(255, 215, 0)
+},
+
+            // Navigation and Breadcrumbs Colors
+            NavigationBackColor = Color.FromArgb(230, 233, 236),
+            NavigationForeColor = Color.FromArgb(100, 100, 100),
+            NavigationHoverBackColor = Color.FromArgb(220, 223, 226),
+            NavigationHoverForeColor = Color.FromArgb(50, 50, 50),
+
+            // Badge Colors
+            BadgeBackColor = Color.FromArgb(163, 163, 163),
+            BadgeForeColor = Color.FromArgb(50, 50, 50),
+            HighlightBackColor = Color.FromArgb(200, 200, 200),
+
+            // Menu Colors
+            MenuBackColor = Color.FromArgb(230, 233, 236),
+            MenuForeColor = Color.FromArgb(100, 100, 100),
+            MenuBorderColor = Color.FromArgb(210, 213, 216),
+            MenuMainItemForeColor = Color.FromArgb(50, 50, 50),
+            MenuMainItemHoverForeColor = Color.FromArgb(50, 50, 50),
+            MenuMainItemHoverBackColor = Color.FromArgb(220, 223, 226),
+            MenuMainItemSelectedForeColor = Color.FromArgb(50, 50, 50),
+            MenuMainItemSelectedBackColor = Color.FromArgb(163, 163, 163),
+            MenuItemForeColor = Color.FromArgb(100, 100, 100),
+            MenuItemHoverForeColor = Color.FromArgb(50, 50, 50),
+            MenuItemHoverBackColor = Color.FromArgb(220, 223, 226),
+            MenuItemSelectedForeColor = Color.FromArgb(50, 50, 50),
+            MenuItemSelectedBackColor = Color.FromArgb(163, 163, 163),
+
+            // Tree Colors
+            TreeBackColor = Color.FromArgb(230, 233, 236),
+            TreeForeColor = Color.FromArgb(50, 50, 50),
+            TreeBorderColor = Color.FromArgb(210, 213, 216),
+            TreeNodeForeColor = Color.FromArgb(100, 100, 100),
+            TreeNodeHoverForeColor = Color.FromArgb(50, 50, 50),
+            TreeNodeHoverBackColor = Color.FromArgb(220, 223, 226),
+            TreeNodeSelectedForeColor = Color.FromArgb(50, 50, 50),
+            TreeNodeSelectedBackColor = Color.FromArgb(163, 163, 163),
+            TreeNodeCheckedBoxForeColor = Color.FromArgb(50, 50, 50),
+            TreeNodeCheckedBoxBackColor = Color.FromArgb(163, 163, 163),
+
+            // Calendar Colors
+            CalendarBackColor = Color.FromArgb(230, 233, 236),
+            CalendarForeColor = Color.FromArgb(50, 50, 50),
+            CalendarTodayForeColor = Color.FromArgb(200, 200, 200),
+
+            // List Colors
+            ListBackColor = Color.FromArgb(230, 233, 236),
+            ListForeColor = Color.FromArgb(50, 50, 50),
+            ListBorderColor = Color.FromArgb(210, 213, 216),
+            ListItemForeColor = Color.FromArgb(100, 100, 100),
+            ListItemHoverForeColor = Color.FromArgb(50, 50, 50),
+            ListItemHoverBackColor = Color.FromArgb(220, 223, 226),
+            ListItemSelectedForeColor = Color.FromArgb(50, 50, 50),
+            ListItemSelectedBackColor = Color.FromArgb(163, 163, 163),
+            ListItemSelectedBorderColor = Color.FromArgb(163, 163, 163),
+            ListItemBorderColor = Color.FromArgb(210, 213, 216),
+            ListItemHoverBorderColor = Color.FromArgb(200, 200, 200),
+
+            // Star Rating Colors
+            StarRatingForeColor = Color.FromArgb(50, 50, 50),
+            StarRatingBackColor = Color.FromArgb(230, 233, 236),
+            StarRatingBorderColor = Color.FromArgb(210, 213, 216),
+            StarRatingFillColor = Color.FromArgb(255, 215, 0),
+            StarRatingHoverForeColor = Color.FromArgb(50, 50, 50),
+            StarRatingHoverBackColor = Color.FromArgb(220, 223, 226),
+            StarRatingHoverBorderColor = Color.FromArgb(200, 200, 200),
+            StarRatingSelectedForeColor = Color.FromArgb(50, 50, 50),
+            StarRatingSelectedBackColor = Color.FromArgb(255, 215, 0),
+            StarRatingSelectedBorderColor = Color.FromArgb(255, 215, 0),
+
+            // Stats Card Colors
+            StatsCardBackColor = Color.FromArgb(230, 233, 236),
+            StatsCardForeColor = Color.FromArgb(50, 50, 50),
+            StatsCardBorderColor = Color.FromArgb(210, 213, 216),
+            StatsCardTitleForeColor = Color.FromArgb(50, 50, 50),
+            StatsCardTitleBackColor = Color.FromArgb(230, 233, 236),
+            StatsCardTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 18f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            StatsCardSubTitleForeColor = Color.FromArgb(100, 100, 100),
+            StatsCardSubTitleBackColor = Color.FromArgb(230, 233, 236),
+            StatsCardSubStyleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            StatsCardValueForeColor = Color.FromArgb(163, 163, 163),
+            StatsCardValueBackColor = Color.FromArgb(230, 233, 236),
+            StatsCardValueBorderColor = Color.FromArgb(210, 213, 216),
+            StatsCardValueHoverForeColor = Color.FromArgb(183, 183, 183),
+            StatsCardValueHoverBackColor = Color.FromArgb(220, 223, 226),
+            StatsCardValueHoverBorderColor = Color.FromArgb(200, 200, 200),
+            StatsCardValueStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 24f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(163, 163, 163),
+                LineHeight = 1.2f
+            },
+            StatsCardInfoForeColor = Color.FromArgb(100, 100, 100),
+            StatsCardInfoBackColor = Color.FromArgb(230, 233, 236),
+            StatsCardInfoBorderColor = Color.FromArgb(210, 213, 216),
+            StatsCardInfoStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            StatsCardTrendForeColor = Color.FromArgb(50, 205, 50),
+            StatsCardTrendBackColor = Color.FromArgb(230, 233, 236),
+            StatsCardTrendBorderColor = Color.FromArgb(210, 213, 216),
+            StatsCardTrendStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 205, 50),
+                LineHeight = 1.2f
+            },
+
+            // Switch Control Colors
+            SwitchBackColor = Color.FromArgb(210, 213, 216),
+            SwitchBorderColor = Color.FromArgb(200, 200, 200),
+            SwitchForeColor = Color.FromArgb(50, 50, 50),
+            SwitchSelectedBackColor = Color.FromArgb(163, 163, 163),
+            SwitchSelectedBorderColor = Color.FromArgb(163, 163, 163),
+            SwitchSelectedForeColor = Color.FromArgb(50, 50, 50),
+            SwitchHoverBackColor = Color.FromArgb(200, 200, 200),
+            SwitchHoverBorderColor = Color.FromArgb(180, 180, 180),
+            SwitchHoverForeColor = Color.FromArgb(50, 50, 50),
+
+            // Task Card Colors
+            TaskCardBackColor = Color.FromArgb(230, 233, 236),
+            TaskCardForeColor = Color.FromArgb(50, 50, 50),
+            TaskCardBorderColor = Color.FromArgb(210, 213, 216),
+            TaskCardTitleForeColor = Color.FromArgb(50, 50, 50),
+            TaskCardTitleBackColor = Color.FromArgb(230, 233, 236),
+            TaskCardTitleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 18f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            TaskCardSubTitleForeColor = Color.FromArgb(100, 100, 100),
+            TaskCardSubTitleBackColor = Color.FromArgb(230, 233, 236),
+            TaskCardSubStyleStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            TaskCardMetricTextForeColor = Color.FromArgb(163, 163, 163),
+            TaskCardMetricTextBackColor = Color.FromArgb(230, 233, 236),
+            TaskCardMetricTextBorderColor = Color.FromArgb(210, 213, 216),
+            TaskCardMetricTextHoverForeColor = Color.FromArgb(183, 183, 183),
+            TaskCardMetricTextHoverBackColor = Color.FromArgb(220, 223, 226),
+            TaskCardMetricTextHoverBorderColor = Color.FromArgb(200, 200, 200),
+            TaskCardMetricTextStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(163, 163, 163),
+                LineHeight = 1.2f
+            },
+            TaskCardProgressValueForeColor = Color.FromArgb(50, 205, 50),
+            TaskCardProgressValueBackColor = Color.FromArgb(230, 233, 236),
+            TaskCardProgressValueBorderColor = Color.FromArgb(210, 213, 216),
+            TaskCardProgressValueStyle = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 205, 50),
+                LineHeight = 1.2f
+            },
+
+            // Testimony Colors
+            TestimonialBackColor = Color.FromArgb(230, 233, 236),
+            TestimonialTextColor = Color.FromArgb(50, 50, 50),
+            TestimonialNameColor = Color.FromArgb(163, 163, 163),
+            TestimonialDetailsColor = Color.FromArgb(100, 100, 100),
+            TestimonialDateColor = Color.FromArgb(150, 150, 150),
+            TestimonialRatingColor = Color.FromArgb(255, 215, 0),
+            TestimonialStatusColor = Color.FromArgb(50, 205, 50),
+
+            // Company Colors
+            CompanyPopoverBackgroundColor = Color.FromArgb(230, 233, 236),
+            CompanyTitleColor = Color.FromArgb(50, 50, 50),
+            CompanySubtitleColor = Color.FromArgb(163, 163, 163),
+            CompanyDescriptionColor = Color.FromArgb(100, 100, 100),
+            CompanyLinkColor = Color.FromArgb(163, 163, 163),
+            CompanyButtonBackgroundColor = Color.FromArgb(163, 163, 163),
+            CompanyButtonTextColor = Color.FromArgb(50, 50, 50),
+            CompanyDropdownBackgroundColor = Color.FromArgb(230, 233, 236),
+            CompanyDropdownTextColor = Color.FromArgb(50, 50, 50),
+            CompanyLogoBackgroundColor = Color.FromArgb(245, 248, 251),
+
+            // Login Colors
+            LoginPopoverBackgroundColor = Color.FromArgb(230, 233, 236),
+            LoginTitleColor = Color.FromArgb(50, 50, 50),
+            LoginSubtitleColor = Color.FromArgb(163, 163, 163),
+            LoginDescriptionColor = Color.FromArgb(100, 100, 100),
+            LoginLinkColor = Color.FromArgb(163, 163, 163),
+            LoginButtonBackgroundColor = Color.FromArgb(163, 163, 163),
+            LoginButtonTextColor = Color.FromArgb(50, 50, 50),
+            LoginDropdownBackgroundColor = Color.FromArgb(230, 233, 236),
+            LoginDropdownTextColor = Color.FromArgb(50, 50, 50),
+            LoginLogoBackgroundColor = Color.FromArgb(245, 248, 251),
+
+            // Typography
+            Heading1 = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 32f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            Heading2 = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 28f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            Heading3 = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 24f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            Heading4 = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 20f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            Heading5 = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 18f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            Heading6 = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            Paragraph = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            Blockquote = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.5f,
+                FontStyle = FontStyle.Italic
+            },
+            BlockquoteBorderColor = Color.FromArgb(210, 213, 216),
+            BlockquoteBorderWidth = 2f,
+            BlockquotePadding = 10f,
+            InlineCode = new TypographyStyle
+            {
+                FontFamily = "Roboto Mono",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(163, 163, 163),
+                LineHeight = 1.2f
+            },
+            InlineCodeBackgroundColor = Color.FromArgb(220, 223, 226),
+            InlineCodePadding = 2f,
+            CodeBlock = new TypographyStyle
+            {
+                FontFamily = "Roboto Mono",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            CodeBlockBackgroundColor = Color.FromArgb(245, 248, 251),
+            CodeBlockBorderColor = Color.FromArgb(210, 213, 216),
+            CodeBlockBorderWidth = 1f,
+            CodeBlockPadding = 10f,
+            UnorderedList = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            OrderedList = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            ListItemSpacing = 5f,
+            ListIndentation = 20f,
+            Link = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(163, 163, 163),
+                IsUnderlined = true,
+                LineHeight = 1.2f
+            },
+            LinkHoverColor = Color.FromArgb(200, 200, 200),
+            LinkIsUnderline = true,
+            SmallText = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            StrongText = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            EmphasisText = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                FontStyle = FontStyle.Italic,
+                LineHeight = 1.5f
+            },
+            DisplayLarge = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 48f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.1f
+            },
+            DisplayMedium = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 36f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.1f
+            },
+            DisplaySmall = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 28f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.1f
+            },
+            HeadlineLarge = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 32f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            HeadlineMedium = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 28f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            HeadlineSmall = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 24f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            TitleLarge = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 22f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            TitleMedium = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 18f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            TitleSmall = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.2f
+            },
+            BodyLarge = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 16f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            BodyMedium = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            BodySmall = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Normal,
+                TextColor = Color.FromArgb(50, 50, 50),
+                LineHeight = 1.5f
+            },
+            LabelLarge = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 12f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            LabelMedium = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 10f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+            LabelSmall = new TypographyStyle
+            {
+                FontFamily = "Roboto",
+                FontSize = 11f,
+                FontWeight = FontWeight.Medium,
+                TextColor = Color.FromArgb(100, 100, 100),
+                LineHeight = 1.2f
+            },
+
+            // Font Families and Styles
+            FontSizeBlockHeader = 24f,
+            FontSizeBlockText = 14f,
+            FontSizeQuestion = 16f,
+            FontSizeAnswer = 14f,
+            FontSizeCaption = 12f,
+            FontSizeButton = 14f,
+            FontStyleRegular = FontStyle.Regular,
+            FontStyleBold = FontStyle.Bold,
+            FontStyleItalic = FontStyle.Italic,
+            PrimaryTextColor = Color.FromArgb(50, 50, 50),
+            SecondaryTextColor = Color.FromArgb(100, 100, 100),
+            AccentTextColor = Color.FromArgb(163, 163, 163),
+
+            // Additional Properties (Neumorphic Specs)
+            PaddingSmall = 6,
+            PaddingMedium = 12,
+            PaddingLarge = 18,
+            BorderRadius = 12, // Softer corners for neumorphism
+            BorderSize = 1,
+            IconSet = "Material Icons",
+            ApplyThemeToIcons = true,
+            ShadowColor = Color.FromArgb(200, 200, 200),
+            ShadowOpacity = 0.2f,
+            AnimationDurationShort = 0.2,
+            AnimationDurationMedium = 0.3,
+            AnimationDurationLong = 0.5,
+            AnimationEasingFunction = "ease-in-out",
+            HighContrastMode = false,
+            FocusIndicatorColor = Color.FromArgb(163, 163, 163)
+        };

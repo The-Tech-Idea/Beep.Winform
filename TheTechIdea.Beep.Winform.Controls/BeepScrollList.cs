@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-
+using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
+using Timer = System.Windows.Forms.Timer;
+using System.Windows.Forms;
+using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -17,11 +20,12 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Fields
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
-        private List<BeepButton> _buttonItems = new List<BeepButton>();
+        private List<BeepButton> _virtualButtons = new List<BeepButton>(); // Virtual buttons for drawing only
         private int _itemHeight = 30; // Height for vertical, width for horizontal
         private int _itemWidth = 100; // Width for vertical orientation
         private int _visibleItemsCount;
         private float _scrollOffset = 0; // Float for smoother scrolling
+        private float _targetScrollOffset = 0; // Target position for smooth scrolling
         private int _selectedIndex = -1;
         private ScrollOrientation _orientation = ScrollOrientation.VerticalScroll;
         private bool _isDragging = false;
@@ -29,9 +33,50 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _dragStartOffset;
         private int padding = 3;
         private const float ScrollSpeed = 0.5f; // Adjust for scroll sensitivity
+        private Timer _animationTimer;
+        private const float ScrollAnimationSpeed = 0.15f; // Lower = slower, smoother animation
+        private int _itemSpacing = 2; // Space between items
         #endregion
 
         #region Properties
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show scroll indicators")]
+        [DefaultValue(true)]
+        public bool ShowScrollIndicators { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Color of the scroll indicators")]
+        public Color ScrollIndicatorColor { get; set; } = Color.Gray;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Space between list items")]
+        [DefaultValue(2)]
+        public int ItemSpacing
+        {
+            get => _itemSpacing;
+            set
+            {
+                _itemSpacing = value;
+                UpdateVirtualItems();
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Enable keyboard navigation")]
+        [DefaultValue(true)]
+        public bool EnableKeyboardNavigation { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Enable hover effects for list items")]
+        [DefaultValue(true)]
+        public bool EnableItemHoverEffects { get; set; } = true;
+
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
         [MergableProperty(true)]
@@ -43,14 +88,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
                 _textFont = value;
                 UseThemeFont = false;
+                UpdateVirtualItems();
                 Invalidate();
-
-
             }
         }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The list of items to display.")]
@@ -61,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _listItems = value ?? new BindingList<SimpleItem>();
-                UpdateButtonItems();
+                UpdateVirtualItems();
                 UpdateScrollBounds();
                 Invalidate();
             }
@@ -77,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _itemHeight = value;
-                UpdateButtonItems();
+                UpdateVirtualItems();
                 UpdateScrollBounds();
                 Invalidate();
             }
@@ -93,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _itemWidth = value;
-                UpdateButtonItems();
+                UpdateVirtualItems();
                 UpdateScrollBounds();
                 Invalidate();
             }
@@ -109,11 +153,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _orientation = value;
-                UpdateButtonItems();
+                UpdateVirtualItems();
                 UpdateScrollBounds();
                 Invalidate();
             }
         }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("The index of the currently selected item.")]
@@ -124,25 +169,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (value >= -1 && value < _listItems.Count)
                 {
-                    if (_selectedIndex >= 0 && _selectedIndex < _buttonItems.Count)
-                    {
-                        _buttonItems[_selectedIndex].IsSelected = false;
-                    }
-
                     _selectedIndex = value;
-
-                    if (_selectedIndex >= 0 && _selectedIndex < _buttonItems.Count)
-                    {
-                        _buttonItems[_selectedIndex].IsSelected = true;
-                        ScrollToItem(_selectedIndex); // Auto-scroll to selected item
-                    }
-
+                    UpdateSelectedState();
+                    ScrollToItem(_selectedIndex); // Auto-scroll to selected item
                     OnItemSelected();
                     Invalidate();
                 }
             }
         }
-
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -178,29 +212,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             ListItems.ListChanged += Items_ListChanged;
         }
 
-        private void Items_ListChanged(object sender, ListChangedEventArgs e) => UpdateButtonItems();
+        private void Items_ListChanged(object sender, ListChangedEventArgs e) => UpdateVirtualItems();
 
         private void InitializeControl()
         {
             DoubleBuffered = true;
+
+            // Initialize animation timer
+            _animationTimer = new Timer();
+            _animationTimer.Interval = 16; // ~60fps
+            _animationTimer.Tick += AnimationTimer_Tick;
+            _animationTimer.Start();
+
             UpdateScrollBounds();
         }
         #endregion
 
-        #region Button Management
-        public void UpdateButtonItems()
+        #region Virtual Button Management
+        public void UpdateVirtualItems()
         {
-            foreach (var button in _buttonItems)
+            // Clear old hit test areas
+            ClearHitList();
+
+            // Clear old virtual buttons
+            foreach (var button in _virtualButtons)
             {
-                button.Click -= Button_Click;
-                Controls.Remove(button);
                 button.Dispose();
             }
-            _buttonItems.Clear();
+            _virtualButtons.Clear();
 
+            if (_listItems == null || _listItems.Count == 0)
+                return;
+
+            // Create virtual buttons
             for (int i = 0; i < _listItems.Count; i++)
             {
                 var item = _listItems[i];
+
+                // Create a virtual BeepButton (not added to Controls)
                 var button = new BeepButton
                 {
                     Text = item.Text,
@@ -216,7 +265,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     TextAlign = ContentAlignment.MiddleCenter,
                     ShowFocusIndicator = false,
                     BorderThickness = 0,
-                    Visible = false // Start invisible until positioned
+                    UseScaledFont = true,
+                    Font = TextFont,
+                    IsSelected = i == _selectedIndex,
+                    Tag = i // Store the index for later reference
                 };
 
                 if (!string.IsNullOrEmpty(item.ImagePath))
@@ -226,39 +278,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                     button.TextImageRelation = TextImageRelation.ImageBeforeText;
                 }
 
-                // Don't set Size here - will be set in UpdateButtonPositions
-
-                button.Theme = Theme;
-                button.Click += Button_Click;
-                _buttonItems.Add(button);
-                Controls.Add(button);
+                _virtualButtons.Add(button);
             }
 
-            if (_selectedIndex >= 0 && _selectedIndex < _buttonItems.Count)
-            {
-                _buttonItems[_selectedIndex].IsSelected = true;
-            }
-
-            UpdateButtonPositions();
+            // Calculate and set up hit areas
+            UpdateItemPositions();
         }
 
-
-        private void Button_Click(object sender, EventArgs e)
+        private void UpdateSelectedState()
         {
-            var button = sender as BeepButton;
-            if (button != null)
+            for (int i = 0; i < _virtualButtons.Count; i++)
             {
-                int index = _buttonItems.IndexOf(button);
-                if (index >= 0)
-                {
-                    SelectedIndex = index;
-                }
+                _virtualButtons[i].IsSelected = (i == _selectedIndex);
             }
         }
 
-        private void UpdateButtonPositions()
+        private void UpdateItemPositions()
         {
-            if (_buttonItems.Count == 0 || _listItems.Count == 0)
+            if (_virtualButtons.Count == 0 || _listItems.Count == 0)
                 return;
 
             // Calculate visible area dimensions accounting for padding
@@ -270,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int endIndex = Math.Min(startIndex + _visibleItemsCount + 1, _listItems.Count);
 
             // Calculate the total content size
-            float totalSize = _listItems.Count * _itemHeight;
+            float totalSize = _listItems.Count * (_itemHeight + _itemSpacing) - _itemSpacing;
             float visibleSize = _orientation == ScrollOrientation.VerticalScroll ? visibleHeight : visibleWidth;
 
             // Calculate centering offset when content is smaller than visible area
@@ -280,19 +317,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                 centeringOffset = (visibleSize - totalSize) / 2;
             }
 
-            // Position all buttons
-            for (int i = 0; i < _buttonItems.Count; i++)
-            {
-                var button = _buttonItems[i];
+            // Clear existing hit areas
+            ClearHitList();
 
-                // Only show buttons in the visible range
+            // Create hit areas for visible items
+            for (int i = 0; i < _virtualButtons.Count; i++)
+            {
+                // Only show items in the visible range
                 bool isVisible = i >= startIndex && i < endIndex;
-                button.Visible = isVisible;
 
                 if (!isVisible) continue;
 
-                // Calculate position based on scroll offset
-                float itemPosition = (i - _scrollOffset) * _itemHeight;
+                var button = _virtualButtons[i];
+
+                // Calculate position based on scroll offset and spacing
+                float itemPosition = (i - _scrollOffset) * (_itemHeight + _itemSpacing);
+                Rectangle itemRect;
 
                 if (_orientation == ScrollOrientation.VerticalScroll)
                 {
@@ -303,9 +343,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int buttonWidth = Math.Min(_itemWidth, visibleWidth);
                     int xPos = Padding.Left + (visibleWidth - buttonWidth) / 2;
 
-                    // Set position and size
-                    button.Location = new Point(xPos, yPos);
-                    button.Size = new Size(buttonWidth, _itemHeight);
+                    // Define the item rectangle
+                    itemRect = new Rectangle(xPos, yPos, buttonWidth, _itemHeight);
                 }
                 else
                 {
@@ -316,16 +355,33 @@ namespace TheTechIdea.Beep.Winform.Controls
                     int buttonHeight = Math.Min(_itemHeight, visibleHeight);
                     int yPos = Padding.Top + (visibleHeight - buttonHeight) / 2;
 
-                    // Set position and size - in horizontal mode, itemHeight is actually width
-                    button.Location = new Point(xPos, yPos);
-                    button.Size = new Size(_itemHeight, buttonHeight);
+                    // Define the item rectangle
+                    itemRect = new Rectangle(xPos, yPos, _itemHeight, buttonHeight);
                 }
+
+                // Add a hit area for this item
+                int index = i; // Capture the current index for the lambda
+                AddHitArea(
+                    $"Item_{i}",
+                    itemRect,
+                    button,
+                    () => ItemClicked(index)
+                );
             }
         }
 
+        // Handler for item click
+        private void ItemClicked(int index)
+        {
+            if (index >= 0 && index < _listItems.Count)
+            {
+                SelectedIndex = index;
+            }
+        }
         #endregion
 
         #region Layout and Drawing
+        // Scroll to the specified item with smooth animation
         public void ScrollToItem(int index)
         {
             if (index < 0 || index >= _listItems.Count)
@@ -335,28 +391,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_orientation == ScrollOrientation.VerticalScroll)
             {
                 int visibleHeight = DrawingRect.Height - (Padding.Top + Padding.Bottom);
-                int visibleItems = Math.Max(1, visibleHeight / _itemHeight);
+                int visibleItems = Math.Max(1, visibleHeight / (_itemHeight + _itemSpacing));
 
                 // Center the item if possible
-                _scrollOffset = Math.Max(0, index - visibleItems / 2);
+                _targetScrollOffset = Math.Max(0, index - visibleItems / 2);
 
                 // Ensure we don't scroll past the end
-                _scrollOffset = Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - visibleItems));
+                _targetScrollOffset = Math.Min(_targetScrollOffset, Math.Max(0, _listItems.Count - visibleItems));
             }
             else
             {
                 int visibleWidth = DrawingRect.Width - (Padding.Left + Padding.Right);
-                int visibleItems = Math.Max(1, visibleWidth / _itemHeight);
+                int visibleItems = Math.Max(1, visibleWidth / (_itemHeight + _itemSpacing));
 
                 // Center the item if possible
-                _scrollOffset = Math.Max(0, index - visibleItems / 2);
+                _targetScrollOffset = Math.Max(0, index - visibleItems / 2);
 
                 // Ensure we don't scroll past the end
-                _scrollOffset = Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - visibleItems));
+                _targetScrollOffset = Math.Min(_targetScrollOffset, Math.Max(0, _listItems.Count - visibleItems));
             }
-
-            UpdateButtonPositions();
-            Invalidate();
         }
 
         private void UpdateScrollBounds()
@@ -365,22 +418,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_orientation == ScrollOrientation.VerticalScroll)
             {
                 int contentHeight = DrawingRect.Height - (this.Padding.Top + this.Padding.Bottom);
-                _visibleItemsCount = (int)Math.Ceiling((float)contentHeight / _itemHeight);
+                _visibleItemsCount = (int)Math.Ceiling((float)contentHeight / (_itemHeight + _itemSpacing));
             }
             else
             {
                 int contentWidth = DrawingRect.Width - (this.Padding.Left + this.Padding.Right);
-                _visibleItemsCount = (int)Math.Ceiling((float)contentWidth / _itemHeight);
+                _visibleItemsCount = (int)Math.Ceiling((float)contentWidth / (_itemHeight + _itemSpacing));
             }
 
             _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - _visibleItemsCount)));
-            UpdateButtonPositions();
+            UpdateItemPositions();
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateButtonItems();
+            UpdateVirtualItems();
             UpdateScrollBounds();
             Invalidate();
         }
@@ -388,11 +441,94 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            DrawContent(graphics);
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+        }
+
+        // Override DrawContent to render scroll indicators and virtual buttons
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+
+            // Draw each virtual button using its corresponding hit area
+            foreach (var hitTest in HitList)
+            {
+                if (hitTest.IsVisible && hitTest.uIComponent is BeepButton button)
+                {
+                    // Render the button at its target rectangle
+                    button.Draw(g, hitTest.TargetRect);
+                }
+            }
+
+            // Draw scroll indicators if enabled and needed
+            if (ShowScrollIndicators && _listItems.Count > _visibleItemsCount)
+            {
+                DrawScrollIndicators(g);
+            }
+        }
+
+        private void DrawScrollIndicators(Graphics g)
+        {
+            // Calculate the total content size and visible percentage
+            float contentSize = _listItems.Count * (_itemHeight + _itemSpacing) - _itemSpacing;
+            int visibleSize = _orientation == ScrollOrientation.VerticalScroll
+                ? DrawingRect.Height - (Padding.Top + Padding.Bottom)
+                : DrawingRect.Width - (Padding.Left + Padding.Right);
+
+            if (contentSize <= visibleSize)
+                return; // No need for indicators if everything is visible
+
+            // Calculate the scroll percentage
+            float scrollPercentage = _scrollOffset / Math.Max(1, _listItems.Count - _visibleItemsCount);
+            float visiblePercentage = Math.Min(1.0f, visibleSize / contentSize);
+
+            // Draw indicators based on orientation
+            using (SolidBrush indicatorBrush = new SolidBrush(
+                _currentTheme?.ScrollBarThumbColor ?? ScrollIndicatorColor))
+            {
+                if (_orientation == ScrollOrientation.VerticalScroll)
+                {
+                    // Vertical indicators - right side
+                    int indicatorWidth = 4;
+                    int right = DrawingRect.Right - 2;
+                    int left = right - indicatorWidth;
+                    int totalHeight = DrawingRect.Height - 10;
+                    int indicatorHeight = Math.Max(20, (int)(totalHeight * visiblePercentage));
+                    int top = DrawingRect.Top + 5 + (int)(scrollPercentage * (totalHeight - indicatorHeight));
+
+                    Rectangle indicatorRect = new Rectangle(left, top, indicatorWidth, indicatorHeight);
+                    if (visiblePercentage < 1)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(indicatorRect, 2))
+                        {
+                            g.FillPath(indicatorBrush, path);
+                        }
+                    }
+                }
+                else
+                {
+                    // Horizontal indicators - bottom
+                    int indicatorHeight = 4;
+                    int bottom = DrawingRect.Bottom - 2;
+                    int top = bottom - indicatorHeight;
+                    int totalWidth = DrawingRect.Width - 10;
+                    int indicatorWidth = Math.Max(20, (int)(totalWidth * visiblePercentage));
+                    int left = DrawingRect.Left + 5 + (int)(scrollPercentage * (totalWidth - indicatorWidth));
+
+                    Rectangle indicatorRect = new Rectangle(left, top, indicatorWidth, indicatorHeight);
+                    if (visiblePercentage < 1)
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(indicatorRect, 2))
+                        {
+                            g.FillPath(indicatorBrush, path);
+                        }
+                    }
+                }
+            }
         }
         #endregion
 
@@ -400,25 +536,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
+
             if (e.Button == MouseButtons.Left)
             {
-                _isDragging = true;
-                _dragStartPoint = e.Location;
-                _dragStartOffset = _scrollOffset;
+                // First check if a hit area (item) was clicked
+                if (!HitTest(e.Location))
+                {
+                    // Start dragging for scrolling if not on an item
+                    _isDragging = true;
+                    _dragStartPoint = e.Location;
+                    _dragStartOffset = _scrollOffset;
+                }
             }
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
+
+            // Always update hover states
+            HitTest(e.Location);
+
             if (_isDragging)
             {
                 float delta = _orientation == ScrollOrientation.VerticalScroll
-                    ? (e.Y - _dragStartPoint.Y) / (float)_itemHeight
-                    : (e.X - _dragStartPoint.X) / (float)_itemHeight;
-                _scrollOffset = _dragStartOffset - delta;
-                _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - _visibleItemsCount)));
-                UpdateButtonPositions();
+                    ? (e.Y - _dragStartPoint.Y) / (float)(_itemHeight + _itemSpacing)
+                    : (e.X - _dragStartPoint.X) / (float)(_itemHeight + _itemSpacing);
+
+                _targetScrollOffset = _dragStartOffset - delta;
+                _scrollOffset = _targetScrollOffset; // Direct update during drag
+
+                // Ensure we stay within bounds
+                _targetScrollOffset = Math.Max(0, Math.Min(_targetScrollOffset,
+                    Math.Max(0, _listItems.Count - _visibleItemsCount)));
+
+                UpdateItemPositions();
                 Invalidate();
             }
         }
@@ -431,25 +583,78 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _isDragging = false;
             }
         }
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-            _textFont = Font;
-            //// Console.WriteLine("Font Changed");
-            if (AutoSize)
-            {
-                Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
-            }
-        }
+
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             base.OnMouseWheel(e);
             float delta = (e.Delta / 120f) * ScrollSpeed;
-            _scrollOffset -= delta;
-            _scrollOffset = Math.Max(0, Math.Min(_scrollOffset, Math.Max(0, _listItems.Count - _visibleItemsCount)));
-            UpdateButtonPositions();
-            Invalidate();
+            _targetScrollOffset -= delta;
+            _targetScrollOffset = Math.Max(0, Math.Min(_targetScrollOffset,
+                Math.Max(0, _listItems.Count - _visibleItemsCount)));
+        }
+
+        // Add keyboard navigation support
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            if (!EnableKeyboardNavigation || _listItems.Count == 0)
+                return;
+
+            switch (e.KeyCode)
+            {
+                case Keys.Up:
+                    if (_orientation == ScrollOrientation.VerticalScroll)
+                    {
+                        SelectedIndex = Math.Max(0, SelectedIndex - 1);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Down:
+                    if (_orientation == ScrollOrientation.VerticalScroll)
+                    {
+                        SelectedIndex = Math.Min(_listItems.Count - 1, SelectedIndex + 1);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Left:
+                    if (_orientation == ScrollOrientation.HorizontalScroll)
+                    {
+                        SelectedIndex = Math.Max(0, SelectedIndex - 1);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.Right:
+                    if (_orientation == ScrollOrientation.HorizontalScroll)
+                    {
+                        SelectedIndex = Math.Min(_listItems.Count - 1, SelectedIndex + 1);
+                        e.Handled = true;
+                    }
+                    break;
+
+                case Keys.PageUp:
+                    SelectedIndex = Math.Max(0, SelectedIndex - _visibleItemsCount);
+                    e.Handled = true;
+                    break;
+
+                case Keys.PageDown:
+                    SelectedIndex = Math.Min(_listItems.Count - 1, SelectedIndex + _visibleItemsCount);
+                    e.Handled = true;
+                    break;
+
+                case Keys.Home:
+                    SelectedIndex = 0;
+                    e.Handled = true;
+                    break;
+
+                case Keys.End:
+                    SelectedIndex = _listItems.Count - 1;
+                    e.Handled = true;
+                    break;
+            }
         }
         #endregion
 
@@ -462,10 +667,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (value != null)
             {
-                var item1 = ListItems.FirstOrDefault(i => i.Value?.ToString() == value.ToString());
-                if (item1 != null)
+                var matchedItem = ListItems.FirstOrDefault(i => i.Value?.ToString() == value.ToString());
+                if (matchedItem != null)
                 {
-                    SelectedItem = item1;
+                    SelectedItem = matchedItem;
                 }
             }
         }
@@ -479,26 +684,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme and Disposal
         public override void ApplyTheme()
         {
-       //     base.ApplyTheme();
             if (Theme == null) return;
+
+            // Set background color
             if (IsChild)
             {
-                BackColor = Parent.BackColor;
+                BackColor = Parent?.BackColor ?? _currentTheme.ListBackColor;
                 ParentBackColor = BackColor;
             }
             else
             {
-                BackColor =_currentTheme.ListBackColor ;
-
+                BackColor = _currentTheme.ListBackColor;
             }
-            foreach (var button in _buttonItems)
+
+            // Apply theme to fonts
+            if (UseThemeFont)
             {
                 TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
-                Font = _textFont;
-                button.Font = _textFont;
-                // button.Theme = Theme;
-                button.IsChild = true;
-                button.UseScaledFont = true;
+            }
+
+            // Apply theme to virtual buttons
+            foreach (var button in _virtualButtons)
+            {
+                button.Font = TextFont;
                 button.ParentBackColor = BackColor;
                 button.BackColor = _currentTheme.ListBackColor;
                 button.ForeColor = _currentTheme.ListItemForeColor;
@@ -510,24 +718,73 @@ namespace TheTechIdea.Beep.Winform.Controls
                 button.DisabledForeColor = _currentTheme.DisabledForeColor;
                 button.FocusBackColor = _currentTheme.ListItemSelectedBackColor;
                 button.FocusForeColor = _currentTheme.ListItemSelectedForeColor;
+                button.Theme = Theme;
             }
-           
+
+            // Apply theme to hit areas
+            ApplyThemeToHitAreas();
+
             Invalidate();
+        }
+
+        private void ApplyThemeToHitAreas()
+        {
+            foreach (var hitTest in HitList)
+            {
+                if (hitTest.uIComponent is BeepButton button)
+                {
+                    button.Font = TextFont;
+                    button.ParentBackColor = BackColor;
+                    button.BackColor = _currentTheme.ListBackColor;
+                    button.ForeColor = _currentTheme.ListItemForeColor;
+                    button.HoverBackColor = _currentTheme.ListItemHoverBackColor;
+                    button.HoverForeColor = _currentTheme.ListItemHoverForeColor;
+                    button.SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
+                    button.SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
+                    button.DisabledBackColor = _currentTheme.DisabledBackColor;
+                    button.DisabledForeColor = _currentTheme.DisabledForeColor;
+                    button.FocusBackColor = _currentTheme.ListItemSelectedBackColor;
+                    button.FocusForeColor = _currentTheme.ListItemSelectedForeColor;
+                    button.Theme = Theme;
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                foreach (var button in _buttonItems)
+                _animationTimer?.Stop();
+                _animationTimer?.Dispose();
+
+                // Dispose all virtual buttons
+                foreach (var button in _virtualButtons)
                 {
-                    button.Click -= Button_Click;
-                    Controls.Remove(button);
                     button.Dispose();
                 }
-                _buttonItems.Clear();
+                _virtualButtons.Clear();
+
+                // Clear hit areas
+                ClearHitList();
             }
             base.Dispose(disposing);
+        }
+        #endregion
+
+        #region Animation
+        private void AnimationTimer_Tick(object sender, EventArgs e)
+        {
+            // Skip animation if dragging or if we're close enough to target
+            if (_isDragging || Math.Abs(_scrollOffset - _targetScrollOffset) < 0.01)
+            {
+                _scrollOffset = _targetScrollOffset;
+                return;
+            }
+
+            // Animate scroll position
+            _scrollOffset += (_targetScrollOffset - _scrollOffset) * ScrollAnimationSpeed;
+            UpdateItemPositions();
+            Invalidate();
         }
         #endregion
     }

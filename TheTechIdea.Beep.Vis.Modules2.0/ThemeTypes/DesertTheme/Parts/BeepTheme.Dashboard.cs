@@ -6,20 +6,44 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Dashboard Colors & Fonts
-        public Font DashboardTitleFont { get; set; }
-        public Font DashboardSubTitleFont { get; set; }
-        public Color DashboardBackColor { get; set; }
-        public Color DashboardCardBackColor { get; set; }
-        public Color DashboardCardHoverBackColor { get; set; }
-        public Color DashboardTitleForeColor { get; set; }
-        public Color DashboardTitleBackColor { get; set; }
-        public TypographyStyle DashboardTitleStyle { get; set; }
-        public Color DashboardSubTitleForeColor { get; set; }
-        public Color DashboardSubTitleBackColor { get; set; }
-        public TypographyStyle DashboardSubTitleStyle { get; set; }
-        public Color DashboardGradiantStartColor { get; set; }
-        public Color DashboardGradiantEndColor { get; set; }
-        public Color DashboardGradiantMiddleColor { get; set; }
-        public LinearGradientMode DashboardGradiantDirection { get; set; }
+
+        public Font DashboardTitleFont { get; set; } = new Font("Segoe UI Semibold", 20, FontStyle.Bold);
+        public Font DashboardSubTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+
+        public Color DashboardBackColor { get; set; } = Color.FromArgb(255, 244, 229); // Soft beige
+        public Color DashboardCardBackColor { get; set; } = Color.FromArgb(245, 222, 179); // Wheat tone
+        public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(238, 214, 175); // Pale gold highlight on hover
+
+        public Color DashboardTitleForeColor { get; set; } = Color.FromArgb(101, 67, 33); // Rich brown
+        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+
+        public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI Semibold",
+            FontSize = 20,
+            FontWeight = FontWeight.Bold,
+            FontStyle = FontStyle.Bold,
+            TextColor = Color.FromArgb(101, 67, 33),
+            LineHeight = 1.2f
+        };
+
+        public Color DashboardSubTitleForeColor { get; set; } = Color.FromArgb(160, 110, 50); // Darker tan
+        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+
+        public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 14,
+            FontWeight = FontWeight.Medium,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(160, 110, 50),
+            LineHeight = 1.1f
+        };
+
+        public Color DashboardGradiantStartColor { get; set; } = Color.FromArgb(255, 248, 220); // Creamy light start
+        public Color DashboardGradiantEndColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan sand end
+        public Color DashboardGradiantMiddleColor { get; set; } = Color.FromArgb(238, 214, 175); // Pale gold mid
+
+        public LinearGradientMode DashboardGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

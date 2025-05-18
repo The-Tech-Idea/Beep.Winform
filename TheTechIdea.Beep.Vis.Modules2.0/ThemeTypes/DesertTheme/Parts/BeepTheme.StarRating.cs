@@ -5,21 +5,23 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Star Rating Fonts & Colors
-        public Color StarRatingForeColor { get; set; }
-        public Color StarRatingBackColor { get; set; }
-        public Color StarRatingBorderColor { get; set; }
-        public Color StarRatingFillColor { get; set; }
-        public Color StarRatingHoverForeColor { get; set; }
-        public Color StarRatingHoverBackColor { get; set; }
-        public Color StarRatingHoverBorderColor { get; set; }
-        public Color StarRatingSelectedForeColor { get; set; }
-        public Color StarRatingSelectedBackColor { get; set; }
-        public Color StarRatingSelectedBorderColor { get; set; }
-        public Font StarTitleFont { get; set; }
-        public Font StarSubTitleFont { get; set; }
-        public Font StarSelectedFont { get; set; }
-        public Font StarUnSelectedFont { get; set; }
-        public Color StarTitleForeColor { get; set; }
-        public Color StarTitleBackColor { get; set; }
+        public Color StarRatingForeColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan
+        public Color StarRatingBackColor { get; set; } = Color.FromArgb(245, 222, 179); // Wheat
+        public Color StarRatingBorderColor { get; set; } = Color.FromArgb(160, 82, 45); // Sienna
+        public Color StarRatingFillColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
+        public Color StarRatingHoverForeColor { get; set; } = Color.FromArgb(222, 184, 135); // Burlywood
+        public Color StarRatingHoverBackColor { get; set; } = Color.FromArgb(255, 239, 213); // PapayaWhip
+        public Color StarRatingHoverBorderColor { get; set; } = Color.FromArgb(205, 133, 63); // Peru
+        public Color StarRatingSelectedForeColor { get; set; } = Color.FromArgb(255, 165, 0); // Orange
+        public Color StarRatingSelectedBackColor { get; set; } = Color.FromArgb(255, 250, 205); // LemonChiffon
+        public Color StarRatingSelectedBorderColor { get; set; } = Color.FromArgb(255, 140, 0); // DarkOrange
+
+        public Font StarTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font StarSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Italic);
+        public Font StarSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public Font StarUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+
+        public Color StarTitleForeColor { get; set; } = Color.FromArgb(101, 67, 33); // Dark Brown
+        public Color StarTitleBackColor { get; set; } = Color.FromArgb(255, 248, 220); // Cornsilk
     }
 }

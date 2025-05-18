@@ -16,24 +16,24 @@ namespace TheTechIdea.Beep.Vis.Modules
         public FontStyle FontStyleRegular { get; set; } = FontStyle.Regular;
         public FontStyle FontStyleBold { get; set; } = FontStyle.Bold;
         public FontStyle FontStyleItalic { get; set; } = FontStyle.Italic;
-        public Color PrimaryTextColor { get; set; } = Color.Black;
+        public Color PrimaryTextColor { get; set; } = Color.FromArgb(33, 37, 41); // dark charcoal for modern readability
         public Color SecondaryTextColor { get; set; } = Color.Gray;
-        public Color AccentTextColor { get; set; } = Color.Blue;
-        public int PaddingSmall { get; set; }
-        public int PaddingMedium { get; set; }
-        public int PaddingLarge { get; set; }
-        public int BorderRadius { get; set; }
+        public Color AccentTextColor { get; set; } = Color.FromArgb(0, 120, 215); // modern blue accent
+        public int PaddingSmall { get; set; } = 4;
+        public int PaddingMedium { get; set; } = 8;
+        public int PaddingLarge { get; set; } = 16;
+        public int BorderRadius { get; set; } = 6; // subtle rounded corners
         public int BorderSize { get; set; } = 1;
-        public string IconSet { get; set; }
-        public bool ApplyThemeToIcons { get; set; }
-        public Color ShadowColor { get; set; }
-        public float ShadowOpacity { get; set; }
-        public double AnimationDurationShort { get; set; }
-        public double AnimationDurationMedium { get; set; }
-        public double AnimationDurationLong { get; set; }
-        public string AnimationEasingFunction { get; set; }
-        public bool HighContrastMode { get; set; }
-        public Color FocusIndicatorColor { get; set; }
-        public bool IsDarkTheme { get; set; }
+        public string IconSet { get; set; } = "Fluent"; // default icon set
+        public bool ApplyThemeToIcons { get; set; } = true;
+        public Color ShadowColor { get; set; } = Color.FromArgb(50, 0, 0, 0); // semi-transparent black shadow
+        public float ShadowOpacity { get; set; } = 0.25f;
+        public double AnimationDurationShort { get; set; } = 0.15;
+        public double AnimationDurationMedium { get; set; } = 0.3;
+        public double AnimationDurationLong { get; set; } = 0.5;
+        public string AnimationEasingFunction { get; set; } = "ease-in-out";
+        public bool HighContrastMode { get; set; } = false;
+        public Color FocusIndicatorColor { get; set; } = Color.FromArgb(0, 120, 215);
+        public bool IsDarkTheme { get; set; } = false;
     }
 }

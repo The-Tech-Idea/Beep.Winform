@@ -5,21 +5,26 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Tab Fonts & Colors
-        public Font TabFont { get; set; }
-        public Font TabHoverFont { get; set; }
-        public Font TabSelectedFont { get; set; }
-        public Color TabBackColor { get; set; }
-        public Color TabForeColor { get; set; }
-        public Color ActiveTabBackColor { get; set; }
-        public Color ActiveTabForeColor { get; set; }
-        public Color InactiveTabBackColor { get; set; }
-        public Color InactiveTabForeColor { get; set; }
-        public Color TabBorderColor { get; set; }
-        public Color TabHoverBackColor { get; set; }
-        public Color TabHoverForeColor { get; set; }
-        public Color TabSelectedBackColor { get; set; }
-        public Color TabSelectedForeColor { get; set; }
-        public Color TabSelectedBorderColor { get; set; }
-        public Color TabHoverBorderColor { get; set; }
+        public Font TabFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public Font TabHoverFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public Font TabSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+
+        public Color TabBackColor { get; set; } = Color.FromArgb(245, 222, 179); // Wheat
+        public Color TabForeColor { get; set; } = Color.FromArgb(101, 67, 33);   // Dark Brown
+
+        public Color ActiveTabBackColor { get; set; } = Color.FromArgb(255, 228, 181); // Moccasin
+        public Color ActiveTabForeColor { get; set; } = Color.FromArgb(139, 69, 19);   // Saddle Brown
+
+        public Color InactiveTabBackColor { get; set; } = Color.FromArgb(222, 184, 135); // Burlywood
+        public Color InactiveTabForeColor { get; set; } = Color.FromArgb(160, 82, 45);   // Sienna
+
+        public Color TabBorderColor { get; set; } = Color.FromArgb(210, 180, 140);       // Tan
+        public Color TabHoverBackColor { get; set; } = Color.FromArgb(255, 218, 185);    // Peach Puff
+        public Color TabHoverForeColor { get; set; } = Color.FromArgb(160, 82, 45);      // Sienna
+
+        public Color TabSelectedBackColor { get; set; } = Color.FromArgb(244, 164, 96);  // Sandy Brown
+        public Color TabSelectedForeColor { get; set; } = Color.FromArgb(101, 67, 33);   // Dark Brown
+        public Color TabSelectedBorderColor { get; set; } = Color.FromArgb(205, 133, 63);// Peru
+        public Color TabHoverBorderColor { get; set; } = Color.FromArgb(210, 180, 140);  // Tan
     }
 }

@@ -5,16 +5,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // CheckBox properties
-        public Color CheckBoxBackColor { get; set; }
-        public Color CheckBoxForeColor { get; set; }
-        public Color CheckBoxBorderColor { get; set; }
-        public Color CheckBoxCheckedBackColor { get; set; }
-        public Color CheckBoxCheckedForeColor { get; set; }
-        public Color CheckBoxCheckedBorderColor { get; set; }
-        public Color CheckBoxHoverBackColor { get; set; }
-        public Color CheckBoxHoverForeColor { get; set; }
-        public Color CheckBoxHoverBorderColor { get; set; }
-        public Font CheckBoxFont { get; set; }
-        public Font CheckBoxCheckedFont { get; set; }
+        public Color CheckBoxBackColor { get; set; } = Color.FromArgb(240, 255, 240); // light green background
+        public Color CheckBoxForeColor { get; set; } = Color.DarkGreen;
+        public Color CheckBoxBorderColor { get; set; } = Color.ForestGreen;
+        public Color CheckBoxCheckedBackColor { get; set; } = Color.ForestGreen;
+        public Color CheckBoxCheckedForeColor { get; set; } = Color.White;
+        public Color CheckBoxCheckedBorderColor { get; set; } = Color.DarkGreen;
+        public Color CheckBoxHoverBackColor { get; set; } = Color.FromArgb(200, 255, 200);
+        public Color CheckBoxHoverForeColor { get; set; } = Color.DarkOliveGreen;
+        public Color CheckBoxHoverBorderColor { get; set; } = Color.OliveDrab;
+        public Font CheckBoxFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
+        public Font CheckBoxCheckedFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Bold);
     }
 }

@@ -5,24 +5,24 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Stepper Fonts & Colors
-        public Font StepperTitleFont { get; set; }
-        public Font StepperSelectedFont { get; set; }
-        public Font StepperUnSelectedFont { get; set; }
-        public Color StepperBackColor { get; set; }
-        public Color StepperForeColor { get; set; }
-        public Color StepperBorderColor { get; set; }
-        public Color StepperItemForeColor { get; set; }
-        public Font StepperItemFont { get; set; }
-        public Font StepperSubTitleFont { get; set; }
-        public Color StepperItemHoverForeColor { get; set; }
-        public Color StepperItemHoverBackColor { get; set; }
-        public Color StepperItemSelectedForeColor { get; set; }
-        public Color StepperItemSelectedBackColor { get; set; }
-        public Color StepperItemSelectedBorderColor { get; set; }
-        public Color StepperItemBorderColor { get; set; }
-        public Color StepperItemHoverBorderColor { get; set; }
-        public Color StepperItemCheckedBoxForeColor { get; set; }
-        public Color StepperItemCheckedBoxBackColor { get; set; }
-        public Color StepperItemCheckedBoxBorderColor { get; set; }
+        public Font StepperTitleFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
+        public Font StepperSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font StepperUnSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+        public Color StepperBackColor { get; set; } = Color.FromArgb(245, 222, 179); // Wheat
+        public Color StepperForeColor { get; set; } = Color.FromArgb(101, 67, 33); // Dark Brown
+        public Color StepperBorderColor { get; set; } = Color.FromArgb(160, 82, 45); // Sienna
+        public Color StepperItemForeColor { get; set; } = Color.FromArgb(139, 69, 19); // Saddle Brown
+        public Font StepperItemFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public Font StepperSubTitleFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Italic);
+        public Color StepperItemHoverForeColor { get; set; } = Color.FromArgb(222, 184, 135); // BurlyWood
+        public Color StepperItemHoverBackColor { get; set; } = Color.FromArgb(255, 228, 181); // Moccasin
+        public Color StepperItemSelectedForeColor { get; set; } = Color.FromArgb(255, 140, 0); // DarkOrange
+        public Color StepperItemSelectedBackColor { get; set; } = Color.FromArgb(255, 218, 185); // PeachPuff
+        public Color StepperItemSelectedBorderColor { get; set; } = Color.FromArgb(205, 133, 63); // Peru
+        public Color StepperItemBorderColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan
+        public Color StepperItemHoverBorderColor { get; set; } = Color.FromArgb(244, 164, 96); // SandyBrown
+        public Color StepperItemCheckedBoxForeColor { get; set; } = Color.FromArgb(139, 69, 19); // Saddle Brown
+        public Color StepperItemCheckedBoxBackColor { get; set; } = Color.FromArgb(255, 228, 181); // Moccasin
+        public Color StepperItemCheckedBoxBorderColor { get; set; } = Color.FromArgb(160, 82, 45); // Sienna
     }
 }

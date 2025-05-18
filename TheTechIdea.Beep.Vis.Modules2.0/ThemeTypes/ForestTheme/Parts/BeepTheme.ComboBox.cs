@@ -5,20 +5,20 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // ComboBox Colors and Fonts
-        public Color ComboBoxBackColor { get; set; }
-        public Color ComboBoxForeColor { get; set; }
-        public Color ComboBoxBorderColor { get; set; }
-        public Color ComboBoxHoverBackColor { get; set; }
-        public Color ComboBoxHoverForeColor { get; set; }
-        public Color ComboBoxHoverBorderColor { get; set; }
-        public Color ComboBoxSelectedBackColor { get; set; }
-        public Color ComboBoxSelectedForeColor { get; set; }
-        public Color ComboBoxSelectedBorderColor { get; set; }
-        public Color ComboBoxErrorBackColor { get; set; }
-        public Color ComboBoxErrorForeColor { get; set; }
-        public Font ComboBoxItemFont { get; set; }
-        public Font ComboBoxListFont { get; set; }
-        public Color CheckBoxSelectedForeColor { get; set; }
-        public Color CheckBoxSelectedBackColor { get; set; }
+        public Color ComboBoxBackColor { get; set; } = Color.FromArgb(224, 255, 224); // LightGreen
+        public Color ComboBoxForeColor { get; set; } = Color.FromArgb(34, 139, 34);   // ForestGreen
+        public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(85, 107, 47); // DarkOliveGreen
+        public Color ComboBoxHoverBackColor { get; set; } = Color.FromArgb(204, 255, 204); // PaleGreen
+        public Color ComboBoxHoverForeColor { get; set; } = Color.FromArgb(34, 139, 34);   // ForestGreen
+        public Color ComboBoxHoverBorderColor { get; set; } = Color.FromArgb(107, 142, 35); // OliveDrab
+        public Color ComboBoxSelectedBackColor { get; set; } = Color.FromArgb(60, 179, 113); // MediumSeaGreen
+        public Color ComboBoxSelectedForeColor { get; set; } = Color.White;
+        public Color ComboBoxSelectedBorderColor { get; set; } = Color.FromArgb(34, 139, 34); // ForestGreen
+        public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(178, 34, 34); // FireBrick
+        public Color ComboBoxErrorForeColor { get; set; } = Color.White;
+        public Font ComboBoxItemFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
+        public Font ComboBoxListFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
+        public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
+        public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(34, 139, 34); // ForestGreen
     }
 }

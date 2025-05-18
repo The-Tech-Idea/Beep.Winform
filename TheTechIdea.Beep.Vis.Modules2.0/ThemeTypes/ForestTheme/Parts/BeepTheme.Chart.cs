@@ -6,18 +6,26 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Chart Fonts & Colors
-        public Font ChartTitleFont { get; set; }
-        public Font ChartSubTitleFont { get; set; }
-        public Color ChartBackColor { get; set; }
-        public Color ChartLineColor { get; set; }
-        public Color ChartFillColor { get; set; }
-        public Color ChartAxisColor { get; set; }
-        public Color ChartTitleColor { get; set; }
-        public Color ChartTextColor { get; set; }
-        public Color ChartLegendBackColor { get; set; }
-        public Color ChartLegendTextColor { get; set; }
-        public Color ChartLegendShapeColor { get; set; }
-        public Color ChartGridLineColor { get; set; }
-        public List<Color> ChartDefaultSeriesColors { get; set; }
+        public Font ChartTitleFont { get; set; } = new Font("Segoe UI", 16F, FontStyle.Bold);
+        public Font ChartSubTitleFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Regular);
+        public Color ChartBackColor { get; set; } = Color.FromArgb(240, 255, 240); // Very light green background
+        public Color ChartLineColor { get; set; } = Color.ForestGreen;
+        public Color ChartFillColor { get; set; } = Color.FromArgb(180, 230, 180);
+        public Color ChartAxisColor { get; set; } = Color.SeaGreen;
+        public Color ChartTitleColor { get; set; } = Color.DarkGreen;
+        public Color ChartTextColor { get; set; } = Color.ForestGreen;
+        public Color ChartLegendBackColor { get; set; } = Color.FromArgb(220, 245, 220);
+        public Color ChartLegendTextColor { get; set; } = Color.DarkGreen;
+        public Color ChartLegendShapeColor { get; set; } = Color.SeaGreen;
+        public Color ChartGridLineColor { get; set; } = Color.FromArgb(180, 220, 180);
+        public List<Color> ChartDefaultSeriesColors { get; set; } = new List<Color>
+        {
+            Color.ForestGreen,
+            Color.SeaGreen,
+            Color.OliveDrab,
+            Color.DarkOliveGreen,
+            Color.MediumSeaGreen,
+            Color.LimeGreen
+        };
     }
 }

@@ -5,19 +5,22 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // List Fonts & Colors
-        public Font ListTitleFont { get; set; }
-        public Font ListSelectedFont { get; set; }
-        public Font ListUnSelectedFont { get; set; }
-        public Color ListBackColor { get; set; }
-        public Color ListForeColor { get; set; }
-        public Color ListBorderColor { get; set; }
-        public Color ListItemForeColor { get; set; }
-        public Color ListItemHoverForeColor { get; set; }
-        public Color ListItemHoverBackColor { get; set; }
-        public Color ListItemSelectedForeColor { get; set; }
-        public Color ListItemSelectedBackColor { get; set; }
-        public Color ListItemSelectedBorderColor { get; set; }
-        public Color ListItemBorderColor { get; set; }
-        public Color ListItemHoverBorderColor { get; set; }
+        public Font ListTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font ListSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public Font ListUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+
+        public Color ListBackColor { get; set; } = Color.FromArgb(245, 240, 230); // Light sand
+        public Color ListForeColor { get; set; } = Color.FromArgb(101, 67, 33);    // Dark brown
+        public Color ListBorderColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan
+
+        public Color ListItemForeColor { get; set; } = Color.FromArgb(101, 67, 33); // Dark brown
+        public Color ListItemHoverForeColor { get; set; } = Color.FromArgb(80, 50, 20); // Darker brown
+        public Color ListItemHoverBackColor { get; set; } = Color.FromArgb(255, 228, 181); // Moccasin light orange
+        public Color ListItemSelectedForeColor { get; set; } = Color.FromArgb(244, 164, 96); // Warm orange
+        public Color ListItemSelectedBackColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan
+        public Color ListItemSelectedBorderColor { get; set; } = Color.FromArgb(160, 82, 45); // Sienna brown
+
+        public Color ListItemBorderColor { get; set; } = Color.FromArgb(222, 184, 135); // BurlyWood
+        public Color ListItemHoverBorderColor { get; set; } = Color.FromArgb(205, 133, 63); // Peru
     }
 }

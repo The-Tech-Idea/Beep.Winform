@@ -5,20 +5,20 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // ComboBox Colors and Fonts
-        public Color ComboBoxBackColor { get; set; }
-        public Color ComboBoxForeColor { get; set; }
-        public Color ComboBoxBorderColor { get; set; }
-        public Color ComboBoxHoverBackColor { get; set; }
-        public Color ComboBoxHoverForeColor { get; set; }
-        public Color ComboBoxHoverBorderColor { get; set; }
-        public Color ComboBoxSelectedBackColor { get; set; }
-        public Color ComboBoxSelectedForeColor { get; set; }
-        public Color ComboBoxSelectedBorderColor { get; set; }
-        public Color ComboBoxErrorBackColor { get; set; }
-        public Color ComboBoxErrorForeColor { get; set; }
-        public Font ComboBoxItemFont { get; set; }
-        public Font ComboBoxListFont { get; set; }
-        public Color CheckBoxSelectedForeColor { get; set; }
-        public Color CheckBoxSelectedBackColor { get; set; }
+        public Color ComboBoxBackColor { get; set; } = Color.White;
+        public Color ComboBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark text
+        public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(189, 189, 189); // Gray border
+        public Color ComboBoxHoverBackColor { get; set; } = Color.FromArgb(240, 240, 240); // Light gray on hover
+        public Color ComboBoxHoverForeColor { get; set; } = Color.FromArgb(33, 33, 33);
+        public Color ComboBoxHoverBorderColor { get; set; } = Color.FromArgb(33, 150, 243); // Primary blue border on hover
+        public Color ComboBoxSelectedBackColor { get; set; } = Color.FromArgb(33, 150, 243); // Primary blue selected background
+        public Color ComboBoxSelectedForeColor { get; set; } = Color.White; // White text on selection
+        public Color ComboBoxSelectedBorderColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue border on selection
+        public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(255, 235, 238); // Light red background on error
+        public Color ComboBoxErrorForeColor { get; set; } = Color.FromArgb(211, 47, 47); // Red text on error
+        public Font ComboBoxItemFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
+        public Font ComboBoxListFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
+        public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
+        public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(33, 150, 243);
     }
 }

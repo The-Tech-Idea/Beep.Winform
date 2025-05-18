@@ -5,16 +5,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DefaultTheme
     {
         // CheckBox properties
-        public Color CheckBoxBackColor { get; set; }
-        public Color CheckBoxForeColor { get; set; }
-        public Color CheckBoxBorderColor { get; set; }
-        public Color CheckBoxCheckedBackColor { get; set; }
-        public Color CheckBoxCheckedForeColor { get; set; }
-        public Color CheckBoxCheckedBorderColor { get; set; }
-        public Color CheckBoxHoverBackColor { get; set; }
-        public Color CheckBoxHoverForeColor { get; set; }
-        public Color CheckBoxHoverBorderColor { get; set; }
-        public Font CheckBoxFont { get; set; }
-        public Font CheckBoxCheckedFont { get; set; }
+        public Color CheckBoxBackColor { get; set; } = Color.White;
+        public Color CheckBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark text
+        public Color CheckBoxBorderColor { get; set; } = Color.Gray;
+        public Color CheckBoxCheckedBackColor { get; set; } = Color.FromArgb(54, 162, 235); // Soft Blue
+        public Color CheckBoxCheckedForeColor { get; set; } = Color.White;
+        public Color CheckBoxCheckedBorderColor { get; set; } = Color.FromArgb(54, 162, 235);
+        public Color CheckBoxHoverBackColor { get; set; } = Color.FromArgb(230, 240, 250);
+        public Color CheckBoxHoverForeColor { get; set; } = Color.FromArgb(33, 33, 33);
+        public Color CheckBoxHoverBorderColor { get; set; } = Color.FromArgb(100, 149, 237); // Cornflower Blue
+        public Font CheckBoxFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
+        public Font CheckBoxCheckedFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Bold);
     }
 }

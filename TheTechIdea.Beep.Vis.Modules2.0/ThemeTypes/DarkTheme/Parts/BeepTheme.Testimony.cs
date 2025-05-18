@@ -1,0 +1,20 @@
+﻿using System.Drawing;
+
+namespace TheTechIdea.Beep.Vis.Modules
+{
+    public partial class DarkTheme
+    {
+        // Testimony/Testimonial Colors & Fonts
+        public Font TestimoniaTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font TestimoniaSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public Font TestimoniaUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+
+        public Color TestimonialBackColor { get; set; } = Color.FromArgb(30, 30, 30);
+        public Color TestimonialTextColor { get; set; } = Color.LightGray;
+        public Color TestimonialNameColor { get; set; } = Color.CornflowerBlue;
+        public Color TestimonialDetailsColor { get; set; } = Color.Gray;
+        public Color TestimonialDateColor { get; set; } = Color.DarkGray;
+        public Color TestimonialRatingColor { get; set; } = Color.Gold;
+        public Color TestimonialStatusColor { get; set; } = Color.LimeGreen;
+    }
+}

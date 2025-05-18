@@ -6,25 +6,45 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Side Menu Fonts & Colors
-        public Font SideMenuTitleFont { get; set; }
-        public Font SideMenuSubTitleFont { get; set; }
-        public Font SideMenuTextFont { get; set; }
-        public Color SideMenuBackColor { get; set; }
-        public Color SideMenuHoverBackColor { get; set; }
-        public Color SideMenuSelectedBackColor { get; set; }
-        public Color SideMenuForeColor { get; set; }
-        public Color SideMenuSelectedForeColor { get; set; }
-        public Color SideMenuHoverForeColor { get; set; }
-        public Color SideMenuBorderColor { get; set; }
-        public Color SideMenuTitleTextColor { get; set; }
-        public Color SideMenuTitleBackColor { get; set; }
-        public TypographyStyle SideMenuTitleStyle { get; set; }
-        public Color SideMenuSubTitleTextColor { get; set; }
-        public Color SideMenuSubTitleBackColor { get; set; }
-        public TypographyStyle SideMenuSubTitleStyle { get; set; }
-        public Color SideMenuGradiantStartColor { get; set; }
-        public Color SideMenuGradiantEndColor { get; set; }
-        public Color SideMenuGradiantMiddleColor { get; set; }
-        public LinearGradientMode SideMenuGradiantDirection { get; set; }
+        public Font SideMenuTitleFont { get; set; } = new Font("Segoe UI", 16f, FontStyle.Bold);
+        public Font SideMenuSubTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Italic);
+        public Font SideMenuTextFont { get; set; } = new Font("Segoe UI", 11f, FontStyle.Regular);
+
+        public Color SideMenuBackColor { get; set; } = Color.FromArgb(34, 49, 34); // Dark green
+        public Color SideMenuHoverBackColor { get; set; } = Color.FromArgb(56, 142, 60); // Medium green hover
+        public Color SideMenuSelectedBackColor { get; set; } = Color.FromArgb(102, 187, 106); // Bright green selected
+
+        public Color SideMenuForeColor { get; set; } = Color.WhiteSmoke;
+        public Color SideMenuSelectedForeColor { get; set; } = Color.White;
+        public Color SideMenuHoverForeColor { get; set; } = Color.LightGreen;
+
+        public Color SideMenuBorderColor { get; set; } = Color.FromArgb(46, 71, 46); // Dark green border
+
+        public Color SideMenuTitleTextColor { get; set; } = Color.White;
+        public Color SideMenuTitleBackColor { get; set; } = Color.FromArgb(21, 33, 21); // Very dark green background
+
+        public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 16,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.White
+        };
+
+        public Color SideMenuSubTitleTextColor { get; set; } = Color.LightGray;
+        public Color SideMenuSubTitleBackColor { get; set; } = Color.FromArgb(28, 41, 28); // Dark greenish
+
+        public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12,
+            FontStyle = FontStyle.Italic,
+            TextColor = Color.LightGray
+        };
+
+        public Color SideMenuGradiantStartColor { get; set; } = Color.FromArgb(21, 33, 21);
+        public Color SideMenuGradiantEndColor { get; set; } = Color.FromArgb(56, 142, 60);
+        public Color SideMenuGradiantMiddleColor { get; set; } = Color.FromArgb(34, 49, 34);
+        public LinearGradientMode SideMenuGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

@@ -5,26 +5,26 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Textbox colors and Fonts
-        public Color TextBoxBackColor { get; set; }
-        public Color TextBoxForeColor { get; set; }
-        public Color TextBoxBorderColor { get; set; }
-        public Color TextBoxHoverBorderColor { get; set; }
-        public Color TextBoxHoverBackColor { get; set; }
-        public Color TextBoxHoverForeColor { get; set; }
-        public Color TextBoxSelectedBorderColor { get; set; }
-        public Color TextBoxSelectedBackColor { get; set; }
-        public Color TextBoxSelectedForeColor { get; set; }
-        public Color TextBoxPlaceholderColor { get; set; }
-        public Color TextBoxErrorBorderColor { get; set; }
-        public Color TextBoxErrorBackColor { get; set; }
-        public Color TextBoxErrorForeColor { get; set; }
-        public Color TextBoxErrorTextColor { get; set; }
-        public Color TextBoxErrorPlaceholderColor { get; set; }
-        public Color TextBoxErrorTextBoxColor { get; set; }
-        public Color TextBoxErrorTextBoxBorderColor { get; set; }
-        public Color TextBoxErrorTextBoxHoverColor { get; set; }
-        public Font TextBoxFont { get; set; }
-        public Font TextBoxHoverFont { get; set; }
-        public Font TextBoxSelectedFont { get; set; }
+        public Color TextBoxBackColor { get; set; } = Color.FromArgb(230, 245, 230); // Soft green background
+        public Color TextBoxForeColor { get; set; } = Color.DarkGreen;
+        public Color TextBoxBorderColor { get; set; } = Color.ForestGreen;
+        public Color TextBoxHoverBorderColor { get; set; } = Color.SeaGreen;
+        public Color TextBoxHoverBackColor { get; set; } = Color.FromArgb(240, 255, 240);
+        public Color TextBoxHoverForeColor { get; set; } = Color.DarkGreen;
+        public Color TextBoxSelectedBorderColor { get; set; } = Color.OliveDrab;
+        public Color TextBoxSelectedBackColor { get; set; } = Color.White;
+        public Color TextBoxSelectedForeColor { get; set; } = Color.Black;
+        public Color TextBoxPlaceholderColor { get; set; } = Color.DarkOliveGreen;
+        public Color TextBoxErrorBorderColor { get; set; } = Color.DarkRed;
+        public Color TextBoxErrorBackColor { get; set; } = Color.MistyRose;
+        public Color TextBoxErrorForeColor { get; set; } = Color.DarkRed;
+        public Color TextBoxErrorTextColor { get; set; } = Color.DarkRed;
+        public Color TextBoxErrorPlaceholderColor { get; set; } = Color.Red;
+        public Color TextBoxErrorTextBoxColor { get; set; } = Color.MistyRose;
+        public Color TextBoxErrorTextBoxBorderColor { get; set; } = Color.Red;
+        public Color TextBoxErrorTextBoxHoverColor { get; set; } = Color.IndianRed;
+        public Font TextBoxFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
+        public Font TextBoxHoverFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Italic);
+        public Font TextBoxSelectedFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
     }
 }

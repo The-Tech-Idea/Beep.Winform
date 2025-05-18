@@ -6,25 +6,29 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Menu Fonts & Colors
-        public Font MenuTitleFont { get; set; }
-        public Font MenuItemSelectedFont { get; set; }
-        public Font MenuItemUnSelectedFont { get; set; }
-        public Color MenuBackColor { get; set; }
-        public Color MenuForeColor { get; set; }
-        public Color MenuBorderColor { get; set; }
-        public Color MenuMainItemForeColor { get; set; }
-        public Color MenuMainItemHoverForeColor { get; set; }
-        public Color MenuMainItemHoverBackColor { get; set; }
-        public Color MenuMainItemSelectedForeColor { get; set; }
-        public Color MenuMainItemSelectedBackColor { get; set; }
-        public Color MenuItemForeColor { get; set; }
-        public Color MenuItemHoverForeColor { get; set; }
-        public Color MenuItemHoverBackColor { get; set; }
-        public Color MenuItemSelectedForeColor { get; set; }
-        public Color MenuItemSelectedBackColor { get; set; }
-        public Color MenuGradiantStartColor { get; set; }
-        public Color MenuGradiantEndColor { get; set; }
-        public Color MenuGradiantMiddleColor { get; set; }
-        public LinearGradientMode MenuGradiantDirection { get; set; }
+        public Font MenuTitleFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
+        public Font MenuItemSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font MenuItemUnSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+
+        public Color MenuBackColor { get; set; } = Color.FromArgb(255, 244, 214); // light sand
+        public Color MenuForeColor { get; set; } = Color.FromArgb(101, 67, 33); // dark brown
+        public Color MenuBorderColor { get; set; } = Color.FromArgb(194, 178, 128); // sandy beige
+
+        public Color MenuMainItemForeColor { get; set; } = Color.FromArgb(139, 69, 19); // saddle brown
+        public Color MenuMainItemHoverForeColor { get; set; } = Color.FromArgb(160, 82, 45); // sienna
+        public Color MenuMainItemHoverBackColor { get; set; } = Color.FromArgb(255, 228, 196); // bisque
+        public Color MenuMainItemSelectedForeColor { get; set; } = Color.White;
+        public Color MenuMainItemSelectedBackColor { get; set; } = Color.FromArgb(210, 105, 30); // chocolate
+
+        public Color MenuItemForeColor { get; set; } = Color.FromArgb(101, 67, 33); // dark brown
+        public Color MenuItemHoverForeColor { get; set; } = Color.FromArgb(160, 82, 45); // sienna
+        public Color MenuItemHoverBackColor { get; set; } = Color.FromArgb(255, 235, 205); // blanched almond
+        public Color MenuItemSelectedForeColor { get; set; } = Color.White;
+        public Color MenuItemSelectedBackColor { get; set; } = Color.FromArgb(210, 105, 30); // chocolate
+
+        public Color MenuGradiantStartColor { get; set; } = Color.FromArgb(255, 244, 214); // light sand
+        public Color MenuGradiantEndColor { get; set; } = Color.FromArgb(194, 178, 128); // sandy beige
+        public Color MenuGradiantMiddleColor { get; set; } = Color.FromArgb(222, 184, 135); // burlywood
+        public LinearGradientMode MenuGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

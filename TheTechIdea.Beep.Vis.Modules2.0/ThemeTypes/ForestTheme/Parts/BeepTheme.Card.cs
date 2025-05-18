@@ -6,18 +6,36 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Card Colors & Fonts
-        public Font CardTitleFont { get; set; }
-        public Color CardTextForeColor { get; set; }
-        public Color CardBackColor { get; set; }
-        public Color CardTitleForeColor { get; set; }
-        public Font CardSubTitleFont { get; set; }
-        public Color CardSubTitleForeColor { get; set; }
-        public TypographyStyle CardHeaderStyle { get; set; }
-        public TypographyStyle CardparagraphStyle { get; set; }
-        public TypographyStyle CardSubTitleStyle { get; set; }
-        public Color CardrGradiantStartColor { get; set; }
-        public Color CardGradiantEndColor { get; set; }
-        public Color CardGradiantMiddleColor { get; set; }
-        public LinearGradientMode CardGradiantDirection { get; set; }
+        public Font CardTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Bold);
+        public Color CardTextForeColor { get; set; } = Color.DarkGreen;
+        public Color CardBackColor { get; set; } = Color.FromArgb(230, 245, 230); // Light greenish background
+        public Color CardTitleForeColor { get; set; } = Color.ForestGreen;
+        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Italic);
+        public Color CardSubTitleForeColor { get; set; } = Color.SeaGreen;
+        public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 14,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.ForestGreen
+        };
+        public TypographyStyle CardparagraphStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 10,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.DarkGreen
+        };
+        public TypographyStyle CardSubTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12,
+            FontWeight = FontWeight.SemiBold,
+            TextColor = Color.SeaGreen
+        };
+        public Color CardrGradiantStartColor { get; set; } = Color.FromArgb(200, 230, 200);
+        public Color CardGradiantEndColor { get; set; } = Color.FromArgb(170, 210, 170);
+        public Color CardGradiantMiddleColor { get; set; } = Color.FromArgb(185, 220, 185);
+        public LinearGradientMode CardGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

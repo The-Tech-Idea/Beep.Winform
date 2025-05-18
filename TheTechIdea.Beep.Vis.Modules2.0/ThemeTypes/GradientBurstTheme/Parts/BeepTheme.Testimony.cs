@@ -5,9 +5,10 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // Testimony/Testimonial Colors & Fonts
-        public Font TestimoniaTitleFont { get; set; }
-        public Font TestimoniaSelectedFont { get; set; }
-        public Font TestimoniaUnSelectedFont { get; set; }
+        public Font TestimoniaTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public Font TestimoniaSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public Font TestimoniaUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+
         public Color TestimonialBackColor { get; set; } = Color.White;
         public Color TestimonialTextColor { get; set; } = Color.Black;
         public Color TestimonialNameColor { get; set; } = Color.DarkBlue;

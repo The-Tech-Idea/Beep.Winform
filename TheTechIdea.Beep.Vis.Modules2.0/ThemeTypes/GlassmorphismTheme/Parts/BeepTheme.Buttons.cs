@@ -5,27 +5,32 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Button Colors and Styles
-        public Font ButtonFont { get; set; }
-        public Font ButtonHoverFont { get; set; }
-        public Font ButtonSelectedFont { get; set; }
+        public Font ButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
+        public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
 
-        public Color ButtonHoverBackColor { get; set; }
-        public Color ButtonHoverForeColor { get; set; }
-        public Color ButtonHoverBorderColor { get; set; }
-        public Color ButtonSelectedBorderColor { get; set; }
-        public Color ButtonSelectedBackColor { get; set; }
-        public Color ButtonSelectedForeColor { get; set; }
-        public Color ButtonSelectedHoverBackColor { get; set; }
-        public Color ButtonSelectedHoverForeColor { get; set; }
-        public Color ButtonSelectedHoverBorderColor { get; set; }
-        public Color ButtonBackColor { get; set; }
-        public Color ButtonForeColor { get; set; }
-        public Color ButtonBorderColor { get; set; }
-        public Color ButtonErrorBackColor { get; set; }
-        public Color ButtonErrorForeColor { get; set; }
-        public Color ButtonErrorBorderColor { get; set; }
-        public Color ButtonPressedBackColor { get; set; }
-        public Color ButtonPressedForeColor { get; set; }
-        public Color ButtonPressedBorderColor { get; set; }
+        public Color ButtonBackColor { get; set; } = Color.FromArgb(220, 230, 240);
+        public Color ButtonForeColor { get; set; } = Color.Black;
+        public Color ButtonBorderColor { get; set; } = Color.FromArgb(180, 200, 220);
+
+        public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(200, 210, 225);
+        public Color ButtonHoverForeColor { get; set; } = Color.Black;
+        public Color ButtonHoverBorderColor { get; set; } = Color.FromArgb(160, 180, 200);
+
+        public Color ButtonSelectedBackColor { get; set; } = Color.FromArgb(180, 200, 220);
+        public Color ButtonSelectedForeColor { get; set; } = Color.Black;
+        public Color ButtonSelectedBorderColor { get; set; } = Color.FromArgb(140, 160, 180);
+
+        public Color ButtonSelectedHoverBackColor { get; set; } = Color.FromArgb(160, 180, 200);
+        public Color ButtonSelectedHoverForeColor { get; set; } = Color.Black;
+        public Color ButtonSelectedHoverBorderColor { get; set; } = Color.FromArgb(120, 140, 160);
+
+        public Color ButtonErrorBackColor { get; set; } = Color.FromArgb(255, 200, 200); // Soft red
+        public Color ButtonErrorForeColor { get; set; } = Color.DarkRed;
+        public Color ButtonErrorBorderColor { get; set; } = Color.Red;
+
+        public Color ButtonPressedBackColor { get; set; } = Color.FromArgb(150, 170, 190);
+        public Color ButtonPressedForeColor { get; set; } = Color.Black;
+        public Color ButtonPressedBorderColor { get; set; } = Color.FromArgb(120, 140, 160);
     }
 }

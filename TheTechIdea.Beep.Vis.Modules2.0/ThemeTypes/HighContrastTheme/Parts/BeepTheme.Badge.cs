@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Badge Colors & Fonts
-        public Color BadgeBackColor { get; set; }
-        public Color BadgeForeColor { get; set; }
-        public Color HighlightBackColor { get; set; }
-        public Font BadgeFont { get; set; }
+        public Color BadgeBackColor { get; set; } = Color.Black;
+        public Color BadgeForeColor { get; set; } = Color.White;
+        public Color HighlightBackColor { get; set; } = Color.Yellow;
+        public Font BadgeFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
     }
 }

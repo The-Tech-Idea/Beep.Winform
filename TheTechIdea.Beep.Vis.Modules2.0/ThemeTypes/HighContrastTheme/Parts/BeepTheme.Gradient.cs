@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Gradient Properties
-        public Color GradientStartColor { get; set; }
-        public Color GradientEndColor { get; set; }
-        public LinearGradientMode GradientDirection { get; set; }
+        public Color GradientStartColor { get; set; } = Color.Black;
+        public Color GradientEndColor { get; set; } = Color.White;
+        public LinearGradientMode GradientDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

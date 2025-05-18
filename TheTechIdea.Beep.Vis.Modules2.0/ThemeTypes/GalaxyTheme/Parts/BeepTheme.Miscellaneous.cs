@@ -13,27 +13,35 @@ namespace TheTechIdea.Beep.Vis.Modules
         public float FontSizeAnswer { get; set; } = 14f;
         public float FontSizeCaption { get; set; } = 12f;
         public float FontSizeButton { get; set; } = 14f;
+
         public FontStyle FontStyleRegular { get; set; } = FontStyle.Regular;
         public FontStyle FontStyleBold { get; set; } = FontStyle.Bold;
         public FontStyle FontStyleItalic { get; set; } = FontStyle.Italic;
-        public Color PrimaryTextColor { get; set; } = Color.Black;
-        public Color SecondaryTextColor { get; set; } = Color.Gray;
-        public Color AccentTextColor { get; set; } = Color.Blue;
-        public int PaddingSmall { get; set; }
-        public int PaddingMedium { get; set; }
-        public int PaddingLarge { get; set; }
-        public int BorderRadius { get; set; }
+
+        public Color PrimaryTextColor { get; set; } = Color.White;
+        public Color SecondaryTextColor { get; set; } = Color.LightGray;
+        public Color AccentTextColor { get; set; } = Color.FromArgb(0x4E, 0xC5, 0xF1); // Sky Blue
+
+        public int PaddingSmall { get; set; } = 4;
+        public int PaddingMedium { get; set; } = 8;
+        public int PaddingLarge { get; set; } = 16;
+        public int BorderRadius { get; set; } = 6;
         public int BorderSize { get; set; } = 1;
-        public string IconSet { get; set; }
-        public bool ApplyThemeToIcons { get; set; }
-        public Color ShadowColor { get; set; }
-        public float ShadowOpacity { get; set; }
-        public double AnimationDurationShort { get; set; }
-        public double AnimationDurationMedium { get; set; }
-        public double AnimationDurationLong { get; set; }
-        public string AnimationEasingFunction { get; set; }
-        public bool HighContrastMode { get; set; }
-        public Color FocusIndicatorColor { get; set; }
-        public bool IsDarkTheme { get; set; }
+
+        public string IconSet { get; set; } = "GalaxyIcons";
+        public bool ApplyThemeToIcons { get; set; } = true;
+
+        public Color ShadowColor { get; set; } = Color.Black;
+        public float ShadowOpacity { get; set; } = 0.3f;
+
+        public double AnimationDurationShort { get; set; } = 0.15;
+        public double AnimationDurationMedium { get; set; } = 0.3;
+        public double AnimationDurationLong { get; set; } = 0.6;
+
+        public string AnimationEasingFunction { get; set; } = "ease-in-out";
+
+        public bool HighContrastMode { get; set; } = false;
+        public Color FocusIndicatorColor { get; set; } = Color.FromArgb(0x4E, 0xC5, 0xF1); // Sky Blue
+        public bool IsDarkTheme { get; set; } = true;
     }
 }

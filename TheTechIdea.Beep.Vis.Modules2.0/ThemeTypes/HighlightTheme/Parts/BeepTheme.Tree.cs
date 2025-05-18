@@ -8,15 +8,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Font TreeTitleFont { get; set; }
         public Font TreeNodeSelectedFont { get; set; }
         public Font TreeNodeUnSelectedFont { get; set; }
-        public Color TreeBackColor { get; set; }
-        public Color TreeForeColor { get; set; }
-        public Color TreeBorderColor { get; set; }
-        public Color TreeNodeForeColor { get; set; }
-        public Color TreeNodeHoverForeColor { get; set; }
-        public Color TreeNodeHoverBackColor { get; set; }
-        public Color TreeNodeSelectedForeColor { get; set; }
-        public Color TreeNodeSelectedBackColor { get; set; }
-        public Color TreeNodeCheckedBoxForeColor { get; set; }
-        public Color TreeNodeCheckedBoxBackColor { get; set; }
+        public Color TreeBackColor { get; set; } = Color.White;
+        public Color TreeForeColor { get; set; } = Color.Black;
+        public Color TreeBorderColor { get; set; } = Color.LightGray;
+        public Color TreeNodeForeColor { get; set; } = Color.Black;
+        public Color TreeNodeHoverForeColor { get; set; } = Color.DarkBlue;
+        public Color TreeNodeHoverBackColor { get; set; } = Color.LightBlue;
+        public Color TreeNodeSelectedForeColor { get; set; } = Color.White;
+        public Color TreeNodeSelectedBackColor { get; set; } = Color.DodgerBlue;
+        public Color TreeNodeCheckedBoxForeColor { get; set; } = Color.Black;
+        public Color TreeNodeCheckedBoxBackColor { get; set; } = Color.LightGray;
     }
 }

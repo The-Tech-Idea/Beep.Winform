@@ -6,18 +6,36 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class LightTheme
     {
         // Card Colors & Fonts
-        public Font CardTitleFont { get; set; }
-        public Color CardTextForeColor { get; set; }
-        public Color CardBackColor { get; set; }
-        public Color CardTitleForeColor { get; set; }
-        public Font CardSubTitleFont { get; set; }
-        public Color CardSubTitleForeColor { get; set; }
-        public TypographyStyle CardHeaderStyle { get; set; }
-        public TypographyStyle CardparagraphStyle { get; set; }
-        public TypographyStyle CardSubTitleStyle { get; set; }
-        public Color CardrGradiantStartColor { get; set; }
-        public Color CardGradiantEndColor { get; set; }
-        public Color CardGradiantMiddleColor { get; set; }
-        public LinearGradientMode CardGradiantDirection { get; set; }
+        public Font CardTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Bold);
+        public Color CardTextForeColor { get; set; } = Color.Black;
+        public Color CardBackColor { get; set; } = Color.White;
+        public Color CardTitleForeColor { get; set; } = Color.DarkSlateGray;
+        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Italic);
+        public Color CardSubTitleForeColor { get; set; } = Color.Gray;
+        public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 14,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.DarkSlateGray
+        };
+        public TypographyStyle CardparagraphStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.Black
+        };
+        public TypographyStyle CardSubTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 10,
+            FontWeight = FontWeight.Light,
+            TextColor = Color.Gray
+        };
+        public Color CardrGradiantStartColor { get; set; } = Color.WhiteSmoke;
+        public Color CardGradiantEndColor { get; set; } = Color.Gainsboro;
+        public Color CardGradiantMiddleColor { get; set; } = Color.LightGray;
+        public LinearGradientMode CardGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

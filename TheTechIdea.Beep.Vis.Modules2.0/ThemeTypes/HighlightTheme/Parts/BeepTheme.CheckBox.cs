@@ -5,16 +5,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // CheckBox properties
-        public Color CheckBoxBackColor { get; set; }
-        public Color CheckBoxForeColor { get; set; }
-        public Color CheckBoxBorderColor { get; set; }
-        public Color CheckBoxCheckedBackColor { get; set; }
-        public Color CheckBoxCheckedForeColor { get; set; }
-        public Color CheckBoxCheckedBorderColor { get; set; }
-        public Color CheckBoxHoverBackColor { get; set; }
-        public Color CheckBoxHoverForeColor { get; set; }
-        public Color CheckBoxHoverBorderColor { get; set; }
-        public Font CheckBoxFont { get; set; }
-        public Font CheckBoxCheckedFont { get; set; }
+        public Color CheckBoxBackColor { get; set; } = Color.White;
+        public Color CheckBoxForeColor { get; set; } = Color.Black;
+        public Color CheckBoxBorderColor { get; set; } = Color.DodgerBlue;
+        public Color CheckBoxCheckedBackColor { get; set; } = Color.DodgerBlue;
+        public Color CheckBoxCheckedForeColor { get; set; } = Color.White;
+        public Color CheckBoxCheckedBorderColor { get; set; } = Color.DodgerBlue;
+        public Color CheckBoxHoverBackColor { get; set; } = Color.LightSkyBlue;
+        public Color CheckBoxHoverForeColor { get; set; } = Color.Black;
+        public Color CheckBoxHoverBorderColor { get; set; } = Color.SkyBlue;
+        public Font CheckBoxFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public Font CheckBoxCheckedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
     }
 }

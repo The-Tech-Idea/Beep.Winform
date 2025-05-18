@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class LightTheme
     {
         // Badge Colors & Fonts
-        public Color BadgeBackColor { get; set; }
-        public Color BadgeForeColor { get; set; }
-        public Color HighlightBackColor { get; set; }
-        public Font BadgeFont { get; set; }
+        public Color BadgeBackColor { get; set; } = Color.LightYellow;
+        public Color BadgeForeColor { get; set; } = Color.DarkSlateGray;
+        public Color HighlightBackColor { get; set; } = Color.LightGoldenrodYellow;
+        public Font BadgeFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Bold);
     }
 }

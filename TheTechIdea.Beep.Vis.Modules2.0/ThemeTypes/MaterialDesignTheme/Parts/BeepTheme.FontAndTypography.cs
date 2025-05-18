@@ -1,15 +1,69 @@
-﻿namespace TheTechIdea.Beep.Vis.Modules
+﻿using System.Drawing;
+
+namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-        public string FontName { get; set; }
-        public float FontSize { get; set; }
-        public TypographyStyle TitleStyle { get; set; }
-        public TypographyStyle SubtitleStyle { get; set; }
-        public TypographyStyle BodyStyle { get; set; }
-        public TypographyStyle CaptionStyle { get; set; }
-        public TypographyStyle ButtonStyle { get; set; }
-        public TypographyStyle LinkStyle { get; set; }
-        public TypographyStyle OverlineStyle { get; set; }
+        public string FontName { get; set; } = "Roboto";
+        public float FontSize { get; set; } = 14f;
+
+        public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 20f,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.FromArgb(33, 33, 33) // Dark gray
+        };
+
+        public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 16f,
+            FontWeight = FontWeight.Medium,
+            TextColor = Color.FromArgb(117, 117, 117) // Medium gray
+        };
+
+        public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 14f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.FromArgb(66, 66, 66) // Standard body text gray
+        };
+
+        public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 12f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.FromArgb(117, 117, 117) // Caption gray
+        };
+
+        public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 14f,
+            FontWeight = FontWeight.Medium,
+            TextColor = Color.White,
+            IsUnderlined = false
+        };
+
+        public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 14f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.FromArgb(33, 150, 243), // Material Blue 500
+            IsUnderlined = true
+        };
+
+        public TypographyStyle OverlineStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto",
+            FontSize = 10f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.FromArgb(117, 117, 117), // Gray
+            IsUnderlined = false
+        };
     }
 }

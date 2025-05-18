@@ -1,15 +1,68 @@
-﻿namespace TheTechIdea.Beep.Vis.Modules
+﻿using System.Drawing;
+
+namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MidnightTheme
     {
-        public string FontName { get; set; }
-        public float FontSize { get; set; }
-        public TypographyStyle TitleStyle { get; set; }
-        public TypographyStyle SubtitleStyle { get; set; }
-        public TypographyStyle BodyStyle { get; set; }
-        public TypographyStyle CaptionStyle { get; set; }
-        public TypographyStyle ButtonStyle { get; set; }
-        public TypographyStyle LinkStyle { get; set; }
-        public TypographyStyle OverlineStyle { get; set; }
+        public string FontName { get; set; } = "Segoe UI";
+        public float FontSize { get; set; } = 12f;
+
+        public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 20f,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.White
+        };
+
+        public TypographyStyle SubtitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 16f,
+            FontWeight = FontWeight.SemiBold,
+            TextColor = Color.LightGray
+        };
+
+        public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.WhiteSmoke
+        };
+
+        public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 10f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.Gray
+        };
+
+        public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12f,
+            FontWeight = FontWeight.SemiBold,
+            TextColor = Color.White
+        };
+
+        public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.CornflowerBlue,
+            IsUnderlined = true
+        };
+
+        public TypographyStyle OverlineStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 8f,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.Gray,
+            IsUnderlined = false
+        };
     }
 }

@@ -5,21 +5,27 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // Tab Fonts & Colors
-        public Font TabFont { get; set; }
-        public Font TabHoverFont { get; set; }
-        public Font TabSelectedFont { get; set; }
-        public Color TabBackColor { get; set; }
-        public Color TabForeColor { get; set; }
-        public Color ActiveTabBackColor { get; set; }
-        public Color ActiveTabForeColor { get; set; }
-        public Color InactiveTabBackColor { get; set; }
-        public Color InactiveTabForeColor { get; set; }
-        public Color TabBorderColor { get; set; }
-        public Color TabHoverBackColor { get; set; }
-        public Color TabHoverForeColor { get; set; }
-        public Color TabSelectedBackColor { get; set; }
-        public Color TabSelectedForeColor { get; set; }
-        public Color TabSelectedBorderColor { get; set; }
-        public Color TabHoverBorderColor { get; set; }
+        public Font TabFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public Font TabHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
+        public Font TabSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+
+        public Color TabBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
+        public Color TabForeColor { get; set; } = Color.White;
+
+        public Color ActiveTabBackColor { get; set; } = Color.FromArgb(0x0F, 0x34, 0x60); // AccentColor
+        public Color ActiveTabForeColor { get; set; } = Color.White;
+
+        public Color InactiveTabBackColor { get; set; } = Color.FromArgb(0x16, 0x21, 0x3E); // SecondaryColor
+        public Color InactiveTabForeColor { get; set; } = Color.LightGray;
+
+        public Color TabBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33); // Subtle border
+        public Color TabHoverBackColor { get; set; } = Color.FromArgb(0x23, 0x23, 0x4E);
+        public Color TabHoverForeColor { get; set; } = Color.White;
+
+        public Color TabSelectedBackColor { get; set; } = Color.FromArgb(0x0F, 0x34, 0x60); // AccentColor
+        public Color TabSelectedForeColor { get; set; } = Color.White;
+        public Color TabSelectedBorderColor { get; set; } = Color.White;
+
+        public Color TabHoverBorderColor { get; set; } = Color.FromArgb(0x4E, 0xC5, 0xF1); // Highlight border
     }
 }

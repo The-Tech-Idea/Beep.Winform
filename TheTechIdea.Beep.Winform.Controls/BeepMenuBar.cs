@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
         private BeepButton _lastbuttonclicked;
-        private Panel container;
+      //  private Panel container;
         public BeepButton CurrenItemButton { get; private set; }
 
         private int _selectedIndex = -1;
@@ -194,15 +194,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             UpdateDrawingRect();
             ApplyThemeToChilds = true;
-            container = new Panel()
-            {
-                Left = DrawingRect.Left,
-                Top = DrawingRect.Top,
-                Width = DrawingRect.Width,
-                Height = DrawingRect.Height,
-                Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
-            };
-            //    items.ListChanged += Items_ListChanged;
+            //container = new Panel()
+            //{
+            //    Left = DrawingRect.Left,
+            //    Top = DrawingRect.Top,
+            //    Width = DrawingRect.Width,
+            //    Height = DrawingRect.Height,
+            //    Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
+            //};
+            ////    items.ListChanged += Items_ListChanged;
 
             _lastbuttonclicked = null;
             BoundProperty = "SelectedMenuItem";
@@ -447,11 +447,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             ForeColor = _currentTheme.MenuForeColor;
             BorderColor = _currentTheme.MenuBorderColor;
 
-            // Apply to container
-            if (container != null)
-            {
-                container.BackColor = _currentTheme.MenuBackColor;
-            }
+            //// Apply to container
+            //if (container != null)
+            //{
+            //    container.BackColor = _currentTheme.MenuBackColor;
+            //}
 
             // Apply gradient if configured
             if (_currentTheme.MenuGradiantStartColor != Color.Empty &&

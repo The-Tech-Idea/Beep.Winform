@@ -7,8 +7,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Chart Fonts & Colors
 
-        public Font ChartTitleFont { get; set; } = new Font("Consolas", 13f, FontStyle.Bold);
-        public Font ChartSubTitleFont { get; set; } = new Font("Consolas", 11f, FontStyle.Italic);
+        public TypographyStyle ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Bold);
+        public TypographyStyle ChartSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Italic);
 
         public Color ChartBackColor { get; set; } = Color.FromArgb(20, 20, 40);             // Cyberpunk Deep Black
         public Color ChartLineColor { get; set; } = Color.FromArgb(0, 255, 255);            // Neon Cyan

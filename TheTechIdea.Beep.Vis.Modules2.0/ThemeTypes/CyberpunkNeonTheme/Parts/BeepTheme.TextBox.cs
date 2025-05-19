@@ -28,8 +28,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TextBoxErrorTextBoxBorderColor { get; set; } = Color.FromArgb(255, 0, 0);  // Error input border
         public Color TextBoxErrorTextBoxHoverColor { get; set; } = Color.FromArgb(255, 80, 80); // Error input hover
 
-        public Font TextBoxFont { get; set; } = new Font("Consolas", 12f, FontStyle.Regular);
-        public Font TextBoxHoverFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold);
-        public Font TextBoxSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle TextBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle TextBoxHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold);
+        public TypographyStyle TextBoxSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
     }
 }

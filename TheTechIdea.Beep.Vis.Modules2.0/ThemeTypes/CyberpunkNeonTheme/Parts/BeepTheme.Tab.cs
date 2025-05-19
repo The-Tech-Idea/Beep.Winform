@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Tab Fonts & Colors
 
-        public Font TabFont { get; set; } = new Font("Consolas", 12f, FontStyle.Regular);
-        public Font TabHoverFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold);
-        public Font TabSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold);
+        public TypographyStyle TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
 
         public Color TabBackColor { get; set; } = Color.FromArgb(18, 18, 32);              // Dark background
         public Color TabForeColor { get; set; } = Color.FromArgb(0, 255, 255);              // Neon cyan text

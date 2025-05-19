@@ -23,8 +23,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TextBoxErrorTextBoxColor { get; set; }
         public Color TextBoxErrorTextBoxBorderColor { get; set; }
         public Color TextBoxErrorTextBoxHoverColor { get; set; }
-        public Font TextBoxFont { get; set; }
-        public Font TextBoxHoverFont { get; set; }
-        public Font TextBoxSelectedFont { get; set; }
+        public TypographyStyle TextBoxFont { get; set; }
+        public TypographyStyle TextBoxHoverFont { get; set; }
+        public TypographyStyle TextBoxSelectedFont { get; set; }
     }
 }

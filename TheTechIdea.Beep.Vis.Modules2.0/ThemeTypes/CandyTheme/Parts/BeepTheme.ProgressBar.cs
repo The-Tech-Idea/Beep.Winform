@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ProgressBarSuccessColor { get; set; } = Color.FromArgb(127, 255, 212);   // Mint
 
         // Main font and inside text
-        public Font ProgressBarFont { get; set; } = new Font("Comic Sans MS", 10.5f, FontStyle.Bold);
+        public TypographyStyle ProgressBarFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold);
         public Color ProgressBarInsideTextColor { get; set; } = Color.White;
 
         // Hover state: baby blue track, pink chunk, candy pink text

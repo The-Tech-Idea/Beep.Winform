@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Tab Fonts & Colors
 
-        public Font TabFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Regular);
-        public Font TabHoverFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Italic);
-        public Font TabSelectedFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Bold);
+        public TypographyStyle TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Regular);
+        public TypographyStyle TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Italic);
+        public TypographyStyle TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
 
         public Color TabBackColor { get; set; } = Color.FromArgb(255, 224, 235);          // Pastel Pink
         public Color TabForeColor { get; set; } = Color.FromArgb(44, 62, 80);             // Navy

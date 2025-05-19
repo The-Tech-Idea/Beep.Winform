@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DarkTheme
     {
         // Side Menu Fonts & Colors
-        public Font SideMenuTitleFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
-        public Font SideMenuSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Italic);
-        public Font SideMenuTextFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle SideMenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16, FontStyle.Bold);
+        public TypographyStyle SideMenuSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Italic);
+        public TypographyStyle SideMenuTextFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
 
         public Color SideMenuBackColor { get; set; } = Color.FromArgb(25, 25, 25);
         public Color SideMenuHoverBackColor { get; set; } = Color.FromArgb(50, 50, 50);

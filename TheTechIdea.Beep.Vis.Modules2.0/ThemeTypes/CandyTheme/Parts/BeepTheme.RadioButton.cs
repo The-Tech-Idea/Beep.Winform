@@ -22,8 +22,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color RadioButtonHoverBorderColor { get; set; } = Color.FromArgb(255, 223, 93);    // Lemon Yellow
 
         // Fonts: playful, bold for checked
-        public Font RadioButtonFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
-        public Font RadioButtonCheckedFont { get; set; } = new Font("Comic Sans MS", 10.5f, FontStyle.Bold);
+        public TypographyStyle RadioButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle RadioButtonCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold);
 
         // Selected: stronger mint/candy pink for explicit state
         public Color RadioButtonSelectedForeColor { get; set; } = Color.FromArgb(240, 100, 180);  // Candy Pink

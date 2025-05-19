@@ -14,8 +14,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color RadioButtonHoverBackColor { get; set; }
         public Color RadioButtonHoverForeColor { get; set; }
         public Color RadioButtonHoverBorderColor { get; set; }
-        public Font RadioButtonFont { get; set; }
-        public Font RadioButtonCheckedFont { get; set; }
+        public TypographyStyle RadioButtonFont { get; set; }
+        public TypographyStyle RadioButtonCheckedFont { get; set; }
         public Color RadioButtonSelectedForeColor { get; set; }
         public Color RadioButtonSelectedBackColor { get; set; }
     }

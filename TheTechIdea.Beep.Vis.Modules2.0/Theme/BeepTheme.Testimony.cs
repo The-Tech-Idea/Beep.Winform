@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class BeepTheme
     {
         // Testimony/Testimonial Colors & Fonts
-        public Font TestimoniaTitleFont { get; set; }
-        public Font TestimoniaSelectedFont { get; set; }
-        public Font TestimoniaUnSelectedFont { get; set; }
+        public TypographyStyle TestimoniaTitleFont { get; set; }
+        public TypographyStyle TestimoniaSelectedFont { get; set; }
+        public TypographyStyle TestimoniaUnSelectedFont { get; set; }
         public Color TestimonialBackColor { get; set; } = Color.White;
         public Color TestimonialTextColor { get; set; } = Color.Black;
         public Color TestimonialNameColor { get; set; } = Color.DarkBlue;

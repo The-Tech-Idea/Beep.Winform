@@ -7,19 +7,19 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Dialog Button Colors and Fonts
         public Color DialogBackColor { get; set; }
         public Color DialogForeColor { get; set; }
-        public Font DialogYesButtonFont { get; set; }
-        public Font DialogNoButtonFont { get; set; }
-        public Font DialogOkButtonFont { get; set; }
-        public Font DialogCancelButtonFont { get; set; }
-        public Font DialogWarningButtonFont { get; set; }
-        public Font DialogErrorButtonFont { get; set; }
-        public Font DialogInformationButtonFont { get; set; }
-        public Font DialogQuestionButtonFont { get; set; }
-        public Font DialogHelpButtonFont { get; set; }
-        public Font DialogCloseButtonFont { get; set; }
-        public Font DialogYesButtonHoverFont { get; set; }
-        public Font DialogNoButtonHoverFont { get; set; }
-        public Font DialogOkButtonHoverFont { get; set; }
+        public TypographyStyle DialogYesButtonFont { get; set; }
+        public TypographyStyle DialogNoButtonFont { get; set; }
+        public TypographyStyle DialogOkButtonFont { get; set; }
+        public TypographyStyle DialogCancelButtonFont { get; set; }
+        public TypographyStyle DialogWarningButtonFont { get; set; }
+        public TypographyStyle DialogErrorButtonFont { get; set; }
+        public TypographyStyle DialogInformationButtonFont { get; set; }
+        public TypographyStyle DialogQuestionButtonFont { get; set; }
+        public TypographyStyle DialogHelpButtonFont { get; set; }
+        public TypographyStyle DialogCloseButtonFont { get; set; }
+        public TypographyStyle DialogYesButtonHoverFont { get; set; }
+        public TypographyStyle DialogNoButtonHoverFont { get; set; }
+        public TypographyStyle DialogOkButtonHoverFont { get; set; }
 
         public Color DialogYesButtonBackColor { get; set; }
         public Color DialogYesButtonForeColor { get; set; }

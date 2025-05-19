@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CheckBoxHoverForeColor { get; set; } = Color.FromArgb(0, 255, 255);     // Neon Cyan
         public Color CheckBoxHoverBorderColor { get; set; } = Color.FromArgb(255, 255, 0);   // Neon Yellow
 
-        public Font CheckBoxFont { get; set; } = new Font("Consolas", 10.5f, FontStyle.Regular);
-        public Font CheckBoxCheckedFont { get; set; } = new Font("Consolas", 10.5f, FontStyle.Bold);
+        public TypographyStyle CheckBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 10.5f, FontStyle.Regular);
+        public TypographyStyle CheckBoxCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 10.5f, FontStyle.Bold);
     }
 }

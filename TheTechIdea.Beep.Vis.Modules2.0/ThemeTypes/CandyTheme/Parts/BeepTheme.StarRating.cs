@@ -25,10 +25,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StarRatingSelectedBorderColor { get; set; } = Color.FromArgb(255, 223, 93); // Lemon
 
         // Fonts
-        public Font StarTitleFont { get; set; } = new Font("Comic Sans MS", 12f, FontStyle.Bold);
-        public Font StarSubTitleFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Italic);
-        public Font StarSelectedFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Bold);
-        public Font StarUnSelectedFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle StarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12f, FontStyle.Bold);
+        public TypographyStyle StarSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Italic);
+        public TypographyStyle StarSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
+        public TypographyStyle StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
 
         // Title/Subtitle color backgrounds
         public Color StarTitleForeColor { get; set; } = Color.FromArgb(240, 100, 180);    // Candy Pink

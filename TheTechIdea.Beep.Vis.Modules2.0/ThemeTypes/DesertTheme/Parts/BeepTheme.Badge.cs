@@ -8,6 +8,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color BadgeBackColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan
         public Color BadgeForeColor { get; set; } = Color.FromArgb(60, 30, 10); // Dark Brown
         public Color HighlightBackColor { get; set; } = Color.FromArgb(244, 164, 96); // Sandy Brown
-        public Font BadgeFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle BadgeFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
     }
 }

@@ -10,6 +10,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color BadgeBackColor { get; set; } = Color.FromArgb(24, 24, 48);          // Cyberpunk Black/Dark
         public Color BadgeForeColor { get; set; } = Color.FromArgb(255, 0, 255);         // Neon Magenta
         public Color HighlightBackColor { get; set; } = Color.FromArgb(0, 255, 255);     // Neon Cyan
-        public Font BadgeFont { get; set; } = new Font("Consolas", 10.5f, FontStyle.Bold);
+        public TypographyStyle BadgeFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 10.5f, FontStyle.Bold);
     }
 }

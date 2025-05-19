@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Card Colors & Fonts
-        public Font CardTitleFont { get; set; }
+        public TypographyStyle CardTitleFont { get; set; }
         public Color CardTextForeColor { get; set; }
         public Color CardBackColor { get; set; }
         public Color CardTitleForeColor { get; set; }
-        public Font CardSubTitleFont { get; set; }
+        public TypographyStyle CardSubTitleFont { get; set; }
         public Color CardSubTitleForeColor { get; set; }
         public TypographyStyle CardHeaderStyle { get; set; }
         public TypographyStyle CardparagraphStyle { get; set; }

@@ -6,20 +6,32 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MonochromeTheme
     {
         // Dashboard Colors & Fonts
-        public Font DashboardTitleFont { get; set; }
-        public Font DashboardSubTitleFont { get; set; }
-        public Color DashboardBackColor { get; set; }
-        public Color DashboardCardBackColor { get; set; }
-        public Color DashboardCardHoverBackColor { get; set; }
-        public Color DashboardTitleForeColor { get; set; }
-        public Color DashboardTitleBackColor { get; set; }
-        public TypographyStyle DashboardTitleStyle { get; set; }
-        public Color DashboardSubTitleForeColor { get; set; }
-        public Color DashboardSubTitleBackColor { get; set; }
-        public TypographyStyle DashboardSubTitleStyle { get; set; }
-        public Color DashboardGradiantStartColor { get; set; }
-        public Color DashboardGradiantEndColor { get; set; }
-        public Color DashboardGradiantMiddleColor { get; set; }
-        public LinearGradientMode DashboardGradiantDirection { get; set; }
+        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 18, FontStyle.Bold);
+        public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public Color DashboardBackColor { get; set; } = Color.Black;
+        public Color DashboardCardBackColor { get; set; } = Color.FromArgb(30, 30, 30);
+        public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(50, 50, 50);
+        public Color DashboardTitleForeColor { get; set; } = Color.White;
+        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 18,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.White
+        };
+        public Color DashboardSubTitleForeColor { get; set; } = Color.Gray;
+        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.Gray
+        };
+        public Color DashboardGradiantStartColor { get; set; } = Color.FromArgb(40, 40, 40);
+        public Color DashboardGradiantEndColor { get; set; } = Color.Black;
+        public Color DashboardGradiantMiddleColor { get; set; } = Color.FromArgb(30, 30, 30);
+        public LinearGradientMode DashboardGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

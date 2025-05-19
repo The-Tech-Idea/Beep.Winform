@@ -7,14 +7,14 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Card Colors & Fonts
 
-        public Font CardTitleFont { get; set; } = new Font("Comic Sans MS", 12.5f, FontStyle.Bold);
+        public TypographyStyle CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12.5f, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.FromArgb(85, 85, 85); // Neutral gray for good contrast
 
         public Color CardBackColor { get; set; } = Color.FromArgb(255, 224, 235); // Pastel pink for main card area
 
         public Color CardTitleForeColor { get; set; } = Color.FromArgb(240, 100, 180); // Candy Pink
 
-        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 11f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11f, FontStyle.Bold | FontStyle.Italic);
         public Color CardSubTitleForeColor { get; set; } = Color.FromArgb(127, 255, 212); // Mint
 
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle

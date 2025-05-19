@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class OceanTheme
     {
         // Tab Fonts & Colors
-        public Font TabFont { get; set; }
-        public Font TabHoverFont { get; set; }
-        public Font TabSelectedFont { get; set; }
+        public TypographyStyle TabFont { get; set; }
+        public TypographyStyle TabHoverFont { get; set; }
+        public TypographyStyle TabSelectedFont { get; set; }
         public Color TabBackColor { get; set; }
         public Color TabForeColor { get; set; }
         public Color ActiveTabBackColor { get; set; }

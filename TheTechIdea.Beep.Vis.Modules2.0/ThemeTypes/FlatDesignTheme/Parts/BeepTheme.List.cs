@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // List Fonts & Colors
-        public Font ListTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font ListSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
-        public Font ListUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle ListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle ListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle ListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
         public Color ListBackColor { get; set; } = Color.White;
         public Color ListForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color ListBorderColor { get; set; } = Color.FromArgb(224, 224, 224);

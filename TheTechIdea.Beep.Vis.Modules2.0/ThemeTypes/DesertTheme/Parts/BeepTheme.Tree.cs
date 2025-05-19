@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Tree Fonts & Colors
-        public Font TreeTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font TreeNodeSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font TreeNodeUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle TreeTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
 
         public Color TreeBackColor { get; set; } = Color.FromArgb(255, 244, 214, 165);   // Light sand beige
         public Color TreeForeColor { get; set; } = Color.FromArgb(102, 51, 0);            // Dark brown

@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DarkTheme
     {
         // List Fonts & Colors
-        public Font ListTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Bold);
-        public Font ListSelectedFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Bold);
-        public Font ListUnSelectedFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Regular);
+        public TypographyStyle ListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+        public TypographyStyle ListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+        public TypographyStyle ListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
 
         public Color ListBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color ListForeColor { get; set; } = Color.WhiteSmoke;

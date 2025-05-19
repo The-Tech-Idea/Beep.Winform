@@ -21,8 +21,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(255, 40, 80);     // Neon Red
         public Color ComboBoxErrorForeColor { get; set; } = Color.White;
 
-        public Font ComboBoxItemFont { get; set; } = new Font("Consolas", 10.5f, FontStyle.Regular);
-        public Font ComboBoxListFont { get; set; } = new Font("Consolas", 11f, FontStyle.Bold);
+        public TypographyStyle ComboBoxItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 10.5f, FontStyle.Regular);
+        public TypographyStyle ComboBoxListFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Bold);
 
         // If ComboBox has a checkbox selection mode (like multi-select)
         public Color CheckBoxSelectedForeColor { get; set; } = Color.FromArgb(255, 255, 0);      // Neon Yellow

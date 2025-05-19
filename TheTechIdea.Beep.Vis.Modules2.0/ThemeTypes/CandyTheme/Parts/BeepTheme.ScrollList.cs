@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // ScrollList Fonts & Colors
 
-        public Font ScrollListTitleFont { get; set; } = new Font("Comic Sans MS", 12f, FontStyle.Bold);
-        public Font ScrollListSelectedFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Bold);
-        public Font ScrollListUnSelectedFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle ScrollListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12f, FontStyle.Bold);
+        public TypographyStyle ScrollListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
+        public TypographyStyle ScrollListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
 
         public Color ScrollListBackColor { get; set; } = Color.FromArgb(255, 224, 235);        // Pastel Pink
         public Color ScrollListForeColor { get; set; } = Color.FromArgb(44, 62, 80);           // Navy
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color ScrollListItemBorderColor { get; set; } = Color.FromArgb(206, 183, 255);      // Pastel Lavender
 
-        public Font ScrollListIItemFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
-        public Font ScrollListItemSelectedFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Bold);
+        public TypographyStyle ScrollListIItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle ScrollListItemSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
     }
 }

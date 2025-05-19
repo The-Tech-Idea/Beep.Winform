@@ -8,6 +8,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color BadgeBackColor { get; set; }
         public Color BadgeForeColor { get; set; }
         public Color HighlightBackColor { get; set; }
-        public Font BadgeFont { get; set; }
+        public TypographyStyle BadgeFont { get; set; }
     }
 }

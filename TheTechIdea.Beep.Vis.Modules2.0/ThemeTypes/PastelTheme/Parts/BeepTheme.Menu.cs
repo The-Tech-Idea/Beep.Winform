@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Menu Fonts & Colors
-        public Font MenuTitleFont { get; set; }
-        public Font MenuItemSelectedFont { get; set; }
-        public Font MenuItemUnSelectedFont { get; set; }
+        public TypographyStyle MenuTitleFont { get; set; }
+        public TypographyStyle MenuItemSelectedFont { get; set; }
+        public TypographyStyle MenuItemUnSelectedFont { get; set; }
         public Color MenuBackColor { get; set; }
         public Color MenuForeColor { get; set; }
         public Color MenuBorderColor { get; set; }

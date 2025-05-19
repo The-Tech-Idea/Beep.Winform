@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DarkTheme
     {
         // Card Colors & Fonts
-        public Font CardTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.LightGray;
         public Color CardBackColor { get; set; } = Color.FromArgb(40, 40, 40);
         public Color CardTitleForeColor { get; set; } = Color.White;
-        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
+        public TypographyStyle CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
         public Color CardSubTitleForeColor { get; set; } = Color.Gray;
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
         {

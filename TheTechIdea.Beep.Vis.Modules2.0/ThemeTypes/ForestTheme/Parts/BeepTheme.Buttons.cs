@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Button Colors and Styles
-        public Font ButtonFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
-        public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Bold);
-        public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Bold);
+        public TypographyStyle ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Regular);
+        public TypographyStyle ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Bold);
+        public TypographyStyle ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Bold);
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(34, 139, 34); // ForestGreen
         public Color ButtonHoverForeColor { get; set; } = Color.White;

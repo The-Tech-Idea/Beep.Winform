@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DarkTheme
     {
         // Dashboard Colors & Fonts
-        public Font DashboardTitleFont { get; set; } = new Font("Segoe UI", 20F, FontStyle.Bold);
-        public Font DashboardSubTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Regular);
+        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 20F, FontStyle.Bold);
+        public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Regular);
 
         public Color DashboardBackColor { get; set; } = Color.FromArgb(24, 24, 24);
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(40, 40, 40);

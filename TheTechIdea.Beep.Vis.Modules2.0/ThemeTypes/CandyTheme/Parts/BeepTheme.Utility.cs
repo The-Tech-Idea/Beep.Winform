@@ -8,22 +8,22 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Utility Methods
 
-        public Font GetBlockHeaderFont() =>
+        public TypographyStyle GetBlockHeaderFont() =>
             GetFont(FontFamily, FontSizeBlockHeader, FontStyleBold);
 
-        public Font GetBlockTextFont() =>
+        public TypographyStyle GetBlockTextFont() =>
             GetFont(FontFamily, FontSizeBlockText, FontStyleRegular);
 
-        public Font GetQuestionFont() =>
+        public TypographyStyle GetQuestionFont() =>
             GetFont(FontFamily, FontSizeQuestion, FontStyleBold);
 
-        public Font GetAnswerFont() =>
+        public TypographyStyle GetAnswerFont() =>
             GetFont(FontFamily, FontSizeAnswer, FontStyleRegular | FontStyle.Italic);
 
-        public Font GetCaptionFont() =>
+        public TypographyStyle GetCaptionFont() =>
             GetFont(FontFamily, FontSizeCaption, FontStyleRegular);
 
-        public Font GetButtonFont() =>
+        public TypographyStyle GetButtonFont() =>
             GetFont(FontFamily, FontSizeButton, FontStyleBold);
 
         private Font GetFont(string fontName, float fontSize, FontStyle fontStyle)

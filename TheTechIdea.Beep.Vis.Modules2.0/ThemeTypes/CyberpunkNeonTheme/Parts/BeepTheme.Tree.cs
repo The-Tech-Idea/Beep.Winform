@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class CyberpunkNeonTheme
     {
         // Tree Fonts & Colors
-        public Font TreeTitleFont { get; set; } = new Font("Consolas", 14f, FontStyle.Bold);
-        public Font TreeNodeSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
-        public Font TreeNodeUnSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle TreeTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14f, FontStyle.Bold);
+        public TypographyStyle TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
 
         public Color TreeBackColor { get; set; } = Color.FromArgb(18, 18, 32);                  // Dark background
         public Color TreeForeColor { get; set; } = Color.FromArgb(0, 255, 255);                  // Neon cyan text

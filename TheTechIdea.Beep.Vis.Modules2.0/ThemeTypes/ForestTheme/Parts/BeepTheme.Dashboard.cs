@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Dashboard Colors & Fonts
-        public Font DashboardTitleFont { get; set; } = new Font("Segoe UI", 18, FontStyle.Bold);
-        public Font DashboardSubTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 18, FontStyle.Bold);
+        public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Regular);
         public Color DashboardBackColor { get; set; } = Color.FromArgb(40, 55, 40); // Dark green background
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(60, 85, 60); // Slightly lighter card background
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(80, 110, 80); // Hover effect card background

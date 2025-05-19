@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Navigation & Breadcrumbs Fonts & Colors
-        public Font NavigationTitleFont { get; set; } = new Font("Segoe UI Semibold", 16, FontStyle.Bold);
-        public Font NavigationSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font NavigationUnSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+        public TypographyStyle NavigationTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI Semibold", 16, FontStyle.Bold);
+        public TypographyStyle NavigationSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle NavigationUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Regular);
 
         public Color NavigationBackColor { get; set; } = Color.FromArgb(34, 49, 34); // dark forest green
         public Color NavigationForeColor { get; set; } = Color.FromArgb(200, 230, 200); // light mossy green

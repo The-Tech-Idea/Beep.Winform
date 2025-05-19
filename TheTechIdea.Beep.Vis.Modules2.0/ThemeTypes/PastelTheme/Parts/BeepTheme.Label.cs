@@ -17,8 +17,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LabelDisabledBackColor { get; set; }
         public Color LabelDisabledForeColor { get; set; }
         public Color LabelDisabledBorderColor { get; set; }
-        public Font LabelFont { get; set; }
-        public Font SubLabelFont { get; set; }
+        public TypographyStyle LabelFont { get; set; }
+        public TypographyStyle SubLabelFont { get; set; }
         public Color SubLabelForColor { get; set; }
         public Color SubLabelBackColor { get; set; }
         public Color SubLabelHoverBackColor { get; set; }

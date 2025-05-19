@@ -7,9 +7,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Button Colors and Styles
 
         // Fun, bold font for a candy look
-        public Font ButtonFont { get; set; } = new Font("Comic Sans MS", 10.5f, FontStyle.Bold);
-        public Font ButtonHoverFont { get; set; } = new Font("Comic Sans MS", 10.5f, FontStyle.Bold | FontStyle.Underline); // Slightly playful on hover
-        public Font ButtonSelectedFont { get; set; } = new Font("Comic Sans MS", 10.5f, FontStyle.Bold);
+        public TypographyStyle ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold);
+        public TypographyStyle ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold | FontStyle.Underline); // Slightly playful on hover
+        public TypographyStyle ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold);
 
         // Normal state: mint green button, white text, soft blue border
         public Color ButtonBackColor { get; set; } = Color.FromArgb(204, 255, 240); // Mint

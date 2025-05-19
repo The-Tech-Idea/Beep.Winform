@@ -5,9 +5,15 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Button Colors and Styles
+<<<<<<< HEAD
         public Font ButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
         public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
         public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+=======
+        public TypographyStyle ButtonFont { get; set; }
+        public TypographyStyle ButtonHoverFont { get; set; }
+        public TypographyStyle ButtonSelectedFont { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(60, 63, 65); // dark gray
         public Color ButtonHoverForeColor { get; set; } = Color.White;

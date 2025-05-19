@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // Tab Fonts & Colors
-        public Font TabFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
-        public Font TabHoverFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
-        public Font TabSelectedFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
+        public TypographyStyle TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
 
         public Color TabBackColor { get; set; } = Color.White;
         public Color TabForeColor { get; set; } = Color.DimGray;

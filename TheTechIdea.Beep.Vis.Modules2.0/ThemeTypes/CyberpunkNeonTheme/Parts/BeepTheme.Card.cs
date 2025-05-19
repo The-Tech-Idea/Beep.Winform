@@ -7,13 +7,13 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Card Colors & Fonts
 
-        public Font CardTitleFont { get; set; } = new Font("Consolas", 13f, FontStyle.Bold);
+        public TypographyStyle CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.FromArgb(0, 255, 255);           // Neon Cyan
         public Color CardBackColor { get; set; } = Color.FromArgb(24, 24, 48);                // Cyberpunk Black
 
         public Color CardTitleForeColor { get; set; } = Color.FromArgb(255, 0, 255);          // Neon Magenta
 
-        public Font CardSubTitleFont { get; set; } = new Font("Consolas", 11.5f, FontStyle.Italic);
+        public TypographyStyle CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11.5f, FontStyle.Italic);
         public Color CardSubTitleForeColor { get; set; } = Color.FromArgb(0, 255, 128);       // Neon Green
 
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle

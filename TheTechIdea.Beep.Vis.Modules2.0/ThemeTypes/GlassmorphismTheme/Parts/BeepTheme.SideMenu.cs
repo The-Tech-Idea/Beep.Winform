@@ -6,6 +6,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Side Menu Fonts & Colors
+<<<<<<< HEAD
         public Font SideMenuTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
         public Font SideMenuSubTitleFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
         public Font SideMenuTextFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
@@ -48,5 +49,27 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuGradiantEndColor { get; set; } = Color.FromArgb(200, 220, 240);
         public Color SideMenuGradiantMiddleColor { get; set; } = Color.FromArgb(215, 230, 245);
         public LinearGradientMode SideMenuGradiantDirection { get; set; } = LinearGradientMode.Vertical;
+=======
+        public TypographyStyle SideMenuTitleFont { get; set; }
+        public TypographyStyle SideMenuSubTitleFont { get; set; }
+        public TypographyStyle SideMenuTextFont { get; set; }
+        public Color SideMenuBackColor { get; set; }
+        public Color SideMenuHoverBackColor { get; set; }
+        public Color SideMenuSelectedBackColor { get; set; }
+        public Color SideMenuForeColor { get; set; }
+        public Color SideMenuSelectedForeColor { get; set; }
+        public Color SideMenuHoverForeColor { get; set; }
+        public Color SideMenuBorderColor { get; set; }
+        public Color SideMenuTitleTextColor { get; set; }
+        public Color SideMenuTitleBackColor { get; set; }
+        public TypographyStyle SideMenuTitleStyle { get; set; }
+        public Color SideMenuSubTitleTextColor { get; set; }
+        public Color SideMenuSubTitleBackColor { get; set; }
+        public TypographyStyle SideMenuSubTitleStyle { get; set; }
+        public Color SideMenuGradiantStartColor { get; set; }
+        public Color SideMenuGradiantEndColor { get; set; }
+        public Color SideMenuGradiantMiddleColor { get; set; }
+        public LinearGradientMode SideMenuGradiantDirection { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RusticTheme
     {
         // Stats Card Fonts & Colors
-        public Font StatsTitleFont { get; set; }
-        public Font StatsSelectedFont { get; set; }
-        public Font StatsUnSelectedFont { get; set; }
+        public TypographyStyle StatsTitleFont { get; set; }
+        public TypographyStyle StatsSelectedFont { get; set; }
+        public TypographyStyle StatsUnSelectedFont { get; set; }
         public Color StatsCardBackColor { get; set; }
         public Color StatsCardForeColor { get; set; }
         public Color StatsCardBorderColor { get; set; }

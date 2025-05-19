@@ -5,24 +5,24 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MonochromeTheme
     {
         // Stepper Fonts & Colors
-        public Font StepperTitleFont { get; set; }
-        public Font StepperSelectedFont { get; set; }
-        public Font StepperUnSelectedFont { get; set; }
-        public Color StepperBackColor { get; set; }
-        public Color StepperForeColor { get; set; }
-        public Color StepperBorderColor { get; set; }
-        public Color StepperItemForeColor { get; set; }
-        public Font StepperItemFont { get; set; }
-        public Font StepperSubTitleFont { get; set; }
-        public Color StepperItemHoverForeColor { get; set; }
-        public Color StepperItemHoverBackColor { get; set; }
-        public Color StepperItemSelectedForeColor { get; set; }
-        public Color StepperItemSelectedBackColor { get; set; }
-        public Color StepperItemSelectedBorderColor { get; set; }
-        public Color StepperItemBorderColor { get; set; }
-        public Color StepperItemHoverBorderColor { get; set; }
-        public Color StepperItemCheckedBoxForeColor { get; set; }
-        public Color StepperItemCheckedBoxBackColor { get; set; }
-        public Color StepperItemCheckedBoxBorderColor { get; set; }
+        public TypographyStyle StepperTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle StepperSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle StepperUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public Color StepperBackColor { get; set; } = Color.Black;
+        public Color StepperForeColor { get; set; } = Color.WhiteSmoke;
+        public Color StepperBorderColor { get; set; } = Color.Gray;
+        public Color StepperItemForeColor { get; set; } = Color.White;
+        public TypographyStyle StepperItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Regular);
+        public TypographyStyle StepperSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Italic);
+        public Color StepperItemHoverForeColor { get; set; } = Color.WhiteSmoke;
+        public Color StepperItemHoverBackColor { get; set; } = Color.DimGray;
+        public Color StepperItemSelectedForeColor { get; set; } = Color.Black;
+        public Color StepperItemSelectedBackColor { get; set; } = Color.WhiteSmoke;
+        public Color StepperItemSelectedBorderColor { get; set; } = Color.Silver;
+        public Color StepperItemBorderColor { get; set; } = Color.Gray;
+        public Color StepperItemHoverBorderColor { get; set; } = Color.LightGray;
+        public Color StepperItemCheckedBoxForeColor { get; set; } = Color.White;
+        public Color StepperItemCheckedBoxBackColor { get; set; } = Color.Black;
+        public Color StepperItemCheckedBoxBorderColor { get; set; } = Color.Gray;
     }
 }

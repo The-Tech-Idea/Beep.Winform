@@ -4,6 +4,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
+<<<<<<< HEAD
         // Stepper Fonts & Colors with Material Design defaults
         public Font StepperTitleFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
         public Font StepperSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
@@ -30,5 +31,27 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StepperItemCheckedBoxForeColor { get; set; } = Color.White;
         public Color StepperItemCheckedBoxBackColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue 500
         public Color StepperItemCheckedBoxBorderColor { get; set; } = Color.FromArgb(25, 118, 210); // Blue 700
+=======
+        // Stepper Fonts & Colors
+        public TypographyStyle StepperTitleFont { get; set; }
+        public TypographyStyle StepperSelectedFont { get; set; }
+        public TypographyStyle StepperUnSelectedFont { get; set; }
+        public Color StepperBackColor { get; set; }
+        public Color StepperForeColor { get; set; }
+        public Color StepperBorderColor { get; set; }
+        public Color StepperItemForeColor { get; set; }
+        public TypographyStyle StepperItemFont { get; set; }
+        public TypographyStyle StepperSubTitleFont { get; set; }
+        public Color StepperItemHoverForeColor { get; set; }
+        public Color StepperItemHoverBackColor { get; set; }
+        public Color StepperItemSelectedForeColor { get; set; }
+        public Color StepperItemSelectedBackColor { get; set; }
+        public Color StepperItemSelectedBorderColor { get; set; }
+        public Color StepperItemBorderColor { get; set; }
+        public Color StepperItemHoverBorderColor { get; set; }
+        public Color StepperItemCheckedBoxForeColor { get; set; }
+        public Color StepperItemCheckedBoxBackColor { get; set; }
+        public Color StepperItemCheckedBoxBorderColor { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

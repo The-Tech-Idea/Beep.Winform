@@ -6,6 +6,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Chart Fonts & Colors
+<<<<<<< HEAD
         public Font ChartTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
         public Font ChartSubTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Regular);
 
@@ -32,5 +33,20 @@ namespace TheTechIdea.Beep.Vis.Modules
             Color.FromArgb(255, 206, 86),    // Yellow
             Color.FromArgb(201, 203, 207)    // Gray
         };
+=======
+        public TypographyStyle ChartTitleFont { get; set; }
+        public TypographyStyle ChartSubTitleFont { get; set; }
+        public Color ChartBackColor { get; set; }
+        public Color ChartLineColor { get; set; }
+        public Color ChartFillColor { get; set; }
+        public Color ChartAxisColor { get; set; }
+        public Color ChartTitleColor { get; set; }
+        public Color ChartTextColor { get; set; }
+        public Color ChartLegendBackColor { get; set; }
+        public Color ChartLegendTextColor { get; set; }
+        public Color ChartLegendShapeColor { get; set; }
+        public Color ChartGridLineColor { get; set; }
+        public List<Color> ChartDefaultSeriesColors { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

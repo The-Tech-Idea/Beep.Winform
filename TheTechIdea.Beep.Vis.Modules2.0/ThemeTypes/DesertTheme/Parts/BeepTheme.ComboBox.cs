@@ -17,8 +17,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(255, 228, 225); // Light red for error background
         public Color ComboBoxErrorForeColor { get; set; } = Color.FromArgb(178, 34, 34);   // Firebrick Red error text
 
-        public Font ComboBoxItemFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
-        public Font ComboBoxListFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
+        public TypographyStyle ComboBoxItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
+        public TypographyStyle ComboBoxListFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
 
         public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
         public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(201, 144, 66); // Accent color for checkbox selected background

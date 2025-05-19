@@ -5,6 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Grid Fonts
+<<<<<<< HEAD
         public Font GridHeaderFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
         public Font GridRowFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
         public Font GridCellFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
@@ -12,6 +13,15 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Font GridCellHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
         public Font GridCellErrorFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Strikeout);
         public Font GridColumnFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+=======
+        public TypographyStyle GridHeaderFont { get; set; }
+        public TypographyStyle GridRowFont { get; set; }
+        public TypographyStyle GridCellFont { get; set; }
+        public TypographyStyle GridCellSelectedFont { get; set; }
+        public TypographyStyle GridCellHoverFont { get; set; }
+        public TypographyStyle GridCellErrorFont { get; set; }
+        public TypographyStyle GridColumnFont { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
 
         // Grid Colors
         public Color GridBackColor { get; set; } = Color.FromArgb(245, 250, 255);

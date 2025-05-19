@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // Navigation & Breadcrumbs Fonts & Colors
-        public Font NavigationTitleFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
-        public Font NavigationSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font NavigationUnSelectedFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+        public TypographyStyle NavigationTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16, FontStyle.Bold);
+        public TypographyStyle NavigationSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle NavigationUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Regular);
 
         public Color NavigationBackColor { get; set; } = Color.White;
         public Color NavigationForeColor { get; set; } = Color.FromArgb(33, 33, 33);

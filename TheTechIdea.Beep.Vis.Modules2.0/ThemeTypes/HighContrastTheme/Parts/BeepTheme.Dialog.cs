@@ -5,8 +5,26 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Dialog Button Colors and Fonts
+<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.Black;
         public Color DialogForeColor { get; set; } = Color.White;
+=======
+        public Color DialogBackColor { get; set; }
+        public Color DialogForeColor { get; set; }
+        public TypographyStyle DialogYesButtonFont { get; set; }
+        public TypographyStyle DialogNoButtonFont { get; set; }
+        public TypographyStyle DialogOkButtonFont { get; set; }
+        public TypographyStyle DialogCancelButtonFont { get; set; }
+        public TypographyStyle DialogWarningButtonFont { get; set; }
+        public TypographyStyle DialogErrorButtonFont { get; set; }
+        public TypographyStyle DialogInformationButtonFont { get; set; }
+        public TypographyStyle DialogQuestionButtonFont { get; set; }
+        public TypographyStyle DialogHelpButtonFont { get; set; }
+        public TypographyStyle DialogCloseButtonFont { get; set; }
+        public TypographyStyle DialogYesButtonHoverFont { get; set; }
+        public TypographyStyle DialogNoButtonHoverFont { get; set; }
+        public TypographyStyle DialogOkButtonHoverFont { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
 
         public Font DialogYesButtonFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
         public Font DialogNoButtonFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);

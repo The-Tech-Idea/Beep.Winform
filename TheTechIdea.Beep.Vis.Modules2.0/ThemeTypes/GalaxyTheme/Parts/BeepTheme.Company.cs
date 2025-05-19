@@ -5,6 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
         // Company Colors
+<<<<<<< HEAD
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color CompanyTitleColor { get; set; } = Color.White;
         public Font CompanyTitleFont { get; set; } = new Font("Segoe UI", 16f, FontStyle.Bold);
@@ -26,5 +27,22 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CompanyDropdownTextColor { get; set; } = Color.White;
 
         public Color CompanyLogoBackgroundColor { get; set; } = Color.FromArgb(0x23, 0x23, 0x4E); // Deep galaxy blue
+=======
+        public Color CompanyPopoverBackgroundColor { get; set; } = Color.White;
+        public Color CompanyTitleColor { get; set; } = Color.Black;
+        public TypographyStyle CompanyTitleFont { get; set; } 
+        public Color CompanySubtitleColor { get; set; } = Color.DarkBlue;
+        public TypographyStyle CompanySubTitleFont { get; set; }
+        public Color CompanyDescriptionColor { get; set; } = Color.Gray;
+        public TypographyStyle CompanyDescriptionFont { get; set; }
+        public Color CompanyLinkColor { get; set; } = Color.Gray;
+        public TypographyStyle CompanyLinkFont { get; set; }
+        public Color CompanyButtonBackgroundColor { get; set; } = Color.Blue;
+        public Color CompanyButtonTextColor { get; set; } = Color.White;
+        public TypographyStyle CompanyButtonFont { get; set; }
+        public Color CompanyDropdownBackgroundColor { get; set; } = Color.White;
+        public Color CompanyDropdownTextColor { get; set; } = Color.Black;
+        public Color CompanyLogoBackgroundColor { get; set; } = Color.Gray;
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

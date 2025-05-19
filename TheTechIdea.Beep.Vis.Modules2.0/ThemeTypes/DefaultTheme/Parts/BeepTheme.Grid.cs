@@ -5,13 +5,13 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DefaultTheme
     {
         // Grid Fonts
-        public Font GridHeaderFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font GridRowFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font GridCellFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font GridCellSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font GridCellHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
-        public Font GridCellErrorFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font GridColumnFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle GridHeaderFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle GridRowFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle GridCellFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle GridCellSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle GridCellHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
+        public TypographyStyle GridCellErrorFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle GridColumnFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
 
         // Grid Colors
         public Color GridBackColor { get; set; } = Color.White;

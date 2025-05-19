@@ -10,6 +10,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color HighlightBackColor { get; set; } = Color.FromArgb(255, 223, 93); // Candy Lemon (highlighted badge)
 
         // You can substitute with "Comic Sans MS", "Segoe UI Semibold", or "Nunito" if available for a more rounded, playful effect
-        public Font BadgeFont { get; set; } = new Font("Comic Sans MS", 10.5f, FontStyle.Bold);
+        public TypographyStyle BadgeFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 10.5f, FontStyle.Bold);
     }
 }

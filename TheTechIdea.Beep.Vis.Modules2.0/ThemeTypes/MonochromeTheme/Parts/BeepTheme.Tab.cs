@@ -5,21 +5,28 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MonochromeTheme
     {
         // Tab Fonts & Colors
-        public Font TabFont { get; set; }
-        public Font TabHoverFont { get; set; }
-        public Font TabSelectedFont { get; set; }
-        public Color TabBackColor { get; set; }
-        public Color TabForeColor { get; set; }
-        public Color ActiveTabBackColor { get; set; }
-        public Color ActiveTabForeColor { get; set; }
-        public Color InactiveTabBackColor { get; set; }
-        public Color InactiveTabForeColor { get; set; }
-        public Color TabBorderColor { get; set; }
-        public Color TabHoverBackColor { get; set; }
-        public Color TabHoverForeColor { get; set; }
-        public Color TabSelectedBackColor { get; set; }
-        public Color TabSelectedForeColor { get; set; }
-        public Color TabSelectedBorderColor { get; set; }
-        public Color TabHoverBorderColor { get; set; }
+        public TypographyStyle TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
+        public TypographyStyle TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+
+        public Color TabBackColor { get; set; } = Color.Black;
+        public Color TabForeColor { get; set; } = Color.LightGray;
+
+        public Color ActiveTabBackColor { get; set; } = Color.WhiteSmoke;
+        public Color ActiveTabForeColor { get; set; } = Color.Black;
+
+        public Color InactiveTabBackColor { get; set; } = Color.Black;
+        public Color InactiveTabForeColor { get; set; } = Color.Gray;
+
+        public Color TabBorderColor { get; set; } = Color.Gray;
+
+        public Color TabHoverBackColor { get; set; } = Color.DimGray;
+        public Color TabHoverForeColor { get; set; } = Color.White;
+
+        public Color TabSelectedBackColor { get; set; } = Color.WhiteSmoke;
+        public Color TabSelectedForeColor { get; set; } = Color.Black;
+
+        public Color TabSelectedBorderColor { get; set; } = Color.DarkGray;
+        public Color TabHoverBorderColor { get; set; } = Color.Silver;
     }
 }

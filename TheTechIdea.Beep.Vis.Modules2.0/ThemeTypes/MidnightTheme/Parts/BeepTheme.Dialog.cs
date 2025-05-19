@@ -5,6 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Dialog Button Colors and Fonts
+<<<<<<< HEAD
         public Color DialogBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color DialogForeColor { get; set; } = Color.WhiteSmoke;
         public Font DialogYesButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
@@ -20,6 +21,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Font DialogYesButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
         public Font DialogNoButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
         public Font DialogOkButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+=======
+        public Color DialogBackColor { get; set; }
+        public Color DialogForeColor { get; set; }
+        public TypographyStyle DialogYesButtonFont { get; set; }
+        public TypographyStyle DialogNoButtonFont { get; set; }
+        public TypographyStyle DialogOkButtonFont { get; set; }
+        public TypographyStyle DialogCancelButtonFont { get; set; }
+        public TypographyStyle DialogWarningButtonFont { get; set; }
+        public TypographyStyle DialogErrorButtonFont { get; set; }
+        public TypographyStyle DialogInformationButtonFont { get; set; }
+        public TypographyStyle DialogQuestionButtonFont { get; set; }
+        public TypographyStyle DialogHelpButtonFont { get; set; }
+        public TypographyStyle DialogCloseButtonFont { get; set; }
+        public TypographyStyle DialogYesButtonHoverFont { get; set; }
+        public TypographyStyle DialogNoButtonHoverFont { get; set; }
+        public TypographyStyle DialogOkButtonHoverFont { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
 
         public Color DialogYesButtonBackColor { get; set; } = Color.FromArgb(0, 150, 136); // Teal
         public Color DialogYesButtonForeColor { get; set; } = Color.White;

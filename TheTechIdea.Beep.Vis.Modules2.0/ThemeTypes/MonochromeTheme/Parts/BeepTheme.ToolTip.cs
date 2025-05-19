@@ -5,14 +5,14 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MonochromeTheme
     {
         // ToolTip Colors
-        public Color ToolTipBackColor { get; set; }
-        public Color ToolTipForeColor { get; set; }
-        public Color ToolTipBorderColor { get; set; }
-        public Color ToolTipShadowColor { get; set; }
-        public Color ToolTipShadowOpacity { get; set; }
-        public Color ToolTipTextColor { get; set; }
-        public Color ToolTipLinkColor { get; set; }
-        public Color ToolTipLinkHoverColor { get; set; }
-        public Color ToolTipLinkVisitedColor { get; set; }
+        public Color ToolTipBackColor { get; set; } = Color.WhiteSmoke;
+        public Color ToolTipForeColor { get; set; } = Color.Black;
+        public Color ToolTipBorderColor { get; set; } = Color.Gray;
+        public Color ToolTipShadowColor { get; set; } = Color.DarkGray;
+        public Color ToolTipShadowOpacity { get; set; } = Color.FromArgb(128, 0, 0, 0); // 50% opacity black
+        public Color ToolTipTextColor { get; set; } = Color.Black;
+        public Color ToolTipLinkColor { get; set; } = Color.DimGray;
+        public Color ToolTipLinkHoverColor { get; set; } = Color.Black;
+        public Color ToolTipLinkVisitedColor { get; set; } = Color.Gray;
     }
 }

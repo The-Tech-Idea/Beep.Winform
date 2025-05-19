@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // List Fonts & Colors
-        public Font ListTitleFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Bold);
-        public Font ListSelectedFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Bold);
-        public Font ListUnSelectedFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
+        public TypographyStyle ListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Bold);
+        public TypographyStyle ListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Bold);
+        public TypographyStyle ListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Regular);
         public Color ListBackColor { get; set; } = Color.FromArgb(34, 49, 34); // Dark green
         public Color ListForeColor { get; set; } = Color.FromArgb(200, 230, 201); // Light green
         public Color ListBorderColor { get; set; } = Color.FromArgb(46, 125, 50); // Medium green

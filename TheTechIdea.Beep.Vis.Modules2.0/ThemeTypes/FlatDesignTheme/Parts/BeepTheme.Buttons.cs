@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // Button Colors and Styles
-        public Font ButtonFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
-        public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
-        public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Regular);
+        public TypographyStyle ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
+        public TypographyStyle ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(240, 240, 240);
         public Color ButtonHoverForeColor { get; set; } = Color.Black;

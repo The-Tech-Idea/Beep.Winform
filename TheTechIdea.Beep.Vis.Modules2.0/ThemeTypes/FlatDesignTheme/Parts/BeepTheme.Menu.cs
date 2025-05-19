@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // Menu Fonts & Colors
-        public Font MenuTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font MenuItemSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font MenuItemUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle MenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle MenuItemSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle MenuItemUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
         public Color MenuBackColor { get; set; } = Color.White;
         public Color MenuForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color MenuBorderColor { get; set; } = Color.LightGray;

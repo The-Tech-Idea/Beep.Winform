@@ -4,6 +4,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
+<<<<<<< HEAD
         // ScrollList Fonts & Colors with default Material Design values
         public Font ScrollListTitleFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
         public Font ScrollListSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
@@ -25,5 +26,23 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Font ScrollListIItemFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
         public Font ScrollListItemSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
+=======
+        // ScrollList Fonts & Colors
+        public TypographyStyle ScrollListTitleFont { get; set; }
+        public TypographyStyle ScrollListSelectedFont { get; set; }
+        public TypographyStyle ScrollListUnSelectedFont { get; set; }
+        public Color ScrollListBackColor { get; set; }
+        public Color ScrollListForeColor { get; set; }
+        public Color ScrollListBorderColor { get; set; }
+        public Color ScrollListItemForeColor { get; set; }
+        public Color ScrollListItemHoverForeColor { get; set; }
+        public Color ScrollListItemHoverBackColor { get; set; }
+        public Color ScrollListItemSelectedForeColor { get; set; }
+        public Color ScrollListItemSelectedBackColor { get; set; }
+        public Color ScrollListItemSelectedBorderColor { get; set; }
+        public Color ScrollListItemBorderColor { get; set; }
+        public TypographyStyle ScrollListIItemFont { get; set; }
+        public TypographyStyle ScrollListItemSelectedFont { get; set; }
+>>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

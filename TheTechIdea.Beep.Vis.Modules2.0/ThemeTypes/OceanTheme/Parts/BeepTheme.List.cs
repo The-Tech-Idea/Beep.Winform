@@ -5,19 +5,53 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class OceanTheme
     {
         // List Fonts & Colors
-        public TypographyStyle ListTitleFont { get; set; }
-        public TypographyStyle ListSelectedFont { get; set; }
-        public TypographyStyle ListUnSelectedFont { get; set; }
-        public Color ListBackColor { get; set; }
-        public Color ListForeColor { get; set; }
-        public Color ListBorderColor { get; set; }
-        public Color ListItemForeColor { get; set; }
-        public Color ListItemHoverForeColor { get; set; }
-        public Color ListItemHoverBackColor { get; set; }
-        public Color ListItemSelectedForeColor { get; set; }
-        public Color ListItemSelectedBackColor { get; set; }
-        public Color ListItemSelectedBorderColor { get; set; }
-        public Color ListItemBorderColor { get; set; }
-        public Color ListItemHoverBorderColor { get; set; }
+        // Note: Ensure 'Roboto' font family is available. If unavailable, 'Arial' is a fallback.
+        public TypographyStyle ListTitleFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto", // Fallback: Arial
+            FontSize = 16f,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.FromArgb(100, 200, 180), // Bright teal
+            LineHeight = 1.4f,
+            LetterSpacing = 0.3f,
+            FontStyle = FontStyle.Regular,
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public TypographyStyle ListSelectedFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto", // Fallback: Arial
+            FontSize = 12f,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.FromArgb(240, 245, 255), // Light off-white
+            LineHeight = 1.2f,
+            LetterSpacing = 0.2f,
+            FontStyle = FontStyle.Regular,
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public TypographyStyle ListUnSelectedFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Roboto", // Fallback: Arial
+            FontSize = 12f,
+            FontWeight = FontWeight.Regular,
+            TextColor = Color.FromArgb(240, 245, 255), // Light off-white
+            LineHeight = 1.2f,
+            LetterSpacing = 0.2f,
+            FontStyle = FontStyle.Regular,
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color ListBackColor { get; set; } = Color.FromArgb(10, 25, 47); // Deep navy blue for list background
+        public Color ListForeColor { get; set; } = Color.FromArgb(240, 245, 255); // Light off-white for list text
+        public Color ListBorderColor { get; set; } = Color.FromArgb(100, 200, 180); // Bright teal for list border
+        public Color ListItemForeColor { get; set; } = Color.FromArgb(240, 245, 255); // Light off-white for item text
+        public Color ListItemHoverForeColor { get; set; } = Color.FromArgb(150, 180, 200); // Soft aqua for hover text
+        public Color ListItemHoverBackColor { get; set; } = Color.FromArgb(30, 60, 90); // Muted blue for hover background
+        public Color ListItemSelectedForeColor { get; set; } = Color.FromArgb(240, 245, 255); // Light off-white for selected item text
+        public Color ListItemSelectedBackColor { get; set; } = Color.FromArgb(100, 200, 180); // Bright teal for selected item background
+        public Color ListItemSelectedBorderColor { get; set; } = Color.FromArgb(100, 200, 180); // Bright teal for selected item border
+        public Color ListItemBorderColor { get; set; } = Color.FromArgb(100, 200, 180); // Bright teal for item border
+        public Color ListItemHoverBorderColor { get; set; } = Color.FromArgb(150, 180, 200); // Soft aqua for hover border
     }
 }

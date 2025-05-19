@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Card Colors & Fonts - Desert Warmth
-        public Font CardTitleFont { get; set; } = new Font("Segoe UI Semibold", 16, FontStyle.Bold);
+        public TypographyStyle CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI Semibold", 16, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.FromArgb(92, 64, 51); // Dark Sand Brown
         public Color CardBackColor { get; set; } = Color.FromArgb(255, 244, 214); // Light Sand
         public Color CardTitleForeColor { get; set; } = Color.FromArgb(150, 75, 0); // Saddle Brown
-        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Italic);
+        public TypographyStyle CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Italic);
         public Color CardSubTitleForeColor { get; set; } = Color.FromArgb(160, 82, 45); // Sienna
 
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle

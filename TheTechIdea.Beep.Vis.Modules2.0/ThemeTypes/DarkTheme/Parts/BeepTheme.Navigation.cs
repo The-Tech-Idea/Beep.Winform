@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DarkTheme
     {
         // Navigation & Breadcrumbs Fonts & Colors
-        public Font NavigationTitleFont { get; set; } = new Font("Segoe UI", 16f, FontStyle.Bold);
-        public Font NavigationSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public Font NavigationUnSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Regular);
+        public TypographyStyle NavigationTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16f, FontStyle.Bold);
+        public TypographyStyle NavigationSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle NavigationUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Regular);
 
         public Color NavigationBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color NavigationForeColor { get; set; } = Color.LightGray;

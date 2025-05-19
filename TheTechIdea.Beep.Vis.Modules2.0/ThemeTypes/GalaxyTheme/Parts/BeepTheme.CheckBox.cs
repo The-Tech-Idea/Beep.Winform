@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CheckBoxHoverBackColor { get; set; }
         public Color CheckBoxHoverForeColor { get; set; }
         public Color CheckBoxHoverBorderColor { get; set; }
-        public Font CheckBoxFont { get; set; }
-        public Font CheckBoxCheckedFont { get; set; }
+        public TypographyStyle CheckBoxFont { get; set; }
+        public TypographyStyle CheckBoxCheckedFont { get; set; }
     }
 }

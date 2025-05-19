@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Chart Fonts & Colors - Desert Inspired
-        public Font ChartTitleFont { get; set; } = new Font("Segoe UI Semibold", 18, FontStyle.Bold);
-        public Font ChartSubTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+        public TypographyStyle ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI Semibold", 18, FontStyle.Bold);
+        public TypographyStyle ChartSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Regular);
 
         public Color ChartBackColor { get; set; } = Color.FromArgb(255, 250, 240); // Soft sand background
         public Color ChartLineColor { get; set; } = Color.FromArgb(150, 75, 0); // Saddle brown for lines

@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RusticTheme
     {
         // Navigation & Breadcrumbs Fonts & Colors
-        public Font NavigationTitleFont { get; set; }
-        public Font NavigationSelectedFont { get; set; }
-        public Font NavigationUnSelectedFont { get; set; }
+        public TypographyStyle NavigationTitleFont { get; set; }
+        public TypographyStyle NavigationSelectedFont { get; set; }
+        public TypographyStyle NavigationUnSelectedFont { get; set; }
 
         public Color NavigationBackColor { get; set; }
         public Color NavigationForeColor { get; set; }

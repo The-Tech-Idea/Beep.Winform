@@ -6,17 +6,17 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Stepper Fonts & Colors
 
-        public Font StepperTitleFont { get; set; } = new Font("Comic Sans MS", 12f, FontStyle.Bold);
-        public Font StepperSelectedFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Bold);
-        public Font StepperUnSelectedFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle StepperTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12f, FontStyle.Bold);
+        public TypographyStyle StepperSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
+        public TypographyStyle StepperUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
 
         public Color StepperBackColor { get; set; } = Color.FromArgb(255, 224, 235);        // Pastel Pink
         public Color StepperForeColor { get; set; } = Color.FromArgb(44, 62, 80);           // Navy
         public Color StepperBorderColor { get; set; } = Color.FromArgb(127, 255, 212);      // Mint
 
         public Color StepperItemForeColor { get; set; } = Color.FromArgb(44, 62, 80);       // Navy
-        public Font StepperItemFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
-        public Font StepperSubTitleFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
+        public TypographyStyle StepperItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle StepperSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
 
         // Hover: baby blue background, candy pink text, lemon border
         public Color StepperItemHoverForeColor { get; set; } = Color.FromArgb(240, 100, 180); // Candy Pink

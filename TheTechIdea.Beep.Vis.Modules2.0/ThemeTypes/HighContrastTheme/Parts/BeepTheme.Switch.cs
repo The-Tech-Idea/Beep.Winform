@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // Switch control Fonts & Colors
-        public Font SwitchTitleFont { get; set; }
-        public Font SwitchSelectedFont { get; set; }
-        public Font SwitchUnSelectedFont { get; set; }
+        public TypographyStyle SwitchTitleFont { get; set; }
+        public TypographyStyle SwitchSelectedFont { get; set; }
+        public TypographyStyle SwitchUnSelectedFont { get; set; }
         public Color SwitchBackColor { get; set; }
         public Color SwitchBorderColor { get; set; }
         public Color SwitchForeColor { get; set; }

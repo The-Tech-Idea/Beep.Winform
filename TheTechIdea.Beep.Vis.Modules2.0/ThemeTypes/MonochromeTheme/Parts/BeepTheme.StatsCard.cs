@@ -5,32 +5,69 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MonochromeTheme
     {
         // Stats Card Fonts & Colors
-        public Font StatsTitleFont { get; set; }
-        public Font StatsSelectedFont { get; set; }
-        public Font StatsUnSelectedFont { get; set; }
-        public Color StatsCardBackColor { get; set; }
-        public Color StatsCardForeColor { get; set; }
-        public Color StatsCardBorderColor { get; set; }
-        public Color StatsCardTitleForeColor { get; set; }
-        public Color StatsCardTitleBackColor { get; set; }
-        public TypographyStyle StatsCardTitleStyle { get; set; }
-        public Color StatsCardSubTitleForeColor { get; set; }
-        public Color StatsCardSubTitleBackColor { get; set; }
-        public TypographyStyle StatsCardSubStyleStyle { get; set; }
-        public Color StatsCardValueForeColor { get; set; }
-        public Color StatsCardValueBackColor { get; set; }
-        public Color StatsCardValueBorderColor { get; set; }
-        public Color StatsCardValueHoverForeColor { get; set; }
-        public Color StatsCardValueHoverBackColor { get; set; }
-        public Color StatsCardValueHoverBorderColor { get; set; }
-        public TypographyStyle StatsCardValueStyle { get; set; }
-        public Color StatsCardInfoForeColor { get; set; }
-        public Color StatsCardInfoBackColor { get; set; }
-        public Color StatsCardInfoBorderColor { get; set; }
-        public TypographyStyle StatsCardInfoStyle { get; set; }
-        public Color StatsCardTrendForeColor { get; set; }
-        public Color StatsCardTrendBackColor { get; set; }
-        public Color StatsCardTrendBorderColor { get; set; }
-        public TypographyStyle StatsCardTrendStyle { get; set; }
+        public TypographyStyle StatsTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16f, FontStyle.Bold);
+        public TypographyStyle StatsSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle StatsUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Regular);
+
+        public Color StatsCardBackColor { get; set; } = Color.WhiteSmoke;
+        public Color StatsCardForeColor { get; set; } = Color.Black;
+        public Color StatsCardBorderColor { get; set; } = Color.DarkGray;
+
+        public Color StatsCardTitleForeColor { get; set; } = Color.Black;
+        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 16,
+            FontWeight = FontWeight.Bold,
+            TextColor = Color.Black
+        };
+
+        public Color StatsCardSubTitleForeColor { get; set; } = Color.Gray;
+        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.Gray
+        };
+
+        public Color StatsCardValueForeColor { get; set; } = Color.Black;
+        public Color StatsCardValueBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardValueBorderColor { get; set; } = Color.Transparent;
+
+        public Color StatsCardValueHoverForeColor { get; set; } = Color.DimGray;
+        public Color StatsCardValueHoverBackColor { get; set; } = Color.LightGray;
+        public Color StatsCardValueHoverBorderColor { get; set; } = Color.Gray;
+        public TypographyStyle StatsCardValueStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 14,
+            FontWeight = FontWeight.SemiBold,
+            TextColor = Color.Black
+        };
+
+        public Color StatsCardInfoForeColor { get; set; } = Color.DimGray;
+        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBorderColor { get; set; } = Color.Transparent;
+        public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 10,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.DimGray
+        };
+
+        public Color StatsCardTrendForeColor { get; set; } = Color.DarkSlateGray;
+        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBorderColor { get; set; } = Color.Transparent;
+        public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Segoe UI",
+            FontSize = 12,
+            FontWeight = FontWeight.Normal,
+            TextColor = Color.DarkSlateGray
+        };
     }
 }

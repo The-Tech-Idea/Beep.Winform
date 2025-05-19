@@ -16,8 +16,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ComboBoxSelectedBorderColor { get; set; } = Color.Cyan;                     // Cyan border selected
         public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(60, 0, 0);            // Dark red background on error
         public Color ComboBoxErrorForeColor { get; set; } = Color.Red;                           // Red text on error
-        public Font ComboBoxItemFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
-        public Font ComboBoxListFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Regular);
+        public TypographyStyle ComboBoxItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Regular);
+        public TypographyStyle ComboBoxListFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Regular);
         public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
         public Color CheckBoxSelectedBackColor { get; set; } = Color.Cyan;
     }

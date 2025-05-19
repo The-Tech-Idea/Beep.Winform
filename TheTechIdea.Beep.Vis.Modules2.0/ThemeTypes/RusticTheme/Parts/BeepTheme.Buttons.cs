@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RusticTheme
     {
         // Button Colors and Styles
-        public Font ButtonFont { get; set; }
-        public Font ButtonHoverFont { get; set; }
-        public Font ButtonSelectedFont { get; set; }
+        public TypographyStyle ButtonFont { get; set; }
+        public TypographyStyle ButtonHoverFont { get; set; }
+        public TypographyStyle ButtonSelectedFont { get; set; }
 
         public Color ButtonHoverBackColor { get; set; }
         public Color ButtonHoverForeColor { get; set; }

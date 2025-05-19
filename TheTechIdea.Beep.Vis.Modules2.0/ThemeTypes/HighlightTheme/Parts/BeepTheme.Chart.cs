@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // Chart Fonts & Colors
-        public Font ChartTitleFont { get; set; }
-        public Font ChartSubTitleFont { get; set; }
+        public TypographyStyle ChartTitleFont { get; set; }
+        public TypographyStyle ChartSubTitleFont { get; set; }
         public Color ChartBackColor { get; set; }
         public Color ChartLineColor { get; set; }
         public Color ChartFillColor { get; set; }

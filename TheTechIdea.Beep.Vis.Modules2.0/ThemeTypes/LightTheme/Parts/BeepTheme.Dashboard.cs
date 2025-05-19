@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class LightTheme
     {
         // Dashboard Colors & Fonts
-        public Font DashboardTitleFont { get; set; }
-        public Font DashboardSubTitleFont { get; set; }
+        public TypographyStyle DashboardTitleFont { get; set; }
+        public TypographyStyle DashboardSubTitleFont { get; set; }
         public Color DashboardBackColor { get; set; }
         public Color DashboardCardBackColor { get; set; }
         public Color DashboardCardHoverBackColor { get; set; }

@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighContrastTheme
     {
         // ScrollList Fonts & Colors
-        public Font ScrollListTitleFont { get; set; }
-        public Font ScrollListSelectedFont { get; set; }
-        public Font ScrollListUnSelectedFont { get; set; }
+        public TypographyStyle ScrollListTitleFont { get; set; }
+        public TypographyStyle ScrollListSelectedFont { get; set; }
+        public TypographyStyle ScrollListUnSelectedFont { get; set; }
         public Color ScrollListBackColor { get; set; }
         public Color ScrollListForeColor { get; set; }
         public Color ScrollListBorderColor { get; set; }
@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ScrollListItemSelectedBackColor { get; set; }
         public Color ScrollListItemSelectedBorderColor { get; set; }
         public Color ScrollListItemBorderColor { get; set; }
-        public Font ScrollListIItemFont { get; set; }
-        public Font ScrollListItemSelectedFont { get; set; }
+        public TypographyStyle ScrollListIItemFont { get; set; }
+        public TypographyStyle ScrollListItemSelectedFont { get; set; }
     }
 }

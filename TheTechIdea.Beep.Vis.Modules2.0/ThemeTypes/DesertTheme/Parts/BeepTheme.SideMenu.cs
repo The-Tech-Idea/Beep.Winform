@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // Side Menu Fonts & Colors
-        public Font SideMenuTitleFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
-        public Font SideMenuSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Italic);
-        public Font SideMenuTextFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Regular);
+        public TypographyStyle SideMenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16, FontStyle.Bold);
+        public TypographyStyle SideMenuSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Italic);
+        public TypographyStyle SideMenuTextFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Regular);
 
         public Color SideMenuBackColor { get; set; } = Color.FromArgb(245, 222, 179); // wheat, light desert sand
         public Color SideMenuHoverBackColor { get; set; } = Color.FromArgb(222, 184, 135); // burlywood, warm hover

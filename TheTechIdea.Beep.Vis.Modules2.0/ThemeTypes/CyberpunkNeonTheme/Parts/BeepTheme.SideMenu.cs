@@ -7,9 +7,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Side Menu Fonts & Colors
 
-        public Font SideMenuTitleFont { get; set; } = new Font("Consolas", 14f, FontStyle.Bold);
-        public Font SideMenuSubTitleFont { get; set; } = new Font("Consolas", 12f, FontStyle.Italic);
-        public Font SideMenuTextFont { get; set; } = new Font("Consolas", 11f, FontStyle.Regular);
+        public TypographyStyle SideMenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14f, FontStyle.Bold);
+        public TypographyStyle SideMenuSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Italic);
+        public TypographyStyle SideMenuTextFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Regular);
 
         public Color SideMenuBackColor { get; set; } = Color.FromArgb(18, 18, 32);                      // Cyberpunk Black
         public Color SideMenuHoverBackColor { get; set; } = Color.FromArgb(0, 255, 128);                // Neon Green (hover)

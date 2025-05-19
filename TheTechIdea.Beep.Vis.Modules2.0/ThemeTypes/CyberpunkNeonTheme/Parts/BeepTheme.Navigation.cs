@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Navigation & Breadcrumbs Fonts & Colors
 
-        public Font NavigationTitleFont { get; set; } = new Font("Consolas", 13f, FontStyle.Bold);
-        public Font NavigationSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
-        public Font NavigationUnSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle NavigationTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Bold);
+        public TypographyStyle NavigationSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle NavigationUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
 
         public Color NavigationBackColor { get; set; } = Color.FromArgb(18, 18, 32);              // Cyberpunk Black
         public Color NavigationForeColor { get; set; } = Color.FromArgb(0, 255, 255);             // Neon Cyan

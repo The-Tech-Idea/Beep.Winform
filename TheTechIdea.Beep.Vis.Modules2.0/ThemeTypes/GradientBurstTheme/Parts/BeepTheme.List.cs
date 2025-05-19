@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GradientBurstTheme
     {
         // List Fonts & Colors
-        public Font ListTitleFont { get; set; }
-        public Font ListSelectedFont { get; set; }
-        public Font ListUnSelectedFont { get; set; }
+        public TypographyStyle ListTitleFont { get; set; }
+        public TypographyStyle ListSelectedFont { get; set; }
+        public TypographyStyle ListUnSelectedFont { get; set; }
         public Color ListBackColor { get; set; }
         public Color ListForeColor { get; set; }
         public Color ListBorderColor { get; set; }

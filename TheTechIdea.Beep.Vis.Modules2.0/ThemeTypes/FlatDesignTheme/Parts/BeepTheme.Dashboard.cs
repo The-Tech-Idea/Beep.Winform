@@ -6,8 +6,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // Dashboard Colors & Fonts
-        public Font DashboardTitleFont { get; set; } = new Font("Segoe UI", 18, FontStyle.Bold);
-        public Font DashboardSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 18, FontStyle.Bold);
+        public TypographyStyle DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
         public Color DashboardBackColor { get; set; } = Color.WhiteSmoke;
         public Color DashboardCardBackColor { get; set; } = Color.White;
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(230, 230, 230);

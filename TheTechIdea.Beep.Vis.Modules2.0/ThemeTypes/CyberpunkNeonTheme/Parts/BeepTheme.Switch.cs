@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Switch control Fonts & Colors
 
-        public Font SwitchTitleFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold);
-        public Font SwitchSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold);
-        public Font SwitchUnSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle SwitchTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold);
+        public TypographyStyle SwitchSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold);
+        public TypographyStyle SwitchUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
 
         public Color SwitchBackColor { get; set; } = Color.FromArgb(18, 18, 32);               // Dark background
         public Color SwitchBorderColor { get; set; } = Color.FromArgb(255, 0, 255);            // Neon magenta border

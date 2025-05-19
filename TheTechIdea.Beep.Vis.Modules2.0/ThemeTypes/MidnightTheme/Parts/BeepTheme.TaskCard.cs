@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MidnightTheme
     {
         // Task Card Fonts & Colors
-        public Font TaskCardTitleFont { get; set; }
-        public Font TaskCardSelectedFont { get; set; }
-        public Font TaskCardUnSelectedFont { get; set; }
+        public TypographyStyle TaskCardTitleFont { get; set; }
+        public TypographyStyle TaskCardSelectedFont { get; set; }
+        public TypographyStyle TaskCardUnSelectedFont { get; set; }
         public Color TaskCardBackColor { get; set; }
         public Color TaskCardForeColor { get; set; }
         public Color TaskCardBorderColor { get; set; }

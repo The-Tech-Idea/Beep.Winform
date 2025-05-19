@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Testimony/Testimonial Colors & Fonts
 
-        public Font TestimoniaTitleFont { get; set; } = new Font("Consolas", 14f, FontStyle.Bold);
-        public Font TestimoniaSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
-        public Font TestimoniaUnSelectedFont { get; set; } = new Font("Consolas", 12f, FontStyle.Regular);
+        public TypographyStyle TestimoniaTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 14f, FontStyle.Bold);
+        public TypographyStyle TestimoniaSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Bold | FontStyle.Italic);
+        public TypographyStyle TestimoniaUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 12f, FontStyle.Regular);
 
         public Color TestimonialBackColor { get; set; } = Color.FromArgb(18, 18, 32);             // Dark background
         public Color TestimonialTextColor { get; set; } = Color.FromArgb(0, 255, 255);            // Neon cyan text

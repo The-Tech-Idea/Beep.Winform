@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DesertTheme
     {
         // ScrollList Fonts & Colors
-        public Font ScrollListTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font ScrollListSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font ScrollListUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle ScrollListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle ScrollListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle ScrollListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
 
         public Color ScrollListBackColor { get; set; } = Color.FromArgb(250, 240, 230); // soft sandy beige
         public Color ScrollListForeColor { get; set; } = Color.FromArgb(101, 67, 33); // dark brown text
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ScrollListItemBorderColor { get; set; } = Color.FromArgb(210, 180, 140); // tan item border
         public Color ScrollListItemHoverBorderColor { get; set; } = Color.FromArgb(244, 164, 96); // sandy brown hover border
 
-        public Font ScrollListIItemFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
-        public Font ScrollListItemSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle ScrollListIItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle ScrollListItemSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
     }
 }

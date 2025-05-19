@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RusticTheme
     {
         // Side Menu Fonts & Colors
-        public Font SideMenuTitleFont { get; set; }
-        public Font SideMenuSubTitleFont { get; set; }
-        public Font SideMenuTextFont { get; set; }
+        public TypographyStyle SideMenuTitleFont { get; set; }
+        public TypographyStyle SideMenuSubTitleFont { get; set; }
+        public TypographyStyle SideMenuTextFont { get; set; }
         public Color SideMenuBackColor { get; set; }
         public Color SideMenuHoverBackColor { get; set; }
         public Color SideMenuSelectedBackColor { get; set; }

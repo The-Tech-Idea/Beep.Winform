@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Button Colors and Styles
 
-        public Font ButtonFont { get; set; } = new Font("Consolas", 11f, FontStyle.Bold);
-        public Font ButtonHoverFont { get; set; } = new Font("Consolas", 11f, FontStyle.Italic);
-        public Font ButtonSelectedFont { get; set; } = new Font("Consolas", 11f, FontStyle.Bold | FontStyle.Underline);
+        public TypographyStyle ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Bold);
+        public TypographyStyle ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Italic);
+        public TypographyStyle ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 11f, FontStyle.Bold | FontStyle.Underline);
 
         // Default: Neon cyan border, magenta text on deep purple
         public Color ButtonBackColor { get; set; } = Color.FromArgb(34, 34, 68);           // Cyberpunk Deep Dark

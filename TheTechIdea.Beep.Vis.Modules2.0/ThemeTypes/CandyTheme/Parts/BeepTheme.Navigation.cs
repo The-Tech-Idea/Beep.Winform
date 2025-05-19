@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Navigation & Breadcrumbs Fonts & Colors
 
-        public Font NavigationTitleFont { get; set; } = new Font("Comic Sans MS", 12f, FontStyle.Bold);
-        public Font NavigationSelectedFont { get; set; } = new Font("Comic Sans MS", 11f, FontStyle.Bold);
-        public Font NavigationUnSelectedFont { get; set; } = new Font("Segoe UI", 10.5f, FontStyle.Regular);
+        public TypographyStyle NavigationTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 12f, FontStyle.Bold);
+        public TypographyStyle NavigationSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Comic Sans MS", 11f, FontStyle.Bold);
+        public TypographyStyle NavigationUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10.5f, FontStyle.Regular);
 
         // Default navigation background/foreground
         public Color NavigationBackColor { get; set; } = Color.FromArgb(255, 224, 235);      // Pastel Pink

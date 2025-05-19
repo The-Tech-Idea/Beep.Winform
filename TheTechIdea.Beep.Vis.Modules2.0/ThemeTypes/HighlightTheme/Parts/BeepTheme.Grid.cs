@@ -5,13 +5,13 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class HighlightTheme
     {
         // Grid Fonts
-        public Font GridHeaderFont { get; set; }
-        public Font GridRowFont { get; set; }
-        public Font GridCellFont { get; set; }
-        public Font GridCellSelectedFont { get; set; }
-        public Font GridCellHoverFont { get; set; }
-        public Font GridCellErrorFont { get; set; }
-        public Font GridColumnFont { get; set; }
+        public TypographyStyle GridHeaderFont { get; set; }
+        public TypographyStyle GridRowFont { get; set; }
+        public TypographyStyle GridCellFont { get; set; }
+        public TypographyStyle GridCellSelectedFont { get; set; }
+        public TypographyStyle GridCellHoverFont { get; set; }
+        public TypographyStyle GridCellErrorFont { get; set; }
+        public TypographyStyle GridColumnFont { get; set; }
 
         // Grid Colors
         public Color GridBackColor { get; set; }

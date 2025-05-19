@@ -6,11 +6,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class ForestTheme
     {
         // Card Colors & Fonts
-        public Font CardTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Bold);
+        public TypographyStyle CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.DarkGreen;
         public Color CardBackColor { get; set; } = Color.FromArgb(230, 245, 230); // Light greenish background
         public Color CardTitleForeColor { get; set; } = Color.ForestGreen;
-        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Italic);
+        public TypographyStyle CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Italic);
         public Color CardSubTitleForeColor { get; set; } = Color.SeaGreen;
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
         {

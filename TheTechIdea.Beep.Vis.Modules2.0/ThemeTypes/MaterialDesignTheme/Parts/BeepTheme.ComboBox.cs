@@ -1,11 +1,11 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
         // ComboBox Colors and Fonts
-<<<<<<< HEAD
+//<<<<<<< HEAD
         public Color ComboBoxBackColor { get; set; } = Color.White;
         public Color ComboBoxForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 800
         public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(189, 189, 189); // Grey 400
@@ -21,22 +21,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Font ComboBoxListFont { get; set; } = new Font("Segoe UI", 10);
         public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
         public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(33, 150, 243); // Primary Blue 500
-=======
-        public Color ComboBoxBackColor { get; set; }
-        public Color ComboBoxForeColor { get; set; }
-        public Color ComboBoxBorderColor { get; set; }
-        public Color ComboBoxHoverBackColor { get; set; }
-        public Color ComboBoxHoverForeColor { get; set; }
-        public Color ComboBoxHoverBorderColor { get; set; }
-        public Color ComboBoxSelectedBackColor { get; set; }
-        public Color ComboBoxSelectedForeColor { get; set; }
-        public Color ComboBoxSelectedBorderColor { get; set; }
-        public Color ComboBoxErrorBackColor { get; set; }
-        public Color ComboBoxErrorForeColor { get; set; }
-        public TypographyStyle ComboBoxItemFont { get; set; }
-        public TypographyStyle ComboBoxListFont { get; set; }
-        public Color CheckBoxSelectedForeColor { get; set; }
-        public Color CheckBoxSelectedBackColor { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

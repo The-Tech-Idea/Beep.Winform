@@ -1,19 +1,14 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class LightTheme
     {
         // Button Colors and Styles
-<<<<<<< HEAD
+//<<<<<<< HEAD
         public Font ButtonFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Regular);
         public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Regular);
         public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Bold);
-=======
-        public TypographyStyle ButtonFont { get; set; }
-        public TypographyStyle ButtonHoverFont { get; set; }
-        public TypographyStyle ButtonSelectedFont { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
 
         public Color ButtonHoverBackColor { get; set; } = Color.LightGray;
         public Color ButtonHoverForeColor { get; set; } = Color.Black;

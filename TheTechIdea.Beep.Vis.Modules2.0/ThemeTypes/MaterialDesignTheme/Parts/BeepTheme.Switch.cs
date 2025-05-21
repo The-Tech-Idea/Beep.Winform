@@ -1,10 +1,10 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-<<<<<<< HEAD
+//<<<<<<< HEAD
         // Switch control Fonts & Colors with Material Design defaults
         public Font SwitchTitleFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
         public Font SwitchSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
@@ -21,20 +21,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SwitchHoverBackColor { get; set; } = Color.FromArgb(227, 242, 253); // Light Blue 50
         public Color SwitchHoverBorderColor { get; set; } = Color.FromArgb(30, 136, 229); // Blue 600
         public Color SwitchHoverForeColor { get; set; } = Color.FromArgb(21, 101, 192); // Blue 700
-=======
-        // Switch control Fonts & Colors
-        public TypographyStyle SwitchTitleFont { get; set; }
-        public TypographyStyle SwitchSelectedFont { get; set; }
-        public TypographyStyle SwitchUnSelectedFont { get; set; }
-        public Color SwitchBackColor { get; set; }
-        public Color SwitchBorderColor { get; set; }
-        public Color SwitchForeColor { get; set; }
-        public Color SwitchSelectedBackColor { get; set; }
-        public Color SwitchSelectedBorderColor { get; set; }
-        public Color SwitchSelectedForeColor { get; set; }
-        public Color SwitchHoverBackColor { get; set; }
-        public Color SwitchHoverBorderColor { get; set; }
-        public Color SwitchHoverForeColor { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

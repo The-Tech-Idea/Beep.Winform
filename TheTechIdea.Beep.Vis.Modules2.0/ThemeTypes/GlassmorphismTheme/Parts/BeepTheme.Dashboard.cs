@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Vis.Modules
@@ -6,7 +6,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GlassmorphismTheme
     {
         // Dashboard Colors & Fonts
-<<<<<<< HEAD
+//<<<<<<< HEAD
         public Font DashboardTitleFont { get; set; } = new Font("Segoe UI", 16f, FontStyle.Bold);
         public Font DashboardSubTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Italic);
 
@@ -44,22 +44,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DashboardGradiantEndColor { get; set; } = Color.FromArgb(200, 220, 240);
         public Color DashboardGradiantMiddleColor { get; set; } = Color.FromArgb(215, 230, 245);
         public LinearGradientMode DashboardGradiantDirection { get; set; } = LinearGradientMode.Vertical;
-=======
-        public TypographyStyle DashboardTitleFont { get; set; }
-        public TypographyStyle DashboardSubTitleFont { get; set; }
-        public Color DashboardBackColor { get; set; }
-        public Color DashboardCardBackColor { get; set; }
-        public Color DashboardCardHoverBackColor { get; set; }
-        public Color DashboardTitleForeColor { get; set; }
-        public Color DashboardTitleBackColor { get; set; }
-        public TypographyStyle DashboardTitleStyle { get; set; }
-        public Color DashboardSubTitleForeColor { get; set; }
-        public Color DashboardSubTitleBackColor { get; set; }
-        public TypographyStyle DashboardSubTitleStyle { get; set; }
-        public Color DashboardGradiantStartColor { get; set; }
-        public Color DashboardGradiantEndColor { get; set; }
-        public Color DashboardGradiantMiddleColor { get; set; }
-        public LinearGradientMode DashboardGradiantDirection { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

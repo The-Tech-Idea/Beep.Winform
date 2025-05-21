@@ -1,11 +1,11 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class HighContrastTheme
     {
         // Grid Fonts
-<<<<<<< HEAD
+//<<<<<<< HEAD
         public Font GridHeaderFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Bold);
         public Font GridRowFont { get; set; } = new Font("Segoe UI", 9, FontStyle.Regular);
         public Font GridCellFont { get; set; } = new Font("Segoe UI", 9, FontStyle.Regular);
@@ -13,15 +13,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Font GridCellHoverFont { get; set; } = new Font("Segoe UI", 9, FontStyle.Italic);
         public Font GridCellErrorFont { get; set; } = new Font("Segoe UI", 9, FontStyle.Underline);
         public Font GridColumnFont { get; set; } = new Font("Segoe UI", 9, FontStyle.Bold);
-=======
-        public TypographyStyle GridHeaderFont { get; set; }
-        public TypographyStyle GridRowFont { get; set; }
-        public TypographyStyle GridCellFont { get; set; }
-        public TypographyStyle GridCellSelectedFont { get; set; }
-        public TypographyStyle GridCellHoverFont { get; set; }
-        public TypographyStyle GridCellErrorFont { get; set; }
-        public TypographyStyle GridColumnFont { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
 
         // Grid Colors
         public Color GridBackColor { get; set; } = Color.Black;

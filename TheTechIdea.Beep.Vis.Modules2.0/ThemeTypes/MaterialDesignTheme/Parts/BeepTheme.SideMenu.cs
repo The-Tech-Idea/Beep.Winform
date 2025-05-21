@@ -1,11 +1,11 @@
-﻿using System.Drawing;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-<<<<<<< HEAD
+//<<<<<<< HEAD
         // Side Menu Fonts & Colors with Material Design defaults
         public Font SideMenuTitleFont { get; set; } = new Font("Roboto", 18f, FontStyle.Bold);
         public Font SideMenuSubTitleFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
@@ -45,28 +45,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuGradiantEndColor { get; set; } = Color.FromArgb(230, 230, 230);
         public Color SideMenuGradiantMiddleColor { get; set; } = Color.FromArgb(240, 240, 240);
         public LinearGradientMode SideMenuGradiantDirection { get; set; } = LinearGradientMode.Vertical;
-=======
-        // Side Menu Fonts & Colors
-        public TypographyStyle SideMenuTitleFont { get; set; }
-        public TypographyStyle SideMenuSubTitleFont { get; set; }
-        public TypographyStyle SideMenuTextFont { get; set; }
-        public Color SideMenuBackColor { get; set; }
-        public Color SideMenuHoverBackColor { get; set; }
-        public Color SideMenuSelectedBackColor { get; set; }
-        public Color SideMenuForeColor { get; set; }
-        public Color SideMenuSelectedForeColor { get; set; }
-        public Color SideMenuHoverForeColor { get; set; }
-        public Color SideMenuBorderColor { get; set; }
-        public Color SideMenuTitleTextColor { get; set; }
-        public Color SideMenuTitleBackColor { get; set; }
-        public TypographyStyle SideMenuTitleStyle { get; set; }
-        public Color SideMenuSubTitleTextColor { get; set; }
-        public Color SideMenuSubTitleBackColor { get; set; }
-        public TypographyStyle SideMenuSubTitleStyle { get; set; }
-        public Color SideMenuGradiantStartColor { get; set; }
-        public Color SideMenuGradiantEndColor { get; set; }
-        public Color SideMenuGradiantMiddleColor { get; set; }
-        public LinearGradientMode SideMenuGradiantDirection { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

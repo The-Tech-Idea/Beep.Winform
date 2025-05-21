@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules

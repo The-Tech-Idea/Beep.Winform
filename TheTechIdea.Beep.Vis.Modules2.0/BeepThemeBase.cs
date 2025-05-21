@@ -37,9 +37,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         // ... (Include your existing methods here)
 
         // Example of existing methods (simplified for brevity)
-        public Font GetBlockHeaderFont()
+        public TypographyStyle GetBlockHeaderFont()
         {
-            return GetFont(Typography.FontFamily, Typography.FontSizeBlockHeader, Typography.FontStyleBold);
+            return  ThemeUtils.ConvertFontToTypographyStyle(Typography.FontFamily, Typography.FontSize, Typography.FontStyleBold);
         }
 
         private Font GetFont(string fontName, float fontSize, FontStyle fontStyle)

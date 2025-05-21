@@ -790,32 +790,32 @@ namespace TheTechIdea.Beep.Vis.Modules
 
     //    public Font GetBlockHeaderFont()
     //    {
-    //        return GetFont(FontFamily, FontSizeBlockHeader, FontStyleBold);
+    //        return  ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeBlockHeader, FontStyleBold);
     //    }
 
     //    public Font GetBlockTextFont()
     //    {
-    //        return GetFont(FontFamily, FontSizeBlockText, FontStyleRegular);
+    //        return  ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeBlockText, FontStyleRegular);
     //    }
 
     //    public Font GetQuestionFont()
     //    {
-    //        return GetFont(FontFamily, FontSizeQuestion, FontStyleBold);
+    //        return  ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeQuestion, FontStyleBold);
     //    }
 
     //    public Font GetAnswerFont()
     //    {
-    //        return GetFont(FontFamily, FontSizeAnswer, FontStyleRegular | FontStyleItalic);
+    //        return  ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeAnswer, FontStyleRegular | FontStyleItalic);
     //    }
 
     //    public Font GetCaptionFont()
     //    {
-    //        return GetFont(FontFamily, FontSizeCaption, FontStyleRegular);
+    //        return  ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeCaption, FontStyleRegular);
     //    }
 
     //    public Font GetButtonFont()
     //    {
-    //        return GetFont(FontFamily, FontSizeButton, FontStyleBold);
+    //        return  ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeButton, FontStyleBold);
     //    }
 
 

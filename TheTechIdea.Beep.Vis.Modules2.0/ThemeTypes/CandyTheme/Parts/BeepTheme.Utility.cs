@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Reflection;
 
@@ -9,22 +9,22 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Utility Methods
 
         public TypographyStyle GetBlockHeaderFont() =>
-            GetFont(FontFamily, FontSizeBlockHeader, FontStyleBold);
+            ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeBlockHeader, FontStyleBold);
 
         public TypographyStyle GetBlockTextFont() =>
-            GetFont(FontFamily, FontSizeBlockText, FontStyleRegular);
+            ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeBlockText, FontStyleRegular);
 
         public TypographyStyle GetQuestionFont() =>
-            GetFont(FontFamily, FontSizeQuestion, FontStyleBold);
+           ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeQuestion, FontStyleBold);
 
         public TypographyStyle GetAnswerFont() =>
-            GetFont(FontFamily, FontSizeAnswer, FontStyleRegular | FontStyle.Italic);
+            ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeAnswer, FontStyleRegular | FontStyle.Italic);
 
         public TypographyStyle GetCaptionFont() =>
-            GetFont(FontFamily, FontSizeCaption, FontStyleRegular);
+            ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeCaption, FontStyleRegular);
 
         public TypographyStyle GetButtonFont() =>
-            GetFont(FontFamily, FontSizeButton, FontStyleBold);
+            ThemeUtils.ConvertFontToTypographyStyle(FontFamily, FontSizeButton, FontStyleBold);
 
         private Font GetFont(string fontName, float fontSize, FontStyle fontStyle)
         {

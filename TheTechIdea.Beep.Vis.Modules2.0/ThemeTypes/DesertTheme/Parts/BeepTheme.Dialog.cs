@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -22,9 +22,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle DialogCloseButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Bold);
 
         // Hover Fonts (same style for simplicity)
-        public TypographyStyle DialogYesButtonHoverFont { get; set; } = DialogYesButtonFont;
-        public TypographyStyle DialogNoButtonHoverFont { get; set; } = DialogNoButtonFont;
-        public TypographyStyle DialogOkButtonHoverFont { get; set; } = DialogOkButtonFont;
+        public TypographyStyle DialogYesButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Italic);
+        public TypographyStyle DialogNoButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Italic);
+        public TypographyStyle DialogOkButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Italic);
 
         // Yes Button Colors
         public Color DialogYesButtonBackColor { get; set; } = Color.FromArgb(210, 180, 140); // tan

@@ -1,19 +1,14 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class GalaxyTheme
     {
-        // Button Colors and Styles
-<<<<<<< HEAD
+
         public Font ButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
         public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
         public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-=======
-        public TypographyStyle ButtonFont { get; set; }
-        public TypographyStyle ButtonHoverFont { get; set; }
-        public TypographyStyle ButtonSelectedFont { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
+
 
         public Color ButtonBackColor { get; set; } = Color.FromArgb(30, 30, 60);      // Deep space blue
         public Color ButtonForeColor { get; set; } = Color.FromArgb(230, 230, 250);   // Soft star white

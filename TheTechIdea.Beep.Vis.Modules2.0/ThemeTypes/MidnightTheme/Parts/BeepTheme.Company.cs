@@ -1,11 +1,11 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MidnightTheme
     {
         // Company Colors
-<<<<<<< HEAD
+//<<<<<<< HEAD
         public Color CompanyPopoverBackgroundColor { get; set; } = Color.FromArgb(30, 30, 30); // Dark background
         public Color CompanyTitleColor { get; set; } = Color.WhiteSmoke; // Light text
         public Font CompanyTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
@@ -21,22 +21,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CompanyDropdownBackgroundColor { get; set; } = Color.FromArgb(40, 40, 40);
         public Color CompanyDropdownTextColor { get; set; } = Color.WhiteSmoke;
         public Color CompanyLogoBackgroundColor { get; set; } = Color.DimGray;
-=======
-        public Color CompanyPopoverBackgroundColor { get; set; } = Color.White;
-        public Color CompanyTitleColor { get; set; } = Color.Black;
-        public TypographyStyle CompanyTitleFont { get; set; } 
-        public Color CompanySubtitleColor { get; set; } = Color.DarkBlue;
-        public TypographyStyle CompanySubTitleFont { get; set; }
-        public Color CompanyDescriptionColor { get; set; } = Color.Gray;
-        public TypographyStyle CompanyDescriptionFont { get; set; }
-        public Color CompanyLinkColor { get; set; } = Color.Gray;
-        public TypographyStyle CompanyLinkFont { get; set; }
-        public Color CompanyButtonBackgroundColor { get; set; } = Color.Blue;
-        public Color CompanyButtonTextColor { get; set; } = Color.White;
-        public TypographyStyle CompanyButtonFont { get; set; }
-        public Color CompanyDropdownBackgroundColor { get; set; } = Color.White;
-        public Color CompanyDropdownTextColor { get; set; } = Color.Black;
-        public Color CompanyLogoBackgroundColor { get; set; } = Color.Gray;
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

@@ -1,10 +1,10 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class MaterialDesignTheme
     {
-<<<<<<< HEAD
+//<<<<<<< HEAD
         // ProgressBar properties with defaults
         public Color ProgressBarBackColor { get; set; } = Color.FromArgb(238, 238, 238); // Light grey background
         public Color ProgressBarForeColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue primary foreground
@@ -18,20 +18,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ProgressBarHoverForeColor { get; set; } = Color.FromArgb(30, 136, 229); // Hover darker blue foreground
         public Color ProgressBarHoverBorderColor { get; set; } = Color.FromArgb(150, 150, 150); // Hover border grey
         public Color ProgressBarHoverInsideTextColor { get; set; } = Color.White; // Hover inside text remains white
-=======
-        // ProgressBar properties
-        public Color ProgressBarBackColor { get; set; }
-        public Color ProgressBarForeColor { get; set; }
-        public Color ProgressBarBorderColor { get; set; }
-        public Color ProgressBarChunkColor { get; set; }
-        public Color ProgressBarErrorColor { get; set; }
-        public Color ProgressBarSuccessColor { get; set; }
-        public TypographyStyle ProgressBarFont { get; set; }
-        public Color ProgressBarInsideTextColor { get; set; }
-        public Color ProgressBarHoverBackColor { get; set; }
-        public Color ProgressBarHoverForeColor { get; set; }
-        public Color ProgressBarHoverBorderColor { get; set; }
-        public Color ProgressBarHoverInsideTextColor { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

@@ -1,11 +1,11 @@
-﻿using System.Drawing;
+using System.Drawing;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class GalaxyTheme
     {
         // Star Rating Fonts & Colors
-<<<<<<< HEAD
+//<<<<<<< HEAD
         public Color StarRatingForeColor { get; set; } = Color.White;
         public Color StarRatingBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color StarRatingBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33); // Subtle border
@@ -25,23 +25,5 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color StarTitleForeColor { get; set; } = Color.White;
         public Color StarTitleBackColor { get; set; } = Color.Transparent;
-=======
-        public Color StarRatingForeColor { get; set; }
-        public Color StarRatingBackColor { get; set; }
-        public Color StarRatingBorderColor { get; set; }
-        public Color StarRatingFillColor { get; set; }
-        public Color StarRatingHoverForeColor { get; set; }
-        public Color StarRatingHoverBackColor { get; set; }
-        public Color StarRatingHoverBorderColor { get; set; }
-        public Color StarRatingSelectedForeColor { get; set; }
-        public Color StarRatingSelectedBackColor { get; set; }
-        public Color StarRatingSelectedBorderColor { get; set; }
-        public TypographyStyle StarTitleFont { get; set; }
-        public TypographyStyle StarSubTitleFont { get; set; }
-        public TypographyStyle StarSelectedFont { get; set; }
-        public TypographyStyle StarUnSelectedFont { get; set; }
-        public Color StarTitleForeColor { get; set; }
-        public Color StarTitleBackColor { get; set; }
->>>>>>> 00d68a6e1277c6b19c9d032a5dafd4d4e082d634
     }
 }

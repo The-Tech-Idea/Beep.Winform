@@ -5,20 +5,42 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RusticTheme
     {
         // ComboBox Colors and Fonts
-        public Color ComboBoxBackColor { get; set; }
-        public Color ComboBoxForeColor { get; set; }
-        public Color ComboBoxBorderColor { get; set; }
-        public Color ComboBoxHoverBackColor { get; set; }
-        public Color ComboBoxHoverForeColor { get; set; }
-        public Color ComboBoxHoverBorderColor { get; set; }
-        public Color ComboBoxSelectedBackColor { get; set; }
-        public Color ComboBoxSelectedForeColor { get; set; }
-        public Color ComboBoxSelectedBorderColor { get; set; }
-        public Color ComboBoxErrorBackColor { get; set; }
-        public Color ComboBoxErrorForeColor { get; set; }
-        public TypographyStyle ComboBoxItemFont { get; set; }
-        public TypographyStyle ComboBoxListFont { get; set; }
-        public Color CheckBoxSelectedForeColor { get; set; }
-        public Color CheckBoxSelectedBackColor { get; set; }
+        public Color ComboBoxBackColor { get; set; } = Color.FromArgb(245, 245, 220); // Beige
+        public Color ComboBoxForeColor { get; set; } = Color.FromArgb(51, 51, 51); // Dark Gray
+        public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(160, 82, 45); // Sienna
+        public Color ComboBoxHoverBackColor { get; set; } = Color.FromArgb(210, 180, 140); // Tan
+        public Color ComboBoxHoverForeColor { get; set; } = Color.FromArgb(51, 51, 51); // Dark Gray
+        public Color ComboBoxHoverBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // DarkGoldenrod
+        public Color ComboBoxSelectedBackColor { get; set; } = Color.FromArgb(205, 133, 63); // Peru
+        public Color ComboBoxSelectedForeColor { get; set; } = Color.White;
+        public Color ComboBoxSelectedBorderColor { get; set; } = Color.FromArgb(139, 69, 19); // SaddleBrown
+        public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(178, 34, 34); // Firebrick
+        public Color ComboBoxErrorForeColor { get; set; } = Color.White;
+        public TypographyStyle ComboBoxItemFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Georgia",
+            FontSize = 12,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Normal,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(51, 51, 51), // Dark Gray
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public TypographyStyle ComboBoxListFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Georgia",
+            FontSize = 12,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Normal,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(51, 51, 51), // Dark Gray
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
+        public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(205, 133, 63); // Peru
     }
 }

@@ -5,32 +5,120 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RoyalTheme
     {
         // Stats Card Fonts & Colors
-        public TypographyStyle StatsTitleFont { get; set; }
-        public TypographyStyle StatsSelectedFont { get; set; }
-        public TypographyStyle StatsUnSelectedFont { get; set; }
-        public Color StatsCardBackColor { get; set; }
-        public Color StatsCardForeColor { get; set; }
-        public Color StatsCardBorderColor { get; set; }
-        public Color StatsCardTitleForeColor { get; set; }
-        public Color StatsCardTitleBackColor { get; set; }
-        public TypographyStyle StatsCardTitleStyle { get; set; }
-        public Color StatsCardSubTitleForeColor { get; set; }
-        public Color StatsCardSubTitleBackColor { get; set; }
-        public TypographyStyle StatsCardSubStyleStyle { get; set; }
-        public Color StatsCardValueForeColor { get; set; }
-        public Color StatsCardValueBackColor { get; set; }
-        public Color StatsCardValueBorderColor { get; set; }
-        public Color StatsCardValueHoverForeColor { get; set; }
-        public Color StatsCardValueHoverBackColor { get; set; }
-        public Color StatsCardValueHoverBorderColor { get; set; }
-        public TypographyStyle StatsCardValueStyle { get; set; }
-        public Color StatsCardInfoForeColor { get; set; }
-        public Color StatsCardInfoBackColor { get; set; }
-        public Color StatsCardInfoBorderColor { get; set; }
-        public TypographyStyle StatsCardInfoStyle { get; set; }
-        public Color StatsCardTrendForeColor { get; set; }
-        public Color StatsCardTrendBackColor { get; set; }
-        public Color StatsCardTrendBorderColor { get; set; }
-        public TypographyStyle StatsCardTrendStyle { get; set; }
+        public TypographyStyle StatsTitleFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 18,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Bold,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(255, 215, 0), // Gold
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public TypographyStyle StatsSelectedFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 12,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Bold,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.White,
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public TypographyStyle StatsUnSelectedFont { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 12,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Normal,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(25, 25, 112), // Deep midnight blue
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color StatsCardBackColor { get; set; } = Color.FromArgb(245, 245, 220); // Beige
+        public Color StatsCardForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
+        public Color StatsCardBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
+        public Color StatsCardTitleForeColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
+        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 18,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Bold,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(255, 215, 0), // Gold
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
+        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 14,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Normal,
+            FontStyle = FontStyle.Italic,
+            TextColor = Color.FromArgb(200, 200, 220), // Soft silver
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color StatsCardValueForeColor { get; set; } = Color.FromArgb(65, 65, 145); // Royal blue
+        public Color StatsCardValueBackColor { get; set; } = Color.FromArgb(240, 240, 245); // Light silver
+        public Color StatsCardValueBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
+        public Color StatsCardValueHoverForeColor { get; set; } = Color.White;
+        public Color StatsCardValueHoverBackColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
+        public Color StatsCardValueHoverBorderColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
+        public TypographyStyle StatsCardValueStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 16,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Bold,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(65, 65, 145), // Royal blue
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color StatsCardInfoForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
+        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
+        public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 12,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Normal,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(25, 25, 112), // Deep midnight blue
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
+        public Color StatsCardTrendForeColor { get; set; } = Color.FromArgb(0, 128, 0); // Emerald
+        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
+        public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
+        {
+            FontFamily = "Times New Roman",
+            FontSize = 12,
+            LineHeight = 1.3f,
+            LetterSpacing = 0.2f,
+            FontWeight = FontWeight.Normal,
+            FontStyle = FontStyle.Regular,
+            TextColor = Color.FromArgb(0, 128, 0), // Emerald
+            IsUnderlined = false,
+            IsStrikeout = false
+        };
     }
 }

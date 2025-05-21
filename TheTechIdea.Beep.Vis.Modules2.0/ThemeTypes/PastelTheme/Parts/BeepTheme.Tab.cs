@@ -5,21 +5,21 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Tab Fonts & Colors
-        public TypographyStyle TabFont { get; set; }
-        public TypographyStyle TabHoverFont { get; set; }
-        public TypographyStyle TabSelectedFont { get; set; }
-        public Color TabBackColor { get; set; }
-        public Color TabForeColor { get; set; }
-        public Color ActiveTabBackColor { get; set; }
-        public Color ActiveTabForeColor { get; set; }
-        public Color InactiveTabBackColor { get; set; }
-        public Color InactiveTabForeColor { get; set; }
-        public Color TabBorderColor { get; set; }
-        public Color TabHoverBackColor { get; set; }
-        public Color TabHoverForeColor { get; set; }
-        public Color TabSelectedBackColor { get; set; }
-        public Color TabSelectedForeColor { get; set; }
-        public Color TabSelectedBorderColor { get; set; }
-        public Color TabHoverBorderColor { get; set; }
+        public TypographyStyle TabFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public TypographyStyle TabHoverFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle TabSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public Color TabBackColor { get; set; } = Color.FromArgb(255, 245, 247);
+        public Color TabForeColor { get; set; } = Color.FromArgb(120, 120, 120);
+        public Color ActiveTabBackColor { get; set; } = Color.FromArgb(245, 183, 203);
+        public Color ActiveTabForeColor { get; set; } = Color.White;
+        public Color InactiveTabBackColor { get; set; } = Color.FromArgb(242, 201, 215);
+        public Color InactiveTabForeColor { get; set; } = Color.FromArgb(120, 120, 120);
+        public Color TabBorderColor { get; set; } = Color.FromArgb(242, 201, 215);
+        public Color TabHoverBackColor { get; set; } = Color.FromArgb(255, 224, 239);
+        public Color TabHoverForeColor { get; set; } = Color.FromArgb(80, 80, 80);
+        public Color TabSelectedBackColor { get; set; } = Color.FromArgb(245, 183, 203);
+        public Color TabSelectedForeColor { get; set; } = Color.White;
+        public Color TabSelectedBorderColor { get; set; } = Color.FromArgb(230, 170, 190);
+        public Color TabHoverBorderColor { get; set; } = Color.FromArgb(237, 181, 201);
     }
 }

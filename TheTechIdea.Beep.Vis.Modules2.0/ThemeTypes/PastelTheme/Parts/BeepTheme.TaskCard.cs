@@ -5,28 +5,28 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // Task Card Fonts & Colors
-        public TypographyStyle TaskCardTitleFont { get; set; }
-        public TypographyStyle TaskCardSelectedFont { get; set; }
-        public TypographyStyle TaskCardUnSelectedFont { get; set; }
-        public Color TaskCardBackColor { get; set; }
-        public Color TaskCardForeColor { get; set; }
-        public Color TaskCardBorderColor { get; set; }
-        public Color TaskCardTitleForeColor { get; set; }
-        public Color TaskCardTitleBackColor { get; set; }
-        public TypographyStyle TaskCardTitleStyle { get; set; }
-        public Color TaskCardSubTitleForeColor { get; set; }
-        public Color TaskCardSubTitleBackColor { get; set; }
-        public TypographyStyle TaskCardSubStyleStyle { get; set; }
-        public Color TaskCardMetricTextForeColor { get; set; }
-        public Color TaskCardMetricTextBackColor { get; set; }
-        public Color TaskCardMetricTextBorderColor { get; set; }
-        public Color TaskCardMetricTextHoverForeColor { get; set; }
-        public Color TaskCardMetricTextHoverBackColor { get; set; }
-        public Color TaskCardMetricTextHoverBorderColor { get; set; }
-        public TypographyStyle TaskCardMetricTextStyle { get; set; }
-        public Color TaskCardProgressValueForeColor { get; set; }
-        public Color TaskCardProgressValueBackColor { get; set; }
-        public Color TaskCardProgressValueBorderColor { get; set; }
-        public TypographyStyle TaskCardProgressValueStyle { get; set; }
+        public TypographyStyle TaskCardTitleFont { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle TaskCardSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public TypographyStyle TaskCardUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public Color TaskCardBackColor { get; set; } = Color.FromArgb(255, 245, 247);
+        public Color TaskCardForeColor { get; set; } = Color.FromArgb(120, 120, 120);
+        public Color TaskCardBorderColor { get; set; } = Color.FromArgb(242, 201, 215);
+        public Color TaskCardTitleForeColor { get; set; } = Color.FromArgb(80, 80, 80);
+        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
+        public Color TaskCardSubTitleForeColor { get; set; } = Color.FromArgb(120, 120, 120);
+        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(120, 120, 120) };
+        public Color TaskCardMetricTextForeColor { get; set; } = Color.FromArgb(80, 80, 80);
+        public Color TaskCardMetricTextBackColor { get; set; } = Color.FromArgb(245, 183, 203);
+        public Color TaskCardMetricTextBorderColor { get; set; } = Color.FromArgb(237, 181, 201);
+        public Color TaskCardMetricTextHoverForeColor { get; set; } = Color.White;
+        public Color TaskCardMetricTextHoverBackColor { get; set; } = Color.FromArgb(255, 204, 221);
+        public Color TaskCardMetricTextHoverBorderColor { get; set; } = Color.FromArgb(247, 221, 229);
+        public TypographyStyle TaskCardMetricTextStyle { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
+        public Color TaskCardProgressValueForeColor { get; set; } = Color.White;
+        public Color TaskCardProgressValueBackColor { get; set; } = Color.FromArgb(245, 183, 203);
+        public Color TaskCardProgressValueBorderColor { get; set; } = Color.FromArgb(230, 170, 190);
+        public TypographyStyle TaskCardProgressValueStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
     }
 }

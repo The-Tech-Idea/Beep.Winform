@@ -5,20 +5,20 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class PastelTheme
     {
         // ComboBox Colors and Fonts
-        public Color ComboBoxBackColor { get; set; }
-        public Color ComboBoxForeColor { get; set; }
-        public Color ComboBoxBorderColor { get; set; }
-        public Color ComboBoxHoverBackColor { get; set; }
-        public Color ComboBoxHoverForeColor { get; set; }
-        public Color ComboBoxHoverBorderColor { get; set; }
-        public Color ComboBoxSelectedBackColor { get; set; }
-        public Color ComboBoxSelectedForeColor { get; set; }
-        public Color ComboBoxSelectedBorderColor { get; set; }
-        public Color ComboBoxErrorBackColor { get; set; }
-        public Color ComboBoxErrorForeColor { get; set; }
-        public TypographyStyle ComboBoxItemFont { get; set; }
-        public TypographyStyle ComboBoxListFont { get; set; }
-        public Color CheckBoxSelectedForeColor { get; set; }
-        public Color CheckBoxSelectedBackColor { get; set; }
+        public Color ComboBoxBackColor { get; set; } = Color.FromArgb(255, 245, 247);
+        public Color ComboBoxForeColor { get; set; } = Color.FromArgb(80, 80, 80);
+        public Color ComboBoxBorderColor { get; set; } = Color.FromArgb(242, 201, 215);
+        public Color ComboBoxHoverBackColor { get; set; } = Color.FromArgb(255, 224, 239);
+        public Color ComboBoxHoverForeColor { get; set; } = Color.FromArgb(80, 80, 80);
+        public Color ComboBoxHoverBorderColor { get; set; } = Color.FromArgb(237, 181, 201);
+        public Color ComboBoxSelectedBackColor { get; set; } = Color.FromArgb(245, 183, 203);
+        public Color ComboBoxSelectedForeColor { get; set; } = Color.White;
+        public Color ComboBoxSelectedBorderColor { get; set; } = Color.FromArgb(230, 170, 190);
+        public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(255, 182, 182);
+        public Color ComboBoxErrorForeColor { get; set; } = Color.White;
+        public TypographyStyle ComboBoxItemFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(80, 80, 80) };
+        public TypographyStyle ComboBoxListFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
+        public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
+        public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(245, 183, 203);
     }
 }

@@ -5,20 +5,20 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class OceanTheme
     {
         // Login Popover Colors
-        public Color LoginPopoverBackgroundColor { get; set; } = Color.White;
-        public Color LoginTitleColor { get; set; } = Color.Black;
-        public TypographyStyle LoginTitleFont { get; set; } 
-        public Color LoginSubtitleColor { get; set; } = Color.DarkBlue;
-        public TypographyStyle LoginSubtitleFont { get; set; } 
-        public Color LoginDescriptionColor { get; set; } = Color.Gray;
-        public TypographyStyle LoginDescriptionFont { get; set; }
-        public Color LoginLinkColor { get; set; } = Color.Blue;
-        public TypographyStyle LoginLinkFont { get; set; }
-        public Color LoginButtonBackgroundColor { get; set; } = Color.Blue;
+        public Color LoginPopoverBackgroundColor { get; set; } = Color.FromArgb(240, 245, 250);
+        public Color LoginTitleColor { get; set; } = Color.FromArgb(0, 80, 120);
+        public TypographyStyle LoginTitleFont { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(0, 80, 120) };
+        public Color LoginSubtitleColor { get; set; } = Color.FromArgb(0, 105, 148);
+        public TypographyStyle LoginSubtitleFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(0, 105, 148) };
+        public Color LoginDescriptionColor { get; set; } = Color.FromArgb(0, 130, 180);
+        public TypographyStyle LoginDescriptionFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(0, 130, 180) };
+        public Color LoginLinkColor { get; set; } = Color.FromArgb(0, 150, 200);
+        public TypographyStyle LoginLinkFont { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(0, 150, 200), IsUnderlined = true };
+        public Color LoginButtonBackgroundColor { get; set; } = Color.FromArgb(0, 150, 200);
         public Color LoginButtonTextColor { get; set; } = Color.White;
-        public TypographyStyle LoginButtonFont { get; set; } 
-        public Color LoginDropdownBackgroundColor { get; set; } = Color.White;
-        public Color LoginDropdownTextColor { get; set; } = Color.Black;
-        public Color LoginLogoBackgroundColor { get; set; } = Color.LightGray;
+        public TypographyStyle LoginButtonFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
+        public Color LoginDropdownBackgroundColor { get; set; } = Color.FromArgb(255, 255, 255);
+        public Color LoginDropdownTextColor { get; set; } = Color.FromArgb(0, 80, 120);
+        public Color LoginLogoBackgroundColor { get; set; } = Color.FromArgb(0, 105, 148);
     }
 }

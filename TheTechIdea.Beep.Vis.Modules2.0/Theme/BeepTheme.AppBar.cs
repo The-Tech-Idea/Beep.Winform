@@ -28,5 +28,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color AppBarGradiantEndColor { get; set; }
         public Color AppBarGradiantMiddleColor { get; set; }
         public LinearGradientMode AppBarGradiantDirection { get; set; }
+        public Color ForeColor { get; set; }
     }
 }

@@ -11,59 +11,44 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
     /// <summary>
-    /// Manager class for application fonts and typography
+    /// Static manager class for application fonts and typography
     /// </summary>
-    public class BeepFontManager : IDisposable
+    public static class BeepFontManager
     {
-        private IDMEEditor _dmeEditor;
-        private IAppManager _visManager;
-        
+     
+
         // Default font settings
-        private string _defaultFontName = "Segoe UI";
-        private float _defaultFontSize = 9.0f;
-        private FontStyle _defaultFontStyle = FontStyle.Regular;
-        
+        private static string _defaultFontName = "Segoe UI";
+        private static float _defaultFontSize = 9.0f;
+        private static FontStyle _defaultFontStyle = FontStyle.Regular;
+
         // Application font settings
-        private string _appFontName = "Segoe UI";
-        private float _appFontSize = 9.0f;
-        private FontStyle _appFontStyle = FontStyle.Regular;
+        private static string _appFontName = "Segoe UI";
+        private static float _appFontSize = 9.0f;
+        private static FontStyle _appFontStyle = FontStyle.Regular;
 
         // Font instances for various UI elements
-        private Font _defaultFont;
-        private Font _buttonFont;
-        private Font _labelFont;
-        private Font _headerFont;
-        private Font _titleFont;
-        private Font _menuFont;
-        private Font _tooltipFont;
-        private Font _statusBarFont;
-        private Font _dialogFont;
-        private Font _monospaceFont;
+        private static Font _defaultFont;
+        private static Font _buttonFont;
+        private static Font _labelFont;
+        private static Font _headerFont;
+        private static Font _titleFont;
+        private static Font _menuFont;
+        private static Font _tooltipFont;
+        private static Font _statusBarFont;
+        private static Font _dialogFont;
+        private static Font _monospaceFont;
 
         // Flag to track initialization
-        private bool _isInitialized = false;
-        private bool _disposedValue = false;
+        private static bool _isInitialized = false;
 
-        /// <summary>
-        /// Constructor for BeepFontManager
-        /// </summary>
-        /// <param name="dmeEditor">DME Editor instance</param>
-        /// <param name="visManager">Visual Manager instance</param>
-        public BeepFontManager(IDMEEditor dmeEditor, IAppManager visManager)
-        {
-            _dmeEditor = dmeEditor;
-            _visManager = visManager;
-            
-            // Pass references to the FontListHelper
-            FontListHelper.DMEEditor = dmeEditor;
-            FontListHelper.Vismanager = visManager;
-        }
+       
 
         #region "Properties"
         /// <summary>
         /// Gets or sets the default font name
         /// </summary>
-        public string DefaultFontName
+        public static string DefaultFontName
         {
             get => _defaultFontName;
             set
@@ -79,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets or sets the default font size
         /// </summary>
-        public float DefaultFontSize
+        public static float DefaultFontSize
         {
             get => _defaultFontSize;
             set
@@ -95,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets or sets the default font style
         /// </summary>
-        public FontStyle DefaultFontStyle
+        public static FontStyle DefaultFontStyle
         {
             get => _defaultFontStyle;
             set
@@ -111,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets or sets the application font name
         /// </summary>
-        public string AppFontName
+        public static string AppFontName
         {
             get => _appFontName;
             set
@@ -127,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets or sets the application font size
         /// </summary>
-        public float AppFontSize
+        public static float AppFontSize
         {
             get => _appFontSize;
             set
@@ -143,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets or sets the application font style
         /// </summary>
-        public FontStyle AppFontStyle
+        public static FontStyle AppFontStyle
         {
             get => _appFontStyle;
             set
@@ -159,79 +144,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets the default font for the application
         /// </summary>
-        public Font DefaultFont => _defaultFont ?? (_defaultFont = GetOrCreateFont(_defaultFontName, _defaultFontSize, _defaultFontStyle));
+        public static Font DefaultFont => _defaultFont ?? (_defaultFont = GetOrCreateFont(_defaultFontName, _defaultFontSize, _defaultFontStyle));
 
         /// <summary>
         /// Gets the font for buttons
         /// </summary>
-        public Font ButtonFont => _buttonFont ?? (_buttonFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
+        public static Font ButtonFont => _buttonFont ?? (_buttonFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
 
         /// <summary>
         /// Gets the font for labels
         /// </summary>
-        public Font LabelFont => _labelFont ?? (_labelFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
+        public static Font LabelFont => _labelFont ?? (_labelFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
 
         /// <summary>
         /// Gets the font for headers
         /// </summary>
-        public Font HeaderFont => _headerFont ?? (_headerFont = GetOrCreateFont(_appFontName, _appFontSize + 2, FontStyle.Bold));
+        public static Font HeaderFont => _headerFont ?? (_headerFont = GetOrCreateFont(_appFontName, _appFontSize + 2, FontStyle.Bold));
 
         /// <summary>
         /// Gets the font for titles
         /// </summary>
-        public Font TitleFont => _titleFont ?? (_titleFont = GetOrCreateFont(_appFontName, _appFontSize + 4, FontStyle.Bold));
+        public static Font TitleFont => _titleFont ?? (_titleFont = GetOrCreateFont(_appFontName, _appFontSize + 4, FontStyle.Bold));
 
         /// <summary>
         /// Gets the font for menus
         /// </summary>
-        public Font MenuFont => _menuFont ?? (_menuFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
+        public static Font MenuFont => _menuFont ?? (_menuFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
 
         /// <summary>
         /// Gets the font for tooltips
         /// </summary>
-        public Font TooltipFont => _tooltipFont ?? (_tooltipFont = GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle));
+        public static Font TooltipFont => _tooltipFont ?? (_tooltipFont = GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle));
 
         /// <summary>
         /// Gets the font for status bar
         /// </summary>
-        public Font StatusBarFont => _statusBarFont ?? (_statusBarFont = GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle));
+        public static Font StatusBarFont => _statusBarFont ?? (_statusBarFont = GetOrCreateFont(_appFontName, _appFontSize - 1, _appFontStyle));
 
         /// <summary>
         /// Gets the font for dialogs
         /// </summary>
-        public Font DialogFont => _dialogFont ?? (_dialogFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
+        public static Font DialogFont => _dialogFont ?? (_dialogFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle));
 
         /// <summary>
         /// Gets the monospace font for code or fixed-width text
         /// </summary>
-        public Font MonospaceFont => _monospaceFont ?? (_monospaceFont = GetOrCreateFont("Consolas", _appFontSize, _appFontStyle));
+        public static Font MonospaceFont => _monospaceFont ?? (_monospaceFont = GetOrCreateFont("Consolas", _appFontSize, _appFontStyle));
 
         /// <summary>
         /// Gets the list of all font configurations
         /// </summary>
-        public List<FontConfiguration> FontConfigurations => FontListHelper.FontConfigurations;
+        public static List<FontConfiguration> FontConfigurations => FontListHelper.FontConfigurations;
 
         /// <summary>
         /// Gets the list of system font names
         /// </summary>
-        public List<string> SystemFonts => FontListHelper.GetSystemFontNames();
+        public static List<string> SystemFonts => FontListHelper.GetSystemFontNames();
 
         /// <summary>
         /// Gets the list of private/custom font names
         /// </summary>
-        public List<string> CustomFonts => FontListHelper.GetPrivateFontNames();
+        public static List<string> CustomFonts => FontListHelper.GetPrivateFontNames();
 
         /// <summary>
         /// Gets all available font names
         /// </summary>
-        public List<string> AllFonts => FontListHelper.GetFontNames();
+        public static List<string> AllFonts => FontListHelper.GetFontNames();
         #endregion
 
         #region "Initialization"
         /// <summary>
         /// Initializes the font manager by discovering fonts
         /// </summary>
-        public async Task Initialize()
+        public static async Task Initialize()
         {
             if (_isInitialized)
                 return;
@@ -244,31 +229,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 // Load application fonts
                 string appFontPath = AppDomain.CurrentDomain.BaseDirectory;
                 string fontsFolderPath = System.IO.Path.Combine(appFontPath, "Fonts");
-                
+
                 // If we have a dedicated fonts folder, load from there
                 if (System.IO.Directory.Exists(fontsFolderPath))
                 {
                     FontListHelper.GetFontFilesLocations(fontsFolderPath);
                 }
-                
+
                 // Load embedded fonts
                 await Task.Run(() => FontListHelper.GetFontResourcesFromEmbedded(new[] { "TheTechIdea" }));
-                
+
                 // Create default fonts
                 CreateDefaultFonts();
-                
+
                 _isInitialized = true;
             }
             catch (Exception ex)
             {
-                _dmeEditor?.AddLogMessage("Error", $"Failed to initialize font manager: {ex.Message}", DateTime.Now, -1, null, ConfigUtil.Errors.Failed);
+                MiscFunctions.SendLog("Error in Getting Font Resources");
             }
         }
 
         /// <summary>
         /// Creates the default font instances
         /// </summary>
-        private void CreateDefaultFonts()
+        private static void CreateDefaultFonts()
         {
             _defaultFont = GetOrCreateFont(_defaultFontName, _defaultFontSize, _defaultFontStyle);
             _buttonFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle);
@@ -281,24 +266,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             _dialogFont = GetOrCreateFont(_appFontName, _appFontSize, _appFontStyle);
             _monospaceFont = GetOrCreateFont("Consolas", _appFontSize, _appFontStyle);
         }
-        
+
         /// <summary>
         /// Resets all font instances when preferences change
         /// </summary>
-        private void ResetFonts()
+        private static void ResetFonts()
         {
-            // Dispose existing fonts
-            DisposeFont(ref _defaultFont);
-            DisposeFont(ref _buttonFont);
-            DisposeFont(ref _labelFont);
-            DisposeFont(ref _headerFont);
-            DisposeFont(ref _titleFont);
-            DisposeFont(ref _menuFont);
-            DisposeFont(ref _tooltipFont);
-            DisposeFont(ref _statusBarFont);
-            DisposeFont(ref _dialogFont);
-            DisposeFont(ref _monospaceFont);
-            
+            // Clear existing fonts
+            ClearFont(ref _defaultFont);
+            ClearFont(ref _buttonFont);
+            ClearFont(ref _labelFont);
+            ClearFont(ref _headerFont);
+            ClearFont(ref _titleFont);
+            ClearFont(ref _menuFont);
+            ClearFont(ref _tooltipFont);
+            ClearFont(ref _statusBarFont);
+            ClearFont(ref _dialogFont);
+            ClearFont(ref _monospaceFont);
+
             // Recreate fonts
             CreateDefaultFonts();
         }
@@ -306,16 +291,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <summary>
         /// Gets or creates a font with fallback
         /// </summary>
-        private Font GetOrCreateFont(string fontName, float size, FontStyle style)
+        private static Font GetOrCreateFont(string fontName, float size, FontStyle style)
         {
             // Try to get the font from the helper
             Font font = FontListHelper.GetFont(fontName, size, style);
-            
+
             // If not found, use a fallback
             if (font == null)
             {
                 font = FontListHelper.GetFontWithFallback("Segoe UI", "Arial", size, style);
-                
+
                 // If still null, create a generic font
                 if (font == null)
                 {
@@ -338,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     }
                 }
             }
-            
+
             return font;
         }
         #endregion
@@ -351,7 +336,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// <param name="size">Font size</param>
         /// <param name="style">Font style</param>
         /// <returns>Font instance or null if not found</returns>
-        public Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
+        public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
             return FontListHelper.GetFont(fontName, size, style);
         }
@@ -361,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// </summary>
         /// <param name="elementType">Type of UI element</param>
         /// <returns>Font instance appropriate for the element type</returns>
-        public Font GetFontForElement(UIElementType elementType)
+        public static Font GetFontForElement(UIElementType elementType)
         {
             switch (elementType)
             {
@@ -393,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// </summary>
         /// <param name="folderPath">Path to the folder containing font files</param>
         /// <returns>List of loaded font configurations</returns>
-        public List<FontConfiguration> LoadFontsFromFolder(string folderPath)
+        public static List<FontConfiguration> LoadFontsFromFolder(string folderPath)
         {
             return FontListHelper.GetFontFilesLocations(folderPath);
         }
@@ -403,16 +388,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// </summary>
         /// <param name="fontName">Font name to use</param>
         /// <param name="fontSize">Font size to use</param>
-        public void SetDefaultFont(string fontName, float fontSize)
+        public static void SetDefaultFont(string fontName, float fontSize)
         {
             // Update the default font properties
             _defaultFontName = fontName;
             _defaultFontSize = fontSize;
-            
+
             // Also update app font to match
             _appFontName = fontName;
             _appFontSize = fontSize;
-            
+
             // Reset all fonts to apply the changes
             ResetFonts();
         }
@@ -421,33 +406,69 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         /// Scales all fonts by a given factor
         /// </summary>
         /// <param name="scaleFactor">Scale factor (e.g. 1.25 for 125%)</param>
-        public void ScaleFonts(float scaleFactor)
+        public static void ScaleFonts(float scaleFactor)
         {
             if (scaleFactor <= 0)
                 return;
-                
+
             _defaultFontSize *= scaleFactor;
             _appFontSize *= scaleFactor;
-            
+
             ResetFonts();
         }
-        
+
         /// <summary>
         /// Checks if a specified font is available in the system
         /// </summary>
         /// <param name="fontName">Name of the font to check</param>
         /// <returns>True if the font is available</returns>
-        public bool IsFontAvailable(string fontName)
+        public static bool IsFontAvailable(string fontName)
         {
             return FontListHelper.GetFontIndex(fontName) != -1;
+        }
+
+        /// <summary>
+        /// Convert a BeepTheme TypographyStyle to a Font
+        /// </summary>
+        /// <param name="style">Typography style from theme</param>
+        /// <returns>Font instance</returns>
+        public static Font ToFont(TypographyStyle style)
+        {
+            if (style == null) return DefaultFont;
+
+            return GetFont(
+                style.FontFamily,
+                style.FontSize,
+                ConvertFontWeight(style.FontWeight)
+            );
+        }
+
+        /// <summary>
+        /// Convert FontWeight enum to FontStyle
+        /// </summary>
+        /// <param name="weight">Font weight value</param>
+        /// <returns>Appropriate FontStyle</returns>
+        public static FontStyle ConvertFontWeight(FontWeight weight)
+        {
+            return weight >= FontWeight.Bold ? FontStyle.Bold : FontStyle.Regular;
+        }
+
+        /// <summary>
+        /// Get font weight multiplier for styling
+        /// </summary>
+        /// <param name="weight">Font weight</param>
+        /// <returns>Multiplier value between 0.1 and 0.9</returns>
+        public static float GetFontWeightMultiplier(FontWeight weight)
+        {
+            return (float)weight / 1000f;
         }
         #endregion
 
         #region "Cleanup"
         /// <summary>
-        /// Disposes a font reference
+        /// Clears a font reference
         /// </summary>
-        private void DisposeFont(ref Font font)
+        private static void ClearFont(ref Font font)
         {
             // Fonts from FontListHelper are cached, so we don't dispose them
             // Just set the reference to null
@@ -455,39 +476,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
 
         /// <summary>
-        /// Disposes all managed resources
+        /// Clean up all font references (call before application exit)
         /// </summary>
-        protected virtual void Dispose(bool disposing)
+        public static void Cleanup()
         {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    // We don't dispose fonts from FontListHelper as they are cached
-                    // Just set our references to null
-                    _defaultFont = null;
-                    _buttonFont = null;
-                    _labelFont = null;
-                    _headerFont = null;
-                    _titleFont = null;
-                    _menuFont = null;
-                    _tooltipFont = null;
-                    _statusBarFont = null;
-                    _dialogFont = null;
-                    _monospaceFont = null;
-                }
+            _defaultFont = null;
+            _buttonFont = null;
+            _labelFont = null;
+            _headerFont = null;
+            _titleFont = null;
+            _menuFont = null;
+            _tooltipFont = null;
+            _statusBarFont = null;
+            _dialogFont = null;
+            _monospaceFont = null;
 
-                _disposedValue = true;
-            }
-        }
-
-        /// <summary>
-        /// Implements IDisposable Pattern
-        /// </summary>
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            _isInitialized = false;
         }
         #endregion
     }

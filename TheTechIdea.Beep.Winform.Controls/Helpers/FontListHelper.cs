@@ -15,8 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     public static class FontListHelper
     {
         // Static references
-        public static IDMEEditor DMEEditor { get; set; }
-        public static IAppManager Vismanager { get; set; }
+      
 
         // This tracks all discovered fonts (system, local or embedded)
         public static List<FontConfiguration> FontConfigurations { get; set; } = new List<FontConfiguration>();
@@ -184,10 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 Assembly.GetEntryAssembly()!
             };
 
-            if (DMEEditor?.ConfigEditor?.LoadedAssemblies != null)
-            {
-                assemblies.AddRange(DMEEditor.ConfigEditor.LoadedAssemblies);
-            }
+            
 
             assemblies = assemblies.Where(a => a != null).Distinct().ToList();
 

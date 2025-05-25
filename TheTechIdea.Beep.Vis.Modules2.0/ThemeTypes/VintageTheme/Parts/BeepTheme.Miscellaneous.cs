@@ -6,7 +6,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class VintageTheme
     {
         // Miscellaneous, Utility, and General Properties
-        public string FontFamily { get; set; } = "Segoe UI";
+        public string FontFamily { get; set; } = "Times New Roman";
         public float FontSizeBlockHeader { get; set; } = 24f;
         public float FontSizeBlockText { get; set; } = 14f;
         public float FontSizeQuestion { get; set; } = 16f;
@@ -16,24 +16,24 @@ namespace TheTechIdea.Beep.Vis.Modules
         public FontStyle FontStyleRegular { get; set; } = FontStyle.Regular;
         public FontStyle FontStyleBold { get; set; } = FontStyle.Bold;
         public FontStyle FontStyleItalic { get; set; } = FontStyle.Italic;
-        public Color PrimaryTextColor { get; set; } = Color.Black;
-        public Color SecondaryTextColor { get; set; } = Color.Gray;
-        public Color AccentTextColor { get; set; } = Color.Blue;
-        public int PaddingSmall { get; set; }
-        public int PaddingMedium { get; set; }
-        public int PaddingLarge { get; set; }
-        public int BorderRadius { get; set; }
+        public Color PrimaryTextColor { get; set; } = Color.FromArgb(51, 25, 0);
+        public Color SecondaryTextColor { get; set; } = Color.FromArgb(120, 60, 0);
+        public Color AccentTextColor { get; set; } = Color.FromArgb(160, 82, 45);
+        public int PaddingSmall { get; set; } = 4;
+        public int PaddingMedium { get; set; } = 8;
+        public int PaddingLarge { get; set; } = 16;
+        public int BorderRadius { get; set; } = 4;
         public int BorderSize { get; set; } = 1;
-        public string IconSet { get; set; }
-        public bool ApplyThemeToIcons { get; set; }
-        public Color ShadowColor { get; set; }
-        public float ShadowOpacity { get; set; }
-        public double AnimationDurationShort { get; set; }
-        public double AnimationDurationMedium { get; set; }
-        public double AnimationDurationLong { get; set; }
-        public string AnimationEasingFunction { get; set; }
-        public bool HighContrastMode { get; set; }
-        public Color FocusIndicatorColor { get; set; }
-        public bool IsDarkTheme { get; set; }
+        public string IconSet { get; set; } = "Vintage Icons";
+        public bool ApplyThemeToIcons { get; set; } = true;
+        public Color ShadowColor { get; set; } = Color.FromArgb(50, 25, 0);
+        public float ShadowOpacity { get; set; } = 0.3f;
+        public double AnimationDurationShort { get; set; } = 0.2;
+        public double AnimationDurationMedium { get; set; } = 0.4;
+        public double AnimationDurationLong { get; set; } = 0.6;
+        public string AnimationEasingFunction { get; set; } = "ease-in-out";
+        public bool HighContrastMode { get; set; } = false;
+        public Color FocusIndicatorColor { get; set; } = Color.FromArgb(205, 133, 63);
+        public bool IsDarkTheme { get; set; } = false;
     }
 }

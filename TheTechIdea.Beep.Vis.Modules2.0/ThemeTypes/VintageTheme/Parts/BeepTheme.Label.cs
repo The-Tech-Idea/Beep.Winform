@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class VintageTheme
     {
         // Label Colors and Fonts
-        public Color LabelBackColor { get; set; } = Color.Transparent;
+        public Color LabelBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public Color LabelForeColor { get; set; } = Color.FromArgb(51, 25, 0);
         public Color LabelBorderColor { get; set; } = Color.FromArgb(139, 69, 19);
         public Color LabelHoverBorderColor { get; set; } = Color.FromArgb(101, 51, 0);
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color SubLabelForColor { get; set; } = Color.FromArgb(120, 60, 0);
-        public Color SubLabelBackColor { get; set; } = Color.Transparent;
+        public Color SubLabelBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public Color SubLabelHoverBackColor { get; set; } = Color.FromArgb(205, 133, 63);
         public Color SubLabelHoverForeColor { get; set; } = Color.FromArgb(255, 245, 238);
     }

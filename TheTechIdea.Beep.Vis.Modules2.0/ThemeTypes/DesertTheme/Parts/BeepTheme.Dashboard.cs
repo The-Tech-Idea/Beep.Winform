@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(238, 214, 175); // Pale gold highlight on hover
 
         public Color DashboardTitleForeColor { get; set; } = Color.FromArgb(101, 67, 33); // Rich brown
-        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardTitleBackColor { get; set; } =Color.FromArgb(210, 180, 140);
 
         public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
         {
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color DashboardSubTitleForeColor { get; set; } = Color.FromArgb(160, 110, 50); // Darker tan
-        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardSubTitleBackColor { get; set; } =Color.FromArgb(210, 180, 140);
 
         public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
         {

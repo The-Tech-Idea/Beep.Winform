@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public int BorderSize { get; set; } = 1;
         public string IconSet { get; set; } = "Default";
         public bool ApplyThemeToIcons { get; set; } = false;
-        public Color ShadowColor { get; set; } = Color.Transparent;
+        public Color ShadowColor { get; set; } = Color.DimGray;
         public float ShadowOpacity { get; set; } = 0f;
         public double AnimationDurationShort { get; set; } = 0.1;
         public double AnimationDurationMedium { get; set; } = 0.3;

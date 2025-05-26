@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuHoverForeColor { get; set; } = Color.White;
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
         public Color SideMenuTitleTextColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color SideMenuSubTitleTextColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",

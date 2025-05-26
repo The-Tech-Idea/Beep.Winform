@@ -12,10 +12,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TaskCardForeColor { get; set; } = Color.FromArgb(200, 255, 255);
         public Color TaskCardBorderColor { get; set; } = Color.FromArgb(0, 120, 170);
         public Color TaskCardTitleForeColor { get; set; } = Color.White;
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } = Color.FromArgb(0, 150, 200);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.White };
         public Color TaskCardSubTitleForeColor { get; set; } = Color.FromArgb(200, 255, 255);
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } = Color.FromArgb(0, 150, 200);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(200, 255, 255) };
         public Color TaskCardMetricTextForeColor { get; set; } = Color.White;
         public Color TaskCardMetricTextBackColor { get; set; } = Color.FromArgb(0, 150, 200);

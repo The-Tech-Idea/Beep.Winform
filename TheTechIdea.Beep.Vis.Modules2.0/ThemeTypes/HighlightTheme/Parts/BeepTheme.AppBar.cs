@@ -13,11 +13,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color AppBarTextBoxBackColor { get; set; } = Color.White;
         public Color AppBarTextBoxForeColor { get; set; } = Color.Black;
         public Color AppBarLabelForeColor { get; set; } = Color.Black;
-        public Color AppBarLabelBackColor { get; set; } = Color.Transparent;
+        public Color AppBarLabelBackColor { get; set; } =Color.FromArgb(255, 255, 204);
         public Color AppBarTitleForeColor { get; set; } = Color.Black;
-        public Color AppBarTitleBackColor { get; set; } = Color.Transparent;
+        public Color AppBarTitleBackColor { get; set; } =Color.FromArgb(255, 255, 204);
         public Color AppBarSubTitleForeColor { get; set; } = Color.FromArgb(102, 102, 102);
-        public Color AppBarSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color AppBarSubTitleBackColor { get; set; } =Color.FromArgb(255, 255, 204);
         public Color AppBarCloseButtonColor { get; set; } = Color.Red;
         public Color AppBarMaxButtonColor { get; set; } = Color.Green;
         public Color AppBarMinButtonColor { get; set; } = Color.Orange;

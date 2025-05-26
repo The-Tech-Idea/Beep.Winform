@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class MonochromeTheme
     {
         // RadioButton properties
-        public Color RadioButtonBackColor { get; set; } = Color.Transparent;
+        public Color RadioButtonBackColor { get; set; } = Color.DimGray;
         public Color RadioButtonForeColor { get; set; } = Color.Black;
         public Color RadioButtonBorderColor { get; set; } = Color.Gray;
         public Color RadioButtonCheckedBackColor { get; set; } = Color.DimGray;

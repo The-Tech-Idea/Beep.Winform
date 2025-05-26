@@ -5,9 +5,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class GalaxyTheme
     {
 
-        public Font ButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
 
 
         public Color ButtonBackColor { get; set; } = Color.FromArgb(30, 30, 60);      // Deep space blue

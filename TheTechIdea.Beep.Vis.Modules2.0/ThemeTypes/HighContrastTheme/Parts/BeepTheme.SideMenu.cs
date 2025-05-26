@@ -7,9 +7,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Side Menu Fonts & Colors
 //<<<<<<< HEAD
-        public Font SideMenuTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font SideMenuSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font SideMenuTextFont { get; set; } = new Font("Segoe UI", 11, FontStyle.Regular);
+        public TypographyStyle  SideMenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle  SideMenuSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle  SideMenuTextFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Regular);
         public Color SideMenuBackColor { get; set; } = Color.Black;
         public Color SideMenuHoverBackColor { get; set; } = Color.DarkSlateGray;
         public Color SideMenuSelectedBackColor { get; set; } = Color.Yellow;

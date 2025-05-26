@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TaskCardBorderColor { get; set; } = Color.FromArgb(255, 0, 255);             // Neon magenta border
 
         public Color TaskCardTitleForeColor { get; set; } = Color.FromArgb(0, 255, 128);          // Neon green title
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardSubTitleForeColor { get; set; } = Color.FromArgb(255, 255, 0);       // Neon yellow subtitle
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",

@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(255, 0, 255);            // Neon Magenta
 
         public Color StatsCardTitleForeColor { get; set; } = Color.FromArgb(0, 255, 255);         // Neon Cyan
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(0, 255, 128);      // Neon Green
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Consolas",
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardTrendForeColor { get; set; } = Color.FromArgb(0, 255, 255);         // Neon Cyan (trend up)
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } = Color.FromArgb(18, 18, 32);
         public Color StatsCardTrendBorderColor { get; set; } = Color.FromArgb(255, 255, 0);       // Neon Yellow
 
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle

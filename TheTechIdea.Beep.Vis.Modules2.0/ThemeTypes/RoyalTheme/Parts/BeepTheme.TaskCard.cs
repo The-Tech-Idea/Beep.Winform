@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TaskCardForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
         public Color TaskCardBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
         public Color TaskCardTitleForeColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color TaskCardSubTitleForeColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",

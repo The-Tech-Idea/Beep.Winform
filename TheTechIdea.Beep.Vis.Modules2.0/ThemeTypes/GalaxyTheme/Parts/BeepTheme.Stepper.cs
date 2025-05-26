@@ -6,17 +6,17 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Stepper Fonts & Colors
 //<<<<<<< HEAD
-        public Font StepperTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
-        public Font StepperSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public Font StepperUnSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Regular);
+        public TypographyStyle  StepperTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle  StepperSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle  StepperUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Regular);
 
         public Color StepperBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color StepperForeColor { get; set; } = Color.White;
         public Color StepperBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33);
 
         public Color StepperItemForeColor { get; set; } = Color.White;
-        public Font StepperItemFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font StepperSubTitleFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
+        public TypographyStyle  StepperItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  StepperSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
 
         public Color StepperItemHoverForeColor { get; set; } = Color.White;
         public Color StepperItemHoverBackColor { get; set; } = Color.FromArgb(0x23, 0x23, 0x4E);

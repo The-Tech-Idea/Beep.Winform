@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuHoverForeColor { get; set; } = Color.White;
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(128, 128, 128);
         public Color SideMenuTitleTextColor { get; set; } = Color.White;
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color SideMenuSubTitleTextColor { get; set; } = Color.FromArgb(192, 192, 192);
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",

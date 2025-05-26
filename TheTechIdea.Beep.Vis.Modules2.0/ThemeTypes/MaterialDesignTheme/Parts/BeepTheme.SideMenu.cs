@@ -7,9 +7,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
 //<<<<<<< HEAD
         // Side Menu Fonts & Colors with Material Design defaults
-        public Font SideMenuTitleFont { get; set; } = new Font("Roboto", 18f, FontStyle.Bold);
-        public Font SideMenuSubTitleFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
-        public Font SideMenuTextFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  SideMenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 18f, FontStyle.Bold);
+        public TypographyStyle  SideMenuSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  SideMenuTextFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
 
         public Color SideMenuBackColor { get; set; } = Color.FromArgb(250, 250, 250);
         public Color SideMenuHoverBackColor { get; set; } = Color.FromArgb(224, 224, 224);
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(224, 224, 224);
 
         public Color SideMenuTitleTextColor { get; set; } = Color.Black;
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color SideMenuSubTitleTextColor { get; set; } = Color.DimGray;
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",

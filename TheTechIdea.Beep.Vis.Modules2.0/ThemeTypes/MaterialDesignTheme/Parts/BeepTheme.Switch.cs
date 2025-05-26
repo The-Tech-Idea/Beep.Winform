@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
 //<<<<<<< HEAD
         // Switch control Fonts & Colors with Material Design defaults
-        public Font SwitchTitleFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
-        public Font SwitchSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
-        public Font SwitchUnSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  SwitchTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  SwitchSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Bold);
+        public TypographyStyle  SwitchUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
 
         public Color SwitchBackColor { get; set; } = Color.FromArgb(238, 238, 238); // Grey 200
         public Color SwitchBorderColor { get; set; } = Color.FromArgb(189, 189, 189); // Grey 400

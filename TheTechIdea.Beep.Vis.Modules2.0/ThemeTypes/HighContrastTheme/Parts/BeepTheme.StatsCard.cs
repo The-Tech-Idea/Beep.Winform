@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Stats Card Fonts & Colors
 //<<<<<<< HEAD
-        public Font StatsTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font StatsSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font StatsUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle  StatsTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle  StatsSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle  StatsUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
 
         public Color StatsCardBackColor { get; set; } = Color.Black;
         public Color StatsCardForeColor { get; set; } = Color.White;

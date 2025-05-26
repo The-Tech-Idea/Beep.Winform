@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Button Colors and Styles
 //<<<<<<< HEAD
-        public Font ButtonFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
-        public Font ButtonHoverFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
-        public Font ButtonSelectedFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
 
         public Color ButtonHoverBackColor { get; set; } = Color.FromArgb(30, 136, 229); // Blue 600
         public Color ButtonHoverForeColor { get; set; } = Color.White;
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color ButtonBackColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue 500
         public Color ButtonForeColor { get; set; } = Color.White;
-        public Color ButtonBorderColor { get; set; } = Color.Transparent;
+        public Color ButtonBorderColor { get; set; } =Color.FromArgb(33, 150, 243);
 
         public Color ButtonErrorBackColor { get; set; } = Color.FromArgb(211, 47, 47); // Red 700
         public Color ButtonErrorForeColor { get; set; } = Color.White;

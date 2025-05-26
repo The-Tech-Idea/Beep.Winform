@@ -25,6 +25,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Consolas", 13f, FontStyle.Regular);
 
         public Color StarTitleForeColor { get; set; } = Color.FromArgb(0, 255, 255);           // Neon Cyan
-        public Color StarTitleBackColor { get; set; } = Color.Transparent;
+        public Color StarTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);
     }
 }

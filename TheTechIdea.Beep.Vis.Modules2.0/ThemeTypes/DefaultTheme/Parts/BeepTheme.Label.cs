@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DefaultTheme
     {
         // Label Colors and Fonts
-        public Color LabelBackColor { get; set; } = Color.Transparent;
+        public Color LabelBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color LabelForeColor { get; set; } = Color.Black;
         public Color LabelBorderColor { get; set; } = Color.LightGray;
         public Color LabelHoverBorderColor { get; set; } = Color.SteelBlue;
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
         public TypographyStyle SubLabelFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 8f, FontStyle.Italic);
         public Color SubLabelForColor { get; set; } = Color.DarkSlateGray;
-        public Color SubLabelBackColor { get; set; } = Color.Transparent;
+        public Color SubLabelBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color SubLabelHoverBackColor { get; set; } = Color.FromArgb(240, 240, 240);
         public Color SubLabelHoverForeColor { get; set; } = Color.DodgerBlue;
     }

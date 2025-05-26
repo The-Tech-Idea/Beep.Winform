@@ -17,10 +17,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuHoverForeColor { get; set; } = Color.FromArgb(80, 80, 80);
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(237, 181, 201);
         public Color SideMenuTitleTextColor { get; set; } = Color.FromArgb(80, 80, 80);
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(245, 183, 203);
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
         public Color SideMenuSubTitleTextColor { get; set; } = Color.FromArgb(120, 120, 120);
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(245, 183, 203);
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(120, 120, 120) };
         public Color SideMenuGradiantStartColor { get; set; } = Color.FromArgb(237, 181, 201);
         public Color SideMenuGradiantEndColor { get; set; } = Color.FromArgb(247, 221, 229);

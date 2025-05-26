@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
 //<<<<<<< HEAD
         // ScrollList Fonts & Colors with default Material Design values
-        public Font ScrollListTitleFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
-        public Font ScrollListSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
-        public Font ScrollListUnSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  ScrollListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  ScrollListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Bold);
+        public TypographyStyle  ScrollListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
 
         public Color ScrollListBackColor { get; set; } = Color.White;
         public Color ScrollListForeColor { get; set; } = Color.Black;
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color ScrollListItemBorderColor { get; set; } = Color.FromArgb(224, 224, 224);
 
-        public Font ScrollListIItemFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
-        public Font ScrollListItemSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
+        public TypographyStyle  ScrollListIItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  ScrollListItemSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Bold);
     }
 }

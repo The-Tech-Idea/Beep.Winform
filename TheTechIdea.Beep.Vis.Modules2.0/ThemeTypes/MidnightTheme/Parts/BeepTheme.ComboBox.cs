@@ -18,8 +18,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ComboBoxErrorBackColor { get; set; } = Color.FromArgb(100, 0, 0); // Dark red background for error
         public Color ComboBoxErrorForeColor { get; set; } = Color.FromArgb(255, 100, 100); // Light red text for error
 
-        public Font ComboBoxItemFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font ComboBoxListFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  ComboBoxItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  ComboBoxListFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
 
         public Color CheckBoxSelectedForeColor { get; set; } = Color.White;
         public Color CheckBoxSelectedBackColor { get; set; } = Color.FromArgb(48, 63, 159); // Indigo 700

@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class FlatDesignTheme
     {
         // RadioButton properties
-        public Color RadioButtonBackColor { get; set; } = Color.Transparent;
+        public Color RadioButtonBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color RadioButtonForeColor { get; set; } = Color.FromArgb(51, 51, 51); // Dark gray text
         public Color RadioButtonBorderColor { get; set; } = Color.FromArgb(204, 204, 204); // Light gray border
 

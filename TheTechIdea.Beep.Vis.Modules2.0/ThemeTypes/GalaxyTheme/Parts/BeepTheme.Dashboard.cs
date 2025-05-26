@@ -7,15 +7,15 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Dashboard Colors & Fonts
 //<<<<<<< HEAD
-        public Font DashboardTitleFont { get; set; } = new Font("Segoe UI", 18f, FontStyle.Bold);
-        public Font DashboardSubTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Regular);
+        public TypographyStyle  DashboardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 18f, FontStyle.Bold);
+        public TypographyStyle  DashboardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Regular);
 
         public Color DashboardBackColor { get; set; } = Color.FromArgb(0x05, 0x05, 0x14); // BackgroundColor
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(0x0F, 0x34, 0x60); // AccentColor
 
         public Color DashboardTitleForeColor { get; set; } = Color.White;
-        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color DashboardSubTitleForeColor { get; set; } = Color.FromArgb(0xC0, 0xC0, 0xFF); // Light bluish
-        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardSubTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",

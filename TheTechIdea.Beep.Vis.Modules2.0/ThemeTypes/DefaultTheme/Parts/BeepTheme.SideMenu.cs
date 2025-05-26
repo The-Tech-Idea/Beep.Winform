@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuBorderColor { get; set; } = Color.Gray;
 
         public Color SideMenuTitleTextColor { get; set; } = Color.Black;
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color SideMenuSubTitleTextColor { get; set; } = Color.DarkGray;
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color SideMenuGradiantStartColor { get; set; } = Color.White;
         public Color SideMenuGradiantEndColor { get; set; } = Color.LightGray;
-        public Color SideMenuGradiantMiddleColor { get; set; } = Color.Transparent;
+        public Color SideMenuGradiantMiddleColor { get; set; } =Color.FromArgb(33, 150, 243);
         public LinearGradientMode SideMenuGradiantDirection { get; set; } = LinearGradientMode.Vertical;
     }
 }

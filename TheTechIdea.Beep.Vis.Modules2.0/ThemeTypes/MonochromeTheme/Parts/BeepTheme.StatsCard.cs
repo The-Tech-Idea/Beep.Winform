@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardBorderColor { get; set; } = Color.DarkGray;
 
         public Color StatsCardTitleForeColor { get; set; } = Color.Black;
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } = Color.DimGray;
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardSubTitleForeColor { get; set; } = Color.Gray;
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } = Color.DimGray;
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -34,8 +34,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardValueForeColor { get; set; } = Color.Black;
-        public Color StatsCardValueBackColor { get; set; } = Color.Transparent;
-        public Color StatsCardValueBorderColor { get; set; } = Color.Transparent;
+        public Color StatsCardValueBackColor { get; set; } = Color.DimGray;
+        public Color StatsCardValueBorderColor { get; set; } = Color.DimGray;
 
         public Color StatsCardValueHoverForeColor { get; set; } = Color.DimGray;
         public Color StatsCardValueHoverBackColor { get; set; } = Color.LightGray;
@@ -49,8 +49,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardInfoForeColor { get; set; } = Color.DimGray;
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
-        public Color StatsCardInfoBorderColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } = Color.DimGray;
+        public Color StatsCardInfoBorderColor { get; set; } = Color.DimGray;
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -60,8 +60,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardTrendForeColor { get; set; } = Color.DarkSlateGray;
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
-        public Color StatsCardTrendBorderColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } = Color.DimGray;
+        public Color StatsCardTrendBorderColor { get; set; } = Color.DimGray;
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",

@@ -20,6 +20,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StarSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.White };
         public TypographyStyle StarUnSelectedFont { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(200, 255, 255) };
         public Color StarTitleForeColor { get; set; } = Color.White;
-        public Color StarTitleBackColor { get; set; } = Color.Transparent;
+        public Color StarTitleBackColor { get; set; } = Color.FromArgb(0, 150, 200);
     }
 }

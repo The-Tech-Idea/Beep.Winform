@@ -6,16 +6,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Stats Card Fonts & Colors
 //<<<<<<< HEAD
-        public Font StatsTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
-        public Font StatsSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public Font StatsUnSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Regular);
+        public TypographyStyle  StatsTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle  StatsSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle  StatsUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Regular);
 
         public Color StatsCardBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color StatsCardForeColor { get; set; } = Color.White;
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33);
 
         public Color StatsCardTitleForeColor { get; set; } = Color.White;
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardSubTitleForeColor { get; set; } = Color.LightGray;
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardValueForeColor { get; set; } = Color.White;
-        public Color StatsCardValueBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardValueBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public Color StatsCardValueBorderColor { get; set; } = Color.White;
         public Color StatsCardValueHoverForeColor { get; set; } = Color.Black;
         public Color StatsCardValueHoverBackColor { get; set; } = Color.FromArgb(0x4E, 0xC5, 0xF1); // Light blue
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardInfoForeColor { get; set; } = Color.Gray;
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33);
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {
@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardTrendForeColor { get; set; } = Color.FromArgb(0x23, 0xB9, 0x5C); // Greenish
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public Color StatsCardTrendBorderColor { get; set; } = Color.FromArgb(0x23, 0xB9, 0x5C);
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
         {

@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
         public Color StatsCardTitleForeColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardInfoForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardTrendForeColor { get; set; } = Color.FromArgb(0, 128, 0); // Emerald
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public Color StatsCardTrendBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
         {

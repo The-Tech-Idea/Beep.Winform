@@ -15,8 +15,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color RadioButtonHoverBackColor { get; set; } = Color.FromArgb(50, 50, 50);
         public Color RadioButtonHoverForeColor { get; set; } = Color.WhiteSmoke;
         public Color RadioButtonHoverBorderColor { get; set; } = Color.LightSteelBlue;
-        public Font RadioButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font RadioButtonCheckedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  RadioButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  RadioButtonCheckedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
         public Color RadioButtonSelectedForeColor { get; set; } = Color.CornflowerBlue;
         public Color RadioButtonSelectedBackColor { get; set; } = Color.FromArgb(40, 40, 40);
     }

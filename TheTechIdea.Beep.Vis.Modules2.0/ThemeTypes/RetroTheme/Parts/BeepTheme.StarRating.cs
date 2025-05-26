@@ -64,6 +64,6 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StarTitleForeColor { get; set; } = Color.White;
-        public Color StarTitleBackColor { get; set; } = Color.Transparent;
+        public Color StarTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
     }
 }

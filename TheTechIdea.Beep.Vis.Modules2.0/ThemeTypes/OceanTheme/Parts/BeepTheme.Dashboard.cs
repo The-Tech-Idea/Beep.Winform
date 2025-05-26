@@ -12,10 +12,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(0, 105, 148);
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(0, 160, 210);
         public Color DashboardTitleForeColor { get; set; } = Color.White;
-        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardTitleBackColor { get; set; } = Color.FromArgb(0, 150, 200);
         public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle() { FontSize = 18, FontWeight = FontWeight.Bold, TextColor = Color.White };
         public Color DashboardSubTitleForeColor { get; set; } = Color.FromArgb(200, 255, 255);
-        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardSubTitleBackColor { get; set; } = Color.FromArgb(0, 150, 200);
         public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(200, 255, 255) };
         public Color DashboardGradiantStartColor { get; set; } = Color.FromArgb(0, 80, 120);
         public Color DashboardGradiantEndColor { get; set; } = Color.FromArgb(0, 130, 180);

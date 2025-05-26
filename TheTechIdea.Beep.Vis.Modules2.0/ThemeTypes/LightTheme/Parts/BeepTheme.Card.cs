@@ -7,11 +7,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Card Colors & Fonts
 //<<<<<<< HEAD
-        public Font CardTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Bold);
+        public TypographyStyle  CardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
         public Color CardTextForeColor { get; set; } = Color.Black;
         public Color CardBackColor { get; set; } = Color.White;
         public Color CardTitleForeColor { get; set; } = Color.DarkSlateGray;
-        public Font CardSubTitleFont { get; set; } = new Font("Segoe UI", 10F, FontStyle.Italic);
+        public TypographyStyle  CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10F, FontStyle.Italic);
         public Color CardSubTitleForeColor { get; set; } = Color.Gray;
         public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
         {

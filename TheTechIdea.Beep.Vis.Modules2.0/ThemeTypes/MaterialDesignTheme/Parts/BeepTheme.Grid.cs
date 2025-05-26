@@ -6,13 +6,13 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Grid Fonts
 //<<<<<<< HEAD
-        public Font GridHeaderFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
-        public Font GridRowFont { get; set; } = new Font("Roboto", 11f, FontStyle.Regular);
-        public Font GridCellFont { get; set; } = new Font("Roboto", 11f, FontStyle.Regular);
-        public Font GridCellSelectedFont { get; set; } = new Font("Roboto", 11f, FontStyle.Bold);
-        public Font GridCellHoverFont { get; set; } = new Font("Roboto", 11f, FontStyle.Regular);
-        public Font GridCellErrorFont { get; set; } = new Font("Roboto", 11f, FontStyle.Italic);
-        public Font GridColumnFont { get; set; } = new Font("Roboto", 12f, FontStyle.Bold);
+        public TypographyStyle  GridHeaderFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Bold);
+        public TypographyStyle  GridRowFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 11f, FontStyle.Regular);
+        public TypographyStyle  GridCellFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 11f, FontStyle.Regular);
+        public TypographyStyle  GridCellSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 11f, FontStyle.Bold);
+        public TypographyStyle  GridCellHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 11f, FontStyle.Regular);
+        public TypographyStyle  GridCellErrorFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 11f, FontStyle.Italic);
+        public TypographyStyle  GridColumnFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Bold);
 
         // Grid Colors
         public Color GridBackColor { get; set; } = Color.White;

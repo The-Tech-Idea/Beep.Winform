@@ -8,20 +8,20 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color LoginPopoverBackgroundColor { get; set; } = Color.FromArgb(245, 250, 255);
         public Color LoginTitleColor { get; set; } = Color.Black;
 //<<<<<<< HEAD
-        public Font LoginTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle  LoginTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
 
         public Color LoginSubtitleColor { get; set; } = Color.DarkBlue;
-        public Font LoginSubtitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Italic);
+        public TypographyStyle  LoginSubtitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Italic);
 
         public Color LoginDescriptionColor { get; set; } = Color.Gray;
-        public Font LoginDescriptionFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  LoginDescriptionFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
 
         public Color LoginLinkColor { get; set; } = Color.SteelBlue;
-        public Font LoginLinkFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Underline);
+        public TypographyStyle  LoginLinkFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Underline);
 
         public Color LoginButtonBackgroundColor { get; set; } = Color.SkyBlue;
         public Color LoginButtonTextColor { get; set; } = Color.White;
-        public Font LoginButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  LoginButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
 
         public Color LoginDropdownBackgroundColor { get; set; } = Color.WhiteSmoke;
         public Color LoginDropdownTextColor { get; set; } = Color.Black;

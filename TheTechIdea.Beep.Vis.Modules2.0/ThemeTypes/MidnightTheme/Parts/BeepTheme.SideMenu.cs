@@ -7,9 +7,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Side Menu Fonts & Colors
 //<<<<<<< HEAD
-        public Font SideMenuTitleFont { get; set; } = new Font("Segoe UI", 16, FontStyle.Bold);
-        public Font SideMenuSubTitleFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
-        public Font SideMenuTextFont { get; set; } = new Font("Segoe UI", 11, FontStyle.Regular);
+        public TypographyStyle  SideMenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16, FontStyle.Bold);
+        public TypographyStyle  SideMenuSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle  SideMenuTextFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Regular);
 
         public Color SideMenuBackColor { get; set; } = Color.FromArgb(20, 20, 30);
         public Color SideMenuHoverBackColor { get; set; } = Color.FromArgb(50, 50, 70);
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(70, 70, 90);
         public Color SideMenuTitleTextColor { get; set; } = Color.WhiteSmoke;
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(20, 24, 30);
 
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color SideMenuSubTitleTextColor { get; set; } = Color.LightGray;
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(20, 24, 30);
 
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {

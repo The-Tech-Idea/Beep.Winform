@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // List Fonts & Colors
 //<<<<<<< HEAD
-        public Font ListTitleFont { get; set; } = new Font("Segoe UI", 14F, FontStyle.Bold);
-        public Font ListSelectedFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Regular);
-        public Font ListUnSelectedFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Regular);
+        public TypographyStyle  ListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14F, FontStyle.Bold);
+        public TypographyStyle  ListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
+        public TypographyStyle  ListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
 
         public Color ListBackColor { get; set; } = Color.White;
         public Color ListForeColor { get; set; } = Color.Black;

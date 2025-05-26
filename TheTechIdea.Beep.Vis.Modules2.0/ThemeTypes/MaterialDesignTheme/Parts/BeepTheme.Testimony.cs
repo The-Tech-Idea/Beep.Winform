@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
 //<<<<<<< HEAD
         // Testimony/Testimonial Colors & Fonts with Material Design defaults
-        public Font TestimoniaTitleFont { get; set; } = new Font("Roboto", 18f, FontStyle.Bold);
-        public Font TestimoniaSelectedFont { get; set; } = new Font("Roboto", 16f, FontStyle.Bold);
-        public Font TestimoniaUnSelectedFont { get; set; } = new Font("Roboto", 16f, FontStyle.Regular);
+        public TypographyStyle  TestimoniaTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 18f, FontStyle.Bold);
+        public TypographyStyle  TestimoniaSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Bold);
+        public TypographyStyle  TestimoniaUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Regular);
 
         public Color TestimonialBackColor { get; set; } = Color.White;
         public Color TestimonialTextColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 900

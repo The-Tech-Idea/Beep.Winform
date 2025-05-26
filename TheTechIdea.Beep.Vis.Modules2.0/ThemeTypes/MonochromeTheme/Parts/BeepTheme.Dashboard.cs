@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(50, 50, 50);
         public Color DashboardTitleForeColor { get; set; } = Color.White;
-        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardTitleBackColor { get; set; } = Color.DimGray;
         public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             TextColor = Color.White
         };
         public Color DashboardSubTitleForeColor { get; set; } = Color.Gray;
-        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardSubTitleBackColor { get; set; } = Color.DimGray;
         public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",

@@ -12,10 +12,10 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.FromArgb(120, 120, 120);
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(242, 201, 215);
         public Color StatsCardTitleForeColor { get; set; } = Color.FromArgb(80, 80, 80);
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(245, 183, 203);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle() { FontSize = 16, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
         public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(120, 120, 120);
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(245, 183, 203);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(120, 120, 120) };
         public Color StatsCardValueForeColor { get; set; } = Color.FromArgb(80, 80, 80);
         public Color StatsCardValueBackColor { get; set; } = Color.FromArgb(245, 183, 203);
@@ -25,11 +25,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardValueHoverBorderColor { get; set; } = Color.FromArgb(247, 221, 229);
         public TypographyStyle StatsCardValueStyle { get; set; } = new TypographyStyle() { FontSize = 14, FontWeight = FontWeight.Bold, TextColor = Color.FromArgb(80, 80, 80) };
         public Color StatsCardInfoForeColor { get; set; } = Color.FromArgb(120, 120, 120);
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(245, 183, 203);
         public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(242, 201, 215);
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle() { FontSize = 11, FontWeight = FontWeight.Regular, TextColor = Color.FromArgb(120, 120, 120) };
         public Color StatsCardTrendForeColor { get; set; } = Color.FromArgb(245, 183, 203);
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } =Color.FromArgb(245, 183, 203);
         public Color StatsCardTrendBorderColor { get; set; } = Color.FromArgb(242, 201, 215);
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle() { FontSize = 12, FontWeight = FontWeight.Medium, TextColor = Color.FromArgb(245, 183, 203) };
     }

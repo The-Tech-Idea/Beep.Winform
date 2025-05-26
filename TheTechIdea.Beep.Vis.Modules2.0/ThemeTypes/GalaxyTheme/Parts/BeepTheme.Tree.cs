@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Tree Fonts & Colors
 //<<<<<<< HEAD
-        public Font TreeTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public Font TreeNodeSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font TreeNodeUnSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  TreeTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle  TreeNodeSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  TreeNodeUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
 
         public Color TreeBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color TreeForeColor { get; set; } = Color.White;

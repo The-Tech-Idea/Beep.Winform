@@ -6,16 +6,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
 //<<<<<<< HEAD
         // Task Card Fonts & Colors with Material Design defaults
-        public Font TaskCardTitleFont { get; set; } = new Font("Roboto", 16f, FontStyle.Bold);
-        public Font TaskCardSelectedFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
-        public Font TaskCardUnSelectedFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  TaskCardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Bold);
+        public TypographyStyle  TaskCardSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  TaskCardUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
 
         public Color TaskCardBackColor { get; set; } = Color.White;
         public Color TaskCardForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 900
         public Color TaskCardBorderColor { get; set; } = Color.FromArgb(224, 224, 224); // Grey 300
 
         public Color TaskCardTitleForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Grey 900
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardSubTitleForeColor { get; set; } = Color.FromArgb(117, 117, 117); // Grey 600
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
@@ -35,12 +35,12 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardMetricTextForeColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue 500
-        public Color TaskCardMetricTextBackColor { get; set; } = Color.Transparent;
-        public Color TaskCardMetricTextBorderColor { get; set; } = Color.Transparent;
+        public Color TaskCardMetricTextBackColor { get; set; } =Color.FromArgb(33, 150, 243);
+        public Color TaskCardMetricTextBorderColor { get; set; } =Color.FromArgb(33, 150, 243);
 
         public Color TaskCardMetricTextHoverForeColor { get; set; } = Color.FromArgb(25, 118, 210); // Blue 700
-        public Color TaskCardMetricTextHoverBackColor { get; set; } = Color.Transparent;
-        public Color TaskCardMetricTextHoverBorderColor { get; set; } = Color.Transparent;
+        public Color TaskCardMetricTextHoverBackColor { get; set; } =Color.FromArgb(33, 150, 243);
+        public Color TaskCardMetricTextHoverBorderColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle TaskCardMetricTextStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",

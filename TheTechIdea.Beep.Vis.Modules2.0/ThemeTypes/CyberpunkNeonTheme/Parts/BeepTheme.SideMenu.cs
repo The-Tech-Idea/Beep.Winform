@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(255, 0, 255);                   // Neon Magenta border
 
         public Color SideMenuTitleTextColor { get; set; } = Color.FromArgb(0, 255, 255);                // Neon Cyan
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;                          // Keep it transparent for flexibility
+        public Color SideMenuTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);                          // Keep it transparent for flexibility
 
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color SideMenuSubTitleTextColor { get; set; } = Color.FromArgb(0, 255, 128);             // Neon Green
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } = Color.FromArgb(18, 18, 32);
 
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {

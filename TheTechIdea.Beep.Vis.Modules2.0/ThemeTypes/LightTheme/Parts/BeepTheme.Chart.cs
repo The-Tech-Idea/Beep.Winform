@@ -7,8 +7,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Chart Fonts & Colors
 //<<<<<<< HEAD
-        public Font ChartTitleFont { get; set; } = new Font("Segoe UI", 16F, FontStyle.Bold);
-        public Font ChartSubTitleFont { get; set; } = new Font("Segoe UI", 12F, FontStyle.Regular);
+        public TypographyStyle  ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16F, FontStyle.Bold);
+        public TypographyStyle  ChartSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12F, FontStyle.Regular);
         public Color ChartBackColor { get; set; } = Color.White;
         public Color ChartLineColor { get; set; } = Color.DimGray;
         public Color ChartFillColor { get; set; } = Color.LightSteelBlue;

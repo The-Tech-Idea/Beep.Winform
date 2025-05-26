@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Button Colors and Styles
 //<<<<<<< HEAD
-        public Font ButtonFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Regular);
-        public Font ButtonHoverFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Regular);
-        public Font ButtonSelectedFont { get; set; } = new Font("Segoe UI", 9F, FontStyle.Bold);
+        public TypographyStyle  ButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 9F, FontStyle.Regular);
+        public TypographyStyle  ButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 9F, FontStyle.Regular);
+        public TypographyStyle  ButtonSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 9F, FontStyle.Bold);
 
         public Color ButtonHoverBackColor { get; set; } = Color.LightGray;
         public Color ButtonHoverForeColor { get; set; } = Color.Black;

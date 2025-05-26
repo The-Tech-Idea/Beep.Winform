@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
 //<<<<<<< HEAD
         // Tab Fonts & Colors with Material Design defaults
-        public Font TabFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
-        public Font TabHoverFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
-        public Font TabSelectedFont { get; set; } = new Font("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
+        public TypographyStyle  TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Bold);
 
         public Color TabBackColor { get; set; } = Color.FromArgb(250, 250, 250); // Grey 50
         public Color TabForeColor { get; set; } = Color.FromArgb(117, 117, 117); // Grey 600

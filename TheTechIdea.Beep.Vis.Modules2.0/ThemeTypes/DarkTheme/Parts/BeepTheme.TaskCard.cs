@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TaskCardBorderColor { get; set; } = Color.DimGray;
 
         public Color TaskCardTitleForeColor { get; set; } = Color.White;
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardSubTitleForeColor { get; set; } = Color.LightGray;
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",

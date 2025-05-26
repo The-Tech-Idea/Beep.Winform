@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(240, 235, 215);
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(205, 133, 63);
         public Color DashboardTitleForeColor { get; set; } = Color.FromArgb(51, 25, 0);
-        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardTitleBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color DashboardSubTitleForeColor { get; set; } = Color.FromArgb(90, 45, 0);
-        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardSubTitleBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",

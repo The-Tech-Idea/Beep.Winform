@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // List Fonts & Colors
 //<<<<<<< HEAD
-        public Font ListTitleFont { get; set; } = new Font("Roboto", 16f, FontStyle.Bold);
-        public Font ListSelectedFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
-        public Font ListUnSelectedFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  ListTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 16f, FontStyle.Bold);
+        public TypographyStyle  ListSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  ListUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
 
         public Color ListBackColor { get; set; } = Color.White;
         public Color ListForeColor { get; set; } = Color.FromArgb(33, 33, 33); // Dark Grey 900

@@ -6,16 +6,16 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Task Card Fonts & Colors
 //<<<<<<< HEAD
-        public Font TaskCardTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
-        public Font TaskCardSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public Font TaskCardUnSelectedFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Regular);
+        public TypographyStyle  TaskCardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle  TaskCardSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle  TaskCardUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Regular);
 
         public Color TaskCardBackColor { get; set; } = Color.FromArgb(0x1F, 0x19, 0x39); // SurfaceColor
         public Color TaskCardForeColor { get; set; } = Color.White;
         public Color TaskCardBorderColor { get; set; } = Color.FromArgb(0x33, 0x33, 0x33);
 
         public Color TaskCardTitleForeColor { get; set; } = Color.White;
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardSubTitleForeColor { get; set; } = Color.LightGray;
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardMetricTextForeColor { get; set; } = Color.White;
-        public Color TaskCardMetricTextBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardMetricTextBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public Color TaskCardMetricTextBorderColor { get; set; } = Color.White;
         public Color TaskCardMetricTextHoverForeColor { get; set; } = Color.Black;
         public Color TaskCardMetricTextHoverBackColor { get; set; } = Color.FromArgb(0x4E, 0xC5, 0xF1);
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color TaskCardProgressValueForeColor { get; set; } = Color.White;
-        public Color TaskCardProgressValueBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardProgressValueBackColor { get; set; } =Color.FromArgb(10, 10, 30);
         public Color TaskCardProgressValueBorderColor { get; set; } = Color.White;
         public TypographyStyle TaskCardProgressValueStyle { get; set; } = new TypographyStyle
         {

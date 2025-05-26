@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class SpringTheme
     {
         // Label Colors and Fonts
-        public Color LabelBackColor { get; set; } = Color.Transparent;
+        public Color LabelBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public Color LabelForeColor { get; set; } = Color.FromArgb(50, 50, 50);
         public Color LabelBorderColor { get; set; } = Color.FromArgb(173, 216, 230);
         public Color LabelHoverBorderColor { get; set; } = Color.FromArgb(50, 205, 50);
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color SubLabelForColor { get; set; } = Color.FromArgb(100, 100, 100);
-        public Color SubLabelBackColor { get; set; } = Color.Transparent;
+        public Color SubLabelBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public Color SubLabelHoverBackColor { get; set; } = Color.FromArgb(144, 238, 144);
         public Color SubLabelHoverForeColor { get; set; } = Color.FromArgb(50, 50, 50);
     }

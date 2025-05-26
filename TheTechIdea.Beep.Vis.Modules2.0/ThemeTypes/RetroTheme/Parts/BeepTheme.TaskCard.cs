@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TaskCardForeColor { get; set; } = Color.FromArgb(192, 192, 192);
         public Color TaskCardBorderColor { get; set; } = Color.FromArgb(128, 128, 128);
         public Color TaskCardTitleForeColor { get; set; } = Color.White;
-        public Color TaskCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle TaskCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color TaskCardSubTitleForeColor { get; set; } = Color.FromArgb(192, 192, 192);
-        public Color TaskCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color TaskCardSubTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle TaskCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",

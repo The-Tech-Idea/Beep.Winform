@@ -6,15 +6,15 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Stepper Fonts & Colors
 //<<<<<<< HEAD
-        public Font StepperTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font StepperSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font StepperUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle  StepperTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle  StepperSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle  StepperUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
         public Color StepperBackColor { get; set; } = Color.Black;
         public Color StepperForeColor { get; set; } = Color.White;
         public Color StepperBorderColor { get; set; } = Color.White;
         public Color StepperItemForeColor { get; set; } = Color.White;
-        public Font StepperItemFont { get; set; } = new Font("Segoe UI", 11, FontStyle.Regular);
-        public Font StepperSubTitleFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Italic);
+        public TypographyStyle  StepperItemFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 11, FontStyle.Regular);
+        public TypographyStyle  StepperSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10, FontStyle.Italic);
         public Color StepperItemHoverForeColor { get; set; } = Color.Yellow;
         public Color StepperItemHoverBackColor { get; set; } = Color.DimGray;
         public Color StepperItemSelectedForeColor { get; set; } = Color.Black;

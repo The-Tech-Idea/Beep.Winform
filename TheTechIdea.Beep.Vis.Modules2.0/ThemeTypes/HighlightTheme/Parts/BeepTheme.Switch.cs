@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Switch control Fonts & Colors
 //<<<<<<< HEAD
-        public Font SwitchTitleFont { get; set; } = new Font("Segoe UI", 14, FontStyle.Bold);
-        public Font SwitchSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font SwitchUnSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle  SwitchTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14, FontStyle.Bold);
+        public TypographyStyle  SwitchSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle  SwitchUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
         public Color SwitchBackColor { get; set; } = Color.LightSteelBlue;
         public Color SwitchBorderColor { get; set; } = Color.SteelBlue;
         public Color SwitchForeColor { get; set; } = Color.Black;

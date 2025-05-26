@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Task Card Fonts & Colors
 //<<<<<<< HEAD
-        public Font TaskCardTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Bold);
-        public Font TaskCardSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font TaskCardUnSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  TaskCardTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Bold);
+        public TypographyStyle  TaskCardSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  TaskCardUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
 
         public Color TaskCardBackColor { get; set; } = Color.White;
         public Color TaskCardForeColor { get; set; } = Color.Black;

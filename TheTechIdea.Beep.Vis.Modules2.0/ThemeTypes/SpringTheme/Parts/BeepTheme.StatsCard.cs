@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.FromArgb(50, 50, 50);
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(173, 216, 230);
         public Color StatsCardTitleForeColor { get; set; } = Color.FromArgb(25, 25, 112);
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(70, 70, 70);
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardInfoForeColor { get; set; } = Color.FromArgb(100, 100, 100);
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(200, 200, 200);
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {

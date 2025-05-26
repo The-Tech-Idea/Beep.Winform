@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color ProgressBarChunkColor { get; set; } = Color.FromArgb(33, 150, 243); // Blue chunk fill
         public Color ProgressBarErrorColor { get; set; } = Color.FromArgb(244, 67, 54); // Red error
         public Color ProgressBarSuccessColor { get; set; } = Color.FromArgb(76, 175, 80); // Green success
-        public Font ProgressBarFont { get; set; } = new Font("Roboto", 10f, FontStyle.Regular);
+        public TypographyStyle  ProgressBarFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 10f, FontStyle.Regular);
         public Color ProgressBarInsideTextColor { get; set; } = Color.White; // White text inside progress
         public Color ProgressBarHoverBackColor { get; set; } = Color.FromArgb(224, 224, 224); // Hover background light grey
         public Color ProgressBarHoverForeColor { get; set; } = Color.FromArgb(30, 136, 229); // Hover darker blue foreground

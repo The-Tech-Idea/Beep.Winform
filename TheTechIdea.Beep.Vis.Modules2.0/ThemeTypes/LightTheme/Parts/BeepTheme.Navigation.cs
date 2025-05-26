@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Navigation & Breadcrumbs Fonts & Colors
 //<<<<<<< HEAD
-        public Font NavigationTitleFont { get; set; } = new Font("Segoe UI", 16f, FontStyle.Bold);
-        public Font NavigationSelectedFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Regular);
-        public Font NavigationUnSelectedFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Regular);
+        public TypographyStyle  NavigationTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16f, FontStyle.Bold);
+        public TypographyStyle  NavigationSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Regular);
+        public TypographyStyle  NavigationUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Regular);
 
         public Color NavigationBackColor { get; set; } = Color.White;
         public Color NavigationForeColor { get; set; } = Color.Black;

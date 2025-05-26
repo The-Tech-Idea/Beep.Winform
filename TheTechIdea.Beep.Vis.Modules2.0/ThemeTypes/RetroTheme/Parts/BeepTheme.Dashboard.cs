@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DashboardCardBackColor { get; set; } = Color.FromArgb(48, 48, 48);
         public Color DashboardCardHoverBackColor { get; set; } = Color.FromArgb(96, 96, 96);
         public Color DashboardTitleForeColor { get; set; } = Color.White;
-        public Color DashboardTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle DashboardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color DashboardSubTitleForeColor { get; set; } = Color.FromArgb(192, 192, 192);
-        public Color DashboardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color DashboardSubTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle DashboardSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",

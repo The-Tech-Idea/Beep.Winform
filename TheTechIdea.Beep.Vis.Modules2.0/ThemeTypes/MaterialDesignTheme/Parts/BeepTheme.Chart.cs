@@ -7,8 +7,8 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Chart Fonts & Colors
 //<<<<<<< HEAD
-        public Font ChartTitleFont { get; set; } = new Font("Roboto", 18f, FontStyle.Bold);
-        public Font ChartSubTitleFont { get; set; } = new Font("Roboto", 14f, FontStyle.Regular);
+        public TypographyStyle  ChartTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 18f, FontStyle.Bold);
+        public TypographyStyle  ChartSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14f, FontStyle.Regular);
         public Color ChartBackColor { get; set; } = Color.White;
         public Color ChartLineColor { get; set; } = Color.FromArgb(33, 150, 243); // Material Blue 500
         public Color ChartFillColor { get; set; } = Color.FromArgb(187, 222, 251); // Material Blue 200

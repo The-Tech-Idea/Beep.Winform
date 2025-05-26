@@ -6,9 +6,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Tab Fonts & Colors
 //<<<<<<< HEAD
-        public Font TabFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Regular);
-        public Font TabHoverFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
-        public Font TabSelectedFont { get; set; } = new Font("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle  TabFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
+        public TypographyStyle  TabHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
+        public TypographyStyle  TabSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Bold);
         public Color TabBackColor { get; set; } = Color.LightGray;
         public Color TabForeColor { get; set; } = Color.Black;
         public Color ActiveTabBackColor { get; set; } = Color.DodgerBlue;

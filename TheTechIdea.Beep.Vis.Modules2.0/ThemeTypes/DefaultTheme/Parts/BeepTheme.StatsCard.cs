@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.Black;
         public Color StatsCardBorderColor { get; set; } = Color.LightGray;
         public Color StatsCardTitleForeColor { get; set; } = Color.Black;
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LineHeight = 1.2f
         };
         public Color StatsCardSubTitleForeColor { get; set; } = Color.DimGray;
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LineHeight = 1.1f
         };
         public Color StatsCardValueForeColor { get; set; } = Color.Black;
-        public Color StatsCardValueBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardValueBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color StatsCardValueBorderColor { get; set; } = Color.LightGray;
         public Color StatsCardValueHoverForeColor { get; set; } = Color.DarkBlue;
         public Color StatsCardValueHoverBackColor { get; set; } = Color.LightSteelBlue;
@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LineHeight = 1.2f
         };
         public Color StatsCardInfoForeColor { get; set; } = Color.Gray;
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color StatsCardInfoBorderColor { get; set; } = Color.LightGray;
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {
@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             LineHeight = 1.0f
         };
         public Color StatsCardTrendForeColor { get; set; } = Color.Green;
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color StatsCardTrendBorderColor { get; set; } = Color.DarkGreen;
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
         {

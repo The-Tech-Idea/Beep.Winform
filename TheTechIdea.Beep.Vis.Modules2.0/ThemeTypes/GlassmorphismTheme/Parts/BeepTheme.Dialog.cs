@@ -9,19 +9,19 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DialogBackColor { get; set; } = Color.FromArgb(245, 250, 255);
         public Color DialogForeColor { get; set; } = Color.Black;
 
-        public Font DialogYesButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font DialogNoButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font DialogOkButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font DialogCancelButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font DialogWarningButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font DialogErrorButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font DialogInformationButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font DialogQuestionButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font DialogHelpButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font DialogCloseButtonFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
-        public Font DialogYesButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font DialogNoButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Italic);
-        public Font DialogOkButtonHoverFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  DialogYesButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  DialogNoButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  DialogOkButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  DialogCancelButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  DialogWarningButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  DialogErrorButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  DialogInformationButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  DialogQuestionButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  DialogHelpButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  DialogCloseButtonFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  DialogYesButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  DialogNoButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Italic);
+        public TypographyStyle  DialogOkButtonHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
 
         public Color DialogYesButtonBackColor { get; set; } = Color.LightGreen;
         public Color DialogYesButtonForeColor { get; set; } = Color.Black;

@@ -7,9 +7,9 @@ namespace TheTechIdea.Beep.Vis.Modules
     {
         // Menu Fonts & Colors
 //<<<<<<< HEAD
-        public Font MenuTitleFont { get; set; } = new Font("Segoe UI", 16f, FontStyle.Bold);
-        public Font MenuItemSelectedFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
-        public Font MenuItemUnSelectedFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Regular);
+        public TypographyStyle  MenuTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 16f, FontStyle.Bold);
+        public TypographyStyle  MenuItemSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle  MenuItemUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Regular);
 
         public Color MenuBackColor { get; set; } = Color.FromArgb(30, 30, 30);
         public Color MenuForeColor { get; set; } = Color.White;

@@ -18,12 +18,12 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StarRatingSelectedBackColor { get; set; } = Color.FromArgb(0x0F, 0x34, 0x60); // AccentColor
         public Color StarRatingSelectedBorderColor { get; set; } = Color.White;
 
-        public Font StarTitleFont { get; set; } = new Font("Segoe UI", 14f, FontStyle.Bold);
-        public Font StarSubTitleFont { get; set; } = new Font("Segoe UI", 12f, FontStyle.Italic);
-        public Font StarSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Bold);
-        public Font StarUnSelectedFont { get; set; } = new Font("Segoe UI", 10f, FontStyle.Regular);
+        public TypographyStyle  StarTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 14f, FontStyle.Bold);
+        public TypographyStyle  StarSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12f, FontStyle.Italic);
+        public TypographyStyle  StarSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Bold);
+        public TypographyStyle  StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 10f, FontStyle.Regular);
 
         public Color StarTitleForeColor { get; set; } = Color.White;
-        public Color StarTitleBackColor { get; set; } = Color.Transparent;
+        public Color StarTitleBackColor { get; set; } =Color.FromArgb(10, 10, 30);
     }
 }

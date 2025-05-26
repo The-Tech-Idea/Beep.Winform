@@ -22,6 +22,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle StarUnSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Segoe UI", 12, FontStyle.Regular);
 
         public Color StarTitleForeColor { get; set; } = Color.White;
-        public Color StarTitleBackColor { get; set; } = Color.Transparent;
+        public Color StarTitleBackColor { get; set; } = Color.FromArgb(30, 30, 30);
     }
 }

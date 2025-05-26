@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.FromArgb(51, 25, 0);
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(139, 69, 19);
         public Color StatsCardTitleForeColor { get; set; } = Color.FromArgb(51, 25, 0);
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(90, 45, 0);
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Times New Roman",
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardInfoForeColor { get; set; } = Color.FromArgb(120, 60, 0);
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(160, 82, 45);
         public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(200, 180, 160);
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {

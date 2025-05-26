@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DialogCancelButtonHoverForeColor { get; set; } = Color.White;
         public Color DialogCancelButtonHoverBorderColor { get; set; } = Color.DarkGray;
 
-        public Color DialogCloseButtonBackColor { get; set; } = Color.Transparent;
+        public Color DialogCloseButtonBackColor { get; set; } =Color.FromArgb(33, 150, 243);
         public Color DialogCloseButtonForeColor { get; set; } = Color.Black;
         public Color DialogCloseButtonHoverBackColor { get; set; } = Color.LightGray;
         public Color DialogCloseButtonHoverForeColor { get; set; } = Color.Black;

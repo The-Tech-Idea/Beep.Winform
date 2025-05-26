@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.FromArgb(192, 192, 192);
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(128, 128, 128);
         public Color StatsCardTitleForeColor { get; set; } = Color.White;
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardSubTitleForeColor { get; set; } = Color.FromArgb(192, 192, 192);
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Courier New",
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardInfoForeColor { get; set; } = Color.FromArgb(192, 192, 192);
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public Color StatsCardInfoBorderColor { get; set; } = Color.FromArgb(128, 128, 128);
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color StatsCardTrendForeColor { get; set; } = Color.FromArgb(64, 255, 64);
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } =Color.FromArgb(96, 96, 96);
         public Color StatsCardTrendBorderColor { get; set; } = Color.FromArgb(128, 128, 128);
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
         {

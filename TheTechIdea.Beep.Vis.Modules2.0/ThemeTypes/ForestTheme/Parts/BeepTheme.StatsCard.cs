@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color StatsCardForeColor { get; set; } = Color.White;
         public Color StatsCardBorderColor { get; set; } = Color.FromArgb(0, 100, 0); // DarkGreen
         public Color StatsCardTitleForeColor { get; set; } = Color.White;
-        public Color StatsCardTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTitleBackColor { get; set; } =Color.FromArgb(34, 139, 34);
         public TypographyStyle StatsCardTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardSubTitleForeColor { get; set; } = Color.LightGreen;
-        public Color StatsCardSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardSubTitleBackColor { get; set; } =Color.FromArgb(34, 139, 34);
         public TypographyStyle StatsCardSubStyleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardInfoForeColor { get; set; } = Color.LightGreen;
-        public Color StatsCardInfoBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardInfoBackColor { get; set; } =Color.FromArgb(34, 139, 34);
         public Color StatsCardInfoBorderColor { get; set; } = Color.ForestGreen;
         public TypographyStyle StatsCardInfoStyle { get; set; } = new TypographyStyle
         {
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         public Color StatsCardTrendForeColor { get; set; } = Color.LimeGreen;
-        public Color StatsCardTrendBackColor { get; set; } = Color.Transparent;
+        public Color StatsCardTrendBackColor { get; set; } =Color.FromArgb(34, 139, 34);
         public Color StatsCardTrendBorderColor { get; set; } = Color.DarkGreen;
         public TypographyStyle StatsCardTrendStyle { get; set; } = new TypographyStyle
         {

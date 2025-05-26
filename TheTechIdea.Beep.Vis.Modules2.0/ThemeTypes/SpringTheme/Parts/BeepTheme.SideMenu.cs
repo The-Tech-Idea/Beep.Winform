@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color SideMenuHoverForeColor { get; set; } = Color.FromArgb(50, 50, 50);
         public Color SideMenuBorderColor { get; set; } = Color.FromArgb(173, 216, 230);
         public Color SideMenuTitleTextColor { get; set; } = Color.FromArgb(25, 25, 112);
-        public Color SideMenuTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuTitleBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public TypographyStyle SideMenuTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color SideMenuSubTitleTextColor { get; set; } = Color.FromArgb(70, 70, 70);
-        public Color SideMenuSubTitleBackColor { get; set; } = Color.Transparent;
+        public Color SideMenuSubTitleBackColor { get; set; } =Color.FromArgb(144, 238, 144);
         public TypographyStyle SideMenuSubTitleStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",

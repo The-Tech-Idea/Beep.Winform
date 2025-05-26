@@ -26,8 +26,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color TextBoxErrorTextBoxBorderColor { get; set; } = Color.FromArgb(244, 67, 54); // Red 500
         public Color TextBoxErrorTextBoxHoverColor { get; set; } = Color.FromArgb(229, 115, 115); // Red 300
 
-        public Font TextBoxFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
-        public Font TextBoxHoverFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
-        public Font TextBoxSelectedFont { get; set; } = new Font("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  TextBoxFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  TextBoxHoverFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
+        public TypographyStyle  TextBoxSelectedFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 12f, FontStyle.Regular);
     }
 }

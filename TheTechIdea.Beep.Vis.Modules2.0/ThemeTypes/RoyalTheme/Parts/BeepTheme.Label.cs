@@ -5,7 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class RoyalTheme
     {
         // Label Colors and Fonts
-        public Color LabelBackColor { get; set; } = Color.Transparent;
+        public Color LabelBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public Color LabelForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
         public Color LabelBorderColor { get; set; } = Color.FromArgb(184, 134, 11); // Dark goldenrod
         public Color LabelHoverBorderColor { get; set; } = Color.FromArgb(255, 215, 0); // Gold
@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsStrikeout = false
         };
         public Color SubLabelForColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
-        public Color SubLabelBackColor { get; set; } = Color.Transparent;
+        public Color SubLabelBackColor { get; set; } =Color.FromArgb(70, 70, 130);
         public Color SubLabelHoverBackColor { get; set; } = Color.FromArgb(200, 200, 220); // Soft silver
         public Color SubLabelHoverForeColor { get; set; } = Color.FromArgb(25, 25, 112); // Deep midnight blue
     }

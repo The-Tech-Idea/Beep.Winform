@@ -3,7 +3,7 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Vis.Modules
+namespace TheTechIdea.Beep.Winform.Controls.Integrated.Modules
 {
     public enum DataBlockMode
     {

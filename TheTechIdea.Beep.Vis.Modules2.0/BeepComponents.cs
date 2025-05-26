@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using TheTechIdea.Beep.Utilities;
 
 
@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Type Type { get; set; } // Changed from string to Type
 
         // Helper property for serialization
-        [JsonProperty("Type")]
+      
         [Browsable(false)]
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string TypeFullName

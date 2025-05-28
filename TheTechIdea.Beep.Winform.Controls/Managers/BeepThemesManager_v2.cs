@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         private static event EventHandler<ThemeChangeEventArgs> _themeChangedEvent;
 
         // Static themes collection
-        private static readonly List<BeepTheme> _themes = new List<BeepTheme>();
+        public static readonly List<BeepTheme> _themes = new List<BeepTheme>();
 
         // Static constructor to initialize themes
         static BeepThemesManager_v2()
@@ -26,44 +26,133 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Method to initialize themes collection
-        private static void InitializeThemes()
+        // Method to initialize themes collection
+        public static void InitializeThemes()
         {
             // Clear existing themes if any
             _themes.Clear();
 
-            // Dynamically load all BeepTheme subclasses
-            var themeTypes = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => t.IsSubclassOf(typeof(BeepTheme)) && !t.IsAbstract);
+            // Get all relevant assemblies
+            var assemblies = new List<Assembly>();
 
-            foreach (var type in themeTypes)
+            // 1. Add the executing assembly
+            assemblies.Add(Assembly.GetExecutingAssembly());
+
+            // 2. Add the entry assembly if available
+            var entryAssembly = Assembly.GetEntryAssembly();
+            if (entryAssembly != null && !assemblies.Contains(entryAssembly))
+                assemblies.Add(entryAssembly);
+
+            // 3. Add currently loaded assemblies that might contain themes
+            var relevantAssemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic &&
+                           (a.FullName.Contains("TheTechIdea") ||
+                            a.FullName.Contains("Beep")));
+
+            foreach (var assembly in relevantAssemblies)
             {
-                if (Activator.CreateInstance(type) is BeepTheme theme)
+                if (!assemblies.Contains(assembly))
+                    assemblies.Add(assembly);
+            }
+
+            // 4. Try to load specific assemblies that might contain themes
+            string[] potentialAssemblies = new[] {
+        "TheTechIdea.Beep.Vis.Modules",
+        "TheTechIdea.Beep.Vis.Modules2.0",
+        "TheTechIdea.Beep.Winform.Controls"
+    };
+
+            foreach (var assemblyName in potentialAssemblies)
+            {
+                try
                 {
-                    // Use the theme's class name if ThemeName is not set
-                    if (string.IsNullOrEmpty(theme.ThemeName))
-                    {
-                        theme.ThemeName = type.Name;
-                    }
-
-                    // Generate a GUID if not set
-                    if (string.IsNullOrEmpty(theme.ThemeGuid))
-                    {
-                        theme.ThemeGuid = Guid.NewGuid().ToString();
-                    }
-
-                    _themes.Add(theme);
+                    var assembly = Assembly.Load(assemblyName);
+                    if (!assemblies.Contains(assembly))
+                        assemblies.Add(assembly);
+                }
+                catch (Exception)
+                {
+                    // Assembly couldn't be loaded, continue with others
+                    System.Diagnostics.Debug.WriteLine($"Could not load assembly: {assemblyName}");
                 }
             }
 
-            // Set default theme if available
+            // Find and instantiate all theme types from all assemblies
+            var themeInstances = new List<BeepTheme>();
+
+            foreach (var assembly in assemblies)
+            {
+                try
+                {
+                    // Find all BeepTheme subclasses in this assembly
+                    var themeTypes = assembly.GetTypes()
+                        .Where(t => t != null &&
+                                   t.IsClass &&
+                                   !t.IsAbstract &&
+                                   (t == typeof(BeepTheme) || t.IsSubclassOf(typeof(BeepTheme))));
+
+                    foreach (var type in themeTypes)
+                    {
+                        try
+                        {
+                            if (Activator.CreateInstance(type) is BeepTheme theme)
+                            {
+                                // Use the theme's class name if ThemeName is not set
+                                if (string.IsNullOrEmpty(theme.ThemeName))
+                                {
+                                    theme.ThemeName = type.Name;
+                                }
+
+                                // Generate a GUID if not set
+                                if (string.IsNullOrEmpty(theme.ThemeGuid))
+                                {
+                                    theme.ThemeGuid = Guid.NewGuid().ToString();
+                                }
+
+                                // Add to our temporary list if not already there
+                                if (!themeInstances.Any(t => t.ThemeName == theme.ThemeName))
+                                {
+                                    themeInstances.Add(theme);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Log the error but continue with other types
+                            System.Diagnostics.Debug.WriteLine($"Error creating instance of {type.Name}: {ex.Message}");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log the error but continue with other assemblies
+                    System.Diagnostics.Debug.WriteLine($"Error processing assembly {assembly.FullName}: {ex.Message}");
+                }
+            }
+
+            // Add all discovered themes to our collection
+            foreach (var theme in themeInstances)
+            {
+                _themes.Add(theme);
+            }
+
+            // Ensure we have a DefaultTheme
             if (!_themes.Any(t => t.ThemeName == "DefaultTheme"))
             {
-                // Create default theme if not found
                 BeepTheme defaultTheme = new BeepTheme();
                 defaultTheme.ThemeGuid = DefaultThemeGuid.ToString();
                 defaultTheme.ThemeName = "DefaultTheme";
                 _themes.Add(defaultTheme);
+            }
+
+            // After loading standard themes, call AddPredefinedThemes for specialized themes
+            AddPredefinedThemes();
+
+            // Log the discovered themes
+            System.Diagnostics.Debug.WriteLine($"Initialized {_themes.Count} themes:");
+            foreach (var theme in _themes)
+            {
+                System.Diagnostics.Debug.WriteLine($"- {theme.ThemeName} ({theme.GetType().FullName})");
             }
         }
 

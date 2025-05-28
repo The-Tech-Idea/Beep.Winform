@@ -3028,7 +3028,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<object> Items { get { return _items; } set { _items = value; } }
 
         protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         public event EventHandler<BeepComponentEventArgs> OnSelected;
         public event EventHandler<BeepComponentEventArgs> OnValidate;
         public event EventHandler<BeepComponentEventArgs> OnValueChanged;

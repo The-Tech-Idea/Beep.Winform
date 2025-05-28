@@ -283,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme.ComboBoxItemFont != null)
                 {
-                    _textFont = _currentTheme.ComboBoxItemFont;
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxItemFont);
                     Font = _textFont;
                 }
                 else
@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply additional text box properties if needed
                 if (UseThemeFont && _currentTheme.ComboBoxItemFont != null)
                 {
-                    _comboTextBox.Font = _currentTheme.ComboBoxItemFont;
+                    _comboTextBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxItemFont);
                 }
             }
 
@@ -333,7 +333,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply font to list items if theme fonts are enabled
                 if (UseThemeFont && _currentTheme.ComboBoxListFont != null)
                 {
-                    _beepListBox.Font = _currentTheme.ComboBoxListFont;
+                    _beepListBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxListFont);
                 }
             }
 

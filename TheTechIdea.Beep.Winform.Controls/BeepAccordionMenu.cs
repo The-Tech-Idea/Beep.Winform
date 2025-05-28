@@ -13,6 +13,7 @@ using System.IO;
 using System.Linq;
 
 using Timer = System.Windows.Forms.Timer;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -506,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
 
                 // Use the appropriate font based on theme settings
-                Font textFont = _currentTheme?.GetAnswerFont() ?? new Font("Segoe UI", 10);
+                Font textFont = FontListHelper.CreateFontFromTypography(_currentTheme?.GetAnswerFont());
 
                 // Draw text using the BeepLabel instance
                 _label.Text = headerItem.Text;
@@ -662,7 +663,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
 
                 // Use slightly smaller font for child items
-                Font childFont = _currentTheme.GetAnswerFont() ?? new Font("Segoe UI", 9);
+                Font childFont = BeepThemesManager.ToFont(_currentTheme.GetAnswerFont());
                 if (childFont.Size > 8)
                 {
                     childFont = new Font(childFont.FontFamily, childFont.Size - 1, childFont.Style);

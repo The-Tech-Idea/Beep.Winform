@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using TheTechIdea.Beep.Winform.Controls.Managers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -270,7 +271,179 @@ namespace TheTechIdea.Beep.Vis.Modules
             theme.PaddingMedium = 8;
             theme.PaddingLarge = 16;
         }
+        // Method to add all theme classes from the ThemeTypes folder in TheTechIdea.Beep.Vis.Modules2.0 project
+        public static void AddPredefinedThemes()
+        {
+            try
+            {
+                // List of known theme types based on the EnumBeepThemes enum
+                var themeTypeNames = new List<string>
+        {
+            "DefaultTheme",
+            "WinterTheme",
+            "CandyTheme",
+            "ZenTheme",
+            "RetroTheme",
+            "RoyalTheme",
+            "HighlightTheme",
+            "DarkTheme",
+            "OceanTheme",
+            "LightTheme",
+            "PastelTheme",
+            "MidnightTheme",
+            "SpringTheme",
+            "ForestTheme",
+            "NeonTheme",
+            "RusticTheme",
+            "GalaxyTheme",
+            "DesertTheme",
+            "VintageTheme",
+            "ModernDarkTheme",
+            "MaterialDesignTheme",
+            "NeumorphismTheme",
+            "GlassmorphismTheme",
+            "FlatDesignTheme",
+            "CyberpunkNeonTheme",
+            "GradientBurstTheme",
+            "HighContrastTheme",
+            "MonochromeTheme",
+            "LuxuryGoldTheme",
+            "SunsetTheme",
+            "AutumnTheme",
+            "EarthyTheme"
+        };
 
+                // Get the assembly that contains the theme types
+                Assembly themeAssembly = null;
+                try
+                {
+                    // Try direct load first
+                    themeAssembly = Assembly.Load("TheTechIdea.Beep.Vis.Modules2.0");
+                }
+                catch
+                {
+                    // If direct load fails, try to find it among loaded assemblies
+                    themeAssembly = AppDomain.CurrentDomain.GetAssemblies()
+                        .FirstOrDefault(a => a.FullName.Contains("TheTechIdea.Beep.Vis.Modules2.0") ||
+                                            a.FullName.Contains("TheTechIdea.Beep.Vis.Modules"));
+                }
+
+                if (themeAssembly == null)
+                {
+                    // If still not found, try one more approach with GetExecutingAssembly
+                    var executingAssembly = Assembly.GetExecutingAssembly();
+                    var referencedAssemblies = executingAssembly.GetReferencedAssemblies();
+                    var modulesAssemblyName = referencedAssemblies
+                        .FirstOrDefault(a => a.Name.Contains("TheTechIdea.Beep.Vis.Modules"));
+
+                    if (modulesAssemblyName != null)
+                    {
+                        themeAssembly = Assembly.Load(modulesAssemblyName);
+                    }
+                }
+
+                if (themeAssembly == null)
+                {
+                    // Unable to find the assembly containing themes
+                    return;
+                }
+
+                // Try to use reflection to find all theme types in the assembly
+                var allPossibleThemeTypes = themeAssembly.GetTypes()
+                    .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(BeepTheme)))
+                    .ToList();
+
+                // Add any discovered theme types to our list if they aren't already there
+                foreach (var type in allPossibleThemeTypes)
+                {
+                    if (!themeTypeNames.Contains(type.Name))
+                    {
+                        themeTypeNames.Add(type.Name);
+                    }
+                }
+
+                // Go through each theme type name and try to create an instance
+                foreach (var themeTypeName in themeTypeNames)
+                {
+                    try
+                    {
+                        // Try several possible namespace patterns
+                        Type themeType = null;
+                        string[] possibleNamespaces = new[]
+                        {
+                    $"TheTechIdea.Beep.Vis.Modules.{themeTypeName}",
+                    $"TheTechIdea.Beep.Vis.Modules",
+                    $"TheTechIdea.Beep.Vis.Modules.ThemeTypes.{themeTypeName}",
+                    $"TheTechIdea.Beep.Vis.Modules.ThemeTypes.{themeTypeName}.{themeTypeName}",
+                    $"TheTechIdea.Beep.Vis.Modules2.0.ThemeTypes.{themeTypeName}"
+                };
+
+                        // Try to find the type in each possible namespace
+                        foreach (var ns in possibleNamespaces)
+                        {
+                            themeType = themeAssembly.GetType($"{ns}.{themeTypeName}");
+                            if (themeType != null)
+                                break;
+
+                            // Special case for namespace matching the class name directly
+                            if (ns.EndsWith(themeTypeName))
+                            {
+                                themeType = themeAssembly.GetType(ns);
+                                if (themeType != null)
+                                    break;
+                            }
+                        }
+
+                        // Try again with just the type name (some themes might be in the root namespace)
+                        if (themeType == null)
+                        {
+                            themeType = themeAssembly.GetType(themeTypeName);
+                        }
+
+                        // As a final attempt, search by name in all types
+                        if (themeType == null)
+                        {
+                            themeType = allPossibleThemeTypes.FirstOrDefault(t => t.Name == themeTypeName);
+                        }
+
+                        // If we found the type, create an instance and add it to our themes
+                        if (themeType != null && themeType.IsSubclassOf(typeof(BeepTheme)))
+                        {
+                            var theme = (BeepTheme)Activator.CreateInstance(themeType);
+
+                            // Ensure theme has a name
+                            if (string.IsNullOrEmpty(theme.ThemeName))
+                            {
+                                theme.ThemeName = themeTypeName;
+                            }
+
+                            AddTheme(theme);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Log or handle the exception for this specific theme type
+                        // Continue trying to load other themes
+                        System.Diagnostics.Debug.WriteLine($"Error loading theme {themeTypeName}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log or handle the general exception
+                System.Diagnostics.Debug.WriteLine($"Error loading predefined themes: {ex.Message}");
+            }
+        }
+
+        // Helper method to add the AddPredefinedThemes call to the InitializeThemes method
+        private static void InitializeThemesWithPredefined()
+        {
+            // Call the original initialization
+            InitializeThemes();
+
+            // Add predefined themes from the TheTechIdea.Beep.Vis.Modules2.0 project
+            AddPredefinedThemes();
+        }
         #region Legacy Support Adapters
 
         // This inner class provides adapters for code that still uses EnumBeepThemes
@@ -329,29 +502,5 @@ namespace TheTechIdea.Beep.Vis.Modules
         #endregion
     }
 
-    // New event args class that doesn't depend on EnumBeepThemes
-    public class ThemeChangeEventArgs : EventArgs
-    {
-        public string OldThemeName { get; set; }
-        public string NewThemeName { get; set; }
-        public BeepTheme OldTheme { get; set; }
-        public BeepTheme NewTheme { get; set; }
-    }
-
-    // Adapter for the old event args for backward compatibility
-    public class ThemeChangeEventsArgs : EventArgs
-    {
-        public EnumBeepThemes OldTheme { get; set; }
-        public EnumBeepThemes NewTheme { get; set; }
-
-        // Conversion constructor for easier interop
-        public ThemeChangeEventsArgs(ThemeChangeEventArgs args)
-        {
-            OldTheme = BeepThemesManager_v2.Legacy.GetEnumFromTheme(args.OldThemeName);
-            NewTheme = BeepThemesManager_v2.Legacy.GetEnumFromTheme(args.NewThemeName);
-        }
-
-        // Default constructor for direct use
-        public ThemeChangeEventsArgs() { }
-    }
+   
 }

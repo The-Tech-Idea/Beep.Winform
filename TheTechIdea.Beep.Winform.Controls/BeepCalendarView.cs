@@ -1,7 +1,9 @@
 ﻿
-using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -559,17 +561,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 if (_currentTheme.CalendarTitleFont != null)
-                    HeaderFont = _currentTheme.CalendarTitleFont;
+                    HeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarTitleFont);
 
                 // Use appropriate theme fonts for other elements if they exist
                 if (_currentTheme.CalendarSelectedFont != null)
-                    SelectedDateFont = _currentTheme.CalendarSelectedFont;
+                    SelectedDateFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarSelectedFont);
 
                 if (_currentTheme.CalendarUnSelectedFont != null)
-                    DateFont = _currentTheme.CalendarUnSelectedFont;
-                DaysHeaderFont = _currentTheme.CalendarUnSelectedFont;
-                FooterButtonFont = _currentTheme.CalendarUnSelectedFont;
-                TimeListFont = _currentTheme.CalendarUnSelectedFont;
+                    DateFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
+                DaysHeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
+                FooterButtonFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
+                TimeListFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
             }
 
             // Apply the TimeListFont to the time list items

@@ -6,6 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -900,7 +901,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     foreach (ToolStripItem item in dropdownMenu.Items)
                     {
-                        item.Font = _currentTheme.MenuItemUnSelectedFont;
+                        item.Font = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                     }
                 }
             }

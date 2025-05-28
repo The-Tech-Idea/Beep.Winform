@@ -4,6 +4,7 @@ using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -748,7 +749,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!string.IsNullOrEmpty(Title))
                 {
                     // Use the theme font if available, or fallback to a default
-                    Font titleFont = _currentTheme?.SideMenuTitleFont;
+                    Font titleFont = BeepThemesManager.ToFont( _currentTheme?.SideMenuTitleFont);
                     if (titleFont == null)
                     {
                         titleFont = new Font("Segoe UI", 12, FontStyle.Bold);
@@ -911,7 +912,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
                         using (Font itemFont = UseThemeFont ?
-                            _currentTheme.SideMenuTextFont :
+                            FontListHelper.CreateFontFromTypography(_currentTheme.SideMenuTextFont) :
                             ListButtonFont)
                         {
                             StringFormat textFormat = new StringFormat
@@ -1016,7 +1017,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
                             using (Font itemFont = UseThemeFont ?
-                               _currentTheme.SideMenuTextFont :
+                               FontListHelper.CreateFontFromTypography(_currentTheme.SideMenuTextFont) :
                                 ListButtonFont)
                             {
                                 StringFormat textFormat = new StringFormat

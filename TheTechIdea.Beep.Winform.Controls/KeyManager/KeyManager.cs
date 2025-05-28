@@ -2,8 +2,6 @@
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using Newtonsoft.Json;
-
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Tools;
 
@@ -25,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
         {
             // Registering global key handler
             Createfolder("keyconfig");
-            LoadKeyMap();
+            //LoadKeyMap();
             Editor=dMEEditor;
             Vis=vis;
             globalKeyHandler = new GlobalKeyHandler();
@@ -300,27 +298,27 @@ namespace TheTechIdea.Beep.Winform.Controls.KeyManagement
             };
         }
 
-        public static bool SaveKeyMap()
-        {
-            Createfolder("keyconfig");
-            //save key map to a file or database
-            var json =  JsonConvert.SerializeObject(keyMapToFunction, Formatting.Indented);
-            System.IO.File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep", "keyconfig", "keymap.json"), json);
-            // Implement your logic to save the key map to a file or database
-            return true;
-        }
-        public static bool LoadKeyMap()
-        {
-            //load key map from a file or database
-            //check if the file exists
-            if(!System.IO.File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep", "keyconfig", "keymap.json")))
-            {
-                return false;
-            }
-            var json = System.IO.File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep", "keyconfig", "keymap.json"));
-            // Implement your logic to load the key map from a file or database
-            return true;
-        }
+        //public static bool SaveKeyMap()
+        //{
+        //    Createfolder("keyconfig");
+        //    //save key map to a file or database
+        //    var json =  JsonConvert.SerializeObject(keyMapToFunction, Formatting.Indented);
+        //    System.IO.File.WriteAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep", "keyconfig", "keymap.json"), json);
+        //    // Implement your logic to save the key map to a file or database
+        //    return true;
+        //}
+        //public static bool LoadKeyMap()
+        //{
+        //    //load key map from a file or database
+        //    //check if the file exists
+        //    if(!System.IO.File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep", "keyconfig", "keymap.json")))
+        //    {
+        //        return false;
+        //    }
+        //    var json = System.IO.File.ReadAllText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "TheTechIdea", "Beep", "keyconfig", "keymap.json"));
+        //    // Implement your logic to load the key map from a file or database
+        //    return true;
+        //}
         private static void Createfolder(string foldername)
         {
           

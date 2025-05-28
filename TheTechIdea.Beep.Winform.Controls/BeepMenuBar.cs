@@ -470,7 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme.MenuTitleFont != null)
                 {
-                    _textFont = _currentTheme.MenuTitleFont;
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuTitleFont);
                 }
                 else
                 {
@@ -509,7 +509,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         button.UseThemeFont = true;
                         if (_currentTheme.MenuItemUnSelectedFont != null)
                         {
-                            button.Font = _currentTheme.MenuItemUnSelectedFont;
+                            button.Font = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                         }
                         else
                         {

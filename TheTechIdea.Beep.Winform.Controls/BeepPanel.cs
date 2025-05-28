@@ -1,6 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using System.ComponentModel;
 using Timer = System.Windows.Forms.Timer;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -282,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         textBox.ForeColor = _currentTheme.TextBoxForeColor;
                         if (UseThemeFont)
                         {
-                            textBox.Font = _currentTheme.TextBoxFont ?? _textFont;
+                            textBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.TextBoxFont);
                         }
                     }
                     else if (control is Label label)
@@ -291,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         label.ForeColor = _currentTheme.LabelForeColor;
                         if (UseThemeFont)
                         {
-                            label.Font = _currentTheme.LabelFont ?? _textFont;
+                            label.Font = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont );
                         }
                     }
                     // Handle other common control types if needed

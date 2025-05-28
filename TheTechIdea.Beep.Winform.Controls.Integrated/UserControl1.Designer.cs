@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated
             beepDataBlock1.BadgeShape = BadgeShape.Circle;
             beepDataBlock1.BadgeText = "";
             beepDataBlock1.BlockID = null;
-            beepDataBlock1.BlockMode = Vis.Modules.DataBlockMode.CRUD;
+            beepDataBlock1.BlockMode = Modules.DataBlockMode.CRUD;
             beepDataBlock1.BorderColor = Color.Black;
             beepDataBlock1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepDataBlock1.BorderRadius = 3;
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated
             beepDataBlock1.CanBeHovered = false;
             beepDataBlock1.CanBePressed = true;
             beepDataBlock1.Category = Utilities.DbFieldCategory.String;
-            beepDataBlock1.ChildBlocks = (List<Vis.Modules.IBeepDataBlock>)resources.GetObject("beepDataBlock1.ChildBlocks");
+            beepDataBlock1.ChildBlocks = (List<Modules.IBeepDataBlock>)resources.GetObject("beepDataBlock1.ChildBlocks");
             beepDataBlock1.ComponentName = "beepDataBlock1";
             beepDataBlock1.DataContext = null;
             beepDataBlock1.DataSourceProperty = null;

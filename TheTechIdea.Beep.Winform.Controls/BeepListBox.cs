@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 
@@ -549,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme.ListUnSelectedFont != null)
                 {
-                    _textFont = _currentTheme.ListUnSelectedFont;
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.ListUnSelectedFont);
                     Font = _textFont;
                 }
                 else if (_currentTheme.LabelMedium != null)
@@ -573,10 +574,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (UseThemeFont)
                 {
-                    _searchTextBox.Font = _currentTheme.TextBoxFont ??
-                                         (_currentTheme.LabelSmall != null ?
-                                          BeepThemesManager.ToFont(_currentTheme.LabelSmall) :
-                                          _textFont);
+                    _searchTextBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.LabelSmall);
                 }
                 else
                 {
@@ -1168,7 +1166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _searchTextBox = new TextBox
             {
                 BorderStyle = BorderStyle.FixedSingle,
-                Font = UseThemeFont ? _currentTheme?.GetQuestionFont() : _textFont,
+                Font = UseThemeFont ? FontListHelper.CreateFontFromTypography(_currentTheme?.GetQuestionFont()) : _textFont,
                 BackColor = _currentTheme?.TextBoxBackColor ?? Color.White,
                 ForeColor = _currentTheme?.TextBoxForeColor ?? Color.Black,
                 Visible = _showSearch,

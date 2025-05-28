@@ -280,6 +280,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
         #region "Font Access Methods"
         /// <summary>
+        /// Creates a Font from a TypographyStyle object with null handling
+        /// </summary>
+        /// <param name="style">The TypographyStyle to convert to a Font</param>
+        /// <returns>A Font object created from the style, or a default font if style is null</returns>
+        public static Font CreateFontFromTypography(TypographyStyle style)
+        {
+            if (style == null)
+            {
+                // Return default font if style is null
+                return GetFontWithFallback("Arial", "Segoe UI", 9.0f, FontStyle.Regular);
+            }
+
+            // Start with basic font style
+            FontStyle fontStyle = style.FontStyle;
+
+            // Add underline if specified
+            if (style.IsUnderlined)
+                fontStyle |= FontStyle.Underline;
+
+            // Add strikeout if specified
+            if (style.IsStrikeout)
+                fontStyle |= FontStyle.Strikeout;
+
+            // Convert FontWeight enum to FontStyle if needed
+            if (style.FontWeight >= FontWeight.Bold)
+                fontStyle |= FontStyle.Bold;
+
+            // Get the font with fallback
+            return GetFontWithFallback(
+                style.FontFamily,
+                "Arial",
+                style.FontSize,
+                fontStyle
+            );
+        }
+        /// <summary>
         /// Gets a font by name with specified size and style
         /// </summary>
         /// <param name="fontName">Name of the font to retrieve</param>

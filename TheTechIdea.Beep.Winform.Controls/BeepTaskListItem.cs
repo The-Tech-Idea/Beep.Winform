@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -194,12 +195,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             BackColor = _currentTheme.TaskCardBackColor;
             BorderColor = _currentTheme.TaskCardBorderColor;
-            lblTaskTitle.TextFont = _currentTheme.GetBlockHeaderFont();
-            lblTime.TextFont = _currentTheme.GetBlockTextFont();
-            btnAttachment.TextFont = _currentTheme.GetButtonFont();
-            lblProject.TextFont = _currentTheme.GetBlockHeaderFont();
-            lblTime.TextFont = _currentTheme.GetBlockTextFont();
-            lblStatus.TextFont = _currentTheme.GetBlockTextFont();
+            lblTaskTitle.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockHeaderFont());
+            lblTime.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont());
+            btnAttachment.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetButtonFont());
+            lblProject.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockHeaderFont());
+            lblTime.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont());
+            lblStatus.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont());
             // Apply theme to the main control
             // Apply theme to child controls
             lblProject.ForeColor = _currentTheme.SecondaryTextColor;

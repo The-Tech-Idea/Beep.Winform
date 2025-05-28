@@ -2,6 +2,7 @@
 using System.ComponentModel.Design;
 using System.Globalization;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {

@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -170,9 +171,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ChartLegendShapeColor = _currentTheme.ChartLegendShapeColor;
                     ChartGridLineColor = _currentTheme.ChartGridLineColor;
                     ChartDefaultSeriesColors = new List<Color>(_currentTheme.ChartDefaultSeriesColors);
-                    ChartTitleFont = BeepThemesManager.ToFont(_currentTheme.TitleStyle);
-                    ChartValueFont = _currentTheme.GetBlockHeaderFont();
-                    ChartSubtitleFont = _currentTheme.GetBlockTextFont();
+                    ChartTitleFont = FontListHelper.CreateFontFromTypography(_currentTheme.TitleStyle);
+                    ChartValueFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockHeaderFont());
+                    ChartSubtitleFont = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont());
                     Invalidate();
              
             }

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -39,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblLeftIcon = new BeepLabel
             {
                 Text = "🌙", // Placeholder; replace with an actual icon path if available
-                Font = _currentTheme.GetBlockTextFont(),
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
                 ForeColor = Color.White,
                 AutoSize = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Top
@@ -49,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblLeftLabel = new BeepLabel
             {
                 Text = "Category 1",
-                Font = _currentTheme.GetBlockTextFont(),
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
                 ForeColor = Color.White,
                 AutoSize = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Top
@@ -59,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblLeftPercentage = new BeepLabel
             {
                 Text = "34%",
-                Font = _currentTheme.GetBlockTextFont(),
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
                 ForeColor = Color.White,
                 AutoSize = true,
                 Anchor = AnchorStyles.Left | AnchorStyles.Top
@@ -69,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblRightLabel = new BeepLabel
             {
                 Text = "Category 2",
-                Font = _currentTheme.GetBlockTextFont(),
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
                 ForeColor = _currentTheme.PrimaryTextColor,
                 AutoSize = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
@@ -79,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblRightPercentage = new BeepLabel
             {
                 Text = "66%",
-                Font = _currentTheme.GetBlockTextFont(),
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
                 ForeColor = _currentTheme.PrimaryTextColor,
                 AutoSize = true,
                 Anchor = AnchorStyles.Right | AnchorStyles.Top
@@ -89,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             lblDivider = new BeepLabel
             {
                 Text = "|",
-                Font = _currentTheme.GetBlockTextFont(),
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.GetBlockTextFont()),
                 ForeColor = Color.LightGray,
                 AutoSize = true,
                 Anchor = AnchorStyles.None // Will be positioned dynamically

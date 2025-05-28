@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

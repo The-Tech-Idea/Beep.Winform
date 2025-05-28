@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -726,9 +728,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _labelFont.Dispose();
                 }
 
-                _labelFont = _currentTheme.LabelFont != null
-                    ? new Font(_currentTheme.LabelFont.FontFamily, _currentTheme.LabelFont.Size - 2, FontStyle.Regular)
-                    : new Font(_currentTheme.FontFamily, _currentTheme.FontSizeCaption, FontStyle.Regular);
+                _labelFont = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont);
             }
 
             Invalidate();

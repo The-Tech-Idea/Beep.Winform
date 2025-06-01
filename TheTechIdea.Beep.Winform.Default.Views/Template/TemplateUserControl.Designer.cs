@@ -144,7 +144,7 @@
             MainTemplatePanel.TempBackColor = Color.Empty;
             MainTemplatePanel.Text = "beepPanel1";
             MainTemplatePanel.TextFont = new Font("Arial", 16F);
-            MainTemplatePanel.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            MainTemplatePanel.Theme = "DefaultTheme";
             MainTemplatePanel.TitleAlignment = ContentAlignment.TopLeft;
             MainTemplatePanel.TitleBottomY = 0;
             MainTemplatePanel.TitleLineColor = Color.Gray;

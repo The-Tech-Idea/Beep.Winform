@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             return args;
 
         }
-        public static void SetThemePropertyinControlifexist(Control control, EnumBeepThemes theme)
+        public static void SetThemePropertyinControlifexist(Control control, string theme)
         {
             if (control == null)
             {
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 // Check if the control itself has a "Theme" property
                 var themeProperty = control.GetType().GetProperty("Theme");
-                if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+                if (themeProperty != null && themeProperty.PropertyType == typeof(string))
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);

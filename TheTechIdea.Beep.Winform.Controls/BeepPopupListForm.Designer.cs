@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // beepuiManager1
             // 
             beepuiManager1.BeepiForm = this;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepuiManager1.Theme = "DefaultTheme";
             // 
             // _beepListBox
             // 
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.TabIndex = 0;
             _beepListBox.TempBackColor = Color.Empty;
             _beepListBox.TextFont = new Font("Segoe UI", 14F);
-            _beepListBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _beepListBox.Theme = "DefaultTheme";
             _beepListBox.TitleAlignment = ContentAlignment.TopLeft;
             _beepListBox.TitleBottomY = 0;
             _beepListBox.TitleLineColor = Color.Gray;

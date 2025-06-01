@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //this.AutoScroll = true;
             //this.VerticalScroll.Visible = true;
             //this.HorizontalScroll.Visible = true;
-            //_currentTheme = BeepThemesManager.AutumnTheme;
+            //_currentTheme = BeepThemesManager_v2.AutumnTheme;
             MouseEnter += (s, e) => NodeMouseEnter?.Invoke(this, new BeepMouseEventArgs("MouseEnter", null));
             MouseLeave += (s, e) => NodeMouseLeave?.Invoke(this, new BeepMouseEventArgs("MouseLeave", null));
             MouseWheel += (s, e) => NodeMouseWheel?.Invoke(this, new BeepMouseEventArgs("MouseWheel", null));
@@ -389,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Measure text
-            Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
+            Font drawFont = UseThemeFont ? BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
             string text = item.Text;
             _button.Text = text;
             _button.Size = _button.GetPreferredSize(Size.Empty);
@@ -750,7 +750,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             if (UseThemeFont)
             {
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                Font = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
                 _textFont = Font;
                 _button.Font = Font;
                 _button.UseThemeFont = UseThemeFont;
@@ -1576,7 +1576,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var node in _visibleNodes)
             {
                 // Calculate row height (same logic as in DrawNodeRecursive)
-                Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
+                Font drawFont = UseThemeFont ? BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
                 _button.Text = node.Item.Text ?? string.Empty;
                 _button.Size = _button.GetPreferredSize(Size.Empty);
                 Size textSize = _button.Size;

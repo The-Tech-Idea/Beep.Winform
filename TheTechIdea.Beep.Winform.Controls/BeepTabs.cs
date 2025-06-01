@@ -22,18 +22,18 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepTabs : TabControl
     {
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
-
+       
+        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        private string _theme;
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
-        public EnumBeepThemes Theme
+        public string Theme
         {
-            get => _themeEnum;
+            get => _theme;
             set
             {
-                _themeEnum = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
+                _theme = value;
+                _currentTheme = BeepThemesManager_v2.GetTheme(value);
                 ApplyTheme();
             }
         }

@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // beepuiManager1
             // 
             beepuiManager1.BeepiForm = this;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+          
             // 
             // beepDialogBox1
             // 
@@ -149,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDialogBox1.TempBackColor = Color.Empty;
             beepDialogBox1.Text = "beepDialogBox1";
             beepDialogBox1.TextFont = new Font("Segoe UI", 14F);
-            beepDialogBox1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+           
             beepDialogBox1.TitleAlignment = ContentAlignment.TopLeft;
             beepDialogBox1.TitleBottomY = 36;
             beepDialogBox1.TitleLineColor = Color.Gray;

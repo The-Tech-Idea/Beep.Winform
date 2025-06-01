@@ -514,7 +514,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // Set up theme menu items
-            foreach (string themeName in BeepThemesManager.GetThemesNames())
+            foreach (string themeName in BeepThemesManager_v2.GetThemeNames())
             {
                 _themeButton.ListItems.Add(new SimpleItem { Text = themeName });
             }
@@ -1308,7 +1308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // this.SendMouseEvent(_themeButton, MouseEventType.Click, MousePosition);
             _currentMenuName = "THEME";
             CurrentMenutems.Clear();
-            foreach (string themename in BeepThemesManager.GetThemesNames())
+            foreach (string themename in BeepThemesManager_v2.GetThemeNames())
             {
                 CurrentMenutems.Add(new SimpleItem { Text = themename });
             }
@@ -1325,11 +1325,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (e.SelectedItem != null && !string.IsNullOrEmpty(e.SelectedItem.Text))
             {
                 string selectedThemeName = e.SelectedItem.Text;
-                EnumBeepThemes selectedTheme = BeepThemesManager.GetEnumFromTheme(selectedThemeName);
-                BeepThemesManager.CurrentTheme = selectedTheme;
+             
+                BeepThemesManager_v2.SetCurrentTheme(selectedThemeName);
 
                 // Apply theme to this control
-                Theme = selectedTheme;
+                Theme = selectedThemeName;
                 ApplyTheme();
             }
         }
@@ -1382,9 +1382,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _titleLabel.UseThemeFont = true;
                     if (_currentTheme.AppBarTitleStyle != null)
-                        _textFont = BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
+                        _textFont = BeepThemesManager_v2.ToFont(_currentTheme.AppBarTitleStyle);
                     else
-                        _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+                        _textFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleMedium);
 
                     _titleLabel.Font = _textFont;
                 }
@@ -1404,7 +1404,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (_currentTheme.AppBarTextStyle != null && UseThemeFont)
                 {
-                    _searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.AppBarTextStyle);
+                    _searchBox.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.AppBarTextStyle);
                 }
             }
 

@@ -189,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Likes = "5,678 Likes";
             Website = "www.sampleinc.com";
             LogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cat.svg";
-            Theme = EnumBeepThemes.DefaultTheme;
+            Theme = "DefaultTheme";
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -712,7 +712,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Custom drawing for LinkLabel since it doesn't inherit from BeepControl
                 Font linkFont = UseThemeFont && _currentTheme.LinkStyle != null
-                    ? BeepThemesManager.ToFont(_currentTheme.LinkStyle)
+                    ? BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle)
                     : new Font("Segoe UI", 9, FontStyle.Underline);
 
                 Color linkColor = _currentTheme.CompanyLinkColor != Color.Empty
@@ -796,7 +796,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply theme font if using theme font is enabled
                 if (UseThemeFont && _currentTheme.TitleStyle != null)
                 {
-                    lblCompanyName.TextFont = BeepThemesManager.ToFont(_currentTheme.TitleStyle);
+                    lblCompanyName.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleStyle);
                 }
             }
 
@@ -811,7 +811,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply theme font if using theme font is enabled
                 if (UseThemeFont && _currentTheme.SubtitleStyle != null)
                 {
-                    lblCompanyType.TextFont = BeepThemesManager.ToFont(_currentTheme.SubtitleStyle);
+                    lblCompanyType.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SubtitleStyle);
                 }
             }
 
@@ -829,7 +829,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply theme font if using theme font is enabled
                 if (UseThemeFont && _currentTheme.BodyStyle != null)
                 {
-                    lblCompanyDesc.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
+                    lblCompanyDesc.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.BodyStyle);
                 }
             }
 
@@ -844,7 +844,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply theme font if using theme font is enabled
                 if (UseThemeFont && _currentTheme.CaptionStyle != null)
                 {
-                    lblLikes.TextFont = BeepThemesManager.ToFont(_currentTheme.CaptionStyle);
+                    lblLikes.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CaptionStyle);
                 }
             }
 
@@ -858,7 +858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply theme font if using theme font is enabled
                 if (UseThemeFont && _currentTheme.LinkStyle != null)
                 {
-                    linkWebsite.Font = BeepThemesManager.ToFont(_currentTheme.LinkStyle);
+                    linkWebsite.Font = BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle);
                 }
             }
 

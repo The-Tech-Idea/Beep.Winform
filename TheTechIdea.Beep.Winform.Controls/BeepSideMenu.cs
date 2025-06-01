@@ -637,7 +637,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo.ForeColor = _currentTheme.SideMenuForeColor;
             _titleLabel.ForeColor = _currentTheme.AppBarTitleForeColor;
             _titleLabel.BackColor = _currentTheme.SideMenuBackColor;
-            _titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
+            _titleLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleMedium);
             _titleLabel.UseScaledFont = false;
             _descriptionLabel.Theme = Theme;
             foreach (Control control in Controls)
@@ -654,7 +654,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             button.ForeColor = _currentTheme.SideMenuForeColor;
                             if (UseThemeFont)
                             {
-                                ListButtonFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                                ListButtonFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
                                 button.Font = ListButtonFont;
                                 button.UseThemeFont = true;
                             }
@@ -749,7 +749,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!string.IsNullOrEmpty(Title))
                 {
                     // Use the theme font if available, or fallback to a default
-                    Font titleFont = BeepThemesManager.ToFont( _currentTheme?.SideMenuTitleFont);
+                    Font titleFont = BeepThemesManager_v2.ToFont( _currentTheme?.SideMenuTitleFont);
                     if (titleFont == null)
                     {
                         titleFont = new Font("Segoe UI", 12, FontStyle.Bold);

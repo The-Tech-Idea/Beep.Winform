@@ -334,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.ForeColor = _currentTheme.LabelForeColor;
             if (UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
             }
             Font = _textFont;
             _imageDrawer.Theme = Theme; // Update the single image drawer's theme

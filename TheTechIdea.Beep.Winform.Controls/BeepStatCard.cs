@@ -293,25 +293,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             ParentBackColor = _currentTheme.CardBackColor;
             headerLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
-            headerLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+            headerLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
             percentageLabel.Theme = Theme;
             percentageLabel.ForeColor = isTrendingUp ? Color.Green : Color.Red; // Adjust based on trend
-            percentageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+            percentageLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SmallText);
             percentageLabel.BackColor = _currentTheme.CardBackColor;
 
             valueLabel.Theme = Theme;
             valueLabel.ForeColor = _currentTheme.CardTextForeColor;
-            valueLabel.TextFont = new Font(BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 24, FontStyle.Bold); // Larger font for value
+            valueLabel.TextFont = new Font(BeepThemesManager_v2.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 24, FontStyle.Bold); // Larger font for value
             valueLabel.BackColor = _currentTheme.CardBackColor;
             trendLabel.Theme = Theme;
             trendLabel.ForeColor = _currentTheme.CardTextForeColor;
-            trendLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+            trendLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CardparagraphStyle);
             trendLabel.BackColor = _currentTheme.CardBackColor;
 
             infoLabel.Theme = Theme;
             infoLabel.ForeColor = _currentTheme.CardTextForeColor;
-            infoLabel.TextFont = new Font(BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 8); // Smaller font for info
+            infoLabel.TextFont = new Font(BeepThemesManager_v2.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 8); // Smaller font for info
             infoLabel.BackColor = _currentTheme.CardBackColor;
             
             cardIcon.BackColor = _currentTheme.CardBackColor;

@@ -11,11 +11,11 @@ namespace TheTechIdea.Beep.Vis.Modules
     public interface IBeepUIComponent
     {
         // Existing properties and methods
-        EnumBeepThemes Theme { get; set; }
+        string Theme { get; set; }
         bool ApplyThemeToChilds { get; set; }
         public string ComponentName { get; set; }
         void ApplyTheme();
-        void ApplyTheme(EnumBeepThemes theme);
+        void ApplyTheme(string theme);
         void ApplyTheme(BeepTheme theme);
         Size GetSize();
         string Text { get; set; }

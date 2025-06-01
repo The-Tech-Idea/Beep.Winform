@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             MainTemplatePanel.ShadowColor = Color.FromArgb(255, 192, 203);
             MainTemplatePanel.Size = new Size(948, 583);
             MainTemplatePanel.TextFont = new Font("Segoe UI", 16F);
-            MainTemplatePanel.Theme = EnumBeepThemes.ZenTheme;
+            MainTemplatePanel.Theme = "DefaultTheme";
             MainTemplatePanel.UseThemeFont = false;
             // 
             // beepAccordionMenu1
@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepAccordionMenu1.Tag = MainTemplatePanel;
             beepAccordionMenu1.TempBackColor = Color.Empty;
             beepAccordionMenu1.Text = "beepAccordionMenu1";
-            beepAccordionMenu1.Theme = EnumBeepThemes.ZenTheme;
+            beepAccordionMenu1.Theme = "DefaultTheme";
             beepAccordionMenu1.Title = "Accordion";
             beepAccordionMenu1.ToolTipText = "";
             beepAccordionMenu1.TopoffsetForDrawingRect = 0;
@@ -347,7 +347,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.Tag = MainTemplatePanel;
             beepImage1.TempBackColor = Color.Empty;
             beepImage1.Text = "beepImage1";
-            beepImage1.Theme = EnumBeepThemes.ZenTheme;
+            beepImage1.Theme = "DefaultTheme";
             beepImage1.ToolTipText = "";
             beepImage1.TopoffsetForDrawingRect = 0;
             beepImage1.UIAnimation = ReactUIAnimation.None;
@@ -503,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Segoe UI", 12F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton1.Theme = EnumBeepThemes.ZenTheme;
+            beepButton1.Theme = "DefaultTheme";
             beepButton1.ToolTipText = "";
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.UIAnimation = ReactUIAnimation.None;
@@ -665,7 +665,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.TextAlignment = HorizontalAlignment.Left;
             beepLightTextBox1.TextColor = Color.FromArgb(51, 51, 51);
             beepLightTextBox1.TextFont = new Font("Segoe UI", 11F);
-            beepLightTextBox1.Theme = EnumBeepThemes.ZenTheme;
+            beepLightTextBox1.Theme = "DefaultTheme";
             beepLightTextBox1.TimeFormat = "HH:mm:ss";
             beepLightTextBox1.TimeValidationMessage = "Please enter a valid time.";
             beepLightTextBox1.ToolTipText = "";
@@ -808,7 +808,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.TempBackColor = Color.Empty;
             beepComboBox1.Text = "beepComboBox1";
             beepComboBox1.TextFont = new Font("Segoe UI", 11F);
-            beepComboBox1.Theme = EnumBeepThemes.ZenTheme;
+            beepComboBox1.Theme = "DefaultTheme";
             beepComboBox1.ToolTipText = "";
             beepComboBox1.TopoffsetForDrawingRect = 0;
             beepComboBox1.UIAnimation = ReactUIAnimation.None;
@@ -938,7 +938,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepMaterialTextBox1.Tag = MainTemplatePanel;
             beepMaterialTextBox1.TempBackColor = Color.Empty;
             beepMaterialTextBox1.Text = "beepMaterialTextBox1";
-            beepMaterialTextBox1.Theme = EnumBeepThemes.ZenTheme;
+            beepMaterialTextBox1.Theme = "DefaultTheme";
             beepMaterialTextBox1.ToolTipText = "";
             beepMaterialTextBox1.TopoffsetForDrawingRect = 0;
             beepMaterialTextBox1.UIAnimation = ReactUIAnimation.Ripple;
@@ -1082,7 +1082,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.Tag = MainTemplatePanel;
             beepStarRating1.TempBackColor = Color.Empty;
             beepStarRating1.Text = "beepStarRating1";
-            beepStarRating1.Theme = EnumBeepThemes.ZenTheme;
+            beepStarRating1.Theme = "DefaultTheme";
             beepStarRating1.ToolTipText = "";
             beepStarRating1.TopoffsetForDrawingRect = 0;
             beepStarRating1.UIAnimation = ReactUIAnimation.Ripple;
@@ -1213,7 +1213,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.Tag = MainTemplatePanel;
             beepCalendarView1.TempBackColor = Color.Empty;
             beepCalendarView1.Text = "beepCalendarView1";
-            beepCalendarView1.Theme = EnumBeepThemes.ZenTheme;
+            beepCalendarView1.Theme = "DefaultTheme";
             beepCalendarView1.ToolTipText = "";
             beepCalendarView1.TopoffsetForDrawingRect = 0;
             beepCalendarView1.UIAnimation = ReactUIAnimation.None;
@@ -1235,7 +1235,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_diagraming";
             Size = new Size(948, 583);
-            Theme = EnumBeepThemes.ZenTheme;
+           Theme = "DefaultTheme";
             Load += uc_diagraming_Load;
             MainTemplatePanel.ResumeLayout(false);
             ResumeLayout(false);

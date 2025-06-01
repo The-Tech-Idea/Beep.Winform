@@ -693,7 +693,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Get font from button style or fall back to default style
                 _textFont = _currentTheme.ButtonStyle != null
-                    ? BeepThemesManager.ToFont(_currentTheme.ButtonStyle)
+                    ? BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle)
                     : new Font("Segoe UI", 9f);
 
                 Font = _textFont;
@@ -928,7 +928,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
             //if (!SetFont() && UseThemeFont)
             //{
-            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
             //};
             // Measure and scale the font to fit within the control bounds
             Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
@@ -1166,7 +1166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //if (!SetFont() && UseThemeFont)
             //{
-            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+            //    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
             //};
             // Measure and scale the font to fit within the control bounds
 

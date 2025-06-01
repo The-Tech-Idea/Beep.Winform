@@ -43,9 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
        
-        public EnumBeepThemes Theme
+        public string Theme
         {
-            get => Component?.Theme ?? EnumBeepThemes.DefaultTheme;
+            get => Component?.Theme ?? "DefaultTheme";
             set { if (Component != null) Component.Theme = value; }
         }
 
@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Component?.ApplyTheme();
         }
 
-        public void ApplyTheme(EnumBeepThemes theme)
+        public void ApplyTheme(string theme)
         {
             Component?.ApplyTheme(theme);
         }

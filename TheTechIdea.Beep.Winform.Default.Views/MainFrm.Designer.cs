@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepuiManager1.DisplayContainer = beepDisplayContainer1;
             beepuiManager1.IsRounded = false;
             beepuiManager1.ShowBorder = false;
-            beepuiManager1.Theme = EnumBeepThemes.PastelTheme;
+            beepuiManager1.Theme = "DefaultTheme";
             beepuiManager1.Title = "Beep";
             // 
             // beepDisplayContainer1
@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Tag = this;
             beepDisplayContainer1.TempBackColor = Color.Empty;
             beepDisplayContainer1.Text = "beepDisplayContainer1";
-            beepDisplayContainer1.Theme = EnumBeepThemes.PastelTheme;
+            beepDisplayContainer1.Theme = "DefaultTheme";
             beepDisplayContainer1.ToolTipText = "";
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
             beepDisplayContainer1.UseGradientBackground = false;
@@ -279,7 +279,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.TempBackColor = Color.Empty;
             beepMenuAppBar1.Text = "beepMenuAppBar1";
             beepMenuAppBar1.TextFont = new Font("Segoe UI", 11F);
-            beepMenuAppBar1.Theme = EnumBeepThemes.PastelTheme;
+            beepMenuAppBar1.Theme = "DefaultTheme";
             beepMenuAppBar1.ToolTipText = "";
             beepMenuAppBar1.TopoffsetForDrawingRect = 0;
             beepMenuAppBar1.UseGradientBackground = false;
@@ -409,7 +409,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.TempBackColor = Color.Empty;
             beepAppBar1.Text = "beepAppBar1";
             beepAppBar1.TextFont = new Font("Segoe UI", 18F);
-            beepAppBar1.Theme = EnumBeepThemes.PastelTheme;
+            beepAppBar1.Theme = "DefaultTheme";
             beepAppBar1.ToolTipText = "";
             beepAppBar1.TopoffsetForDrawingRect = 0;
             beepAppBar1.UseGradientBackground = false;
@@ -550,7 +550,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Text = "beepAppTree1";
             beepAppTree1.TextAlignment = TextAlignment.Left;
             beepAppTree1.TextFont = new Font("Segoe UI", 11F);
-            beepAppTree1.Theme = EnumBeepThemes.PastelTheme;
+            beepAppTree1.Theme = "DefaultTheme";
             beepAppTree1.ToolTipText = "";
             beepAppTree1.TopoffsetForDrawingRect = 0;
             beepAppTree1.Treebranchhandler = null;
@@ -681,7 +681,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.Tag = this;
             beepSideMenu1.TempBackColor = Color.Empty;
             beepSideMenu1.Text = "beepSideMenu1";
-            beepSideMenu1.Theme = EnumBeepThemes.PastelTheme;
+            beepSideMenu1.Theme = "DefaultTheme";
             beepSideMenu1.Title = "Beep";
             beepSideMenu1.TitleSize = new Size(100, 20);
             beepSideMenu1.ToolTipText = "";
@@ -702,7 +702,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepSideMenu1);
             Name = "MainFrm";
             Text = "Beep";
-            Theme = EnumBeepThemes.PastelTheme;
+            Theme = "DefaultTheme";
             ResumeLayout(false);
         }
 

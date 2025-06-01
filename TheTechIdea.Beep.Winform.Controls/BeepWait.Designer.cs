@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             beepuiManager1.BeepiForm = this;
             beepuiManager1.ShowBorder = false;
-            beepuiManager1.Theme = EnumBeepThemes.DefaultTheme;
+            beepuiManager1.Theme = "DefaultTheme";
             // 
             // Title
             // 
@@ -172,7 +172,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.TextAlign = ContentAlignment.MiddleCenter;
             Title.TextFont = new Font("Segoe UI Black", 14.25F, FontStyle.Bold, GraphicsUnit.Point, 0);
             Title.TextImageRelation = TextImageRelation.ImageBeforeText;
-            Title.Theme = EnumBeepThemes.DefaultTheme;
+            Title.Theme = "DefaultTheme";
             Title.ToolTipText = "";
             Title.TopoffsetForDrawingRect = 0;
             Title.UseGradientBackground = false;
@@ -310,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.Tag = Title;
             LogopictureBox.TempBackColor = Color.White;
             LogopictureBox.Text = "beepImage1";
-            LogopictureBox.Theme = EnumBeepThemes.DefaultTheme;
+            LogopictureBox.Theme = "DefaultTheme";
             LogopictureBox.ToolTipText = "";
             LogopictureBox.TopoffsetForDrawingRect = 0;
             LogopictureBox.UseGradientBackground = false;
@@ -442,7 +442,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel1.TextFont = new Font("Arial", 9.75F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = EnumBeepThemes.DefaultTheme;
+            beepLabel1.Theme = "DefaultTheme";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.UseGradientBackground = false;
@@ -574,7 +574,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel2.TextFont = new Font("Arial", 9.75F);
             beepLabel2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel2.Theme = EnumBeepThemes.DefaultTheme;
+            beepLabel2.Theme = "DefaultTheme";
             beepLabel2.ToolTipText = "";
             beepLabel2.TopoffsetForDrawingRect = 0;
             beepLabel2.UseGradientBackground = false;
@@ -717,7 +717,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Arial", 11F);
             messege.TextImageRelation = TextImageRelation.ImageBeforeText;
-            messege.Theme = EnumBeepThemes.DefaultTheme;
+            messege.Theme = "DefaultTheme";
             messege.TimeFormat = "HH:mm:ss";
             messege.ToolTipText = "";
             messege.TopoffsetForDrawingRect = 0;
@@ -858,7 +858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Tag = this;
             _spinnerImage.TempBackColor = Color.FromArgb(108, 117, 125);
             _spinnerImage.Text = "beepImage1";
-            _spinnerImage.Theme = EnumBeepThemes.DefaultTheme;
+            _spinnerImage.Theme = "DefaultTheme";
             _spinnerImage.ToolTipText = "";
             _spinnerImage.TopoffsetForDrawingRect = 0;
             _spinnerImage.UseGradientBackground = false;

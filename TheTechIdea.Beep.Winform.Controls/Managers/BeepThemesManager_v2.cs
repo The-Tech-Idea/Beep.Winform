@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using TheTechIdea.Beep.Winform.Controls.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -15,7 +16,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static readonly Guid DefaultThemeGuid = Guid.Parse("00000000-0000-0000-0000-000000000000");
         private static string _currentThemeName = "DefaultTheme";
         private static event EventHandler<ThemeChangeEventArgs> _themeChangedEvent;
-
+        // Event for theme changes
+        public static event EventHandler<ThemeChangeEventArgs> ThemeChanged;
         // Static themes collection
         public static readonly List<BeepTheme> _themes = new List<BeepTheme>();
 
@@ -190,12 +192,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             }
         }
 
-        // Event for theme changes
-        public static event EventHandler<ThemeChangeEventArgs> ThemeChanged
-        {
-            add { _themeChangedEvent += value; }
-            remove { _themeChangedEvent -= value; }
-        }
+      
 
         // Current theme property
         public static string CurrentThemeName
@@ -206,6 +203,15 @@ namespace TheTechIdea.Beep.Vis.Modules
                 string oldThemeName = _currentThemeName;
                 _currentThemeName = value;
 
+                ThemeChangeEventArgs x = new()
+                {
+                    OldThemeName = oldThemeName,
+                    NewThemeName = _currentThemeName,
+                    OldTheme = GetTheme(oldThemeName),
+                    NewTheme = GetTheme(_currentThemeName)
+                };
+                ThemeChanged?.Invoke(null, x);
+                
                 // Notify subscribers about theme change
                 _themeChangedEvent?.Invoke(null, new ThemeChangeEventArgs
                 {
@@ -533,62 +539,62 @@ namespace TheTechIdea.Beep.Vis.Modules
             // Add predefined themes from the TheTechIdea.Beep.Vis.Modules2.0 project
             AddPredefinedThemes();
         }
-        #region Legacy Support Adapters
+        //#region Legacy Support Adapters
 
-        // This inner class provides adapters for code that still uses EnumBeepThemes
-        public static class Legacy
-        {
-            // For backward compatibility with existing code that uses EnumBeepThemes
-            public static BeepTheme GetTheme(EnumBeepThemes theme)
-            {
-                string themeName = Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
-                return BeepThemesManager_v2.GetTheme(themeName);
-            }
+        //// This inner class provides adapters for code that still uses EnumBeepThemes
+        //public static class Legacy
+        //{
+        //    // For backward compatibility with existing code that uses EnumBeepThemes
+        //    public static BeepTheme GetTheme(EnumBeepThemes theme)
+        //    {
+        //        string themeName = Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
+        //        return BeepThemesManager_v2.GetTheme(themeName);
+        //    }
 
-            public static string GetThemeName(EnumBeepThemes theme)
-            {
-                return Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
-            }
+        //    public static string GetThemeName(EnumBeepThemes theme)
+        //    {
+        //        return Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
+        //    }
 
-            public static EnumBeepThemes GetThemeToEnum(BeepTheme theme)
-            {
-                if (theme == null) return EnumBeepThemes.DefaultTheme;
+        //    public static EnumBeepThemes GetThemeToEnum(BeepTheme theme)
+        //    {
+        //        if (theme == null) return EnumBeepThemes.DefaultTheme;
 
-                if (Enum.TryParse(theme.ThemeName, out EnumBeepThemes result))
-                    return result;
+        //        if (Enum.TryParse(theme.ThemeName, out EnumBeepThemes result))
+        //            return result;
 
-                return EnumBeepThemes.DefaultTheme;
-            }
+        //        return EnumBeepThemes.DefaultTheme;
+        //    }
 
-            public static EnumBeepThemes GetEnumFromTheme(string themeName)
-            {
-                if (string.IsNullOrEmpty(themeName)) return EnumBeepThemes.DefaultTheme;
+        //    public static EnumBeepThemes GetEnumFromTheme(string themeName)
+        //    {
+        //        if (string.IsNullOrEmpty(themeName)) return EnumBeepThemes.DefaultTheme;
 
-                if (Enum.TryParse(themeName, out EnumBeepThemes result))
-                    return result;
+        //        if (Enum.TryParse(themeName, out EnumBeepThemes result))
+        //            return result;
 
-                return EnumBeepThemes.DefaultTheme;
-            }
+        //        return EnumBeepThemes.DefaultTheme;
+        //    }
 
-            // Enum-based current theme property for legacy code
-            public static EnumBeepThemes CurrentTheme
-            {
-                get => GetEnumFromTheme(BeepThemesManager_v2._currentThemeName);
-                set => BeepThemesManager_v2.CurrentThemeName = GetThemeName(value);
-            }
+        //    // Enum-based current theme property for legacy code
+        //    public static EnumBeepThemes CurrentTheme
+        //    {
+        //        get => GetEnumFromTheme(BeepThemesManager_v2._currentThemeName);
+        //        set => BeepThemesManager_v2.CurrentThemeName = GetThemeName(value);
+        //    }
 
-            public static EnumBeepThemes GetCurrentTheme()
-            {
-                return GetEnumFromTheme(BeepThemesManager_v2._currentThemeName);
-            }
+        //    public static EnumBeepThemes GetCurrentTheme()
+        //    {
+        //        return GetEnumFromTheme(BeepThemesManager_v2._currentThemeName);
+        //    }
 
-            public static void SetCurrentTheme(EnumBeepThemes theme)
-            {
-                BeepThemesManager_v2.CurrentThemeName = GetThemeName(theme);
-            }
-        }
+        //    public static void SetCurrentTheme(EnumBeepThemes theme)
+        //    {
+        //        BeepThemesManager_v2.CurrentThemeName = GetThemeName(theme);
+        //    }
+        //}
 
-        #endregion
+        //#endregion
     }
 
    

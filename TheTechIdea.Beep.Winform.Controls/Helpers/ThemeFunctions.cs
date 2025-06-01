@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static bool HasThemeProperty(Control control)
         {
             var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
-            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+            if (themeProperty != null && themeProperty.PropertyType == typeof(string))
             {
                 return true;
             }
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
         
         // Apply the theme to a single control and all its children recursively
-        public static void SetThemePropertyinControl(Control control, EnumBeepThemes theme)
+        public static void SetThemePropertyinControl(Control control, string theme)
         {
             if (control == null)
             {
@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 // Check if the control itself has a "Theme" property
                 var themeProperty = control.GetType().GetProperty("Theme");
-                if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+                if (themeProperty != null && themeProperty.PropertyType == typeof(string))
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);
@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
                 // Check if the control has a "Theme" property in its components
                 var themePropertyInComponents = control.GetType().GetProperty("Theme", BindingFlags.Instance | BindingFlags.NonPublic);
-                if (themePropertyInComponents != null && themePropertyInComponents.PropertyType == typeof(EnumBeepThemes))
+                if (themePropertyInComponents != null && themePropertyInComponents.PropertyType == typeof(string))
                 {
                     // Set the "Theme" property on the control's components
                     themePropertyInComponents.SetValue(control, theme);
@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                MiscFunctions.SendLog($"Error setting theme property: {ex.Message}");
             }
         }
-        public static void SetThemePropertyinControl(Control control, EnumBeepThemes theme, string propertyName)
+        public static void SetThemePropertyinControl(Control control, string theme, string propertyName)
         {
             if (control == null)
             {
@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 // Check if the control itself has a "Theme" property
                 var themeProperty = control.GetType().GetProperty(propertyName);
-                if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+                if (themeProperty != null && themeProperty.PropertyType == typeof(string))
                 {
                     // Set the "Theme" property on the control
                     themeProperty.SetValue(control, theme);
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 }
                 // Check if the control has a "Theme" property in its components
                 var themePropertyInComponents = control.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
-                if (themePropertyInComponents != null && themePropertyInComponents.PropertyType == typeof(EnumBeepThemes))
+                if (themePropertyInComponents != null && themePropertyInComponents.PropertyType == typeof(string))
                 {
                     // Set the "Theme" property on the control's components
                     themePropertyInComponents.SetValue(control, theme);

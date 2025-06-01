@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         private IBreadCrumbDisplay _crumbdisplay;
         #endregion "Fields"
         #region "Properties"
-        public EnumBeepThemes Theme { get; set; }
+        public string Theme { get; set; }
         public IBeepService Beepservices { get; }
         public IDMEEditor DMEEditor { get; }
         public event EventHandler<string> Navigating;

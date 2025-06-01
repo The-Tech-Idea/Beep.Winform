@@ -38,34 +38,37 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             appManager = service.vis;
             beepService = service;
             Dependencies.DMEEditor = beepService.DMEEditor;
-            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
-            Theme = BeepThemesManager.CurrentTheme;
+            BeepThemesManager_v2.ThemeChanged += BeepThemesManager_v2_ThemeChanged;
+            Theme = BeepThemesManager_v2.GetDefaultTheme().ThemeName;
+        }
+
+        private void BeepThemesManager_v2_ThemeChanged(object? sender, Controls.Models.ThemeChangeEventArgs e)
+        {
+            Theme = e.NewThemeName;
+
+            if (Theme != BeepThemesManager_v2.CurrentThemeName)
+            {  BeepThemesManager_v2.SetCurrentTheme(Theme); }
+            ApplyTheme();
         }
         #region "IDM_Addin Implementation"
         protected  IBeepService? beepService;
 
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+        private string _theme;
+        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
-        public EnumBeepThemes Theme
+        public string Theme
         {
-            get => _themeEnum;
+            get => _theme;
             set
             {
-                _themeEnum = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
+                _theme = value;
+                _currentTheme = BeepThemesManager_v2.GetTheme(value);
                 //      this.ApplyTheme();
                 ApplyTheme();
             }
         }
-        private void BeepThemesManager_ThemeChanged(object? sender, ThemeChangeEventsArgs e)
-        {
-            Theme = e.NewTheme;
-
-            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme;  }
-            ApplyTheme();
-        }
+     
 
         public AddinDetails Details { get; set; }
         public Dependencies Dependencies { get; set; }
@@ -81,7 +84,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         protected UnitOfWorkWrapper uow;
         public virtual void Configure(Dictionary<string, object> settings)
         {
-            if (Theme != BeepThemesManager.CurrentTheme) { Theme = BeepThemesManager.CurrentTheme;  }
+            if (Theme != BeepThemesManager_v2.CurrentThemeName) 
+            
+            { BeepThemesManager_v2.SetCurrentTheme(Theme);  }
             ApplyTheme();
         }
 

@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // beepuiManager1
             // 
             beepuiManager1.BeepiForm = this;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepuiManager1.Theme = "DefaultTheme";
             // 
             // splitContainer1
             // 
@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _specialFoldersComboBox.TabIndex = 0;
             _specialFoldersComboBox.TempBackColor = Color.Empty;
             _specialFoldersComboBox.Text = "beepComboBox1";
-            _specialFoldersComboBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _specialFoldersComboBox.Theme = "DefaultTheme";
             _specialFoldersComboBox.ToolTipText = "";
             _specialFoldersComboBox.TopoffsetForDrawingRect = 0;
             _specialFoldersComboBox.UseGradientBackground = false;
@@ -379,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _searchBox.TextAlignment = HorizontalAlignment.Left;
             _searchBox.TextFont = new Font("Segoe UI", 9F);
             _searchBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _searchBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _searchBox.Theme = "DefaultTheme";
             _searchBox.TimeFormat = "HH:mm:ss";
             _searchBox.ToolTipText = "";
             _searchBox.TopoffsetForDrawingRect = 0;
@@ -533,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _okButton.TextAlign = ContentAlignment.MiddleCenter;
             _okButton.TextFont = new Font("Segoe UI", 9F);
             _okButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _okButton.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _okButton.Theme = "DefaultTheme";
             _okButton.ToolTipText = "";
             _okButton.TopoffsetForDrawingRect = 0;
             _okButton.UseGradientBackground = false;
@@ -663,7 +663,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.TextAlign = ContentAlignment.MiddleCenter;
             _cancelButton.TextFont = new Font("Segoe UI", 9F);
             _cancelButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _cancelButton.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _cancelButton.Theme = "DefaultTheme";
             _cancelButton.ToolTipText = "";
             _cancelButton.TopoffsetForDrawingRect = 0;
             _cancelButton.UseGradientBackground = false;
@@ -799,7 +799,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _fileNameTextBox.TextAlignment = HorizontalAlignment.Left;
             _fileNameTextBox.TextFont = new Font("Segoe UI", 9F);
             _fileNameTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _fileNameTextBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            _fileNameTextBox.Theme = "DefaultTheme";
             _fileNameTextBox.TimeFormat = "HH:mm:ss";
             _fileNameTextBox.ToolTipText = "";
             _fileNameTextBox.TopoffsetForDrawingRect = 0;

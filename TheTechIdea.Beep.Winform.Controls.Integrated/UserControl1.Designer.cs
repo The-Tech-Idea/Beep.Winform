@@ -139,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Integrated
             beepDataBlock1.TabIndex = 0;
             beepDataBlock1.TempBackColor = Color.Empty;
             beepDataBlock1.Text = "beepDataBlock1";
-            beepDataBlock1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepDataBlock1.Theme = "DefaultTheme";
             beepDataBlock1.ToolTipText = "";
             beepDataBlock1.TopoffsetForDrawingRect = 0;
             beepDataBlock1.UIComponents = (Dictionary<string, Vis.Modules.IBeepUIComponent>)resources.GetObject("beepDataBlock1.UIComponents");

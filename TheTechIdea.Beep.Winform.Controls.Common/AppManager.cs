@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             ShowTreeWindow = false;
             Width = 800;
             Height = 600;
-            Theme = EnumBeepThemes.DefaultTheme;
+            Theme ="DefaultTheme";
             IsLogOn = false;
             HomePageTitle = "Home";
             HomePageName = "Home";
@@ -143,20 +143,21 @@ namespace TheTechIdea.Beep.Desktop.Common
         public int Width { get; set; }
         public int Height { get; set; }
         public string BreadCrumb { get { return RoutingManager != null ? RoutingManager?.BreadCrumb : string.Empty; } }
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+
+        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected string _theme;
         private bool _isThemeApplied = false;
-        public EnumBeepThemes Theme
+        public string Theme
         {
-            get => _themeEnum;
+            get => _theme;
             set
             {
-                _themeEnum = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
+                _theme = value;
+                _currentTheme = BeepThemesManager_v2.GetTheme(value);
                 //  OnThemeChanged?.Invoke(_themeEnum);
 
 
-                    BeepThemesManager.CurrentTheme = value;
+                    BeepThemesManager_v2.SetCurrentTheme( value);
                     _isThemeApplied = true;
 
                 ApplyTheme();
@@ -176,7 +177,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion "User and Profile"
         #endregion "Properties"
         #region "Events"
-        public event Action<EnumBeepThemes> OnThemeChanged;
+        public event Action<string> OnThemeChanged;
         public event EventHandler<KeyCombination> KeyPressed;
         public event EventHandler<IPassedArgs> PreLogin;
         public event EventHandler<IPassedArgs> PostLogin;
@@ -626,7 +627,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                 Title = StoreSettings.Get<string>(controlGuid, "Title", Title);
                 Width = StoreSettings.Get<int>(controlGuid, "Width", Width);
                 Height = StoreSettings.Get<int>(controlGuid, "Height", Height);
-                Theme = StoreSettings.Get<EnumBeepThemes>(controlGuid, "Theme", Theme);
+                Theme = StoreSettings.Get<string>(controlGuid, "Theme", Theme);
                 HomePageTitle = StoreSettings.Get<string>(controlGuid, "HomePageTitle", HomePageTitle);
                 HomePageName = StoreSettings.Get<string>(controlGuid, "HomePageName", HomePageName);
                 HomePageDescription = StoreSettings.Get<string>(controlGuid, "HomePageDescription", HomePageDescription);
@@ -1280,7 +1281,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         private bool HasThemeProperty(Control control)
         {
             var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
-            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+            if (themeProperty != null && themeProperty.PropertyType == typeof(string))
             {
                 return true;
             }
@@ -1300,7 +1301,7 @@ namespace TheTechIdea.Beep.Desktop.Common
                     if (HasThemeProperty(control))
                     {
                         var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
-                        if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+                        if (themeProperty != null && themeProperty.PropertyType == typeof(string))
                         {
                             themeProperty.SetValue(control, Theme);
                         }

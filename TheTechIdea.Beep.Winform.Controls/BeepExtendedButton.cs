@@ -239,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
 
 
-                  //  _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                  //  _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
                     button.TextFont = _textFont;
 
                 }
@@ -530,7 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 button.UseThemeFont = true;
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
                 button.Font = _textFont;
             }else
             {

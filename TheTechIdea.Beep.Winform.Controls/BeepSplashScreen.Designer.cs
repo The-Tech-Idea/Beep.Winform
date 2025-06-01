@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.StaticNotMoving = false;
             _logoImage.TabIndex = 0;
             _logoImage.Text = "beepImage1";
-            _logoImage.Theme = EnumBeepThemes.FlatDesignTheme;
+            _logoImage.Theme = "DefaultTheme";
             _logoImage.ToolTipText = "";
             _logoImage.TopoffsetForDrawingRect = 0;
             _logoImage.UseGradientBackground = false;
@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             _titleLabel.TextFont = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             _titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _titleLabel.Theme = EnumBeepThemes.FlatDesignTheme;
+            _titleLabel.Theme = "DefaultTheme";
             _titleLabel.ToolTipText = "";
             _titleLabel.TopoffsetForDrawingRect = 0;
             _titleLabel.UseGradientBackground = false;

@@ -17,11 +17,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
     {
         #region "Properties"
         private bool _applyBeepFormStyle = false;
-        private EnumBeepThemes _theme = EnumBeepThemes.DefaultTheme;
+        private string _theme ="DefaultTheme";
         private Form _form;
         private bool _showborder = true;
         private BeepImage beepimage = new BeepImage();
-        public event Action<EnumBeepThemes> OnThemeChanged;
+        public event Action<string> OnThemeChanged;
 
         //private EnumBeepThemes _globalTheme = EnumBeepThemes.DefaultTheme;
         // LogoImage property to set the logo image of the form
@@ -265,7 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         [Category("Appearance")]
         [Description("Select the theme to apply to all Beep controls.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public EnumBeepThemes Theme
+        public string Theme
         {
             get => _theme;
             set
@@ -294,8 +294,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             // Find the parent form at runtime and initialize
             // Ensure the designer-added BeepFormUIManager is initialized
 
-            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
-            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            BeepThemesManager_v2.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager_v2.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
         private void BeepThemesManager_ThemeChanged(object? sender, EventArgs e)
         {
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (_form != null)
             {
 
-                Theme = BeepThemesManager.CurrentTheme;
+                Theme = BeepThemesManager_v2.CurrentThemeName;
                 BeepiForm.ApplyTheme();
                 ApplyThemeToAllBeepControls(_form); // Apply the initial theme
                   
@@ -392,13 +392,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                //_form.Load += Form_Load;
             //    AttachControlAddedEvent(_form);
 
-            BeepiForm.Theme = BeepThemesManager.CurrentTheme    ;
-            Theme = BeepThemesManager.CurrentTheme;
+            BeepiForm.Theme = BeepThemesManager_v2.CurrentThemeName    ;
+            Theme = BeepThemesManager_v2.CurrentThemeName;
       //     //Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
             BeepiForm.ApplyTheme();
             ApplyThemeToForm();
-            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
-            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
+            BeepThemesManager_v2.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager_v2.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
 
 
@@ -612,13 +612,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (_form != null)
             {
-                BeepFormGenerator.ApplyBeepForm(_form, BeepThemesManager.GetTheme(_theme)); // Apply BeepForm properties
+                BeepFormGenerator.ApplyBeepForm(_form, BeepThemesManager_v2.GetTheme(_theme)); // Apply BeepForm properties
             }
         }
-        public void ApplyThemeToControl(Control control, EnumBeepThemes _theme, bool applytoimage)
+        public void ApplyThemeToControl(Control control, string _theme, bool applytoimage)
         {
             var themeProperty = TypeDescriptor.GetProperties(control)["Theme"];
-            if (themeProperty != null && themeProperty.PropertyType == typeof(EnumBeepThemes))
+            if (themeProperty != null && themeProperty.PropertyType == typeof(string))
             {
                 themeProperty.SetValue(control, _theme);
             }
@@ -659,7 +659,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private void ApplyThemeToAllBeepControls(Control container)
         {
             if (container == null) return;
-            container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
+            container.BackColor = BeepThemesManager_v2.GetTheme(_theme).BackgroundColor;
 
             // Apply theme to the container itself
             ApplyThemeToControl(container);

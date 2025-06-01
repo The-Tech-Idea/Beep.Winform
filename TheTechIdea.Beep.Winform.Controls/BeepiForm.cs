@@ -33,8 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         //private Panel contentPanel;
 
 
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager.DefaultTheme;
+  
+        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         private bool _applythemetochilds = true;
 
         public event EventHandler OnFormClose;
@@ -92,18 +92,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw the form when the color changes
             }
         }
+        private string _theme;
         [Browsable(true)]
         [TypeConverter(typeof(ThemeConverter))]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public EnumBeepThemes Theme
+        public string Theme
         {
-            get => _themeEnum;
+            get => _theme;
             set
             {
-                if (value != _themeEnum)
+                if (value != _theme)
                 {
-                    _themeEnum = value;
-                    _currentTheme = BeepThemesManager.GetTheme(value);
+                    _theme = value;
+                    _currentTheme = BeepThemesManager_v2.GetTheme(value);
                     //beepuiManager1.Theme = value;
                      ApplyTheme();
                 }
@@ -205,11 +206,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
            //if (InvokeRequired)
             //{
-            //    Invoke(new Action(() => Theme = BeepThemesManager.CurrentTheme));
+            //    Invoke(new Action(() => Theme = BeepThemesManager_v2.CurrentTheme));
             //}
             //else
             //{
-            //    Theme = BeepThemesManager.CurrentTheme;
+            //    Theme = BeepThemesManager_v2.CurrentTheme;
             //}
         }
         protected override void OnLoad(EventArgs e)
@@ -391,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
                   beepuiManager1.Theme = Theme;
-            //  BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
+            //  BeepTheme theme = BeepThemesManager_v2.GetTheme(beepuiManager1.Theme);
             BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
             BorderColor = _currentTheme.BorderColor;

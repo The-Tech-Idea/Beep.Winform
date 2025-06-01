@@ -6927,14 +6927,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 titleLabel.ParentBackColor = _currentTheme.GridHeaderBackColor; ;
                 titleLabel.BackColor = _currentTheme.GridHeaderBackColor; ;
                 titleLabel.IsChild = true;
-                titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+                titleLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CardHeaderStyle);
              //   titleLabel.Theme = Theme;
                 titleLabel.ForeColor = _currentTheme.GridForeColor;
                 titleLabel.Invalidate();
             }
             if (Recordnumberinglabel1 != null) {
                 //   Recordnumberinglabel1.ForeColor = _currentTheme.GridForeColor;
-                Recordnumberinglabel1.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+                Recordnumberinglabel1.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SmallText);
                 Recordnumberinglabel1.ForeColor = _currentTheme.GridHeaderForeColor;
                 Recordnumberinglabel1.BackColor = footerback;
                 Recordnumberinglabel1.ParentBackColor = footerback;
@@ -6950,7 +6950,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (PageLabel != null)
             {
                 //PageLabel.ForeColor = _currentTheme.GridForeColor;
-                PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+                PageLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SmallText);
                 PageLabel.ForeColor = _currentTheme.GridHeaderForeColor;
                 PageLabel.BackColor = footerback;
                 PageLabel.ParentBackColor = footerback;
@@ -7006,7 +7006,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _selectAllCheckBox.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
                 _selectAllCheckBox.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
                // _selectAllCheckBox.ApplyThemeToSvg();
-                //  PageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                //  PageLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
             }
             //if (DataNavigator != null)
             //{
@@ -7032,7 +7032,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
             }
-            filterTextBox.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+            filterTextBox.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SmallText);
             filterTextBox.ForeColor = _currentTheme.GridHeaderForeColor;
             filterTextBox.BackColor = _currentTheme.GridHeaderBackColor; ;
             filterTextBox.ParentBackColor = _currentTheme.GridHeaderBackColor; ;
@@ -7044,7 +7044,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             filterTextBox.SelectedBackColor = _currentTheme.GridHeaderSelectedBackColor;
             filterTextBox.SelectedForeColor = _currentTheme.GridHeaderSelectedForeColor;
            
-            filterColumnComboBox.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+            filterColumnComboBox.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SmallText);
             filterColumnComboBox.ForeColor = _currentTheme.GridHeaderForeColor;
             filterColumnComboBox.BackColor = _currentTheme.GridHeaderBackColor; ;
             filterColumnComboBox.ParentBackColor = _currentTheme.GridHeaderBackColor; ;

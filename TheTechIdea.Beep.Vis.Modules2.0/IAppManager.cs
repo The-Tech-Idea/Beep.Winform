@@ -10,8 +10,8 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public interface IAppManager : IDisposable
     {
-        event Action<EnumBeepThemes> OnThemeChanged;
-        EnumBeepThemes Theme { get; set; }
+        event Action<string> OnThemeChanged;
+        string Theme { get; set; }
         bool IsLogOn { get; set; }
         IDMEEditor DMEEditor { get; set; }
         ErrorsInfo ErrorsandMesseges { get; set; }

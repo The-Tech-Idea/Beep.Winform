@@ -13,12 +13,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         bool ShowBorder { get; set; }
         bool ShowShadow { get; set; }
         ISite Site { get; set; }
-        EnumBeepThemes Theme { get; set; }
+        string Theme { get; set; }
         string Title { get; set; }
 
-        event Action<EnumBeepThemes> OnThemeChanged;
+        event Action<string> OnThemeChanged;
 
-        void ApplyThemeToControl(Control control, EnumBeepThemes _theme, bool applytoimage);
+        void ApplyThemeToControl(Control control, string _theme, bool applytoimage);
         void FindBeepSideMenu();
         void ShowTitle(bool show);
     }

@@ -7,13 +7,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
     public class ThemeEnumConverter : EnumConverter
     {
-        public ThemeEnumConverter() : base(typeof(EnumBeepThemes)) { }
+        public ThemeEnumConverter() : base(typeof(string)) { }
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             if (value is string stringValue)
             {
-                return Enum.TryParse(typeof(EnumBeepThemes), stringValue, out var enumValue)
+                return Enum.TryParse(typeof(string), stringValue, out var enumValue)
                     ? enumValue
                     : throw new ArgumentException($"Invalid theme: {stringValue}");
             }
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value is EnumBeepThemes enumValue)
+            if (destinationType == typeof(string) && value is string enumValue)
             {
                 return enumValue.ToString(); // Return the name of the enum as a string
             }

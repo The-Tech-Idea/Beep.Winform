@@ -265,11 +265,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.CardBackColor;
             headerLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
-            headerLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+            headerLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
             paragraphLabel.Theme = Theme;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
-            paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+            paragraphLabel.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CardparagraphStyle);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;
             actionButton.Theme = Theme;
             actionButton.IsRounded = IsRounded;

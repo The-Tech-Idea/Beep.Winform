@@ -196,7 +196,7 @@
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
-            beepSimpleGrid1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepSimpleGrid1.Theme = "DefaultTheme";
             beepSimpleGrid1.TitleHeaderImage = "simpleinfoapps.svg";
             beepSimpleGrid1.TitleText = "Fields";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -323,7 +323,7 @@
             beepPanel1.TempBackColor = Color.Empty;
             beepPanel1.Text = "Entity";
             beepPanel1.TextFont = new Font("Arial", 16F);
-            beepPanel1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepPanel1.Theme = "DefaultTheme";
             beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
             beepPanel1.TitleBottomY = 44;
             beepPanel1.TitleLineColor = Color.Gray;
@@ -463,7 +463,7 @@
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Segoe UI", 12F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton1.Theme = Vis.Modules.EnumBeepThemes.ZenTheme;
+            beepButton1.Theme = "DefaultTheme";
             beepButton1.ToolTipText = "";
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.UseGradientBackground = false;
@@ -588,7 +588,7 @@
             beepLabel2.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel2.TextFont = new Font("Arial", 12F);
             beepLabel2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel2.Theme = "DefaultTheme";
             beepLabel2.ToolTipText = "";
             beepLabel2.TopoffsetForDrawingRect = 0;
             beepLabel2.UseGradientBackground = false;
@@ -704,7 +704,7 @@
             EntitiesbeepComboBox.TempBackColor = Color.Empty;
             EntitiesbeepComboBox.Text = "beepComboBox2";
             EntitiesbeepComboBox.TextFont = new Font("Arial", 11F);
-            EntitiesbeepComboBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            EntitiesbeepComboBox.Theme = "DefaultTheme";
             EntitiesbeepComboBox.ToolTipText = "";
             EntitiesbeepComboBox.TopoffsetForDrawingRect = 0;
             EntitiesbeepComboBox.UseGradientBackground = false;
@@ -828,7 +828,7 @@
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel1.TextFont = new Font("Arial", 12F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel1.Theme = "DefaultTheme";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.UseGradientBackground = false;
@@ -944,7 +944,7 @@
             DatasourcebeepComboBox.TempBackColor = Color.Empty;
             DatasourcebeepComboBox.Text = "beepComboBox1";
             DatasourcebeepComboBox.TextFont = new Font("Arial", 11F);
-            DatasourcebeepComboBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            DatasourcebeepComboBox.Theme = "DefaultTheme";
             DatasourcebeepComboBox.ToolTipText = "";
             DatasourcebeepComboBox.TopoffsetForDrawingRect = 0;
             DatasourcebeepComboBox.UseGradientBackground = false;

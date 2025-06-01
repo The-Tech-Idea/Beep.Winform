@@ -978,6 +978,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region "Theme"
+        public virtual void  ApplyTheme(BeepTheme theme)
+        {
+            _currentTheme=theme;
+            ApplyTheme();
+        }
         public virtual void ApplyTheme()
         {
             try
@@ -1012,10 +1017,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 themeProperty.SetValue(control, Theme); // Set the theme on the control
             }
         }
-        public virtual void ApplyTheme(EnumBeepThemes theme) => Theme = theme;
-        public virtual void ApplyTheme(BeepTheme theme)
+       
+        public virtual void ApplyTheme(string theme)
         {
-            Theme = BeepThemesManager.GetThemeToEnum(theme);
+            Theme=theme;
+          //  _currentTheme = BeepThemesManager_v2.GetTheme(theme);
             // set theme to contained controls
             //foreach (Control ctrl in Controls)
             //{
@@ -1530,22 +1536,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     retval = false;
                     break;
                 case TypeStyleFontSize.Small:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.Medium:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.Large:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.ExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.ExtraExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.ExtraExtraExtraLarge:
-                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
                     break;
             }
             return retval;
@@ -3027,7 +3033,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
         public List<object> Items { get { return _items; } set { _items = value; } }
 
-        protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
+        //protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
         protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         public event EventHandler<BeepComponentEventArgs> OnSelected;
         public event EventHandler<BeepComponentEventArgs> OnValidate;
@@ -3067,15 +3073,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool IsVisible { get; set; }
         public bool IsRequired { get; set; }
         public object Oldvalue { get; }
+
+        private string _theme;
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
-        public EnumBeepThemes Theme
+        public string Theme
         {
-            get => _themeEnum;
+            get => _theme;
             set
             {
-                _themeEnum = value;
-                _currentTheme = BeepThemesManager.GetTheme(value);
+                _theme = value;
+                _currentTheme = BeepThemesManager_v2.GetTheme(value);
                 //      this.ApplyTheme();
                 ApplyTheme();
             }

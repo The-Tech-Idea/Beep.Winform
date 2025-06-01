@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepuiManager1.LogoImage = "";
             beepuiManager1.ShowBorder = true;
             beepuiManager1.ShowShadow = false;
-            beepuiManager1.Theme = Vis.Modules.EnumBeepThemes.FlatDesignTheme;
+            beepuiManager1.Theme = "DefaultTheme";
             beepuiManager1.Title = "Beep Form";
             // 
             // BeepiForm

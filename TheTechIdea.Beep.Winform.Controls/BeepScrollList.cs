@@ -700,7 +700,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply theme to fonts
             if (UseThemeFont)
             {
-                TextFont = BeepThemesManager.ToFont(_currentTheme.BodySmall);
+                TextFont = BeepThemesManager_v2.ToFont(_currentTheme.BodySmall);
             }
 
             // Apply theme to virtual buttons

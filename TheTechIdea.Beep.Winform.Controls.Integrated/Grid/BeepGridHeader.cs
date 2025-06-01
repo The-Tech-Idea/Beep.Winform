@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
                 {
                     if (UseThemeFont)
                     {
-                        _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                        _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
                         _titleLabel.UseThemeFont = true;
                     }
                     else
@@ -1555,7 +1555,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             this._titleLabel.ForeColor = ColorUtils.GetForColor(_currentTheme.PanelBackColor, _currentTheme.LabelForeColor);
             if (UseThemeFont)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
                 _titleLabel.UseThemeFont = true;
             }
             else

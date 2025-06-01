@@ -170,7 +170,7 @@
             beepPanel1.TempBackColor = Color.Empty;
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Arial", 16F);
-            beepPanel1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepPanel1.Theme = "DefaultTheme";
             beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
             beepPanel1.TitleBottomY = 44;
             beepPanel1.TitleLineColor = Color.Gray;
@@ -305,7 +305,7 @@
             beepLabel3.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel3.TextFont = new Font("Arial", 12F);
             beepLabel3.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel3.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel3.Theme = "DefaultTheme";
             beepLabel3.ToolTipText = "";
             beepLabel3.TopoffsetForDrawingRect = 0;
             beepLabel3.UseGradientBackground = false;
@@ -447,7 +447,7 @@
             databaseTextBox.TextAlignment = HorizontalAlignment.Left;
             databaseTextBox.TextFont = new Font("Arial", 11F);
             databaseTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            databaseTextBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            databaseTextBox.Theme = "DefaultTheme";
             databaseTextBox.TimeFormat = "HH:mm:ss";
             databaseTextBox.ToolTipText = "";
             databaseTextBox.TopoffsetForDrawingRect = 0;
@@ -587,7 +587,7 @@
             SavebeepButton.TextAlign = ContentAlignment.MiddleCenter;
             SavebeepButton.TextFont = new Font("Arial", 12F);
             SavebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            SavebeepButton.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            SavebeepButton.Theme = "DefaultTheme";
             SavebeepButton.ToolTipText = "";
             SavebeepButton.TopoffsetForDrawingRect = 0;
             SavebeepButton.UseGradientBackground = false;
@@ -725,7 +725,7 @@
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             CancelbeepButton.TextFont = new Font("Arial", 12F);
             CancelbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CancelbeepButton.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            CancelbeepButton.Theme = "DefaultTheme";
             CancelbeepButton.ToolTipText = "";
             CancelbeepButton.TopoffsetForDrawingRect = 0;
             CancelbeepButton.UseGradientBackground = false;
@@ -856,7 +856,7 @@
             beepLabel5.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel5.TextFont = new Font("Arial", 12F);
             beepLabel5.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel5.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel5.Theme = "DefaultTheme";
             beepLabel5.ToolTipText = "";
             beepLabel5.TopoffsetForDrawingRect = 0;
             beepLabel5.UseGradientBackground = false;
@@ -998,7 +998,7 @@
             PasswordbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             PasswordbeepTextBox.TextFont = new Font("Arial", 11F);
             PasswordbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            PasswordbeepTextBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            PasswordbeepTextBox.Theme = "DefaultTheme";
             PasswordbeepTextBox.TimeFormat = "HH:mm:ss";
             PasswordbeepTextBox.ToolTipText = "";
             PasswordbeepTextBox.TopoffsetForDrawingRect = 0;
@@ -1142,7 +1142,7 @@
             OtherFolderbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             OtherFolderbeepTextBox.TextFont = new Font("Arial", 11F);
             OtherFolderbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            OtherFolderbeepTextBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            OtherFolderbeepTextBox.Theme = "DefaultTheme";
             OtherFolderbeepTextBox.TimeFormat = "HH:mm:ss";
             OtherFolderbeepTextBox.ToolTipText = "";
             OtherFolderbeepTextBox.TopoffsetForDrawingRect = 0;
@@ -1283,7 +1283,7 @@
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Arial", 12F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepButton1.Theme = "DefaultTheme";
             beepButton1.ToolTipText = "";
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.UseGradientBackground = false;
@@ -1414,7 +1414,7 @@
             beepLabel2.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel2.TextFont = new Font("Arial", 12F);
             beepLabel2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel2.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel2.Theme = "DefaultTheme";
             beepLabel2.ToolTipText = "";
             beepLabel2.TopoffsetForDrawingRect = 0;
             beepLabel2.UseGradientBackground = false;
@@ -1545,7 +1545,7 @@
             beepLabel1.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel1.TextFont = new Font("Arial", 12F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            beepLabel1.Theme = "DefaultTheme";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.UseGradientBackground = false;
@@ -1663,7 +1663,7 @@
             SystemFolderbeepComboBox.TempBackColor = Color.Empty;
             SystemFolderbeepComboBox.Text = "beepComboBox1";
             SystemFolderbeepComboBox.TextFont = new Font("Arial", 11F);
-            SystemFolderbeepComboBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            SystemFolderbeepComboBox.Theme = "DefaultTheme";
             SystemFolderbeepComboBox.ToolTipText = "";
             SystemFolderbeepComboBox.TopoffsetForDrawingRect = 0;
             SystemFolderbeepComboBox.UseGradientBackground = false;
@@ -1780,7 +1780,7 @@
             LocalDbTypebeepComboBox.TempBackColor = Color.Empty;
             LocalDbTypebeepComboBox.Text = "beepComboBox1";
             LocalDbTypebeepComboBox.TextFont = new Font("Arial", 11F);
-            LocalDbTypebeepComboBox.Theme = Vis.Modules.EnumBeepThemes.DefaultTheme;
+            LocalDbTypebeepComboBox.Theme = "DefaultTheme";
             LocalDbTypebeepComboBox.ToolTipText = "";
             LocalDbTypebeepComboBox.TopoffsetForDrawingRect = 0;
             LocalDbTypebeepComboBox.UseGradientBackground = false;

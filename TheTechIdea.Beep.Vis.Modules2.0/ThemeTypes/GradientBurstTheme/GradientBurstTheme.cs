@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.GradientBurstTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class GradientBurstTheme : BeepTheme
+    public partial class GradientBurstTheme  : IBeepTheme
     {
         public GradientBurstTheme() { }
     }

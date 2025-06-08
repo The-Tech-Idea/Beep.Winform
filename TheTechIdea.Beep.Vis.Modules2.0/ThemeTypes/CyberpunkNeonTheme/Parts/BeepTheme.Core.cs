@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         public Color BackColor { get; set; } = Color.FromArgb(18, 18, 32);                // Deep Cyberpunk Black
         public Color PanelBackColor { get; set; } = Color.FromArgb(34, 34, 68);           // Cyberpunk Panel
-
+        public Color ForeColor { get; set; } = Color.FromArgb(34, 34, 68);
         public Color PanelGradiantStartColor { get; set; } = Color.FromArgb(255, 0, 255); // Neon Magenta
         public Color PanelGradiantEndColor { get; set; } = Color.FromArgb(0, 255, 255);   // Neon Cyan
         public Color PanelGradiantMiddleColor { get; set; } = Color.FromArgb(0, 102, 255);// Neon Blue

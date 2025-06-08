@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.FlatDesignTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class FlatDesignTheme : BeepTheme
+    public partial class FlatDesignTheme  : IBeepTheme
     {
         public FlatDesignTheme() { }
     }

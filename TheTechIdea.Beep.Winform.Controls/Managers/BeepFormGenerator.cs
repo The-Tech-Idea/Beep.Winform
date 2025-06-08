@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         [DllImport("gdi32.dll")]
         private static extern nint CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
 
-        public static void ApplyBeepForm(Form form, BeepTheme theme = null)
+        public static void ApplyBeepForm(Form form, IBeepTheme theme = null)
         {
             // Save the original form properties if not already saved
             if (!originalFormStates.ContainsKey(form))
@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             isResizing = false;
         }
 
-        public static void ApplyTheme(Form form, BeepTheme theme)
+        public static void ApplyTheme(Form form, IBeepTheme theme)
         {
             form.BackColor = theme.BackgroundColor;
            // Console.WriteLine("Form BackColor: " + form.BackColor);

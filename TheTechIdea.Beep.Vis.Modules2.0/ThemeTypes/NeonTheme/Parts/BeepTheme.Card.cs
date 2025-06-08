@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CardTitleForeColor { get; set; } = Color.FromArgb(26, 188, 156); // Neon turquoise for titles
         public TypographyStyle CardSubTitleFont { get; set; } = ThemeUtils.ConvertFontToTypographyStyle("Roboto", 14, FontStyle.Regular); // Lighter subtitle
         public Color CardSubTitleForeColor { get; set; } = Color.FromArgb(46, 204, 113); // Neon green for subtitles
-        public TypographyStyle CardHeaderStyle { get; set; } = new TypographyStyle
+        public TypographyStyle CardHeaderFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 20,
@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsUnderlined = false,
             IsStrikeout = false
         };
-        public TypographyStyle CardParagraphStyle { get; set; } = new TypographyStyle
+        public TypographyStyle CardParagraphFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 14,
@@ -36,18 +36,18 @@ namespace TheTechIdea.Beep.Vis.Modules
             IsUnderlined = false,
             IsStrikeout = false
         };
-        public TypographyStyle CardSubTitleStyle { get; set; } = new TypographyStyle
-        {
-            FontFamily = "Roboto",
-            FontSize = 16,
-            LineHeight = 1.5f,
-            LetterSpacing = 0.3f,
-            FontWeight = FontWeight.Medium,
-            FontStyle = FontStyle.Regular,
-            TextColor = Color.FromArgb(46, 204, 113), // Neon green
-            IsUnderlined = false,
-            IsStrikeout = false
-        };
+        //public TypographyStyle CardSubTitleFont { get; set; } = new TypographyStyle
+        //{
+        //    FontFamily = "Roboto",
+        //    FontSize = 16,
+        //    LineHeight = 1.5f,
+        //    LetterSpacing = 0.3f,
+        //    FontWeight = FontWeight.Medium,
+        //    FontStyle = FontStyle.Regular,
+        //    TextColor = Color.FromArgb(46, 204, 113), // Neon green
+        //    IsUnderlined = false,
+        //    IsStrikeout = false
+        //};
         public Color CardGradiantStartColor { get; set; } = Color.FromArgb(26, 188, 156); // Neon turquoise
         public Color CardGradiantMiddleColor { get; set; } = Color.FromArgb(46, 204, 113); // Neon green
         public Color CardGradiantEndColor { get; set; } = Color.FromArgb(142, 68, 173); // Neon purple

@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.NeonTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class NeonTheme : BeepTheme
+    public partial class NeonTheme  : IBeepTheme
     {
         public NeonTheme() { }
     }

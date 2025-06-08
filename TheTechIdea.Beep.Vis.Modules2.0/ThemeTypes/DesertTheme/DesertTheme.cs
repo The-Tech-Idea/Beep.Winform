@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.DesertTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class DesertTheme : BeepTheme
+    public partial class DesertTheme  : IBeepTheme
     {
         public DesertTheme() { }
     }

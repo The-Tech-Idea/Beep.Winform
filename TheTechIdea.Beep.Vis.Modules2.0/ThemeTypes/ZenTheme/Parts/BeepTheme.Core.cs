@@ -19,6 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color DisabledForeColor { get; set; } = Color.FromArgb(120, 120, 120);
         public Color DisabledBorderColor { get; set; } = Color.FromArgb(150, 150, 150);
         public Color BorderColor { get; set; } = Color.FromArgb(64, 64, 64);
+        public Color ForeColor { get; set; } = Color.FromArgb(64, 64, 64);
         public Color ActiveBorderColor { get; set; } = Color.FromArgb(76, 175, 80);
         public Color InactiveBorderColor { get; set; } = Color.FromArgb(189, 189, 189);
     }

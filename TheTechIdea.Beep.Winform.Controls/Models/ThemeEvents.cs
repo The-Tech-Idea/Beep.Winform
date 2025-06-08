@@ -12,8 +12,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
     {
         public string OldThemeName { get; set; }
         public string NewThemeName { get; set; }
-        public BeepTheme OldTheme { get; set; }
-        public BeepTheme NewTheme { get; set; }
+        public IBeepTheme OldTheme { get; set; }
+        public IBeepTheme NewTheme { get; set; }
     }
 
   

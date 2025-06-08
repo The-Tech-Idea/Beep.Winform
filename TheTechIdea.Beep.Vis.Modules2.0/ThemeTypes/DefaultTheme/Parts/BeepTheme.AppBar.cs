@@ -5,6 +5,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 {
     public partial class DefaultTheme
     {
+       
         // AppBar colors and styles
         public Color AppBarBackColor { get; set; } = Color.FromArgb(33, 150, 243);            // Modern blue
         public Color AppBarForeColor { get; set; } = Color.White;

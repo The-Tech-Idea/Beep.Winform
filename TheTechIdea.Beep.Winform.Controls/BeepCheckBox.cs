@@ -414,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            Color backColor = _state == CheckBoxState.Checked ? _currentTheme.CheckBoxSelectedBackColor :
+            Color backColor = _state == CheckBoxState.Checked ? _currentTheme.CheckBoxCheckedBackColor :
                              (_state == CheckBoxState.Indeterminate ? _currentTheme.CheckBoxBackColor : _currentTheme.CheckBoxBackColor);
             using (Brush backBrush = new SolidBrush(backColor))
             using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
@@ -489,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawCheckMark(Graphics g, Rectangle bounds)
         {
-            using (Pen pen = new Pen( _currentTheme.CheckBoxSelectedForeColor, 2))
+            using (Pen pen = new Pen( _currentTheme.CheckBoxCheckedForeColor, 2))
             {
                 PointF[] checkMarkPoints = new PointF[]
                 {

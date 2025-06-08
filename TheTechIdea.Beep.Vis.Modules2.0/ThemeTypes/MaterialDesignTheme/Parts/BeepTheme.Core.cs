@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Core UI Elements
         public string ThemeGuid { get; set; } = Guid.NewGuid().ToString();
         public string ThemeName => this.GetType().Name;
-
+        public Color ForeColor { get; set; } = Color.FromArgb(250, 250, 250); // Very light gray background
         public Color BackColor { get; set; } = Color.FromArgb(250, 250, 250); // Very light gray background
         public Color PanelBackColor { get; set; } = Color.White; // White panels
 

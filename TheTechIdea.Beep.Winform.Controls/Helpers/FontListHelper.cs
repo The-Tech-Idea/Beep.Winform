@@ -325,25 +325,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static Font GetFont(string fontName, float size, FontStyle style = FontStyle.Regular)
         {
             if (string.IsNullOrEmpty(fontName))
-                return null;
+            {
+                // Fallback to Arial if no font name is provided
+                return new Font("Arial", size, style);
+            }
 
             var fontConfig = FontConfigurations.FirstOrDefault(
                 f => f.Name.Equals(fontName, StringComparison.OrdinalIgnoreCase));
 
-            if (fontConfig == null)
-                return null;
-
             try
             {
                 // For system fonts, create from name
-                if (fontConfig.IsSystemFont)
+                if (fontConfig != null && fontConfig.IsSystemFont)
                 {
                     return new Font(fontName, size, style);
                 }
                 // For private fonts, create from private font collection
-                else if (fontConfig.IsPrivateFont && fontConfig.PrivateFontIndex >= 0)
+                else if (fontConfig != null && fontConfig.IsPrivateFont && fontConfig.PrivateFontIndex >= 0)
                 {
-                    // Check if the font family is still available in the collection
                     if (fontConfig.PrivateFontIndex < privateFontCollection.Families.Length)
                     {
                         return new Font(privateFontCollection.Families[fontConfig.PrivateFontIndex], size, style);
@@ -355,9 +354,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 Console.WriteLine($"Failed to create font {fontName}: {ex.Message}");
             }
 
-            return null;
+            // Fallback: Try Arial, then GenericSansSerif
+            try
+            {
+                return new Font("Arial", size, style);
+            }
+            catch
+            {
+                try
+                {
+                    return new Font(FontFamily.GenericSansSerif, size, style);
+                }
+                catch
+                {
+                    // As a last resort, return null (should be extremely rare)
+                    return null;
+                }
+            }
         }
-
         /// <summary>
         /// Gets a font by index with specified size and style
         /// </summary>

@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
   
-        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         private bool _applythemetochilds = true;
 
         public event EventHandler OnFormClose;

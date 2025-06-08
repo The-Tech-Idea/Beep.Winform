@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.VintageTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class VintageTheme : BeepTheme
+    public partial class VintageTheme  : IBeepTheme
     {
         public VintageTheme() { }
     }

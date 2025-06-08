@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         {
             OnCellValidate?.Invoke(this, new BeepCellEventArgs(this));
         }
-        public void ApplyTheme(BeepTheme theme)
+        public void ApplyTheme(IBeepTheme theme)
         {
             if (UIComponent != null)
             {

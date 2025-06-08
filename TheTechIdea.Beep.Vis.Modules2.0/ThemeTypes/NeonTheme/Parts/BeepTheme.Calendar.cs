@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CalendarBorderColor { get; set; } = Color.FromArgb(26, 188, 156); // Neon turquoise for border
 
         // Title Section (Month/Year)
-        public TypographyStyle CalendarTitleStyle { get; set; } = new TypographyStyle
+        public TypographyStyle CalendarTitleFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 16f,
@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public Color CalendarTitleBackColor { get; set; } = Color.FromArgb(40, 40, 60); // Dark blue-gray
 
         // Days Header (Mon-Sun)
-        public TypographyStyle DaysHeaderStyle { get; set; } = new TypographyStyle
+        public TypographyStyle HeaderFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 12f,
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         };
 
         // Normal Dates
-        public TypographyStyle DateTextStyle { get; set; } = new TypographyStyle
+        public TypographyStyle DateFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 11f,
@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Selected Date
         public Color CalendarSelectedDateBackColor { get; set; } = Color.FromArgb(46, 204, 113); // Neon green
         public Color CalendarSelectedDateForColor { get; set; } = Color.FromArgb(30, 30, 50); // Dark for contrast
-        public TypographyStyle SelectedDateTextStyle { get; set; } = new TypographyStyle
+        public TypographyStyle SelectedDateTextFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 11f,
@@ -78,7 +78,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         // Footer (Time/Buttons)
         public Color CalendarTeslaFooterColor { get; set; } = Color.FromArgb(40, 40, 60); // Dark blue-gray
-        public TypographyStyle FooterTextStyle { get; set; } = new TypographyStyle
+        public TypographyStyle FooterTextFont { get; set; } = new TypographyStyle
         {
             FontFamily = "Roboto",
             FontSize = 10f,

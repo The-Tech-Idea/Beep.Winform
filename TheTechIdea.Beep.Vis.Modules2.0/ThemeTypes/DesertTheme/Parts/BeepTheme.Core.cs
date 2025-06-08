@@ -10,6 +10,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string ThemeGuid { get; set; } = Guid.NewGuid().ToString();
         public string ThemeName => this.GetType().Name;
 
+        public Color ForeColor { get; set; } = Color.FromArgb(255, 244, 229); // Soft beige background
+
         public Color BackColor { get; set; } = Color.FromArgb(255, 244, 229); // Soft beige background
         public Color PanelBackColor { get; set; } = Color.FromArgb(245, 222, 179); // Wheat tone for panels
         public Color PanelGradiantStartColor { get; set; } = Color.FromArgb(255, 248, 220); // Light cream

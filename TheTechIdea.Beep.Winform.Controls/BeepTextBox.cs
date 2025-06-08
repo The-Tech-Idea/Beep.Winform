@@ -1681,6 +1681,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            if (_currentTheme == null) return;
             base.ApplyTheme();
             if (IsChild && Parent != null)
             {

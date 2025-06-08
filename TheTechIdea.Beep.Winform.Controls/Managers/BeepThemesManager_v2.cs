@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Event for theme changes
         public static event EventHandler<ThemeChangeEventArgs> ThemeChanged;
         // Static themes collection
-        public static readonly List<BeepTheme> _themes = new List<BeepTheme>();
+        public static readonly List<IBeepTheme> _themes = new List<IBeepTheme>();
 
         // Static constructor to initialize themes
         static BeepThemesManager_v2()
@@ -80,30 +80,26 @@ namespace TheTechIdea.Beep.Vis.Modules
             }
 
             // Find and instantiate all theme types from all assemblies
-            var themeInstances = new List<BeepTheme>();
+            var themeInstances = new List<IBeepTheme>();
 
             foreach (var assembly in assemblies)
             {
                 try
                 {
-                    // Find all BeepTheme subclasses in this assembly
+                    // Find all classes that implement IBeepTheme in this assembly
                     var themeTypes = assembly.GetTypes()
                         .Where(t => t != null &&
                                    t.IsClass &&
                                    !t.IsAbstract &&
-                                   (t == typeof(BeepTheme) || t.IsSubclassOf(typeof(BeepTheme))));
+                                   typeof(IBeepTheme).IsAssignableFrom(t));
 
                     foreach (var type in themeTypes)
                     {
                         try
                         {
-                            if (Activator.CreateInstance(type) is BeepTheme theme)
+                            if (Activator.CreateInstance(type) is IBeepTheme theme)
                             {
-                                // Use the theme's class name if ThemeName is not set
-                                if (string.IsNullOrEmpty(theme.ThemeName))
-                                {
-                                    theme.ThemeName = type.Name;
-                                }
+                               
 
                                 // Generate a GUID if not set
                                 if (string.IsNullOrEmpty(theme.ThemeGuid))
@@ -138,14 +134,7 @@ namespace TheTechIdea.Beep.Vis.Modules
                 _themes.Add(theme);
             }
 
-            // Ensure we have a DefaultTheme
-            if (!_themes.Any(t => t.ThemeName == "DefaultTheme"))
-            {
-                BeepTheme defaultTheme = new BeepTheme();
-                defaultTheme.ThemeGuid = DefaultThemeGuid.ToString();
-                defaultTheme.ThemeName = "DefaultTheme";
-                _themes.Add(defaultTheme);
-            }
+          
 
             // After loading standard themes, call AddPredefinedThemes for specialized themes
             AddPredefinedThemes();
@@ -159,16 +148,11 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Method to add a theme
-        public static void AddTheme(BeepTheme theme)
+        public static void AddTheme(IBeepTheme theme)
         {
             if (theme == null)
                 return;
 
-            // Make sure theme has a name
-            if (string.IsNullOrEmpty(theme.ThemeName))
-            {
-                theme.ThemeName = theme.GetType().Name;
-            }
 
             // Make sure theme has a GUID
             if (string.IsNullOrEmpty(theme.ThemeGuid))
@@ -184,7 +168,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Method to remove a theme
-        public static void RemoveTheme(BeepTheme theme)
+        public static void RemoveTheme(IBeepTheme theme)
         {
             if (theme != null)
             {
@@ -224,22 +208,22 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Get current theme object
-        public static BeepTheme CurrentTheme => GetTheme(_currentThemeName);
+        public static IBeepTheme CurrentTheme => GetTheme(_currentThemeName);
 
         // Get theme by name
-        public static BeepTheme GetTheme(string themeName)
+        public static IBeepTheme GetTheme(string themeName)
         {
             return _themes.FirstOrDefault(t => t.ThemeName == themeName) ?? GetDefaultTheme();
         }
 
         // Get the default theme
-        public static BeepTheme GetDefaultTheme()
+        public static IBeepTheme GetDefaultTheme()
         {
             return _themes.FirstOrDefault(t => t.ThemeName == "DefaultTheme") ?? _themes.FirstOrDefault();
         }
 
         // Get theme name
-        public static string GetThemeName(BeepTheme theme)
+        public static string GetThemeName(IBeepTheme theme)
         {
             return theme?.ThemeName ?? "DefaultTheme";
         }
@@ -251,7 +235,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Get all themes
-        public static List<BeepTheme> GetThemes()
+        public static List<IBeepTheme> GetThemes()
         {
             return _themes.ToList(); // Return a copy to prevent external modification
         }
@@ -273,9 +257,9 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Save theme to file
-        public static void SaveTheme(BeepTheme theme, string filePath)
+        public static void SaveTheme(IBeepTheme theme, string filePath)
         {
-            var serializer = new XmlSerializer(typeof(BeepTheme));
+            var serializer = new XmlSerializer(typeof(IBeepTheme));
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
                 serializer.Serialize(stream, theme);
@@ -283,12 +267,12 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Load theme from file
-        public static BeepTheme LoadTheme(string filePath)
+        public static IBeepTheme LoadTheme(string filePath)
         {
-            var serializer = new XmlSerializer(typeof(BeepTheme));
+            var serializer = new XmlSerializer(typeof(IBeepTheme));
             using (var stream = new FileStream(filePath, FileMode.Open))
             {
-                var theme = (BeepTheme)serializer.Deserialize(stream);
+                var theme = (IBeepTheme)serializer.Deserialize(stream);
 
                 // Add the loaded theme to our collection if it's not already there
                 if (!ThemeExists(theme.ThemeName))
@@ -311,7 +295,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Set current theme by object
-        public static void SetCurrentTheme(BeepTheme theme)
+        public static void SetCurrentTheme(IBeepTheme theme)
         {
             if (theme != null)
             {
@@ -332,7 +316,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         }
 
         // Get GUID from theme
-        public static string GetGuidFromTheme(BeepTheme theme)
+        public static string GetGuidFromTheme(IBeepTheme theme)
         {
             return theme?.ThemeGuid ?? DefaultThemeGuid.ToString();
         }
@@ -445,7 +429,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
                 // Try to use reflection to find all theme types in the assembly
                 var allPossibleThemeTypes = themeAssembly.GetTypes()
-                    .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(BeepTheme)))
+                    .Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(typeof(IBeepTheme)))
                     .ToList();
 
                 // Add any discovered theme types to our list if they aren't already there
@@ -502,15 +486,11 @@ namespace TheTechIdea.Beep.Vis.Modules
                         }
 
                         // If we found the type, create an instance and add it to our themes
-                        if (themeType != null && themeType.IsSubclassOf(typeof(BeepTheme)))
+                        if (themeType != null && themeType.IsSubclassOf(typeof(IBeepTheme)))
                         {
-                            var theme = (BeepTheme)Activator.CreateInstance(themeType);
+                            var theme = (IBeepTheme)Activator.CreateInstance(themeType);
 
-                            // Ensure theme has a name
-                            if (string.IsNullOrEmpty(theme.ThemeName))
-                            {
-                                theme.ThemeName = themeTypeName;
-                            }
+                           
 
                             AddTheme(theme);
                         }

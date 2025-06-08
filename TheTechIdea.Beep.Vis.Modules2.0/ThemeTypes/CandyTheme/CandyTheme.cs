@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.CandyTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class CandyTheme : BeepTheme
+    public partial class CandyTheme : IBeepTheme
     {
       
     }

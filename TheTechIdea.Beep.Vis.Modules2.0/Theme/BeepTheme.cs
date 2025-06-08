@@ -1,14 +1,14 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Vis.Modules
+namespace TheTechIdea.Beep.Vis.Modules.Theme
 {
-    public partial class HighlightTheme:BeepTheme
+    public partial class BeepTheme
     {
-        public HighlightTheme()
+        public BeepTheme()
         {
             
         }

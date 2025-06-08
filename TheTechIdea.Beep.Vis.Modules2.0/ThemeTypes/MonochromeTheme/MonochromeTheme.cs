@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.MonochromeTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class MonochromeTheme : BeepTheme
+    public partial class MonochromeTheme  : IBeepTheme
     {
         public MonochromeTheme() { }
     }

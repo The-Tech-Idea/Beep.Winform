@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public string ComponentName { get; set; }
         void ApplyTheme();
         void ApplyTheme(string theme);
-        void ApplyTheme(BeepTheme theme);
+        void ApplyTheme(IBeepTheme theme);
         Size GetSize();
         string Text { get; set; }
         void ShowToolTip(string text);

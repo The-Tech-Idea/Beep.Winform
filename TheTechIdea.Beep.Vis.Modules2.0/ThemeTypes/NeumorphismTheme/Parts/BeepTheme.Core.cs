@@ -10,6 +10,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Note: Ensure 'Roboto' font family is available for TypographyStyle properties in other classes. If unavailable, 'Arial' is a fallback.
         public string ThemeGuid { get; set; } = Guid.NewGuid().ToString(); // Unique identifier for the theme
         public string ThemeName => this.GetType().Name;
+        public Color ForeColor { get; set; } = Color.FromArgb(230, 230, 235); // Light gray for main background
         public Color BackColor { get; set; } = Color.FromArgb(230, 230, 235); // Light gray for main background
         public Color PanelBackColor { get; set; } = Color.FromArgb(220, 220, 225); // Slightly darker gray for panels
         public Color PanelGradiantStartColor { get; set; } = Color.FromArgb(240, 240, 245); // Light gray gradient start

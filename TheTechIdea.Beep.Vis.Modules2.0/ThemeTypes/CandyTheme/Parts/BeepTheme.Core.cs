@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         // Main background: soft lemon
         public Color BackColor { get; set; } = Color.FromArgb(255, 253, 194); // Lemon Yellow
-
+        public Color ForeColor { get; set; } = Color.FromArgb(206, 183, 255); // Pastel Lavender (soft, non-distracting)
         // Panel background: gentle pastel pink
         public Color PanelBackColor { get; set; } = Color.FromArgb(255, 224, 235); // Pastel Pink
 

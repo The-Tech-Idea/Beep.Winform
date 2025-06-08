@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.RusticTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class RusticTheme : BeepTheme
+    public partial class RusticTheme  : IBeepTheme
     {
         public RusticTheme() { }
     }

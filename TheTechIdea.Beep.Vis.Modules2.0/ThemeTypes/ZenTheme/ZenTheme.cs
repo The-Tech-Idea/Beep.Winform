@@ -1,9 +1,10 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.ZenTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class ZenTheme : BeepTheme
+    public partial class ZenTheme : IBeepTheme
     {
-        public ZenTheme() { }
+        public ZenTheme()
+        { }
     }
 }

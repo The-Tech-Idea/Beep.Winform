@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                     // Convert EnumBeepThemes to its string name for the dropdown
                     return enumValue.ToString();
                 }
-                else if (value is BeepTheme theme)
+                else if (value is IBeepTheme theme)
                 {
                     // Convert BeepTheme to its corresponding string name
                     return BeepThemesManager_v2.GetThemeName(theme);
@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                 }
             }
 
-            if (destinationType == typeof(string) && value is BeepTheme themeValue)
+            if (destinationType == typeof(string) && value is IBeepTheme themeValue)
             {
                 // Convert BeepTheme to its corresponding EnumBeepThemes value
                 string themeName = BeepThemesManager_v2.GetThemeName(themeValue);

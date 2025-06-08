@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.SpringTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class SpringTheme : BeepTheme
+    public partial class SpringTheme  : IBeepTheme
     {
         public SpringTheme() { }
     }

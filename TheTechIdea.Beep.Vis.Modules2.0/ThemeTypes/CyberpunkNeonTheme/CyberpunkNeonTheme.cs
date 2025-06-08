@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.CyberpunkNeonTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class CyberpunkNeonTheme : BeepTheme
+    public partial class CyberpunkNeonTheme  : IBeepTheme
     {
         public CyberpunkNeonTheme()
         {   // Now the properties that depend on others can be set here

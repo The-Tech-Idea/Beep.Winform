@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         //}
 
 
-        public void ApplyTheme(BeepTheme theme)
+        public void ApplyTheme(IBeepTheme theme)
         {
             foreach (var cell in Cells)
             {

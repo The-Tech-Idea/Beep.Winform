@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         protected  IBeepService? beepService;
 
         private string _theme;
-        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
         public string Theme

@@ -978,7 +978,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region "Theme"
-        public virtual void  ApplyTheme(BeepTheme theme)
+        public virtual void  ApplyTheme(IBeepTheme theme)
         {
             _currentTheme=theme;
             ApplyTheme();
@@ -987,6 +987,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
+                if (_currentTheme == null) return;
                 //ForeColor = _currentTheme.LatestForColor;
                 //BackColor = _currentTheme.BackgroundColor;;
                 BorderColor = _currentTheme.BorderColor;
@@ -3034,7 +3035,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<object> Items { get { return _items; } set { _items = value; } }
 
         //protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected BeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
         public event EventHandler<BeepComponentEventArgs> OnSelected;
         public event EventHandler<BeepComponentEventArgs> OnValidate;
         public event EventHandler<BeepComponentEventArgs> OnValueChanged;

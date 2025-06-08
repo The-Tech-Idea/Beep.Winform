@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.GalaxyTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class GalaxyTheme : BeepTheme
+    public partial class GalaxyTheme  : IBeepTheme
     {
         public GalaxyTheme() { }
     }

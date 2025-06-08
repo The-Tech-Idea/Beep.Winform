@@ -1,8 +1,8 @@
 using System;
 
-namespace TheTechIdea.Beep.Vis.Modules.ThemeTypes.OceanTheme
+namespace TheTechIdea.Beep.Vis.Modules
 {
-    public partial class OceanTheme : BeepTheme
+    public partial class OceanTheme  : IBeepTheme
     {
         public OceanTheme() { }
     }

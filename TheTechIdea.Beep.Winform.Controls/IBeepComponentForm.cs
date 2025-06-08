@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Component?.ApplyTheme(theme);
         }
 
-        public void ApplyTheme(BeepTheme theme)
+        public void ApplyTheme(IBeepTheme theme)
         {
             Component?.ApplyTheme(theme);
         }

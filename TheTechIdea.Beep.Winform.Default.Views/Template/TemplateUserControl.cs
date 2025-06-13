@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepService = service;
             Dependencies.DMEEditor = beepService.DMEEditor;
             BeepThemesManager_v2.ThemeChanged += BeepThemesManager_v2_ThemeChanged;
-            Theme = BeepThemesManager_v2.GetDefaultTheme().ThemeName;
+            Theme = BeepThemesManager_v2.CurrentThemeName;
         }
 
         private void BeepThemesManager_v2_ThemeChanged(object? sender, Controls.Models.ThemeChangeEventArgs e)

@@ -432,16 +432,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
 
-            // Apply theme to the main control
-            if (IsChild && Parent != null)
-            {
-                BackColor = Parent.BackColor;
-                ParentBackColor = Parent.BackColor;
-            }
-            else
-            {
+           
                 BackColor = _currentTheme.MenuBackColor;
-            }
+            
 
             // Apply colors
             ForeColor = _currentTheme.MenuForeColor;
@@ -455,9 +448,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply gradient if configured
             if (_currentTheme.MenuGradiantStartColor != Color.Empty &&
-                _currentTheme.MenuGradiantEndColor != Color.Empty)
+                _currentTheme.MenuGradiantEndColor != Color.Empty && UseGradientBackground)
             {
-                UseGradientBackground = true;
+               
                 GradientStartColor = _currentTheme.MenuGradiantStartColor;
                 GradientEndColor = _currentTheme.MenuGradiantEndColor;
 

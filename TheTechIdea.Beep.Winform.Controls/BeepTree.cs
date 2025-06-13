@@ -784,6 +784,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _verticalScrollBar.Theme = Theme;
             _horizontalScrollBar.Theme = Theme;
             Invalidate();
+            Refresh();
 
         }
         #region "Find and Filter"

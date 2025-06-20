@@ -711,9 +711,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!websiteRect.IsEmpty)
             {
                 // Custom drawing for LinkLabel since it doesn't inherit from BeepControl
-                Font linkFont = UseThemeFont && _currentTheme.LinkStyle != null
-                    ? BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle)
-                    : new Font("Segoe UI", 9, FontStyle.Underline);
+                Font linkFont;
+
+                // Use company-specific link font if available
+                if (UseThemeFont && _currentTheme.CompanyLinkFont != null)
+                {
+                    linkFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyLinkFont);
+                }
+                // Fall back to general link style
+                else if (UseThemeFont && _currentTheme.LinkStyle != null)
+                {
+                    linkFont = BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle);
+                }
+                // Default fallback
+                else
+                {
+                    linkFont = new Font("Segoe UI", 9, FontStyle.Underline);
+                }
 
                 Color linkColor = _currentTheme.CompanyLinkColor != Color.Empty
                     ? _currentTheme.CompanyLinkColor
@@ -789,14 +803,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (lblCompanyName != null)
             {
                 lblCompanyName.Theme = Theme;
+
+                // Set company title color - use specialized color if available
                 lblCompanyName.ForeColor = _currentTheme.CompanyTitleColor != Color.Empty
                     ? _currentTheme.CompanyTitleColor
                     : _currentTheme.TitleStyle?.TextColor ?? _currentTheme.PrimaryTextColor;
 
-                // Apply theme font if using theme font is enabled
-                if (UseThemeFont && _currentTheme.TitleStyle != null)
+                // Apply font styling - use company specific font if available
+                if (UseThemeFont)
                 {
-                    lblCompanyName.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleStyle);
+                    if (_currentTheme.CompanyTitleFont != null)
+                    {
+                        lblCompanyName.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyTitleFont);
+                    }
+                    else if (_currentTheme.TitleStyle != null)
+                    {
+                        lblCompanyName.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleStyle);
+                    }
                 }
             }
 
@@ -804,14 +827,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (lblCompanyType != null)
             {
                 lblCompanyType.Theme = Theme;
+
+                // Set company subtitle color - use specialized color if available
                 lblCompanyType.ForeColor = _currentTheme.CompanySubtitleColor != Color.Empty
                     ? _currentTheme.CompanySubtitleColor
                     : _currentTheme.SubtitleStyle?.TextColor ?? _currentTheme.SecondaryTextColor;
 
-                // Apply theme font if using theme font is enabled
-                if (UseThemeFont && _currentTheme.SubtitleStyle != null)
+                // Apply font styling - use company specific font if available
+                if (UseThemeFont)
                 {
-                    lblCompanyType.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SubtitleStyle);
+                    if (_currentTheme.CompanySubTitleFont != null)
+                    {
+                        lblCompanyType.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanySubTitleFont);
+                    }
+                    else if (_currentTheme.SubtitleStyle != null)
+                    {
+                        lblCompanyType.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SubtitleStyle);
+                    }
                 }
             }
 
@@ -819,17 +851,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (lblCompanyDesc != null)
             {
                 lblCompanyDesc.Theme = Theme;
+
+                // Set company description color - use specialized color if available
                 lblCompanyDesc.ForeColor = _currentTheme.CompanyDescriptionColor != Color.Empty
                     ? _currentTheme.CompanyDescriptionColor
                     : _currentTheme.TextBoxForeColor;
+
+                // Set company background color
                 lblCompanyDesc.BackColor = _currentTheme.CompanyPopoverBackgroundColor != Color.Empty
                     ? _currentTheme.CompanyPopoverBackgroundColor
                     : _currentTheme.CardBackColor;
 
-                // Apply theme font if using theme font is enabled
-                if (UseThemeFont && _currentTheme.BodyStyle != null)
+                // Apply font styling - use company specific font if available
+                if (UseThemeFont)
                 {
-                    lblCompanyDesc.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.BodyStyle);
+                    if (_currentTheme.CompanyDescriptionFont != null)
+                    {
+                        lblCompanyDesc.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyDescriptionFont);
+                    }
+                    else if (_currentTheme.BodyStyle != null)
+                    {
+                        lblCompanyDesc.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.BodyStyle);
+                    }
                 }
             }
 
@@ -841,10 +884,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ? _currentTheme.CompanyDescriptionColor
                     : _currentTheme.CaptionStyle?.TextColor ?? _currentTheme.SecondaryTextColor;
 
-                // Apply theme font if using theme font is enabled
-                if (UseThemeFont && _currentTheme.CaptionStyle != null)
+                // Use description font for likes as well since they're typically smaller metadata
+                if (UseThemeFont)
                 {
-                    lblLikes.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CaptionStyle);
+                    if (_currentTheme.CompanyDescriptionFont != null)
+                    {
+                        lblLikes.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyDescriptionFont);
+                    }
+                    else if (_currentTheme.CaptionStyle != null)
+                    {
+                        lblLikes.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CaptionStyle);
+                    }
                 }
             }
 
@@ -855,10 +905,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ? _currentTheme.CompanyLinkColor
                     : _currentTheme.LinkStyle?.TextColor ?? _currentTheme.LinkColor;
 
-                // Apply theme font if using theme font is enabled
-                if (UseThemeFont && _currentTheme.LinkStyle != null)
+                // Apply font styling - use company specific font if available
+                if (UseThemeFont)
                 {
-                    linkWebsite.Font = BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle);
+                    if (_currentTheme.CompanyLinkFont != null)
+                    {
+                        linkWebsite.Font = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyLinkFont);
+                    }
+                    else if (_currentTheme.LinkStyle != null)
+                    {
+                        linkWebsite.Font = BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle);
+                    }
                 }
             }
 
@@ -872,6 +929,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btnLikePage.ForeColor = _currentTheme.CompanyButtonTextColor != Color.Empty
                     ? _currentTheme.CompanyButtonTextColor
                     : _currentTheme.ButtonForeColor;
+
+                // Apply button font styling
+                if (UseThemeFont)
+                {
+                    if (_currentTheme.CompanyButtonFont != null)
+                    {
+                        btnLikePage.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyButtonFont);
+                    }
+                    else if (_currentTheme.ButtonStyle != null)
+                    {
+                        btnLikePage.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                    }
+                }
             }
 
             // Apply theme to profile button
@@ -884,6 +954,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btnCompanyProfile.ForeColor = _currentTheme.CompanyButtonTextColor != Color.Empty
                     ? _currentTheme.CompanyButtonTextColor
                     : _currentTheme.ButtonForeColor;
+
+                // Apply button font styling
+                if (UseThemeFont)
+                {
+                    if (_currentTheme.CompanyButtonFont != null)
+                    {
+                        btnCompanyProfile.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyButtonFont);
+                    }
+                    else if (_currentTheme.ButtonStyle != null)
+                    {
+                        btnCompanyProfile.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                    }
+                }
             }
 
             // Apply theme to dropdown menu
@@ -897,11 +980,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                     : _currentTheme.MenuForeColor;
 
                 // Apply font to dropdown menu items
-                if (UseThemeFont && _currentTheme.MenuItemUnSelectedFont != null)
+                if (UseThemeFont)
                 {
-                    foreach (ToolStripItem item in dropdownMenu.Items)
+                    Font menuFont = null;
+
+                    // Try to use company specific button font for menu items
+                    if (_currentTheme.CompanyButtonFont != null)
                     {
-                        item.Font = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
+                        menuFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyButtonFont);
+                    }
+                    // Fall back to general menu item font
+                    else if (_currentTheme.MenuItemUnSelectedFont != null)
+                    {
+                        menuFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
+                    }
+
+                    if (menuFont != null)
+                    {
+                        foreach (ToolStripItem item in dropdownMenu.Items)
+                        {
+                            item.Font = menuFont;
+                        }
                     }
                 }
             }
@@ -916,6 +1015,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btnDropdown.ForeColor = _currentTheme.CompanyButtonTextColor != Color.Empty
                     ? _currentTheme.CompanyButtonTextColor
                     : _currentTheme.ButtonForeColor;
+
+                // Apply button font styling
+                if (UseThemeFont)
+                {
+                    if (_currentTheme.CompanyButtonFont != null)
+                    {
+                        btnDropdown.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.CompanyButtonFont);
+                    }
+                    else if (_currentTheme.ButtonStyle != null)
+                    {
+                        btnDropdown.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                    }
+                }
             }
 
             // Apply theme to company logo button
@@ -924,7 +1036,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btnCompanyLogo.Theme = Theme;
                 btnCompanyLogo.BackColor = _currentTheme.CompanyLogoBackgroundColor != Color.Empty
                     ? _currentTheme.CompanyLogoBackgroundColor
-                    : _currentTheme.ButtonBackColor;
+                    : _currentTheme.AccentColor; // Use accent color as fallback for logo background
+
+                // Set the logo image path if provided
+                if (!string.IsNullOrEmpty(_logoPath))
+                {
+                    btnCompanyLogo.ImagePath = _logoPath;
+                }
             }
 
             // Force redraw with the new theme

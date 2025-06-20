@@ -167,7 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "OK",
                 Theme = Theme,
              
-                IsChild = false,
+                IsChild = true,
                 TextAlign = ContentAlignment.MiddleCenter
             };
             _okButton.Click += OkButton_Click;
@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "Cancel",
                 Theme = Theme,
               
-                IsChild = false,
+                IsChild = true,
                 TextAlign = ContentAlignment.MiddleCenter
             };
             _cancelButton.Click += CancelButton_Click;
@@ -197,13 +197,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int padding = 2;
             int timeListWidth = 80;
-
-            // Account for rounded corners and border thickness
             int cornerPadding = BorderRadius + BorderThickness;
             int innerWidth = DrawingRect.Width - 2 * cornerPadding;
             int innerHeight = DrawingRect.Height - 2 * cornerPadding;
 
-            // Adjust regions to fit within the rounded shape
             _headerRect = new Rectangle(
                 DrawingRect.Left + cornerPadding,
                 DrawingRect.Top + padding,
@@ -226,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
 
             _timeListRect = new Rectangle(
-               _datesGridRect.Right,
+                _datesGridRect.Right,
                 DrawingRect.Top + HeaderHeight + padding,
                 timeListWidth,
                 innerHeight - HeaderHeight - FooterHeight - ButtonHeight - 2 * padding
@@ -248,29 +245,35 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _timeList.Location = new Point(_timeListRect.X, _timeListRect.Y);
             _timeList.Size = new Size(_timeListRect.Width, _timeListRect.Height);
-            // Change this line:
-            // _timeList.UpdateButtonItems();
-            // To:
             _timeList.UpdateVirtualItems();
+
             // Position OK and Cancel buttons side by side
             int buttonWidth = (_buttonsRect.Width - 3 * padding) / 2;
-            _okButton.Location = new Point(_buttonsRect.X, _buttonsRect.Y);
+            _okButton.Location = new Point(_buttonsRect.X, _buttonsRect.Y+padding);
             _okButton.Size = new Size(buttonWidth, ButtonHeight);
-
-            _cancelButton.Location = new Point(_buttonsRect.X + buttonWidth + padding, _buttonsRect.Y);
+            _cancelButton.Location = new Point(_buttonsRect.X + buttonWidth + padding, _buttonsRect.Y+padding);
             _cancelButton.Size = new Size(buttonWidth, ButtonHeight);
-            int y = DrawingRect.Top + cornerPadding + padding;
 
-            _headerRect = new Rectangle(DrawingRect.Left + cornerPadding, y, innerWidth, HeaderHeight);
-            y += HeaderHeight + padding;
-
-            _daysHeaderRect = new Rectangle(DrawingRect.Left + cornerPadding, y, innerWidth - timeListWidth, CellSize);
-            y += CellSize;
-
-            _datesGridRect = new Rectangle(DrawingRect.Left + cornerPadding, y, innerWidth - timeListWidth, CellSize * 6);
-
+            // Ensure minimum width for footer content
+            int minSelectedDateWidth = 80; // Increased from 60 to 80 pixels to accommodate "Selected Date"
+            using (var g = CreateGraphics())
+            {
+                string sampleDate = "MMMM d, yyyy h:mm tt".Replace("MMMM d, yyyy h:mm tt", "September 13, 2025 03:14 PM"); // Sample long date
+                SizeF dateSize = g.MeasureString(sampleDate, SelectedDateFont);
+                int minDateWidth = (int)Math.Ceiling(dateSize.Width) + 10; // Add padding
+                int minFooterWidth = minSelectedDateWidth + minDateWidth + padding;
+                if (_footerRect.Width < minFooterWidth)
+                {
+                    _footerRect.Width = Math.Max(_footerRect.Width, minFooterWidth);
+                    _buttonsRect.X = _footerRect.X;
+                    _buttonsRect.Width = _footerRect.Width;
+                    buttonWidth = (_buttonsRect.Width - 3 * padding) / 2;
+                    _okButton.Size = new Size(buttonWidth, ButtonHeight);
+                    _cancelButton.Location = new Point(_buttonsRect.X + buttonWidth + padding, _buttonsRect.Y);
+                    _cancelButton.Size = new Size(buttonWidth, ButtonHeight);
+                }
+            }
         }
-
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
@@ -312,65 +315,63 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void DrawHeader(Graphics g)
         {
-            // Removed background drawing; only draw the text and arrows
             string monthYear = _currentMonth.ToString("MMMM yyyy");
-            SizeF textSize = g.MeasureString(monthYear, Font);
-            PointF textPos = new PointF(_headerRect.Left + (_headerRect.Width - textSize.Width) / 2, _headerRect.Top + (_headerRect.Height - textSize.Height) / 2);
-            // Draw String with Brush color _currenttheme.TitleForColor
-            Brush brush = new SolidBrush(_currentTheme.CalendarForeColor); // Use a solid color for the text
-                g.DrawString(monthYear, Font, brush, textPos); // Use a solid color for the text
+            SizeF textSize = g.MeasureString(monthYear, HeaderFont);
+            PointF textPos = new PointF(_headerRect.Left + (_headerRect.Width - textSize.Width) / 2,
+                                       _headerRect.Top + (_headerRect.Height - textSize.Height) / 2);
+            using (Brush brush = new SolidBrush(_currentTheme.CalendarTitleForColor))
+            {
+                g.DrawString(monthYear, HeaderFont, brush, textPos);
+            }
 
             // Draw navigation arrows
-            _leftArrow.Location = new Point(_headerRect.Left + 10, _headerRect.Top + (_headerRect.Height - _leftArrow.Height) / 2);
-            
+            _leftArrow.Location = new Point(_headerRect.Left + 10,
+                                           _headerRect.Top + (_headerRect.Height - _leftArrow.Height) / 2);
             _leftArrow.DrawImage(g, new Rectangle(_leftArrow.Location, _leftArrow.Size));
-            
-            _rightArrow.Location = new Point(
-    _headerRect.Right - _rightArrow.Width - 10,
-    _headerRect.Top + (_headerRect.Height - _rightArrow.Height) / 2
-);
-            _rightArrow.DrawImage(g, new Rectangle(_rightArrow.Location, _rightArrow.Size));
 
+            _rightArrow.Location = new Point(_headerRect.Right - _rightArrow.Width - 10,
+                                            _headerRect.Top + (_headerRect.Height - _rightArrow.Height) / 2);
+            _rightArrow.DrawImage(g, new Rectangle(_rightArrow.Location, _rightArrow.Size));
         }
 
         private void DrawDaysHeader(Graphics g)
         {
-            Brush brush = new SolidBrush(_currentTheme.CalendarForeColor);
-            string[] days = { "M", "T", "W", "T", "F", "S", "S" };
-
-            // Calculate cell width consistently with what's used in DrawDatesGrid
-            const int minCellWidth = 36;
-            int cellWidth = Math.Max(CellSize, minCellWidth);
-
-            for (int i = 0; i < 7; i++)
+            using (Brush brush = new SolidBrush(_currentTheme.CalendarDaysHeaderForColor))
             {
-                Rectangle dayRect = new Rectangle(_daysHeaderRect.X + i * cellWidth, _daysHeaderRect.Y, cellWidth, CellSize);
-                g.DrawString(days[i], DaysHeaderFont, brush, dayRect,
-                            new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                string[] days = { "M", "T", "W", "T", "F", "S", "S" };
+                const int minCellWidth = 36;
+                int cellWidth = Math.Max(CellSize, minCellWidth);
+
+                for (int i = 0; i < 7; i++)
+                {
+                    Rectangle dayRect = new Rectangle(_daysHeaderRect.X + i * cellWidth, _daysHeaderRect.Y,
+                                                     cellWidth, CellSize);
+                    g.DrawString(days[i], DaysHeaderFont, brush, dayRect,
+                                 new StringFormat
+                                 {
+                                     Alignment = StringAlignment.Center,
+                                     LineAlignment = StringAlignment.Center
+                                 });
+                }
             }
         }
 
         private void DrawDatesGrid(Graphics g)
         {
             DateTime firstDayOfMonth = new DateTime(_currentMonth.Year, _currentMonth.Month, 1);
-            int dayOfWeek = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Adjust for Monday start
+            int dayOfWeek = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Monday start
             int daysInMonth = DateTime.DaysInMonth(_currentMonth.Year, _currentMonth.Month);
 
-            // Use the same cell width calculation as in DrawDaysHeader
-            const int minCellWidth = 36; // Make sure cell width can handle "31" comfortably
+            const int minCellWidth = 36;
             int cellWidth = Math.Max(CellSize, minCellWidth);
-            int cellHeight = CellSize; // Keep the height the same
+            int cellHeight = CellSize;
 
             int row = 0, col = dayOfWeek;
             for (int day = 1; day <= daysInMonth; day++)
             {
-                // Use cellWidth to match the header's calculation
-                Rectangle cellRect = new Rectangle(
-                    _datesGridRect.X + col * cellWidth,
-                    _datesGridRect.Y + row * cellHeight,
-                    cellWidth,
-                    cellHeight);
-
+                Rectangle cellRect = new Rectangle(_datesGridRect.X + col * cellWidth,
+                                                  _datesGridRect.Y + row * cellHeight,
+                                                  cellWidth, cellHeight);
                 DateTime currentDate = new DateTime(_currentMonth.Year, _currentMonth.Month, day);
 
                 bool isSelected = _selectedDateTime.HasValue && _selectedDateTime.Value.Date == currentDate.Date;
@@ -379,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelected)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (SolidBrush brush = new SolidBrush(_currentTheme.CalendarTodayForeColor))
+                    using (SolidBrush brush = new SolidBrush(_currentTheme.CalendarSelectedDateBackColor))
                     {
                         g.FillPath(brush, path);
                     }
@@ -387,24 +388,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isToday)
                 {
                     using (GraphicsPath path = GetRoundedRectPath(cellRect, BorderRadius / 4))
-                    using (Pen pen = new Pen(_currentTheme.ButtonBackColor, 1))
+                    using (Pen pen = new Pen(_currentTheme.CalendarTodayForeColor, 1))
                     {
                         g.DrawPath(pen, path);
                     }
                 }
 
-                // Format day number with consistent styling
-                SolidBrush textBrush = new SolidBrush(_currentTheme.CalendarForeColor);
-
-                // Always use StringFormat for alignment consistency
-                // Use DateFont for the date numbers
-                g.DrawString(
-                    day.ToString("00"),
-                    DateFont,
-                    textBrush,
-                    cellRect,
-                    new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center }
-                );
+                using (SolidBrush textBrush = new SolidBrush(isSelected ?
+                                                            _currentTheme.CalendarSelectedDateForColor :
+                                                            _currentTheme.CalendarForeColor))
+                {
+                    g.DrawString(day.ToString("00"), DateFont, textBrush, cellRect,
+                                 new StringFormat
+                                 {
+                                     Alignment = StringAlignment.Center,
+                                     LineAlignment = StringAlignment.Center
+                                 });
+                }
 
                 col++;
                 if (col > 6)
@@ -417,24 +417,58 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawFooter(Graphics g)
         {
-            SolidBrush forcolor = new SolidBrush(_currentTheme.CalendarForeColor);
-            SolidBrush selforcolor = new SolidBrush(_currentTheme.CalendarTodayForeColor);
+            using (SolidBrush bgBrush = new SolidBrush(_currentTheme.CalendarFooterColor))
+            {
+                g.FillRectangle(bgBrush, _footerRect);
+            }
 
-            // Use FooterButtonFont for the TODAY button
-            string todayText = "TODAY";
-            g.DrawString(todayText, FooterButtonFont, forcolor,
-                        new Rectangle(_footerRect.X + 5, _footerRect.Y, 50, _footerRect.Height),
-                        new StringFormat { LineAlignment = StringAlignment.Center });
+            using (SolidBrush forColor = new SolidBrush(_currentTheme.CalendarForeColor))
+            using (SolidBrush selForColor = new SolidBrush(_currentTheme.CalendarSelectedDateForColor))
+            {
+                string selectedDateLabel = "Selected Date";
+                SizeF labelSize = g.MeasureString(selectedDateLabel, FooterButtonFont);
+                int labelWidth = (int)Math.Ceiling(labelSize.Width) + 10; // Add padding
+                if (labelWidth > 80) // If text exceeds 80 pixels, reduce font size temporarily
+                {
+                    using (Font smallFont = new Font(FooterButtonFont.FontFamily, 8, FooterButtonFont.Style))
+                    {
+                        labelSize = g.MeasureString(selectedDateLabel, smallFont);
+                        g.DrawString(selectedDateLabel, smallFont, forColor,
+                                     new Rectangle(_footerRect.X + 5, _footerRect.Y, 80, _footerRect.Height),
+                                     new StringFormat { LineAlignment = StringAlignment.Center });
+                    }
+                }
+                else
+                {
+                    g.DrawString(selectedDateLabel, FooterButtonFont, forColor,
+                                 new Rectangle(_footerRect.X + 5, _footerRect.Y, 80, _footerRect.Height),
+                                 new StringFormat { LineAlignment = StringAlignment.Center });
+                }
 
-            // Use SelectedDateFont for the selected date display
-            string selectedText = _selectedDateTime.HasValue ?
-                _selectedDateTime.Value.ToString("MMMM d, yyyy h:mm tt") :
-                "Select a date";
-            g.DrawString(selectedText, SelectedDateFont, selforcolor,
-                        new Rectangle(_footerRect.X + 60, _footerRect.Y, _footerRect.Width - 65, _footerRect.Height),
-                        new StringFormat { LineAlignment = StringAlignment.Center });
+                string selectedText = _selectedDateTime.HasValue ?
+                    _selectedDateTime.Value.ToString("MMMM d, yyyy h:mm tt") :
+                    "Select a date";
+                SizeF dateSize = g.MeasureString(selectedText, SelectedDateFont);
+                int dateWidth = (int)Math.Ceiling(dateSize.Width) + 10;
+                int availableWidth = _footerRect.Width - 85; // 80 for "Selected Date" + 5 padding
+                if (dateWidth > availableWidth)
+                {
+                    using (Font smallFont = new Font(SelectedDateFont.FontFamily, 8, SelectedDateFont.Style))
+                    {
+                        dateSize = g.MeasureString(selectedText, smallFont);
+                        g.DrawString(selectedText, smallFont, selForColor,
+                                     new Rectangle(_footerRect.X + 85, _footerRect.Y, availableWidth, _footerRect.Height),
+                                     new StringFormat { LineAlignment = StringAlignment.Center });
+                    }
+                }
+                else
+                {
+                    g.DrawString(selectedText, SelectedDateFont, selForColor,
+                                 new Rectangle(_footerRect.X + 85, _footerRect.Y, _footerRect.Width - 85, _footerRect.Height),
+                                 new StringFormat { LineAlignment = StringAlignment.Center });
+                }
+            }
         }
-
         private BindingList<SimpleItem> GenerateTimeSlots()
         {
             BindingList<SimpleItem> slots = new BindingList<SimpleItem>();
@@ -463,7 +497,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnMouseDown(e);
             if (e.Button == MouseButtons.Left)
             {
-                // Check for navigation arrow clicks
                 if (_leftArrow.Bounds.Contains(e.Location))
                 {
                     _currentMonth = _currentMonth.AddMonths(-1);
@@ -474,20 +507,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _currentMonth = _currentMonth.AddMonths(1);
                     Invalidate();
                 }
-                // Check for date selection
                 else if (_datesGridRect.Contains(e.Location))
                 {
-                    // Use the same cell width calculation as in drawing methods
                     const int minCellWidth = 36;
                     int cellWidth = Math.Max(CellSize, minCellWidth);
-
-                    // Calculate column and row using the consistent cellWidth
                     int col = (e.X - _datesGridRect.X) / cellWidth;
                     int row = (e.Y - _datesGridRect.Y) / CellSize;
                     int cellIndex = row * 7 + col;
 
                     DateTime firstDayOfMonth = new DateTime(_currentMonth.Year, _currentMonth.Month, 1);
-                    int dayOfWeek = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Adjust for Monday start
+                    int dayOfWeek = ((int)firstDayOfMonth.DayOfWeek + 6) % 7; // Monday start
                     int day = cellIndex - dayOfWeek + 1;
 
                     if (day > 0 && day <= DateTime.DaysInMonth(_currentMonth.Year, _currentMonth.Month))
@@ -503,31 +532,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                             selectedDate = selectedDate.Date.Add(parsedTime.TimeOfDay);
                         }
                         _selectedDateTime = selectedDate;
-                        // Do not call OnDateTimeSelected here; wait for OK button
                         Invalidate();
                     }
                 }
-                // Check for "TODAY" click in footer
-                else if (_footerRect.Contains(e.Location) && e.X < _footerRect.X + 50)
+                else if (_footerRect.Contains(e.Location) && e.X < _footerRect.X + 80) // Updated to 80 pixels
                 {
-                    DateTime today = DateTime.Today;
+                    DateTime today = DateTime.Now; // June 13, 2025, 03:14 PM JST
                     if (_selectedDateTime.HasValue)
                     {
-                        today = today.Add(_selectedDateTime.Value.TimeOfDay);
+                        today = today.Date.Add(_selectedDateTime.Value.TimeOfDay);
                     }
                     else
                     {
                         DateTime parsedTime = DateTime.Parse(_selectedTime);
-                        today = today.Add(parsedTime.TimeOfDay);
+                        today = today.Date.Add(parsedTime.TimeOfDay);
                     }
                     _selectedDateTime = today;
                     _currentMonth = today;
-                    // Do not call OnDateTimeSelected here; wait for OK button
                     Invalidate();
                 }
             }
         }
-
         private void TimeList_ItemSelected(object sender, SimpleItem selectedItem)
         {
             if (selectedItem != null)
@@ -562,29 +587,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme.CalendarTitleFont != null)
                     HeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarTitleFont);
-
-                // Use appropriate theme fonts for other elements if they exist
+                if (_currentTheme.DaysHeaderFont != null)
+                    DaysHeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.DaysHeaderFont);
+                if (_currentTheme.DateFont != null)
+                    DateFont = FontListHelper.CreateFontFromTypography(_currentTheme.DateFont);
                 if (_currentTheme.CalendarSelectedFont != null)
                     SelectedDateFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarSelectedFont);
-
+                if (_currentTheme.FooterFont != null)
+                    FooterButtonFont = FontListHelper.CreateFontFromTypography(_currentTheme.FooterFont);
                 if (_currentTheme.CalendarUnSelectedFont != null)
-                    DateFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
-                DaysHeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
-                FooterButtonFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
-                TimeListFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
+                    TimeListFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
             }
 
-            // Apply the TimeListFont to the time list items
+            // Apply theme to time list
             if (_timeList != null)
             {
                 _timeList.Theme = Theme;
                 _timeList.BackColor = _currentTheme.CalendarBackColor;
                 _timeList.ForeColor = _currentTheme.CalendarForeColor;
-                // If BeepScrollList has a Font property:
                 _timeList.TextFont = TimeListFont;
             }
 
-            // Apply theme to buttons with appropriate font
+            // Apply theme to buttons
             if (_okButton != null)
             {
                 _okButton.Theme = Theme;
@@ -593,6 +617,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _okButton.BorderThickness = BorderThickness;
                 _okButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
                 _okButton.BorderColor = _currentTheme.CalendarBorderColor;
+                _okButton.BackColor = _currentTheme.ButtonBackColor; // Use ZenTheme button color
+                _okButton.ForeColor = _currentTheme.ButtonForeColor;
                 _okButton.TextFont = FooterButtonFont;
             }
 
@@ -604,13 +630,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _cancelButton.BorderThickness = BorderThickness;
                 _cancelButton.IsRoundedAffectedByTheme = IsRoundedAffectedByTheme;
                 _cancelButton.BorderColor = _currentTheme.CalendarBorderColor;
+                _cancelButton.BackColor = _currentTheme.ButtonBackColor;
+                _cancelButton.ForeColor = _currentTheme.ButtonForeColor;
                 _cancelButton.TextFont = FooterButtonFont;
             }
 
-            // Update layout to apply the new theme
+            // Update layout and redraw
             UpdateLayout();
-
-            // Force redraw
             Invalidate();
         }
 

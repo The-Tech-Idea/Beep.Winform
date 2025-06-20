@@ -1345,6 +1345,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             BackColor = _currentTheme.AppBarBackColor;
 
             // Apply gradient settings if available
+
             if (_currentTheme.AppBarGradiantStartColor != Color.Empty)
                 GradientStartColor = _currentTheme.AppBarGradiantStartColor;
             else

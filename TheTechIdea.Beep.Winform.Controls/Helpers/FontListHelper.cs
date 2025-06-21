@@ -109,9 +109,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 return result;
             }
 
-            // Get all font files in the directory
-            string[] fontFiles = Directory.GetFiles(path, "*.ttf")
-                .Concat(Directory.GetFiles(path, "*.otf")).ToArray();
+            // Get all font files in the directory and subdirectories
+            string[] fontFiles = Directory.GetFiles(path, "*.ttf", SearchOption.AllDirectories)
+                .Concat(Directory.GetFiles(path, "*.otf", SearchOption.AllDirectories)).ToArray();
 
             foreach (string file in fontFiles)
             {

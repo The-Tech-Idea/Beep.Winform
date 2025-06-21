@@ -1341,78 +1341,68 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
 
-            // Apply theme to main control
-            BackColor = _currentTheme.AppBarBackColor;
+            // --- AppBar Main Colors ---
+            BackColor = _currentTheme.AppBarBackColor != Color.Empty ? _currentTheme.AppBarBackColor : _currentTheme.BackColor;
+            ForeColor = _currentTheme.AppBarForeColor != Color.Empty ? _currentTheme.AppBarForeColor : _currentTheme.ForeColor;
 
-            // Apply gradient settings if available
+            // --- Gradient Colors ---
+            GradientStartColor = _currentTheme.AppBarGradiantStartColor != Color.Empty
+                ? _currentTheme.AppBarGradiantStartColor : _currentTheme.GradientStartColor;
+            GradientEndColor = _currentTheme.AppBarGradiantEndColor != Color.Empty
+                ? _currentTheme.AppBarGradiantEndColor : _currentTheme.GradientEndColor;
+            GradientDirection = _currentTheme.GradientDirection;
 
-            if (_currentTheme.AppBarGradiantStartColor != Color.Empty)
-                GradientStartColor = _currentTheme.AppBarGradiantStartColor;
-            else
-                GradientStartColor = _currentTheme.GradientStartColor;
-
-            if (_currentTheme.AppBarGradiantEndColor != Color.Empty)
-                GradientEndColor = _currentTheme.AppBarGradiantEndColor;
-            else
-                GradientEndColor = _currentTheme.GradientEndColor;
-
-            
-                GradientDirection = _currentTheme.GradientDirection;
-
-            // Apply theme to logo
+            // --- Logo ---
             if (_logo != null)
             {
                 _logo.Theme = Theme;
-                _logo.BackColor = _currentTheme.AppBarBackColor;
-                _logo.ParentBackColor = _currentTheme.AppBarBackColor;
+                _logo.BackColor = BackColor;
+                _logo.ParentBackColor = BackColor;
                 _logo.IsChild = true;
             }
 
-            // Apply theme to title label
+            // --- Title Label ---
             if (_titleLabel != null)
             {
                 _titleLabel.Theme = Theme;
-                _titleLabel.ForeColor = _currentTheme.AppBarTitleForeColor != Color.Empty ?
-                    _currentTheme.AppBarTitleForeColor : _currentTheme.AppBarForeColor;
-                _titleLabel.BackColor = _currentTheme.AppBarTitleBackColor != Color.Empty ?
-                    _currentTheme.AppBarTitleBackColor : _currentTheme.AppBarBackColor;
-                _titleLabel.ParentBackColor = _currentTheme.AppBarBackColor;
+                _titleLabel.ForeColor = _currentTheme.AppBarTitleForeColor != Color.Empty
+                    ? _currentTheme.AppBarTitleForeColor : ForeColor;
+                _titleLabel.BackColor = _currentTheme.AppBarTitleBackColor != Color.Empty
+                    ? _currentTheme.AppBarTitleBackColor : BackColor;
+                _titleLabel.ParentBackColor = BackColor;
                 _titleLabel.IsChild = true;
-
                 if (UseThemeFont)
                 {
                     _titleLabel.UseThemeFont = true;
                     if (_currentTheme.AppBarTitleStyle != null)
                         _textFont = BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
-                    else
+                    else if (_currentTheme.TitleMedium != null)
                         _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-
                     _titleLabel.Font = _textFont;
                 }
             }
 
-            // Apply theme to search box
+            // --- Search Box ---
             if (_searchBox != null)
             {
                 _searchBox.Theme = Theme;
-                _searchBox.BackColor = _currentTheme.AppBarTextBoxBackColor != Color.Empty ?
-                    _currentTheme.AppBarTextBoxBackColor : _currentTheme.TextBoxBackColor;
-                _searchBox.ForeColor = _currentTheme.AppBarTextBoxForeColor != Color.Empty ?
-                    _currentTheme.AppBarTextBoxForeColor : _currentTheme.TextBoxForeColor;
+                _searchBox.BackColor = _currentTheme.AppBarTextBoxBackColor != Color.Empty
+                    ? _currentTheme.AppBarTextBoxBackColor : _currentTheme.TextBoxBackColor;
+                _searchBox.ForeColor = _currentTheme.AppBarTextBoxForeColor != Color.Empty
+                    ? _currentTheme.AppBarTextBoxForeColor : _currentTheme.TextBoxForeColor;
                 _searchBox.BorderColor = _currentTheme.BorderColor;
                 _searchBox.HoverBackColor = _currentTheme.TextBoxHoverBackColor;
                 _searchBox.HoverForeColor = _currentTheme.TextBoxHoverForeColor;
-
                 if (_currentTheme.AppBarTextStyle != null && UseThemeFont)
                 {
                     _searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.AppBarTextStyle);
                 }
             }
 
-            // Apply theme to all control buttons
+            // --- Buttons ---
             ApplyThemeToButtons();
 
-            // Force redraw
+            // --- Redraw ---
             Invalidate();
         }
 

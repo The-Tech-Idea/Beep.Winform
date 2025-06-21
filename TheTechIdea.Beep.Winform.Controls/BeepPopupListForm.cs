@@ -147,6 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.TextFont = _textFont;
             _beepListBox.ListItems = new BindingList<SimpleItem>(items);
             _beepListBox.Theme = Theme;
+            
             _beepListBox.IsRoundedAffectedByTheme = false;
             _beepListBox.IsRounded = false;
             _beepListBox.ShowTitle = false;

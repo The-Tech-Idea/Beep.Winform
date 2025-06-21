@@ -52,6 +52,21 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
+    <None Remove="Fonts\Cairo\Cairo-Black.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-Bold.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-ExtraBold.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-ExtraLight.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-Light.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-Medium.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-Regular.ttf" />
+    <None Remove="Fonts\Cairo\Cairo-SemiBold.ttf" />
+    <None Remove="Fonts\Caprasimo-Regular.ttf" />
+    <None Remove="Fonts\Comic_Neue\ComicNeue-Bold.ttf" />
+    <None Remove="Fonts\Comic_Neue\ComicNeue-BoldItalic.ttf" />
+    <None Remove="Fonts\Comic_Neue\ComicNeue-Italic.ttf" />
+    <None Remove="Fonts\Comic_Neue\ComicNeue-Light.ttf" />
+    <None Remove="Fonts\Comic_Neue\ComicNeue-LightItalic.ttf" />
+    <None Remove="Fonts\Comic_Neue\ComicNeue-Regular.ttf" />
     <None Remove="Fonts\consolas.ttf" />
     <None Remove="Fonts\Roboto\Roboto-Black.ttf" />
     <None Remove="Fonts\Roboto\Roboto-BlackItalic.ttf" />
@@ -301,6 +316,21 @@
     <None Remove="GFX\SVG\yes.svg" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-Black.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-Bold.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-ExtraBold.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-ExtraLight.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-Light.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-Medium.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-Regular.ttf" />
+    <EmbeddedResource Include="Fonts\Cairo\Cairo-SemiBold.ttf" />
+    <EmbeddedResource Include="Fonts\Caprasimo-Regular.ttf" />
+    <EmbeddedResource Include="Fonts\Comic_Neue\ComicNeue-Bold.ttf" />
+    <EmbeddedResource Include="Fonts\Comic_Neue\ComicNeue-BoldItalic.ttf" />
+    <EmbeddedResource Include="Fonts\Comic_Neue\ComicNeue-Italic.ttf" />
+    <EmbeddedResource Include="Fonts\Comic_Neue\ComicNeue-Light.ttf" />
+    <EmbeddedResource Include="Fonts\Comic_Neue\ComicNeue-LightItalic.ttf" />
+    <EmbeddedResource Include="Fonts\Comic_Neue\ComicNeue-Regular.ttf" />
     <EmbeddedResource Include="Fonts\consolas.ttf" />
     <EmbeddedResource Include="Fonts\Roboto\Roboto-Black.ttf" />
     <EmbeddedResource Include="Fonts\Roboto\Roboto-BlackItalic.ttf" />

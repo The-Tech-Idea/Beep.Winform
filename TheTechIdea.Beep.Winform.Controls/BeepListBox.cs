@@ -245,6 +245,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+        bool _applyThemeOnImage = false;
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [Category("Appearance")]
+        public bool ApplyThemeOnImage
+        {
+            get => _applyThemeOnImage;
+            set
+            {
+                _applyThemeOnImage = value;
+                ApplyTheme();
+                Invalidate();
+            }
+        }
 
         public BeepButton CurrenItemButton { get; private set; }
         #endregion "Properties"
@@ -1017,6 +1031,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Configure the BeepImage instance and draw it
                     _image.ImagePath = item.ImagePath;
+                    _image.ApplyThemeOnImage =ApplyThemeOnImage;
                     _image.Size = new Size(imgSize, imgSize);
                     //_image.Location = imgRect.Location;
                     _image.Draw(graphics, imgRect);

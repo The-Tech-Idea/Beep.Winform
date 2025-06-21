@@ -412,7 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Use the appropriate font based on theme settings
                     Font textFont = UseThemeFont ?
-                        BeepThemesManager_v2.ToFont(_currentTheme.LabelMedium) :
+                        BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
                         _textFont;
 
                     // Measure text width
@@ -555,7 +555,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (_currentTheme.LabelMedium != null)
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelMedium);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
                     Font = _textFont;
                 }
                 else
@@ -635,7 +635,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 //  button.Theme = Theme;
                                 if (UseThemeFont)
                                 {
-                                    button.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelMedium);
+                                    button.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
                                 }
                                 else
                                     button.TextFont = _textFont;
@@ -1035,7 +1035,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Use the appropriate font based on theme settings
                 Font textFont = UseThemeFont ?
-                    BeepThemesManager_v2.ToFont(_currentTheme.LabelMedium) :
+                    BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
                     _textFont;
 
                 // Draw text using the BeepLabel instance

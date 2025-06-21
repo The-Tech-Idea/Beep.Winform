@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_currentTheme == null)
             {
-                _currentTheme = BeepThemesManager_v2.GetDefaultTheme(); ;
+                _currentTheme = BeepThemesManager.GetDefaultTheme(); ;
             }
 
             int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));

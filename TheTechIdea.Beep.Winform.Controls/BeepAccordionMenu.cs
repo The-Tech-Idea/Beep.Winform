@@ -663,7 +663,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
 
                 // Use slightly smaller font for child items
-                Font childFont = BeepThemesManager_v2.ToFont(_currentTheme.GetAnswerFont());
+                Font childFont = BeepThemesManager.ToFont(_currentTheme.GetAnswerFont());
                 if (childFont.Size > 8)
                 {
                     childFont = new Font(childFont.FontFamily, childFont.Size - 1, childFont.Style);

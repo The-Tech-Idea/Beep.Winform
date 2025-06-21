@@ -294,8 +294,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             // Find the parent form at runtime and initialize
             // Ensure the designer-added BeepFormUIManager is initialized
 
-            BeepThemesManager_v2.ThemeChanged -= BeepThemesManager_ThemeChanged;
-            BeepThemesManager_v2.ThemeChanged += BeepThemesManager_ThemeChanged;
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
         private void BeepThemesManager_ThemeChanged(object? sender, EventArgs e)
         {
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             if (_form != null)
             {
 
-                Theme = BeepThemesManager_v2.CurrentThemeName;
+                Theme = BeepThemesManager.CurrentThemeName;
                 BeepiForm.ApplyTheme();
                 ApplyThemeToAllBeepControls(_form); // Apply the initial theme
                   
@@ -392,13 +392,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                //_form.Load += Form_Load;
             //    AttachControlAddedEvent(_form);
 
-            BeepiForm.Theme = BeepThemesManager_v2.CurrentThemeName    ;
-            Theme = BeepThemesManager_v2.CurrentThemeName;
+            BeepiForm.Theme = BeepThemesManager.CurrentThemeName    ;
+            Theme = BeepThemesManager.CurrentThemeName;
       //     //Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
             BeepiForm.ApplyTheme();
             ApplyThemeToForm();
-            BeepThemesManager_v2.ThemeChanged -= BeepThemesManager_ThemeChanged;
-            BeepThemesManager_v2.ThemeChanged += BeepThemesManager_ThemeChanged;
+            BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
         }
 
 
@@ -612,7 +612,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (_form != null)
             {
-                BeepFormGenerator.ApplyBeepForm(_form, BeepThemesManager_v2.GetTheme(_theme)); // Apply BeepForm properties
+                BeepFormGenerator.ApplyBeepForm(_form, BeepThemesManager.GetTheme(_theme)); // Apply BeepForm properties
             }
         }
         public void ApplyThemeToControl(Control control, string _theme, bool applytoimage)
@@ -660,9 +660,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (container == null) return;
            
-            IBeepTheme t = BeepThemesManager_v2.GetTheme(_theme);
+            IBeepTheme t = BeepThemesManager.GetTheme(_theme);
             if (t == null) return;
-            container.BackColor = BeepThemesManager_v2.GetTheme(_theme).BackgroundColor;
+            container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
 
             // Apply theme to the container itself
             ApplyThemeToControl(container);

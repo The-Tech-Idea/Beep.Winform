@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             // Return the available theme names (the names of EnumBeepThemes)
-            var themeNames = BeepThemesManager_v2.GetThemeNames(); // List of all enum theme names
+            var themeNames = BeepThemesManager.GetThemeNames(); // List of all enum theme names
             return new StandardValuesCollection(themeNames);
         }
 
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                 else if (value is IBeepTheme theme)
                 {
                     // Convert BeepTheme to its corresponding string name
-                    return BeepThemesManager_v2.GetThemeName(theme);
+                    return BeepThemesManager.GetThemeName(theme);
                 }
                 else if (value is string)
                 {
@@ -79,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
             if (destinationType == typeof(string) && value is IBeepTheme themeValue)
             {
                 // Convert BeepTheme to its corresponding EnumBeepThemes value
-                string themeName = BeepThemesManager_v2.GetThemeName(themeValue);
+                string themeName = BeepThemesManager.GetThemeName(themeValue);
                 if (Enum.TryParse(typeof(string), themeName, out var result))
                 {
                     return result;
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                 // Convert string back to BeepTheme via Enum parsing and then fetching the theme
                 if (Enum.TryParse(typeof(string), stringValue, out var enumResult))
                 {
-                    return BeepThemesManager_v2.GetTheme((string)enumResult);
+                    return BeepThemesManager.GetTheme((string)enumResult);
                 }
                 throw new ArgumentException($"Cannot convert {stringValue} to BeepTheme.");
             }

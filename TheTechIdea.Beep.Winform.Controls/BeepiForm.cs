@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
   
-        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private bool _applythemetochilds = true;
 
         public event EventHandler OnFormClose;
@@ -104,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value != _theme)
                 {
                     _theme = value;
-                    _currentTheme = BeepThemesManager_v2.GetTheme(value);
+                    _currentTheme = BeepThemesManager.GetTheme(value);
                     //beepuiManager1.Theme = value;
                      ApplyTheme();
                 }
@@ -206,11 +206,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
            //if (InvokeRequired)
             //{
-            //    Invoke(new Action(() => Theme = BeepThemesManager_v2.CurrentTheme));
+            //    Invoke(new Action(() => Theme = BeepThemesManager.CurrentTheme));
             //}
             //else
             //{
-            //    Theme = BeepThemesManager_v2.CurrentTheme;
+            //    Theme = BeepThemesManager.CurrentTheme;
             //}
         }
         protected override void OnLoad(EventArgs e)
@@ -392,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
                   beepuiManager1.Theme = Theme;
-            //  BeepTheme theme = BeepThemesManager_v2.GetTheme(beepuiManager1.Theme);
+            //  BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
             BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
             BorderColor = _currentTheme.BorderColor;

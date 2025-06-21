@@ -442,7 +442,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme.ButtonStyle != null)
                 {
-                    TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                 }
                 else
                 {

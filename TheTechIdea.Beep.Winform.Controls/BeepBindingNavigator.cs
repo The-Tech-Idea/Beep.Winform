@@ -441,7 +441,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (Recordnumberinglabel1 != null)
             {
-                Recordnumberinglabel1.Font = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
+                Recordnumberinglabel1.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 Recordnumberinglabel1.BackColor = _currentTheme.LabelBackColor;
                 Recordnumberinglabel1.ForeColor = _currentTheme.LabelForeColor;
             }

@@ -1233,7 +1233,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_diagraming";
             Size = new Size(948, 583);
-            Theme = "DefaultTheme";
+           
             Load += uc_diagraming_Load;
             MainTemplatePanel.ResumeLayout(false);
             ResumeLayout(false);

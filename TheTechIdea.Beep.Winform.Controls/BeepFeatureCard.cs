@@ -295,15 +295,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             logoImage.ParentBackColor = _currentTheme.CardBackColor;
             titleLabel.Theme = Theme;
             titleLabel.ForeColor = _currentTheme.CardTitleForeColor;
-            titleLabel.TextFont = new Font(BeepThemesManager_v2.ToFont(_currentTheme.CardHeaderStyle).FontFamily, 14, FontStyle.Bold);
+            titleLabel.TextFont = new Font(BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle).FontFamily, 14, FontStyle.Bold);
             titleLabel.BackColor = _currentTheme.CardBackColor;
             subtitleLabel.Theme = Theme;
             subtitleLabel.ForeColor = _currentTheme.CardTitleForeColor;
-            subtitleLabel.TextFont = new Font(BeepThemesManager_v2.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 10);
+            subtitleLabel.TextFont = new Font(BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 10);
             subtitleLabel.BackColor = _currentTheme.CardBackColor;
             featuresListBox.Theme = Theme;
             featuresListBox.BackColor = _currentTheme.CardBackColor;
-            featuresListBox.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CardparagraphStyle);
+            featuresListBox.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             featuresListBox.ForeColor = _currentTheme.CardTextForeColor;
             featuresListBox.SetColors();
             featuresListBox.Invalidate();

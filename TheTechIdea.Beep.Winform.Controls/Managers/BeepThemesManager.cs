@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
-    public static class BeepThemesManager_v2
+    public static class BeepThemesManager
     {
         public static readonly Guid DefaultThemeGuid = Guid.Parse("00000000-0000-0000-0000-000000000000");
         private static string _currentThemeName = "DefaultTheme";
@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public static readonly List<IBeepTheme> _themes = new List<IBeepTheme>();
 
         // Static constructor to initialize themes
-        static BeepThemesManager_v2()
+        static BeepThemesManager()
         {
             InitializeThemes();
         }
@@ -528,7 +528,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         //    public static BeepTheme GetTheme(EnumBeepThemes theme)
         //    {
         //        string themeName = Enum.GetName(typeof(EnumBeepThemes), theme) ?? "DefaultTheme";
-        //        return BeepThemesManager_v2.GetTheme(themeName);
+        //        return BeepThemesManager.GetTheme(themeName);
         //    }
 
         //    public static string GetThemeName(EnumBeepThemes theme)
@@ -559,18 +559,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         //    // Enum-based current theme property for legacy code
         //    public static EnumBeepThemes CurrentTheme
         //    {
-        //        get => GetEnumFromTheme(BeepThemesManager_v2._currentThemeName);
-        //        set => BeepThemesManager_v2.CurrentThemeName = GetThemeName(value);
+        //        get => GetEnumFromTheme(BeepThemesManager._currentThemeName);
+        //        set => BeepThemesManager.CurrentThemeName = GetThemeName(value);
         //    }
 
         //    public static EnumBeepThemes GetCurrentTheme()
         //    {
-        //        return GetEnumFromTheme(BeepThemesManager_v2._currentThemeName);
+        //        return GetEnumFromTheme(BeepThemesManager._currentThemeName);
         //    }
 
         //    public static void SetCurrentTheme(EnumBeepThemes theme)
         //    {
-        //        BeepThemesManager_v2.CurrentThemeName = GetThemeName(theme);
+        //        BeepThemesManager.CurrentThemeName = GetThemeName(theme);
         //    }
         //}
 

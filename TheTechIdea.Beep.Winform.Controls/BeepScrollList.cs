@@ -920,7 +920,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_button != null)
             {
                 _button.Theme = Theme;
-                _button.TextFont = UseThemeFont ? BeepThemesManager_v2.ToFont(_currentTheme.ListUnSelectedFont) : TextFont;
+                _button.TextFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont) : TextFont;
                 _button.BackColor = _currentTheme.ListBackColor;
                 _button.ForeColor = _currentTheme.ListItemForeColor;
                 _button.HoverBackColor = _currentTheme.ListItemHoverBackColor;
@@ -940,7 +940,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_label != null)
             {
                 _label.Theme = Theme;
-                _label.TextFont = UseThemeFont ? BeepThemesManager_v2.ToFont(_currentTheme.ListUnSelectedFont) : TextFont;
+                _label.TextFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont) : TextFont;
             }
 
             Invalidate();

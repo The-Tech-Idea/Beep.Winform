@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else
                 {
                     _textFont = _currentTheme.LabelSmall != null ?
-                        BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall) :
+                        BeepThemesManager.ToFont(_currentTheme.LabelSmall) :
                         new Font("Segoe UI", 9);
                     Font = _textFont;
                 }

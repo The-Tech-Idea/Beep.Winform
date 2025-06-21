@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
             //if (UseThemeFont)
             //{
-            //    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             //    Font = _textFont;
             //}
 

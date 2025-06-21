@@ -644,11 +644,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Use ButtonStyle typography if available, otherwise fallback to LabelSmall
                 if (_currentTheme.ButtonStyle != null)
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                 }
                 else
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
 
                 Font = _textFont;

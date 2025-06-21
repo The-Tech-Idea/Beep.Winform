@@ -38,23 +38,23 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             appManager = service.vis;
             beepService = service;
             Dependencies.DMEEditor = beepService.DMEEditor;
-            BeepThemesManager_v2.ThemeChanged += BeepThemesManager_v2_ThemeChanged;
-            Theme = BeepThemesManager_v2.CurrentThemeName;
+            BeepThemesManager.ThemeChanged += BeepThemesManager_v2_ThemeChanged;
+            Theme = BeepThemesManager.CurrentThemeName;
         }
 
         private void BeepThemesManager_v2_ThemeChanged(object? sender, Controls.Models.ThemeChangeEventArgs e)
         {
             Theme = e.NewThemeName;
 
-            if (Theme != BeepThemesManager_v2.CurrentThemeName)
-            {  BeepThemesManager_v2.SetCurrentTheme(Theme); }
+            if (Theme != BeepThemesManager.CurrentThemeName)
+            {  BeepThemesManager.SetCurrentTheme(Theme); }
             ApplyTheme();
         }
         #region "IDM_Addin Implementation"
         protected  IBeepService? beepService;
 
         private string _theme;
-        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
         public string Theme
@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             set
             {
                 _theme = value;
-                _currentTheme = BeepThemesManager_v2.GetTheme(value);
+                _currentTheme = BeepThemesManager.GetTheme(value);
                 //      this.ApplyTheme();
                 ApplyTheme();
             }
@@ -84,9 +84,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         protected UnitOfWorkWrapper uow;
         public virtual void Configure(Dictionary<string, object> settings)
         {
-            if (Theme != BeepThemesManager_v2.CurrentThemeName) 
+            if (Theme != BeepThemesManager.CurrentThemeName) 
             
-            { BeepThemesManager_v2.SetCurrentTheme(Theme);  }
+            { BeepThemesManager.SetCurrentTheme(Theme);  }
             ApplyTheme();
         }
 

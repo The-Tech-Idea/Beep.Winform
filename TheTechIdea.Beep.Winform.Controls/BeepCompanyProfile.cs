@@ -721,7 +721,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Fall back to general link style
                 else if (UseThemeFont && _currentTheme.LinkStyle != null)
                 {
-                    linkFont = BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle);
+                    linkFont = BeepThemesManager.ToFont(_currentTheme.LinkStyle);
                 }
                 // Default fallback
                 else
@@ -818,7 +818,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.TitleStyle != null)
                     {
-                        lblCompanyName.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleStyle);
+                        lblCompanyName.TextFont = BeepThemesManager.ToFont(_currentTheme.TitleStyle);
                     }
                 }
             }
@@ -842,7 +842,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.SubtitleStyle != null)
                     {
-                        lblCompanyType.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.SubtitleStyle);
+                        lblCompanyType.TextFont = BeepThemesManager.ToFont(_currentTheme.SubtitleStyle);
                     }
                 }
             }
@@ -871,7 +871,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.BodyStyle != null)
                     {
-                        lblCompanyDesc.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.BodyStyle);
+                        lblCompanyDesc.TextFont = BeepThemesManager.ToFont(_currentTheme.BodyStyle);
                     }
                 }
             }
@@ -893,7 +893,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.CaptionStyle != null)
                     {
-                        lblLikes.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.CaptionStyle);
+                        lblLikes.TextFont = BeepThemesManager.ToFont(_currentTheme.CaptionStyle);
                     }
                 }
             }
@@ -914,7 +914,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.LinkStyle != null)
                     {
-                        linkWebsite.Font = BeepThemesManager_v2.ToFont(_currentTheme.LinkStyle);
+                        linkWebsite.Font = BeepThemesManager.ToFont(_currentTheme.LinkStyle);
                     }
                 }
             }
@@ -939,7 +939,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.ButtonStyle != null)
                     {
-                        btnLikePage.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                        btnLikePage.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                     }
                 }
             }
@@ -964,7 +964,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.ButtonStyle != null)
                     {
-                        btnCompanyProfile.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                        btnCompanyProfile.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                     }
                 }
             }
@@ -1025,7 +1025,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else if (_currentTheme.ButtonStyle != null)
                     {
-                        btnDropdown.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                        btnDropdown.TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
                     }
                 }
             }

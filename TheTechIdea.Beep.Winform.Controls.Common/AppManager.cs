@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         public int Height { get; set; }
         public string BreadCrumb { get { return RoutingManager != null ? RoutingManager?.BreadCrumb : string.Empty; } }
 
-        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         protected string _theme;
         private bool _isThemeApplied = false;
         public string Theme
@@ -153,11 +153,11 @@ namespace TheTechIdea.Beep.Desktop.Common
             set
             {
                 _theme = value;
-                _currentTheme = BeepThemesManager_v2.GetTheme(value);
+                _currentTheme = BeepThemesManager.GetTheme(value);
                 //  OnThemeChanged?.Invoke(_themeEnum);
 
 
-                    BeepThemesManager_v2.SetCurrentTheme( value);
+                    BeepThemesManager.SetCurrentTheme( value);
                     _isThemeApplied = true;
 
                 ApplyTheme();

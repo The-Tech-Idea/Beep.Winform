@@ -514,7 +514,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // Set up theme menu items
-            foreach (string themeName in BeepThemesManager_v2.GetThemeNames())
+            foreach (string themeName in BeepThemesManager.GetThemeNames())
             {
                 _themeButton.ListItems.Add(new SimpleItem { Text = themeName });
             }
@@ -1308,7 +1308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // this.SendMouseEvent(_themeButton, MouseEventType.Click, MousePosition);
             _currentMenuName = "THEME";
             CurrentMenutems.Clear();
-            foreach (string themename in BeepThemesManager_v2.GetThemeNames())
+            foreach (string themename in BeepThemesManager.GetThemeNames())
             {
                 CurrentMenutems.Add(new SimpleItem { Text = themename });
             }
@@ -1326,7 +1326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 string selectedThemeName = e.SelectedItem.Text;
              
-                BeepThemesManager_v2.SetCurrentTheme(selectedThemeName);
+                BeepThemesManager.SetCurrentTheme(selectedThemeName);
 
                 // Apply theme to this control
                 Theme = selectedThemeName;
@@ -1383,9 +1383,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _titleLabel.UseThemeFont = true;
                     if (_currentTheme.AppBarTitleStyle != null)
-                        _textFont = BeepThemesManager_v2.ToFont(_currentTheme.AppBarTitleStyle);
+                        _textFont = BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
                     else
-                        _textFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleMedium);
+                        _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
 
                     _titleLabel.Font = _textFont;
                 }
@@ -1405,7 +1405,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (_currentTheme.AppBarTextStyle != null && UseThemeFont)
                 {
-                    _searchBox.TextFont = BeepThemesManager_v2.ToFont(_currentTheme.AppBarTextStyle);
+                    _searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.AppBarTextStyle);
                 }
             }
 

@@ -388,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.ResetTransform();
             if (!SetFont() && UseThemeFont)
             {
-                _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
 
             bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
@@ -533,7 +533,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DisabledForeColor = _currentTheme.LabelDisabledForeColor;
                 if (UseThemeFont)
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
 
                     // Create a smaller font for subheader if not explicitly set
                     if (_subHeaderFont == null)
@@ -593,7 +593,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (!SetFont() && UseThemeFont)
             {
-                _textFont = BeepThemesManager_v2.ToFont(_currentTheme.ButtonStyle);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             }
 
             // Use the control's current width as the constraint for multi-line text

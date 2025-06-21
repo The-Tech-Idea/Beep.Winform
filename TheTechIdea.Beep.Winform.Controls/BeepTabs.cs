@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
        
-        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private string _theme;
         [Browsable(true)]
         [TypeConverter(typeof(ThemeEnumConverter))]
@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _theme = value;
-                _currentTheme = BeepThemesManager_v2.GetTheme(value);
+                _currentTheme = BeepThemesManager.GetTheme(value);
                 ApplyTheme();
             }
         }

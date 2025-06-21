@@ -1022,7 +1022,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public virtual void ApplyTheme(string theme)
         {
             Theme=theme;
-          //  _currentTheme = BeepThemesManager_v2.GetTheme(theme);
+          //  _currentTheme = BeepThemesManager.GetTheme(theme);
             // set theme to contained controls
             //foreach (Control ctrl in Controls)
             //{
@@ -1537,22 +1537,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     retval = false;
                     break;
                 case TypeStyleFontSize.Small:
-                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 8, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.Medium:
-                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 10, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.Large:
-                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 12, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.ExtraLarge:
-                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 14, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.ExtraExtraLarge:
-                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 16, FontWeight.Normal, FontStyle.Regular);
                     break;
                 case TypeStyleFontSize.ExtraExtraExtraLarge:
-                    Font = BeepThemesManager_v2.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
+                    Font = BeepThemesManager.ToFont(_currentTheme.FontFamily, 18, FontWeight.Normal, FontStyle.Regular);
                     break;
             }
             return retval;
@@ -3035,7 +3035,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public List<object> Items { get { return _items; } set { _items = value; } }
 
         //protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
-        protected IBeepTheme _currentTheme = BeepThemesManager_v2.GetDefaultTheme();
+        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         public event EventHandler<BeepComponentEventArgs> OnSelected;
         public event EventHandler<BeepComponentEventArgs> OnValidate;
         public event EventHandler<BeepComponentEventArgs> OnValueChanged;
@@ -3084,7 +3084,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _theme = value;
-                _currentTheme = BeepThemesManager_v2.GetTheme(value);
+                _currentTheme = BeepThemesManager.GetTheme(value);
                 //      this.ApplyTheme();
                 ApplyTheme();
             }

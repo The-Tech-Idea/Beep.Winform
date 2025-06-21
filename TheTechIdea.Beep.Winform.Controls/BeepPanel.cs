@@ -253,11 +253,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Use title font for panel titles
                 if (_currentTheme.TitleSmall != null)
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.TitleSmall);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.TitleSmall);
                 }
                 else if (_currentTheme.CardHeaderStyle != null)
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.CardHeaderStyle);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
                 }
                 else
                 {

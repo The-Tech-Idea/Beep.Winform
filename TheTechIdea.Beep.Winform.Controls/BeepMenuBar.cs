@@ -467,7 +467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    _textFont = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
                 Font = _textFont;
             }
@@ -506,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                         else
                         {
-                            button.Font = BeepThemesManager_v2.ToFont(_currentTheme.LabelSmall);
+                            button.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                         }
                     }
                     else

@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
     public partial class MainFrm : TemplateForm
     {
 
-        private readonly IBeepService? beepService;
+       
 
         public IDMEEditor Editor { get; }
 
@@ -25,20 +25,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         public MainFrm(IBeepService service) : base(service)
         {
             InitializeComponent();
-            beepService = service; // serviceProvider.GetService<IBeepService>();
-            Dependencies.DMEEditor = beepService.DMEEditor;
             beepService.vis.Container = beepDisplayContainer1;
             beepService.vis.Container.ContainerType = ContainerTypeEnum.TabbedPanel;
-        
+
             beepAppTree1.init(beepService);
             beepAppTree1.CreateRootTree();
             beepAppBar1.ShowBadgeOnNotificationIcon("5");
            
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
-            beepuiManager1.LogoImage = beepService.vis.LogoUrl;
-            beepuiManager1.Title = beepService.vis.Title;
-     
+        
+           
         }
+
+       
     }
 }

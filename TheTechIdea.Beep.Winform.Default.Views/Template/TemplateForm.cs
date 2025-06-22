@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
     public partial class TemplateForm: BeepiForm,IDM_Addin
     {
 
-        private readonly IBeepService? beepService;
+        protected readonly IBeepService? beepService;
 
         private IDMEEditor Editor { get; }
 
@@ -33,9 +33,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public TemplateForm(IBeepService service) : base()
         {
             InitializeComponent();
-            beepService = service; 
+            beepService = service; // serviceProvider.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;
+         
+            beepuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;
+            beepuiManager1.LogoImage = beepService.vis.LogoUrl;
+            beepuiManager1.Title = beepService.vis.Title;
+        }
 
+        private void BeepuiManager1_OnThemeChanged(string obj)
+        {
+           Invalidate();
         }
         #region "IDM_Addin"
         public event EventHandler OnStart;

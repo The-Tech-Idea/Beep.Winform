@@ -573,62 +573,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Refreshes the hit areas based on the current layout.
         /// </summary>
-        private void RefreshHitAreas()
-        {
-            // Clear existing hit areas
-            ClearHitList();
-
-            // Calculate layout positions
-            CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
-                out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
-                out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
-
-            // Add hit areas for each component in the calculated rectangles
-            if (_showLogo && !string.IsNullOrEmpty(_logoImage))
-            {
-                AddHitArea("Logo", logoRect, _logo, () => HandleLogoClick());
-            }
-
-            if (_showTitle)
-            {
-                AddHitArea("Title", titleRect, _titleLabel, () => HandleTitleClick());
-            }
-
-            if (_showSearchBox && !_searchBoxAddedToControls)
-            {
-                AddHitArea("Search", searchRect, _searchBox, () => HandleSearchClick(searchRect));
-            }
-
-            if (_showNotificationIcon)
-            {
-                AddHitArea("Notification", notificationRect, _notificationButton, () => HandleNotificationClick());
-            }
-
-            if (_showProfileIcon)
-            {
-                AddHitArea("Profile", profileRect, _profileButton, () => HandleProfileClick());
-            }
-
-            if (_showThemeIcon)
-            {
-                AddHitArea("Theme", themeRect, _themeButton, () => HandleThemeClick());
-            }
-
-            if (_showMinimizeIcon)
-            {
-                AddHitArea("Minimize", minimizeRect, _minimizeButton, () => HandleMinimizeClick());
-            }
-
-            if (_showMaximizeIcon)
-            {
-                AddHitArea("Maximize", maximizeRect, _maximizeButton, () => HandleMaximizeClick());
-            }
-
-            if (_showCloseIcon)
-            {
-                AddHitArea("Close", closeRect, _closeButton, () => HandleCloseClick());
-            }
-        }
+       
 
         /// <summary>
         /// Handles a click on the logo area

@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public uc_DataEdit(IBeepService service) : base(service)
         {
             InitializeComponent();
-
+            
             Details.AddinName = "Data Edit";
 
         }
@@ -29,6 +29,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
+            if (parameters.Count > 0)
+            {
+                string? name=parameters.First(parameters => parameters.Key == "CurrentEntity").Value.ToString();
+                if (!string.IsNullOrEmpty(name))
+                {
+                    Details.AddinName = name;
+                }
+            }
             if (uow != null)
             {
                 uow.Get();

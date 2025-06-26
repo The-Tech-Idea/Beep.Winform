@@ -1,15 +1,11 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-using System.ComponentModel;
-using TheTechIdea.Beep.Winform.Controls.Models;
+﻿using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using System.Drawing;
 using System.Runtime.InteropServices;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-
-
-
-
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -600,7 +596,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_image != null)
             {
                 _image.Theme = Theme;
-                _image.ApplyThemeOnImage = _currentTheme.ApplyThemeToIcons;
+                _image.ApplyThemeOnImage = ApplyThemeOnImage;
             }
 
             if (_label != null)
@@ -842,19 +838,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Key Events"
         #region "Painting"
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            // Prevent flickering by not painting the background
-            //base.OnPaintBackground(e);
-        }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // DrawingRect.Inflate(-2, -2);
-            // Get the dimensions of DrawingRect
-
-
-            base.OnPaint(e);
-        }
+      
+       
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g); // This ensures the title and title line are drawn by the base class
@@ -1031,6 +1016,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Configure the BeepImage instance and draw it
                     _image.ImagePath = item.ImagePath;
+                    _image.Theme = Theme;
                     _image.ApplyThemeOnImage =ApplyThemeOnImage;
                     _image.Size = new Size(imgSize, imgSize);
                     //_image.Location = imgRect.Location;
@@ -1050,7 +1036,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Use the appropriate font based on theme settings
                 Font textFont = UseThemeFont ?
-                    BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
+                    FontListHelper.CreateFontFromTypography(_currentTheme.LabelMedium) :
                     _textFont;
 
                 // Draw text using the BeepLabel instance

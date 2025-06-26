@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.TextFont = _textFont;
             _beepListBox.ListItems = new BindingList<SimpleItem>(items);
             _beepListBox.Theme = Theme;
-            
+            _beepListBox.ApplyThemeOnImage = false;
             _beepListBox.IsRoundedAffectedByTheme = false;
             _beepListBox.IsRounded = false;
             _beepListBox.ShowTitle = false;
@@ -300,6 +300,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             Size = new Size(finalWidth, neededHeight);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
+            _beepListBox.Invalidate();
             base.ShowPopup(triggerControl, position);
             
             return SelectedItem;
@@ -325,6 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             Size = new Size(finalWidth, neededHeight);
             _beepListBox.Dock = DockStyle.Fill; // Manually size and position
+            _beepListBox.Invalidate();
             base.ShowPopup(triggerControl, position, pointAdjusment);
 
             return SelectedItem;

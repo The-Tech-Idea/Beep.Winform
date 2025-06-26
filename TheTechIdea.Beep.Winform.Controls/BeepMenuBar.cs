@@ -480,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Set button-specific properties
                     button.IsChild = true;
                     button.ParentBackColor = BackColor;
-
+                   
                     // Apply colors from specialized menu theme settings
                     button.BackColor = _currentTheme.MenuBackColor;
                     button.ForeColor = _currentTheme.MenuItemForeColor;
@@ -499,15 +499,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Apply font settings
                     if (UseThemeFont)
                     {
-                        button.UseThemeFont = true;
-                        if (_currentTheme.MenuItemUnSelectedFont != null)
-                        {
-                            button.Font = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
-                        }
-                        else
-                        {
-                            button.Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-                        }
+                       
+                            button.Font =FontListHelper.CreateFontFromTypography(_currentTheme.LabelSmall);
+                        
                     }
                     else
                     {

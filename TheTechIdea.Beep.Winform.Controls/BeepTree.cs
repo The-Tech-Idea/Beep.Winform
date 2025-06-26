@@ -750,7 +750,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             if (UseThemeFont)
             {
-                Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                 Font =FontListHelper.CreateFontFromTypography(_currentTheme.LabelSmall);
                 _textFont = Font;
                 _button.Font = Font;
                 _button.UseThemeFont = UseThemeFont;
@@ -772,7 +772,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _iconRenderer.Theme = Theme;
             _iconRenderer.BackColor = BackColor;
              ForeColor = _currentTheme.TreeForeColor;
-            _button.Theme = Theme;
+  //          _button.Theme = Theme;
             _button.IsColorFromTheme=false;
             _button.BackColor = BackColor;
             _button.ForeColor = _currentTheme.TreeForeColor;

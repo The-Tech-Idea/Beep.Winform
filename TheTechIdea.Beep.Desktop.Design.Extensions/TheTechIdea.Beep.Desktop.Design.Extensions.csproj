@@ -26,8 +26,8 @@
     <PackageReference Include="TheTechIdea.Beep.AssemblyLoader" Version="2.0.6" />
     <PackageReference Include="TheTechIdea.Beep.Container" Version="1.0.0.84" />
     <PackageReference Include="TheTechIdea.Beep.Container.AutoFac" Version="1.0.1" />
-    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.45" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.31" />
+    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.46" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.32" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.65" />
     <PackageReference Include="TheTechIdea.Beep.Desktop.Common" Version="1.0.0" />
     <PackageReference Include="TheTechIdea.Beep.DMLogger" Version="2.0.2" />

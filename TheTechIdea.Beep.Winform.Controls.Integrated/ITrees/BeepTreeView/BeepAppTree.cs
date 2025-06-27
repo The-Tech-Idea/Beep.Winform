@@ -482,10 +482,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 {
                     Type adc = DMEEditor.assemblyHandler.GetType(cls.PackageName);
                     ConstructorInfo ctor = adc.GetConstructors().Where(o => o.GetParameters().Length == 0).FirstOrDefault()!;
-
+                    if (ctor == null)
+                    {
+                        ctor = adc.GetConstructors().FirstOrDefault();
+                    }
                     if (ctor != null)
                     {
                         ObjectActivator<IBranch> createdActivator = GetActivator<IBranch>(ctor);
+
                         try
                         {
                             IBranch br = createdActivator();
@@ -496,6 +500,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                                 packagename = cls.PackageName;
                                 br.ID = id;
                                 br.BranchID = id;
+                                br.DMEEditor= DMEEditor;
+                                br.TreeEditor= this;
                                 if (cls.PackageName != null)
                                 {
                                     PassedArgs x = new PassedArgs { ObjectType = cls.PackageName };

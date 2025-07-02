@@ -13,18 +13,23 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepiForm : Form
     {
         #region "Fields"
+        // Add this field
+        //private bool _suppressInvalidation = false;
+        //private bool _isResizing = false;
+        //private bool _isDragging = false; // Add this to track dragging separately
+
         protected int _resizeMargin = 8; // Margin for resizing
         protected int _borderRadius = 0;
         protected int _borderThickness =1; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
-        private bool isResizing = false;
-        private bool isDragging = false;
-        private Point dragStartCursorPoint;
-        private Point dragStartFormPoint;
-        private Point resizeStartCursorPoint;
-        private Size resizeStartFormSize;
+        //private bool isResizing = false;
+        //private bool isDragging = false;
+        //private Point dragStartCursorPoint;
+        //private Point dragStartFormPoint;
+        //private Point resizeStartCursorPoint;
+        //private Size resizeStartFormSize;
        // private readonly IBeepService beepservices;
         private bool ishandled = false;
         private bool _inpopupmode = false;
@@ -154,20 +159,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // //Debug.WriteLine("BeepiForm Constructor 2");
             InitializeComponent();
             ishandled = false;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor, true);
             //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
             UpdateStyles();
-         //   Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-            // Apply border and custom form styles
-            FormBorderStyle = FormBorderStyle.None;
-            //  Padding = new Padding(_borderThickness); // Adjust padding based on _borderThickness
-            //      Margin = new Padding(_resizeMargin);
-            //  //Debug.WriteLine("BeepiForm Constructor 22");
-            // Initialize();
-            // Set padding so controls dock within the interior
-           // this.Padding = new Padding(_borderThickness);
 
-            // Create and configure the inner content panel.
+            FormBorderStyle = FormBorderStyle.None;
+
+            // Enable double buffering at the form level
+            this.SetStyle(ControlStyles.DoubleBuffer, true);
+        
            
         }
         protected override void OnActivated(EventArgs e)
@@ -225,43 +225,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnPaint(e);
-           // e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            //e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            //e.Graphics.CompositingQuality = CompositingQuality.HighQuality;
-            //e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            //e.Graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            if (_inMoveOrResize) return; // Don't paint during move/resize
 
-            if (_borderThickness > 0)
+            if (_borderThickness > 0 && _borderColor != Color.Transparent)
             {
                 using (Pen borderPen = new Pen(_borderColor, _borderThickness))
                 {
-                    // Using Center alignment ensures the stroke straddles the border path.
-                    borderPen.Alignment = PenAlignment.Center;
-                    // Adjust the rectangle to prevent clipping
-                    Rectangle rect = new Rectangle(
-                            _borderThickness / 2,
-                            _borderThickness / 2,
-                            Width - _borderThickness,
-                            Height - _borderThickness);
-                    using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+                    Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1);
+                    if (_borderRadius > 0)
                     {
-                        e.Graphics.DrawPath(borderPen, path);
+                        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                        using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+                            e.Graphics.DrawPath(borderPen, path);
+                    }
+                    else
+                    {
+                        e.Graphics.DrawRectangle(borderPen, rect);
                     }
                 }
             }
-
-
         }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            Rectangle rect = new Rectangle(0, 0, this.Width, this.Height);
-            using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+            if (!_inMoveOrResize)
+                UpdateFormRegion();
+        }
+
+        private void UpdateFormRegion()
+        {
+            if (_inMoveOrResize) return;
+            if (_borderRadius > 0)
             {
-                this.Region = new Region(path);
+                Rectangle rect = new Rectangle(0, 0, Width, Height);
+                using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
+                    this.Region = new Region(path);
             }
-            Invalidate(); // Redraw the form with the updated region
+            else
+            {
+                this.Region = null;
+            }
         }
         protected override void OnLayout(LayoutEventArgs e)
         {
@@ -275,104 +279,131 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion "Layout Events"
+        #region "WM_NCHITTEST Override for Better Performance"
+        private bool _inMoveOrResize = false;
+
+        private const int WM_NCHITTEST = 0x84;
+        private const int WM_ENTERSIZEMOVE = 0x0231;
+        private const int WM_EXITSIZEMOVE = 0x0232;
+        private const int HTCLIENT = 1;
+        private const int HTCAPTION = 2;
+        private const int HTLEFT = 10;
+        private const int HTRIGHT = 11;
+        private const int HTTOP = 12;
+        private const int HTTOPLEFT = 13;
+        private const int HTTOPRIGHT = 14;
+        private const int HTBOTTOM = 15;
+        private const int HTBOTTOMLEFT = 16;
+        private const int HTBOTTOMRIGHT = 17;
+
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_NCHITTEST = 0x84;
+            const int WM_ENTERSIZEMOVE = 0x0231;
+            const int WM_EXITSIZEMOVE = 0x0232;
+            const int HTCLIENT = 1, HTCAPTION = 2, HTLEFT = 10, HTRIGHT = 11, HTTOP = 12, HTTOPLEFT = 13, HTTOPRIGHT = 14, HTBOTTOM = 15, HTBOTTOMLEFT = 16, HTBOTTOMRIGHT = 17;
+
+            switch (m.Msg)
+            {
+                case WM_ENTERSIZEMOVE:
+                    _inMoveOrResize = true;
+                    break;
+                case WM_EXITSIZEMOVE:
+                    _inMoveOrResize = false;
+                    UpdateFormRegion(); // Only update region after move/resize is done
+                    Invalidate();
+                    break;
+                case WM_NCHITTEST when !_inpopupmode:
+                    Point pos = PointToClient(new Point(m.LParam.ToInt32()));
+                    int margin = _resizeMargin;
+                    if (pos.X <= margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPLEFT; return; }
+                    if (pos.X >= ClientSize.Width - margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPRIGHT; return; }
+                    if (pos.X <= margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMLEFT; return; }
+                    if (pos.X >= ClientSize.Width - margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMRIGHT; return; }
+                    if (pos.X <= margin) { m.Result = (IntPtr)HTLEFT; return; }
+                    if (pos.X >= ClientSize.Width - margin) { m.Result = (IntPtr)HTRIGHT; return; }
+                    if (pos.Y <= margin) { m.Result = (IntPtr)HTTOP; return; }
+                    if (pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOM; return; }
+                    m.Result = (IntPtr)HTCAPTION; // Drag anywhere else
+                    return;
+            }
+            base.WndProc(ref m);
+        }
+        #endregion
         #region Window Resizing
+      
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            isResizing = false;
-            isDragging = false;
-            Cursor = Cursors.Default; // Default cursor
+            // Remove custom handling since WM_NCHITTEST handles it
+            // isResizing = false;
+            // isDragging = false;
+            Cursor = Cursors.Default;
         }
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            // Don't handle mouse down for dragging since WM_NCHITTEST handles it
             base.OnMouseDown(e);
-            if (_inpopupmode) return;
-            if (e.Button == MouseButtons.Left)
-            {
-                // Determine if we're resizing or dragging
-                if (IsNearEdge(e.Location))
-                {
-                    isResizing = true;
-                    resizeStartCursorPoint = Cursor.Position;
-                    resizeStartFormSize = Size;
-                }
-                else
-                {
-                    isDragging = true;
-                    dragStartCursorPoint = Cursor.Position;
-                    dragStartFormPoint = Location;
-                }
-            }
+            // Remove all custom drag/resize handling
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            base.OnMouseMove(e);
+            // Remove custom mouse move handling since WM_NCHITTEST handles everything
             if (_inpopupmode) return;
 
-            if (isResizing)
-            {
-
-                HandleResizing();
-                ResumeLayout();
-            }
-            else if (isDragging)
-            {
-                SuspendLayout();
-                HandleDragging();
-                ResumeLayout();
-
-            }
-            else
-            {
-                // Change cursor appearance based on mouse position
-                if (IsNearEdge(e.Location))
-                {
-                    Cursor = Cursors.SizeNWSE; // Resize cursor
-                }
-                else
-                {
-                    Cursor = Cursors.Default; // Default cursor
-                }
-            }
-
+            // Only update cursor for visual feedback, let Windows handle the actual dragging
+            //if (IsNearEdge(e.Location))
+            //{
+            //    Cursor = Cursors.SizeNWSE;
+            //}
+            //else
+            //{
+            //    Cursor = Cursors.Default;
+            //}
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            if (_inpopupmode) return;
-            if (e.Button == MouseButtons.Left)
-            {
-                isResizing = false;
-                isDragging = false;
-                Cursor = Cursors.Default; // Default cursor
-            }
+            // Remove custom handling
+     
+            Cursor = Cursors.Default;
         }
+        // Override Invalidate to respect the suppression flag
+      
+        //private bool IsNearEdge(Point location)
+        //{
+        //    bool nearEdge = location.X >= ClientSize.Width - _resizeMargin || location.Y >= ClientSize.Height - _resizeMargin;
+        //    MiscFunctions.SendLog($"IsNearEdge: Location = {location}, ClientSize = {ClientSize}, _resizeMargin = {_resizeMargin}, NearEdge = {nearEdge}");
+        //    return nearEdge;
+        //}
+        //private void HandleResizing()
+        //{
 
-        private bool IsNearEdge(Point location)
-        {
-            bool nearEdge = location.X >= ClientSize.Width - _resizeMargin || location.Y >= ClientSize.Height - _resizeMargin;
-            MiscFunctions.SendLog($"IsNearEdge: Location = {location}, ClientSize = {ClientSize}, _resizeMargin = {_resizeMargin}, NearEdge = {nearEdge}");
-            return nearEdge;
-        }
-        private void HandleResizing()
-        {
+        //    Point diff = Point.Subtract(Cursor.Position, new Size(resizeStartCursorPoint));
+        //    Size newSize = new Size(
+        //        Math.Max(MinimumSize.Width, resizeStartFormSize.Width + diff.X),
+        //        Math.Max(MinimumSize.Height, resizeStartFormSize.Height + diff.Y)
+        //    );
 
-            Point diff = Point.Subtract(Cursor.Position, new Size(resizeStartCursorPoint));
-            Size newSize = new Size(
-                Math.Max(MinimumSize.Width, resizeStartFormSize.Width + diff.X),
-                Math.Max(MinimumSize.Height, resizeStartFormSize.Height + diff.Y)
-            );
+        //    Size = newSize;
 
-            Size = newSize;
+        //}
+        //private void HandleDragging()
+        //{
+        //    //Point diff = Point.Subtract(Cursor.Position, new Size(dragStartCursorPoint));
+        //    //Location = Point.Add(dragStartFormPoint, new Size(diff));
+        //    Point diff = Point.Subtract(Cursor.Position, new Size(dragStartCursorPoint));
+        //    Point newLocation = Point.Add(dragStartFormPoint, new Size(diff));
 
-        }
-        private void HandleDragging()
-        {
-            Point diff = Point.Subtract(Cursor.Position, new Size(dragStartCursorPoint));
-            Location = Point.Add(dragStartFormPoint, new Size(diff));
-        }
+        //    // Only update location if it actually changed
+        //    if (Location != newLocation)
+        //    {
+        //        Location = newLocation;
+        //    }
+        //}
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
             base.OnFormClosed(e);
@@ -611,13 +642,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
         [DllImport("user32.dll")]
         private static extern bool SetProcessDPIAware();
-       
+
         protected override CreateParams CreateParams
         {
             get
             {
                 CreateParams cp = base.CreateParams;
-               // cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED
                 cp.Style &= ~0xC00000; // Remove WS_CAPTION and WS_BORDER
                 return cp;
             }
@@ -677,6 +707,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    }
         //}
         #endregion
+
+        //public new void Invalidate()
+        //{
+        //    if (!_suppressInvalidation && !_isResizing)
+        //    {
+        //        base.Invalidate();
+        //    }
+        //}
+
+        //public new void Invalidate(Rectangle rc)
+        //{
+        //    if (!_suppressInvalidation && !_isResizing)
+        //    {
+        //        base.Invalidate(rc);
+        //    }
+        //}
+
+        //public new void Invalidate(bool invalidateChildren)
+        //{
+        //    if (!_suppressInvalidation && !_isResizing)
+        //    {
+        //        base.Invalidate(invalidateChildren);
+        //    }
+        //}
         public void BeginUpdate()
         {
             User32.SendMessage(Handle, User32.WM_SETREDRAW, IntPtr.Zero, IntPtr.Zero);

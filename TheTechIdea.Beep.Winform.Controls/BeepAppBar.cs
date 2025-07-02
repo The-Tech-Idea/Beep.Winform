@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.Logging;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-
+using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -350,10 +351,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-   
+
         #endregion "SearchBox Properties"
         #endregion "Properties"
+        #region "p?Invkos"
+        [DllImport("user32.dll")]
+        private static extern bool ReleaseCapture();
 
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        private const int WM_NCLBUTTONDOWN = 0xA1;
+        private const int HTCAPTION = 0x2;
+
+        #endregion
         #region "Constructor and Initialization"
         public BeepAppBar() : base()
         {
@@ -376,6 +387,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = defaultHeight;
             }
+            // Enable dragging only in empty spaces (not over buttons)
+            SetDraggableAreas("Empty");
         }
 
         protected override void InitLayout()
@@ -696,6 +709,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bool isLogoHovered = _hoveredComponentName == "Logo";
                 _logo.IsHovered = isLogoHovered;
+                _logo.ImagePath= _logoImage; // Ensure the logo image is set
                 _logo.Draw(g, logoRect);
             }
 
@@ -1003,8 +1017,43 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Store the latest hovered item
         private string _hoveredComponentName;
 
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            if (DesignMode)
+                return;
+
+            // Check if this is a left mouse button click in a draggable area
+            if (e.Button == MouseButtons.Left && IsInDraggableArea(e.Location))
+            {
+                // Only start dragging if we're not clicking on interactive elements
+                bool isClickingInteractiveElement =
+                    (_showSearchBox && !_searchBoxAddedToControls && searchRect.Contains(e.Location)) ||
+                    (_showNotificationIcon && notificationRect.Contains(e.Location)) ||
+                    (_showProfileIcon && profileRect.Contains(e.Location)) ||
+                    (_showThemeIcon && themeRect.Contains(e.Location)) ||
+                    (_showMinimizeIcon && minimizeRect.Contains(e.Location)) ||
+                    (_showMaximizeIcon && maximizeRect.Contains(e.Location)) ||
+                    (_showCloseIcon && closeRect.Contains(e.Location));
+
+                if (!isClickingInteractiveElement)
+                {
+                    StartDrag(e.Location);
+                    return; // Don't process other click logic when starting drag
+                }
+            }
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            // Handle dragging first
+            if (_isDragging)
+            {
+                //UpdateDrag(e.Location);
+                return; // Don't process hover logic while dragging
+            }
+
             // Skip base.OnMouseMove to avoid base class behavior that might trigger actions
             if (DesignMode)
                 return;
@@ -1025,12 +1074,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showLogo && !string.IsNullOrEmpty(_logoImage) && logoRect.Contains(mousePoint))
             {
                 _hoveredComponentName = "Logo";
-                Cursor = Cursors.Hand;
+                Cursor = IsInDraggableArea(mousePoint) ? Cursors.SizeAll : Cursors.Hand;
             }
             else if (_showTitle && titleRect.Contains(mousePoint))
             {
                 _hoveredComponentName = "Title";
-                Cursor = Cursors.Hand;
+                Cursor = IsInDraggableArea(mousePoint) ? Cursors.SizeAll : Cursors.Hand;
             }
             else if (_showSearchBox && !_searchBoxAddedToControls && searchRect.Contains(mousePoint))
             {
@@ -1069,14 +1118,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // No component hovered
-                Cursor = Cursors.Default;
+                // No component hovered - check if we're in a draggable area
+                Cursor = IsInDraggableArea(mousePoint) ? Cursors.SizeAll : Cursors.Default;
             }
 
             // Only redraw if the hover state changed
             if (previousHovered != _hoveredComponentName)
             {
                 Invalidate();
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            if (DesignMode)
+                return;
+
+            // End dragging if it was in progress
+            if (_isDragging)
+            {
+                //EndDrag();
+                return; // Don't process click logic after dragging
             }
         }
 
@@ -1088,6 +1152,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (DesignMode)
                 return;
 
+            // End dragging if mouse leaves control
+            if (_isDragging)
+            {
+                //EndDrag();
+            }
+
             // Clear hover state
             if (_hoveredComponentName != null)
             {
@@ -1097,7 +1167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-       
+
         #endregion "Mouse Events"
 
 
@@ -1640,5 +1710,151 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Menu"
         #endregion
+
+        #region "Drag and Move Functionality"
+        private bool _isDragging = false;
+        private Point _dragStartPoint;
+        private Point _formStartLocation;
+        #region "Public Drag Methods"
+        /// <summary>
+        /// Sets which areas of the AppBar allow dragging
+        /// </summary>
+        /// <param name="areas">List of area names: "Logo", "Title", "Empty", "All"</param>
+        public void SetDraggableAreas(params string[] areas)
+        {
+            DraggableAreas = new List<string>(areas);
+        }
+
+        /// <summary>
+        /// Enables or disables form dragging
+        /// </summary>
+        /// <param name="enabled">True to enable dragging</param>
+        public void SetFormDraggingEnabled(bool enabled)
+        {
+            EnableFormDragging = enabled;
+            if (!enabled && _isDragging)
+            {
+                //EndDrag();
+            }
+        }
+
+        /// <summary>
+        /// Checks if the AppBar is currently being dragged
+        /// </summary>
+        /// <returns>True if currently dragging</returns>
+        public bool IsDragging => _isDragging;
+        #endregion "Public Drag Methods"
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Enables dragging the parent form by clicking and dragging the AppBar.")]
+        public bool EnableFormDragging { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Areas where dragging is allowed. If empty, entire AppBar is draggable.")]
+        public List<string> DraggableAreas { get; set; } = new List<string> { "Title", "Logo" };
+
+        /// <summary>
+        /// Checks if the current mouse position is in a draggable area
+        /// </summary>
+        /// <param name="mousePoint">Current mouse position</param>
+        /// <returns>True if the area allows dragging</returns>
+        private bool IsInDraggableArea(Point mousePoint)
+        {
+            if (!EnableFormDragging)
+                return false;
+
+            // If no specific draggable areas are defined, entire AppBar is draggable
+            if (DraggableAreas == null || DraggableAreas.Count == 0)
+                return true;
+
+            // Check each defined draggable area
+            foreach (string area in DraggableAreas)
+            {
+                switch (area.ToLower())
+                {
+                    case "logo":
+                        if (_showLogo && !string.IsNullOrEmpty(_logoImage) && logoRect.Contains(mousePoint))
+                            return true;
+                        break;
+                    case "title":
+                        if (_showTitle && titleRect.Contains(mousePoint))
+                            return true;
+                        break;
+                    case "appbar":
+                    case "all":
+                        return true;
+                }
+            }
+
+            // Check if mouse is in empty space (not over any interactive elements)
+            bool isOverInteractiveElement =
+                (_showSearchBox && searchRect.Contains(mousePoint)) ||
+                (_showNotificationIcon && notificationRect.Contains(mousePoint)) ||
+                (_showProfileIcon && profileRect.Contains(mousePoint)) ||
+                (_showThemeIcon && themeRect.Contains(mousePoint)) ||
+                (_showMinimizeIcon && minimizeRect.Contains(mousePoint)) ||
+                (_showMaximizeIcon && maximizeRect.Contains(mousePoint)) ||
+                (_showCloseIcon && closeRect.Contains(mousePoint));
+
+            // If DraggableAreas contains "empty" and mouse is not over interactive elements
+            if (DraggableAreas.Contains("empty", StringComparer.OrdinalIgnoreCase) && !isOverInteractiveElement)
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
+        /// Starts the drag operation
+        /// </summary>
+        /// <param name="mousePoint">Starting mouse position</param>
+        private void StartDrag(Point mousePoint)
+        {
+            Form parentForm = FindForm();
+            if (parentForm == null)
+                return;
+
+            ReleaseCapture();
+            SendMessage(parentForm.Handle, WM_NCLBUTTONDOWN, HTCAPTION, 0);
+        }
+
+        ///// <summary>
+        ///// Updates the form position during drag
+        ///// </summary>
+        ///// <param name="currentMousePoint">Current mouse position</param>
+        //private void UpdateDrag(Point currentMousePoint)
+        //{
+        //    if (!_isDragging)
+        //        return;
+
+        //    Form parentForm = FindForm();
+        //    if (parentForm == null)
+        //        return;
+
+        //    // Calculate the offset from start position
+        //    int deltaX = currentMousePoint.X - _dragStartPoint.X;
+        //    int deltaY = currentMousePoint.Y - _dragStartPoint.Y;
+
+        //    // Update form location
+        //    parentForm.Location = new Point(
+        //        _formStartLocation.X + deltaX,
+        //        _formStartLocation.Y + deltaY
+        //    );
+        //}
+
+        ///// <summary>
+        ///// Ends the drag operation
+        ///// </summary>
+        //private void EndDrag()
+        //{
+        //    if (!_isDragging)
+        //        return;
+
+        //    _isDragging = false;
+        //    Cursor = Cursors.Default;
+        //    Capture = false;
+        //}
+        #endregion "Drag and Move Functionality"
+
     }
 }

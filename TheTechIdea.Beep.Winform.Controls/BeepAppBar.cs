@@ -709,7 +709,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bool isLogoHovered = _hoveredComponentName == "Logo";
                 _logo.IsHovered = isLogoHovered;
-                _logo.ImagePath= _logoImage; // Ensure the logo image is set
+                if (string.IsNullOrEmpty(_logo.ImagePath) || !_logo.ImagePath.Equals(_logoImage, StringComparison.OrdinalIgnoreCase))
+                {
+                    _logo.ImagePath = _logoImage;
+                }
                 _logo.Draw(g, logoRect);
             }
 
@@ -717,6 +720,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 bool isTitleHovered = _hoveredComponentName == "Title";
                 _titleLabel.IsHovered = isTitleHovered;
+                if (string.IsNullOrEmpty(Title) || !_titleLabel.Text.Equals(Title, StringComparison.OrdinalIgnoreCase))
+                {
+                    _titleLabel.Text = _logoImage;
+                }
                 _titleLabel.Draw(g, titleRect);
             }
 

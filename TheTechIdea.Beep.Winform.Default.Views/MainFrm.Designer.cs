@@ -432,7 +432,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.ShowCloseIcon = true;
             beepAppBar1.ShowFocusIndicator = false;
             beepAppBar1.ShowLeftBorder = false;
-            beepAppBar1.ShowLogo = false;
+            beepAppBar1.ShowLogo = true;
             beepAppBar1.ShowMaximizeIcon = true;
             beepAppBar1.ShowMinimizeIcon = true;
             beepAppBar1.ShowNotificationIcon = true;
@@ -441,7 +441,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.ShowSearchBox = true;
             beepAppBar1.ShowShadow = false;
             beepAppBar1.ShowThemeIcon = true;
-            beepAppBar1.ShowTitle = false;
+            beepAppBar1.ShowTitle = true;
             beepAppBar1.ShowTopBorder = false;
             beepAppBar1.Size = new Size(1198, 46);
             beepAppBar1.SlideFrom = SlideDirection.Left;
@@ -587,7 +587,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 15;
+            beepAppTree1.SeqID = 1;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 0;
             beepAppTree1.ShadowOpacity = 0.5F;

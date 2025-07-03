@@ -13,7 +13,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Task Card")]
     [Description("A task or project card displaying avatars, title, subtitle, metric, and progress.")]
     public class BeepTaskCard : BeepControl
-    {
+    {// Controls Used for Drawing and theming
+        private BeepButton button;
+        private BeepLabel label;
+        private BeepImage image;
         private List<string> _avatarImagePaths = new List<string>();
         private List<Image> _avatarImages = new List<Image>();
         private string _titleText = "Coin calc";
@@ -102,14 +105,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
-            
             UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
             var clientRect = this.DrawingRect;
 
-            // 1) Draw overlapping avatars at the top-left.
-            int avatarX = 10;
-            int avatarY = 10;
+            // 1) Draw overlapping avatars at the top-left using BeepImage
+            int avatarX = clientRect.Left + 10;
+            int avatarY = clientRect.Top + 10;
             int avatarSize = 32;
             int overlap = 10;
             int maxVisibleAvatars = 3;
@@ -119,117 +121,101 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 int offsetX = avatarX + i * (avatarSize - overlap);
                 var avatarRect = new Rectangle(offsetX, avatarY, avatarSize, avatarSize);
-                using (GraphicsPath path = new GraphicsPath())
-                {
-                    path.AddEllipse(avatarRect);
-                    g.SetClip(path);
-                    if (_avatarImages[i] != null)
-                        g.DrawImage(_avatarImages[i], avatarRect);
-                    g.ResetClip();
-                }
-                using (Pen borderPen = new Pen(Color.White, 2f))
-                {
-                    g.DrawEllipse(borderPen, avatarRect);
-                }
+
+                if (image == null) image = new BeepImage();
+                image.Image = _avatarImages[i];
+                image.IsChild = true;
+                image.BorderColor = Color.White;
+                image.BorderThickness = 2;
+                image.IsRounded = true;
+                image.Draw(g, avatarRect);
             }
 
-            // If there are more avatars than visible, draw a +X circle.
+            // If there are more avatars than visible, draw a +X circle using BeepLabel
             if (_avatarImages.Count > maxVisibleAvatars)
             {
                 int offsetX = avatarX + displayedCount * (avatarSize - overlap);
                 var plusRect = new Rectangle(offsetX, avatarY, avatarSize, avatarSize);
-                using (GraphicsPath path = new GraphicsPath())
+
+                var plusLabel = new BeepLabel
                 {
-                    path.AddEllipse(plusRect);
-                    g.SetClip(path);
-                    using (SolidBrush plusBrush = new SolidBrush(Color.FromArgb(150, 0, 0, 0)))
-                    {
-                        g.FillEllipse(plusBrush, plusRect);
-                    }
-                    g.ResetClip();
-                }
-                using (Pen borderPen = new Pen(Color.White, 2f))
-                {
-                    g.DrawEllipse(borderPen, plusRect);
-                }
-                int extraCount = _avatarImages.Count - maxVisibleAvatars;
-                string plusText = $"+{extraCount}";
-                using (Font plusFont = new Font(Font.FontFamily, 10, FontStyle.Bold))
-                {
-                    Size plusTextSize = TextRenderer.MeasureText(plusText, plusFont);
-                    int plusTextX = plusRect.X + (plusRect.Width - plusTextSize.Width) / 2;
-                    int plusTextY = plusRect.Y + (plusRect.Height - plusTextSize.Height) / 2;
-                    TextRenderer.DrawText(g, plusText, plusFont, new Point(plusTextX, plusTextY), Color.White);
-                }
+                    Text = $"+{_avatarImages.Count - maxVisibleAvatars}",
+                    ForeColor = Color.White,
+                    BackColor = Color.FromArgb(150, 0, 0, 0),
+                    Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardSubStyleStyle),
+                    IsChild = true,
+                    IsRounded = true,
+                    BorderColor = Color.White,
+                    BorderThickness = 2
+                };
+                plusLabel.Draw(g, plusRect);
             }
 
-            // 2) Draw the 'more' icon at the top-right.
+            // 2) Draw the 'more' icon at the top-right using BeepImage
+            int iconSize = 24;
+            int iconX = clientRect.Right - iconSize - 10;
+            int iconY = clientRect.Top + 10;
+            if (image == null) image = new BeepImage();
             if (_moreIcon != null)
-            {
-                int iconSize = 24;
-                int iconX = clientRect.Width - iconSize - 10;
-                int iconY = 10;
-                g.DrawImage(_moreIcon, new Rectangle(iconX, iconY, iconSize, iconSize));
-            }
-            else
-            {
-                // Fallback: draw a simple vertical ellipsis.
-                int dotsX = clientRect.Width - 20;
-                int dotsY = 15;
-                using (SolidBrush dotBrush = new SolidBrush(this.ForeColor))
-                {
-                    for (int i = 0; i < 3; i++)
-                    {
-                        g.FillEllipse(dotBrush, dotsX, dotsY + i * 8, 4, 4);
-                    }
-                }
-            }
+                image.Image = _moreIcon;
+            else if (!string.IsNullOrEmpty(_moreIconPath))
+                image.ImagePath = _moreIconPath;
+            image.IsChild = true;
+            image.Draw(g, new Rectangle(iconX, iconY, iconSize, iconSize));
 
-            // 3) Draw the title and subtitle.
-            using (Font titleFont = new Font(Font.FontFamily, 14, FontStyle.Bold))
-            {
-                int titleX = 10;
-                int titleY = avatarY + avatarSize + 10;
-                TextRenderer.DrawText(g, _titleText, titleFont, new Point(titleX, titleY), _currentTheme.CardTextForeColor);
-            }
-            using (Font subtitleFont = new Font(Font.FontFamily, 10, FontStyle.Regular))
-            {
-                int subX = 10;
-                int subY = avatarY + avatarSize + 30;
-                TextRenderer.DrawText(g, _subtitleText, subtitleFont, new Point(subX, subY), _currentTheme.CardTextForeColor);
-            }
+            // 3) Draw the title and subtitle using BeepLabel
+            if (label == null) label = new BeepLabel();
+            // Title
+            label.Text = _titleText;
+            label.ForeColor = _currentTheme.TaskCardTitleForeColor;
+            label.Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardTitleFont);
+            label.BackColor = Color.Transparent;
+            label.IsChild = true;
+            var titleRect = new Rectangle(clientRect.Left + 10, avatarY + avatarSize + 10, clientRect.Width - 20, 24);
+            label.Draw(g, titleRect);
 
-            // 4) Draw the metric text near the bottom and the progress bar.
-            using (Font metricFont = new Font(Font.FontFamily, 10, FontStyle.Regular))
+            // Subtitle
+            var subtitleLabel = new BeepLabel
             {
-                Size metricSize = TextRenderer.MeasureText(_metricText, metricFont);
-                int metricX = 10;
-                int metricY = clientRect.Height - 40 - metricSize.Height;
-                TextRenderer.DrawText(g, _metricText, metricFont, new Point(metricX, metricY), _currentTheme.CardTitleForeColor);
+                Text = _subtitleText,
+                ForeColor = _currentTheme.TaskCardSubTitleForeColor,
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardSubStyleStyle),
+                BackColor = Color.Transparent,
+                IsChild = true
+            };
+            var subRect = new Rectangle(clientRect.Left + 10, avatarY + avatarSize + 34, clientRect.Width - 20, 20);
+            subtitleLabel.Draw(g, subRect);
 
-                // 5) Draw the progress bar below the metric text.
-                int barHeight = 6;
-                int barX = metricX;
-                int barY = clientRect.Height - 20;
-                int barWidth = clientRect.Width - barX - 10;
-                using (SolidBrush backBrush = new SolidBrush(Color.FromArgb(80, _currentTheme.CardTitleForeColor)))
-                {
-                    g.FillRectangle(backBrush, barX, barY, barWidth, barHeight);
-                }
-                float progressWidth = (ProgressValue / 100f) * barWidth;
-                using (SolidBrush progressBrush = new SolidBrush(_currentTheme.CardTitleForeColor))
-                {
-                    g.FillRectangle(progressBrush, barX, barY, (int)progressWidth, barHeight);
-                }
+            // 4) Draw the metric text near the bottom using BeepLabel
+            var metricLabel = new BeepLabel
+            {
+                Text = _metricText,
+                ForeColor = _currentTheme.TaskCardMetricTextForeColor,
+                Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardMetricTextStyle),
+                BackColor = Color.Transparent,
+                IsChild = true
+            };
+            Size metricSize = TextRenderer.MeasureText(_metricText, metricLabel.Font);
+            int metricX = clientRect.Left + 10;
+            int metricY = clientRect.Bottom - 40 - metricSize.Height;
+            var metricRect = new Rectangle(metricX, metricY, clientRect.Width - 20, metricSize.Height);
+            metricLabel.Draw(g, metricRect);
+
+            // 5) Draw the progress bar below the metric text
+            int barHeight = 6;
+            int barX = metricX;
+            int barY = clientRect.Bottom - 20;
+            int barWidth = clientRect.Width - barX - 10;
+            using (SolidBrush backBrush = new SolidBrush(Color.FromArgb(80, _currentTheme.TaskCardMetricTextForeColor)))
+            {
+                g.FillRectangle(backBrush, barX, barY, barWidth, barHeight);
+            }
+            float progressWidth = (ProgressValue / 100f) * barWidth;
+            using (SolidBrush progressBrush = new SolidBrush(_currentTheme.TaskCardMetricTextForeColor))
+            {
+                g.FillRectangle(progressBrush, barX, barY, (int)progressWidth, barHeight);
             }
         }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // Let the base handle the gradient, borders, and shadow.
-            base.OnPaint(e);
-       
-        }
-
         public override void ApplyTheme()
         {
             base.ApplyTheme();

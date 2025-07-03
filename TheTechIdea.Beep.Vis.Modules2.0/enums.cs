@@ -135,14 +135,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         Backward,   // arrows point to the left (←)
             Up,Down
     }
-    public enum BeepShapeType
-    {
-        Line,
-        Rectangle,
-        Ellipse,
-        Triangle,
-        Star
-    }
+   
     public enum WizardState
     {
         None,

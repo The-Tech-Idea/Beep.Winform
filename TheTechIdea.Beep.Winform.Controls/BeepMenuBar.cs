@@ -343,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void Menu_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-            SimpleItem x = e.SelectedItem;
+            SimpleItem x = (SimpleItem)e.SelectedItem;
 
             if (x != null)
             {

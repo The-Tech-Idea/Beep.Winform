@@ -15,6 +15,12 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A dashboard tile showing a title, icon, large metric, delta text, and a central silhouette.")]
     public class BeepMetricTile : BeepControl
     {
+
+        // Controls Used for Drawing and theming
+        private BeepButton button;
+        private BeepLabel label;
+        private BeepImage image;
+
         private string _titleText = "Views";
         private string _metricValue = "31";
         private string _deltaValue = "+3 last day";
@@ -94,26 +100,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
-          
             UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
-            var clientRect = this.ClientRectangle;
 
-            // 1) Draw a semi‐transparent silhouette in the center (optional)
+            var DrawingRect = this.DrawingRect;
+            var clientRect = this.ClientRectangle;
+            ClearHitList();
+            // Get card theme (assume _currentTheme is CandyTheme or compatible)
+            var cardTheme = _currentTheme;
+
+            // 1. Draw the background silhouette (center, semi-transparent)
             if (_backgroundSilhouette != null)
             {
-                // We'll apply ~20% opacity via a color matrix
                 using var ia = new ImageAttributes();
                 var cm = new ColorMatrix();
-                cm.Matrix33 = 0.20f;  // 0.20 = 20% opacity
+                cm.Matrix33 = 0.20f;
                 ia.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
 
-                // Scale the silhouette to about 60% of the control size
                 int silhouetteWidth = (int)(DrawingRect.Width * 0.60);
                 int silhouetteHeight = (int)(DrawingRect.Height * 0.60);
-                int x = (DrawingRect.Width - silhouetteWidth) / 2;
-                int y = (DrawingRect.Height - silhouetteHeight) / 2;
-
+                int x = DrawingRect.Left + (DrawingRect.Width - silhouetteWidth) / 2;
+                int y = DrawingRect.Top + (DrawingRect.Height - silhouetteHeight) / 2;
                 var destRect = new Rectangle(x, y, silhouetteWidth, silhouetteHeight);
 
                 g.DrawImage(
@@ -127,56 +134,64 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
             }
 
-            // 2) Draw the title in the top-left corner
-            using (var titleFont = new Font(Font.FontFamily, 10, FontStyle.Regular))
-            {
-                TextRenderer.DrawText(
-                    g,
-                    _titleText,
-                    titleFont,
-                    new Point(10, 10),
-                    _currentTheme.TaskCardMetricTextForeColor);
-            }
+            // 2. Draw the title (top-left) using BeepLabel
+            if (label == null)
+                label = new BeepLabel();
+            label.Text = _titleText;
+            label.ForeColor = cardTheme?.CardTitleForeColor ?? Color.Black;
+            label.Font = cardTheme != null
+                ? new Font(cardTheme.CardTitleFont.FontFamily, cardTheme.CardTitleFont.FontSize, cardTheme.CardTitleFont.FontStyle)
+                : new Font(Font.FontFamily, 10, FontStyle.Bold);
+            label.BackColor = Color.Transparent;
+            label.IsChild = true;
+            var titleRect = new Rectangle(DrawingRect.Left + 10, DrawingRect.Top + 10, DrawingRect.Width - 40, 24);
+            label.Draw(g, titleRect);
 
-            // 3) Draw the optional icon in the top-right corner
+            // 3. Draw the icon (top-right) using BeepImage
+            if (image == null)
+                image = new BeepImage();
             if (_iconImage != null)
+                image.Image = _iconImage;
+            else if (!string.IsNullOrEmpty(_iconImagepath))
+                image.ImagePath = _iconImagepath;
+            image.IsChild = true;
+            int iconSize = 24;
+            var iconRect = new Rectangle(DrawingRect.Right - iconSize - 10, DrawingRect.Top + 10, iconSize, iconSize);
+            image.Draw(g, iconRect);
+
+            // Optionally, add a hit area for the icon
+            AddHitArea("Icon", iconRect);
+
+            // 4. Draw the metric value (bottom-left) using BeepLabel
+            if (button == null)
+                button = new BeepButton();
+            button.Text = _metricValue;
+            button.ForeColor = cardTheme?.CardTitleForeColor ?? Color.Black;
+            button.Font = cardTheme != null
+                ? new Font(cardTheme.CardTitleFont.FontFamily, 28, FontStyle.Bold)
+                : new Font(Font.FontFamily, 28, FontStyle.Bold);
+            button.BackColor = Color.Transparent;
+            button.IsChild = true;
+            var metricRect = new Rectangle(DrawingRect.Left + 10, DrawingRect.Bottom - 50, DrawingRect.Width / 2, 40);
+            button.Draw(g, metricRect);
+
+            // 5. Draw the delta value (right of metric) using BeepLabel
+            var deltaLabel = new BeepLabel
             {
-                int iconSize = 24;
-                int iconX = DrawingRect.Width - iconSize - 10;
-                int iconY = 10;
-                g.DrawImage(_iconImage, new Rectangle(iconX, iconY, iconSize, iconSize));
-            }
+                Text = _deltaValue,
+                ForeColor = cardTheme?.CardSubTitleForeColor ?? Color.Gray,
+                Font = cardTheme != null
+                    ? new Font(cardTheme.CardSubTitleFont.FontFamily, 10, cardTheme.CardSubTitleFont.FontStyle)
+                    : new Font(Font.FontFamily, 10, FontStyle.Regular),
+                BackColor = Color.Transparent,
+                IsChild = true
+            };
+            var deltaRect = new Rectangle(metricRect.Right + 5, metricRect.Top + 10, DrawingRect.Width - metricRect.Right - 15, 24);
+            deltaLabel.Draw(g, deltaRect);
 
-            // 4) Draw the large metric near the bottom-left
-            using (var metricFont = new Font(Font.FontFamily, 28, FontStyle.Bold))
-            {
-                Size metricSize = TextRenderer.MeasureText(_metricValue, metricFont);
-
-                // Place it about 10px from the left, 10px from the bottom
-                int metricX = 10;
-                int metricY = clientRect.Height - metricSize.Height - 10;
-
-                TextRenderer.DrawText(
-                    g,
-                    _metricValue,
-                    metricFont,
-                    new Point(metricX, metricY),
-                    _currentTheme.TaskCardMetricTextForeColor);
-
-                // 5) Draw the delta text to the right of the metric, baseline aligned
-                using (var deltaFont = new Font(Font.FontFamily, 10, FontStyle.Regular))
-                {
-                    Size deltaSize = TextRenderer.MeasureText(_deltaValue, deltaFont);
-                    int deltaX = metricX + metricSize.Width + 5;
-                    int deltaY = metricY + (metricSize.Height - deltaSize.Height);
-                    TextRenderer.DrawText(
-                        g,
-                        _deltaValue,
-                        deltaFont,
-                        new Point(deltaX, deltaY),
-                        _currentTheme.TaskCardMetricTextForeColor);
-                }
-            }
+            // Optionally, add hit areas for metric and delta
+            AddHitArea("Metric", metricRect);
+            AddHitArea("Delta", deltaRect);
         }
         public override void ApplyTheme()
         {

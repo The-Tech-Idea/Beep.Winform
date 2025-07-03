@@ -5,268 +5,603 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-   
-    /// <summary>
-    /// A control that displays breadcrumb navigation items.
-    /// All drawing is performed within the DrawingRect.
-    /// </summary>
     [ToolboxItem(true)]
     [DisplayName("Beep Breadcrumps")]
     [Category("Beep Controls")]
-    [Description("A control that displays breadcrumb navigation items inside a designated drawing area (DrawingRect).")]
+    [Description("Enhanced breadcrumb navigation with hit area support and advanced styling")]
     public class BeepBreadcrumps : BeepControl
     {
         #region Fields
+        private BeepButton button;
+        private BeepLabel label;
+        private BeepImage image;
 
-        // A designer–editable collection of breadcrumb items.
-        private BindingList<string> _items = new BindingList<string>();
+        private BindingList<SimpleItem> _items = new BindingList<SimpleItem>();
+        private Dictionary<string, BreadcrumbState> _itemStates = new Dictionary<string, BreadcrumbState>();
+        private string _hoveredItemName;
+        private SimpleItem _selectedItem;
+        private int _selectedIndex = -1;
 
-        // Stores the bounding rectangles (in absolute coordinates) of each crumb for hit testing.
-        private List<Rectangle> _itemRectangles = new List<Rectangle>();
-
-        // The index of the breadcrumb currently under the mouse.
-        private int _hoverIndex = -1;
-
+        private int _itemSpacing = 8;
+        private int _separatorWidth = 20;
+        private string _separatorText = ">";
+        private BreadcrumbStyle _style = BreadcrumbStyle.Modern;
+        private bool _showIcons = true;
+        private bool _showHomeIcon = true;
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets the breadcrumb items.
-        /// You can add, remove, or modify items at design time or runtime.
-        /// </summary>
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         [Category("Data")]
-        [Description("The breadcrumb items.")]
-        public BindingList<string> Items
+        [Description("The breadcrumb items collection")]
+        public BindingList<SimpleItem> Items
         {
-            get { return _items; }
-        }
-        private Font _textFont = new Font("Arial", 10);
-        [Browsable(true)]
-        [MergableProperty(true)]
-        [Category("Appearance")]
-        [Description("Text Font displayed in the control.")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        public Font TextFont
-        {
-            get => _textFont;
+            get => _items;
             set
             {
+                if (_items != null)
+                    _items.ListChanged -= Items_ListChanged;
 
-                _textFont = value;
+                _items = value ?? new BindingList<SimpleItem>();
+                _items.ListChanged += Items_ListChanged;
+
+                InitializeItems();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text font for breadcrumb items")]
+        public Font TextFont
+        {
+            get => Font;
+            set
+            {
+                Font = value;
                 UseThemeFont = false;
-                Font = _textFont;
-
                 Invalidate();
+            }
+        }
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Spacing between breadcrumb items")]
+        public int ItemSpacing
+        {
+            get => _itemSpacing;
+            set
+            {
+                _itemSpacing = value;
+                Invalidate();
+            }
+        }
 
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text used as separator between items")]
+        public string SeparatorText
+        {
+            get => _separatorText;
+            set
+            {
+                _separatorText = value ?? ">";
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Visual style of the breadcrumb")]
+        public BreadcrumbStyle Style
+        {
+            get => _style;
+            set
+            {
+                _style = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show icons for breadcrumb items")]
+        public bool ShowIcons
+        {
+            get => _showIcons;
+            set
+            {
+                _showIcons = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Show home icon as first item")]
+        public bool ShowHomeIcon
+        {
+            get => _showHomeIcon;
+            set
+            {
+                _showHomeIcon = value;
+                Invalidate();
+            }
+        }
+
+        [Browsable(false)]
+        public SimpleItem SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+                OnCrumbClicked(new CrumbClickedEventArgs(_selectedIndex, _selectedItem.Name,_selectedItem.Text));
+                Invalidate();
+            }
+        }
+
+        [Browsable(false)]
+        public int SelectedIndex
+        {
+            get => _selectedIndex;
+            set
+            {
+                if (value >= 0 && value < _items.Count)
+                {
+                    _selectedIndex = value;
+                    SelectedItem = _items[value];
+                }
             }
         }
         #endregion
 
         #region Events
-
-        /// <summary>
-        /// Occurs when a breadcrumb item is clicked.
-        /// </summary>
         [Category("Action")]
-        [Description("Occurs when a breadcrumb item is clicked.")]
+        [Description("Occurs when a breadcrumb item is clicked")]
         public event EventHandler<CrumbClickedEventArgs> CrumbClicked;
 
+        protected virtual void OnCrumbClicked(CrumbClickedEventArgs e)
+        {
+            CrumbClicked?.Invoke(this, e);
+        }
         #endregion
 
         #region Constructor
-
         public BeepBreadcrumps()
         {
-            // Enable double buffering and optimized painting.
-            this.SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
+                    ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
 
-            // Set default appearance.
-            this.BackColor = Color.White;
-            this.ForeColor = Color.Black;
-            this.Font = new Font("Segoe UI", 9);
+            BackColor = Color.White;
+            ForeColor = Color.Black;
+            Font = new Font("Segoe UI", 9);
             BorderRadius = 8;
-            // Repaint whenever the collection changes.
-            _items.ListChanged += (s, e) => { Invalidate(); };
+            Height = 36;
+
+            InitializeDrawingComponents();
+            _items.ListChanged += Items_ListChanged;
+
+            // Add some default items for design-time experience
+            if (DesignMode)
+            {
+                _items.Add(new SimpleItem { Name = "Home", Text = "Home", ImagePath = "home.svg" });
+                _items.Add(new SimpleItem { Name = "Documents", Text = "Documents", ImagePath = "folder.svg" });
+                _items.Add(new SimpleItem { Name = "Current", Text = "Current", ImagePath = "file.svg" });
+            }
         }
-        protected override Size DefaultSize => new Size(150, 36);
+
+        private void InitializeDrawingComponents()
+        {
+            button = new BeepButton
+            {
+                IsChild = true,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                Theme = this.Theme,
+                ApplyThemeOnImage = true,
+                IsFrameless = true
+            };
+
+            label = new BeepLabel
+            {
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Theme = this.Theme
+            };
+
+            image = new BeepImage
+            {
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                ScaleMode = ImageScaleMode.KeepAspectRatio,
+                Theme = this.Theme
+            };
+        }
+
+        protected override Size DefaultSize => new Size(300, 36);
         #endregion
 
-        #region Painting
-
-        protected override void OnPaint(PaintEventArgs e)
+        #region Item Management
+        private void Items_ListChanged(object sender, ListChangedEventArgs e)
         {
-            base.OnPaint(e);
+            InitializeItems();
+        }
 
-            Graphics g = e.Graphics;
+        private void InitializeItems()
+        {
+            _itemStates.Clear();
+
+            foreach (var item in _items)
+            {
+                var state = new BreadcrumbState
+                {
+                    Item = item,
+                    IsHovered = false,
+                    IsSelected = false
+                };
+                _itemStates[item.Name] = state;
+            }
+
+            Invalidate();
+        }
+        #endregion
+
+        #region Drawing
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+            UpdateDrawingRect();
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Use DrawingRect as the designated drawing area.
-            Rectangle drawRect = this.DrawingRect;
+            if (_items.Count == 0) return;
 
-            // Set the clipping region and translate the coordinate system so that (0,0) corresponds to drawRect.Location.
-            g.SetClip(drawRect);
-            g.TranslateTransform(drawRect.X, drawRect.Y);
+            ClearHitList();
+            DrawBreadcrumbItems(g);
+        }
 
-            // Clear the drawing area.
-            //using (SolidBrush backBrush = new SolidBrush(this.BackColor))
-            //{
-            //    g.FillRectangle(backBrush, 0, 0, drawRect.Width, drawRect.Height);
-            //}
-
-            //// Clear any previous crumb bounds.
-            //_itemRectangles.Clear();
-
-            // Layout constants (all in local coordinates relative to drawRect).
-            int x = 5;                      // Starting x–coordinate within DrawingRect
-            int hPadding = 8;               // Horizontal padding added to each crumb (left & right)
-            int vPadding = 4;               // Vertical padding added (top & bottom)
-            string separator = " > ";       // Separator text between breadcrumbs
-            Size sepSize = TextRenderer.MeasureText(separator, this.Font);
-
-            _itemRectangles.Clear();        // Clear any previously stored hit–testing rectangles
+        private void DrawBreadcrumbItems(Graphics g)
+        {
+            int x = DrawingRect.Left + 5;
+            int y = DrawingRect.Top;
+            int itemHeight = DrawingRect.Height;
 
             for (int i = 0; i < _items.Count; i++)
             {
-                string crumb = _items[i];
-                // Measure the text size using the current font.
-                Size textSize = TextRenderer.MeasureText(crumb, this.Font);
+                var item = _items[i];
+                var state = _itemStates.ContainsKey(item.Name) ? _itemStates[item.Name] : null;
+                bool isHovered = state?.IsHovered ?? false;
+                bool isSelected = state?.IsSelected ?? false;
+                bool isLast = i == _items.Count - 1;
 
-                // Create a rectangle based on the measured text.
-                // The width and height are increased by the desired padding.
-                Rectangle localRect = new Rectangle(
-                    x,
-                    (DrawingRect.Height - (textSize.Height + 2 * vPadding)) / 2,
-                    textSize.Width + 2 * hPadding,
-                    textSize.Height + 2 * vPadding
+                // Calculate item dimensions
+                var itemRect = CalculateItemRect(g, item, x, y, itemHeight, isHovered);
+
+                // Draw the breadcrumb item
+                DrawBreadcrumbItem(g, item, itemRect, isHovered, isSelected, isLast);
+
+                // Add hit area
+                AddHitArea(
+                    $"Breadcrumb_{i}",
+                    itemRect,
+                    button,
+                    () => OnItemClicked(item, i)
                 );
 
-                // Convert the local rectangle to absolute coordinates for hit testing.
-                Rectangle absoluteRect = new Rectangle(
-                    DrawingRect.X + localRect.X,
-                    DrawingRect.Y + localRect.Y,
-                    localRect.Width,
-                    localRect.Height
-                );
-                _itemRectangles.Add(absoluteRect);
+                // Move to next position
+                x = itemRect.Right;
 
-                // Optionally highlight the crumb if the mouse is hovering over it.
-                if (i == _hoverIndex)
+                // Draw separator if not last item
+                if (!isLast)
                 {
-                    using (SolidBrush brush = new SolidBrush(Color.LightGray))
+                    x += DrawSeparator(g, x, y, itemHeight);
+                }
+            }
+        }
+
+        private Rectangle CalculateItemRect(Graphics g, SimpleItem item, int x, int y, int height, bool isHovered)
+        {
+            string displayText = item.Text ?? item.Name ?? "";
+            var textSize = TextRenderer.MeasureText(displayText, Font);
+
+            int iconWidth = (_showIcons && !string.IsNullOrEmpty(item.ImagePath)) ? 20 : 0;
+            int padding = 8;
+            int width = textSize.Width + padding * 2 + iconWidth + (iconWidth > 0 ? 4 : 0);
+
+            if (isHovered && _style == BreadcrumbStyle.Modern)
+            {
+                width += 4; // Extra padding for hover effect
+                height -= 2; // Slight height reduction for modern effect
+                y += 1;
+            }
+
+            return new Rectangle(x, y, width, height);
+        }
+
+        private void DrawBreadcrumbItem(Graphics g, SimpleItem item, Rectangle rect, bool isHovered, bool isSelected, bool isLast)
+        {
+            string displayText = item.Text ?? item.Name ?? "";
+
+            // Configure the reusable button component
+            button.Text = displayText;
+            button.ImagePath = (_showIcons && !string.IsNullOrEmpty(item.ImagePath)) ? item.ImagePath : "";
+            button.IsHovered = isHovered;
+            button.IsSelected = isSelected;
+
+            // Apply style-specific appearance
+            switch (_style)
+            {
+                case BreadcrumbStyle.Classic:
+                    DrawClassicStyle(g, button, rect, isHovered, isLast);
+                    break;
+                case BreadcrumbStyle.Modern:
+                    DrawModernStyle(g, button, rect, isHovered, isLast);
+                    break;
+                case BreadcrumbStyle.Pill:
+                    DrawPillStyle(g, button, rect, isHovered, isLast);
+                    break;
+                case BreadcrumbStyle.Flat:
+                    DrawFlatStyle(g, button, rect, isHovered, isLast);
+                    break;
+            }
+
+            // Draw the button content
+            button.Draw(g, rect);
+        }
+
+        private void DrawClassicStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
+        {
+            if (isHovered)
+            {
+                using (var brush = new SolidBrush(Color.FromArgb(50, _currentTheme.ButtonHoverBackColor)))
+                {
+                    g.FillRectangle(brush, rect);
+                }
+                using (var pen = new Pen(_currentTheme.ButtonHoverBorderColor, 1))
+                {
+                    g.DrawRectangle(pen, rect);
+                }
+            }
+
+            btn.BackColor = isHovered ? Color.FromArgb(30, _currentTheme.ButtonHoverBackColor) : Color.Transparent;
+            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
+        }
+
+        private void DrawModernStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
+        {
+            if (isHovered)
+            {
+                using (var path = GetRoundedRectPath(rect, 4))
+                using (var brush = new SolidBrush(Color.FromArgb(40, _currentTheme.ButtonHoverBackColor)))
+                {
+                    g.FillPath(brush, path);
+                }
+            }
+
+            btn.BackColor = Color.Transparent;
+            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
+            btn.IsRounded = true;
+            btn.BorderRadius = 4;
+        }
+
+        private void DrawPillStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
+        {
+            var pillRect = new Rectangle(rect.X, rect.Y + 4, rect.Width, rect.Height - 8);
+
+            using (var path = GetRoundedRectPath(pillRect, pillRect.Height / 2))
+            {
+                if (isHovered)
+                {
+                    using (var brush = new SolidBrush(Color.FromArgb(60, _currentTheme.ButtonHoverBackColor)))
                     {
-                        g.FillRectangle(brush, localRect);
+                        g.FillPath(brush, path);
                     }
                 }
 
-                // Draw the crumb text centered within the local rectangle.
-                TextRenderer.DrawText(g, crumb, this.Font, localRect, this.ForeColor,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-
-                // Advance x by the width of the current crumb.
-                x += localRect.Width;
-
-                // If not the last crumb, draw the separator.
-                if (i < _items.Count - 1)
+                if (isLast)
                 {
-                    Point sepLocation = new Point(x, (DrawingRect.Height - sepSize.Height) / 2);
-                    TextRenderer.DrawText(g, separator, this.Font, sepLocation, this.ForeColor);
-                    x += sepSize.Width;
+                    using (var brush = new SolidBrush(Color.FromArgb(80, _currentTheme.ButtonBackColor)))
+                    {
+                        g.FillPath(brush, path);
+                    }
                 }
             }
 
-
-            // Reset the transformation and clipping.
-            g.ResetTransform();
-            g.ResetClip();
+            btn.BackColor = Color.Transparent;
+            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
         }
 
+        private void DrawFlatStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
+        {
+            if (isHovered)
+            {
+                var underlineRect = new Rectangle(rect.X, rect.Bottom - 2, rect.Width, 2);
+                using (var brush = new SolidBrush(_currentTheme.LinkColor))
+                {
+                    g.FillRectangle(brush, underlineRect);
+                }
+            }
+
+            btn.BackColor = Color.Transparent;
+            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
+        }
+
+        private int DrawSeparator(Graphics g, int x, int y, int height)
+        {
+            // Configure the reusable label for separator
+            label.Text = _separatorText;
+            label.ForeColor = Color.FromArgb(128, _currentTheme.LabelForeColor);
+            label.BackColor = Color.Transparent;
+
+            var sepSize = TextRenderer.MeasureText(_separatorText, Font);
+            var sepRect = new Rectangle(x + _itemSpacing, y, sepSize.Width, height);
+
+            label.Draw(g, sepRect);
+
+            return sepRect.Width + _itemSpacing;
+        }
         #endregion
 
-        #region Mouse Interaction
-
-        protected override void OnMouseClick(MouseEventArgs e)
-        {
-            base.OnMouseClick(e);
-
-            // Determine if a crumb was clicked using absolute coordinates.
-            for (int i = 0; i < _itemRectangles.Count; i++)
-            {
-                if (_itemRectangles[i].Contains(e.Location))
-                {
-                    CrumbClicked?.Invoke(this, new CrumbClickedEventArgs(i, _items[i]));
-                    break;
-                }
-            }
-        }
-
+        #region Mouse Events
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
 
-            int newHover = -1;
-            for (int i = 0; i < _itemRectangles.Count; i++)
+            string previousHovered = _hoveredItemName;
+            _hoveredItemName = null;
+
+            // Check which item is being hovered via hit test
+            if (HitTest(e.Location) && HitTestControl != null)
             {
-                if (_itemRectangles[i].Contains(e.Location))
+                if (HitTestControl.Name.StartsWith("Breadcrumb_"))
                 {
-                    newHover = i;
-                    break;
+                    if (int.TryParse(HitTestControl.Name.Substring(11), out int itemIndex))
+                    {
+                        if (itemIndex < _items.Count)
+                        {
+                            _hoveredItemName = _items[itemIndex].Name;
+                        }
+                    }
                 }
             }
 
-            if (newHover != _hoverIndex)
+            // Update hover states if changed
+            if (_hoveredItemName != previousHovered)
             {
-                _hoverIndex = newHover;
-                Invalidate();
+                UpdateHoverStates();
+                Cursor = !string.IsNullOrEmpty(_hoveredItemName) ? Cursors.Hand : Cursors.Default;
             }
         }
 
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
-            _hoverIndex = -1;
+            _hoveredItemName = null;
+            UpdateHoverStates();
+            Cursor = Cursors.Default;
+        }
+
+        private void UpdateHoverStates()
+        {
+            foreach (var kvp in _itemStates)
+            {
+                kvp.Value.IsHovered = kvp.Key == _hoveredItemName;
+            }
             Invalidate();
         }
 
-        #endregion
-        public override void ApplyTheme()
+        private void OnItemClicked(SimpleItem item, int index)
         {
-          //  base.ApplyTheme();
-            this.BackColor = _currentTheme.PanelBackColor;
-            this.ForeColor = _currentTheme.LabelForeColor;
-            if (UseThemeFont)
+            _selectedIndex = index;
+            _selectedItem = item;
+
+            // Update selection states
+            foreach (var state in _itemStates.Values)
             {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                state.IsSelected = state.Item == item;
             }
 
-            Font = _textFont;
+            OnCrumbClicked(new CrumbClickedEventArgs(index, item.Name,item.Text));
+            Invalidate();
         }
-    }
-    /// <summary>
-    /// Provides data for the CrumbClicked event.
-    /// </summary>
-    public class CrumbClickedEventArgs : EventArgs
-    {
-        /// <summary>
-        /// The index of the breadcrumb item that was clicked.
-        /// </summary>
-        public int Index { get; }
+        #endregion
 
-        /// <summary>
-        /// The text of the breadcrumb item that was clicked.
-        /// </summary>
-        public string Crumb { get; }
-
-        public CrumbClickedEventArgs(int index, string crumb)
+        #region Public Methods
+        public void AddItem(string name, string text = null, string imagePath = null)
         {
-            Index = index;
-            Crumb = crumb;
+            var item = new SimpleItem
+            {
+                Name = name,
+                Text = text ?? name,
+                ImagePath = imagePath
+            };
+            _items.Add(item);
         }
+
+        public void RemoveItem(int index)
+        {
+            if (index >= 0 && index < _items.Count)
+            {
+                var item = _items[index];
+                _items.RemoveAt(index);
+                _itemStates.Remove(item.Name);
+            }
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
+            _itemStates.Clear();
+            _selectedItem = null;
+            _selectedIndex = -1;
+            Invalidate();
+        }
+
+        public void NavigateToIndex(int index)
+        {
+            if (index >= 0 && index < _items.Count)
+            {
+                // Remove all items after the specified index
+                for (int i = _items.Count - 1; i > index; i--)
+                {
+                    RemoveItem(i);
+                }
+                SelectedIndex = index;
+            }
+        }
+        #endregion
+
+        #region Theme
+        public override void ApplyTheme()
+        {
+            base.ApplyTheme();
+
+            if (_currentTheme != null)
+            {
+                BackColor = _currentTheme.PanelBackColor;
+                ForeColor = _currentTheme.LabelForeColor;
+
+                if (UseThemeFont)
+                {
+                    Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                }
+
+                // Apply theme to drawing components
+                button.Theme = Theme;
+                button.ApplyTheme();
+
+                label.Theme = Theme;
+                label.ApplyTheme();
+
+                image.Theme = Theme;
+                image.ApplyTheme();
+            }
+
+            Invalidate();
+        }
+        #endregion
+
+        #region Cleanup
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _items.ListChanged -= Items_ListChanged;
+            }
+            base.Dispose(disposing);
+        }
+        #endregion
     }
 
+  
 }

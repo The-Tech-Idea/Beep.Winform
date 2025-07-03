@@ -241,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void BeepListBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-            SelectedItem = e.SelectedItem;
+            SelectedItem = (SimpleItem)e.SelectedItem;
             DialogResult = DialogResult.OK;
             if(SelectedItem != null)
             {
@@ -264,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ChildPopupForm_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-            SelectedItem = e.SelectedItem;
+            SelectedItem = (SimpleItem)e.SelectedItem;
             
         }
         public int GetMaxHeight()

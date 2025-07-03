@@ -3,120 +3,124 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
-
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Dock")]
     [Category("Beep Controls")]
-    [Description("Docking control for Beep")]
+    [Description("Enhanced docking control with smooth animations and hit area support")]
     public class BeepDock : BeepControl
     {
-        private List<BeepImage> dockItems = new List<BeepImage>();
+        #region Fields
+        private BeepButton button;
+        private BeepLabel label;
+        private BeepImage image;
+
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private SimpleItem _selectedItem;
         private int _selectedIndex = -1;
+        private string _hoveredItemName;
 
-        private BeepImage _hoveredItem = null;
-        private BeepImage _clickedItem = null;
-        private Dictionary<BeepImage, float> _targetScales = new Dictionary<BeepImage, float>();
+        private Dictionary<string, DockItemState> _itemStates = new Dictionary<string, DockItemState>();
         private Timer animationTimer;
 
         private int _itemSize = 50;
-        private int _dockHeight = 40;
+        private int _dockHeight = 60;
         private int _hoverOffset = 15;
         private int _dockCornerRadius = 15;
+        private int _spacing = 10;
+        private float _maxScale = 1.4f;
+        private float _clickScaleFactor = 1.1f;
+        private float _animationSpeed = 0.15f;
+        private DockPosition _position = DockPosition.Bottom;
+        private DockOrientation _orientation = DockOrientation.Horizontal;
+        #endregion
 
+        #region Properties
         [Category("Beep Dock Appearance")]
+        [Description("Size of dock items")]
         public int ItemSize
         {
             get => _itemSize;
             set
             {
                 _itemSize = value;
-                foreach (var item in dockItems)
-                {
-                    item.BaseSize = value;
-                    _targetScales[item] = 1.0f;
-                }
                 UpdateLayout();
-            }
-        }
-
-        private int spacing = 10;
-        private float maxScale = 1.4f;
-        private float clickScaleFactor = 1.1f;
-        private float animationSpeed = 0.15f;
-
-        public BeepDock()
-        {
-            DoubleBuffered = true;
-            IsChild=true;
-            IsFrameless = true;
-            ShowAllBorders = false;
-            IsBorderAffectedByTheme = false;
-            items.ListChanged += Items_ListChanged;
-            InitializeItems();
-
-            animationTimer = new Timer { Interval = 16 };
-            animationTimer.Tick += AnimateScaling;
-            animationTimer.Start();
-        }
-
-        public SimpleItem SelectedItem
-        {
-            get => _selectedItem;
-            set
-            {
-                _selectedItem = value;
-                OnSelectedItemChanged(_selectedItem);
                 Invalidate();
             }
         }
 
-        [Browsable(false)]
-        public List<SimpleItem> SelectedItems
+        [Category("Beep Dock Appearance")]
+        [Description("Height of the dock container")]
+        public int DockHeight
         {
-            get
+            get => _dockHeight;
+            set
             {
-                List<SimpleItem> selectedItems = new();
-                foreach (var item in dockItems)
-                {
-                    if (_targetScales[item] == clickScaleFactor)
-                    {
-                        selectedItems.Add(item.Info);
-                    }
-                }
-                return selectedItems;
+                _dockHeight = value;
+                UpdateLayout();
+                Invalidate();
             }
         }
 
-        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
-        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        [Category("Beep Dock Appearance")]
+        [Description("Spacing between dock items")]
+        public int Spacing
         {
-            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
-        }
-
-        [Browsable(false)]
-        public int SelectedIndex
-        {
-            get => _selectedIndex;
+            get => _spacing;
             set
             {
-                if (value >= 0 && value < dockItems.Count)
-                {
-                    _selectedIndex = value;
-                    SelectedItem = dockItems[_selectedIndex].Info;
-                }
+                _spacing = value;
+                UpdateLayout();
+                Invalidate();
+            }
+        }
+
+        [Category("Beep Dock Behavior")]
+        [Description("Maximum scale factor for hovered items")]
+        public float MaxScale
+        {
+            get => _maxScale;
+            set
+            {
+                _maxScale = value;
+                Invalidate();
+            }
+        }
+
+        [Category("Beep Dock Behavior")]
+        [Description("Position of the dock")]
+        public DockPosition Position
+        {
+            get => _position;
+            set
+            {
+                _position = value;
+                UpdateLayout();
+                Invalidate();
+            }
+        }
+
+        [Category("Beep Dock Behavior")]
+        [Description("Orientation of the dock")]
+        public DockOrientation Orientation
+        {
+            get => _orientation;
+            set
+            {
+                _orientation = value;
+                UpdateLayout();
+                Invalidate();
             }
         }
 
         [Browsable(true)]
+        [Category("Data")]
+        [Description("Collection of dock items")]
         public BindingList<SimpleItem> ListItems
         {
             get => items;
@@ -132,6 +136,98 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        [Browsable(false)]
+        public SimpleItem SelectedItem
+        {
+            get => _selectedItem;
+            set
+            {
+                _selectedItem = value;
+                OnSelectedItemChanged(_selectedItem);
+                Invalidate();
+            }
+        }
+
+        [Browsable(false)]
+        public int SelectedIndex
+        {
+            get => _selectedIndex;
+            set
+            {
+                if (value >= 0 && value < items.Count)
+                {
+                    _selectedIndex = value;
+                    SelectedItem = items[_selectedIndex];
+                }
+            }
+        }
+        #endregion
+
+        #region Events
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
+        protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
+        {
+            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+        }
+        #endregion
+
+        #region Constructor
+        public BeepDock()
+        {
+            DoubleBuffered = true;
+            IsChild = true;
+            IsFrameless = true;
+            ShowAllBorders = false;
+            IsBorderAffectedByTheme = false;
+
+            // Initialize drawing components
+            InitializeDrawingComponents();
+
+            items.ListChanged += Items_ListChanged;
+
+            animationTimer = new Timer { Interval = 16 };
+            animationTimer.Tick += AnimateScaling;
+            animationTimer.Start();
+
+            UpdateLayout();
+        }
+
+        private void InitializeDrawingComponents()
+        {
+            button = new BeepButton
+            {
+                IsChild = true,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                TextImageRelation = TextImageRelation.ImageAboveText,
+                Theme = this.Theme,
+                ApplyThemeOnImage = true
+            };
+
+            label = new BeepLabel
+            {
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                TextAlign = ContentAlignment.MiddleCenter,
+                Theme = this.Theme
+            };
+
+            image = new BeepImage
+            {
+                IsChild = true,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                ScaleMode = ImageScaleMode.KeepAspectRatio,
+                Theme = this.Theme
+            };
+        }
+        #endregion
+
+        #region Item Management
         private void Items_ListChanged(object sender, ListChangedEventArgs e)
         {
             InitializeItems();
@@ -139,43 +235,170 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializeItems()
         {
-            dockItems.Clear();
-            _targetScales.Clear();
+            _itemStates.Clear();
+            ClearHitList();
 
-            foreach (var simpleItem in items)
+            foreach (var item in items)
             {
-                AddDockItem(simpleItem);
+                var state = new DockItemState
+                {
+                    Item = item,
+                    CurrentScale = 1.0f,
+                    TargetScale = 1.0f,
+                    IsHovered = false,
+                    IsSelected = false
+                };
+                _itemStates[item.Name] = state;
             }
+
             UpdateLayout();
             Invalidate();
         }
+        #endregion
 
-        private void AddDockItem(SimpleItem simpleItem)
+        #region Drawing
+        protected override void DrawContent(Graphics g)
         {
-            BeepImage item = new BeepImage
-            {
-                Info = simpleItem,
-                ImagePath = simpleItem.ImagePath,
-                ScaleMode = ImageScaleMode.KeepAspectRatio,
-                BaseSize = ItemSize,
-                Size = new Size(ItemSize, ItemSize)
-            };
+            base.DrawContent(g);
+            UpdateDrawingRect();
+            g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            dockItems.Add(item);
-            _targetScales[item] = 1.0f;
+            if (items.Count == 0) return;
+
+            // Calculate dock dimensions
+            var dockRect = CalculateDockRect();
+
+            // Draw dock background
+            DrawDockBackground(g, dockRect);
+
+            // Draw dock items
+            DrawDockItems(g);
         }
 
+        private Rectangle CalculateDockRect()
+        {
+            int totalSize = CalculateTotalSize();
+
+            return _orientation == DockOrientation.Horizontal
+                ? new Rectangle((Width - totalSize) / 2, GetDockY(), totalSize, _dockHeight)
+                : new Rectangle(GetDockX(), (Height - totalSize) / 2, _dockHeight, totalSize);
+        }
+
+        private int CalculateTotalSize()
+        {
+            int total = _spacing;
+            foreach (var state in _itemStates.Values)
+            {
+                int itemSize = (int)(_itemSize * state.CurrentScale);
+                total += itemSize + _spacing;
+            }
+            return total;
+        }
+
+        private int GetDockY()
+        {
+            return _position switch
+            {
+                DockPosition.Top => 0,
+                DockPosition.Bottom => Height - _dockHeight,
+                DockPosition.Center => (Height - _dockHeight) / 2,
+                _ => Height - _dockHeight
+            };
+        }
+
+        private int GetDockX()
+        {
+            return _position switch
+            {
+                DockPosition.Left => 0,
+                DockPosition.Right => Width - _dockHeight,
+                DockPosition.Center => (Width - _dockHeight) / 2,
+                _ => 0
+            };
+        }
+
+        private void DrawDockBackground(Graphics g, Rectangle dockRect)
+        {
+            using (var path = GetRoundedRectPath(dockRect, _dockCornerRadius))
+            using (var brush = new SolidBrush(Color.FromArgb(200, _currentTheme.ButtonBackColor)))
+            {
+                g.FillPath(brush, path);
+
+                // Add subtle border
+                using (var pen = new Pen(Color.FromArgb(100, _currentTheme.BorderColor), 1))
+                {
+                    g.DrawPath(pen, path);
+                }
+            }
+        }
+
+        private void DrawDockItems(Graphics g)
+        {
+            ClearHitList();
+
+            int currentPos = _spacing;
+            int index = 0;
+
+            foreach (var kvp in _itemStates)
+            {
+                var itemName = kvp.Key;
+                var state = kvp.Value;
+                var item = state.Item;
+
+                // Configure the reusable image component
+                image.ImagePath = item.ImagePath;
+                image.IsHovered = state.IsHovered;
+
+                // Calculate item dimensions
+                int scaledSize = (int)(_itemSize * state.CurrentScale);
+                var itemRect = CalculateItemRect(currentPos, scaledSize, state.IsHovered);
+
+                // Draw the item
+                image.Draw(g, itemRect);
+
+                // Add hit area
+                AddHitArea(
+                    $"DockItem_{index}",
+                    itemRect,
+                    image,
+                    () => OnItemClicked(item)
+                );
+
+                // Update position
+                currentPos += scaledSize + _spacing;
+                index++;
+            }
+        }
+
+        private Rectangle CalculateItemRect(int position, int size, bool isHovered)
+        {
+            int hoverOffset = isHovered ? _hoverOffset : 0;
+
+            if (_orientation == DockOrientation.Horizontal)
+            {
+                int x = (Width - CalculateTotalSize()) / 2 + position;
+                int y = GetDockY() + (_dockHeight - size) / 2 - hoverOffset;
+                return new Rectangle(x, y, size, size);
+            }
+            else
+            {
+                int x = GetDockX() + (_dockHeight - size) / 2 - hoverOffset;
+                int y = (Height - CalculateTotalSize()) / 2 + position;
+                return new Rectangle(x, y, size, size);
+            }
+        }
+        #endregion
+
+        #region Animation
         private void AnimateScaling(object sender, EventArgs e)
         {
             bool needsRedraw = false;
-            foreach (var item in dockItems)
-            {
-                float targetScale = _targetScales[item];
-                float currentScale = item.ScaleFactor;
 
-                if (Math.Abs(targetScale - currentScale) > 0.01f)
+            foreach (var state in _itemStates.Values)
+            {
+                if (Math.Abs(state.TargetScale - state.CurrentScale) > 0.01f)
                 {
-                    item.ScaleFactor = Lerp(currentScale, targetScale, animationSpeed);
+                    state.CurrentScale = Lerp(state.CurrentScale, state.TargetScale, _animationSpeed);
                     needsRedraw = true;
                 }
             }
@@ -188,134 +411,130 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return start + (end - start) * amount;
         }
-        protected override void DrawContent(Graphics g)
+
+        private void ApplySpringEffect(string hoveredItemName)
         {
-            base.DrawContent(g);
-            UpdateDrawingRect();
-            Draw(g, DrawingRect);
-        }
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            
-            int totalWidth = spacing;
-            foreach (var item in dockItems)
+            foreach (var kvp in _itemStates)
             {
-                int newSize = (int)(item.BaseSize * item.ScaleFactor);
-                totalWidth += newSize + spacing;
-            }
+                var itemName = kvp.Key;
+                var state = kvp.Value;
 
-            int dockWidth = Math.Max(totalWidth, _itemSize * 3);
-            Rectangle dockRect = new Rectangle((Width - dockWidth) / 2, Height - _dockHeight, dockWidth, _dockHeight);
-
-            using (GraphicsPath path = CreateRoundedRectangle(dockRect, _dockCornerRadius))
-            using (Brush dockBrush = new SolidBrush(_currentTheme.ButtonBackColor))
-            {
-                graphics.FillPath(dockBrush, path);
-            }
-
-            int currentX = (Width - totalWidth) / 2;
-            foreach (var item in dockItems)
-            {
-                int newSize = (int)(item.BaseSize * item.ScaleFactor);
-                int yOffset = (Height - _dockHeight) / 2;
-                if (item == _hoveredItem) yOffset -= _hoverOffset;
-
-                Rectangle drawRect = new Rectangle(currentX, yOffset, newSize, newSize);
-                item.Draw(graphics, drawRect, drawRect);
-                currentX += newSize + spacing;
-            }
-        }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-            BeepImage newHoveredItem = null;
-            Point localMousePos = this.PointToClient(Cursor.Position);
-
-            int currentX = (Width - dockItems.Count * (_itemSize + spacing)) / 2;
-            foreach (var item in dockItems)
-            {
-                int newSize = (int)(item.BaseSize * item.ScaleFactor);
-                Rectangle itemRect = new Rectangle(currentX, (Height - _dockHeight) / 2, newSize, newSize);
-
-                if (itemRect.Contains(localMousePos))
+                if (itemName == hoveredItemName)
                 {
-                    newHoveredItem = item;
-                    break;
+                    state.TargetScale = _maxScale;
+                    state.IsHovered = true;
                 }
-
-                currentX += newSize + spacing;
-            }
-
-            if (newHoveredItem != _hoveredItem)
-            {
-                _hoveredItem = newHoveredItem;
-                ApplySpringEffect();
-            }
-        }
-
-        private void ApplySpringEffect()
-        {
-            foreach (var item in dockItems)
-            {
-                if (item == _hoveredItem)
+                else if (state.Item == SelectedItem)
                 {
-                    _targetScales[item] = maxScale;
-                }
-                else if (item.Info == SelectedItem)
-                {
-                    _targetScales[item] = clickScaleFactor;
+                    state.TargetScale = _clickScaleFactor;
+                    state.IsHovered = false;
                 }
                 else
                 {
-                    _targetScales[item] = 1.0f;
+                    state.TargetScale = 1.0f;
+                    state.IsHovered = false;
                 }
             }
         }
+        #endregion
+
+        #region Mouse Events
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Let the hit area system handle hover detection
+            string previousHovered = _hoveredItemName;
+            _hoveredItemName = null;
+
+            // Check which item is being hovered via hit test
+            if (HitTest(e.Location) && HitTestControl != null)
+            {
+                // Extract item name from hit area name
+                if (HitTestControl.Name.StartsWith("DockItem_"))
+                {
+                    if (int.TryParse(HitTestControl.Name.Substring(9), out int itemIndex))
+                    {
+                        if (itemIndex < items.Count)
+                        {
+                            _hoveredItemName = items[itemIndex].Name;
+                        }
+                    }
+                }
+            }
+
+            // Apply spring effect if hover state changed
+            if (_hoveredItemName != previousHovered)
+            {
+                ApplySpringEffect(_hoveredItemName);
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            _hoveredItemName = null;
+            ApplySpringEffect(null);
+        }
+
+        private void OnItemClicked(SimpleItem item)
+        {
+            SelectedItem = item;
+            _selectedIndex = items.IndexOf(item);
+
+            // Update selection state
+            foreach (var state in _itemStates.Values)
+            {
+                state.IsSelected = state.Item == item;
+            }
+
+            ApplySpringEffect(_hoveredItemName);
+        }
+        #endregion
+
+        #region Layout
         private void UpdateLayout()
         {
-            // 🔹 The dock should have a fixed height smaller than the items
-            Height = _dockHeight;
-
-            // 🔹 Ensure minimum width to fit items
-            int totalWidth = spacing;
-            foreach (var item in dockItems)
+            if (_orientation == DockOrientation.Horizontal)
             {
-                int newSize = (int)(item.BaseSize * item.ScaleFactor);
-                totalWidth += newSize + spacing;
+                Height = _dockHeight + _hoverOffset + 20; // Extra space for hover effect
+                MinimumSize = new Size(_itemSize * 3, Height);
             }
-            Width = Math.Max(totalWidth, _itemSize * 3);
+            else
+            {
+                Width = _dockHeight + _hoverOffset + 20;
+                MinimumSize = new Size(Width, _itemSize * 3);
+            }
 
-            Invalidate(); // 🔹 Redraw to reflect changes
+            Invalidate();
         }
 
-        private GraphicsPath CreateRoundedRectangle(Rectangle rect, int radius)
+        protected override void OnResize(EventArgs e)
         {
-            GraphicsPath path = new GraphicsPath();
-            path.AddArc(rect.X, rect.Y, radius, radius, 180, 90);
-            path.AddArc(rect.Right - radius, rect.Y, radius, radius, 270, 90);
-            path.AddArc(rect.Right - radius, rect.Bottom - radius, radius, radius, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - radius, radius, radius, 90, 90);
-            path.CloseFigure();
-            return path;
+            base.OnResize(e);
+            UpdateLayout();
         }
+        #endregion
+
+        #region Theme
         public override void ApplyTheme()
         {
-            base.ApplyTheme(); // Add this line to ensure base functionality is preserved
-            BackColor = _currentTheme.PanelBackColor;
-            ForeColor = _currentTheme.LabelForeColor;
+            base.ApplyTheme();
 
-            // Apply themes to dock items
-            foreach (var item in dockItems)
+            if (_currentTheme != null)
             {
-                item.Theme = Theme;
-                item.ApplyTheme();
+                BackColor = _currentTheme.PanelBackColor;
+                ForeColor = _currentTheme.LabelForeColor;
+
+                // Apply theme to drawing components
+                button.Theme = Theme;
+                button.ApplyTheme();
+
+                label.Theme = Theme;
+                label.ApplyTheme();
+
+                image.Theme = Theme;
+                image.ApplyTheme();
             }
 
             IsChild = true;
@@ -323,6 +542,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsFrameless = true;
             ShowAllBorders = false;
             IsBorderAffectedByTheme = false;
+
+            Invalidate();
         }
+        #endregion
+
+        #region Cleanup
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                animationTimer?.Stop();
+                animationTimer?.Dispose();
+                items.ListChanged -= Items_ListChanged;
+            }
+            base.Dispose(disposing);
+        }
+        #endregion
     }
+
+ 
 }

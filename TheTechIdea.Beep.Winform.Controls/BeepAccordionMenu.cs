@@ -251,9 +251,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Also initialize any child items that have their own children
                 foreach (var childItem in item.Children)
                 {
-                    if (childItem.Children.Count > 0 && !expandedState.ContainsKey(childItem))
+                    if (childItem.Children.Count > 0 && !expandedState.ContainsKey((SimpleItem)childItem))
                     {
-                        expandedState[childItem] = false;
+                        expandedState[(SimpleItem)childItem] = false;
                     }
                 }
             }
@@ -684,7 +684,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     null,
                     () => {
                         // Set as selected item
-                        SelectedItem = childItem;
+                        SelectedItem = (SimpleItem)childItem;
                         ItemClick?.Invoke(this, new BeepMouseEventArgs(childItem.Text, childItem));
                         Invalidate();
                     }

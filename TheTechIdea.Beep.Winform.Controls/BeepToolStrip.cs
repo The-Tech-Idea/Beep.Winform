@@ -18,8 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A control that displays a collection of buttons in a toolbar format.")]
     public class BeepToolStrip : BeepControl
     {
-        private FlowLayoutPanel _stripPanel;
-        private List<BeepButton> _buttons = new List<BeepButton>();
+        private BeepButton button;
+        private BeepLabel label;
+        private BeepImage image;
+        //private FlowLayoutPanel _stripPanel;
+        //private List<BeepButton> _buttons = new List<BeepButton>();
         private ToolStripOrientation _orientation = ToolStripOrientation.Horizontal;
         private SimpleMenuList items;
 
@@ -51,19 +54,77 @@ namespace TheTechIdea.Beep.Winform.Controls
                 RefreshToolbarFromItems();
             }
         }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+            UpdateDrawingRect();
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
+            if (items == null || items.Count == 0)
+                return;
+
+            int buttonWidth = 48;
+            int buttonHeight = 48;
+            int spacing = 8;
+            int x = DrawingRect.Left + spacing;
+            int y = DrawingRect.Top + spacing;
+
+            // Remove old hit areas before adding new ones
+            ClearHitList();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+
+                // Reuse the single button field for drawing
+                if (button == null)
+                    button = new BeepButton();
+
+                button.Text = string.IsNullOrEmpty(item.Text) ? item.Name : item.Text;
+                button.ImagePath = item.ImagePath;
+                button.ToolTipText = item.DisplayField;
+                button.Tag = item;
+                button.Theme = this.Theme;
+                button.ApplyThemeOnImage = true;
+                button.IsChild = true;
+                button.ShowAllBorders = false;
+                button.ShowShadow = false;
+                button.IsBorderAffectedByTheme = false;
+                button.IsShadowAffectedByTheme = false;
+                button.ImageAlign = ContentAlignment.MiddleCenter;
+                button.TextImageRelation = string.IsNullOrEmpty(item.ImagePath) ? TextImageRelation.Overlay : TextImageRelation.ImageAboveText;
+
+                var rect = _orientation == ToolStripOrientation.Horizontal
+                    ? new Rectangle(x, y, buttonWidth, buttonHeight)
+                    : new Rectangle(x, y, buttonWidth, buttonHeight);
+
+                button.Draw(g, rect);
+
+                // Add hit area for this button
+                int idx = i; // capture for lambda
+                AddHitArea(
+                    $"Button_{idx}",
+                    rect,
+                    button,
+                    () => OnButtonClick(item)
+                );
+
+                // Advance position
+                if (_orientation == ToolStripOrientation.Horizontal)
+                    x += buttonWidth + spacing;
+                else
+                    y += buttonHeight + spacing;
+            }
+        }
+        private void OnButtonClick(SimpleItem item)
+        {
+            if (item == null) return;
+            var args = new BeepEventDataArgs(item.Text ?? item.Name, item);
+            ButtonClicked?.Invoke(this, args);
+        }
         public BeepToolStrip()
         {
-            _stripPanel = new FlowLayoutPanel
-            {
-                Dock = DockStyle.Fill,
-                WrapContents = false,
-                AutoSize = true,
-                AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                BackColor = SystemColors.Control
-            };
-
-            Controls.Add(_stripPanel);
+          
 
             // Initialize an empty rootnodeitems collection by default
             items = new SimpleMenuList();
@@ -80,61 +141,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void RefreshToolbarFromItems()
         {
-            // Clear existing buttons
-            foreach (var btn in _buttons)
-            {
-                btn.Click -= OnButtonClick;
-            }
-            _buttons.Clear();
-            _stripPanel.Controls.Clear();
-
-            // Create new buttons for each SimpleItem in the collection
-            if (items != null)
-            {
-                foreach (var item in items)
-                {
-                    var button = CreateButtonFromItem(item);
-                    AddButton(button);
-                }
-            }
 
             Invalidate();
             PerformLayout();
         }
 
-        private BeepButton CreateButtonFromItem(SimpleItem item)
-        {
-            var btn = new BeepButton
-            {
-                Text = string.IsNullOrEmpty(item.Text) ? item.Name : item.Text,
-                // Apply additional item properties if desired
-                IsChild = true,
-                ShowAllBorders = false,
-                ShowShadow = false,
-                IsBorderAffectedByTheme = false,
-                IsShadowAffectedByTheme = false,
-                ImageAlign = ContentAlignment.MiddleCenter,
-                TextImageRelation = TextImageRelation.ImageAboveText,
-                ToolTipText = item.DisplayField,
-                Theme = this.Theme,
-                ApplyThemeOnImage = true,
-                Tag = item
-
-            };
-
-            // If there is an image specified, set the ImagePath
-            if (!string.IsNullOrEmpty(item.ImagePath))
-            {
-                btn.ImagePath = item.ImagePath;
-            }
-            else
-            {
-                // If no image is provided, consider removing text-image relation or adjusting style
-                btn.TextImageRelation = TextImageRelation.Overlay;
-            }
-
-            return btn;
-        }
+    
 
         [Browsable(true)]
         [Category("Layout")]
@@ -150,32 +162,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateOrientation()
         {
-            _stripPanel.FlowDirection = (_orientation == ToolStripOrientation.Horizontal)
-                ? FlowDirection.LeftToRight
-                : FlowDirection.TopDown;
-
             Invalidate();
             PerformLayout();
         }
 
-        public void AddButton(BeepButton button)
-        {
-            button.Theme = this.Theme;
-            button.ApplyTheme();
-            button.Click += OnButtonClick;
-            _buttons.Add(button);
-            _stripPanel.Controls.Add(button);
-        }
-
-        public void RemoveButton(BeepButton button)
-        {
-            if (_buttons.Contains(button))
-            {
-                button.Click -= OnButtonClick;
-                _buttons.Remove(button);
-                _stripPanel.Controls.Remove(button);
-            }
-        }
+    
 
         private void OnButtonClick(object sender, EventArgs e)
         {
@@ -191,13 +182,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.ApplyTheme();
             BackColor = _currentTheme.PanelBackColor;
-
-            foreach (var btn in _buttons)
-            {
-                btn.Theme = this.Theme;
-                btn.ApplyTheme();
-            }
-
             Invalidate();
         }
     }

@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+    public enum BreadcrumbStyle
+    {
+        Classic,
+        Modern,
+        Pill,
+        Flat
+    }
+   
     /// <summary>
     /// Defines the contract for a breadcrumb display control.
     /// </summary>
@@ -58,33 +66,26 @@ namespace TheTechIdea.Beep.Vis.Modules
 
         #endregion
     }
-     /// <summary>
-    /// Provides data for the CrumbClicked event.
+    /// <summary>
+    /// Provides data for the CrumbClicked event
     /// </summary>
     public class CrumbClickedEventArgs : EventArgs
     {
-        /// <summary>
-        /// The index of the breadcrumb item that was clicked.
-        /// </summary>
         public int Index { get; }
+        public string Name { get; }
+        public string Text { get; }
+        public string Crumb => Text ?? Name ?? "";
 
-        /// <summary>
-        public BreadCrumbData CrumbData { get; } = new BreadCrumbData();
-        public CrumbClickedEventArgs(int index, string crumb)
+        public CrumbClickedEventArgs(int index,string name)
         {
             Index = index;
-            CrumbData.Crumb = crumb;
+            Name = name;
         }
-        public CrumbClickedEventArgs(int index, BreadCrumbData crumb)
+        public CrumbClickedEventArgs(int index, string name,string text)
         {
             Index = index;
-            CrumbData = crumb;
-        }
-        public CrumbClickedEventArgs(int index, string crumb, string path)
-        {
-            Index = index;
-            CrumbData.Crumb = crumb;
-            CrumbData.Path = path;
+            Name = name;
+            Text = text;
         }
     }
     public class BreadCrumbData

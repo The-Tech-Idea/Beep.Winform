@@ -9,7 +9,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
 
 {
     [Serializable]
-    public class SimpleItem: IEquatable<SimpleItem>
+    public class SimpleItem : IEquatable<SimpleItem>
     {
         public SimpleItem()
         {
@@ -107,12 +107,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public MenuItemType ItemType { get; set; }
         public DatasourceCategory Category { get; set; }
         public string Uri { get; set; }
-        public  string KeyCombination { get; set; } //KeyCombination
+        public string KeyCombination { get; set; } //KeyCombination
         public string AssemblyClassDefinitionID { get; set; }
         public string ClassDefinitionID { get; set; }
         public string PackageName { get; set; }
         public string BranchID { get; set; }
-       
+
         public bool IsSelected { get; set; } = false; // used for to store the selected item
         public bool IsChecked { get; set; } = false; // used for to store the selected item
         public bool IsExpanded { get; set; } = false; // used for to store the selected item

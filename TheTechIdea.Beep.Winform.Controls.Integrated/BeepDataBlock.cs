@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
-
+using TheTechIdea.Beep.Report;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -32,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public DataBlockMode BlockMode { get; set; } = DataBlockMode.CRUD;
         public List<IBeepDataBlock> ChildBlocks { get; set; } = new();
         public bool IsInQueryMode { get; private set; } = false;
+        public string Status { get; private set; }
 
         [Browsable(true)]
         [Category("Data")]
@@ -88,26 +89,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value != null)
                 {
                     _selectedEntity = value;
-
-
-                        EntityStructure =EntityHelper.GetEntityStructureFromType(value);
-                        if (EntityStructure != null)
-                        {
-                            EntityName = EntityStructure.EntityName;
-                            InitializeEntityRelationships();
-                        }
-                        else
-                        {
-                            // Handle the case where EntityStructure is null
-                           // Console.WriteLine("EntityStructure is null after GetEntityStructureFromType.");
-                        }
-                    }
-                    else
+                    EntityStructure =EntityHelper.GetEntityStructureFromType(value);
+                    if (EntityStructure != null)
                     {
-                        // Handle the case where beepService or beepService.util is null
-                       // Console.WriteLine("beepService or beepService.util is null.");
+                        EntityName = EntityStructure.EntityName;
+                        InitializeEntityRelationships();
+                        ClearAllComponentControls(); // Clear previous controls
+                        InitializeControls(); // Auto-generate controls
                     }
-                
+                }
             }
         }
 
@@ -122,22 +112,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (_data != null)
                     {
-
                         UnsubscribeEvents(_data);
                     }
-                        
-                        
-
                     _data = value;
-
                     if (_data != null)
                     {
                         SubscribeEvents(_data);
                     }
-                      
-
                     EntityStructure = _data?.EntityStructure;
                     InitializeEntityRelationships();
+                    ClearAllComponentControls(); // Clear previous controls
+                    InitializeControls(); // Auto-generate controls
                 }
             }
         }
@@ -165,6 +150,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Event Handlers"
         private void HandleDataChanges(object? sender, UnitofWorkParams e)
         {
+            // e.Entity or e.Data should reference the current record.
+            // User can modify e.Entity in their event handler to set default values or update properties.
+
+            var args = new BeepDataBlockEventArgs("Handling data changes (transaction event).");
+            OnAction?.Invoke(this, args);
+            if (args.Cancel)
+                return;
+
             if (BlockMode == DataBlockMode.CRUD)
             {
                 EventDataChanged?.Invoke(sender, e);
@@ -283,49 +276,91 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void SetMasterRecord(dynamic masterRecord)
         {
             MasterRecord = masterRecord;
-            ApplyMasterDetailFilter();
+            ApplyMasterDetailFilter().Wait();
         }
-        private void ApplyMasterDetailFilter()
+        public async Task<bool> ApplyMasterDetailFilter()
         {
-            if (MasterRecord == null || Relationships == null || !Relationships.Any())
+            try
             {
-                Data?.Units.RemoveFilter();
-            }
-            else
-            {
-                var masterKeyValues = Relationships.Select(r => EntityHelper.GetPropertyValue(MasterRecord, r.RelatedEntityColumnID)).ToArray();
-
-                Func<dynamic, bool> filterPredicate = entity =>
+                if (Data?.IsDirty == true)
                 {
-                    var foreignKeyValues = Relationships.Select(r => EntityHelper.GetPropertyValue(entity, r.EntityColumnID)).ToArray();
-                    return masterKeyValues.SequenceEqual(foreignKeyValues);
-                };
+                    var args = new BeepDataBlockEventArgs("Data has unsaved changes. Please save or cancel before changing master record.");
+                    OnAction?.Invoke(this, args);
+                    if (args.Cancel)
+                        return false;
+                }
 
-                Data?.Units.ApplyFilter(filterPredicate);
+                if (MasterRecord == null || Relationships == null || !Relationships.Any())
+                {
+                    // No master: load all records
+                    if (Data is IUnitofWork unitOfWork)
+                    {
+                        var getMethod = unitOfWork.GetType().GetMethod("Get", Type.EmptyTypes);
+                        if (getMethod != null)
+                        {
+                            var task = (Task)getMethod.Invoke(unitOfWork, null);
+                            await task;
+                        }
+                    }
+                }
+                else
+                {
+                    // Build filters based on master keys
+                    var filters = new List<AppFilter>();
+                    foreach (var rel in Relationships)
+                    {
+                        var masterValue = EntityHelper.GetPropertyValue(MasterRecord, rel.RelatedEntityColumnID)?.ToString();
+                        if (!string.IsNullOrEmpty(masterValue))
+                        {
+                            filters.Add(new AppFilter
+                            {
+                                FieldName = rel.EntityColumnID,
+                                Operator = "=",
+                                FilterValue = masterValue
+                            });
+                        }
+                    }
+                    // Fetch only related records
+                    if (Data is IUnitofWork unitOfWork)
+                    {
+                        var getWithFilters = unitOfWork.GetType().GetMethod("Get", new[] { typeof(List<AppFilter>) });
+                        if (getWithFilters != null)
+                        {
+                            var task = (Task)getWithFilters.Invoke(unitOfWork, new object[] { filters });
+                            await task;
+                        }
+                    }
+                }
+                Data?.Units.MoveFirst();
+                return true;
             }
-
-            Data?.Units.MoveFirst();
+            catch (Exception ex)
+            {
+                var args = new BeepDataBlockEventArgs($"Error in ApplyMasterDetailFilter: {ex.Message}", ex);
+                OnAction?.Invoke(this, args);
+                // If Cancel is set by handler, respect it (optional for error case)
+                return false;
+            }
         }
         #endregion "Handle Relations"
         #region "Block Management"
-        protected virtual void OnDataContextChanged()
-        {
-            Data = null;
-
-            // If DataContext is set, let UnitOfWorksConverter populate the dropdown for the Data property
-            var unitOfWorkProperties = DataContext?.GetType()
-                .GetProperties()
-                .Where(p => ProjectHelper.IsUnitOfWorkType(p.PropertyType))
-                .ToList();
-
-            if (unitOfWorkProperties?.Count > 0)
-            {
-                // Automatically select the first IUnitofWork, or leave it null for user selection
-                Data = unitOfWorkProperties.First().GetValue(DataContext) as IUnitofWork;
-            }
-        }
+        // Synchronous interface implementation for IBeepDataBlock
         public void SwitchBlockMode(DataBlockMode newMode)
         {
+            // For compatibility, call the async version and wait (not recommended for UI, but required for interface)
+            SwitchBlockModeAsync(newMode).GetAwaiter().GetResult();
+        }
+
+        public async Task SwitchBlockModeAsync(DataBlockMode newMode)
+        {
+            // Check for unsaved changes when switching modes
+            if (!await CheckAndHandleUnsavedChangesRecursiveAsync())
+                return;
+            var args = new BeepDataBlockEventArgs($"Switching block mode to {newMode}.");
+            OnAction?.Invoke(this, args);
+            if (args.Cancel)
+                return;
+
             if (newMode == BlockMode)
                 return;
 
@@ -354,8 +389,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             _preservedBindings.Remove(component);
                         }
-
-                      
                         component.HideToolTip();
                     }
                 }
@@ -363,9 +396,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var childBlock in ChildBlocks)
             {
-                childBlock.SwitchBlockMode(newMode);
+                if (childBlock is BeepDataBlock childBeepBlock)
+                    await childBeepBlock.SwitchBlockModeAsync(newMode);
+                else
+                    childBlock.SwitchBlockMode(newMode); // fallback to sync for non-BeepDataBlock
             }
         }
+
         public void HandleDataChanges()
         {
             foreach (var component in UIComponents.Values)
@@ -768,9 +805,240 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        #endregion "Beep UI Co  mponents Methods"
-        #region "Util"
+        #endregion "Beep UI Components Methods"
+        #region "Enter-Query / Execute-Query Mode"
+        /// <summary>
+        /// Collects query parameters from UI controls and builds a List<AppFilter> for querying.
+        /// </summary>
+        private List<AppFilter> GetQueryFiltersFromControls()
+        {
+            var filters = new List<AppFilter>();
+            foreach (var component in UIComponents.Values)
+            {
+                if (!string.IsNullOrEmpty(component.BoundProperty))
+                {
+                    var value = component.GetValue();
+                    if (value != null && !string.IsNullOrEmpty(value.ToString()))
+                    {
+                        filters.Add(new AppFilter
+                        {
+                            FieldName = component.BoundProperty,
+                            Operator = "=", // You can enhance this to support other operators
+                            FilterValue = value.ToString()
+                        });
+                    }
+                }
+            }
+            return filters;
+        }
 
+        public async Task ExecuteQueryAsync()
+        {
+            if (!IsInQueryMode)
+                return;
+
+            var filters = GetQueryFiltersFromControls();
+            if (Data is IUnitofWork unitOfWork)
+            {
+                var getWithFilters = unitOfWork.GetType().GetMethod("Get", new[] { typeof(List<AppFilter>) });
+                if (getWithFilters != null)
+                {
+                    var task = (Task)getWithFilters.Invoke(unitOfWork, new object[] { filters });
+                    await task;
+                }
+            }
+            Data?.Units.MoveFirst();
+            await SwitchBlockModeAsync(DataBlockMode.CRUD);
+            IsInQueryMode = false;
+            // Refresh all child blocks after query
+            foreach (var childBlock in ChildBlocks)
+            {
+                childBlock.SetMasterRecord(Data?.Units.Current);
+            }
+        }
+        #endregion
+        #region "Record Navigation Methods"
+        public async Task MoveNextAsync()
+        {
+            if (!await CheckAndHandleUnsavedChangesRecursiveAsync())
+                return;
+            Data?.MoveNext();
+            foreach (var childBlock in ChildBlocks)
+            {
+                childBlock.SetMasterRecord(Data?.Units.Current);
+            }
+        }
+
+        public async Task MovePreviousAsync()
+        {
+            if (!await CheckAndHandleUnsavedChangesRecursiveAsync())
+                return;
+            Data?.MovePrevious();
+            foreach (var childBlock in ChildBlocks)
+            {
+                childBlock.SetMasterRecord(Data?.Units.Current);
+            }
+        }
+
+        public async Task InsertRecordAsync(Entity newRecord)
+        {
+            // Check for unsaved changes if there are child blocks
+            if (ChildBlocks.Count > 0 && !await CheckAndHandleUnsavedChangesRecursiveAsync())
+                return;
+            if (Data != null && newRecord != null)
+            {
+                var args = new UnitofWorkParams();
+                OnPreInsert?.Invoke(this, args);
+                if (args.Cancel) { Status = "Insert cancelled by trigger."; return; }
+                await Data.InsertAsync(newRecord);
+                OnPostInsert?.Invoke(this, args);
+                Status = "Insert completed.";
+                // After insert, update child blocks
+                foreach (var childBlock in ChildBlocks)
+                {
+                    childBlock.SetMasterRecord(Data?.Units.Current);
+                }
+            }
+        }
+
+        public async Task DeleteCurrentRecordAsync()
+        {
+            // Check for unsaved changes if there are child blocks
+            if (ChildBlocks.Count > 0 && !await CheckAndHandleUnsavedChangesRecursiveAsync())
+                return;
+            if (Data != null && Data.Units.Current != null)
+            {
+                await Data.DeleteAsync(Data.Units.Current);
+                // After delete, update child blocks
+                foreach (var childBlock in ChildBlocks)
+                {
+                    childBlock.SetMasterRecord(Data?.Units.Current);
+                }
+            }
+        }
+
+        public async Task RollbackAsync()
+        {
+            if (Data != null)
+            {
+                try
+                {
+                    await Data.Rollback();
+                    Status = "Rollback successful.";
+                }
+                catch (Exception ex)
+                {
+                    Status = $"Rollback failed: {ex.Message}";
+                }
+            }
+        }
+
+        public void UndoLastChange()
+        {
+            if (Data != null)
+            {
+                try
+                {
+                    Data.UndoLastChange();
+                    Status = "Undo last change successful.";
+                }
+                catch (Exception ex)
+                {
+                    Status = $"Undo last change failed: {ex.Message}";
+                }
+            }
+        }
+        #endregion
+        #region "Util"
+        /// <summary>
+        /// Event raised when unsaved changes are detected before a critical operation.
+        /// </summary>
+        public event EventHandler<BlockDirtyEventArgs> OnUnsavedChanges;
+
+        /// <summary>
+        /// Checks if this block or any child block is dirty, and raises OnUnsavedChanges event for user handling.
+        /// Returns true if operation should continue, false if cancelled.
+        /// </summary>
+        public bool CheckAndHandleUnsavedChanges()
+        {
+            bool cancel = false;
+            // Check this block
+            if (Data?.IsDirty == true)
+            {
+                var args = new BlockDirtyEventArgs(this);
+                OnUnsavedChanges?.Invoke(this, args);
+                if (args.Cancel)
+                    cancel = true;
+            }
+            // Check child blocks recursively
+            foreach (var child in ChildBlocks)
+            {
+                if (!cancel && child is BeepDataBlock childBlock)
+                {
+                    if (!childBlock.CheckAndHandleUnsavedChanges())
+                        cancel = true;
+                }
+            }
+            return !cancel;
+        }
+
+        /// <summary>
+        /// Checks if this block or any child block is dirty, raises OnUnsavedChanges ONCE (from master),
+        /// and saves or rolls back changes for all dirty blocks based on user choice.
+        /// Returns true if operation should continue, false if cancelled.
+        /// </summary>
+        public async Task<bool> CheckAndHandleUnsavedChangesRecursiveAsync()
+        {
+            // Gather all dirty blocks (self and children)
+            var dirtyBlocks = new List<BeepDataBlock>();
+            CollectDirtyBlocks(this, dirtyBlocks);
+            if (dirtyBlocks.Count == 0)
+                return true;
+
+            var args = new BlockDirtyEventArgs(this);
+            OnUnsavedChanges?.Invoke(this, args);
+            if (args.Cancel)
+            {
+                // User chose to cancel
+                foreach (var block in dirtyBlocks)
+                {
+                    if (block.Data != null)
+                        await block.Data.Rollback();
+                }
+                return false;
+            }
+            else
+            {
+                // User chose to save
+                foreach (var block in dirtyBlocks)
+                {
+                    if (block.Data != null)
+                        await block.Data.Commit();
+                }
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// Helper to collect all dirty blocks recursively.
+        /// </summary>
+        private void CollectDirtyBlocks(BeepDataBlock block, List<BeepDataBlock> dirtyBlocks)
+        {
+            if (block.Data?.IsDirty == true)
+                dirtyBlocks.Add(block);
+            foreach (var child in block.ChildBlocks)
+            {
+                if (child is BeepDataBlock childBlock)
+                    CollectDirtyBlocks(childBlock, dirtyBlocks);
+            }
+        }
+
+        public class BlockDirtyEventArgs : EventArgs
+        {
+            public BeepDataBlock Block { get; }
+            public bool Cancel { get; set; }
+            public BlockDirtyEventArgs(BeepDataBlock block) { Block = block; }
+        }
         #endregion "Util"
         #region "Dispose"
         public void Dispose()
@@ -795,6 +1063,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Dispose"
 
+        #region "Events"
+        // Event args for BeepDataBlock actions/errors
+        public class BeepDataBlockEventArgs : EventArgs
+        {
+            public string Message { get; set; }
+            public Exception Exception { get; set; }
+            public bool Cancel { get; set; }
+          
+            public BeepDataBlockEventArgs(string message, Exception ex = null)
+            {
+                Message = message;
+                Exception = ex;
+            }
+        }
+
+        // Event for actions/errors
+        public event EventHandler<BeepDataBlockEventArgs> OnAction;
+
+        // Events for Oracle Forms-like triggers
+        public event EventHandler<UnitofWorkParams> OnPreQuery;
+        public event EventHandler<UnitofWorkParams> OnPostQuery;
+        public event EventHandler<UnitofWorkParams> OnPreInsert;
+        public event EventHandler<UnitofWorkParams> OnPostInsert;
+        public event EventHandler<UnitofWorkParams> OnPreUpdate;
+        public event EventHandler<UnitofWorkParams> OnPostUpdate;
+        public event EventHandler<UnitofWorkParams> OnPreDelete;
+        public event EventHandler<UnitofWorkParams> OnPostDelete;
+        public event EventHandler<UnitofWorkParams> OnValidateRecord;
+        public event EventHandler<UnitofWorkParams> OnValidateItem;
+        public event EventHandler<UnitofWorkParams> OnNewRecord;
+        public event EventHandler<UnitofWorkParams> OnNewBlock;
+        #endregion "Events"
     }
 
 }

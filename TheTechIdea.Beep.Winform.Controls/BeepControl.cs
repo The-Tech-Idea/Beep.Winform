@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         [Category("Material UI")]
         [Description("Whether to show a ripple effect on click (Material Design style)")]
-        public bool EnableRippleEffect { get; set; } = true;
+        public bool EnableRippleEffect { get; set; } = false;
         // Ripple effect properties
         private Point _rippleCenter;
         private float _rippleSize = 0;

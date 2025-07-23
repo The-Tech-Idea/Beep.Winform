@@ -4,7 +4,7 @@
 	  <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <RootNamespace>TheTechIdea.Beep.Vis.Modules</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.139</Version>
+    <Version>2.0.7</Version>
     <Authors>The Tech Idea</Authors>
     <Description>Visualization Interfaces used to standarized GUI/UI for Beep Apps</Description>
     <PackageProjectUrl>https://github.com/The-Tech-Idea/BeepEnterprize.winform</PackageProjectUrl>
@@ -29,16 +29,17 @@
     </None>
   </ItemGroup>
 
+
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="9.0.7" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.66" />
+  </ItemGroup>
+
 	<Target Name="CopyPackage" AfterTargets="Pack">
 		<Copy SourceFiles="$(OutputPath)$(PackageId).$(PackageVersion).nupkg" DestinationFolder="..\..\..\LocalNugetFiles" />
 	</Target>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(TargetDir)$(PackageId).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(PackageId)\$(TargetFramework)" SkipUnchangedFiles="false" />
 	</Target>
-
-	<ItemGroup>
-		<PackageReference Include="System.Drawing.Common" Version="9.0.5" />
-		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.65" />
-	</ItemGroup>
 
 </Project>

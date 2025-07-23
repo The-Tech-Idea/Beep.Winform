@@ -37,19 +37,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1 = new BeepButton();
             beepLightTextBox1 = new BeepLightTextBox();
             beepComboBox1 = new BeepComboBox();
-           
             beepStarRating1 = new BeepStarRating();
             beepCalendarView1 = new BeepCalendarView();
             beepCard1 = new BeepCard();
+            beepComboBox2 = new BeepComboBox();
             MainTemplatePanel.SuspendLayout();
             SuspendLayout();
             // 
             // MainTemplatePanel
             // 
+            MainTemplatePanel.Controls.Add(beepComboBox2);
             MainTemplatePanel.Controls.Add(beepCard1);
             MainTemplatePanel.Controls.Add(beepCalendarView1);
             MainTemplatePanel.Controls.Add(beepStarRating1);
-
             MainTemplatePanel.Controls.Add(beepComboBox1);
             MainTemplatePanel.Controls.Add(beepLightTextBox1);
             MainTemplatePanel.Controls.Add(beepButton1);
@@ -765,7 +765,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.LabelText = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(125, 486);
+            beepComboBox1.Location = new Point(131, 483);
             beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = TypeStyleFontSize.None;
@@ -817,7 +817,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.UIVariant = ReactUIVariant.Default;
             beepComboBox1.UseGradientBackground = false;
             beepComboBox1.UseThemeFont = true;
-           
             // 
             // beepStarRating1
             // 
@@ -1240,6 +1239,142 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.UseThemeFont = true;
             beepCard1.ViewMode = CardViewMode.FullImage;
             // 
+            // beepComboBox2
+            // 
+            beepComboBox2.AnimationDuration = 500;
+            beepComboBox2.AnimationType = DisplayAnimationType.None;
+            beepComboBox2.ApplyThemeToChilds = false;
+            beepComboBox2.BackColor = Color.White;
+            beepComboBox2.BadgeBackColor = Color.Red;
+            beepComboBox2.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            beepComboBox2.BadgeForeColor = Color.White;
+            beepComboBox2.BadgeShape = BadgeShape.Circle;
+            beepComboBox2.BadgeText = "";
+            beepComboBox2.BlockID = null;
+            beepComboBox2.BorderColor = Color.FromArgb(189, 189, 189);
+            beepComboBox2.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepComboBox2.BorderRadius = 3;
+            beepComboBox2.BorderStyle = BorderStyle.FixedSingle;
+            beepComboBox2.BorderThickness = 1;
+            beepComboBox2.BottomoffsetForDrawingRect = 0;
+            beepComboBox2.BoundProperty = null;
+            beepComboBox2.CanBeFocused = true;
+            beepComboBox2.CanBeHovered = false;
+            beepComboBox2.CanBePressed = true;
+            beepComboBox2.Category = Utilities.DbFieldCategory.Numeric;
+            beepComboBox2.ComponentName = "BeepControl";
+            beepComboBox2.DataSourceProperty = null;
+            beepComboBox2.DisabledBackColor = Color.White;
+            beepComboBox2.DisabledBorderColor = Color.Empty;
+            beepComboBox2.DisabledForeColor = Color.Black;
+            beepComboBox2.DrawingRect = new Rectangle(1, 1, 148, 20);
+            beepComboBox2.Easing = EasingType.Linear;
+            beepComboBox2.EnableRippleEffect = false;
+            beepComboBox2.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepComboBox2.FieldID = null;
+            beepComboBox2.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepComboBox2.FloatingLabel = true;
+            beepComboBox2.FocusBackColor = Color.White;
+            beepComboBox2.FocusBorderColor = Color.RoyalBlue;
+            beepComboBox2.FocusForeColor = Color.Black;
+            beepComboBox2.FocusIndicatorColor = Color.Blue;
+            beepComboBox2.Font = new Font("Arial", 10F);
+            beepComboBox2.ForeColor = Color.FromArgb(33, 33, 33);
+            beepComboBox2.Form = null;
+            beepComboBox2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepComboBox2.GradientEndColor = Color.FromArgb(230, 230, 230);
+            beepComboBox2.GradientStartColor = Color.FromArgb(255, 255, 255);
+            beepComboBox2.GuidID = "d8a4e884-5bf9-497d-9e35-4369bb311685";
+            beepComboBox2.HelperText = "";
+            beepComboBox2.HitAreaEventOn = false;
+            beepComboBox2.HitTestControl = null;
+            beepComboBox2.HoverBackColor = Color.FromArgb(232, 240, 254);
+            beepComboBox2.HoverBorderColor = Color.FromArgb(33, 150, 243);
+            beepComboBox2.HoveredBackcolor = Color.Wheat;
+            beepComboBox2.HoverForeColor = Color.FromArgb(33, 33, 33);
+            beepComboBox2.Id = -1;
+            beepComboBox2.InactiveBorderColor = Color.Gray;
+            beepComboBox2.Info = (Controls.Models.SimpleItem)resources.GetObject("beepComboBox2.Info");
+            beepComboBox2.IsAcceptButton = false;
+            beepComboBox2.IsBorderAffectedByTheme = true;
+            beepComboBox2.IsCancelButton = false;
+            beepComboBox2.IsChild = false;
+            beepComboBox2.IsCustomeBorder = false;
+            beepComboBox2.IsDefault = false;
+            beepComboBox2.IsDeleted = false;
+            beepComboBox2.IsDirty = false;
+            beepComboBox2.IsEditable = false;
+            beepComboBox2.IsFocused = false;
+            beepComboBox2.IsFrameless = false;
+            beepComboBox2.IsHovered = false;
+            beepComboBox2.IsNew = false;
+            beepComboBox2.IsPopupOpen = false;
+            beepComboBox2.IsPressed = false;
+            beepComboBox2.IsReadOnly = false;
+            beepComboBox2.IsRequired = false;
+            beepComboBox2.IsRounded = true;
+            beepComboBox2.IsRoundedAffectedByTheme = true;
+            beepComboBox2.IsSelected = false;
+            beepComboBox2.IsSelectedOptionOn = false;
+            beepComboBox2.IsShadowAffectedByTheme = true;
+            beepComboBox2.IsVisible = false;
+            beepComboBox2.Items = (List<object>)resources.GetObject("beepComboBox2.Items");
+            beepComboBox2.LabelText = "";
+            beepComboBox2.LeftoffsetForDrawingRect = 0;
+            beepComboBox2.LinkedProperty = null;
+            beepComboBox2.Location = new Point(97, 332);
+            beepComboBox2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepComboBox2.Name = "beepComboBox2";
+            beepComboBox2.OverrideFontSize = TypeStyleFontSize.None;
+            beepComboBox2.ParentBackColor = Color.Empty;
+            beepComboBox2.ParentControl = null;
+            beepComboBox2.PlaceholderText = "Select an item...";
+            beepComboBox2.PressedBackColor = Color.White;
+            beepComboBox2.PressedBorderColor = Color.Gray;
+            beepComboBox2.PressedForeColor = Color.Gray;
+            beepComboBox2.RightoffsetForDrawingRect = 0;
+            beepComboBox2.SavedGuidID = null;
+            beepComboBox2.SavedID = null;
+            beepComboBox2.SelectedBackColor = Color.FromArgb(33, 150, 243);
+            beepComboBox2.SelectedBorderColor = Color.FromArgb(25, 118, 210);
+            beepComboBox2.SelectedForeColor = Color.White;
+            beepComboBox2.SelectedIndex = -1;
+            beepComboBox2.SelectedItem = null;
+            beepComboBox2.SelectedValue = null;
+            beepComboBox2.ShadowColor = Color.FromArgb(50, 0, 0, 0);
+            beepComboBox2.ShadowOffset = 0;
+            beepComboBox2.ShadowOpacity = 0.5F;
+            beepComboBox2.ShowAllBorders = true;
+            beepComboBox2.ShowBottomBorder = true;
+            beepComboBox2.ShowFocusIndicator = false;
+            beepComboBox2.ShowLeftBorder = true;
+            beepComboBox2.ShowRightBorder = true;
+            beepComboBox2.ShowShadow = false;
+            beepComboBox2.ShowTopBorder = true;
+            beepComboBox2.Size = new Size(150, 22);
+            beepComboBox2.SlideFrom = SlideDirection.Left;
+            beepComboBox2.StaticNotMoving = false;
+            beepComboBox2.TabIndex = 12;
+            beepComboBox2.Tag = MainTemplatePanel;
+            beepComboBox2.TempBackColor = Color.Empty;
+            beepComboBox2.Text = "beepComboBox2";
+            beepComboBox2.TextFont = new Font("Arial", 10F);
+            beepComboBox2.Theme = null;
+            beepComboBox2.ToolTipText = "";
+            beepComboBox2.TopoffsetForDrawingRect = 0;
+            beepComboBox2.UIAnimation = ReactUIAnimation.None;
+            beepComboBox2.UIColor = ReactUIColor.Primary;
+            beepComboBox2.UICustomElevation = 0;
+            beepComboBox2.UIDensity = ReactUIDensity.Standard;
+            beepComboBox2.UIDisabled = false;
+            beepComboBox2.UIElevation = ReactUIElevation.None;
+            beepComboBox2.UIFullWidth = false;
+            beepComboBox2.UIShape = ReactUIShape.Rounded;
+            beepComboBox2.UISize = ReactUISize.Medium;
+            beepComboBox2.UIVariant = ReactUIVariant.Default;
+            beepComboBox2.UseGradientBackground = false;
+            beepComboBox2.UseThemeFont = true;
+            // 
             // uc_diagraming
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1263,5 +1398,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private BeepStarRating beepStarRating1;
         private BeepCalendarView beepCalendarView1;
         private BeepCard beepCard1;
+        private BeepComboBox beepComboBox2;
     }
 }

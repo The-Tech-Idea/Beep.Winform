@@ -157,6 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 IsChild = true,
                 ShowAllBorders = false,
+                IsFrameless=true,
                 BorderStyle = BorderStyle.None,
                 Multiline = false,
                 AutoSize = false,
@@ -165,19 +166,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             _comboTextBox.TextFont = _textFont;
             _comboTextBox.TextChanged += (s, e) => Invalidate();
             Controls.Add(_comboTextBox);
-
+            this.GotFocus += BeepComboBox_GotFocus;
+            this.LostFocus += BeepComboBox_LostFocus;
             GetControlHeight();
             Height = _collapsedHeight;
 
             _dropDownButton = new BeepButton
             {
                 IsChild = true,
+                IsFrameless = true,
                 IsBorderAffectedByTheme = false,
                 IsRoundedAffectedByTheme = false,
                 IsShadowAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false,
                 HideText = true,
+                BorderRadius = 0,
+                UIShape= ReactUIShape.Square,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.ImageBeforeText
@@ -190,6 +195,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
 
             Click += (s, e) => StartEditing();
+        }
+
+        private void BeepComboBox_LostFocus(object? sender, EventArgs e)
+        {
+            _isFocused=false; ;
+            this.Invalidate();
+        }
+
+        private void BeepComboBox_GotFocus(object? sender, EventArgs e)
+        {
+            IsFocused = false;
+
         }
 
         public void Reset()
@@ -221,42 +238,71 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnResize(EventArgs e)
         {
-            SuspendLayout();
             base.OnResize(e);
 
             if (Width < _minWidth)
                 Width = _minWidth;
 
             GetControlHeight();
-
             if (!_isPopupOpen && Height != _collapsedHeight)
                 Height = _collapsedHeight;
 
-            Rectangle clientRect = ClientRectangle;
-            if (_comboTextBox != null)
-            {
-                _comboTextBox.Location = new Point(_padding, _padding);
-                _comboTextBox.Width = clientRect.Width - _buttonWidth - (2 * _padding);
-                _comboTextBox.Height = _comboTextBox.SingleLineHeight; // Use exact minimum height
-            }
-
-            if (_dropDownButton != null)
-            {
-                _dropDownButton.Location = new Point(clientRect.Width - _buttonWidth - _padding, _padding);
-                _dropDownButton.Width = _buttonWidth;
-                _dropDownButton.Height = _collapsedHeight - (2 * _padding);
-                SetDropDownButtonImage();
-            }
-
-            if (_isPopupOpen && menuDialog != null)
-            {
-                menuDialog.ShowPopup(this, BeepPopupFormPosition.Bottom);
-            }
-
-            ResumeLayout(true);
+            PositionControls();
             Invalidate();
         }
+        /// <summary>
+        /// Overrides the OnLayout method to position child controls correctly.
+        /// </summary>
+        /// <param name="levent">A LayoutEventArgs that contains the event data.</param>
+        protected override void OnLayout(LayoutEventArgs levent)
+        {
+            // First, let the base class (BeepControl) perform its layout logic if needed.
+            base.OnLayout(levent);
 
+            // Then, position our specific internal controls.
+            PositionControls();
+
+            // If you have other layout-specific logic for the popup or listbox, 
+            // you might consider calling it here or in a separate method, 
+            // but typically that's handled on popup open/close.
+        }
+        /// <summary>
+        /// Positions and sizes the internal TextBox and DropDown button within the BeepComboBox.
+        /// </summary>
+        /// <summary>
+        /// Positions and sizes the internal TextBox and DropDown button within the BeepComboBox.
+        /// </summary>
+        private void PositionControls()
+        {
+            if (this.Width <= 0 || this.Height <= 0)
+                return;
+
+            Rectangle clientRect = DrawingRect;
+
+            // Position the combo textbox
+            if (_comboTextBox != null)
+            {
+                _comboTextBox.Location = new Point(
+                    clientRect.X + _padding,
+                    (clientRect.Height - _comboTextBox.SingleLineHeight) / 2); // Vertically center
+                _comboTextBox.Size = new Size(
+                    clientRect.Width - _buttonWidth - (2 * _padding),
+                    _comboTextBox.SingleLineHeight);
+            }
+
+            // Position the dropdown button
+            if (_dropDownButton != null)
+            {
+                int buttonHeight = clientRect.Height - (2 * _padding); // Use control height minus padding
+                _dropDownButton.Location = new Point(
+                    clientRect.Right - _buttonWidth - _padding,
+                   _comboTextBox.Top); // Center vertically within clientRect
+                _dropDownButton.Size = new Size(
+                    _buttonWidth,
+                    buttonHeight);
+                SetDropDownButtonImage();
+            }
+        }
         public override void ApplyTheme()
         {
             base.ApplyTheme();
@@ -418,94 +464,70 @@ namespace TheTechIdea.Beep.Winform.Controls
                     borderColor = _currentTheme.ComboBoxBorderColor;
                 }
 
-                // Draw background
-                if (IsRounded && BorderRadius > 0)
-                {
-                    using (GraphicsPath path = GetRoundedRectPath(workingRect, BorderRadius))
-                    using (SolidBrush brush = new SolidBrush(backColor))
-                    {
-                        graphics.FillPath(brush, path);
-                    }
-                }
-                else
-                {
-                    using (SolidBrush brush = new SolidBrush(backColor))
-                    {
-                        graphics.FillRectangle(brush, workingRect);
-                    }
-                }
+               
 
-                // Draw text
-                string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
 
-                if (!string.IsNullOrEmpty(textToDraw))
-                {
-                    // Calculate text rectangle with proper padding
-                    Rectangle textRect = new Rectangle(
-                        workingRect.X + _padding,
-                        workingRect.Y,
-                        workingRect.Width - _buttonWidth - (_padding * 2),
-                        workingRect.Height);
-
-                    // Use TextRenderer for better text quality
-                    TextRenderer.DrawText(
-                        graphics,
-                        textToDraw,
-                        _textFont,
-                        textRect,
-                        foreColor,
-                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-                }
-                else if (!string.IsNullOrEmpty(PlaceholderText) && !_isEditing)
-                {
-                    // Draw placeholder text if available and not editing
-                    Rectangle placeholderRect = new Rectangle(
-                        workingRect.X + _padding,
-                        workingRect.Y,
-                        workingRect.Width - _buttonWidth - (_padding * 2),
-                        workingRect.Height);
-
-                    Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty
-                        ? _currentTheme.TextBoxPlaceholderColor
-                        : Color.FromArgb(150, foreColor);
-
-                    TextRenderer.DrawText(
-                        graphics,
-                        PlaceholderText,
-                        _textFont,
-                        placeholderRect,
-                        placeholderColor,
-                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-                }
-
-                // Draw border if needed
-                if (BorderThickness > 0)
-                {
+                // Draw a divider between text area and dropdown button if needed
+                if (!_isEditing)
+                { // Draw background
                     if (IsRounded && BorderRadius > 0)
                     {
-                        using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
-                        using (Pen pen = new Pen(borderColor, BorderThickness))
+                        using (GraphicsPath path = GetRoundedRectPath(workingRect, BorderRadius))
+                        using (SolidBrush brush = new SolidBrush(backColor))
                         {
-                            graphics.DrawPath(pen, path);
+                            graphics.FillPath(brush, path);
                         }
                     }
                     else
                     {
-                        using (Pen pen = new Pen(borderColor, BorderThickness))
+                        using (SolidBrush brush = new SolidBrush(backColor))
                         {
-                            // Draw border on the whole control (not the inner working rectangle)
-                            graphics.DrawRectangle(pen, new Rectangle(
-                                rectangle.X + BorderThickness / 2,
-                                rectangle.Y + BorderThickness / 2,
-                                rectangle.Width - BorderThickness,
-                                rectangle.Height - BorderThickness));
+                            graphics.FillRectangle(brush, workingRect);
                         }
                     }
-                }
 
-                // Draw a divider between text area and dropdown button if needed
-                if (!_isEditing)
-                {
+                    // Draw text
+                    string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
+
+                    if (!string.IsNullOrEmpty(textToDraw))
+                    {
+                        // Calculate text rectangle with proper padding
+                        Rectangle textRect = new Rectangle(
+                            workingRect.X + _padding,
+                            workingRect.Y,
+                            workingRect.Width - _buttonWidth - (_padding * 2),
+                            workingRect.Height);
+
+                        // Use TextRenderer for better text quality
+                        TextRenderer.DrawText(
+                            graphics,
+                            textToDraw,
+                            _textFont,
+                            textRect,
+                            foreColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                    }
+                    else if (!string.IsNullOrEmpty(PlaceholderText) && !_isEditing)
+                    {
+                        // Draw placeholder text if available and not editing
+                        Rectangle placeholderRect = new Rectangle(
+                            workingRect.X + _padding,
+                            workingRect.Y,
+                            workingRect.Width - _buttonWidth - (_padding * 2),
+                            workingRect.Height);
+
+                        Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty
+                            ? _currentTheme.TextBoxPlaceholderColor
+                            : Color.FromArgb(150, foreColor);
+
+                        TextRenderer.DrawText(
+                            graphics,
+                            PlaceholderText,
+                            _textFont,
+                            placeholderRect,
+                            placeholderColor,
+                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                    }
                     int dividerX = rectangle.Right - _buttonWidth - _padding;
                     using (Pen dividerPen = new Pen(Color.FromArgb(40, borderColor), 1))
                     {

@@ -1,15 +1,16 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
-using System.ComponentModel;
-using System.Drawing.Drawing2D;
-using Timer = System.Windows.Forms.Timer;
+﻿using System.ComponentModel;
 using System.Drawing.Design;
+using System.Drawing.Drawing2D;
 using System.Drawing.Text;
-using TheTechIdea.Beep.Winform.Controls.Converters;
+using System.IO;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
-using System.IO;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
+using Timer = System.Windows.Forms.Timer;
 
 
 
@@ -1854,120 +1855,148 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // 3) AFTER CONTENT
                 PerformExternalDrawing(g, DrawingLayer.AfterContent);
-             
-                // 5) AFTER ALL
-                PerformExternalDrawing(g, DrawingLayer.AfterAll);
-              
+
+
                 // Finally, render the entire off-screen buffer to the screen
                 buffer.Render(e.Graphics);
             }
         }
+        protected virtual void DrawBackground(Graphics g)
+        {
+            // Ensure high-quality rendering for the background
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            Color backcolor = BackColor;
+
+            // Determine fill backcolor based on state *before* checking gradient
+            if (Enabled)
+            {
+                if (IsHovered)
+                {
+                    backcolor = HoverBackColor; // Use HoverBackColor property
+                }
+                else if (IsSelected && IsSelectedOptionOn)
+                {
+                    backcolor = SelectedBackColor; // Use SelectedBackColor property
+                }
+
+                // For Filled variant in Material UI, use the FilledBackgroundColor
+                if (MaterialBorderVariant == MaterialTextFieldVariant.Filled)
+                {
+                    backcolor = FilledBackgroundColor; // Use FilledBackgroundColor property
+                }
+            }
+            else
+            {
+                backcolor = DisabledBackColor; // Use DisabledBackColor property
+            }
+
+            if (UseGradientBackground)
+            {
+                // --- Modern Gradient Logic ---
+                Color color1 = backcolor;
+                Color color2;
+
+                // Calculate a very subtle variant for a modern, soft gradient
+                // Using a small factor (e.g., 0.02 to 0.05) for subtlety
+                const float subtleFactor = 0.03f;
+
+                // Decide whether to lighten or darken based on brightness
+                // A threshold slightly below 0.5 often works well for natural light/dark perception
+                const float brightnessThreshold = 0.45f;
+
+                if (color1.GetBrightness() > brightnessThreshold)
+                {
+                    // Light color -> darken slightly for the gradient
+                    color2 = ControlPaint.Dark(color1, subtleFactor);
+                }
+                else
+                {
+                    // Dark color -> lighten slightly for the gradient
+                    color2 = ControlPaint.Light(color1, subtleFactor);
+                }
+
+                // Create the gradient brush using the calculated subtle colors
+                using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
+                    DrawingRect, color1, color2, GradientDirection)) // Use GradientDirection property
+                {
+                    // Optional: Add a Blend for an even smoother, more sophisticated transition (S-curve like)
+                    // This makes the gradient change more gradually in the middle.
+                    Blend blend = new Blend();
+                    blend.Positions = new float[] { 0.0f, 0.5f, 1.0f };
+                    // Factors: 0=start, 1=middle peak, 0=end creates a smooth S-curve effect
+                    blend.Factors = new float[] { 0.0f, 1.0f, 0.0f };
+                    gradientBrush.Blend = blend;
+
+                    // Fill the DrawingRect with the subtle gradient
+                    g.FillRectangle(gradientBrush, DrawingRect);
+                }
+                // --- End Modern Gradient Logic ---
+
+                // Return early as the background (gradient) has been drawn
+                return;
+            }
+
+            // If not using gradient, draw a solid fill with the determined backcolor
+            using (SolidBrush brush = new SolidBrush(backcolor))
+            {
+                g.FillRectangle(brush, DrawingRect);
+            }
+        }
         protected virtual void DrawContent(Graphics g)
         {
+            // Ensure high-quality rendering for all content drawing
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit; // Improve text clarity
+
             // Update drawing bounds as necessary
             UpdateDrawingRect();
 
             // Determine shadow offset based on whether shadows should be drawn
-            shadowOffset = ShowShadow ? 3 : 0;
+            shadowOffset = ShowShadow ? 3 : 0; // Consider making this configurable or tied to elevation
 
-            // Use an outer rectangle that covers the whole control
-            Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
-
-            // Apply React UI styles if enabled
+            // Apply React UI styles if enabled (this might adjust colors, shapes, etc.)
             if (UIVariant != ReactUIVariant.Default)
             {
                 ApplyReactUIStyles(g);
             }
 
-            // Draw background: either with a gradient or a solid fill based on state
-            if (UseGradientBackground)
-            {
-                using (var brush = new LinearGradientBrush(borderRectangle, GradientStartColor, GradientEndColor, GradientDirection))
-                {
-                    g.FillRectangle(brush, outerRectangle);
-                }
-            }
-            else
-            {
-                Color backcolor = IsHovered ? HoveredBackcolor : BackColor;
-
-                // Determine fill backcolor based on state
-                if (Enabled)
-                {
-                    if (IsHovered)
-                    {
-                        backcolor = HoverBackColor;
-                    }
-                    else if (IsSelected && IsSelectedOptionOn)
-                    {
-                        backcolor = SelectedBackColor;
-                    }
-
-                    // For Filled variant in Material UI, use the FilledBackgroundColor
-                    if (MaterialBorderVariant == MaterialTextFieldVariant.Filled)
-                    {
-                        backcolor = FilledBackgroundColor;
-                    }
-                }
-                else
-                {
-                    backcolor = DisabledBackColor;
-                }
-
-                using (SolidBrush brush = new SolidBrush(backcolor))
-                {
-                    g.FillRectangle(brush, DrawingRect);
-                }
-            }
-
-            //// Update rounded region if needed
-            //if (IsRounded)
-            //{
-            //    UpdateControlRegion();
-            //}
+            // --- Call the dedicated background drawing method ---
+            // This handles solid fills, gradients, and state-specific colors
+            DrawBackground(g);
+            // --- End Background Drawing ---
 
             // Draw shadow if applicable
+            // Ensure DrawShadowUsingRectangle uses the updated DrawingRect and respects IsRounded
             if (ShowShadow)
             {
-                DrawShadowUsingRectangle(g);
+                DrawShadow(g);
             }
 
             // Draw borders - with priority logic to prevent conflicts
             if (!_isframless)
-            {
-                // Choose the appropriate border drawing method:
-                // 1. If Material UI is active, use DrawMaterialBorder
-                // 2. Otherwise use regular border drawing logic
+            {// --- Modernized Border Drawing Call ---
+             // Calculate the effective border color based on the control's current state.
+             // This ensures hover, focus, and disabled states are visually distinct.
+                Color effectiveBorderColor = BorderColor; // Start with default
+                if (!Enabled)
+                {
+                    effectiveBorderColor = DisabledBorderColor;
+                }
+                else if (Focused) // Check Focused before Hover for priority
+                {
+                    effectiveBorderColor = FocusBorderColor;
+                }
+                else if (IsHovered)
+                {
+                    effectiveBorderColor = HoverBorderColor;
+                }
 
-                if (MaterialBorderVariant != MaterialTextFieldVariant.Standard)
-                {
-                    // Use Material UI border styles
-                    DrawMaterialBorder(g, borderRectangle);
-                }
-                else if (IsCustomeBorder)
-                {
-                    // Use custom border
-                    DrawCustomBorder(g);
-                }
-                else if (ShowAllBorders && BorderThickness > 0)
-                {
-                    // Use standard borders
-                    if (IsRounded)
-                    {
-                        using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
-                        {
-                            using (Pen borderPen = new Pen(BorderColor, BorderThickness))
-                            {
-                                borderPen.Alignment = PenAlignment.Inset;
-                                g.DrawPath(borderPen, path);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        DrawBorder(g, borderRectangle);
-                    }
-                }
+                    // Use the new centralized standard border drawing logic.
+                    // This handles ShowAllBorders, IsRounded, BorderThickness, BorderDashStyle,
+                    // and uses the effectiveBorderColor.
+                    DrawBorders(g, effectiveBorderColor);
+                
             }
 
             // Draw focus indicator if needed
@@ -1983,6 +2012,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (hitTest.IsVisible && hitTest.uIComponent != null)
                     {
+                        // Ensure the component's Draw method also sets Smoothing/TextRendering if needed
                         hitTest.uIComponent.Draw(g, hitTest.TargetRect);
                     }
                 }
@@ -2032,12 +2062,137 @@ namespace TheTechIdea.Beep.Winform.Controls
             var measured = TextRenderer.MeasureText(g, text, font);
             return (measured.Width <= maxSize.Width && measured.Height <= maxSize.Height);
         }
+        /// <summary>
+        /// Draws the control's borders based on its properties and state.
+        /// </summary>
+        /// <param name="g">The Graphics object to draw on.</param>
+        /// <param name="effectiveBorderColor">The border color adjusted for the control's current state (enabled, hover, focus).</param>
+        protected virtual void DrawBorders(Graphics g, Color effectiveBorderColor)
+        {
+            // Only draw if not frameless
+            if (_isframless) return;
+
+            // Material UI Border Styles take priority
+            if (MaterialBorderVariant != MaterialTextFieldVariant.Standard)
+            {
+                DrawMaterialBorder(g, borderRectangle, effectiveBorderColor); // Pass color
+                return; // Handled by Material logic
+            }
+
+            // Custom Border
+            if (IsCustomeBorder) // Assuming typo, should be IsCustomBorder?
+            {
+                DrawCustomBorder(g); // Ensure this also uses effectiveBorderColor or its own logic
+                return;
+            }
+
+            // Standard Borders
+            if (ShowAllBorders && BorderThickness > 0)
+            {
+                // Use the passed effectiveBorderColor
+                using (Pen borderPen = new Pen(effectiveBorderColor, BorderThickness))
+                {
+                    borderPen.DashStyle = BorderDashStyle; // Use property
+                    borderPen.Alignment = PenAlignment.Inset; // Good default
+
+                    if (IsRounded)
+                    {
+                        // Draw rounded border
+                        using (GraphicsPath path = GetRoundedRectPath(borderRectangle, BorderRadius))
+                        {
+                            g.DrawPath(borderPen, path);
+                        }
+                    }
+                    else
+                    {
+                        // Draw standard border (consider simplifying or using DrawBorder helper)
+                        // Option 1: Simplified direct drawing
+                        // g.DrawRectangle(borderPen, borderRectangle.X, borderRectangle.Y, borderRectangle.Width, borderRectangle.Height);
+
+                        // Option 2: Use/refactor existing DrawBorder method
+                        DrawBorder(g, borderRectangle, borderPen); // Pass the configured pen
+                    }
+                }
+            }
+            // Note: Logic for ShowTopBorder etc. seems separate. Integrate or clarify its purpose.
+        }
+        // Updated signature and logic for DrawBorder
+        protected void DrawBorder(Graphics graphics, Rectangle drawingRect, Pen borderPen)
+        {
+            // Assumes borderPen is already configured with correct color, thickness, dash style, alignment
+
+            // Draw individual borders based on settings
+            if (ShowTopBorder)
+                graphics.DrawLine(borderPen, drawingRect.Left, drawingRect.Top, drawingRect.Right, drawingRect.Top);
+            if (ShowBottomBorder)
+                graphics.DrawLine(borderPen, drawingRect.Left, drawingRect.Bottom, drawingRect.Right, drawingRect.Bottom); // Adjust Y if needed
+            if (ShowLeftBorder)
+                graphics.DrawLine(borderPen, drawingRect.Left, drawingRect.Top, drawingRect.Left, drawingRect.Bottom);
+            if (ShowRightBorder)
+                graphics.DrawLine(borderPen, drawingRect.Right, drawingRect.Top, drawingRect.Right, drawingRect.Bottom); // Adjust X if needed
+
+            // If ShowAllBorders is true and handled by the caller, you might simplify this
+            // to just draw a full rectangle if none of the ShowXBorder flags are explicitly set.
+            // But the current logic allows for flexible combinations.
+        }
+        // Example modification for DrawMaterialBorder
+        protected virtual void DrawMaterialBorder(Graphics g, Rectangle borderRect, Color effectiveBorderColor)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias; // Ensure quality
+
+            int lineHeight = 2; // Or a property
+            int yOffset = 0; // Adjust based on variant if needed
+
+            switch (MaterialBorderVariant)
+            {
+                case MaterialTextFieldVariant.Standard:
+                    // Draw only the bottom line, using effective color
+                    using (Pen linePen = new Pen(effectiveBorderColor, lineHeight))
+                    {
+                        // Adjust Y position as needed for your design
+                        g.DrawLine(linePen, borderRect.X, borderRect.Bottom - yOffset, borderRect.Right, borderRect.Bottom - yOffset);
+                    }
+                    break;
+                case MaterialTextFieldVariant.Outlined:
+                    // Draw full rounded or square border using effective color
+                    if (IsRounded) // Assuming IsRounded applies to Outlined variant
+                    {
+                        using (GraphicsPath path = GetRoundedRectPath(borderRect, BorderRadius))
+                        {
+                            using (Pen outlinePen = new Pen(effectiveBorderColor, BorderThickness)) // Or fixed 1?
+                            {
+                                outlinePen.Alignment = PenAlignment.Inset;
+                                g.DrawPath(outlinePen, path);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        using (Pen outlinePen = new Pen(effectiveBorderColor, BorderThickness)) // Or fixed 1?
+                        {
+                            outlinePen.Alignment = PenAlignment.Inset;
+                            g.DrawRectangle(outlinePen, borderRect);
+                        }
+                    }
+                    break;
+                case MaterialTextFieldVariant.Filled:
+                    // Background is handled by DrawBackground/FilledBackgroundColor
+                    // Potentially draw a bottom line here too, maybe with effective color?
+                    // Depends on exact Material Filled spec you are following.
+                    using (Pen linePen = new Pen(effectiveBorderColor, lineHeight))
+                    {
+                        g.DrawLine(linePen, borderRect.X, borderRect.Bottom - yOffset, borderRect.Right, borderRect.Bottom - yOffset);
+                    }
+                    break;
+            }
+        }
         #region "Drawing Methods"
         public virtual void DrawCustomBorder(Graphics g)
         {
             // Draw custom border based on the control's properties
             DrawBorder(g, DrawingRect);
         }
+
         protected void DrawBorder(Graphics graphics, Rectangle drawingRect)
         {
             int brder = BorderThickness;
@@ -2093,34 +2248,66 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void DrawShadow(Graphics graphics, Rectangle drawingRect)
         {
-            if (ShadowOpacity <= 0 || ShadowOpacity > 1) return;
+            // Check if shadow should be drawn at all
+            if (ShadowOpacity <= 0 || ShadowOpacity > 1 || !ShowShadow) // Add ShowShadow check if not done upstream
+                return;
 
-            int shadowThickness = 5;  // Thickness of the shadow effect
-            int shadowSpacing = 2;    // Spacing between shadow lines
-            Color shadowColor = Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor);
+            // --- Modernization: Make parameters configurable or elevation-based ---
+            // Consider properties like:
+            // public int ShadowDepth { get; set; } = 3; // Number of layers
+            // public int ShadowSpread { get; set; } = 1; // Spacing increment per layer
+            int shadowDepth = 3; // Reduced from 5 for subtlety, or make a property
+            int shadowSpread = 1; // Reduced from 2, or make a property
+                                  // ---
 
-            // Draw multiple outlines along the control's edge for a soft shadow effect
-            for (int i = 1; i <= shadowThickness; i++)
+            // Base shadow color with overall opacity
+            Color baseShadowColor = Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor);
+
+            // Ensure high-quality rendering
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw multiple layers for a soft shadow effect
+            for (int i = 1; i <= shadowDepth; i++)
             {
-                using (Pen shadowPen = new Pen(Color.FromArgb((int)(255 * ShadowOpacity / i), shadowColor), 1))
-                {
-                    // Adjust the drawing rect to slightly expand outward for each shadow line
-                    Rectangle outerRect = new Rectangle(
-                        drawingRect.X - (i * shadowSpacing),
-                        drawingRect.Y - (i * shadowSpacing),
-                        drawingRect.Width + (i * shadowSpacing * 2),
-                        drawingRect.Height + (i * shadowSpacing * 2));
+                // --- Modernization: Smoother Opacity Falloff ---
+                // Option 1: Linear decrease per layer (your current logic, but scaled)
+                // float layerOpacityFactor = 1.0f / i;
+                // Option 2: Exponential decrease (fades out faster)
+                float layerOpacityFactor = (float)Math.Pow(0.6f, i); // Adjust 0.6 for falloff speed
+                                                                     // Option 3: Based on distance squared (more physically inspired)
+                                                                     // float distanceFactor = (float)i / shadowDepth;
+                                                                     // float layerOpacityFactor = 1.0f - (distanceFactor * distanceFactor);
 
-                    // Draw the shadow as an outline around the control's border, based on shape
+                int layerAlpha = (int)(255 * ShadowOpacity * layerOpacityFactor);
+                if (layerAlpha <= 0) continue; // Skip if fully transparent
+
+                Color layerColor = Color.FromArgb(layerAlpha, baseShadowColor);
+                // ---
+
+                using (Pen shadowPen = new Pen(layerColor, 1)) // Pen width is 1 for each outline
+                {
+                    // Adjust the drawing rect to expand outward for each layer
+                    int offset = i * shadowSpread;
+                    Rectangle outerRect = new Rectangle(
+                        drawingRect.X - offset,
+                        drawingRect.Y - offset,
+                        drawingRect.Width + (2 * offset),
+                        drawingRect.Height + (2 * offset));
+
+                    // Draw the shadow outline based on the control's shape
                     if (IsRounded)
                     {
-                        using (GraphicsPath shadowPath = GetRoundedRectPath(outerRect, BorderRadius + (i * shadowSpacing)))
+                        // Use BorderRadius + offset for the shadow's corner radius
+                        // Consider if the shadow should have a *slightly* larger radius
+                        int shadowRadius = BorderRadius + offset;
+                        using (GraphicsPath shadowPath = GetRoundedRectPath(outerRect, shadowRadius))
                         {
                             graphics.DrawPath(shadowPen, shadowPath);
                         }
                     }
                     else
                     {
+                        // Ensure GetControlShapePath draws the correct non-rounded shape (likely a rectangle)
                         using (GraphicsPath shadowPath = GetControlShapePath(outerRect))
                         {
                             graphics.DrawPath(shadowPen, shadowPath);
@@ -2129,14 +2316,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        // Helper method for custom control shape outline; adjust shape as needed (e.g., ellipse for rounded)
+
+        // Ensure this helper draws the correct shape for non-rounded controls
         protected GraphicsPath GetControlShapePath(Rectangle rect)
         {
             GraphicsPath path = new GraphicsPath();
-            // Example shape, add an ellipse or any other shape if needed:
-            path.AddEllipse(rect);
+            // For standard rectangle shadow, add a rectangle
+            path.AddRectangle(rect);
+            // If you had other shapes (like ellipse), you'd add logic here.
+            // But for consistency with standard borders, Rectangle is likely correct.
+            // path.AddEllipse(rect); // Commented out as it's inconsistent
             return path;
         }
+        // Helper method for custom control shape outline; adjust shape as needed (e.g., ellipse for rounded)
+      
         protected void DrawShadowUsingRectangle(Graphics graphics)
         {
             // Ensure shadow is drawn only if it's enabled
@@ -3609,6 +3802,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                         bc.Invalidate(Bounds);
                     else
                         Invalidate();
+                    // Inside BeepControl's BadgeText setter, after Invalidate();
+                    if (Parent is BeepControl parentBeepControl)
+                    {
+                        // Calculate the badge's absolute area on the parent
+                        // Assuming top-right placement relative to this control's bounds
+                        const int badgeSize = 22; // Match the size used in DrawBadgeExternally
+                        int badgeX = this.Bounds.Right - badgeSize / 2; // Position calculated like in DrawBadgeExternally
+                        int badgeY = this.Bounds.Top - badgeSize / 2;
+                        Rectangle badgeAreaOnParent = new Rectangle(badgeX, badgeY, badgeSize, badgeSize);
+
+                        // Invalidate only the badge area on the parent
+                        parentBeepControl.Invalidate(badgeAreaOnParent);
+                        // OR, simpler but less efficient: parentBeepControl.Invalidate(); 
+
+                        // Ensure the parent repaints
+                        parentBeepControl.Update(); // Optional, forces immediate repaint
+                    }
+                    // If parent is not BeepControl, you might need a different strategy or rely on general invalidation.
                 }
             }
         }
@@ -3663,39 +3874,63 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _badgeshape = value; Invalidate(); }
         }
         /// <summary>
-        /// Draws a badge in the top–right corner of the control’s DrawingRect.
-        /// The badge is drawn as a rounded rectangle (or circle for a single character)
-        /// and displays the value of BadgeText.
+        /// Draws a badge in the top-right corner of the provided child control's bounds.
+        /// The badge is drawn using the parent's Graphics context, making it appear on top.
         /// </summary>
-        /// <param name="g">The Graphics object to draw on.</param>
-        // Replace the existing DrawBadge method
-     
+        /// <param name="g">The Graphics object of the parent control.</param>
+        /// <param name="childBounds">The bounds of the child control (e.g., BeepButton) relative to the parent.</param>
         public void DrawBadgeExternally(Graphics g, Rectangle childBounds)
         {
-            Console.WriteLine(this.ComponentName);
-            // only draw if there's text
+            // Only draw if there's text and the badge isn't explicitly hidden
             if (string.IsNullOrEmpty(BadgeText))
                 return;
-      
-            const int badgeSize = 22;
-            // place it top-right, slightly overlapping
+
+            const int badgeSize = 22; // Consider making this configurable or DPI-aware
+
+            // Place it top-right, with the center overlapping the corner
+            // Adjust X,Y calculation if you want a different anchor point (e.g. inner corner)
             int x = childBounds.Right - badgeSize / 2;
-            int y = childBounds.Y - badgeSize / 2;
+            int y = childBounds.Top - badgeSize / 2; // Aligns top edge with child's top
+
             var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
-          
-            // now call your existing routine
+
+            // Now call the core implementation routine
             DrawBadgeImplementation(g, badgeRect);
         }
 
         // Next, update the UpdateControlRegion method to properly include the badge area
-      
+        /// <summary>
+        /// Core logic for drawing the badge's appearance.
+        /// </summary>
+        /// <param name="g">The Graphics object to draw on.</param>
+        /// <param name="badgeRect">The rectangle defining the badge's bounds.</param>
         public void DrawBadgeImplementation(Graphics g, Rectangle badgeRect)
         {
-            // High-quality rendering
+            // Ensure high-quality rendering for the badge
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // Background
+            // --- 1. Draw a subtle shadow for the badge (Modern Integration) ---
+            // Only draw if shadows are enabled for the parent control
+            if (ShowShadow && !string.IsNullOrEmpty(BadgeText))
+            {
+                float badgeShadowOpacity = Math.Min(0.3f, ShadowOpacity * 0.8f); // Subtler than main shadow
+                int badgeShadowOffset = 1; // Small offset for a crisp shadow
+                Color badgeShadowColor = Color.FromArgb((int)(255 * badgeShadowOpacity), ShadowColor);
+
+                using (var shadowBrush = new SolidBrush(badgeShadowColor))
+                {
+                    // Draw shadow slightly offset down and right
+                    g.FillEllipse(shadowBrush,
+                        badgeRect.X + badgeShadowOffset,
+                        badgeRect.Y + badgeShadowOffset,
+                        badgeRect.Width,
+                        badgeRect.Height);
+                }
+            }
+            // --- End Badge Shadow ---
+
+            // --- 2. Draw the badge background ---
             using (var brush = new SolidBrush(BadgeBackColor))
             {
                 switch (BadgeShape)
@@ -3705,7 +3940,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         break;
 
                     case BadgeShape.RoundedRectangle:
-                        using (var path = GetRoundedRectPath(badgeRect, badgeRect.Height / 4))
+                        using (var path = GetRoundedRectPath(badgeRect, badgeRect.Height / 4)) // Consistent rounding
                             g.FillPath(brush, path);
                         break;
 
@@ -3714,94 +3949,159 @@ namespace TheTechIdea.Beep.Winform.Controls
                         break;
 
                     default:
-                        // fall back to circle if someone adds a new enum later
+                        // Fall back to circle for any unknown shapes
                         g.FillEllipse(brush, badgeRect);
                         break;
                 }
             }
 
-            // Text
-            using (var textBrush = new SolidBrush(BadgeForeColor))
-            using (var scaledFont = GetScaledBadgeFont(
-                       g,
-                       BadgeText,
-                       new Size(badgeRect.Width - 4, badgeRect.Height - 4),
-                       BadgeFont ?? Font))
+            // --- 3. Draw the badge text ---
+            if (!string.IsNullOrEmpty(BadgeText))
             {
-                var fmt = new StringFormat
+                using (var textBrush = new SolidBrush(BadgeForeColor))
+                // Use the improved GetScaledBadgeFont helper
+                using (var scaledFont = GetScaledBadgeFont(
+                           g,
+                           BadgeText,
+                           new Size(badgeRect.Width - 4, badgeRect.Height - 4), // Add internal padding
+                           BadgeFont)) // Use the dedicated BadgeFont property
                 {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString(BadgeText, scaledFont, textBrush, badgeRect, fmt);
+                    var fmt = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(BadgeText, scaledFont, textBrush, badgeRect, fmt);
+                }
             }
         }
 
         // Next, update the UpdateControlRegion method to properly include the badge area
         // Finally, make sure UpdateRegionForBadge calls UpdateControlRegion
         // or just replace it entirely (simpler approach):
+
+        // Ensure UpdateRegionForBadge correctly triggers region update
         public void UpdateRegionForBadge()
         {
-            // Simply call the comprehensive method that now handles both control and badge
+            // This should trigger the logic in OnResize or directly call UpdateControlRegion
+            // If called from BadgeText setter, also invalidate the parent area
+            if (Parent is BeepControl parentBeepControl)
+            {
+                // Calculate the badge's absolute area on the parent for invalidation
+                const int badgeSize = 22; // Match size used in DrawBadgeExternally
+                int badgeX = this.Bounds.Right - badgeSize / 2;
+                int badgeY = this.Bounds.Top - badgeSize / 2;
+                Rectangle badgeAreaOnParent = new Rectangle(badgeX, badgeY, badgeSize, badgeSize);
+
+                // Invalidate only the badge area on the parent for efficiency
+                parentBeepControl.Invalidate(badgeAreaOnParent);
+                // Force immediate repaint if necessary
+                // parentBeepControl.Update();
+            }
+
+            // Update the control's own region to include the badge for hit-testing
+            // This part depends on your existing UpdateControlRegion logic correctly handling the badge
+            // which your code snippet shows it does.
             UpdateControlRegion();
         }
 
-        // Add this helper method to properly scale badge text
-        // Replace the GetScaledBadgeFont method with this safer implementation
+        /// <summary>
+        /// Helper method to scale the badge font to fit within the specified bounds.
+        /// Prioritizes fitting text and uses fallbacks for robustness.
+        /// </summary>
+        /// <param name="g">The Graphics context used for measuring text.</param>
+        /// <param name="text">The text to measure and scale for.</param>
+        /// <param name="maxSize">The maximum size (Width x Height) the text should fit within.</param>
+        /// <param name="originalFont">The base font to scale down from.</param>
+        /// <returns>A new Font object scaled to fit, or a fallback font if scaling fails.</returns>
         private Font GetScaledBadgeFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
-            // Always have a fallback option - use the control's font if anything fails
-            Font fallbackFont = Font;
+            // Robustness: Define a clear fallback font, ideally from the control or theme
+            Font fallbackFont = this.BadgeFont ?? this.Font ?? Control.DefaultFont;
 
-            // If any parameters are null or invalid, use fallback
-            if (string.IsNullOrEmpty(text) || originalFont == null || g == null)
-                return fallbackFont;
-
-            try
+            // Handle invalid inputs gracefully
+            if (string.IsNullOrEmpty(text) || maxSize.Width <= 0 || maxSize.Height <= 0 || g == null)
             {
-                // For single characters like "1", use a simple fixed size approach
-                if (text.Length == 1)
-                {
-                    float fontSize = Math.Min(maxSize.Height * 0.7f, 12); // 70% of height, max 12pt
-                    return new Font(fallbackFont.FontFamily, fontSize, FontStyle.Regular);
-                }
+                return new Font(fallbackFont.FontFamily, Math.Min(8, maxSize.Height * 0.7f), FontStyle.Bold); // Safe small font
+            }
 
-                // For longer text, try to fit within bounds
-                SizeF textSize;
+            // Optimization for single characters (very common for badges)
+            if (text.Length == 1)
+            {
+                // Use a simple heuristic: 60-70% of the badge height, capped at a reasonable size
+                float fontSize = Math.Max(6, Math.Min(maxSize.Height * 0.65f, 10)); // Example values
                 try
                 {
-                    textSize = g.MeasureString(text, originalFont);
+                    return new Font(fallbackFont.FontFamily, fontSize, FontStyle.Bold); // Badges often use bold
                 }
                 catch
                 {
-                    return fallbackFont;
+                    return new Font(fallbackFont.FontFamily, 8, FontStyle.Bold); // Ultimate fallback size
                 }
+            }
 
-                // If original font fits, use it
-                if (textSize.Width <= maxSize.Width && textSize.Height <= maxSize.Height)
-                    return originalFont;
+            // For multi-character text, use iterative scaling
+            Font testFont = null;
+            float minSize = 6; // Absolute minimum readable size
+            float maxSizeF = fallbackFont.Size; // Start with the original or fallback size
 
-                // Calculate a scaling factor to fit text
-                float scale = Math.Min(
-                    maxSize.Width / textSize.Width,
-                    maxSize.Height / textSize.Height);
+            // Ensure maxSizeF is reasonable based on the space available
+            maxSizeF = Math.Min(maxSizeF, maxSize.Height * 0.8f);
+            maxSizeF = Math.Max(maxSizeF, minSize);
 
-                // Apply scale to font size with minimum limit
-                float newSize = Math.Max(originalFont.Size * scale, 7);
+            try
+            {
+                // Iteratively test smaller font sizes until it fits
+                for (float size = maxSizeF; size >= minSize; size -= 0.5f)
+                {
+                    testFont?.Dispose(); // Clean up previous test font
+                    try
+                    {
+                        testFont = new Font(fallbackFont.FontFamily, size, FontStyle.Bold); // Assume Bold for badge
+                    }
+                    catch
+                    {
+                        // If creating the font fails, break and use fallback
+                        break;
+                    }
 
-                // Create new font
-                return new Font(fallbackFont.FontFamily, newSize, FontStyle.Regular);
+                    Size measuredSize = TextRenderer.MeasureText(g, text, testFont);
+
+                    // Check if the measured text fits within the constraints
+                    if (measuredSize.Width <= maxSize.Width && measuredSize.Height <= maxSize.Height)
+                    {
+                        // It fits! Return this font.
+                        // Keep a reference to the good font before disposing testFont
+                        Font fittedFont = testFont;
+                        testFont = null; // Prevent disposal below
+                        return fittedFont;
+                    }
+                }
             }
             catch
             {
-                // Any exception, use fallback
-                return fallbackFont;
+                // General error during scaling, fall through to return fallback
+            }
+            finally
+            {
+                // Ensure the temporary test font is disposed if not returned
+                testFont?.Dispose();
+            }
+
+            // If no suitable size was found during iteration, or an error occurred, return a safe fallback
+            try
+            {
+                return new Font(fallbackFont.FontFamily, Math.Min(8, maxSize.Height * 0.7f), FontStyle.Bold);
+            }
+            catch
+            {
+                // If even the fallback creation fails, return the system default (last resort)
+                return new Font(FontFamily.GenericSansSerif, 7, FontStyle.Bold);
             }
         }
-
         #endregion
-        #region "External Drawing Support"
-        // Delegate: child drawing gets parent Graphics plus its own Bounds
+       #region "External Drawing Support"
+            // Delegate: child drawing gets parent Graphics plus its own Bounds
         public delegate void DrawExternalHandler(Graphics parentGraphics, Rectangle childBounds);
         // With this new dictionary that uses ExternalDrawingFunction
         private readonly Dictionary<Control, ExternalDrawingFunction> _childExternalDrawers
@@ -3949,23 +4249,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Invoke exactly those child-registered handlers whose Layer matches and Redraw is true.
         /// </summary>
+        // Inside BeepControl class
+        // This method should correctly access properties of the KeyValuePair
         private void PerformExternalDrawing(Graphics g, DrawingLayer layer)
         {
+            // Check if the dictionary is initialized (defensive)
+            if (_childExternalDrawers == null) return;
+
+            // Iterate through the dictionary entries
+            // kvp is of type KeyValuePair<Control, ExternalDrawingFunction>
             foreach (var kvp in _childExternalDrawers)
             {
-                var child = kvp.Key;
-                var drawingFunction = kvp.Value;
+                // Extract the Control (Key) and the ExternalDrawingFunction (Value)
+                Control childControl = kvp.Key;
+                ExternalDrawingFunction drawingFunction = kvp.Value;
 
-                // Only execute if:
-                // 1. Child is visible
-                // 2. The layer matches
-                // 3. Redraw is true
-                // 4. The function is valid (has a handler)
-                if (!child.Visible || drawingFunction.Layer != layer || !drawingFunction.Redraw || !drawingFunction.IsValid)
-                    continue;
-           //     drawingFunction.Redraw = false; // Reset redraw state
-                // Pass the child's bounds so the handler knows where to draw
-                drawingFunction.Invoke(g, child.Bounds);
+                // Only execute if ALL conditions are met:
+                // 1. The child control is visible
+                // 2. The drawing function's layer matches the requested layer
+                // 3. The drawing function's Redraw flag is true
+                // 4. The drawing function is valid (has a handler)
+                if (childControl.Visible &&
+                    drawingFunction.Layer == layer &&
+                    drawingFunction.Redraw &&
+                    drawingFunction.IsValid) // IsValid checks if Handler is not null
+                {
+                    // Pass the child's bounds so the handler knows where to draw
+                    // Use childControl.Bounds to get the location and size relative to the parent (this BeepControl)
+                    drawingFunction.Invoke(g, childControl.Bounds);
+                }
+                // Note: We used to reset Redraw here, but it's better to let the child control
+                // manage when it needs to be redrawn by setting Redraw = true itself,
+                // or the parent can manage it via SetChildExternalDrawingRedraw if needed.
+                // drawingFunction.Redraw = false; // Optional: Reset here if that's the desired behavior
             }
         }
 

@@ -819,6 +819,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Color fillColor;
             // Draw the image and text
             contentRect = DrawingRect;
+
             // Now, if the splash effect is active, draw the ripple:
             if (splashActive)
             {
@@ -846,34 +847,32 @@ namespace TheTechIdea.Beep.Winform.Controls
                     g.ResetClip();
                 }
             }
-            //else
-            //{
-            //    if (!Enabled)
-            //    {
-            //        fillColor = DisabledBackColor;
-            //    }
-            //    else if (IsSelected)
-            //    {
-            //        // Selected state: use BackColor (which is set in IsSelected setter)
-            //        fillColor = SelectedBackColor;
-            //    }
-            //    else if (IsHovered)
-            //    {
-            //        fillColor = HoveredBackcolor;
-            //    }
-            //    else
-            //    {
-            //        fillColor = BackColor;
-            //    }
+            // Inside BeepButton.DrawContent(Graphics g), after base.DrawContent(g);
+            if (this.Enabled && this.IsHovered)
+            {
+                // Very subtle overlay, adjust alpha (20-30) for subtlety
+                Color hoverOverlayColor = this.BackColor.GetBrightness() > 0.5 ?
+                    Color.FromArgb(20, 255, 255, 255) : // Light theme: subtle white
+                    Color.FromArgb(20, 0, 0, 0);       // Dark theme: subtle black
 
-            //    //  Rectangle outerRectangle = new Rectangle(0, 0, Width, Height);
+                using (SolidBrush overlayBrush = new SolidBrush(hoverOverlayColor))
+                {
+                    g.FillRectangle(overlayBrush, this.DrawingRect); // Or contentRect if different
+                }
+            }
+            // Inside BeepButton.DrawContent(Graphics g), after hover check
+            if (this.Enabled && this.IsPressed) // Add IsPressed property if not already present and managed
+            {
+                // Slightly more pronounced than hover, but still subtle
+                Color pressedOverlayColor = this.BackColor.GetBrightness() > 0.5 ?
+                    Color.FromArgb(40, 0, 0, 0) : // Light theme: subtle black
+                    Color.FromArgb(40, 255, 255, 255); // Dark theme: subtle white
 
-            //    using (SolidBrush brush = new SolidBrush(fillColor))
-            //    {
-            //        g.FillRectangle(brush, DrawingRect);
-            //    }
-            //}
-
+                using (SolidBrush overlayBrush = new SolidBrush(pressedOverlayColor))
+                {
+                    g.FillRectangle(overlayBrush, this.DrawingRect);
+                }
+            }
             DrawImageAndText(g);
 
             // If additional app bar elements (icons, text) require custom drawing,

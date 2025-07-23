@@ -663,6 +663,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextChanged?.Invoke(this, EventArgs.Empty);
                 MiscFunctions.SendLog($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
             };
+            // Inside BeepTextBox constructor or initialization
+            _innerTextBox.GotFocus += (s, e) => {
+                // Set a flag if needed beyond standard Focused property
+                // Invalidate to trigger redraw with focus styles
+                this.Invalidate();
+                // Potentially update parent AppBar if applicable? (Check BeepAppBar logic)
+            };
+            _innerTextBox.LostFocus += (s, e) => {
+                this.Invalidate();
+            };
             _innerTextBox.Font = TextFont; // Ensure font is set early
             _innerTextBox.BorderStyle = BorderStyle.None;
             _innerTextBox.Multiline = false; // Default to single-line

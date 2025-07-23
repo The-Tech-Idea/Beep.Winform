@@ -1,0 +1,1199 @@
+<!--
+    BeepExtendedButton Control Documentation
+    Professional-grade documentation for the BeepExtendedButton WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepExtendedButton - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-cursor-fill"></i> Button Variants</a>
+                        <ul class="submenu">
+                            <li><a href="beep-circularbutton.html">BeepCircularButton</a></li>
+                            <li><a href="beep-chevronbutton.html">BeepChevronButton</a></li>
+                            <li><a href="beep-extendedbutton.html" class="active">BeepExtendedButton</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#button-variants">Button Variants</a>
+                    <span>→</span>
+                    <span>BeepExtendedButton</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepExtendedButton</h1>
+                    <p class="page-subtitle">Advanced, theme-aware button with dual-action areas, split functionality, and integrated menu support for complex interactions</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepExtendedButton</strong> provides an advanced button control with dual-action functionality, 
+                        combining primary and secondary action areas within a single button interface. It features split-button 
+                        behavior, extended menu integration, and sophisticated interaction patterns for complex user interfaces.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepExtendedButton features dual-action zones, 
+                        customizable button sections, menu item integration, icon management, hover state differentiation, 
+                        and comprehensive theming support. Perfect for toolbars, command interfaces, 
+                        split-button scenarios, and applications requiring rich button functionality.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔄 Dual-Action Areas</h3>
+                            <p>Separate clickable zones for primary and secondary actions within one button</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📋 Menu Integration</h3>
+                            <p>Built-in support for menu items and command binding</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Rich Iconography</h3>
+                            <p>Support for multiple icons with customizable positioning and sizing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ Split Functionality</h3>
+                            <p>Classic split-button behavior with primary action and dropdown options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Precise Interaction</h3>
+                            <p>Distinct hover and click states for different button regions</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔧 Command Binding</h3>
+                            <p>Integration with command patterns and menu item hierarchies</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Extended Button Variations and States</h3>
+                    <div class="visual-demo">
+                        <div class="extended-buttons-preview">
+                            <!-- Basic Split Button -->
+                            <div class="button-demo-section">
+                                <h4>Split Button Layout</h4>
+                                <div class="split-button-demo">
+                                    <div class="extended-button">
+                                        <div class="main-button">
+                                            <span class="button-icon">💾</span>
+                                            <span class="button-text">Save Document</span>
+                                        </div>
+                                        <div class="extended-section">
+                                            <span class="extended-icon">▼</span>
+                                        </div>
+                                    </div>
+                                    <div class="action-description">
+                                        <div class="main-action">Main: Save with default settings</div>
+                                        <div class="extended-action">Extended: Show save options menu</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Different Styles -->
+                            <div class="button-demo-section">
+                                <h4>Style Variations</h4>
+                                <div class="button-styles-grid">
+                                    <div class="extended-button primary">
+                                        <div class="main-button">
+                                            <span class="button-icon">▶️</span>
+                                            <span class="button-text">Run</span>
+                                        </div>
+                                        <div class="extended-section">
+                                            <span class="extended-icon">⚙️</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="extended-button success">
+                                        <div class="main-button">
+                                            <span class="button-icon">✅</span>
+                                            <span class="button-text">Approve</span>
+                                        </div>
+                                        <div class="extended-section">
+                                            <span class="extended-icon">📋</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="extended-button warning">
+                                        <div class="main-button">
+                                            <span class="button-icon">⚠️</span>
+                                            <span class="button-text">Delete</span>
+                                        </div>
+                                        <div class="extended-section">
+                                            <span class="extended-icon">▼</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="extended-button secondary">
+                                        <div class="main-button">
+                                            <span class="button-icon">🔧</span>
+                                            <span class="button-text">Tools</span>
+                                        </div>
+                                        <div class="extended-section">
+                                            <span class="extended-icon">⋮</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Hover States -->
+                            <div class="button-demo-section">
+                                <h4>Interactive States</h4>
+                                <div class="hover-states-demo">
+                                    <div class="state-example">
+                                        <div class="extended-button">
+                                            <div class="main-button">
+                                                <span class="button-icon">📤</span>
+                                                <span class="button-text">Export</span>
+                                            </div>
+                                            <div class="extended-section">
+                                                <span class="extended-icon">▼</span>
+                                            </div>
+                                        </div>
+                                        <div class="state-label">Normal State</div>
+                                    </div>
+
+                                    <div class="state-example">
+                                        <div class="extended-button">
+                                            <div class="main-button hover">
+                                                <span class="button-icon">📤</span>
+                                                <span class="button-text">Export</span>
+                                            </div>
+                                            <div class="extended-section">
+                                                <span class="extended-icon">▼</span>
+                                            </div>
+                                        </div>
+                                        <div class="state-label">Main Button Hover</div>
+                                    </div>
+
+                                    <div class="state-example">
+                                        <div class="extended-button">
+                                            <div class="main-button">
+                                                <span class="button-icon">📤</span>
+                                                <span class="button-text">Export</span>
+                                            </div>
+                                            <div class="extended-section hover">
+                                                <span class="extended-icon">▼</span>
+                                            </div>
+                                        </div>
+                                        <div class="state-label">Extended Section Hover</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- With Dropdown -->
+                            <div class="button-demo-section">
+                                <h4>With Dropdown Menu</h4>
+                                <div class="dropdown-demo">
+                                    <div class="extended-button active">
+                                        <div class="main-button">
+                                            <span class="button-icon">📄</span>
+                                            <span class="button-text">New File</span>
+                                        </div>
+                                        <div class="extended-section active">
+                                            <span class="extended-icon">▲</span>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item">📄 Text Document</div>
+                                        <div class="dropdown-item">📊 Spreadsheet</div>
+                                        <div class="dropdown-item">📈 Presentation</div>
+                                        <div class="dropdown-divider"></div>
+                                        <div class="dropdown-item">📁 From Template</div>
+                                        <div class="dropdown-item">🔗 From URL</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Extended buttons showing dual-action areas, styles, states, and dropdown integration</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .extended-buttons-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 700px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .button-demo-section {
+                            margin-bottom: 2.5rem;
+                        }
+
+                        .button-demo-section:last-child {
+                            margin-bottom: 0;
+                        }
+
+                        .button-demo-section h4 {
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            margin: 0 0 1.5rem;
+                            padding-bottom: 0.5rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .extended-button {
+                            display: inline-flex;
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            overflow: hidden;
+                            background: var(--color-background);
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .extended-button:hover {
+                            border-color: var(--color-primary);
+                        }
+
+                        .extended-button.primary {
+                            background: var(--color-primary);
+                            color: white;
+                            border-color: var(--color-primary);
+                        }
+
+                        .extended-button.success {
+                            background: var(--color-success);
+                            color: white;
+                            border-color: var(--color-success);
+                        }
+
+                        .extended-button.warning {
+                            background: #f59e0b;
+                            color: white;
+                            border-color: #f59e0b;
+                        }
+
+                        .extended-button.secondary {
+                            background: var(--color-background-secondary);
+                            border-color: var(--color-border);
+                        }
+
+                        .main-button {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            padding: 0.5rem 1rem;
+                            flex: 1;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .main-button:hover,
+                        .main-button.hover {
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .extended-button:not(.primary):not(.success):not(.warning) .main-button:hover,
+                        .extended-button:not(.primary):not(.success):not(.warning) .main-button.hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .extended-section {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 0.5rem;
+                            min-width: 32px;
+                            border-left: 1px solid rgba(255, 255, 255, 0.2);
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .extended-button:not(.primary):not(.success):not(.warning) .extended-section {
+                            border-left-color: var(--color-border);
+                        }
+
+                        .extended-section:hover,
+                        .extended-section.hover {
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .extended-button:not(.primary):not(.success):not(.warning) .extended-section:hover,
+                        .extended-button:not(.primary):not(.success):not(.warning) .extended-section.hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .button-icon {
+                            font-size: 14px;
+                        }
+
+                        .button-text {
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+
+                        .extended-icon {
+                            font-size: 12px;
+                            opacity: 0.8;
+                        }
+
+                        .split-button-demo {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1rem;
+                            align-items: flex-start;
+                        }
+
+                        .action-description {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .main-action, .extended-action {
+                            margin-bottom: 0.25rem;
+                        }
+
+                        .button-styles-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                            gap: 1rem;
+                        }
+
+                        .hover-states-demo {
+                            display: flex;
+                            gap: 2rem;
+                            flex-wrap: wrap;
+                        }
+
+                        .state-example {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            align-items: center;
+                        }
+
+                        .state-label {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            text-align: center;
+                        }
+
+                        .dropdown-demo {
+                            position: relative;
+                            display: inline-block;
+                        }
+
+                        .extended-button.active .extended-section {
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .extended-button:not(.primary):not(.success):not(.warning).active .extended-section {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .dropdown-menu {
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            right: 0;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-top: none;
+                            border-radius: 0 0 6px 6px;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                            z-index: 10;
+                            min-width: 180px;
+                        }
+
+                        .dropdown-item {
+                            padding: 0.75rem 1rem;
+                            font-size: 14px;
+                            color: var(--color-text);
+                            cursor: pointer;
+                            transition: background-color 0.1s ease;
+                        }
+
+                        .dropdown-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dropdown-divider {
+                            height: 1px;
+                            background: var(--color-border-light);
+                            margin: 0.5rem 0;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Extended Button</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepExtendedButton
+var extendedButton = new BeepExtendedButton();
+extendedButton.Size = new Size(150, 35);
+extendedButton.Text = "Save Document";
+extendedButton.ButtonImagePath = @"icons\save.png";
+extendedButton.ExtendedButtonImagePath = @"icons\arrow-down.png";
+extendedButton.RightButtonSize = 25;
+
+// Handle main button click (primary action)
+extendedButton.MainButtonClick += (s, e) =>
+{
+    SaveDocument();
+    ShowNotification("Document saved successfully!");
+};
+
+// Handle extended button click (secondary actions)
+extendedButton.ExtendedButtonClick += (s, e) =>
+{
+    ShowSaveOptionsMenu(extendedButton);
+};
+
+// Add to form
+this.Controls.Add(extendedButton);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Menu Item Integration</h3>
+                        <pre><code class="language-csharp">// Create extended button with menu item binding
+var menuButton = new BeepExtendedButton
+{
+    Text = "Export Data",
+    Size = new Size(120, 32),
+    RightButtonSize = 20,
+    MenuItem = new MenuItemData 
+    { 
+        Name = "Export",
+        Command = "ExportCommand",
+        SubItems = new[]
+        {
+            new MenuItemData { Name = "Export to Excel", Command = "ExportExcel" },
+            new MenuItemData { Name = "Export to PDF", Command = "ExportPDF" },
+            new MenuItemData { Name = "Export to CSV", Command = "ExportCSV" }
+        }
+    }
+};
+
+// Set up icons
+menuButton.ButtonImagePath = @"icons\export.png";
+menuButton.ExtendedButtonImagePath = @"icons\chevron-down.png";
+
+// Handle main action (default export)
+menuButton.MainButtonClick += async (s, e) =>
+{
+    await ExportToDefaultFormat();
+};
+
+// Handle extended menu
+menuButton.ExtendedButtonClick += (s, e) =>
+{
+    var contextMenu = CreateExportMenu(menuButton.MenuItem);
+    var location = menuButton.PointToScreen(new Point(0, menuButton.Height));
+    contextMenu.Show(location);
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Main button text label</td>
+                            </tr>
+                            <tr>
+                                <td><code>RightButtonSize</code></td>
+                                <td>int</td>
+                                <td>20</td>
+                                <td>Width of the extended button area</td>
+                            </tr>
+                            <tr>
+                                <td><code>MenuItem</code></td>
+                                <td>object</td>
+                                <td>null</td>
+                                <td>Associated menu item data object</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Image Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ButtonImagePath</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Path to main button icon image</td>
+                            </tr>
+                            <tr>
+                                <td><code>ExtendedButtonImagePath</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Path to extended button icon image</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonImage</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Main button icon image object</td>
+                            </tr>
+                            <tr>
+                                <td><code>ExtendedButtonImage</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Extended button icon image object</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ImageAlignment</code></td>
+                                <td>ContentAlignment</td>
+                                <td>MiddleLeft</td>
+                                <td>Alignment of main button image</td>
+                            </tr>
+                            <tr>
+                                <td><code>TextAlignment</code></td>
+                                <td>ContentAlignment</td>
+                                <td>MiddleCenter</td>
+                                <td>Alignment of button text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImageTextSpacing</code></td>
+                                <td>int</td>
+                                <td>4</td>
+                                <td>Spacing between image and text</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>MainButtonClick</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when main button area is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ExtendedButtonClick</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when extended button area is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>MainButtonHover</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when mouse enters main button area</td>
+                            </tr>
+                            <tr>
+                                <td><code>ExtendedButtonHover</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when mouse enters extended button area</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Toolbar with Extended Buttons</h3>
+                        <pre><code class="language-csharp">public partial class ExtendedToolbar : UserControl
+{
+    private FlowLayoutPanel toolbarPanel;
+    private List&lt;BeepExtendedButton&gt; toolbarButtons;
+
+    public ExtendedToolbar()
+    {
+        InitializeComponents();
+        CreateToolbarButtons();
+    }
+
+    private void InitializeComponents()
+    {
+        toolbarPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 45,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = false,
+            Padding = new Padding(5)
+        };
+
+        toolbarButtons = new List&lt;BeepExtendedButton&gt;();
+        this.Controls.Add(toolbarPanel);
+    }
+
+    private void CreateToolbarButtons()
+    {
+        var buttonConfigs = new[]
+        {
+            new { Text = "New", Icon = "new.png", Command = "New", SubCommands = new[] { "Document", "Presentation", "Spreadsheet" } },
+            new { Text = "Open", Icon = "open.png", Command = "Open", SubCommands = new[] { "Recent Files", "From Computer", "From Cloud" } },
+            new { Text = "Save", Icon = "save.png", Command = "Save", SubCommands = new[] { "Save", "Save As", "Save Copy" } },
+            new { Text = "Print", Icon = "print.png", Command = "Print", SubCommands = new[] { "Quick Print", "Print Preview", "Print Setup" } }
+        };
+
+        foreach (var config in buttonConfigs)
+        {
+            var button = CreateExtendedButton(config.Text, config.Icon, config.Command, config.SubCommands);
+            toolbarButtons.Add(button);
+            toolbarPanel.Controls.Add(button);
+        }
+    }
+
+    private BeepExtendedButton CreateExtendedButton(string text, string iconPath, string command, string[] subCommands)
+    {
+        var button = new BeepExtendedButton
+        {
+            Text = text,
+            Size = new Size(90, 35),
+            Margin = new Padding(2),
+            ButtonImagePath = $@"icons\{iconPath}",
+            ExtendedButtonImagePath = @"icons\chevron-down.png",
+            RightButtonSize = 18,
+            Tag = command
+        };
+
+        // Main button click - execute primary command
+        button.MainButtonClick += (s, e) =>
+        {
+            ExecuteCommand(command);
+        };
+
+        // Extended button click - show submenu
+        button.ExtendedButtonClick += (s, e) =>
+        {
+            ShowSubCommandMenu(button, subCommands);
+        };
+
+        // Visual feedback on hover
+        button.MainButtonHover += (s, e) =>
+        {
+            ShowCommandTooltip(button, $"Execute {command}");
+        };
+
+        button.ExtendedButtonHover += (s, e) =>
+        {
+            ShowCommandTooltip(button, $"More {command} options");
+        };
+
+        return button;
+    }
+
+    private void ShowSubCommandMenu(BeepExtendedButton button, string[] subCommands)
+    {
+        var contextMenu = new ContextMenuStrip();
+        
+        foreach (var subCommand in subCommands)
+        {
+            var menuItem = new ToolStripMenuItem(subCommand);
+            menuItem.Click += (s, e) =>
+            {
+                ExecuteCommand($"{button.Tag}_{subCommand.Replace(" ", "")}");
+            };
+            contextMenu.Items.Add(menuItem);
+        }
+
+        // Position menu below button
+        var location = button.PointToScreen(new Point(0, button.Height));
+        contextMenu.Show(location);
+    }
+
+    private void ExecuteCommand(string command)
+    {
+        switch (command)
+        {
+            case "New":
+                CreateNewDocument();
+                break;
+            case "New_Document":
+                CreateNewDocument("Document");
+                break;
+            case "New_Presentation":
+                CreateNewDocument("Presentation");
+                break;
+            case "Open":
+                OpenDocument();
+                break;
+            case "Open_RecentFiles":
+                ShowRecentFiles();
+                break;
+            case "Save":
+                SaveDocument();
+                break;
+            case "Save_SaveAs":
+                SaveDocumentAs();
+                break;
+            case "Print":
+                PrintDocument();
+                break;
+            case "Print_PrintPreview":
+                ShowPrintPreview();
+                break;
+            default:
+                MessageBox.Show($"Command executed: {command}");
+                break;
+        }
+    }
+
+    // Command implementations
+    private void CreateNewDocument(string type = "Document") { /* Implementation */ }
+    private void OpenDocument() { /* Implementation */ }
+    private void ShowRecentFiles() { /* Implementation */ }
+    private void SaveDocument() { /* Implementation */ }
+    private void SaveDocumentAs() { /* Implementation */ }
+    private void PrintDocument() { /* Implementation */ }
+    private void ShowPrintPreview() { /* Implementation */ }
+    private void ShowCommandTooltip(Control control, string text) { /* Implementation */ }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Split Button with Complex Menu</h3>
+                        <pre><code class="language-csharp">public partial class SplitButtonExample : Form
+{
+    private BeepExtendedButton exportButton;
+    private BeepExtendedButton runButton;
+
+    public SplitButtonExample()
+    {
+        InitializeComponents();
+        SetupSplitButtons();
+    }
+
+    private void InitializeComponents()
+    {
+        this.Size = new Size(400, 300);
+        this.Text = "Split Button Example";
+    }
+
+    private void SetupSplitButtons()
+    {
+        // Export split button
+        exportButton = new BeepExtendedButton
+        {
+            Text = "Export Report",
+            Size = new Size(150, 40),
+            Location = new Point(20, 20),
+            ButtonImagePath = @"icons\export.png",
+            ExtendedButtonImagePath = @"icons\arrow-down.png",
+            RightButtonSize = 25
+        };
+
+        exportButton.MainButtonClick += async (s, e) =>
+        {
+            // Default export action
+            await ExportToDefaultFormat();
+        };
+
+        exportButton.ExtendedButtonClick += (s, e) =>
+        {
+            ShowExportMenu();
+        };
+
+        // Run split button with recent configurations
+        runButton = new BeepExtendedButton
+        {
+            Text = "Run Configuration",
+            Size = new Size(160, 40),
+            Location = new Point(20, 80),
+            ButtonImagePath = @"icons\run.png",
+            ExtendedButtonImagePath = @"icons\history.png",
+            RightButtonSize = 30
+        };
+
+        runButton.MainButtonClick += async (s, e) =>
+        {
+            // Run with last configuration
+            await RunWithLastConfiguration();
+        };
+
+        runButton.ExtendedButtonClick += (s, e) =>
+        {
+            ShowConfigurationHistory();
+        };
+
+        this.Controls.AddRange(new Control[] { exportButton, runButton });
+    }
+
+    private void ShowExportMenu()
+    {
+        var menu = new ContextMenuStrip();
+
+        // Export format options
+        var formatMenu = new ToolStripMenuItem("Export Format");
+        formatMenu.DropDownItems.Add("Excel (.xlsx)", null, (s, e) => ExportToExcel());
+        formatMenu.DropDownItems.Add("PDF Document", null, (s, e) => ExportToPDF());
+        formatMenu.DropDownItems.Add("CSV File", null, (s, e) => ExportToCSV());
+        formatMenu.DropDownItems.Add("JSON Data", null, (s, e) => ExportToJSON());
+
+        // Export options
+        var optionsMenu = new ToolStripMenuItem("Export Options");
+        optionsMenu.DropDownItems.Add("Include Headers", null, ToggleIncludeHeaders);
+        optionsMenu.DropDownItems.Add("Include Formatting", null, ToggleIncludeFormatting);
+        optionsMenu.DropDownItems.Add("Compress Output", null, ToggleCompression);
+
+        // Recent exports
+        var recentMenu = new ToolStripMenuItem("Recent Exports");
+        var recentExports = GetRecentExports();
+        foreach (var export in recentExports)
+        {
+            recentMenu.DropDownItems.Add($"{export.Name} ({export.Format})", null, 
+                (s, e) => RepeatExport(export));
+        }
+
+        menu.Items.AddRange(new ToolStripItem[] 
+        { 
+            formatMenu, 
+            optionsMenu, 
+            new ToolStripSeparator(),
+            recentMenu,
+            new ToolStripSeparator(),
+            new ToolStripMenuItem("Export Settings...", null, ShowExportSettings)
+        });
+
+        var location = exportButton.PointToScreen(new Point(0, exportButton.Height));
+        menu.Show(location);
+    }
+
+    private void ShowConfigurationHistory()
+    {
+        var menu = new ContextMenuStrip();
+
+        // Recent configurations
+        var configurations = GetRecentConfigurations();
+        foreach (var config in configurations)
+        {
+            var item = new ToolStripMenuItem($"{config.Name}")
+            {
+                Tag = config,
+                Image = GetConfigurationIcon(config.Type)
+            };
+            item.Click += (s, e) => RunConfiguration(config);
+            menu.Items.Add(item);
+        }
+
+        if (configurations.Any())
+        {
+            menu.Items.Add(new ToolStripSeparator());
+        }
+
+        // Additional options
+        menu.Items.Add("Edit Configurations...", null, ShowConfigurationEditor);
+        menu.Items.Add("Save Current as...", null, SaveCurrentConfiguration);
+        menu.Items.Add(new ToolStripSeparator());
+        menu.Items.Add("Clear History", null, ClearConfigurationHistory);
+
+        var location = runButton.PointToScreen(new Point(0, runButton.Height));
+        menu.Show(location);
+    }
+
+    // Implementation methods
+    private async Task ExportToDefaultFormat() { /* Implementation */ }
+    private async Task RunWithLastConfiguration() { /* Implementation */ }
+    private void ExportToExcel() { /* Implementation */ }
+    private void ExportToPDF() { /* Implementation */ }
+    private void ExportToCSV() { /* Implementation */ }
+    private void ExportToJSON() { /* Implementation */ }
+    private void ToggleIncludeHeaders(object sender, EventArgs e) { /* Implementation */ }
+    private void ToggleIncludeFormatting(object sender, EventArgs e) { /* Implementation */ }
+    private void ToggleCompression(object sender, EventArgs e) { /* Implementation */ }
+    private void RepeatExport(object exportConfig) { /* Implementation */ }
+    private void ShowExportSettings(object sender, EventArgs e) { /* Implementation */ }
+    private void RunConfiguration(object config) { /* Implementation */ }
+    private void ShowConfigurationEditor(object sender, EventArgs e) { /* Implementation */ }
+    private void SaveCurrentConfiguration(object sender, EventArgs e) { /* Implementation */ }
+    private void ClearConfigurationHistory(object sender, EventArgs e) { /* Implementation */ }
+    private IEnumerable&lt;object&gt; GetRecentExports() => new object[0]; // { /* Implementation */ }
+    private IEnumerable&lt;object&gt; GetRecentConfigurations() => new object[0]; // { /* Implementation */ }
+    private Image GetConfigurationIcon(string type) => null; // { /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepExtendedButton provides comprehensive theming support with advanced styling for dual-action areas:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var extendedButton = new BeepExtendedButton
+{
+    Theme = "Professional",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - MainButtonBackColor: Main button area background
+// - ExtendedButtonBackColor: Extended button area background
+// - ButtonBorderColor: Border styling for both areas
+// - HoverColors: Hover states for each section
+// - TextColors: Text and icon colors
+// - SeparatorColor: Divider between button areas</code></pre>
+                    </div>
+
+                    <h3>Advanced Styling Features</h3>
+                    <ul>
+                        <li><strong>Dual-zone theming</strong> - Independent styling for main and extended areas</li>
+                        <li><strong>State-aware colors</strong> - Different colors for normal, hover, and active states</li>
+                        <li><strong>Icon integration</strong> - Theme-coordinated icon colors and effects</li>
+                        <li><strong>Separator styling</strong> - Customizable divider between button sections</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear separation:</strong> Make it obvious that there are two distinct clickable areas</li>
+                        <li><strong>Logical actions:</strong> Primary action should be the most common operation</li>
+                        <li><strong>Consistent sizing:</strong> Maintain proportional sizing between main and extended areas</li>
+                        <li><strong>Visual feedback:</strong> Provide clear hover states for each clickable zone</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Event handling:</strong> Handle both main and extended button events appropriately</li>
+                        <li><strong>Menu positioning:</strong> Position dropdown menus to avoid screen edge clipping</li>
+                        <li><strong>Icon consistency:</strong> Use consistent icon styles and sizing throughout</li>
+                        <li><strong>Command patterns:</strong> Implement proper command binding for complex operations</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard navigation:</strong> Support Tab navigation between button areas</li>
+                        <li><strong>Screen readers:</strong> Provide descriptive labels for both button sections</li>
+                        <li><strong>Focus indicators:</strong> Clear visual focus indicators for keyboard users</li>
+                        <li><strong>Alternative access:</strong> Provide alternative ways to access extended functionality</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Size the extended button area proportionally - typically 20-30% of the total button width for optimal usability.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Use extended buttons for actions with multiple options, keeping the most common action as the primary button.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Usability Warning</strong>
+                        <p>Avoid making extended button areas too small (less than 20px width) as they become difficult to target accurately.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-chevronbutton.html"><i class="bi bi-arrow-left"></i> BeepChevronButton</a>
+                    <a href="beep-circularbutton.html">BeepCircularButton <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

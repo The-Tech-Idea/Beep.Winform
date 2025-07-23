@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepStatCard - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-palette"></i> Theming & UI</a>
+                        <ul class="submenu">
+                            <li><a href="beep-themes-manager.html">BeepThemesManager</a></li>
+                            <li><a href="beep-form-ui-manager.html">BeepFormUIManager</a></li>
+                            <li><a href="beep-theme-functions.html">Theme Functions</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html" class="active">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepStatCard</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>📊 BeepStatCard</h1>
+                    <p class="page-subtitle">Professional statistical data display card with trend indicators, icons, and comprehensive theming support</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📚 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#components">Card Components</a></li>
+                        <li><a href="#trend-indicators">Trend Indicators</a></li>
+                        <li><a href="#icons-assets">Icons & Assets</a></li>
+                        <li><a href="#data-binding">Data Binding</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Real-World Examples</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>📋 Overview</h2>
+                    <p>
+                        <strong>BeepStatCard</strong> is a sophisticated data visualization control designed for displaying 
+                        key performance indicators (KPIs), metrics, and statistical data in dashboard and analytics applications. 
+                        It combines multiple visual elements including header text, main values, percentage changes, trend indicators, 
+                        and descriptive information in a cohesive, professionally styled card layout.
+                    </p>
+                    <p>
+                        Built on the BeepControl foundation, BeepStatCard automatically adapts to themes, provides smooth 
+                        layout management, and supports both SVG and traditional image formats for icons and trend indicators.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>🚀 Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📈 Trend Visualization</h3>
+                            <p>Built-in support for upward and downward trend indicators with customizable SVG icons</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Multi-Component Layout</h3>
+                            <p>Header, main value, percentage change, trend text, and information sections</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Flexible Iconography</h3>
+                            <p>Support for card icons and trend icons with SVG file path configuration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Professional Theming</h3>
+                            <p>Full integration with Beep theming system for consistent dashboard appearance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Data Binding Ready</h3>
+                            <p>BoundProperty support for seamless integration with data sources</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Layout</h3>
+                            <p>Automatic layout adjustment based on card size and content</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>👁️ Visual Preview</h2>
+                    <div class="visual-example">
+                        <h3>Card Layout Structure</h3>
+                        <div class="stat-card-preview">
+                            <div class="card-header">
+                                <span class="header-text">Total Revenue</span>
+                                <span class="card-icon">💼</span>
+                            </div>
+                            <div class="percentage-section">
+                                <span class="percentage-text">+12.5%</span>
+                            </div>
+                            <div class="main-value">
+                                $1,250.00
+                            </div>
+                            <div class="trend-section">
+                                <span class="trend-text">Trending up this month</span>
+                                <span class="trend-icon">📈</span>
+                            </div>
+                            <div class="info-section">
+                                Visitors for the last 6 months
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Component Structure</h3>
+                        <pre><code class="language-text">┌─────────────────────────────────────┐
+│ [Header Text]              [Icon]   │  ← Header Section
+├─────────────────────────────────────┤
+│                      [+12.5%]       │  ← Percentage Section  
+│                                     │
+│           [$1,250.00]               │  ← Main Value (Center)
+│                                     │
+│ [Trending up] ──────────── [📈]     │  ← Trend Section
+│                                     │
+│ [Additional Information]            │  ← Info Section
+└─────────────────────────────────────┘</code></pre>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>🚀 Basic Usage</h2>
+
+                    <div class="code-example">
+                        <h3>Simple Stat Card</h3>
+                        <pre><code class="language-csharp">// Create a basic statistical card
+var revenueCard = new BeepStatCard
+{
+    Size = new Size(300, 150),
+    Location = new Point(10, 10),
+    
+    // Basic content
+    HeaderText = "Monthly Revenue",
+    ValueText = "$45,231.00",
+    PercentageText = "+8.2%",
+    TrendText = "Up from last month",
+    InfoText = "Based on confirmed sales",
+    
+    // Trend configuration
+    IsTrendingUp = true
+};
+
+// Add to form
+this.Controls.Add(revenueCard);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Card with Custom Icons</h3>
+                        <pre><code class="language-csharp">// Create card with custom SVG icons
+var userCard = new BeepStatCard
+{
+    Size = new Size(280, 160),
+    Location = new Point(320, 10),
+    
+    // Content
+    HeaderText = "Active Users",
+    ValueText = "2,847",
+    PercentageText = "+15.3%",
+    TrendText = "Growing steadily",
+    InfoText = "Users online in last 24h",
+    
+    // Custom icons
+    Icon = @"Assets\icons\users.svg",
+    TrendUpSvgPath = @"Assets\icons\trend-up.svg",
+    TrendDownSvgPath = @"Assets\icons\trend-down.svg",
+    
+    // Trend state
+    IsTrendingUp = true
+};
+
+this.Controls.Add(userCard);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multiple Cards Dashboard</h3>
+                        <pre><code class="language-csharp">public void CreateDashboardCards()
+{
+    var cardData = new[]
+    {
+        new { Header = "Revenue", Value = "$125,430", Percent = "+12.5%", 
+              Trend = "Strong growth", Info = "Monthly total", Up = true },
+        new { Header = "Orders", Value = "1,847", Percent = "+5.8%", 
+              Trend = "Steady increase", Info = "This week", Up = true },
+        new { Header = "Customers", Value = "23,591", Percent = "-2.1%", 
+              Trend = "Slight decline", Info = "Active users", Up = false },
+        new { Header = "Conversion", Value = "3.24%", Percent = "+0.8%", 
+              Trend = "Improving", Info = "Sales funnel", Up = true }
+    };
+    
+    for (int i = 0; i < cardData.Length; i++)
+    {
+        var data = cardData[i];
+        var card = new BeepStatCard
+        {
+            Size = new Size(250, 140),
+            Location = new Point(10 + (i * 260), 10),
+            
+            HeaderText = data.Header,
+            ValueText = data.Value,
+            PercentageText = data.Percent,
+            TrendText = data.Trend,
+            InfoText = data.Info,
+            IsTrendingUp = data.Up,
+            
+            // Apply theme
+            Theme = "MaterialDesignTheme"
+        };
+        
+        this.Controls.Add(card);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Layout Tip</strong>
+                        <p>BeepStatCard automatically adjusts its internal layout based on the control size. For best results, use sizes between 200x120 and 400x180 pixels.</p>
+                    </div>
+                </section>
+
+                <!-- Card Components -->
+                <section id="components" class="section">
+                    <h2>🧩 Card Components</h2>
+
+                    <h3>Component Breakdown</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Component</th>
+                                <th>Property</th>
+                                <th>Position</th>
+                                <th>Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Header Label</strong></td>
+                                <td><code>HeaderText</code></td>
+                                <td>Top-left</td>
+                                <td>Main title/category of the metric</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Card Icon</strong></td>
+                                <td><code>Icon</code></td>
+                                <td>Top-right</td>
+                                <td>Visual representation of the metric type</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Percentage Label</strong></td>
+                                <td><code>PercentageText</code></td>
+                                <td>Upper-right area</td>
+                                <td>Change percentage with trend coloring</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Value Label</strong></td>
+                                <td><code>ValueText</code></td>
+                                <td>Center</td>
+                                <td>Main statistical value (large, prominent)</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Trend Label</strong></td>
+                                <td><code>TrendText</code></td>
+                                <td>Lower-left</td>
+                                <td>Descriptive trend information</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Trend Icon</strong></td>
+                                <td><code>TrendUpSvgPath/TrendDownSvgPath</code></td>
+                                <td>Lower-right</td>
+                                <td>Visual trend indicator</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Info Label</strong></td>
+                                <td><code>InfoText</code></td>
+                                <td>Bottom</td>
+                                <td>Additional context or time period</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Individual Component Configuration</h3>
+                        <pre><code class="language-csharp">var salesCard = new BeepStatCard();
+
+// Configure each component individually
+salesCard.HeaderText = "Q4 Sales Target";        // Header section
+salesCard.ValueText = "87.3%";                   // Main value (center)
+salesCard.PercentageText = "+23.1%";             // Percentage change
+salesCard.TrendText = "Ahead of schedule";       // Trend description  
+salesCard.InfoText = "Target: $500K by Dec 31"; // Additional info
+
+// Icon configuration
+salesCard.Icon = @"Assets\sales-target.svg";               // Main card icon
+salesCard.TrendUpSvgPath = @"Assets\arrow-up.svg";         // Positive trend
+salesCard.TrendDownSvgPath = @"Assets\arrow-down.svg";     // Negative trend
+
+// Set trend direction
+salesCard.IsTrendingUp = true; // Will use TrendUpSvgPath and green color</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Component Updates</h3>
+                        <pre><code class="language-csharp">// Method to update card with new data
+public void UpdateStatCard(BeepStatCard card, StatData data)
+{
+    // Update main content
+    card.HeaderText = data.Title;
+    card.ValueText = data.FormattedValue;
+    card.PercentageText = $"{(data.ChangePercent >= 0 ? "+" : "")}{data.ChangePercent:F1}%";
+    
+    // Update trend information
+    card.IsTrendingUp = data.ChangePercent >= 0;
+    card.TrendText = data.ChangePercent >= 0 ? "Trending up" : "Trending down";
+    
+    // Update time context
+    card.InfoText = $"Data from {data.Period}";
+    
+    // The card will automatically refresh its layout
+    card.Invalidate();
+}
+
+public class StatData
+{
+    public string Title { get; set; }
+    public double Value { get; set; }
+    public string FormattedValue => Value.ToString("N0");
+    public double ChangePercent { get; set; }
+    public string Period { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Trend Indicators -->
+                <section id="trend-indicators" class="section">
+                    <h2>📈 Trend Indicators</h2>
+
+                    <div class="code-example">
+                        <h3>Trend Configuration</h3>
+                        <pre><code class="language-csharp">// Configure trend indicators
+var performanceCard = new BeepStatCard
+{
+    HeaderText = "Website Performance",
+    ValueText = "98.7%",
+    PercentageText = "+0.3%",
+    
+    // Trend state affects multiple elements
+    IsTrendingUp = true, // Controls icon and percentage color
+    
+    // Custom trend icons (SVG recommended)
+    TrendUpSvgPath = @"Assets\icons\trending-up.svg",
+    TrendDownSvgPath = @"Assets\icons\trending-down.svg"
+};
+
+// Dynamically change trend direction
+public void UpdateTrend(BeepStatCard card, double changeValue)
+{
+    card.PercentageText = $"{(changeValue >= 0 ? "+" : "")}{changeValue:F1}%";
+    card.IsTrendingUp = changeValue >= 0;
+    
+    // Trend text changes automatically based on direction
+    card.TrendText = changeValue >= 0 
+        ? "Performance improving" 
+        : "Needs attention";
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Advanced Trend Logic</h3>
+                        <pre><code class="language-csharp">public enum TrendType
+{
+    StronglyPositive,  // +5% or more
+    Positive,          // +0.1% to +4.9%
+    Neutral,           // -0.1% to +0.1%
+    Negative,          // -0.1% to -4.9%
+    StronglyNegative   // -5% or less
+}
+
+public void ApplyTrendStyling(BeepStatCard card, double changePercent)
+{
+    var trendType = GetTrendType(changePercent);
+    
+    // Update percentage text with appropriate formatting
+    card.PercentageText = FormatPercentageChange(changePercent);
+    
+    // Set trend direction for icon selection
+    card.IsTrendingUp = changePercent >= 0;
+    
+    // Apply trend-specific styling
+    switch (trendType)
+    {
+        case TrendType.StronglyPositive:
+            card.TrendText = "Excellent growth";
+            break;
+        case TrendType.Positive:
+            card.TrendText = "Growing steadily";
+            break;
+        case TrendType.Neutral:
+            card.TrendText = "Stable";
+            break;
+        case TrendType.Negative:
+            card.TrendText = "Declining";
+            break;
+        case TrendType.StronglyNegative:
+            card.TrendText = "Needs immediate attention";
+            break;
+    }
+}
+
+private TrendType GetTrendType(double changePercent)
+{
+    return changePercent switch
+    {
+        >= 5.0 => TrendType.StronglyPositive,
+        >= 0.1 => TrendType.Positive,
+        >= -0.1 and <= 0.1 => TrendType.Neutral,
+        >= -5.0 => TrendType.Negative,
+        _ => TrendType.StronglyNegative
+    };
+}
+
+private string FormatPercentageChange(double changePercent)
+{
+    string sign = changePercent >= 0 ? "+" : "";
+    return $"{sign}{changePercent:F1}%";
+}</code></pre>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Trend Best Practices</strong>
+                        <ul>
+                            <li><strong>Color Consistency:</strong> Green for positive trends, red for negative trends</li>
+                            <li><strong>Icon Clarity:</strong> Use clear, recognizable trend icons (arrows, charts)</li>
+                            <li><strong>Context Provision:</strong> Always provide context for what the trend represents</li>
+                            <li><strong>Threshold Management:</strong> Define clear thresholds for trend categories</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Icons & Assets -->
+                <section id="icons-assets" class="section">
+                    <h2>🖼️ Icons & Assets</h2>
+
+                    <div class="code-example">
+                        <h3>SVG Icon Configuration</h3>
+                        <pre><code class="language-csharp">// Configure SVG icons for professional appearance
+var analyticsCard = new BeepStatCard
+{
+    HeaderText = "Analytics",
+    ValueText = "15,847",
+    
+    // Main card icon (top-right)
+    Icon = @"Assets\icons\analytics.svg",
+    
+    // Trend icons (bottom-right, contextual)
+    TrendUpSvgPath = @"Assets\icons\trend-up.svg",
+    TrendDownSvgPath = @"Assets\icons\trend-down.svg"
+};
+
+// Icons are automatically themed and sized
+// Card icon: 32x32 pixels
+// Trend icon: 32x32 pixels</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Icon Asset Management</h3>
+                        <pre><code class="language-csharp">public static class CardIconAssets
+{
+    public const string IconsPath = @"Assets\icons";
+    
+    // Main card icons
+    public static readonly Dictionary<string, string> CardIcons = new()
+    {
+        { "revenue", $@"{IconsPath}\money.svg" },
+        { "users", $@"{IconsPath}\users.svg" },
+        { "orders", $@"{IconsPath}\shopping-cart.svg" },
+        { "performance", $@"{IconsPath}\gauge.svg" },
+        { "growth", $@"{IconsPath}\growth.svg" },
+        { "traffic", $@"{IconsPath}\traffic.svg" }
+    };
+    
+    // Trend icons
+    public static readonly Dictionary<string, string> TrendIcons = new()
+    {
+        { "up", $@"{IconsPath}\arrow-up.svg" },
+        { "down", $@"{IconsPath}\arrow-down.svg" },
+        { "up-strong", $@"{IconsPath}\trending-up.svg" },
+        { "down-strong", $@"{IconsPath}\trending-down.svg" }
+    };
+    
+    public static void ApplyIconSet(BeepStatCard card, string iconType, bool strongTrend = false)
+    {
+        // Apply main card icon
+        if (CardIcons.TryGetValue(iconType, out string cardIcon))
+        {
+            card.Icon = cardIcon;
+        }
+        
+        // Apply trend icons
+        if (strongTrend)
+        {
+            card.TrendUpSvgPath = TrendIcons["up-strong"];
+            card.TrendDownSvgPath = TrendIcons["down-strong"];
+        }
+        else
+        {
+            card.TrendUpSvgPath = TrendIcons["up"];
+            card.TrendDownSvgPath = TrendIcons["down"];
+        }
+    }
+}
+
+// Usage
+var salesCard = new BeepStatCard();
+CardIconAssets.ApplyIconSet(salesCard, "revenue", strongTrend: true);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Icon Loading</h3>
+                        <pre><code class="language-csharp">public class IconManager
+{
+    private readonly Dictionary<string, string> _iconCache = new();
+    
+    public void SetCardIcon(BeepStatCard card, string category)
+    {
+        string iconPath = GetIconPath(category);
+        if (!string.IsNullOrEmpty(iconPath) && File.Exists(iconPath))
+        {
+            card.Icon = iconPath;
+        }
+        else
+        {
+            // Fallback to default icon
+            card.Icon = @"Assets\icons\default.svg";
+        }
+    }
+    
+    private string GetIconPath(string category)
+    {
+        if (_iconCache.TryGetValue(category, out string cached))
+        {
+            return cached;
+        }
+        
+        // Build icon path
+        string iconPath = Path.Combine("Assets", "icons", $"{category}.svg");
+        
+        // Cache the result
+        _iconCache[category] = iconPath;
+        
+        return iconPath;
+    }
+    
+    public void PreloadIcons(params string[] categories)
+    {
+        foreach (string category in categories)
+        {
+            GetIconPath(category); // Loads into cache
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="note">
+                        <strong>📝 Icon Guidelines</strong>
+                        <ul>
+                            <li><strong>Format:</strong> SVG files are recommended for scalability and theming</li>
+                            <li><strong>Size:</strong> Icons are automatically sized to 32x32 pixels</li>
+                            <li><strong>Style:</strong> Use consistent icon style across all cards (outline, filled, etc.)</li>
+                            <li><strong>Colors:</strong> SVG icons can be automatically themed to match card colors</li>
+                            <li><strong>Fallbacks:</strong> Always provide fallback icons for missing assets</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Data Binding -->
+                <section id="data-binding" class="section">
+                    <h2>🔗 Data Binding</h2>
+
+                    <div class="code-example">
+                        <h3>Simple Data Binding</h3>
+                        <pre><code class="language-csharp">public class KPIData
+{
+    public string Title { get; set; }
+    public decimal Value { get; set; }
+    public double ChangePercent { get; set; }
+    public string Description { get; set; }
+    public DateTime LastUpdated { get; set; }
+    
+    public string FormattedValue => Value.ToString("C0");
+    public string FormattedChange => $"{(ChangePercent >= 0 ? "+" : "")}{ChangePercent:F1}%";
+    public bool IsTrendingUp => ChangePercent >= 0;
+}
+
+// Bind data to card
+public void BindDataToCard(BeepStatCard card, KPIData data)
+{
+    card.HeaderText = data.Title;
+    card.ValueText = data.FormattedValue;
+    card.PercentageText = data.FormattedChange;
+    card.IsTrendingUp = data.IsTrendingUp;
+    card.TrendText = data.IsTrendingUp ? "Trending up" : "Trending down";
+    card.InfoText = $"Updated {data.LastUpdated:MMM dd, yyyy}";
+}
+
+// Example usage
+var revenueData = new KPIData
+{
+    Title = "Monthly Revenue",
+    Value = 125430m,
+    ChangePercent = 12.5,
+    Description = "Total sales revenue",
+    LastUpdated = DateTime.Now
+};
+
+BindDataToCard(revenueCard, revenueData);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Observable Data Binding</h3>
+                        <pre><code class="language-csharp">public class ObservableKPIData : INotifyPropertyChanged
+{
+    private decimal _value;
+    private double _changePercent;
+    private string _title;
+    
+    public string Title
+    {
+        get => _title;
+        set { _title = value; OnPropertyChanged(); }
+    }
+    
+    public decimal Value
+    {
+        get => _value;
+        set { _value = value; OnPropertyChanged(); OnPropertyChanged(nameof(FormattedValue)); }
+    }
+    
+    public double ChangePercent
+    {
+        get => _changePercent;
+        set { _changePercent = value; OnPropertyChanged(); OnPropertyChanged(nameof(FormattedChange)); }
+    }
+    
+    public string FormattedValue => Value.ToString("C0");
+    public string FormattedChange => $"{(ChangePercent >= 0 ? "+" : "")}{ChangePercent:F1}%";
+    
+    public event PropertyChangedEventHandler PropertyChanged;
+    protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+}
+
+// Data-bound card wrapper
+public class DataBoundStatCard : BeepStatCard
+{
+    private ObservableKPIData _dataSource;
+    
+    public ObservableKPIData DataSource
+    {
+        get => _dataSource;
+        set
+        {
+            if (_dataSource != null)
+                _dataSource.PropertyChanged -= OnDataChanged;
+                
+            _dataSource = value;
+            
+            if (_dataSource != null)
+            {
+                _dataSource.PropertyChanged += OnDataChanged;
+                UpdateFromDataSource();
+            }
+        }
+    }
+    
+    private void OnDataChanged(object sender, PropertyChangedEventArgs e)
+    {
+        if (InvokeRequired)
+        {
+            Invoke(new Action(UpdateFromDataSource));
+        }
+        else
+        {
+            UpdateFromDataSource();
+        }
+    }
+    
+    private void UpdateFromDataSource()
+    {
+        if (_dataSource == null) return;
+        
+        HeaderText = _dataSource.Title;
+        ValueText = _dataSource.FormattedValue;
+        PercentageText = _dataSource.FormattedChange;
+        IsTrendingUp = _dataSource.ChangePercent >= 0;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Real-Time Data Updates</h3>
+                        <pre><code class="language-csharp">public class RealTimeKPIManager
+{
+    private readonly Timer _updateTimer;
+    private readonly List<DataBoundStatCard> _cards;
+    private readonly Random _random = new();
+    
+    public RealTimeKPIManager()
+    {
+        _cards = new List<DataBoundStatCard>();
+        _updateTimer = new Timer(5000); // Update every 5 seconds
+        _updateTimer.Elapsed += UpdateData;
+        _updateTimer.Start();
+    }
+    
+    public void RegisterCard(DataBoundStatCard card, string dataSource)
+    {
+        card.Tag = dataSource; // Store data source identifier
+        _cards.Add(card);
+    }
+    
+    private void UpdateData(object sender, ElapsedEventArgs e)
+    {
+        foreach (var card in _cards)
+        {
+            if (card.DataSource != null && card.Tag is string dataSourceId)
+            {
+                // Simulate real-time data update
+                var newData = FetchLatestData(dataSourceId);
+                
+                // Update data source (will automatically update card)
+                card.DataSource.Value = newData.Value;
+                card.DataSource.ChangePercent = newData.ChangePercent;
+            }
+        }
+    }
+    
+    private (decimal Value, double ChangePercent) FetchLatestData(string dataSourceId)
+    {
+        // Simulate API call or database query
+        return dataSourceId switch
+        {
+            "revenue" => (125000m + (decimal)(_random.NextDouble() * 10000), _random.NextDouble() * 20 - 10),
+            "users" => (2500 + _random.Next(100), _random.NextDouble() * 10 - 5),
+            "orders" => (450 + _random.Next(50), _random.NextDouble() * 15 - 7.5),
+            _ => (0, 0)
+        };
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>🎨 Theming</h2>
+
+                    <div class="code-example">
+                        <h3>Theme Integration</h3>
+                        <pre><code class="language-csharp">// BeepStatCard automatically applies theme colors:
+
+public override void ApplyTheme()
+{
+    if (_currentTheme == null) return;
+    
+    // Card background
+    BackColor = _currentTheme.CardBackColor;
+    ParentBackColor = _currentTheme.CardBackColor;
+    
+    // Header styling
+    headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
+    headerLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
+    headerLabel.BackColor = _currentTheme.CardBackColor;
+    
+    // Percentage with trend-based coloring
+    percentageLabel.ForeColor = IsTrendingUp ? Color.Green : Color.Red;
+    percentageLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.SmallText);
+    
+    // Main value (prominent display)
+    valueLabel.ForeColor = _currentTheme.CardTextForeColor;
+    valueLabel.TextFont = new Font(
+        BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 
+        24, FontStyle.Bold);
+    
+    // Trend text
+    trendLabel.ForeColor = _currentTheme.CardTextForeColor;
+    trendLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+    
+    // Info text (smaller)
+    infoLabel.ForeColor = _currentTheme.CardTextForeColor;
+    infoLabel.TextFont = new Font(
+        BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle).FontFamily, 8);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Theme Overrides</h3>
+                        <pre><code class="language-csharp">public class CustomStyledStatCard : BeepStatCard
+{
+    private Color _positiveColor = Color.Green;
+    private Color _negativeColor = Color.Red;
+    private Color _neutralColor = Color.Gray;
+    
+    public Color PositiveColor
+    {
+        get => _positiveColor;
+        set { _positiveColor = value; UpdateTrendColors(); }
+    }
+    
+    public Color NegativeColor
+    {
+        get => _negativeColor;
+        set { _negativeColor = value; UpdateTrendColors(); }
+    }
+    
+    public Color NeutralColor
+    {
+        get => _neutralColor;
+        set { _neutralColor = value; UpdateTrendColors(); }
+    }
+    
+    private void UpdateTrendColors()
+    {
+        if (percentageLabel != null)
+        {
+            percentageLabel.ForeColor = IsTrendingUp ? PositiveColor : NegativeColor;
+        }
+    }
+    
+    public override void ApplyTheme()
+    {
+        base.ApplyTheme();
+        UpdateTrendColors();
+    }
+    
+    // Custom styling for different card types
+    public void ApplyCardTypeStyle(StatCardType cardType)
+    {
+        switch (cardType)
+        {
+            case StatCardType.Revenue:
+                PositiveColor = Color.FromArgb(40, 167, 69);  // Success green
+                NegativeColor = Color.FromArgb(220, 53, 69);  // Danger red
+                break;
+                
+            case StatCardType.Performance:
+                PositiveColor = Color.FromArgb(0, 123, 255);  // Primary blue
+                NegativeColor = Color.FromArgb(255, 193, 7);  // Warning yellow
+                break;
+                
+            case StatCardType.Users:
+                PositiveColor = Color.FromArgb(111, 66, 193); // Purple
+                NegativeColor = Color.FromArgb(108, 117, 125); // Gray
+                break;
+        }
+        
+        UpdateTrendColors();
+    }
+}
+
+public enum StatCardType
+{
+    Revenue,
+    Performance,
+    Users,
+    Orders,
+    Traffic
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tips</strong>
+                        <ul>
+                            <li><strong>Consistency:</strong> Use the same theme across all stat cards in a dashboard</li>
+                            <li><strong>Contrast:</strong> Ensure adequate contrast between text and background colors</li>
+                            <li><strong>Brand Colors:</strong> Customize trend colors to match your brand palette</li>
+                            <li><strong>Accessibility:</strong> Test with high contrast themes for accessibility</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Real-World Examples -->
+                <section id="examples" class="section">
+                    <h2>🏢 Real-World Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Executive Dashboard</h3>
+                        <pre><code class="language-csharp">public class ExecutiveDashboard : UserControl
+{
+    private BeepStatCard[] kpiCards;
+    
+    public ExecutiveDashboard()
+    {
+        InitializeDashboard();
+        LoadRealTimeData();
+    }
+    
+    private void InitializeDashboard()
+    {
+        var kpiDefinitions = new[]
+        {
+            new KPIDefinition
+            {
+                Title = "Quarterly Revenue",
+                Icon = "revenue",
+                Format = "C0",
+                DataSource = "sales.quarterly_revenue",
+                Target = 2500000m
+            },
+            new KPIDefinition
+            {
+                Title = "Customer Acquisition",
+                Icon = "users",
+                Format = "N0",
+                DataSource = "marketing.new_customers",
+                Target = 1500
+            },
+            new KPIDefinition
+            {
+                Title = "Operational Efficiency",
+                Icon = "performance",
+                Format = "P1",
+                DataSource = "operations.efficiency_score",
+                Target = 0.95m
+            },
+            new KPIDefinition
+            {
+                Title = "Market Share",
+                Icon = "growth",
+                Format = "P2",
+                DataSource = "market.share_percentage",
+                Target = 0.125m
+            }
+        };
+        
+        kpiCards = new BeepStatCard[kpiDefinitions.Length];
+        
+        for (int i = 0; i < kpiDefinitions.Length; i++)
+        {
+            var def = kpiDefinitions[i];
+            var card = new BeepStatCard
+            {
+                Size = new Size(280, 160),
+                Location = new Point(20 + (i % 2) * 300, 20 + (i / 2) * 180),
+                HeaderText = def.Title,
+                Theme = "CorporateTheme"
+            };
+            
+            CardIconAssets.ApplyIconSet(card, def.Icon);
+            kpiCards[i] = card;
+            this.Controls.Add(card);
+        }
+    }
+    
+    private async void LoadRealTimeData()
+    {
+        var dataService = new KPIDataService();
+        
+        while (this.IsHandleCreated)
+        {
+            try
+            {
+                var kpiData = await dataService.GetLatestKPIsAsync();
+                
+                for (int i = 0; i < kpiCards.Length && i < kpiData.Count; i++)
+                {
+                    var card = kpiCards[i];
+                    var data = kpiData[i];
+                    
+                    if (InvokeRequired)
+                    {
+                        Invoke(() => UpdateKPICard(card, data));
+                    }
+                    else
+                    {
+                        UpdateKPICard(card, data);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error and continue
+                Console.WriteLine($"Error updating KPI data: {ex.Message}");
+            }
+            
+            await Task.Delay(30000); // Update every 30 seconds
+        }
+    }
+    
+    private void UpdateKPICard(BeepStatCard card, KPIData data)
+    {
+        card.ValueText = data.Value.ToString(data.Format ?? "N0");
+        card.PercentageText = $"{(data.ChangePercent >= 0 ? "+" : "")}{data.ChangePercent:F1}%";
+        card.IsTrendingUp = data.ChangePercent >= 0;
+        
+        // Contextual trend messages
+        if (Math.Abs(data.ChangePercent) < 1)
+            card.TrendText = "Stable performance";
+        else if (data.ChangePercent >= 5)
+            card.TrendText = "Excellent growth";
+        else if (data.ChangePercent >= 1)
+            card.TrendText = "Positive trend";
+        else if (data.ChangePercent <= -5)
+            card.TrendText = "Immediate attention needed";
+        else
+            card.TrendText = "Below expectations";
+            
+        card.InfoText = $"Updated {DateTime.Now:HH:mm}";
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>E-commerce Analytics</h3>
+                        <pre><code class="language-csharp">public class EcommerceAnalytics : UserControl
+{
+    private readonly Dictionary<string, BeepStatCard> _metricCards;
+    private readonly Timer _refreshTimer;
+    
+    public EcommerceAnalytics()
+    {
+        _metricCards = new Dictionary<string, BeepStatCard>();
+        CreateAnalyticsCards();
+        
+        _refreshTimer = new Timer(60000); // Refresh every minute
+        _refreshTimer.Elapsed += RefreshMetrics;
+        _refreshTimer.Start();
+    }
+    
+    private void CreateAnalyticsCards()
+    {
+        var metrics = new[]
+        {
+            new { Key = "revenue", Title = "Today's Revenue", Icon = "money" },
+            new { Key = "orders", Title = "Orders Placed", Icon = "shopping-cart" },
+            new { Key = "visitors", Title = "Unique Visitors", Icon = "users" },
+            new { Key = "conversion", Title = "Conversion Rate", Icon = "percentage" },
+            new { Key = "avgOrder", Title = "Average Order Value", Icon = "receipt" },
+            new { Key = "returnRate", Title = "Return Rate", Icon = "return" }
+        };
+        
+        int col = 0, row = 0;
+        
+        foreach (var metric in metrics)
+        {
+            var card = new BeepStatCard
+            {
+                Size = new Size(250, 140),
+                Location = new Point(20 + col * 270, 20 + row * 160),
+                HeaderText = metric.Title,
+                Theme = "MaterialDesignTheme"
+            };
+            
+            CardIconAssets.ApplyIconSet(card, metric.Icon);
+            _metricCards[metric.Key] = card;
+            this.Controls.Add(card);
+            
+            col++;
+            if (col >= 3) { col = 0; row++; }
+        }
+    }
+    
+    private async void RefreshMetrics(object sender, ElapsedEventArgs e)
+    {
+        try
+        {
+            var analytics = await GetEcommerceAnalytics();
+            
+            if (InvokeRequired)
+            {
+                Invoke(() => UpdateAnalyticsDisplay(analytics));
+            }
+            else
+            {
+                UpdateAnalyticsDisplay(analytics);
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle error gracefully
+            LogError("Failed to refresh analytics", ex);
+        }
+    }
+    
+    private void UpdateAnalyticsDisplay(EcommerceAnalytics analytics)
+    {
+        // Revenue card
+        UpdateCard("revenue", 
+            analytics.TodayRevenue.ToString("C0"),
+            analytics.RevenueChangePercent,
+            GetRevenueContext(analytics.TodayRevenue, analytics.YesterdayRevenue));
+        
+        // Orders card
+        UpdateCard("orders",
+            analytics.OrdersToday.ToString("N0"),
+            analytics.OrdersChangePercent,
+            $"vs {analytics.OrdersYesterday} yesterday");
+        
+        // Visitors card
+        UpdateCard("visitors",
+            analytics.UniqueVisitors.ToString("N0"),
+            analytics.VisitorsChangePercent,
+            "24-hour unique visitors");
+        
+        // Conversion rate
+        UpdateCard("conversion",
+            analytics.ConversionRate.ToString("P2"),
+            analytics.ConversionChangePercent,
+            "Visitor to purchase rate");
+        
+        // Average order value
+        UpdateCard("avgOrder",
+            analytics.AverageOrderValue.ToString("C0"),
+            analytics.AOVChangePercent,
+            "Per transaction average");
+        
+        // Return rate
+        UpdateCard("returnRate",
+            analytics.ReturnRate.ToString("P1"),
+            analytics.ReturnRateChangePercent,
+            "30-day return rate");
+    }
+    
+    private void UpdateCard(string key, string value, double changePercent, string context)
+    {
+        if (!_metricCards.TryGetValue(key, out var card)) return;
+        
+        card.ValueText = value;
+        card.PercentageText = $"{(changePercent >= 0 ? "+" : "")}{changePercent:F1}%";
+        card.IsTrendingUp = changePercent >= 0;
+        card.InfoText = context;
+        
+        // Dynamic trend messaging
+        card.TrendText = GetTrendMessage(changePercent);
+    }
+    
+    private string GetTrendMessage(double changePercent)
+    {
+        return Math.Abs(changePercent) switch
+        {
+            < 1 => "Steady",
+            < 5 => changePercent > 0 ? "Growing" : "Declining",
+            < 10 => changePercent > 0 ? "Strong growth" : "Sharp decline",
+            _ => changePercent > 0 ? "Exceptional growth" : "Critical decline"
+        };
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>⭐ Best Practices</h2>
+
+                    <h3>📊 Data Presentation</h3>
+                    <ul>
+                        <li><strong>Clear Hierarchy:</strong> Use font sizes and colors to establish visual hierarchy</li>
+                        <li><strong>Meaningful Metrics:</strong> Display only actionable and relevant metrics</li>
+                        <li><strong>Context Provision:</strong> Always provide context for what the numbers represent</li>
+                        <li><strong>Consistent Formatting:</strong> Use consistent number formatting across similar metrics</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Color Psychology:</strong> Use green for positive trends, red for negative, gray for neutral</li>
+                        <li><strong>Icon Consistency:</strong> Maintain consistent icon style and sizing across all cards</li>
+                        <li><strong>White Space:</strong> Provide adequate spacing between elements for readability</li>
+                        <li><strong>Responsive Layout:</strong> Design cards to work well at different sizes</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Efficient Updates:</strong> Batch updates and use appropriate refresh intervals</li>
+                        <li><strong>Data Caching:</strong> Cache frequently accessed data to reduce API calls</li>
+                        <li><strong>Lazy Loading:</strong> Load card data only when cards become visible</li>
+                        <li><strong>Memory Management:</strong> Properly dispose of timers and event handlers</li>
+                    </ul>
+
+                    <h3>🔄 Real-Time Updates</h3>
+                    <ul>
+                        <li><strong>Update Frequency:</strong> Choose appropriate refresh intervals (not too frequent)</li>
+                        <li><strong>Visual Feedback:</strong> Indicate when data is being updated</li>
+                        <li><strong>Error Handling:</strong> Gracefully handle network errors and data issues</li>
+                        <li><strong>Thread Safety:</strong> Use proper thread synchronization for UI updates</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Common Pitfalls</strong>
+                        <ul>
+                            <li><strong>Information Overload:</strong> Don't crowd too much information into a single card</li>
+                            <li><strong>Misleading Trends:</strong> Ensure trend indicators accurately represent the data</li>
+                            <li><strong>Poor Context:</strong> Avoid showing percentages without indicating what they're relative to</li>
+                            <li><strong>Update Frequency:</strong> Don't update too frequently; it can be distracting</li>
+                        </ul>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Indicators</strong>
+                        <ul>
+                            <li><strong>Quick Comprehension:</strong> Users can understand the metric within 2-3 seconds</li>
+                            <li><strong>Actionable Insights:</strong> Cards provide enough context for decision-making</li>
+                            <li><strong>Visual Consistency:</strong> All cards follow the same design patterns</li>
+                            <li><strong>Responsive Updates:</strong> Data updates smoothly without disrupting user experience</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-form-ui-manager.html"><i class="bi bi-arrow-left"></i> BeepFormUIManager</a>
+                    <a href="beep-listbox.html">BeepListBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .stat-card-preview {
+            background: #fff;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-family: 'Inter', sans-serif;
+            max-width: 300px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .header-text {
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+        }
+        
+        .card-icon {
+            font-size: 20px;
+        }
+        
+        .percentage-section {
+            text-align: right;
+            margin-bottom: 16px;
+        }
+        
+        .percentage-text {
+            color: #28a745;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .main-value {
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            margin: 16px 0;
+            color: #212529;
+        }
+        
+        .trend-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+        
+        .trend-text {
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .trend-icon {
+            font-size: 16px;
+        }
+        
+        .info-section {
+            font-size: 12px;
+            color: #868e96;
+            margin-top: 8px;
+        }
+        
+        .visual-example {
+            margin: 20px 0;
+        }
+    </style>
+</body>
+</html>

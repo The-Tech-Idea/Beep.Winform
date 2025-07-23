@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepComboBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html" class="active">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>›</span>
+                    <span>BeepComboBox</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepComboBox</h1>
+                    <p class="page-subtitle">Advanced dropdown selection control with theming, editing, and popup list support</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepComboBox</strong> is an advanced dropdown selection control that combines the functionality 
+                        of traditional ComboBox controls with modern styling, theming support, and enhanced user experience features. 
+                        It provides both dropdown list selection and inline text editing capabilities.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepComboBox features custom popup lists, 
+                        state-aware theming, placeholder text support, and seamless integration with the SimpleItem data model 
+                        for flexible item management.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📥 Dual Input Mode</h3>
+                            <p>Support for both dropdown selection and direct text input editing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Custom Popup Lists</h3>
+                            <p>Advanced popup list with theme-aware styling and smooth animations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 State-Aware Theming</h3>
+                            <p>Different visual states (normal, hover, focused, selected) with theme support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>💬 Placeholder Support</h3>
+                            <p>Placeholder text to guide users when no item is selected</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 SimpleItem Integration</h3>
+                            <p>Built-in support for SimpleItem data model with value and display text separation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔍 Smart Search</h3>
+                            <p>Type-to-find functionality when in editing mode</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple ComboBox Creation</h3>
+                        <pre><code class="language-csharp">// Create a basic BeepComboBox
+var comboBox = new BeepComboBox
+{
+    PlaceholderText = "Select an option...",
+    Size = new Size(200, 40),
+    Location = new Point(10, 10)
+};
+
+// Add items to the list
+comboBox.ListItems.Add(new SimpleItem { Text = "Option 1", Value = 1 });
+comboBox.ListItems.Add(new SimpleItem { Text = "Option 2", Value = 2 });
+comboBox.ListItems.Add(new SimpleItem { Text = "Option 3", Value = 3 });
+
+// Add to form
+this.Controls.Add(comboBox);
+
+// Handle selection changes
+comboBox.SelectedItemChanged += (sender, e) => {
+    MessageBox.Show($"Selected: {e.SelectedItem.Text}");
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>ComboBox with Object Data</h3>
+                        <pre><code class="language-csharp">// Create ComboBox for customer selection
+var customerCombo = new BeepComboBox
+{
+    PlaceholderText = "Select a customer...",
+    Size = new Size(250, 40)
+};
+
+// Add customers with object references
+var customers = GetCustomers(); // Your data source
+foreach (var customer in customers)
+{
+    customerCombo.ListItems.Add(new SimpleItem 
+    { 
+        Text = customer.Name, 
+        Value = customer.Id,
+        Item = customer // Reference to full object
+    });
+}
+
+// Handle selection
+customerCombo.SelectedItemChanged += (sender, e) => {
+    if (e.SelectedItem?.Item is Customer selectedCustomer)
+    {
+        LoadCustomerDetails(selectedCustomer);
+    }
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>Use the SimpleItem pattern to separate display text from underlying values, making data binding and object management much easier.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ListItems</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Collection of items displayed in dropdown</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>Currently selected item</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>Index of selected item (-1 if none selected)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedText</code></td>
+                                <td>string</td>
+                                <td>Text content of the ComboBox (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>PlaceholderText</code></td>
+                                <td>string</td>
+                                <td>Placeholder text shown when no item selected</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsPopupOpen</code></td>
+                                <td>bool</td>
+                                <td>Whether the dropdown popup is currently open</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>TextFont <code>Font</code></h4>
+                            <p>Font used for text display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Category <code>DbFieldCategory</code></h4>
+                            <p>Data category for the control</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>BorderRadius <code>int</code></h4>
+                            <p>Border radius for rounded corners</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>DropDownStyle <code>ComboBoxStyle</code></h4>
+                            <p>Style of the dropdown (DropDown, DropDownList)</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedItemChanged</code></td>
+                                <td>EventHandler&lt;SelectedItemChangedEventArgs&gt;</td>
+                                <td>Triggered when the selected item changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>PopupOpened</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when the dropdown popup opens</td>
+                            </tr>
+                            <tr>
+                                <td><code>PopupClosed</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when the dropdown popup closes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var comboBox = new BeepComboBox();
+
+// Selection changed event
+comboBox.SelectedItemChanged += (sender, e) => {
+    if (e.SelectedItem != null)
+    {
+        Console.WriteLine($"Selected: {e.SelectedItem.Text}");
+        Console.WriteLine($"Value: {e.SelectedItem.Value}");
+        
+        // Access the full object if stored
+        if (e.SelectedItem.Item != null)
+        {
+            Console.WriteLine($"Object: {e.SelectedItem.Item}");
+        }
+    }
+};
+
+// Popup events for UI feedback
+comboBox.PopupOpened += (sender, e) => {
+    Console.WriteLine("Dropdown opened");
+    // Could show loading indicator for dynamic data
+};
+
+comboBox.PopupClosed += (sender, e) => {
+    Console.WriteLine("Dropdown closed");
+    // Perform validation or other cleanup
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Country/State Selection</h3>
+                        <pre><code class="language-csharp">public class LocationSelector : UserControl
+{
+    private BeepComboBox countryCombo;
+    private BeepComboBox stateCombo;
+
+    public LocationSelector()
+    {
+        InitializeControls();
+        LoadCountries();
+    }
+
+    private void InitializeControls()
+    {
+        // Country ComboBox
+        countryCombo = new BeepComboBox
+        {
+            PlaceholderText = "Select Country...",
+            Size = new Size(200, 40),
+            Location = new Point(10, 10)
+        };
+        countryCombo.SelectedItemChanged += CountryCombo_SelectedItemChanged;
+
+        // State ComboBox
+        stateCombo = new BeepComboBox
+        {
+            PlaceholderText = "Select State...",
+            Size = new Size(200, 40),
+            Location = new Point(220, 10),
+            Enabled = false
+        };
+
+        Controls.AddRange(new Control[] { countryCombo, stateCombo });
+    }
+
+    private void LoadCountries()
+    {
+        var countries = GetCountries(); // Your data source
+        
+        countryCombo.ListItems.Clear();
+        countryCombo.ListItems.Add(new SimpleItem 
+        { 
+            Text = "-- Select Country --", 
+            Value = null 
+        });
+
+        foreach (var country in countries)
+        {
+            countryCombo.ListItems.Add(new SimpleItem
+            {
+                Text = country.Name,
+                Value = country.Code,
+                Item = country
+            });
+        }
+    }
+
+    private void CountryCombo_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        if (e.SelectedItem?.Item is Country selectedCountry)
+        {
+            LoadStates(selectedCountry);
+            stateCombo.Enabled = true;
+        }
+        else
+        {
+            stateCombo.ListItems.Clear();
+            stateCombo.Enabled = false;
+            stateCombo.Reset();
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Data-Bound ComboBox</h3>
+                        <pre><code class="language-csharp">public void SetupDataBoundComboBox()
+{
+    var employeeCombo = new BeepComboBox
+    {
+        PlaceholderText = "Select Employee...",
+        Size = new Size(300, 40)
+    };
+
+    // Load from database or API
+    using (var context = new MyDbContext())
+    {
+        var employees = context.Employees
+            .Where(e => e.IsActive)
+            .OrderBy(e => e.LastName)
+            .ThenBy(e => e.FirstName)
+            .ToList();
+
+        foreach (var employee in employees)
+        {
+            employeeCombo.ListItems.Add(new SimpleItem
+            {
+                Text = $"{employee.LastName}, {employee.FirstName}",
+                Value = employee.Id,
+                Item = employee,
+                Description = employee.Department?.Name
+            });
+        }
+    }
+
+    // Handle selection for further processing
+    employeeCombo.SelectedItemChanged += (s, e) => {
+        if (e.SelectedItem?.Item is Employee selectedEmployee)
+        {
+            LoadEmployeeDetails(selectedEmployee);
+            UpdateRelatedControls(selectedEmployee);
+        }
+    };
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Searchable ComboBox</h3>
+                        <pre><code class="language-csharp">public class SearchableComboBox : BeepComboBox
+{
+    private Timer searchTimer;
+    private string lastSearchText;
+
+    public SearchableComboBox()
+    {
+        searchTimer = new Timer { Interval = 300 };
+        searchTimer.Tick += SearchTimer_Tick;
+        
+        // Override text change behavior
+        this.Click += OnComboBoxClick;
+    }
+
+    private void OnComboBoxClick(object sender, EventArgs e)
+    {
+        // Enable editing mode for search
+        StartEditing();
+    }
+
+    protected override void OnTextChanged(EventArgs e)
+    {
+        base.OnTextChanged(e);
+        
+        string currentText = this.SelectedText;
+        if (currentText != lastSearchText)
+        {
+            lastSearchText = currentText;
+            searchTimer.Stop();
+            searchTimer.Start();
+        }
+    }
+
+    private void SearchTimer_Tick(object sender, EventArgs e)
+    {
+        searchTimer.Stop();
+        
+        if (!string.IsNullOrEmpty(lastSearchText) && lastSearchText.Length >= 2)
+        {
+            PerformSearch(lastSearchText);
+        }
+    }
+
+    private async void PerformSearch(string searchText)
+    {
+        try
+        {
+            this.PlaceholderText = "Searching...";
+            
+            var results = await SearchDataAsync(searchText);
+            
+            this.ListItems.Clear();
+            
+            if (results.Any())
+            {
+                foreach (var result in results)
+                {
+                    this.ListItems.Add(new SimpleItem
+                    {
+                        Text = result.DisplayText,
+                        Value = result.Id,
+                        Item = result
+                    });
+                }
+                
+                this.ShowPopup();
+            }
+            else
+            {
+                this.PlaceholderText = "No results found";
+            }
+        }
+        catch (Exception ex)
+        {
+            this.PlaceholderText = "Search error occurred";
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepComboBox integrates fully with the Beep theming system, supporting different visual states:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var comboBox = new BeepComboBox
+{
+    PlaceholderText = "Themed ComboBox",
+    Theme = "DarkTheme"
+};
+
+// Theme automatically applies:
+// - ComboBoxBackColor (normal background)
+// - ComboBoxForeColor (text color)
+// - ComboBoxBorderColor (border color)
+// - ComboBoxHoverBackColor (hover background)
+// - ComboBoxHoverForeColor (hover text)
+// - ComboBoxHoverBorderColor (hover border)
+// - ComboBoxSelectedBackColor (selected background)
+// - ComboBoxSelectedForeColor (selected text)
+// - ComboBoxSelectedBorderColor (selected border)
+
+// Apply theme manually if needed
+comboBox.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive Visual States</h3>
+                    <ul>
+                        <li><strong>Normal State</strong> - Default appearance with theme background and border colors</li>
+                        <li><strong>Hover State</strong> - Highlighted appearance when mouse hovers over control</li>
+                        <li><strong>Focused State</strong> - Active appearance when control has keyboard focus</li>
+                        <li><strong>Selected State</strong> - Appearance when an item is selected from dropdown</li>
+                        <li><strong>Popup Open State</strong> - Visual indication when dropdown is expanded</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>The ComboBox automatically applies theme colors to its internal components (text box, dropdown button, and popup list) for a consistent appearance.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Use meaningful placeholders:</strong> Provide clear guidance with PlaceholderText</li>
+                        <li><strong>Sort items logically:</strong> Order items alphabetically or by usage frequency</li>
+                        <li><strong>Include empty selection:</strong> Provide a "-- Select --" option when appropriate</li>
+                        <li><strong>Handle selection events:</strong> Always respond to SelectedItemChanged events</li>
+                        <li><strong>Validate selections:</strong> Check for valid selections before processing</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Lazy load large lists:</strong> Load items only when needed for large datasets</li>
+                        <li><strong>Use search for long lists:</strong> Implement search functionality for lists > 50 items</li>
+                        <li><strong>Cache commonly used lists:</strong> Avoid reloading static data repeatedly</li>
+                        <li><strong>Dispose properly:</strong> Always dispose of ComboBox instances to prevent memory leaks</li>
+                    </ul>
+
+                    <h3>📊 Data Management</h3>
+                    <ul>
+                        <li><strong>Use SimpleItem properly:</strong> Separate display text from underlying values</li>
+                        <li><strong>Store object references:</strong> Use the Item property for complex objects</li>
+                        <li><strong>Handle null selections:</strong> Always check for null SelectedItem values</li>
+                        <li><strong>Validate data binding:</strong> Ensure proper data synchronization in bound scenarios</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Provide tooltips:</strong> Add helpful ToolTipText for context</li>
+                        <li><strong>Keyboard navigation:</strong> Ensure proper tab order and keyboard support</li>
+                        <li><strong>Color contrast:</strong> Use high contrast themes when needed</li>
+                        <li><strong>Screen reader support:</strong> Use meaningful item text for screen readers</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Warning</strong>
+                        <p>When using object references in SimpleItem.Item, ensure proper memory management to avoid memory leaks in long-running applications.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>Always check for null values when accessing SelectedItem properties and provide meaningful default selections for better user experience.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-textbox.html"><i class="bi bi-arrow-left"></i> BeepTextBox</a>
+                    <a href="beep-checkbox.html">BeepCheckBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

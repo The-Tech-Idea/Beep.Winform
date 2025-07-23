@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepNumericUpDown - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html" class="active">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>›</span>
+                    <span>BeepNumericUpDown</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepNumericUpDown</h1>
+                    <p class="page-subtitle">Composite numeric input control with text box, increment/decrement buttons, and validation</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepNumericUpDown</strong> is a composite control that combines a BeepTextBox for numeric input 
+                        with increment and decrement BeepButton controls. It provides a user-friendly interface for numeric data 
+                        entry with built-in validation, range checking, and customizable increment values.
+                    </p>
+                    <p>
+                        This control automatically manages the layout and interaction between its child components, providing 
+                        a seamless experience for numeric input while maintaining full theme compatibility and accessibility features.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔢 Numeric Input</h3>
+                            <p>BeepTextBox with automatic numeric validation and formatting</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⬆️⬇️ Increment Controls</h3>
+                            <p>Up/down BeepButton controls for value adjustment</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Range Validation</h3>
+                            <p>Configurable minimum and maximum value limits</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Custom Increments</h3>
+                            <p>Adjustable increment/decrement step values</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Precision Control</h3>
+                            <p>Decimal place configuration for floating-point values</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⌨️ Keyboard Support</h3>
+                            <p>Arrow key navigation and direct text input</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Automatic theming for all child components</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Auto Layout</h3>
+                            <p>Automatic sizing and positioning of child controls</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Numeric Input</h3>
+                        <pre><code class="language-csharp">// Create a basic numeric up/down control
+var numericControl = new BeepNumericUpDown
+{
+    Value = 10,
+    MinimumValue = 0,
+    MaximumValue = 100,
+    IncrementValue = 1,
+    Size = new Size(120, 30),
+    Location = new Point(10, 10)
+};
+
+// Add to form
+this.Controls.Add(numericControl);
+
+// Handle value changes
+numericControl.ValueChanged += (sender, e) => {
+    Console.WriteLine($"Value changed to: {numericControl.Value}");
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Decimal Value Control</h3>
+                        <pre><code class="language-csharp">var decimalControl = new BeepNumericUpDown
+{
+    Value = 12.50m,
+    MinimumValue = 0.00m,
+    MaximumValue = 999.99m,
+    IncrementValue = 0.25m,
+    DecimalPlaces = 2,
+    Size = new Size(150, 30)
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Percentage Input</h3>
+                        <pre><code class="language-csharp">var percentageControl = new BeepNumericUpDown
+{
+    Value = 75,
+    MinimumValue = 0,
+    MaximumValue = 100,
+    IncrementValue = 5,
+    Suffix = "%",
+    Size = new Size(100, 30)
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>BeepNumericUpDown automatically handles validation and ensures values stay within the specified range. The control prevents invalid input and provides visual feedback for out-of-range values.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Value Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Value</code></td>
+                                <td>decimal</td>
+                                <td>Current numeric value of the control</td>
+                            </tr>
+                            <tr>
+                                <td><code>MinimumValue</code></td>
+                                <td>decimal</td>
+                                <td>Minimum allowed value</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaximumValue</code></td>
+                                <td>decimal</td>
+                                <td>Maximum allowed value</td>
+                            </tr>
+                            <tr>
+                                <td><code>IncrementValue</code></td>
+                                <td>decimal</td>
+                                <td>Amount to increment/decrement when using buttons</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Formatting Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>DecimalPlaces <code>int</code></h4>
+                            <p>Number of decimal places to display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ThousandsSeparator <code>bool</code></h4>
+                            <p>Whether to display thousands separator</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Prefix <code>string</code></h4>
+                            <p>Text to display before the value</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Suffix <code>string</code></h4>
+                            <p>Text to display after the value</p>
+                        </div>
+                    </div>
+
+                    <h3>Behavior Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ReadOnly</code></td>
+                                <td>bool</td>
+                                <td>Whether the text box allows direct editing</td>
+                            </tr>
+                            <tr>
+                                <td><code>InterceptArrowKeys</code></td>
+                                <td>bool</td>
+                                <td>Whether arrow keys increment/decrement values</td>
+                            </tr>
+                            <tr>
+                                <td><code>WrapAround</code></td>
+                                <td>bool</td>
+                                <td>Whether values wrap from max to min and vice versa</td>
+                            </tr>
+                            <tr>
+                                <td><code>AccelerateOnHold</code></td>
+                                <td>bool</td>
+                                <td>Whether holding buttons accelerates increment rate</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Child Component Access</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TextBox</code></td>
+                                <td>BeepTextBox</td>
+                                <td>The text input component</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpButton</code></td>
+                                <td>BeepButton</td>
+                                <td>The increment button component</td>
+                            </tr>
+                            <tr>
+                                <td><code>DownButton</code></td>
+                                <td>BeepButton</td>
+                                <td>The decrement button component</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ValueChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when the value changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValueValidating</code></td>
+                                <td>CancelEventHandler</td>
+                                <td>Allows validation before value changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>MinimumReached</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when minimum value is reached</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaximumReached</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when maximum value is reached</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpButtonClicked</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when increment button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>DownButtonClicked</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when decrement button is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var numericControl = new BeepNumericUpDown
+{
+    Value = 50,
+    MinimumValue = 0,
+    MaximumValue = 100
+};
+
+// Handle value changes
+numericControl.ValueChanged += (sender, e) => {
+    Console.WriteLine($"New value: {numericControl.Value}");
+    UpdateDependentControls(numericControl.Value);
+};
+
+// Validate values before accepting changes
+numericControl.ValueValidating += (sender, e) => {
+    decimal newValue = numericControl.Value;
+    
+    if (newValue % 5 != 0) // Only allow multiples of 5
+    {
+        e.Cancel = true;
+        MessageBox.Show("Value must be a multiple of 5", "Invalid Value");
+    }
+};
+
+// Handle range limits
+numericControl.MinimumReached += (sender, e) => {
+    MessageBox.Show("Minimum value reached!", "Range Limit");
+    ShowMinimumWarning();
+};
+
+numericControl.MaximumReached += (sender, e) => {
+    MessageBox.Show("Maximum value reached!", "Range Limit");
+    ShowMaximumWarning();
+};
+
+// Handle button clicks for custom logic
+numericControl.UpButtonClicked += (sender, e) => {
+    LogUserAction("Increment button clicked");
+};
+
+numericControl.DownButtonClicked += (sender, e) => {
+    LogUserAction("Decrement button clicked");
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Product Inventory Form</h3>
+                        <pre><code class="language-csharp">public class ProductInventoryForm : Form
+{
+    private BeepNumericUpDown quantityControl;
+    private BeepNumericUpDown priceControl;
+    private BeepNumericUpDown weightControl;
+    private BeepNumericUpDown stockControl;
+
+    public ProductInventoryForm()
+    {
+        InitializeInventoryControls();
+    }
+
+    private void InitializeInventoryControls()
+    {
+        // Quantity control
+        quantityControl = new BeepNumericUpDown
+        {
+            Value = 1,
+            MinimumValue = 1,
+            MaximumValue = 999,
+            IncrementValue = 1,
+            Location = new Point(120, 70),
+            Size = new Size(100, 30)
+        };
+
+        // Price control with currency formatting
+        priceControl = new BeepNumericUpDown
+        {
+            Value = 9.99m,
+            MinimumValue = 0.01m,
+            MaximumValue = 9999.99m,
+            IncrementValue = 0.50m,
+            DecimalPlaces = 2,
+            Prefix = "$",
+            Location = new Point(120, 100),
+            Size = new Size(120, 30)
+        };
+
+        // Weight control
+        weightControl = new BeepNumericUpDown
+        {
+            Value = 1.0m,
+            MinimumValue = 0.1m,
+            MaximumValue = 100.0m,
+            IncrementValue = 0.1m,
+            DecimalPlaces = 1,
+            Suffix = " kg",
+            Location = new Point(120, 130),
+            Size = new Size(100, 30)
+        };
+
+        // Stock control
+        stockControl = new BeepNumericUpDown
+        {
+            Value = 0,
+            MinimumValue = 0,
+            MaximumValue = 10000,
+            IncrementValue = 1,
+            Location = new Point(120, 160),
+            Size = new Size(100, 30)
+        };
+
+        // Add validation handlers
+        quantityControl.ValueChanged += ValidateQuantity;
+        priceControl.ValueChanged += ValidatePrice;
+        stockControl.ValueChanged += ValidateStock;
+        
+        this.Controls.AddRange(new Control[] 
+        {
+            new Label { Text = "Quantity:", Location = new Point(20, 75) },
+            quantityControl,
+            new Label { Text = "Price:", Location = new Point(20, 105) },
+            priceControl,
+            new Label { Text = "Weight:", Location = new Point(20, 135) },
+            weightControl,
+            new Label { Text = "Stock:", Location = new Point(20, 165) },
+            stockControl
+        });
+    }
+
+    private void ValidateQuantity(object sender, EventArgs e)
+    {
+        // Update total price based on quantity
+        decimal total = quantityControl.Value * priceControl.Value;
+        totalLabel.Text = $"Total: {total:C}";
+    }
+
+    private void ValidatePrice(object sender, EventArgs e)
+    {
+        decimal price = priceControl.Value;
+        
+        // Auto-calculate suggested retail price
+        decimal suggestedRetail = price * 1.5m;
+        retailPriceLabel.Text = $"Suggested Retail: {suggestedRetail:C}";
+    }
+
+    private void ValidateStock(object sender, EventArgs e)
+    {
+        int stock = (int)stockControl.Value;
+        
+        // Update stock status indicator
+        stockStatusLabel.Text = stock switch
+        {
+            0 => "Out of Stock",
+            < 10 => "Low Stock",
+            _ => "In Stock"
+        };
+        
+        stockStatusLabel.ForeColor = stock switch
+        {
+            0 => Color.Red,
+            < 10 => Color.Orange,
+            _ => Color.Green
+        };
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Settings Configuration Panel</h3>
+                        <pre><code class="language-csharp">public class SettingsPanel : UserControl
+{
+    private BeepNumericUpDown timeoutControl;
+    private BeepNumericUpDown maxConnectionsControl;
+    private BeepNumericUpDown bufferSizeControl;
+    private BeepNumericUpDown refreshRateControl;
+
+    public SettingsPanel()
+    {
+        InitializeSettingsControls();
+    }
+
+    private void InitializeSettingsControls()
+    {
+        // Timeout setting (seconds)
+        timeoutControl = new BeepNumericUpDown
+        {
+            Value = 30,
+            MinimumValue = 5,
+            MaximumValue = 300,
+            IncrementValue = 5,
+            Suffix = " sec",
+            Location = new Point(150, 20),
+            Size = new Size(120, 30)
+        };
+
+        // Max connections
+        maxConnectionsControl = new BeepNumericUpDown
+        {
+            Value = 100,
+            MinimumValue = 10,
+            MaximumValue = 1000,
+            IncrementValue = 10,
+            Location = new Point(150, 60),
+            Size = new Size(100, 30)
+        };
+
+        // Buffer size (MB)
+        bufferSizeControl = new BeepNumericUpDown
+        {
+            Value = 64,
+            MinimumValue = 16,
+            MaximumValue = 512,
+            IncrementValue = 16,
+            Suffix = " MB",
+            Location = new Point(150, 100),
+            Size = new Size(120, 30)
+        };
+
+        // Refresh rate (Hz)
+        refreshRateControl = new BeepNumericUpDown
+        {
+            Value = 60,
+            MinimumValue = 30,
+            MaximumValue = 144,
+            IncrementValue = 15,
+            Suffix = " Hz",
+            Location = new Point(150, 140),
+            Size = new Size(120, 30)
+        };
+
+        // Validation and interdependency logic
+        SetupValidationRules();
+        
+        this.Controls.AddRange(new Control[]
+        {
+            new Label { Text = "Connection Timeout:", Location = new Point(20, 25) },
+            timeoutControl,
+            new Label { Text = "Max Connections:", Location = new Point(20, 65) },
+            maxConnectionsControl,
+            new Label { Text = "Buffer Size:", Location = new Point(20, 105) },
+            bufferSizeControl,
+            new Label { Text = "Refresh Rate:", Location = new Point(20, 145) },
+            refreshRateControl
+        });
+    }
+
+    private void SetupValidationRules()
+    {
+        // Interdependent validation
+        bufferSizeControl.ValueChanged += (s, e) => {
+            // Adjust max connections based on buffer size
+            decimal bufferSize = bufferSizeControl.Value;
+            decimal maxConnections = Math.Min(1000, bufferSize * 10);
+            
+            if (maxConnectionsControl.Value > maxConnections)
+            {
+                maxConnectionsControl.Value = maxConnections;
+                MessageBox.Show($"Max connections adjusted to {maxConnections} based on buffer size.",
+                    "Setting Adjusted", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        };
+
+        // Performance warning for high refresh rates
+        refreshRateControl.ValueChanged += (s, e) => {
+            if (refreshRateControl.Value > 120)
+            {
+                MessageBox.Show("High refresh rates may impact system performance.",
+                    "Performance Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        };
+    }
+
+    public Dictionary<string, object> GetSettings()
+    {
+        return new Dictionary<string, object>
+        {
+            ["Timeout"] = (int)timeoutControl.Value,
+            ["MaxConnections"] = (int)maxConnectionsControl.Value,
+            ["BufferSize"] = (int)bufferSizeControl.Value,
+            ["RefreshRate"] = (int)refreshRateControl.Value
+        };
+    }
+
+    public void LoadSettings(Dictionary<string, object> settings)
+    {
+        if (settings.TryGetValue("Timeout", out var timeout))
+            timeoutControl.Value = Convert.ToDecimal(timeout);
+            
+        if (settings.TryGetValue("MaxConnections", out var maxConn))
+            maxConnectionsControl.Value = Convert.ToDecimal(maxConn);
+            
+        if (settings.TryGetValue("BufferSize", out var bufferSize))
+            bufferSizeControl.Value = Convert.ToDecimal(bufferSize);
+            
+        if (settings.TryGetValue("RefreshRate", out var refreshRate))
+            refreshRateControl.Value = Convert.ToDecimal(refreshRate);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Scientific Calculator Input</h3>
+                        <pre><code class="language-csharp">public class ScientificCalculatorInput : UserControl
+{
+    private BeepNumericUpDown mantissaControl;
+    private BeepNumericUpDown exponentControl;
+    private BeepNumericUpDown precisionControl;
+    private Label resultLabel;
+
+    public ScientificCalculatorInput()
+    {
+        InitializeScientificControls();
+    }
+
+    private void InitializeScientificControls()
+    {
+        // Mantissa (coefficient)
+        mantissaControl = new BeepNumericUpDown
+        {
+            Value = 1.000000m,
+            MinimumValue = -9.999999m,
+            MaximumValue = 9.999999m,
+            IncrementValue = 0.000001m,
+            DecimalPlaces = 6,
+            Location = new Point(100, 20),
+            Size = new Size(150, 30)
+        };
+
+        // Exponent
+        exponentControl = new BeepNumericUpDown
+        {
+            Value = 0,
+            MinimumValue = -308,
+            MaximumValue = 308,
+            IncrementValue = 1,
+            Prefix = "E",
+            Location = new Point(100, 60),
+            Size = new Size(120, 30)
+        };
+
+        // Precision (decimal places)
+        precisionControl = new BeepNumericUpDown
+        {
+            Value = 6,
+            MinimumValue = 0,
+            MaximumValue = 15,
+            IncrementValue = 1,
+            Location = new Point(100, 100),
+            Size = new Size(100, 30)
+        };
+
+        resultLabel = new Label
+        {
+            Text = "Result: 1.000000",
+            Location = new Point(20, 140),
+            Size = new Size(300, 25),
+            Font = new Font("Consolas", 10, FontStyle.Bold)
+        };
+
+        // Calculate result when any value changes
+        mantissaControl.ValueChanged += CalculateResult;
+        exponentControl.ValueChanged += CalculateResult;
+        precisionControl.ValueChanged += UpdatePrecision;
+
+        this.Controls.AddRange(new Control[]
+        {
+            new Label { Text = "Mantissa:", Location = new Point(20, 25) },
+            mantissaControl,
+            new Label { Text = "Exponent:", Location = new Point(20, 65) },
+            exponentControl,
+            new Label { Text = "Precision:", Location = new Point(20, 105) },
+            precisionControl,
+            resultLabel
+        });
+    }
+
+    private void CalculateResult(object sender, EventArgs e)
+    {
+        try
+        {
+            double mantissa = (double)mantissaControl.Value;
+            int exponent = (int)exponentControl.Value;
+            int precision = (int)precisionControl.Value;
+            
+            double result = mantissa * Math.Pow(10, exponent);
+            string format = $"F{precision}";
+            
+            resultLabel.Text = $"Result: {result.ToString(format)}";
+            
+            // Handle overflow/underflow
+            if (double.IsInfinity(result))
+            {
+                resultLabel.Text = "Result: Infinity";
+                resultLabel.ForeColor = Color.Red;
+            }
+            else if (result == 0 && mantissa != 0)
+            {
+                resultLabel.Text = "Result: Underflow";
+                resultLabel.ForeColor = Color.Orange;
+            }
+            else
+            {
+                resultLabel.ForeColor = Color.Black;
+            }
+        }
+        catch (OverflowException)
+        {
+            resultLabel.Text = "Result: Overflow";
+            resultLabel.ForeColor = Color.Red;
+        }
+    }
+
+    private void UpdatePrecision(object sender, EventArgs e)
+    {
+        int newPrecision = (int)precisionControl.Value;
+        
+        // Update mantissa decimal places to match precision
+        mantissaControl.DecimalPlaces = newPrecision;
+        
+        // Recalculate result with new precision
+        CalculateResult(sender, e);
+    }
+
+    public double GetScientificValue()
+    {
+        double mantissa = (double)mantissaControl.Value;
+        int exponent = (int)exponentControl.Value;
+        return mantissa * Math.Pow(10, exponent);
+    }
+
+    public void SetScientificValue(double value)
+    {
+        if (value == 0)
+        {
+            mantissaControl.Value = 0;
+            exponentControl.Value = 0;
+            return;
+        }
+
+        int exponent = (int)Math.Floor(Math.Log10(Math.Abs(value)));
+        double mantissa = value / Math.Pow(10, exponent);
+        
+        // Ensure mantissa is within valid range
+        while (Math.Abs(mantissa) >= 10)
+        {
+            mantissa /= 10;
+            exponent++;
+        }
+
+        mantissaControl.Value = (decimal)mantissa;
+        exponentControl.Value = exponent;
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepNumericUpDown automatically applies themes to all its child components:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var themedNumeric = new BeepNumericUpDown
+{
+    Theme = "DarkTheme",
+    Value = 42,
+    MinimumValue = 0,
+    MaximumValue = 100
+};
+
+// Theme automatically applies to:
+// - BeepTextBox: background, foreground, border colors
+// - BeepButton (Up): button styling, hover effects
+// - BeepButton (Down): button styling, hover effects
+
+// All child controls inherit the theme settings
+themedNumeric.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Component Theme Inheritance</h3>
+                    <ul>
+                        <li><strong>BeepTextBox</strong> - Input field colors, fonts, and border styling</li>
+                        <li><strong>Up Button</strong> - Button colors, hover states, and icon styling</li>
+                        <li><strong>Down Button</strong> - Button colors, hover states, and icon styling</li>
+                        <li><strong>Container</strong> - Overall background and border colors</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Child Component Styling</h3>
+                        <pre><code class="language-csharp">var customNumeric = new BeepNumericUpDown
+{
+    Value = 25,
+    Theme = "CustomTheme"
+};
+
+// Access child components for custom styling
+customNumeric.TextBox.BackColor = Color.LightYellow;
+customNumeric.TextBox.Font = new Font("Consolas", 10);
+
+customNumeric.UpButton.Text = "▲";
+customNumeric.DownButton.Text = "▼";
+
+// Custom button icons
+customNumeric.UpButton.SVGIcon = "plus-icon.svg";
+customNumeric.DownButton.SVGIcon = "minus-icon.svg";</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>The BeepNumericUpDown control automatically applies themes to its child controls (text box and buttons), ensuring consistent appearance across the entire component.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>📊 Value Validation</h3>
+                    <ul>
+                        <li><strong>Set appropriate ranges:</strong> Always define meaningful minimum and maximum values</li>
+                        <li><strong>Use reasonable increments:</strong> Choose increment values that make sense for your data type</li>
+                        <li><strong>Handle validation events:</strong> Implement custom validation logic when values change</li>
+                        <li><strong>Provide feedback:</strong> Show users when values are invalid or out of range</li>
+                        <li><strong>Consider data types:</strong> Use appropriate decimal places for your numeric precision needs</li>
+                    </ul>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Logical defaults:</strong> Set sensible default values for new users</li>
+                        <li><strong>Clear labeling:</strong> Always provide descriptive labels for numeric controls</li>
+                        <li><strong>Unit indicators:</strong> Use prefix/suffix to clarify units (%, $, kg, etc.)</li>
+                        <li><strong>Keyboard support:</strong> Enable InterceptArrowKeys for keyboard increment/decrement</li>
+                        <li><strong>Size appropriately:</strong> Ensure controls are large enough for the expected value range</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Event handling:</strong> Avoid expensive operations in ValueChanged events</li>
+                        <li><strong>Validation efficiency:</strong> Use CancelEventArgs for pre-validation to prevent invalid states</li>
+                        <li><strong>Update batching:</strong> Consider debouncing rapid value changes for expensive operations</li>
+                        <li><strong>Memory management:</strong> Properly dispose of event handlers when removing controls</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard navigation:</strong> Ensure full keyboard accessibility for all functions</li>
+                        <li><strong>Screen readers:</strong> Provide meaningful accessible names and descriptions</li>
+                        <li><strong>High contrast:</strong> Test with high contrast themes for visibility</li>
+                        <li><strong>Focus indicators:</strong> Ensure clear visual focus indicators</li>
+                        <li><strong>Tab order:</strong> Set appropriate tab order for form navigation</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Validation Best Practices</h3>
+                        <pre><code class="language-csharp">public class ValidatedNumericInput : BeepNumericUpDown
+{
+    public event EventHandler<ValidationEventArgs> ValidationFailed;
+    
+    protected override void OnValueChanged(EventArgs e)
+    {
+        // Validate business rules before calling base
+        if (!ValidateBusinessRules(Value))
+        {
+            ValidationFailed?.Invoke(this, new ValidationEventArgs 
+            { 
+                InvalidValue = Value,
+                ErrorMessage = "Value violates business rules" 
+            });
+            return;
+        }
+        
+        base.OnValueChanged(e);
+    }
+    
+    private bool ValidateBusinessRules(decimal value)
+    {
+        // Example: Only allow even numbers
+        return value % 2 == 0;
+    }
+    
+    public void SetValueWithValidation(decimal newValue, bool showErrors = true)
+    {
+        if (newValue < MinimumValue || newValue > MaximumValue)
+        {
+            if (showErrors)
+            {
+                MessageBox.Show($"Value must be between {MinimumValue} and {MaximumValue}",
+                    "Range Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            return;
+        }
+        
+        Value = newValue;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Validation Warning</strong>
+                        <p>Always validate user input, especially when accepting direct text entry. Implement proper error handling for invalid numeric formats.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Composite Control</strong>
+                        <p>BeepNumericUpDown automatically manages the layout and interaction between its child components, providing a seamless user experience.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-datepicker.html"><i class="bi bi-arrow-left"></i> BeepDatePicker</a>
+                    <a href="beep-switch.html">BeepSwitch <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFunctionsPanel - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-contextmenustrip.html">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-dropdownmenu.html">BeepDropDownMenu</a></li>
+                            <li><a href="beep-flyoutmenu.html">BeepFlyoutMenu</a></li>
+                            <li><a href="beep-functionspanel.html" class="active">BeepFunctionsPanel</a></li>
+                            <li><a href="beep-multichipgroup.html">BeepMultiChipGroup</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>?</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>?</span>
+                    <span>BeepFunctionsPanel</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepFunctionsPanel</h1>
+                    <p class="page-subtitle">Compact function button panel with pre-built common operations and customizable orientation for efficient user interfaces</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepFunctionsPanel</strong> provides a pre-configured panel containing commonly used function buttons 
+                        for applications. It includes standard operations like Refresh, Search, Filter, Sort, Print, Export, and more, 
+                        all in a compact, customizable interface that can be oriented horizontally or vertically to fit various layout needs.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepFunctionsPanel features intelligent auto-sizing, 
+                        flexible orientation support, comprehensive theming, tooltip integration, and standardized function handling. 
+                        Perfect for data grids, list views, toolbars, and any interface requiring quick access to common operations.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>??? Pre-Built Functions</h3>
+                            <p>11 standard function buttons including Refresh, Search, Filter, Sort, Print, Export, and more</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Dual Orientation</h3>
+                            <p>Support for both horizontal and vertical layouts with automatic sizing and positioning</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Intelligent Sizing</h3>
+                            <p>Automatic panel sizing based on button count, spacing, and orientation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Icon Integration</h3>
+                            <p>Professional SVG icons for all functions with theme-aware coloring and sizing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Easy Configuration</h3>
+                            <p>Simple properties for button sizing, spacing, positioning, and appearance customization</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Event Handling</h3>
+                            <p>Unified event system with function identification for streamlined action handling</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Horizontal Layout</h3>
+                    <div class="visual-demo">
+                        <div class="functions-panel-preview">
+                            <div class="panel-container horizontal">
+                                <div class="function-buttons horizontal">
+                                    <button class="function-btn" title="Refresh">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Search">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Filter">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Sort">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Print">
+                                        <span class="btn-icon">???</span>
+                                    </button>
+                                    <button class="function-btn" title="Export">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Close">
+                                        <span class="btn-icon">?</span>
+                                    </button>
+                                    <button class="function-btn" title="Help">
+                                        <span class="btn-icon">?</span>
+                                    </button>
+                                    <button class="function-btn" title="Settings">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="About">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Exit">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="layout-description">Horizontal layout with 11 standard function buttons</p>
+                        </div>
+                    </div>
+
+                    <h3>Vertical Layout</h3>
+                    <div class="visual-demo">
+                        <div class="functions-panel-preview">
+                            <div class="panel-container vertical">
+                                <div class="function-buttons vertical">
+                                    <button class="function-btn" title="Refresh">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Search">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Filter">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Sort">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Print">
+                                        <span class="btn-icon">???</span>
+                                    </button>
+                                    <button class="function-btn" title="Export">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Close">
+                                        <span class="btn-icon">?</span>
+                                    </button>
+                                    <button class="function-btn" title="Help">
+                                        <span class="btn-icon">?</span>
+                                    </button>
+                                    <button class="function-btn" title="Settings">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="About">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                    <button class="function-btn" title="Exit">
+                                        <span class="btn-icon">??</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="layout-description">Vertical layout with compact stacking for sidebar placement</p>
+                        </div>
+                    </div>
+
+                    <h3>Application Integration</h3>
+                    <div class="visual-demo">
+                        <div class="app-integration-example">
+                            <div class="mock-application">
+                                <!-- Header with horizontal functions panel -->
+                                <div class="app-header">
+                                    <h3>Data Management</h3>
+                                    <div class="header-functions">
+                                        <button class="function-btn compact" title="Refresh">
+                                            <span class="btn-icon">??</span>
+                                        </button>
+                                        <button class="function-btn compact" title="Search">
+                                            <span class="btn-icon">??</span>
+                                        </button>
+                                        <button class="function-btn compact" title="Filter">
+                                            <span class="btn-icon">??</span>
+                                        </button>
+                                        <button class="function-btn compact" title="Export">
+                                            <span class="btn-icon">??</span>
+                                        </button>
+                                        <button class="function-btn compact" title="Settings">
+                                            <span class="btn-icon">??</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Main content area -->
+                                <div class="app-content">
+                                    <!-- Sidebar with vertical functions panel -->
+                                    <div class="app-sidebar">
+                                        <div class="sidebar-functions">
+                                            <button class="function-btn sidebar" title="Print">
+                                                <span class="btn-icon">???</span>
+                                            </button>
+                                            <button class="function-btn sidebar" title="Export">
+                                                <span class="btn-icon">??</span>
+                                            </button>
+                                            <button class="function-btn sidebar" title="Help">
+                                                <span class="btn-icon">?</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Data area -->
+                                    <div class="data-area">
+                                        <div class="data-grid">
+                                            <div class="grid-header">
+                                                <div class="grid-cell">Name</div>
+                                                <div class="grid-cell">Email</div>
+                                                <div class="grid-cell">Status</div>
+                                            </div>
+                                            <div class="grid-row">
+                                                <div class="grid-cell">John Smith</div>
+                                                <div class="grid-cell">john@example.com</div>
+                                                <div class="grid-cell">Active</div>
+                                            </div>
+                                            <div class="grid-row">
+                                                <div class="grid-cell">Jane Doe</div>
+                                                <div class="grid-cell">jane@example.com</div>
+                                                <div class="grid-cell">Inactive</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>BeepFunctionsPanel integrated in both header (horizontal) and sidebar (vertical) layouts</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .functions-panel-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 0 auto;
+                            max-width: 700px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .panel-container {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            padding: 1.5rem;
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            margin-bottom: 1rem;
+                        }
+
+                        .panel-container.horizontal {
+                            min-height: 60px;
+                        }
+
+                        .panel-container.vertical {
+                            min-height: 300px;
+                            width: 60px;
+                            margin: 0 auto 1rem;
+                        }
+
+                        .function-buttons {
+                            display: flex;
+                            gap: 0.5rem;
+                        }
+
+                        .function-buttons.horizontal {
+                            flex-direction: row;
+                            flex-wrap: wrap;
+                            justify-content: center;
+                        }
+
+                        .function-buttons.vertical {
+                            flex-direction: column;
+                            align-items: center;
+                        }
+
+                        .function-btn {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 32px;
+                            height: 32px;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            position: relative;
+                        }
+
+                        .function-btn:hover {
+                            background: var(--color-primary);
+                            border-color: var(--color-primary);
+                            transform: translateY(-1px);
+                            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+                        }
+
+                        .function-btn.compact {
+                            width: 28px;
+                            height: 28px;
+                        }
+
+                        .function-btn.sidebar {
+                            width: 36px;
+                            height: 36px;
+                        }
+
+                        .btn-icon {
+                            font-size: 14px;
+                            color: var(--color-text);
+                            transition: color 0.2s ease;
+                        }
+
+                        .function-btn:hover .btn-icon {
+                            color: white;
+                        }
+
+                        .layout-description {
+                            font-size: 13px;
+                            color: var(--color-text-secondary);
+                            margin: 0;
+                            font-style: italic;
+                        }
+
+                        .app-integration-example {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .mock-application {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            overflow: hidden;
+                            font-family: var(--font-family);
+                        }
+
+                        .app-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 1rem 1.5rem;
+                            background: var(--color-background-secondary);
+                            border-bottom: 1px solid var(--color-border);
+                        }
+
+                        .app-header h3 {
+                            margin: 0;
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                        }
+
+                        .header-functions {
+                            display: flex;
+                            gap: 0.5rem;
+                        }
+
+                        .app-content {
+                            display: flex;
+                            min-height: 200px;
+                        }
+
+                        .app-sidebar {
+                            width: 60px;
+                            background: var(--color-background-secondary);
+                            border-right: 1px solid var(--color-border);
+                            padding: 1rem 0.5rem;
+                        }
+
+                        .sidebar-functions {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            align-items: center;
+                        }
+
+                        .data-area {
+                            flex: 1;
+                            padding: 1rem;
+                        }
+
+                        .data-grid {
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            overflow: hidden;
+                        }
+
+                        .grid-header {
+                            display: grid;
+                            grid-template-columns: 1fr 2fr 1fr;
+                            background: var(--color-background-secondary);
+                            border-bottom: 1px solid var(--color-border);
+                        }
+
+                        .grid-row {
+                            display: grid;
+                            grid-template-columns: 1fr 2fr 1fr;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .grid-cell {
+                            padding: 0.75rem;
+                            font-size: 13px;
+                            border-right: 1px solid var(--color-border-light);
+                        }
+
+                        .grid-cell:last-child {
+                            border-right: none;
+                        }
+
+                        .grid-header .grid-cell {
+                            font-weight: 600;
+                            color: var(--color-text);
+                        }
+
+                        @media (max-width: 768px) {
+                            .function-buttons.horizontal {
+                                gap: 0.25rem;
+                            }
+                            
+                            .function-btn {
+                                width: 28px;
+                                height: 28px;
+                            }
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Functions Panel</h3>
+                        <pre><code class="language-csharp">// Create a horizontal functions panel
+var functionsPanel = new BeepFunctionsPanel();
+functionsPanel.Location = new Point(20, 20);
+functionsPanel.PanelOrientation = Orientation.Horizontal;
+functionsPanel.ButtonWidth = 32;
+functionsPanel.ButtonHeight = 32;
+functionsPanel.ButtonSpacing = 8;
+
+// Handle function calls
+functionsPanel.FunctionCalled += (sender, e) =>
+{
+    switch (e.EventName)
+    {
+        case "Refresh":
+            RefreshData();
+            break;
+        case "Search":
+            ShowSearchDialog();
+            break;
+        case "Filter":
+            ShowFilterOptions();
+            break;
+        case "Print":
+            PrintCurrentView();
+            break;
+        case "Export":
+            ExportData();
+            break;
+        default:
+            Console.WriteLine($"Function called: {e.EventName}");
+            break;
+    }
+};
+
+// Add to form
+this.Controls.Add(functionsPanel);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Vertical Sidebar Panel</h3>
+                        <pre><code class="language-csharp">// Create a vertical functions panel for sidebar
+var sidebarFunctions = new BeepFunctionsPanel
+{
+    PanelOrientation = Orientation.Vertical,
+    ButtonWidth = 40,
+    ButtonHeight = 40,
+    ButtonSpacing = 10,
+    XOffset = 5,
+    YOffset = 10,
+    Dock = DockStyle.Left
+};
+
+// Configure specific button visibility/accessibility
+sidebarFunctions.FunctionButtons["Help"].Visible = true;
+sidebarFunctions.FunctionButtons["About"].Visible = true;
+sidebarFunctions.FunctionButtons["Settings"].Visible = true;
+sidebarFunctions.FunctionButtons["Exit"].Visible = false; // Hide exit in sidebar
+
+// Handle function calls with specific logic
+sidebarFunctions.FunctionCalled += HandleSidebarFunctions;
+
+this.Controls.Add(sidebarFunctions);
+
+private void HandleSidebarFunctions(object sender, BeepEventDataArgs e)
+{
+    switch (e.EventName)
+    {
+        case "Help":
+            System.Diagnostics.Process.Start("https://help.example.com");
+            break;
+        case "About":
+            new AboutDialog().ShowDialog();
+            break;
+        case "Settings":
+            new SettingsForm().ShowDialog();
+            break;
+        default:
+            MessageBox.Show($"Function: {e.EventName}", "Sidebar Action");
+            break;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Data Grid Integration</h3>
+                        <pre><code class="language-csharp">public class DataGridWithFunctions : UserControl
+{
+    private BeepFunctionsPanel functionsPanel;
+    private DataGridView dataGrid;
+    private BindingSource dataSource;
+
+    public DataGridWithFunctions()
+    {
+        SetupFunctionsPanel();
+        SetupDataGrid();
+        LoadSampleData();
+    }
+
+    private void SetupFunctionsPanel()
+    {
+        functionsPanel = new BeepFunctionsPanel
+        {
+            Dock = DockStyle.Top,
+            PanelOrientation = Orientation.Horizontal,
+            ButtonWidth = 28,
+            ButtonHeight = 28,
+            ButtonSpacing = 6,
+            Height = 40
+        };
+
+        // Hide functions not relevant to data grid
+        functionsPanel.FunctionButtons["About"].Visible = false;
+        functionsPanel.FunctionButtons["Exit"].Visible = false;
+        functionsPanel.FunctionButtons["Close"].Visible = false;
+
+        functionsPanel.FunctionCalled += HandleGridFunctions;
+        this.Controls.Add(functionsPanel);
+    }
+
+    private void SetupDataGrid()
+    {
+        dataGrid = new DataGridView
+        {
+            Dock = DockStyle.Fill,
+            AutoGenerateColumns = true,
+            ReadOnly = false,
+            AllowUserToAddRows = true,
+            AllowUserToDeleteRows = true
+        };
+
+        dataSource = new BindingSource();
+        dataGrid.DataSource = dataSource;
+        this.Controls.Add(dataGrid);
+    }
+
+    private void HandleGridFunctions(object sender, BeepEventDataArgs e)
+    {
+        switch (e.EventName)
+        {
+            case "Refresh":
+                RefreshGridData();
+                break;
+                
+            case "Search":
+                ShowSearchDialog();
+                break;
+                
+            case "Filter":
+                ApplyDataFilter();
+                break;
+                
+            case "Sort":
+                ShowSortDialog();
+                break;
+                
+            case "Print":
+                PrintDataGrid();
+                break;
+                
+            case "Export":
+                ExportGridData();
+                break;
+                
+            case "Settings":
+                ShowGridSettings();
+                break;
+                
+            case "Help":
+                ShowGridHelp();
+                break;
+        }
+    }
+
+    private void RefreshGridData()
+    {
+        // Reload data from source
+        dataSource.ResetBindings(false);
+        MessageBox.Show("Data refreshed", "Info");
+    }
+
+    private void ShowSearchDialog()
+    {
+        using var searchForm = new Form
+        {
+            Text = "Search Data",
+            Size = new Size(300, 150),
+            StartPosition = FormStartPosition.CenterParent
+        };
+
+        var searchBox = new TextBox
+        {
+            Location = new Point(20, 20),
+            Width = 200,
+            PlaceholderText = "Enter search term..."
+        };
+
+        var searchButton = new Button
+        {
+            Text = "Search",
+            Location = new Point(230, 18),
+            Width = 60
+        };
+
+        searchButton.Click += (s, e) =>
+        {
+            // Implement search logic
+            string searchTerm = searchBox.Text;
+            FilterGridData(searchTerm);
+            searchForm.Close();
+        };
+
+        searchForm.Controls.AddRange(new Control[] { searchBox, searchButton });
+        searchForm.ShowDialog();
+    }
+
+    private void ApplyDataFilter()
+    {
+        // Show filter options dialog
+        using var filterForm = new Form
+        {
+            Text = "Filter Options",
+            Size = new Size(400, 300),
+            StartPosition = FormStartPosition.CenterParent
+        };
+
+        // Add filter controls
+        var statusLabel = new Label { Text = "Status:", Location = new Point(20, 20) };
+        var statusCombo = new ComboBox
+        {
+            Location = new Point(80, 18),
+            Width = 150,
+            DropDownStyle = ComboBoxStyle.DropDownList
+        };
+        statusCombo.Items.AddRange(new[] { "All", "Active", "Inactive", "Pending" });
+        statusCombo.SelectedIndex = 0;
+
+        var applyButton = new Button
+        {
+            Text = "Apply Filter",
+            Location = new Point(250, 18),
+            Width = 100
+        };
+
+        applyButton.Click += (s, e) =>
+        {
+            string filterValue = statusCombo.SelectedItem.ToString();
+            ApplyStatusFilter(filterValue);
+            filterForm.Close();
+        };
+
+        filterForm.Controls.AddRange(new Control[] { statusLabel, statusCombo, applyButton });
+        filterForm.ShowDialog();
+    }
+
+    private void PrintDataGrid()
+    {
+        // Implement printing logic
+        MessageBox.Show("Print functionality would be implemented here", "Print");
+    }
+
+    private void ExportGridData()
+    {
+        using var saveDialog = new SaveFileDialog
+        {
+            Filter = "CSV files (*.csv)|*.csv|Excel files (*.xlsx)|*.xlsx",
+            Title = "Export Data"
+        };
+
+        if (saveDialog.ShowDialog() == DialogResult.OK)
+        {
+            // Implement export logic based on file extension
+            string fileName = saveDialog.FileName;
+            ExportToFile(fileName);
+        }
+    }
+
+    // Helper methods
+    private void LoadSampleData() { /* Load sample data */ }
+    private void FilterGridData(string searchTerm) { /* Implement search filter */ }
+    private void ApplyStatusFilter(string status) { /* Implement status filter */ }
+    private void ShowSortDialog() { /* Show sort options */ }
+    private void ShowGridSettings() { /* Show grid configuration */ }
+    private void ShowGridHelp() { /* Show help content */ }
+    private void ExportToFile(string fileName) { /* Export to file */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Layout Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>PanelOrientation</code></td>
+                                <td>Orientation</td>
+                                <td>Horizontal</td>
+                                <td>Orientation of the button layout (Horizontal/Vertical)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonWidth</code></td>
+                                <td>int</td>
+                                <td>20</td>
+                                <td>Width of individual function buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonHeight</code></td>
+                                <td>int</td>
+                                <td>20</td>
+                                <td>Height of individual function buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonSpacing</code></td>
+                                <td>int</td>
+                                <td>5</td>
+                                <td>Spacing between buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>XOffset</code></td>
+                                <td>int</td>
+                                <td>5</td>
+                                <td>Horizontal offset from panel edge</td>
+                            </tr>
+                            <tr>
+                                <td><code>YOffset</code></td>
+                                <td>int</td>
+                                <td>5</td>
+                                <td>Vertical offset from panel edge</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyThemeOnImage</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether to apply theme colors to button icons</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Button References</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Function</th>
+                                <th>Icon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>btnRefresh</code></td>
+                                <td>BeepButton</td>
+                                <td>Refresh data or view</td>
+                                <td>?? Refresh</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnSearch</code></td>
+                                <td>BeepButton</td>
+                                <td>Search functionality</td>
+                                <td>?? Search</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnFilter</code></td>
+                                <td>BeepButton</td>
+                                <td>Filter data or options</td>
+                                <td>?? Filter</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnSort</code></td>
+                                <td>BeepButton</td>
+                                <td>Sort data or items</td>
+                                <td>?? Sort</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnPrint</code></td>
+                                <td>BeepButton</td>
+                                <td>Print current view</td>
+                                <td>??? Print</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnExport</code></td>
+                                <td>BeepButton</td>
+                                <td>Export data</td>
+                                <td>?? Export</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnClose</code></td>
+                                <td>BeepButton</td>
+                                <td>Close window or dialog</td>
+                                <td>? Close</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnHelp</code></td>
+                                <td>BeepButton</td>
+                                <td>Show help information</td>
+                                <td>? Help</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnSettings</code></td>
+                                <td>BeepButton</td>
+                                <td>Open settings or preferences</td>
+                                <td>?? Settings</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnAbout</code></td>
+                                <td>BeepButton</td>
+                                <td>Show about information</td>
+                                <td>?? About</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnExit</code></td>
+                                <td>BeepButton</td>
+                                <td>Exit application</td>
+                                <td>?? Exit</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Collections</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>FunctionButtons</code></td>
+                                <td>Dictionary&lt;string, BeepButton&gt;</td>
+                                <td>Collection of all function buttons accessible by name</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>FunctionCalled</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Fired when any function button is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>BeepEventDataArgs Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>EventName</code></td>
+                                <td>string</td>
+                                <td>Name of the function that was called (e.g., "Refresh", "Search")</td>
+                            </tr>
+                            <tr>
+                                <td><code>EventData</code></td>
+                                <td>object</td>
+                                <td>Additional data associated with the event (typically null)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Function Names</h3>
+                    <ul>
+                        <li><strong>"Refresh"</strong> - Refresh button clicked</li>
+                        <li><strong>"Search"</strong> - Search button clicked</li>
+                        <li><strong>"Filter"</strong> - Filter button clicked</li>
+                        <li><strong>"Sort"</strong> - Sort button clicked</li>
+                        <li><strong>"Print"</strong> - Print button clicked</li>
+                        <li><strong>"Export"</strong> - Export button clicked</li>
+                        <li><strong>"Close"</strong> - Close button clicked</li>
+                        <li><strong>"Help"</strong> - Help button clicked</li>
+                        <li><strong>"Settings"</strong> - Settings button clicked</li>
+                        <li><strong>"About"</strong> - About button clicked</li>
+                        <li><strong>"Exit"</strong> - Exit button clicked</li>
+                    </ul>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Document Management Interface</h3>
+                        <pre><code class="language-csharp">public class DocumentManager : Form
+{
+    private BeepFunctionsPanel headerFunctions;
+    private BeepFunctionsPanel sidebarFunctions;
+    private ListView documentList;
+    private List<DocumentInfo> documents;
+
+    public DocumentManager()
+    {
+        SetupInterface();
+        LoadDocuments();
+    }
+
+    private void SetupInterface()
+    {
+        this.Size = new Size(800, 600);
+        this.Text = "Document Manager";
+
+        // Header functions panel
+        headerFunctions = new BeepFunctionsPanel
+        {
+            Dock = DockStyle.Top,
+            PanelOrientation = Orientation.Horizontal,
+            ButtonWidth = 32,
+            ButtonHeight = 32,
+            ButtonSpacing = 8,
+            Height = 50
+        };
+
+        // Configure header functions - hide non-document functions
+        headerFunctions.FunctionButtons["About"].Visible = false;
+        headerFunctions.FunctionButtons["Exit"].Visible = false;
+        headerFunctions.FunctionButtons["Close"].Visible = false;
+
+        headerFunctions.FunctionCalled += HandleHeaderFunctions;
+
+        // Sidebar functions panel
+        sidebarFunctions = new BeepFunctionsPanel
+        {
+            Dock = DockStyle.Right,
+            PanelOrientation = Orientation.Vertical,
+            ButtonWidth = 40,
+            ButtonHeight = 40,
+            ButtonSpacing = 12,
+            Width = 60
+        };
+
+        // Configure sidebar - only show utility functions
+        var sidebarButtons = new[] { "Print", "Export", "Settings", "Help" };
+        foreach (var btn in sidebarFunctions.FunctionButtons)
+        {
+            btn.Value.Visible = sidebarButtons.Contains(btn.Key);
+        }
+
+        sidebarFunctions.FunctionCalled += HandleSidebarFunctions;
+
+        // Document list
+        documentList = new ListView
+        {
+            Dock = DockStyle.Fill,
+            View = View.Details,
+            FullRowSelect = true,
+            GridLines = true
+        };
+
+        documentList.Columns.AddRange(new[]
+        {
+            new ColumnHeader { Text = "Name", Width = 200 },
+            new ColumnHeader { Text = "Type", Width = 100 },
+            new ColumnHeader { Text = "Size", Width = 100 },
+            new ColumnHeader { Text = "Modified", Width = 150 },
+            new ColumnHeader { Text = "Status", Width = 100 }
+        });
+
+        // Add controls to form
+        this.Controls.AddRange(new Control[] 
+        { 
+            documentList, sidebarFunctions, headerFunctions 
+        });
+    }
+
+    private void HandleHeaderFunctions(object sender, BeepEventDataArgs e)
+    {
+        switch (e.EventName)
+        {
+            case "Refresh":
+                RefreshDocumentList();
+                break;
+                
+            case "Search":
+                ShowDocumentSearch();
+                break;
+                
+            case "Filter":
+                ShowDocumentFilter();
+                break;
+                
+            case "Sort":
+                ShowSortOptions();
+                break;
+        }
+    }
+
+    private void HandleSidebarFunctions(object sender, BeepEventDataArgs e)
+    {
+        switch (e.EventName)
+        {
+            case "Print":
+                PrintDocumentList();
+                break;
+                
+            case "Export":
+                ExportDocumentList();
+                break;
+                
+            case "Settings":
+                ShowDocumentSettings();
+                break;
+                
+            case "Help":
+                ShowDocumentHelp();
+                break;
+        }
+    }
+
+    private void RefreshDocumentList()
+    {
+        documentList.Items.Clear();
+        LoadDocuments();
+        ShowStatusMessage("Document list refreshed");
+    }
+
+    private void ShowDocumentSearch()
+    {
+        using var searchDialog = new DocumentSearchDialog();
+        if (searchDialog.ShowDialog() == DialogResult.OK)
+        {
+            var searchResults = SearchDocuments(searchDialog.SearchCriteria);
+            UpdateDocumentList(searchResults);
+        }
+    }
+
+    private void ShowDocumentFilter()
+    {
+        using var filterDialog = new DocumentFilterDialog();
+        if (filterDialog.ShowDialog() == DialogResult.OK)
+        {
+            var filteredDocuments = FilterDocuments(filterDialog.FilterCriteria);
+            UpdateDocumentList(filteredDocuments);
+        }
+    }
+
+    private void PrintDocumentList()
+    {
+        // Create print document
+        var printDoc = new PrintDocument();
+        printDoc.PrintPage += (s, e) =>
+        {
+            // Print document list logic
+            PrintDocumentListContent(e.Graphics);
+        };
+
+        var printDialog = new PrintDialog { Document = printDoc };
+        if (printDialog.ShowDialog() == DialogResult.OK)
+        {
+            printDoc.Print();
+        }
+    }
+
+    private void ExportDocumentList()
+    {
+        using var saveDialog = new SaveFileDialog
+        {
+            Filter = "CSV Files|*.csv|Excel Files|*.xlsx|PDF Files|*.pdf",
+            Title = "Export Document List"
+        };
+
+        if (saveDialog.ShowDialog() == DialogResult.OK)
+        {
+            switch (Path.GetExtension(saveDialog.FileName).ToLower())
+            {
+                case ".csv":
+                    ExportToCsv(saveDialog.FileName);
+                    break;
+                case ".xlsx":
+                    ExportToExcel(saveDialog.FileName);
+                    break;
+                case ".pdf":
+                    ExportToPdf(saveDialog.FileName);
+                    break;
+            }
+            
+            ShowStatusMessage($"Document list exported to {saveDialog.FileName}");
+        }
+    }
+
+    // Helper methods
+    private void LoadDocuments() { /* Load documents from storage */ }
+    private void UpdateDocumentList(IEnumerable<DocumentInfo> docs) { /* Update list view */ }
+    private IEnumerable<DocumentInfo> SearchDocuments(SearchCriteria criteria) { return documents; }
+    private IEnumerable<DocumentInfo> FilterDocuments(FilterCriteria criteria) { return documents; }
+    private void ShowSortOptions() { /* Show sort dialog */ }
+    private void ShowDocumentSettings() { /* Show settings dialog */ }
+    private void ShowDocumentHelp() { /* Show help content */ }
+    private void PrintDocumentListContent(Graphics graphics) { /* Print implementation */ }
+    private void ExportToCsv(string fileName) { /* CSV export */ }
+    private void ExportToExcel(string fileName) { /* Excel export */ }
+    private void ExportToPdf(string fileName) { /* PDF export */ }
+    private void ShowStatusMessage(string message) { /* Update status bar */ }
+}
+
+public class DocumentInfo
+{
+    public string Name { get; set; }
+    public string Type { get; set; }
+    public long Size { get; set; }
+    public DateTime Modified { get; set; }
+    public string Status { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepFunctionsPanel provides comprehensive theming for all contained buttons with automatic theme propagation:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var functionsPanel = new BeepFunctionsPanel
+{
+    Theme = "DarkTheme",
+    ApplyThemeOnImage = true // Apply theme colors to SVG icons
+};
+
+// Theme automatically applies to:
+// - Panel background color
+// - All function button themes
+// - Button hover states
+// - Icon colors (if ApplyThemeOnImage is true)
+// - Tooltip styling
+
+// Manual theme application
+functionsPanel.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Functions Panel Theming</h3>
+                    <ul>
+                        <li><strong>ListBackColor</strong> - Panel background color</li>
+                        <li><strong>ListForeColor</strong> - Button text/icon colors</li>
+                        <li><strong>ButtonBackColor</strong> - Individual button backgrounds</li>
+                        <li><strong>ButtonHoverBackColor</strong> - Button hover states</li>
+                        <li><strong>BorderColor</strong> - Button borders and panel borders</li>
+                        <li><strong>ShadowColor</strong> - Button shadow effects</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Button Styling</h3>
+                        <pre><code class="language-csharp">// Customize individual buttons after theme application
+functionsPanel.ApplyTheme();
+
+// Make important buttons stand out
+functionsPanel.FunctionButtons["Refresh"].BackColor = Color.FromArgb(46, 204, 113);
+functionsPanel.FunctionButtons["Search"].BackColor = Color.FromArgb(52, 152, 219);
+functionsPanel.FunctionButtons["Export"].BackColor = Color.FromArgb(241, 196, 15);
+
+// Style warning/danger buttons
+functionsPanel.FunctionButtons["Exit"].BackColor = Color.FromArgb(231, 76, 60);
+functionsPanel.FunctionButtons["Close"].BackColor = Color.FromArgb(230, 126, 34);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>??? Function Organization</h3>
+                    <ul>
+                        <li><strong>Context relevance:</strong> Show only functions relevant to the current context</li>
+                        <li><strong>Logical grouping:</strong> Group related functions together (data operations, system functions)</li>
+                        <li><strong>Frequency-based placement:</strong> Place most-used functions in easily accessible positions</li>
+                        <li><strong>Visibility management:</strong> Hide irrelevant functions rather than disabling them</li>
+                    </ul>
+
+                    <h3>?? Layout Considerations</h3>
+                    <ul>
+                        <li><strong>Orientation choice:</strong> Use horizontal for headers/toolbars, vertical for sidebars</li>
+                        <li><strong>Button sizing:</strong> Ensure adequate touch targets (minimum 32x32 pixels)</li>
+                        <li><strong>Spacing consistency:</strong> Use consistent spacing across all instances</li>
+                        <li><strong>Responsive design:</strong> Consider how panels behave on different screen sizes</li>
+                    </ul>
+
+                    <h3>? Performance</h3>
+                    <ul>
+                        <li><strong>Function handling:</strong> Implement efficient event handling for all functions</li>
+                        <li><strong>Resource management:</strong> Dispose of dialogs and resources properly</li>
+                        <li><strong>UI responsiveness:</strong> Use async operations for time-consuming tasks</li>
+                        <li><strong>Theme optimization:</strong> Apply themes efficiently without excessive redraws</li>
+                    </ul>
+
+                    <h3>?? Visual Design</h3>
+                    <ul>
+                        <li><strong>Icon consistency:</strong> Use consistent icon styles across all functions</li>
+                        <li><strong>Tooltips:</strong> Provide clear, descriptive tooltips for all functions</li>
+                        <li><strong>Visual feedback:</strong> Ensure buttons provide clear hover and click feedback</li>
+                        <li><strong>Theme integration:</strong> Use theme colors appropriately for different functions</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Layout Tip</strong>
+                        <p>For data-heavy applications, place the functions panel above the data view (horizontal) for easy access to data operations like refresh, search, and filter.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Best Practice</strong>
+                        <p>Always implement meaningful functionality for each visible button - users expect all visible functions to work properly and provide value.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Usability Warning</strong>
+                        <p>Avoid overwhelming users with too many visible functions - consider grouping less-common functions under a "More" or "Tools" submenu.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-flyoutmenu.html"><i class="bi bi-arrow-left"></i> BeepFlyoutMenu</a>
+                    <a href="beep-multichipgroup.html">BeepMultiChipGroup <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

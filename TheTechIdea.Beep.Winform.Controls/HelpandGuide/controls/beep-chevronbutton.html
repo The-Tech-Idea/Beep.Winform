@@ -1,0 +1,1036 @@
+<!--
+    BeepChevronButton Control Documentation
+    Professional-grade documentation for the BeepChevronButton WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepChevronButton - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-cursor-fill"></i> Button Variants</a>
+                        <ul class="submenu">
+                            <li><a href="beep-circularbutton.html">BeepCircularButton</a></li>
+                            <li><a href="beep-chevronbutton.html" class="active">BeepChevronButton</a></li>
+                            <li><a href="beep-extendedbutton.html">BeepExtendedButton</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#button-variants">Button Variants</a>
+                    <span>→</span>
+                    <span>BeepChevronButton</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepChevronButton</h1>
+                    <p class="page-subtitle">Modern, theme-aware button with animated chevron indicator for expandable content, dropdown menus, and collapsible sections</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepChevronButton</strong> provides a sophisticated button control with an integrated chevron 
+                        indicator, designed for dropdown menus, expandable panels, and any interface element requiring visual 
+                        indication of expandable or collapsible content. It combines modern button styling with smooth chevron animations.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepChevronButton features animated chevron rotation, 
+                        customizable chevron directions, automatic state management, smooth transitions, 
+                        dropdown integration, and comprehensive theming support. Perfect for menus, toolbars, 
+                        accordion interfaces, and any application requiring expandable UI elements.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📐 Animated Chevron</h3>
+                            <p>Smooth chevron rotation animations with customizable directions and speeds</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 State Management</h3>
+                            <p>Automatic visual state changes between expanded and collapsed states</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📋 Dropdown Integration</h3>
+                            <p>Seamless integration with dropdown menus and context menus</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Custom Styling</h3>
+                            <p>Flexible chevron styling with size, color, and positioning options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ Smart Behavior</h3>
+                            <p>Intelligent chevron direction based on content position and state</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>♿ Accessibility</h3>
+                            <p>Screen reader support and keyboard navigation compatibility</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Chevron Button States and Variations</h3>
+                    <div class="visual-demo">
+                        <div class="chevron-buttons-preview">
+                            <!-- Collapsed State -->
+                            <div class="button-demo-section">
+                                <h4>Collapsed State</h4>
+                                <div class="button-row">
+                                    <div class="chevron-button collapsed">
+                                        <span class="button-text">Options</span>
+                                        <span class="chevron down">▼</span>
+                                    </div>
+                                    <div class="chevron-button collapsed secondary">
+                                        <span class="button-text">More Actions</span>
+                                        <span class="chevron down">▼</span>
+                                    </div>
+                                    <div class="chevron-button collapsed success">
+                                        <span class="button-text">Export</span>
+                                        <span class="chevron down">▼</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Expanded State -->
+                            <div class="button-demo-section">
+                                <h4>Expanded State</h4>
+                                <div class="button-row">
+                                    <div class="chevron-button expanded">
+                                        <span class="button-text">Options</span>
+                                        <span class="chevron up">▲</span>
+                                    </div>
+                                    <div class="chevron-button expanded secondary">
+                                        <span class="button-text">More Actions</span>
+                                        <span class="chevron up">▲</span>
+                                    </div>
+                                    <div class="chevron-button expanded success">
+                                        <span class="button-text">Export</span>
+                                        <span class="chevron up">▲</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Different Directions -->
+                            <div class="button-demo-section">
+                                <h4>Chevron Directions</h4>
+                                <div class="button-row">
+                                    <div class="chevron-button collapsed">
+                                        <span class="chevron left">◀</span>
+                                        <span class="button-text">Left</span>
+                                    </div>
+                                    <div class="chevron-button collapsed">
+                                        <span class="button-text">Right</span>
+                                        <span class="chevron right">▶</span>
+                                    </div>
+                                    <div class="chevron-button collapsed">
+                                        <span class="chevron up">▲</span>
+                                        <span class="button-text">Up</span>
+                                    </div>
+                                    <div class="chevron-button collapsed">
+                                        <span class="button-text">Down</span>
+                                        <span class="chevron down">▼</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- With Dropdown -->
+                            <div class="button-demo-section">
+                                <h4>With Dropdown Menu</h4>
+                                <div class="dropdown-demo">
+                                    <div class="chevron-button expanded with-dropdown">
+                                        <span class="button-text">File Menu</span>
+                                        <span class="chevron up">▲</span>
+                                    </div>
+                                    <div class="dropdown-menu">
+                                        <div class="dropdown-item">📄 New Document</div>
+                                        <div class="dropdown-item">📂 Open File</div>
+                                        <div class="dropdown-item">💾 Save</div>
+                                        <div class="dropdown-divider"></div>
+                                        <div class="dropdown-item">🔄 Recent Files</div>
+                                        <div class="dropdown-item">⚙️ Settings</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Chevron buttons showing different states, styles, and dropdown integration</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .chevron-buttons-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .button-demo-section {
+                            margin-bottom: 2rem;
+                        }
+
+                        .button-demo-section:last-child {
+                            margin-bottom: 0;
+                        }
+
+                        .button-demo-section h4 {
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            margin: 0 0 1rem;
+                            padding-bottom: 0.5rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .button-row {
+                            display: flex;
+                            gap: 1rem;
+                            flex-wrap: wrap;
+                            align-items: center;
+                        }
+
+                        .chevron-button {
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            padding: 0.5rem 1rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            user-select: none;
+                        }
+
+                        .chevron-button:hover {
+                            background: var(--color-background-secondary);
+                            border-color: var(--color-primary);
+                        }
+
+                        .chevron-button.secondary {
+                            background: var(--color-background-secondary);
+                            border-color: var(--color-border);
+                        }
+
+                        .chevron-button.success {
+                            background: var(--color-success);
+                            color: white;
+                            border-color: var(--color-success);
+                        }
+
+                        .chevron-button.expanded {
+                            background: var(--color-primary);
+                            color: white;
+                            border-color: var(--color-primary);
+                        }
+
+                        .chevron-button.expanded.secondary {
+                            background: var(--color-text-secondary);
+                            color: white;
+                            border-color: var(--color-text-secondary);
+                        }
+
+                        .chevron-button.expanded.success {
+                            background: #16a34a;
+                            border-color: #16a34a;
+                        }
+
+                        .button-text {
+                            font-weight: 500;
+                        }
+
+                        .chevron {
+                            font-size: 12px;
+                            transition: transform 0.2s ease;
+                            opacity: 0.8;
+                        }
+
+                        .chevron-button.expanded .chevron.down {
+                            transform: rotate(180deg);
+                        }
+
+                        .chevron-button.expanded .chevron.up {
+                            transform: rotate(180deg);
+                        }
+
+                        .dropdown-demo {
+                            position: relative;
+                            display: inline-block;
+                        }
+
+                        .chevron-button.with-dropdown {
+                            border-bottom-left-radius: 0;
+                            border-bottom-right-radius: 0;
+                            border-bottom-color: transparent;
+                        }
+
+                        .dropdown-menu {
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            right: 0;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-top: none;
+                            border-radius: 0 0 6px 6px;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                            z-index: 10;
+                        }
+
+                        .dropdown-item {
+                            padding: 0.75rem 1rem;
+                            font-size: 14px;
+                            color: var(--color-text);
+                            cursor: pointer;
+                            transition: background-color 0.1s ease;
+                        }
+
+                        .dropdown-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dropdown-divider {
+                            height: 1px;
+                            background: var(--color-border-light);
+                            margin: 0.5rem 0;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Chevron Button</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepChevronButton
+var chevronButton = new BeepChevronButton();
+chevronButton.Size = new Size(120, 32);
+chevronButton.Text = "Options";
+chevronButton.ChevronDirection = ChevronDirection.Down;
+chevronButton.IsExpanded = false;
+
+// Handle click to toggle state
+chevronButton.Click += (s, e) =>
+{
+    chevronButton.IsExpanded = !chevronButton.IsExpanded;
+    Console.WriteLine($"Button is now {(chevronButton.IsExpanded ? "expanded" : "collapsed")}");
+};
+
+// Handle state change events
+chevronButton.ExpandedChanged += (s, e) =>
+{
+    if (e.IsExpanded)
+    {
+        ShowAssociatedContent();
+    }
+    else
+    {
+        HideAssociatedContent();
+    }
+};
+
+// Add to form
+this.Controls.Add(chevronButton);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dropdown Menu Integration</h3>
+                        <pre><code class="language-csharp">// Create chevron button with dropdown menu
+var dropdownButton = new BeepChevronButton
+{
+    Text = "File Menu",
+    Size = new Size(100, 30),
+    ChevronDirection = ChevronDirection.Down,
+    AutoRotateChevron = true
+};
+
+// Create context menu
+var contextMenu = new ContextMenuStrip();
+contextMenu.Items.Add("New Document", null, (s, e) => CreateNewDocument());
+contextMenu.Items.Add("Open File", null, (s, e) => OpenFileDialog());
+contextMenu.Items.Add("-"); // Separator
+contextMenu.Items.Add("Recent Files", null, (s, e) => ShowRecentFiles());
+contextMenu.Items.Add("Settings", null, (s, e) => ShowSettings());
+
+// Handle button click to show menu
+dropdownButton.Click += (s, e) =>
+{
+    var button = s as BeepChevronButton;
+    button.IsExpanded = true;
+    
+    // Position menu below button
+    var location = button.PointToScreen(new Point(0, button.Height));
+    contextMenu.Show(location);
+};
+
+// Handle menu closing
+contextMenu.Closed += (s, e) =>
+{
+    dropdownButton.IsExpanded = false;
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Button text label</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsExpanded</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether the button is in expanded state</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChevronDirection</code></td>
+                                <td>ChevronDirection</td>
+                                <td>Down</td>
+                                <td>Direction of chevron (Up, Down, Left, Right)</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoRotateChevron</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Automatically rotate chevron based on state</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Chevron Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ChevronSize</code></td>
+                                <td>Size</td>
+                                <td>12, 12</td>
+                                <td>Size of the chevron indicator</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChevronColor</code></td>
+                                <td>Color</td>
+                                <td>Auto</td>
+                                <td>Color of the chevron indicator</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChevronPosition</code></td>
+                                <td>ChevronPosition</td>
+                                <td>Right</td>
+                                <td>Position of chevron relative to text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChevronSpacing</code></td>
+                                <td>int</td>
+                                <td>8</td>
+                                <td>Spacing between text and chevron</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AnimationDuration</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Duration of chevron rotation animation (ms)</td>
+                            </tr>
+                            <tr>
+                                <td><code>AnimationEasing</code></td>
+                                <td>EasingType</td>
+                                <td>EaseOut</td>
+                                <td>Easing function for animations</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableAnimations</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Enable/disable chevron animations</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ExpandedChanged</code></td>
+                                <td>ExpandedEventArgs</td>
+                                <td>Fired when IsExpanded property changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChevronClicked</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when chevron area is specifically clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeforeExpand</code></td>
+                                <td>CancelableEventArgs</td>
+                                <td>Fired before expanding, can be cancelled</td>
+                            </tr>
+                            <tr>
+                                <td><code>BeforeCollapse</code></td>
+                                <td>CancelableEventArgs</td>
+                                <td>Fired before collapsing, can be cancelled</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Expandable Panel with Chevron Button</h3>
+                        <pre><code class="language-csharp">public partial class ExpandablePanelExample : UserControl
+{
+    private BeepChevronButton expandButton;
+    private BeepPanel contentPanel;
+    private bool isContentVisible = false;
+
+    public ExpandablePanelExample()
+    {
+        InitializeComponents();
+        SetupExpandablePanel();
+    }
+
+    private void InitializeComponents()
+    {
+        // Create chevron button
+        expandButton = new BeepChevronButton
+        {
+            Text = "Advanced Options",
+            Size = new Size(200, 35),
+            Location = new Point(10, 10),
+            ChevronDirection = ChevronDirection.Down,
+            AutoRotateChevron = true,
+            Theme = "Modern"
+        };
+
+        // Create expandable content panel
+        contentPanel = new BeepPanel
+        {
+            Size = new Size(400, 200),
+            Location = new Point(10, 55),
+            Visible = false,
+            BorderStyle = BorderStyle.FixedSingle,
+            Padding = new Padding(10)
+        };
+
+        // Add some content to the panel
+        var label1 = new BeepLabel 
+        { 
+            Text = "Advanced Setting 1:", 
+            Location = new Point(5, 5),
+            AutoSize = true
+        };
+        var textBox1 = new BeepTextBox 
+        { 
+            Location = new Point(5, 25),
+            Size = new Size(200, 25)
+        };
+
+        var label2 = new BeepLabel 
+        { 
+            Text = "Advanced Setting 2:", 
+            Location = new Point(5, 60),
+            AutoSize = true
+        };
+        var comboBox1 = new BeepComboBox 
+        { 
+            Location = new Point(5, 80),
+            Size = new Size(200, 25)
+        };
+        comboBox1.Items.AddRange(new[] { "Option A", "Option B", "Option C" });
+
+        contentPanel.Controls.AddRange(new Control[] 
+        { 
+            label1, textBox1, label2, comboBox1 
+        });
+
+        this.Controls.AddRange(new Control[] 
+        { 
+            expandButton, contentPanel 
+        });
+    }
+
+    private void SetupExpandablePanel()
+    {
+        expandButton.Click += ToggleContentVisibility;
+        
+        // Handle smooth expansion/collapse
+        expandButton.BeforeExpand += (s, e) =>
+        {
+            if (!ValidateCanExpand())
+            {
+                e.Cancel = true;
+                MessageBox.Show("Cannot expand panel at this time.");
+            }
+        };
+
+        expandButton.ExpandedChanged += (s, e) =>
+        {
+            AnimateContentPanel(e.IsExpanded);
+        };
+    }
+
+    private void ToggleContentVisibility(object sender, EventArgs e)
+    {
+        expandButton.IsExpanded = !expandButton.IsExpanded;
+    }
+
+    private async void AnimateContentPanel(bool expand)
+    {
+        if (expand)
+        {
+            contentPanel.Visible = true;
+            contentPanel.Height = 0;
+            
+            // Animate height expansion
+            await AnimateHeight(contentPanel, 0, 200, 250);
+        }
+        else
+        {
+            // Animate height collapse
+            await AnimateHeight(contentPanel, contentPanel.Height, 0, 250);
+            contentPanel.Visible = false;
+        }
+        
+        isContentVisible = expand;
+    }
+
+    private async Task AnimateHeight(Control control, int fromHeight, int toHeight, int duration)
+    {
+        var startTime = DateTime.Now;
+        var startHeight = fromHeight;
+        var heightDiff = toHeight - fromHeight;
+
+        while ((DateTime.Now - startTime).TotalMilliseconds < duration)
+        {
+            var progress = (DateTime.Now - startTime).TotalMilliseconds / duration;
+            progress = Math.Min(1.0, progress);
+            
+            // Ease out animation
+            progress = 1 - Math.Pow(1 - progress, 3);
+            
+            var currentHeight = startHeight + (int)(heightDiff * progress);
+            control.Height = currentHeight;
+            
+            Application.DoEvents();
+            await Task.Delay(16); // ~60 FPS
+        }
+        
+        control.Height = toHeight;
+    }
+
+    private bool ValidateCanExpand()
+    {
+        // Add custom validation logic here
+        return true;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Advanced Dropdown Menu System</h3>
+                        <pre><code class="language-csharp">public partial class AdvancedDropdownExample : Form
+{
+    private BeepPanel menuPanel;
+    private List<BeepChevronButton> menuButtons;
+
+    public AdvancedDropdownExample()
+    {
+        InitializeComponents();
+        CreateMenuSystem();
+    }
+
+    private void InitializeComponents()
+    {
+        menuPanel = new BeepPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 40,
+            BackColor = Color.FromArgb(240, 240, 240),
+            Padding = new Padding(5)
+        };
+
+        menuButtons = new List<BeepChevronButton>();
+        this.Controls.Add(menuPanel);
+    }
+
+    private void CreateMenuSystem()
+    {
+        var menuItems = new[]
+        {
+            new { Text = "File", Items = new[] { "New", "Open", "Save", "Export", "Print" } },
+            new { Text = "Edit", Items = new[] { "Undo", "Redo", "Cut", "Copy", "Paste" } },
+            new { Text = "View", Items = new[] { "Zoom In", "Zoom Out", "Full Screen", "Grid" } },
+            new { Text = "Tools", Items = new[] { "Options", "Plugins", "Customize", "Import" } }
+        };
+
+        int x = 5;
+        foreach (var menu in menuItems)
+        {
+            var menuButton = CreateMenuButton(menu.Text, menu.Items, x);
+            menuButtons.Add(menuButton);
+            menuPanel.Controls.Add(menuButton);
+            x += menuButton.Width + 5;
+        }
+    }
+
+    private BeepChevronButton CreateMenuButton(string text, string[] items, int x)
+    {
+        var button = new BeepChevronButton
+        {
+            Text = text,
+            Size = new Size(80, 30),
+            Location = new Point(x, 5),
+            ChevronDirection = ChevronDirection.Down,
+            ChevronSize = new Size(8, 8),
+            AutoRotateChevron = false // Keep chevron pointing down
+        };
+
+        // Create dropdown menu
+        var contextMenu = new ContextMenuStrip();
+        foreach (var item in items)
+        {
+            var menuItem = new ToolStripMenuItem(item);
+            menuItem.Click += (s, e) => HandleMenuItemClick(text, item);
+            contextMenu.Items.Add(menuItem);
+        }
+
+        // Handle button events
+        button.Click += (s, e) => ShowDropdownMenu(button, contextMenu);
+        button.MouseEnter += (s, e) => HandleMenuHover(button, contextMenu);
+
+        return button;
+    }
+
+    private void ShowDropdownMenu(BeepChevronButton button, ContextMenuStrip menu)
+    {
+        // Close other open menus
+        CloseAllMenus();
+
+        button.IsExpanded = true;
+        var location = button.PointToScreen(new Point(0, button.Height));
+        menu.Show(location);
+
+        menu.Closed += (s, e) => button.IsExpanded = false;
+    }
+
+    private void HandleMenuHover(BeepChevronButton button, ContextMenuStrip menu)
+    {
+        // If another menu is open, switch to this one
+        if (menuButtons.Any(b => b.IsExpanded))
+        {
+            ShowDropdownMenu(button, menu);
+        }
+    }
+
+    private void CloseAllMenus()
+    {
+        foreach (var button in menuButtons)
+        {
+            button.IsExpanded = false;
+        }
+    }
+
+    private void HandleMenuItemClick(string menuName, string itemName)
+    {
+        MessageBox.Show($"Selected: {menuName} -> {itemName}");
+        CloseAllMenus();
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepChevronButton provides comprehensive theming support with automatic styling adaptation:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var chevronButton = new BeepChevronButton
+{
+    Theme = "ModernDark",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - ButtonBackColor: Main button background
+// - ButtonForeColor: Text and chevron color
+// - ButtonBorderColor: Button border styling
+// - HoverBackColor: Hover state background
+// - ExpandedBackColor: Expanded state background
+// - ChevronColor: Chevron indicator color</code></pre>
+                    </div>
+
+                    <h3>Chevron-Specific Theming</h3>
+                    <ul>
+                        <li><strong>State-aware colors</strong> - Different colors for collapsed and expanded states</li>
+                        <li><strong>Chevron styling</strong> - Theme-coordinated chevron colors and effects</li>
+                        <li><strong>Animation consistency</strong> - Smooth transitions that match theme timing</li>
+                        <li><strong>Hover effects</strong> - Theme-appropriate hover and focus states</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear indication:</strong> Make it obvious that the button controls expandable content</li>
+                        <li><strong>Consistent behavior:</strong> Use consistent chevron directions throughout your application</li>
+                        <li><strong>Smooth animations:</strong> Keep animation durations short (150-300ms) for responsiveness</li>
+                        <li><strong>Visual feedback:</strong> Provide clear visual feedback for expanded/collapsed states</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>State management:</strong> Properly manage expanded state with associated content</li>
+                        <li><strong>Event handling:</strong> Handle both button clicks and chevron-specific interactions</li>
+                        <li><strong>Accessibility:</strong> Provide proper ARIA attributes for screen readers</li>
+                        <li><strong>Keyboard support:</strong> Implement keyboard navigation (Enter, Space, Arrow keys)</li>
+                    </ul>
+
+                    <h3>📱 Responsive Design</h3>
+                    <ul>
+                        <li><strong>Touch targets:</strong> Ensure buttons are large enough for touch interaction</li>
+                        <li><strong>Flexible sizing:</strong> Allow buttons to adapt to different container sizes</li>
+                        <li><strong>Content positioning:</strong> Position dropdown content appropriately for screen edges</li>
+                        <li><strong>Performance:</strong> Optimize animations for smooth performance on all devices</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use consistent chevron directions: down for dropdowns that appear below, up for content that appears above, and left/right for side panels.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement hover-to-open behavior for menu systems to improve navigation speed and user experience.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Accessibility Warning</strong>
+                        <p>Always provide alternative navigation methods for users who cannot see or interact with chevron animations.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-circularbutton.html"><i class="bi bi-arrow-left"></i> BeepCircularButton</a>
+                    <a href="beep-extendedbutton.html">BeepExtendedButton <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

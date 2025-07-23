@@ -1,0 +1,1082 @@
+<!--
+    BeepDualPercentageControl Control Documentation
+    Professional-grade documentation for the BeepDualPercentageControl WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDualPercentageControl - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-datanavigator.html">BeepDataNavigator</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-filter.html">BeepFilter</a></li>
+                            <li><a href="beep-dualpercentagecontrol.html" class="active">BeepDualPercentageControl</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>→</span>
+                    <span>BeepDualPercentageControl</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepDualPercentageControl</h1>
+                    <p class="page-subtitle">Specialized, theme-aware control for displaying dual percentage comparisons with rich visual elements for analytics and performance dashboards</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepDualPercentageControl</strong> provides a sophisticated split-layout control for displaying 
+                        and comparing two percentage values side by side. It features rich visual elements including icons, 
+                        labels, progress indicators, and customizable styling perfect for analytics dashboards and performance metrics.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepDualPercentageControl features dual-section layout, 
+                        visual dividers, icon integration, progress visualization, trend indicators, 
+                        and comprehensive theming support. Perfect for comparison dashboards, analytics panels, 
+                        performance metrics, and any application requiring side-by-side percentage comparisons.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📊 Split Layout Design</h3>
+                            <p>Dual-section layout with clear visual separation for comparing two metrics</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Rich Visual Elements</h3>
+                            <p>Icons, labels, progress bars, and trend indicators for comprehensive data display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📈 Comparison Analytics</h3>
+                            <p>Built-in comparison logic with visual indicators for better/worse performance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Custom Styling</h3>
+                            <p>Flexible styling options for sections, dividers, and visual elements</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Layout</h3>
+                            <p>Adaptive sizing that maintains readability across different container sizes</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Real-time Updates</h3>
+                            <p>Support for live data updates with smooth transitions and animations</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Dual Percentage Control Variations</h3>
+                    <div class="visual-demo">
+                        <div class="dual-percentage-preview">
+                            <!-- Sales Performance Comparison -->
+                            <div class="demo-section">
+                                <h4>Sales Performance Comparison</h4>
+                                <div class="dual-percentage-control">
+                                    <div class="left-section positive">
+                                        <div class="section-icon">📈</div>
+                                        <div class="section-content">
+                                            <div class="section-label">This Month</div>
+                                            <div class="section-percentage">85%</div>
+                                            <div class="section-sublabel">Target Achievement</div>
+                                        </div>
+                                        <div class="trend-indicator up">+12%</div>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="right-section">
+                                        <div class="section-icon">📊</div>
+                                        <div class="section-content">
+                                            <div class="section-label">Last Month</div>
+                                            <div class="section-percentage">73%</div>
+                                            <div class="section-sublabel">Target Achievement</div>
+                                        </div>
+                                        <div class="trend-indicator neutral">Base</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- System Performance -->
+                            <div class="demo-section">
+                                <h4>System Performance Metrics</h4>
+                                <div class="dual-percentage-control secondary">
+                                    <div class="left-section">
+                                        <div class="section-icon">🖥️</div>
+                                        <div class="section-content">
+                                            <div class="section-label">CPU Usage</div>
+                                            <div class="section-percentage">45%</div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill" style="width: 45%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="right-section warning">
+                                        <div class="section-icon">💾</div>
+                                        <div class="section-content">
+                                            <div class="section-label">Memory Usage</div>
+                                            <div class="section-percentage">82%</div>
+                                            <div class="progress-bar">
+                                                <div class="progress-fill warning" style="width: 82%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Project Progress -->
+                            <div class="demo-section">
+                                <h4>Project Progress Comparison</h4>
+                                <div class="dual-percentage-control success">
+                                    <div class="left-section positive">
+                                        <div class="section-icon">🚀</div>
+                                        <div class="section-content">
+                                            <div class="section-label">Development</div>
+                                            <div class="section-percentage">92%</div>
+                                            <div class="section-sublabel">Complete</div>
+                                        </div>
+                                        <div class="status-badge completed">On Track</div>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="right-section">
+                                        <div class="section-icon">🧪</div>
+                                        <div class="section-content">
+                                            <div class="section-label">Testing</div>
+                                            <div class="section-percentage">67%</div>
+                                            <div class="section-sublabel">Complete</div>
+                                        </div>
+                                        <div class="status-badge in-progress">In Progress</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Financial Metrics -->
+                            <div class="demo-section">
+                                <h4>Financial Performance</h4>
+                                <div class="dual-percentage-control financial">
+                                    <div class="left-section positive">
+                                        <div class="section-icon">💰</div>
+                                        <div class="section-content">
+                                            <div class="section-label">Revenue Growth</div>
+                                            <div class="section-percentage">128%</div>
+                                            <div class="section-sublabel">vs. Last Quarter</div>
+                                        </div>
+                                        <div class="financial-indicator positive">
+                                            <span class="arrow">↗</span>
+                                            <span>+28%</span>
+                                        </div>
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="right-section negative">
+                                        <div class="section-icon">📉</div>
+                                        <div class="section-content">
+                                            <div class="section-label">Cost Efficiency</div>
+                                            <div class="section-percentage">89%</div>
+                                            <div class="section-sublabel">vs. Target</div>
+                                        </div>
+                                        <div class="financial-indicator negative">
+                                            <span class="arrow">↘</span>
+                                            <span>-11%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Dual percentage controls showing various metrics, styles, and comparison scenarios</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dual-percentage-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .demo-section {
+                            margin-bottom: 2rem;
+                        }
+
+                        .demo-section:last-child {
+                            margin-bottom: 0;
+                        }
+
+                        .demo-section h4 {
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            margin: 0 0 1rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .dual-percentage-control {
+                            display: flex;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            overflow: hidden;
+                            min-height: 80px;
+                        }
+
+                        .dual-percentage-control.secondary {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dual-percentage-control.success {
+                            border-color: var(--color-success);
+                        }
+
+                        .dual-percentage-control.financial {
+                            background: linear-gradient(135deg, var(--color-background), rgba(34, 197, 94, 0.05));
+                        }
+
+                        .left-section, .right-section {
+                            flex: 1;
+                            padding: 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            position: relative;
+                        }
+
+                        .left-section.positive {
+                            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), transparent);
+                        }
+
+                        .right-section.warning {
+                            background: linear-gradient(135deg, rgba(251, 146, 60, 0.1), transparent);
+                        }
+
+                        .right-section.negative {
+                            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), transparent);
+                        }
+
+                        .section-icon {
+                            font-size: 24px;
+                            min-width: 32px;
+                            text-align: center;
+                        }
+
+                        .section-content {
+                            flex: 1;
+                        }
+
+                        .section-label {
+                            font-size: 12px;
+                            font-weight: 500;
+                            color: var(--color-text-secondary);
+                            margin-bottom: 0.25rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .section-percentage {
+                            font-size: 24px;
+                            font-weight: 700;
+                            color: var(--color-text);
+                            line-height: 1;
+                            margin-bottom: 0.25rem;
+                        }
+
+                        .section-sublabel {
+                            font-size: 11px;
+                            color: var(--color-text-muted);
+                        }
+
+                        .divider {
+                            width: 1px;
+                            background: var(--color-border);
+                            margin: 0.5rem 0;
+                        }
+
+                        .trend-indicator {
+                            position: absolute;
+                            top: 0.5rem;
+                            right: 0.5rem;
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 12px;
+                            font-size: 10px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .trend-indicator.up {
+                            background: rgba(34, 197, 94, 0.1);
+                            color: #16a34a;
+                        }
+
+                        .trend-indicator.neutral {
+                            background: rgba(107, 114, 128, 0.1);
+                            color: var(--color-text-secondary);
+                        }
+
+                        .status-badge {
+                            position: absolute;
+                            bottom: 0.5rem;
+                            right: 0.5rem;
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 4px;
+                            font-size: 9px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .status-badge.completed {
+                            background: var(--color-success);
+                            color: white;
+                        }
+
+                        .status-badge.in-progress {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .progress-bar {
+                            width: 100%;
+                            height: 4px;
+                            background: var(--color-border-light);
+                            border-radius: 2px;
+                            margin-top: 0.5rem;
+                            overflow: hidden;
+                        }
+
+                        .progress-fill {
+                            height: 100%;
+                            background: var(--color-primary);
+                            border-radius: 2px;
+                            transition: width 0.3s ease;
+                        }
+
+                        .progress-fill.warning {
+                            background: #f59e0b;
+                        }
+
+                        .financial-indicator {
+                            position: absolute;
+                            top: 0.5rem;
+                            right: 0.5rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.25rem;
+                            font-size: 12px;
+                            font-weight: 600;
+                        }
+
+                        .financial-indicator.positive {
+                            color: #16a34a;
+                        }
+
+                        .financial-indicator.negative {
+                            color: #dc2626;
+                        }
+
+                        .financial-indicator .arrow {
+                            font-size: 14px;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Dual Percentage Display</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepDualPercentageControl
+var dualPercentage = new BeepDualPercentageControl();
+dualPercentage.Size = new Size(300, 100);
+
+// Configure left section
+dualPercentage.LeftIcon = Properties.Resources.SalesIcon;
+dualPercentage.LeftLabel = "This Month";
+dualPercentage.LeftPercentage = 85;
+dualPercentage.LeftSubLabel = "Target Achievement";
+
+// Configure right section
+dualPercentage.RightIcon = Properties.Resources.TargetIcon;
+dualPercentage.RightLabel = "Last Month";
+dualPercentage.RightPercentage = 73;
+dualPercentage.RightSubLabel = "Target Achievement";
+
+// Set comparison context
+dualPercentage.ShowTrendIndicator = true;
+dualPercentage.ShowProgressBars = false;
+
+// Handle value clicks
+dualPercentage.LeftSectionClicked += (s, e) =>
+{
+    ShowDetailedReport("This Month Sales");
+};
+
+dualPercentage.RightSectionClicked += (s, e) =>
+{
+    ShowDetailedReport("Last Month Sales");
+};
+
+// Add to dashboard
+dashboardPanel.Controls.Add(dualPercentage);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>System Performance Monitor</h3>
+                        <pre><code class="language-csharp">// Create performance monitoring control
+var performanceMonitor = new BeepDualPercentageControl
+{
+    Size = new Size(350, 120),
+    ShowProgressBars = true,
+    ShowTrendIndicator = false,
+    AutoRefresh = true,
+    RefreshInterval = 5000 // 5 seconds
+};
+
+// Configure CPU monitoring
+performanceMonitor.LeftIcon = Properties.Resources.CpuIcon;
+performanceMonitor.LeftLabel = "CPU Usage";
+performanceMonitor.LeftSubLabel = "Current Load";
+
+// Configure memory monitoring  
+performanceMonitor.RightIcon = Properties.Resources.MemoryIcon;
+performanceMonitor.RightLabel = "Memory Usage";
+performanceMonitor.RightSubLabel = "Available RAM";
+
+// Set up real-time updates
+var updateTimer = new Timer { Interval = 1000 };
+updateTimer.Tick += (s, e) =>
+{
+    // Get current system metrics
+    var cpuUsage = GetCpuUsage();
+    var memoryUsage = GetMemoryUsage();
+    
+    performanceMonitor.LeftPercentage = cpuUsage;
+    performanceMonitor.RightPercentage = memoryUsage;
+    
+    // Update styling based on thresholds
+    performanceMonitor.LeftSectionStyle = cpuUsage > 80 ? SectionStyle.Warning : SectionStyle.Normal;
+    performanceMonitor.RightSectionStyle = memoryUsage > 85 ? SectionStyle.Critical : SectionStyle.Normal;
+};
+updateTimer.Start();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Left Section Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>LeftIcon</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Icon for the left section</td>
+                            </tr>
+                            <tr>
+                                <td><code>LeftLabel</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Primary label for the left section</td>
+                            </tr>
+                            <tr>
+                                <td><code>LeftPercentage</code></td>
+                                <td>int</td>
+                                <td>0</td>
+                                <td>Percentage value for the left section (0-100)</td>
+                            </tr>
+                            <tr>
+                                <td><code>LeftSubLabel</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Secondary label for the left section</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Right Section Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>RightIcon</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Icon for the right section</td>
+                            </tr>
+                            <tr>
+                                <td><code>RightLabel</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Primary label for the right section</td>
+                            </tr>
+                            <tr>
+                                <td><code>RightPercentage</code></td>
+                                <td>int</td>
+                                <td>0</td>
+                                <td>Percentage value for the right section (0-100)</td>
+                            </tr>
+                            <tr>
+                                <td><code>RightSubLabel</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Secondary label for the right section</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Display Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowProgressBars</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show progress bars for percentage values</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowTrendIndicator</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show trend indicators for comparison</td>
+                            </tr>
+                            <tr>
+                                <td><code>DividerStyle</code></td>
+                                <td>DividerStyle</td>
+                                <td>Line</td>
+                                <td>Style of divider between sections</td>
+                            </tr>
+                            <tr>
+                                <td><code>ComparisonMode</code></td>
+                                <td>ComparisonMode</td>
+                                <td>Relative</td>
+                                <td>How to compare left and right values</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>LeftSectionClicked</code></td>
+                                <td>PercentageEventArgs</td>
+                                <td>Fired when left section is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>RightSectionClicked</code></td>
+                                <td>PercentageEventArgs</td>
+                                <td>Fired when right section is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>PercentageChanged</code></td>
+                                <td>PercentageChangedEventArgs</td>
+                                <td>Fired when either percentage value changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ComparisonUpdated</code></td>
+                                <td>ComparisonEventArgs</td>
+                                <td>Fired when comparison results change</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Analytics Dashboard with Multiple Metrics</h3>
+                        <pre><code class="language-csharp">public partial class AnalyticsDashboard : UserControl
+{
+    private TableLayoutPanel metricsPanel;
+    private List&lt;BeepDualPercentageControl&gt; metricControls;
+    private IAnalyticsService analyticsService;
+
+    public AnalyticsDashboard(IAnalyticsService analyticsService)
+    {
+        this.analyticsService = analyticsService;
+        InitializeComponents();
+        LoadMetrics();
+    }
+
+    private void InitializeComponents()
+    {
+        metricsPanel = new TableLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            ColumnCount = 2,
+            RowCount = 3,
+            Padding = new Padding(10)
+        };
+
+        // Configure equal column widths
+        metricsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+        metricsPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
+
+        metricControls = new List&lt;BeepDualPercentageControl&gt;();
+        this.Controls.Add(metricsPanel);
+    }
+
+    private async void LoadMetrics()
+    {
+        try
+        {
+            var metrics = await analyticsService.GetDashboardMetricsAsync();
+            CreateMetricControls(metrics);
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Failed to load metrics: {ex.Message}");
+        }
+    }
+
+    private void CreateMetricControls(DashboardMetrics metrics)
+    {
+        // Sales Performance
+        var salesMetric = CreateMetricControl(
+            "Sales Performance",
+            "📈", "This Quarter", metrics.CurrentQuarterSales, "Sales Target",
+            "📊", "Last Quarter", metrics.LastQuarterSales, "Sales Target",
+            showTrend: true,
+            showProgress: false
+        );
+
+        // Customer Satisfaction
+        var satisfactionMetric = CreateMetricControl(
+            "Customer Satisfaction",
+            "😊", "Current Score", metrics.CurrentSatisfaction, "Rating",
+            "📈", "Trend", metrics.SatisfactionTrend, "Improvement",
+            showTrend: true,
+            showProgress: true
+        );
+
+        // System Performance
+        var performanceMetric = CreateMetricControl(
+            "System Performance",
+            "🖥️", "Response Time", metrics.AverageResponseTime, "Target: &lt;2s",
+            "⚡", "Uptime", metrics.SystemUptime, "Monthly Target",
+            showTrend: false,
+            showProgress: true
+        );
+
+        // Financial Metrics
+        var financialMetric = CreateMetricControl(
+            "Financial Health",
+            "💰", "Revenue Growth", metrics.RevenueGrowth, "vs. Target",
+            "💸", "Cost Efficiency", metrics.CostEfficiency, "vs. Budget",
+            showTrend: true,
+            showProgress: false
+        );
+
+        // Project Progress
+        var projectMetric = CreateMetricControl(
+            "Project Status",
+            "🚀", "Development", metrics.DevelopmentProgress, "Complete",
+            "🧪", "Testing", metrics.TestingProgress, "Complete",
+            showTrend: false,
+            showProgress: true
+        );
+
+        // Marketing ROI
+        var marketingMetric = CreateMetricControl(
+            "Marketing ROI",
+            "📢", "Campaign ROI", metrics.CampaignROI, "vs. Target",
+            "🎯", "Lead Conversion", metrics.LeadConversion, "Rate",
+            showTrend: true,
+            showProgress: false
+        );
+
+        // Add controls to layout
+        var controls = new[] 
+        { 
+            salesMetric, satisfactionMetric, performanceMetric, 
+            financialMetric, projectMetric, marketingMetric 
+        };
+
+        for (int i = 0; i &lt; controls.Length; i++)
+        {
+            var row = i / 2;
+            var col = i % 2;
+            metricsPanel.Controls.Add(controls[i], col, row);
+        }
+    }
+
+    private BeepDualPercentageControl CreateMetricControl(
+        string title,
+        string leftIcon, string leftLabel, int leftValue, string leftSubLabel,
+        string rightIcon, string rightLabel, int rightValue, string rightSubLabel,
+        bool showTrend, bool showProgress)
+    {
+        var control = new BeepDualPercentageControl
+        {
+            Size = new Size(280, 120),
+            Margin = new Padding(5),
+            ShowTrendIndicator = showTrend,
+            ShowProgressBars = showProgress,
+            Title = title
+        };
+
+        // Configure left section
+        control.LeftIcon = GetIconImage(leftIcon);
+        control.LeftLabel = leftLabel;
+        control.LeftPercentage = leftValue;
+        control.LeftSubLabel = leftSubLabel;
+
+        // Configure right section
+        control.RightIcon = GetIconImage(rightIcon);
+        control.RightLabel = rightLabel;
+        control.RightPercentage = rightValue;
+        control.RightSubLabel = rightSubLabel;
+
+        // Apply conditional styling
+        ApplyMetricStyling(control, leftValue, rightValue);
+
+        // Handle interactions
+        control.LeftSectionClicked += (s, e) =>
+        {
+            ShowDetailedAnalytics(title, "left", leftLabel);
+        };
+
+        control.RightSectionClicked += (s, e) =>
+        {
+            ShowDetailedAnalytics(title, "right", rightLabel);
+        };
+
+        metricControls.Add(control);
+        return control;
+    }
+
+    private void ApplyMetricStyling(BeepDualPercentageControl control, int leftValue, int rightValue)
+    {
+        // Apply styling based on performance thresholds
+        if (leftValue &gt;= 90)
+            control.LeftSectionStyle = SectionStyle.Excellent;
+        else if (leftValue &gt;= 75)
+            control.LeftSectionStyle = SectionStyle.Good;
+        else if (leftValue &gt;= 50)
+            control.LeftSectionStyle = SectionStyle.Warning;
+        else
+            control.LeftSectionStyle = SectionStyle.Critical;
+
+        // Similar logic for right section
+        if (rightValue &gt;= 90)
+            control.RightSectionStyle = SectionStyle.Excellent;
+        else if (rightValue &gt;= 75)
+            control.RightSectionStyle = SectionStyle.Good;
+        else if (rightValue &gt;= 50)
+            control.RightSectionStyle = SectionStyle.Warning;
+        else
+            control.RightSectionStyle = SectionStyle.Critical;
+    }
+
+    private Image GetIconImage(string iconText)
+    {
+        // Convert emoji or text to image (implementation specific)
+        return CreateIconFromText(iconText);
+    }
+
+    private void ShowDetailedAnalytics(string category, string section, string metric)
+    {
+        var detailForm = new DetailedAnalyticsForm(category, section, metric);
+        detailForm.Show();
+    }
+
+    private void ShowError(string message)
+    {
+        MessageBox.Show(message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+    }
+
+    // Helper methods
+    private Image CreateIconFromText(string text) { return null; /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepDualPercentageControl provides comprehensive theming support with specialized styling for comparison scenarios:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var dualPercentage = new BeepDualPercentageControl
+{
+    Theme = "AnalyticsDark",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - SectionBackColors: Background colors for left and right sections
+// - DividerColor: Color of the section divider
+// - TextColors: Label and percentage text colors
+// - ProgressColors: Progress bar styling
+// - TrendColors: Trend indicator colors
+// - HighlightColors: Hover and selection states</code></pre>
+                    </div>
+
+                    <h3>Comparison-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Performance-based colors</strong> - Automatic color coding based on performance thresholds</li>
+                        <li><strong>Trend visualization</strong> - Theme-coordinated trend indicators and arrows</li>
+                        <li><strong>Section differentiation</strong> - Subtle styling differences between comparison sections</li>
+                        <li><strong>Progress integration</strong> - Consistent progress bar styling with theme colors</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear labeling:</strong> Use descriptive labels that make the comparison context obvious</li>
+                        <li><strong>Meaningful icons:</strong> Choose icons that immediately convey the metric type</li>
+                        <li><strong>Consistent scaling:</strong> Ensure both sides use the same percentage scale for fair comparison</li>
+                        <li><strong>Performance indicators:</strong> Use color coding to quickly communicate performance levels</li>
+                    </ul>
+
+                    <h3>📊 Data Presentation</h3>
+                    <ul>
+                        <li><strong>Appropriate comparisons:</strong> Only compare related metrics that make logical sense together</li>
+                        <li><strong>Time context:</strong> Clearly indicate the time periods being compared</li>
+                        <li><strong>Threshold awareness:</strong> Consider what constitutes good/bad performance for each metric</li>
+                        <li><strong>Trend information:</strong> Include trend indicators when historical context is important</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Real-time updates:</strong> Implement smooth value transitions for live data</li>
+                        <li><strong>Error handling:</strong> Gracefully handle missing or invalid data</li>
+                        <li><strong>Performance optimization:</strong> Use efficient update patterns for high-frequency data</li>
+                        <li><strong>Responsive design:</strong> Ensure controls adapt well to different container sizes</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use progress bars for metrics where the maximum value is meaningful (like resource utilization), and simple percentages for ratio comparisons.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement click handlers for both sections to provide drill-down access to detailed analytics and reports.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Data Warning</strong>
+                        <p>Always validate that percentage comparisons are meaningful - avoid comparing unrelated metrics just because they're both percentages.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-filter.html"><i class="bi bi-arrow-left"></i> BeepFilter</a>
+                    <a href="beep-statcard.html">BeepStatCard <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

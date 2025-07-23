@@ -1,0 +1,1137 @@
+<!--
+    BeepFileDialog Control Documentation
+    Professional-grade documentation for the BeepFileDialog WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFileDialog - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popupform.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html" class="active">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splashscreen.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#dialogs-popups">Dialogs & Popups</a>
+                    <span>→</span>
+                    <span>BeepFileDialog</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepFileDialog</h1>
+                    <p class="page-subtitle">Modern, theme-aware file selection dialog with advanced filtering, multi-select, and customizable UI</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepFileDialog</strong> provides a modern, user-friendly interface for file and folder selection 
+                        that integrates seamlessly with the Beep Controls theming system. It offers advanced filtering capabilities, 
+                        multi-select options, and customizable UI elements for a professional file selection experience.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepFileDialog features theme integration, 
+                        advanced file filtering, preview capabilities, recent files support, bookmark functionality, 
+                        and comprehensive file type support. Perfect for document management applications, image editors, 
+                        data import tools, and any application requiring sophisticated file selection.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Modern UI Design</h3>
+                            <p>Clean, intuitive interface with full theme integration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔍 Advanced Filtering</h3>
+                            <p>Comprehensive file type filtering with custom filter support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📁 Multi-Mode Selection</h3>
+                            <p>Support for files, folders, or both with multi-select capabilities</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>👁️ File Preview</h3>
+                            <p>Built-in preview for images, text files, and documents</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📌 Bookmarks & Recent</h3>
+                            <p>Quick access to bookmarked locations and recent files</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🛠️ Customizable Actions</h3>
+                            <p>Custom buttons and actions for specialized workflows</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>File Selection Dialog</h3>
+                    <div class="visual-demo">
+                        <div class="filedialog-preview">
+                            <div class="dialog-header">
+                                <div class="dialog-title">Select Files</div>
+                                <div class="dialog-controls">
+                                    <button class="control-btn">−</button>
+                                    <button class="control-btn">□</button>
+                                    <button class="control-btn close">×</button>
+                                </div>
+                            </div>
+                            <div class="dialog-toolbar">
+                                <div class="nav-buttons">
+                                    <button class="nav-btn">◀</button>
+                                    <button class="nav-btn">▶</button>
+                                    <button class="nav-btn">🔼</button>
+                                </div>
+                                <div class="location-bar">
+                                    <span class="path">📁 Documents\Projects\MyApp</span>
+                                </div>
+                                <div class="view-controls">
+                                    <button class="view-btn active">📋</button>
+                                    <button class="view-btn">🗂️</button>
+                                </div>
+                            </div>
+                            <div class="dialog-content">
+                                <div class="sidebar-panel">
+                                    <div class="bookmarks">
+                                        <div class="bookmark-title">Quick Access</div>
+                                        <div class="bookmark-item active">📁 Documents</div>
+                                        <div class="bookmark-item">🖼️ Pictures</div>
+                                        <div class="bookmark-item">⬇️ Downloads</div>
+                                        <div class="bookmark-item">🗄️ Projects</div>
+                                    </div>
+                                </div>
+                                <div class="main-panel">
+                                    <div class="file-list">
+                                        <div class="file-item selected">
+                                            <span class="file-icon">📄</span>
+                                            <span class="file-name">config.json</span>
+                                            <span class="file-size">2.1 KB</span>
+                                        </div>
+                                        <div class="file-item">
+                                            <span class="file-icon">📷</span>
+                                            <span class="file-name">screenshot.png</span>
+                                            <span class="file-size">156 KB</span>
+                                        </div>
+                                        <div class="file-item">
+                                            <span class="file-icon">📝</span>
+                                            <span class="file-name">readme.txt</span>
+                                            <span class="file-size">1.8 KB</span>
+                                        </div>
+                                        <div class="file-item selected">
+                                            <span class="file-icon">💾</span>
+                                            <span class="file-name">data.xml</span>
+                                            <span class="file-size">4.5 KB</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="preview-panel">
+                                    <div class="preview-header">Preview</div>
+                                    <div class="preview-content">
+                                        <div class="preview-image">🖼️</div>
+                                        <div class="preview-info">
+                                            <div><strong>config.json</strong></div>
+                                            <div>Size: 2.1 KB</div>
+                                            <div>Modified: Today 3:45 PM</div>
+                                            <div>Type: JSON Configuration</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dialog-footer">
+                                <div class="filename-section">
+                                    <label>File name:</label>
+                                    <input type="text" class="filename-input" value="config.json; data.xml">
+                                </div>
+                                <div class="filter-section">
+                                    <label>File type:</label>
+                                    <select class="filter-dropdown">
+                                        <option>All Files (*.*)</option>
+                                        <option>JSON Files (*.json)</option>
+                                        <option>XML Files (*.xml)</option>
+                                    </select>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn-secondary">Cancel</button>
+                                    <button class="btn-primary">Open</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>BeepFileDialog with multi-select, preview panel, and bookmarks</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .filedialog-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            overflow: hidden;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 700px;
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                            font-family: var(--font-family);
+                        }
+
+                        .dialog-header {
+                            background: var(--color-primary);
+                            color: white;
+                            padding: 0.75rem 1rem;
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        }
+
+                        .dialog-title {
+                            font-weight: 600;
+                            font-size: 14px;
+                        }
+
+                        .dialog-controls {
+                            display: flex;
+                            gap: 0.5rem;
+                        }
+
+                        .control-btn {
+                            width: 20px;
+                            height: 20px;
+                            border: none;
+                            background: rgba(255, 255, 255, 0.2);
+                            color: white;
+                            border-radius: 3px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                        }
+
+                        .control-btn.close:hover {
+                            background: #dc3545;
+                        }
+
+                        .dialog-toolbar {
+                            background: var(--color-background-secondary);
+                            padding: 0.5rem 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 1rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .nav-buttons {
+                            display: flex;
+                            gap: 0.25rem;
+                        }
+
+                        .nav-btn, .view-btn {
+                            padding: 0.25rem 0.5rem;
+                            border: 1px solid var(--color-border);
+                            background: var(--color-background);
+                            cursor: pointer;
+                            border-radius: 3px;
+                            font-size: 12px;
+                        }
+
+                        .view-btn.active {
+                            background: var(--color-primary);
+                            color: white;
+                            border-color: var(--color-primary);
+                        }
+
+                        .location-bar {
+                            flex: 1;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 3px;
+                            padding: 0.25rem 0.5rem;
+                        }
+
+                        .path {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .view-controls {
+                            display: flex;
+                            gap: 0.25rem;
+                        }
+
+                        .dialog-content {
+                            display: flex;
+                            height: 300px;
+                        }
+
+                        .sidebar-panel {
+                            width: 160px;
+                            background: var(--color-background-secondary);
+                            border-right: 1px solid var(--color-border-light);
+                            padding: 0.75rem;
+                        }
+
+                        .bookmark-title {
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            margin-bottom: 0.5rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .bookmark-item {
+                            padding: 0.5rem 0.75rem;
+                            font-size: 12px;
+                            cursor: pointer;
+                            border-radius: 4px;
+                            margin-bottom: 0.25rem;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .bookmark-item:hover {
+                            background: var(--color-background-hover);
+                        }
+
+                        .bookmark-item.active {
+                            background: rgba(59, 130, 246, 0.1);
+                            color: var(--color-primary);
+                        }
+
+                        .main-panel {
+                            flex: 1;
+                            padding: 0.75rem;
+                        }
+
+                        .file-list {
+                            height: 100%;
+                            overflow-y: auto;
+                        }
+
+                        .file-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            padding: 0.5rem;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .file-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .file-item.selected {
+                            background: rgba(59, 130, 246, 0.1);
+                            border: 1px solid rgba(59, 130, 246, 0.3);
+                        }
+
+                        .file-icon {
+                            font-size: 16px;
+                            width: 20px;
+                            text-align: center;
+                        }
+
+                        .file-name {
+                            flex: 1;
+                            font-weight: 500;
+                        }
+
+                        .file-size {
+                            font-size: 11px;
+                            color: var(--color-text-secondary);
+                            width: 60px;
+                            text-align: right;
+                        }
+
+                        .preview-panel {
+                            width: 180px;
+                            background: var(--color-background-secondary);
+                            border-left: 1px solid var(--color-border-light);
+                            padding: 0.75rem;
+                        }
+
+                        .preview-header {
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            margin-bottom: 0.75rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .preview-image {
+                            width: 100%;
+                            height: 120px;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border-light);
+                            border-radius: 4px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 48px;
+                            margin-bottom: 0.75rem;
+                        }
+
+                        .preview-info {
+                            font-size: 11px;
+                        }
+
+                        .preview-info > div {
+                            margin-bottom: 0.25rem;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .preview-info > div:first-child {
+                            color: var(--color-text);
+                            font-weight: 600;
+                        }
+
+                        .dialog-footer {
+                            background: var(--color-background-secondary);
+                            padding: 1rem;
+                            border-top: 1px solid var(--color-border-light);
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.75rem;
+                        }
+
+                        .filename-section, .filter-section {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                        }
+
+                        .filename-section label, .filter-section label {
+                            font-size: 12px;
+                            font-weight: 500;
+                            min-width: 70px;
+                        }
+
+                        .filename-input {
+                            flex: 1;
+                            padding: 0.5rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            font-size: 12px;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                        }
+
+                        .filter-dropdown {
+                            flex: 1;
+                            padding: 0.5rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            font-size: 12px;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                        }
+
+                        .action-buttons {
+                            display: flex;
+                            justify-content: flex-end;
+                            gap: 0.5rem;
+                            margin-top: 0.5rem;
+                        }
+
+                        .btn-primary, .btn-secondary {
+                            padding: 0.5rem 1.5rem;
+                            border: none;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            font-weight: 500;
+                        }
+
+                        .btn-primary {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .btn-secondary {
+                            background: var(--color-border-light);
+                            color: var(--color-text);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple File Selection</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepFileDialog
+var fileDialog = new BeepFileDialog();
+fileDialog.Title = "Select a file";
+fileDialog.Filter = "Text Files (*.txt)|*.txt|All Files (*.*)|*.*";
+fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Documents);
+
+// Show dialog and handle result
+if (fileDialog.ShowDialog() == DialogResult.OK)
+{
+    string selectedFile = fileDialog.FileName;
+    // Process the selected file
+    ProcessFile(selectedFile);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-File Selection</h3>
+                        <pre><code class="language-csharp">// Configure for multiple file selection
+var fileDialog = new BeepFileDialog
+{
+    Title = "Select multiple files",
+    Filter = "Image Files (*.jpg;*.png;*.gif)|*.jpg;*.png;*.gif|All Files (*.*)|*.*",
+    MultiSelect = true,
+    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures)
+};
+
+// Handle multiple files
+if (fileDialog.ShowDialog() == DialogResult.OK)
+{
+    string[] selectedFiles = fileDialog.FileNames;
+    foreach (string file in selectedFiles)
+    {
+        Console.WriteLine($"Selected: {Path.GetFileName(file)}");
+    }
+    
+    // Process all selected files
+    ProcessMultipleFiles(selectedFiles);
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>string</td>
+                                <td>"Select File"</td>
+                                <td>Dialog window title</td>
+                            </tr>
+                            <tr>
+                                <td><code>Filter</code></td>
+                                <td>string</td>
+                                <td>"All Files (*.*)|*.*"</td>
+                                <td>File type filter string</td>
+                            </tr>
+                            <tr>
+                                <td><code>MultiSelect</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Enable multi-file selection</td>
+                            </tr>
+                            <tr>
+                                <td><code>FileName</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Selected file path (single selection)</td>
+                            </tr>
+                            <tr>
+                                <td><code>FileNames</code></td>
+                                <td>string[]</td>
+                                <td>null</td>
+                                <td>Selected file paths (multi-selection)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Navigation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>InitialDirectory</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Starting directory path</td>
+                            </tr>
+                            <tr>
+                                <td><code>RestoreDirectory</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Restore previous directory on next open</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowHiddenFiles</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show hidden files and folders</td>
+                            </tr>
+                            <tr>
+                                <td><code>CheckFileExists</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Validate that selected files exist</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>UI Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowPreview</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show file preview panel</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowBookmarks</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show bookmarks sidebar</td>
+                            </tr>
+                            <tr>
+                                <td><code>AllowNewFolder</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Allow creating new folders</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowDialog</code></td>
+                                <td>None</td>
+                                <td>DialogResult</td>
+                                <td>Display the file dialog</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowDialog</code></td>
+                                <td>IWin32Window owner</td>
+                                <td>DialogResult</td>
+                                <td>Display dialog with owner window</td>
+                            </tr>
+                            <tr>
+                                <td><code>Reset</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Reset dialog to default settings</td>
+                            </tr>
+                            <tr>
+                                <td><code>AddBookmark</code></td>
+                                <td>string path, string name</td>
+                                <td>void</td>
+                                <td>Add custom bookmark location</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Advanced File Dialog with Custom Filters</h3>
+                        <pre><code class="language-csharp">public class DocumentManager
+{
+    private BeepFileDialog fileDialog;
+
+    public DocumentManager()
+    {
+        SetupFileDialog();
+    }
+
+    private void SetupFileDialog()
+    {
+        fileDialog = new BeepFileDialog
+        {
+            Title = "Open Document",
+            Filter = CreateDocumentFilter(),
+            MultiSelect = true,
+            ShowPreview = true,
+            ShowBookmarks = true,
+            CheckFileExists = true,
+            InitialDirectory = GetDocumentsPath()
+        };
+
+        // Add custom bookmarks
+        fileDialog.AddBookmark(GetProjectPath(), "Current Project");
+        fileDialog.AddBookmark(GetTemplatesPath(), "Templates");
+        fileDialog.AddBookmark(GetArchivePath(), "Archive");
+    }
+
+    private string CreateDocumentFilter()
+    {
+        return "All Documents|*.txt;*.doc;*.docx;*.pdf;*.rtf|" +
+               "Text Files (*.txt)|*.txt|" +
+               "Word Documents (*.doc;*.docx)|*.doc;*.docx|" +
+               "PDF Files (*.pdf)|*.pdf|" +
+               "Rich Text (*.rtf)|*.rtf|" +
+               "All Files (*.*)|*.*";
+    }
+
+    public List<string> OpenDocuments()
+    {
+        var selectedFiles = new List<string>();
+
+        try
+        {
+            if (fileDialog.ShowDialog() == DialogResult.OK)
+            {
+                selectedFiles.AddRange(fileDialog.FileNames);
+                
+                // Update recent files
+                UpdateRecentFiles(selectedFiles);
+                
+                // Validate files before processing
+                var validFiles = ValidateFiles(selectedFiles);
+                return validFiles;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error opening files: {ex.Message}", 
+                "File Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        return selectedFiles;
+    }
+
+    private List<string> ValidateFiles(List<string> files)
+    {
+        var validFiles = new List<string>();
+
+        foreach (var file in files)
+        {
+            if (File.Exists(file))
+            {
+                // Check file size (limit to 50MB for this example)
+                var fileInfo = new FileInfo(file);
+                if (fileInfo.Length <= 50 * 1024 * 1024)
+                {
+                    validFiles.Add(file);
+                }
+                else
+                {
+                    MessageBox.Show($"File too large: {Path.GetFileName(file)}", 
+                        "File Size Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
+            }
+        }
+
+        return validFiles;
+    }
+
+    private void UpdateRecentFiles(List<string> files)
+    {
+        // Implementation for recent files management
+        foreach (var file in files)
+        {
+            // Add to recent files list (implementation depends on your app)
+            RecentFilesManager.AddRecentFile(file);
+        }
+    }
+
+    private string GetDocumentsPath() => 
+        Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+    
+    private string GetProjectPath() => 
+        Path.Combine(GetDocumentsPath(), "Current Project");
+    
+    private string GetTemplatesPath() => 
+        Path.Combine(GetDocumentsPath(), "Templates");
+    
+    private string GetArchivePath() => 
+        Path.Combine(GetDocumentsPath(), "Archive");
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Save File Dialog with Validation</h3>
+                        <pre><code class="language-csharp">public bool SaveDocument(string content, string suggestedName = "")
+{
+    var saveDialog = new BeepFileDialog
+    {
+        Title = "Save Document",
+        Filter = "Text Files (*.txt)|*.txt|JSON Files (*.json)|*.json|XML Files (*.xml)|*.xml",
+        DefaultExt = "txt",
+        AddExtension = true,
+        OverwritePrompt = true,
+        ValidateNames = true,
+        FileName = suggestedName
+    };
+
+    if (saveDialog.ShowDialog() == DialogResult.OK)
+    {
+        try
+        {
+            string filePath = saveDialog.FileName;
+            
+            // Validate the save location
+            if (!IsValidSaveLocation(filePath))
+            {
+                MessageBox.Show("Cannot save to this location. Please choose a different folder.",
+                    "Save Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            // Create backup if file exists
+            if (File.Exists(filePath))
+            {
+                CreateBackup(filePath);
+            }
+
+            // Save the file
+            File.WriteAllText(filePath, content);
+            
+            // Update UI and recent files
+            OnDocumentSaved(filePath);
+            
+            MessageBox.Show($"Document saved successfully to:\n{filePath}",
+                "Save Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error saving file: {ex.Message}",
+                "Save Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    return false;
+}
+
+private bool IsValidSaveLocation(string filePath)
+{
+    try
+    {
+        string directory = Path.GetDirectoryName(filePath);
+        
+        // Check if directory exists and is writable
+        if (!Directory.Exists(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        // Test write permissions
+        string testFile = Path.Combine(directory, "write_test.tmp");
+        File.WriteAllText(testFile, "test");
+        File.Delete(testFile);
+        
+        return true;
+    }
+    catch
+    {
+        return false;
+    }
+}
+
+private void CreateBackup(string filePath)
+{
+    try
+    {
+        string backupPath = filePath + ".backup";
+        File.Copy(filePath, backupPath, true);
+    }
+    catch (Exception ex)
+    {
+        // Log backup failure but don't prevent save
+        Console.WriteLine($"Failed to create backup: {ex.Message}");
+    }
+}
+
+private void OnDocumentSaved(string filePath)
+{
+    // Update application state
+    CurrentFilePath = filePath;
+    HasUnsavedChanges = false;
+    
+    // Update recent files
+    RecentFilesManager.AddRecentFile(filePath);
+    
+    // Update window title
+    UpdateWindowTitle();
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepFileDialog provides comprehensive theming support with automatic application of theme colors:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var fileDialog = new BeepFileDialog
+{
+    Theme = "DarkTheme",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - DialogBackColor: Main dialog background
+// - DialogForeColor: Text colors
+// - ButtonColors: Action button styling
+// - BorderColors: Panel and control borders
+// - SelectionColors: File selection highlighting</code></pre>
+                    </div>
+
+                    <h3>Dialog-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Panel backgrounds</strong> - Sidebar, preview, and main panel theming</li>
+                        <li><strong>File list styling</strong> - Selection colors and hover effects</li>
+                        <li><strong>Button theming</strong> - Action buttons with theme colors</li>
+                        <li><strong>Toolbar styling</strong> - Navigation and view controls</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Appropriate filters:</strong> Set meaningful file type filters to guide user selection</li>
+                        <li><strong>Initial directory:</strong> Start in the most relevant folder for the user's context</li>
+                        <li><strong>Preview panel:</strong> Enable preview for better file identification</li>
+                        <li><strong>Bookmarks:</strong> Add frequently used locations as bookmarks</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>File validation:</strong> Always validate selected files before processing</li>
+                        <li><strong>Error handling:</strong> Implement proper error handling for file operations</li>
+                        <li><strong>Performance:</strong> Consider file size limits for preview and processing</li>
+                        <li><strong>Permissions:</strong> Check file access permissions before operations</li>
+                    </ul>
+
+                    <h3>🛡️ Security</h3>
+                    <ul>
+                        <li><strong>Path validation:</strong> Validate file paths to prevent directory traversal</li>
+                        <li><strong>File type checking:</strong> Verify file types beyond extension checking</li>
+                        <li><strong>Sandbox operations:</strong> Consider sandboxing file operations</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use clear, descriptive filter names and organize them logically - put the most commonly used file types first in the filter list.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Always provide feedback to users about file operations, including progress for large files and clear error messages when operations fail.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Security Warning</strong>
+                        <p>Always validate file paths and contents when processing user-selected files to prevent security vulnerabilities.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-popupform.html"><i class="bi bi-arrow-left"></i> BeepPopupForm</a>
+                    <a href="beep-wait.html">BeepWait <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

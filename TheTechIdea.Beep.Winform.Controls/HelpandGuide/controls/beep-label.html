@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepLabel - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html" class="active">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#display-controls">Display Controls</a>
+                    <span>›</span>
+                    <span>BeepLabel</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepLabel</h1>
+                    <p class="page-subtitle">Enhanced label control with image support, subheader text, and advanced formatting</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepLabel</strong> is an enhanced label control that extends the functionality of standard WinForms labels 
+                        with modern features including SVG image support, subheader text, multi-line text capabilities, automatic sizing, 
+                        and advanced text formatting with theme integration.
+                    </p>
+                    <p>
+                        Built on top of the <code>BeepControl</code> base class, BeepLabel inherits all the theming, styling, 
+                        and animation capabilities while adding label-specific features like image-text relationships, font scaling, 
+                        and sophisticated text alignment options.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🖼️ SVG Image Support</h3>
+                            <p>Native SVG rendering with theme-aware coloring and automatic scaling alongside text</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Subheader Text</h3>
+                            <p>Display secondary text below the main text with separate styling and font</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Auto Sizing</h3>
+                            <p>Automatically resize based on text content and image size constraints</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📄 Multi-line Support</h3>
+                            <p>Word wrapping and multi-line text support with proper alignment</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Flexible Layout</h3>
+                            <p>Multiple text-image relationships and alignment options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔤 Font Scaling</h3>
+                            <p>Automatic font scaling to fit within specified bounds</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Badge Support</h3>
+                            <p>Display notification badges overlaid on the label</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Full theme support with automatic color and font inheritance</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Label Creation</h3>
+                        <pre><code class="language-csharp">// Create a basic BeepLabel
+var label = new BeepLabel
+{
+    Text = "Welcome to Beep Controls",
+    Size = new Size(200, 30),
+    Location = new Point(10, 10),
+    TextAlign = ContentAlignment.MiddleLeft
+};
+
+// Add to form
+this.Controls.Add(label);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Label with Image</h3>
+                        <pre><code class="language-csharp">var imageLabel = new BeepLabel
+{
+    Text = "Status: Online",
+    ImagePath = "icons/status-online.svg",
+    TextImageRelation = TextImageRelation.ImageBeforeText,
+    MaxImageSize = new Size(20, 20),
+    ApplyThemeOnImage = true,
+    AutoSize = true
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Label with Subheader</h3>
+                        <pre><code class="language-csharp">var headerLabel = new BeepLabel
+{
+    Text = "John Doe",
+    SubHeaderText = "Software Developer",
+    HeaderSubheaderSpacing = 4,
+    TextAlign = ContentAlignment.MiddleCenter,
+    AutoSize = true
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Layout Tip</strong>
+                        <p>Use AutoSize for labels with dynamic content, but be mindful of container layouts that might be affected by size changes.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Text Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>string</td>
+                                <td>Primary text content</td>
+                            </tr>
+                            <tr>
+                                <td><code>SubHeaderText</code></td>
+                                <td>string</td>
+                                <td>Secondary text displayed below main text</td>
+                            </tr>
+                            <tr>
+                                <td><code>TextAlign</code></td>
+                                <td>ContentAlignment</td>
+                                <td>Alignment of text within the control</td>
+                            </tr>
+                            <tr>
+                                <td><code>HeaderSubheaderSpacing</code></td>
+                                <td>int</td>
+                                <td>Spacing between header and subheader text</td>
+                            </tr>
+                            <tr>
+                                <td><code>Multiline</code></td>
+                                <td>bool</td>
+                                <td>Enable multi-line text with word wrapping</td>
+                            </tr>
+                            <tr>
+                                <td><code>HideText</code></td>
+                                <td>bool</td>
+                                <td>Hide text content, show only image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Font Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>TextFont <code>Font</code></h4>
+                            <p>Font for the main text content</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>SubHeaderFont <code>Font</code></h4>
+                            <p>Font for subheader text (auto-calculated if null)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>UseScaledFont <code>bool</code></h4>
+                            <p>Automatically scale font to fit bounds</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>UseThemeFont <code>bool</code></h4>
+                            <p>Use theme-defined fonts</p>
+                        </div>
+                    </div>
+
+                    <h3>Image Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ImagePath</code></td>
+                                <td>string</td>
+                                <td>Path to image file (SVG, PNG, JPG, etc.)</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxImageSize</code></td>
+                                <td>Size</td>
+                                <td>Maximum size for the image</td>
+                            </tr>
+                            <tr>
+                                <td><code>TextImageRelation</code></td>
+                                <td>TextImageRelation</td>
+                                <td>Positioning of image relative to text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImageAlign</code></td>
+                                <td>ContentAlignment</td>
+                                <td>Alignment of image within its area</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyThemeOnImage</code></td>
+                                <td>bool</td>
+                                <td>Whether to apply theme colors to SVG images</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>AutoSize <code>bool</code></h4>
+                            <p>Automatically resize based on content</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>LabelBackColor <code>Color</code></h4>
+                            <p>Background color of the label</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>SubHeaderForeColor <code>Color</code></h4>
+                            <p>Color for subheader text</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>BadgeText <code>string</code></h4>
+                            <p>Text to display in notification badge</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Click</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when label is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseEnter</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when mouse enters label area</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseLeave</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when mouse leaves label area</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseHover</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when mouse hovers over label</td>
+                            </tr>
+                            <tr>
+                                <td><code>TextChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Triggered when text content changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var label = new BeepLabel
+{
+    Text = "Clickable Label",
+    Cursor = Cursors.Hand
+};
+
+// Handle click events for navigation
+label.Click += (s, e) => {
+    // Navigate to details page
+    NavigateToDetails();
+};
+
+// Visual feedback on hover
+label.MouseEnter += (s, e) => {
+    label.ForeColor = Color.Blue;
+};
+
+label.MouseLeave += (s, e) => {
+    label.ForeColor = SystemColors.ControlText;
+};
+
+// Update UI when text changes
+label.TextChanged += (s, e) => {
+    Console.WriteLine($"Label text changed to: {label.Text}");
+    UpdateRelatedComponents();
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Status Indicator Labels</h3>
+                        <pre><code class="language-csharp">public void CreateStatusLabels()
+{
+    var onlineStatus = new BeepLabel
+    {
+        Text = "System Online",
+        ImagePath = "icons/status-success.svg",
+        TextImageRelation = TextImageRelation.ImageBeforeText,
+        MaxImageSize = new Size(16, 16),
+        ApplyThemeOnImage = true,
+        ForeColor = Color.Green,
+        Location = new Point(20, 20),
+        AutoSize = true
+    };
+
+    var warningStatus = new BeepLabel
+    {
+        Text = "High CPU Usage",
+        SubHeaderText = "Current: 85%",
+        ImagePath = "icons/warning.svg",
+        TextImageRelation = TextImageRelation.ImageBeforeText,
+        MaxImageSize = new Size(16, 16),
+        ForeColor = Color.Orange,
+        Location = new Point(20, 50),
+        AutoSize = true
+    };
+
+    var errorStatus = new BeepLabel
+    {
+        Text = "Database Connection Failed",
+        SubHeaderText = "Retrying in 30 seconds...",
+        ImagePath = "icons/error.svg",
+        TextImageRelation = TextImageRelation.ImageBeforeText,
+        MaxImageSize = new Size(16, 16),
+        ForeColor = Color.Red,
+        Location = new Point(20, 80),
+        AutoSize = true
+    };
+
+    this.Controls.AddRange(new Control[] { onlineStatus, warningStatus, errorStatus });
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>User Profile Label</h3>
+                        <pre><code class="language-csharp">public BeepLabel CreateUserProfileLabel(User user)
+{
+    var profileLabel = new BeepLabel
+    {
+        Text = user.FullName,
+        SubHeaderText = $"{user.Title} • {user.Department}",
+        ImagePath = user.AvatarPath ?? "icons/user-circle.svg",
+        TextImageRelation = TextImageRelation.ImageBeforeText,
+        MaxImageSize = new Size(32, 32),
+        HeaderSubheaderSpacing = 4,
+        TextAlign = ContentAlignment.MiddleLeft,
+        Size = new Size(250, 50),
+        ApplyThemeOnImage = true,
+        Cursor = Cursors.Hand
+    };
+
+    // Add click handler for profile viewing
+    profileLabel.Click += (s, e) => {
+        ShowUserProfile(user.Id);
+    };
+
+    // Hover effects
+    profileLabel.MouseEnter += (s, e) => {
+        profileLabel.BackColor = Color.FromArgb(240, 240, 240);
+    };
+
+    profileLabel.MouseLeave += (s, e) => {
+        profileLabel.BackColor = Color.Transparent;
+    };
+
+    return profileLabel;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-line Description Label</h3>
+                        <pre><code class="language-csharp">public BeepLabel CreateDescriptionLabel(string description, int maxWidth)
+{
+    var descriptionLabel = new BeepLabel
+    {
+        Text = description,
+        Multiline = true,
+        TextAlign = ContentAlignment.TopLeft,
+        Size = new Size(maxWidth, 100),
+        BorderStyle = BorderStyle.None,
+        Padding = new Padding(8),
+        AutoSize = false // Fixed width, variable height
+    };
+
+    // Calculate required height based on text
+    using (var graphics = descriptionLabel.CreateGraphics())
+    {
+        var textSize = graphics.MeasureString(description, descriptionLabel.Font, maxWidth - 16);
+        descriptionLabel.Height = (int)Math.Ceiling(textSize.Height) + 16;
+    }
+
+    return descriptionLabel;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Notification Badge Label</h3>
+                        <pre><code class="language-csharp">public class NotificationLabel : BeepLabel
+{
+    private int _notificationCount;
+
+    public int NotificationCount
+    {
+        get => _notificationCount;
+        set
+        {
+            _notificationCount = value;
+            UpdateBadge();
+        }
+    }
+
+    public NotificationLabel()
+    {
+        Text = "Messages";
+        ImagePath = "icons/mail.svg";
+        TextImageRelation = TextImageRelation.ImageBeforeText;
+        AutoSize = true;
+        MaxImageSize = new Size(24, 24);
+        Margin = new Padding(10);
+    }
+
+    private void UpdateBadge()
+    {
+        if (_notificationCount > 0)
+        {
+            BadgeText = _notificationCount > 99 ? "99+" : _notificationCount.ToString();
+            SubHeaderText = $"{_notificationCount} unread message{(_notificationCount != 1 ? "s" : "")}";
+        }
+        else
+        {
+            BadgeText = null;
+            SubHeaderText = "No new messages";
+        }
+    }
+}
+
+// Usage
+var notificationLabel = new NotificationLabel
+{
+    Location = new Point(20, 20)
+};
+
+// Update notification count
+notificationLabel.NotificationCount = 5;</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Scalable Font Label</h3>
+                        <pre><code class="language-csharp">public BeepLabel CreateTitleLabel(string title, Size bounds)
+{
+    var titleLabel = new BeepLabel
+    {
+        Text = title,
+        UseScaledFont = true,
+        TextAlign = ContentAlignment.MiddleCenter,
+        Size = bounds,
+        BorderStyle = BorderStyle.FixedSingle,
+        Font = new Font("Arial", 12, FontStyle.Bold) // Starting font size
+    };
+
+    // The font will automatically scale to fit the bounds
+    return titleLabel;
+}
+
+// Create labels with different sizes
+var smallTitle = CreateTitleLabel("Small Title", new Size(150, 30));
+var largeTitle = CreateTitleLabel("Large Display Title", new Size(400, 80));</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Content Label</h3>
+                        <pre><code class="language-csharp">public class StatusLabel : BeepLabel
+{
+    public enum StatusType
+    {
+        Success,
+        Warning,
+        Error,
+        Info
+    }
+
+    public void SetStatus(StatusType status, string message, string details = null)
+    {
+        Text = message;
+        SubHeaderText = details;
+
+        switch (status)
+        {
+            case StatusType.Success:
+                ImagePath = "icons/check-circle.svg";
+                ForeColor = Color.Green;
+                break;
+            case StatusType.Warning:
+                ImagePath = "icons/warning-triangle.svg";
+                ForeColor = Color.Orange;
+                break;
+            case StatusType.Error:
+                ImagePath = "icons/x-circle.svg";
+                ForeColor = Color.Red;
+                break;
+            case StatusType.Info:
+                ImagePath = "icons/info-circle.svg";
+                ForeColor = Color.Blue;
+                break;
+        }
+
+        ApplyThemeOnImage = true;
+        TextImageRelation = TextImageRelation.ImageBeforeText;
+        MaxImageSize = new Size(16, 16);
+        AutoSize = true;
+    }
+}
+
+// Usage
+var statusLabel = new StatusLabel();
+statusLabel.SetStatus(StatusType.Success, "Operation completed", "All files processed successfully");
+statusLabel.SetStatus(StatusType.Error, "Connection failed", "Unable to connect to server");
+statusLabel.SetStatus(StatusType.Warning, "Low disk space", "Only 2GB remaining");</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepLabel supports comprehensive theming through the BeepThemesManager system:</p>
+
+                    <div class="code-example">
+                        <h3>Apply Theme to Label</h3>
+                        <pre><code class="language-csharp">var label = new BeepLabel
+{
+    Text = "Themed Label",
+    Theme = "DarkTheme",
+    UseThemeFont = true
+};
+
+// Apply theme manually
+label.ApplyTheme();
+
+// Theme-specific properties applied:
+// - LabelBackColor
+// - LabelForeColor
+// - LabelHoverBackColor
+// - LabelBorderColor
+// - LabelSmall font style</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive Features</h3>
+                    <ul>
+                        <li><strong>Automatic Colors</strong> - Background and foreground colors adapt to theme</li>
+                        <li><strong>Font Inheritance</strong> - Fonts follow theme typography scale</li>
+                        <li><strong>SVG Theming</strong> - SVG icons automatically colored with theme colors</li>
+                        <li><strong>Subheader Styling</strong> - Secondary text inherits theme muted colors</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Colors Override</h3>
+                        <pre><code class="language-csharp">// Override theme colors for specific label
+var customLabel = new BeepLabel
+{
+    Text = "Custom Styled Label",
+    LabelBackColor = Color.FromArgb(248, 249, 250),
+    ForeColor = Color.FromArgb(33, 37, 41),
+    SubHeaderForeColor = Color.FromArgb(108, 117, 125),
+    IsColorFromTheme = false // Disable theme color inheritance
+};
+
+// Apply custom theme after setting properties
+customLabel.ApplyTheme();</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Theme-Aware Image Icons</h3>
+                        <pre><code class="language-csharp">var themedLabel = new BeepLabel
+{
+    Text = "Status Message",
+    ImagePath = "icons/status.svg",
+    ApplyThemeOnImage = true, // SVG will use theme foreground color
+    TextImageRelation = TextImageRelation.ImageBeforeText
+};
+
+// When theme changes, SVG color automatically updates
+BeepThemesManager.SetTheme("DarkTheme");
+themedLabel.ApplyTheme(); // SVG now uses dark theme colors</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>Use <code>ApplyThemeOnImage = true</code> to automatically color SVG icons based on the current theme's foreground color, ensuring consistent visual integration.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 UI/UX Guidelines</h3>
+                    <ul>
+                        <li><strong>Consistent sizing:</strong> Use AutoSize for dynamic content, fixed sizes for consistent layouts</li>
+                        <li><strong>Proper contrast:</strong> Ensure sufficient color contrast between text and background</li>
+                        <li><strong>Image alignment:</strong> Use consistent image-text relationships across your application</li>
+                        <li><strong>Subheader usage:</strong> Use subheaders for secondary information, not essential data</li>
+                        <li><strong>Font hierarchy:</strong> Maintain consistent font sizes and weights across similar label types</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Image optimization:</strong> Use appropriately sized images and prefer SVG for scalability</li>
+                        <li><strong>Font caching:</strong> Let the control manage font creation and disposal</li>
+                        <li><strong>Auto-sizing:</strong> Use sparingly in complex layouts to avoid constant recalculation</li>
+                        <li><strong>Text measurement:</strong> Cache text size calculations for frequently updated labels</li>
+                        <li><strong>Theme updates:</strong> Batch theme changes to avoid excessive redraws</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Meaningful text:</strong> Ensure text is descriptive and accessible to screen readers</li>
+                        <li><strong>Color independence:</strong> Don't rely solely on color to convey information</li>
+                        <li><strong>Font sizes:</strong> Use readable font sizes and consider user scaling preferences</li>
+                        <li><strong>Contrast ratios:</strong> Follow WCAG guidelines for text contrast</li>
+                        <li><strong>Alt text:</strong> Provide meaningful descriptions for images</li>
+                    </ul>
+
+                    <h3>🔧 Technical Considerations</h3>
+                    <ul>
+                        <li><strong>Layout management:</strong> Consider container behavior when using AutoSize</li>
+                        <li><strong>Text wrapping:</strong> Test multi-line behavior with various text lengths</li>
+                        <li><strong>Image paths:</strong> Use relative paths and verify image file existence</li>
+                        <li><strong>Memory management:</strong> Dispose of custom fonts and images properly</li>
+                        <li><strong>Event handling:</strong> Be mindful of performance in frequently triggered events</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Layout Warning</strong>
+                        <p>When using Multiline with AutoSize, be careful with container layouts as this can cause sizing issues and unexpected behavior.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Theme Integration</strong>
+                        <p>BeepLabel automatically handles theme inheritance from parent containers when IsChild = true, ensuring consistent appearance throughout your application.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-switch.html"><i class="bi bi-arrow-left"></i> BeepSwitch</a>
+                    <a href="beep-image.html">BeepImage <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

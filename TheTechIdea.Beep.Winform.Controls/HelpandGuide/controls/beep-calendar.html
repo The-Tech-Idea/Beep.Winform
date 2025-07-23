@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepCalendarView - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css">
+    <style>
+        /* Control-specific styles */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .breadcrumb {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+            margin-right: 0.5rem;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .section h3 {
+            color: #34495e;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .code-example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .code-example h4 {
+            color: #495057;
+            margin-bottom: 1rem;
+        }
+
+        .property-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .property-table th,
+        .property-table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .property-table th {
+            background: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+
+        .property-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .feature-card h4 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .nav-links a {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            background: #5a6fd8;
+        }
+
+        .toc {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            color: #667eea;
+            text-decoration: none;
+        }
+
+        .toc a:hover {
+            text-decoration: underline;
+        }
+
+        .visual-preview {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin: 1rem 0;
+            background: #fafafa;
+        }
+
+        .calendar-preview {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 1rem;
+            max-width: 350px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: Arial, sans-serif;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-nav {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            cursor: pointer;
+        }
+
+        .calendar-title {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #2c3e50;
+        }
+
+        .calendar-days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.8rem;
+            color: #6c757d;
+            padding: 0.25rem;
+        }
+
+        .calendar-date {
+            text-align: center;
+            padding: 0.5rem 0.25rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .calendar-date.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .calendar-date.today {
+            border: 2px solid #667eea;
+        }
+
+        .calendar-time-section {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .calendar-time-list {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 0.5rem;
+            height: 100px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+
+        .calendar-footer {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .calendar-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .calendar-button {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            background: #667eea;
+            color: white;
+            text-align: center;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>?? BeepCalendarView</h1>
+            <p>Advanced calendar and date/time picker control with comprehensive date selection and time slot management</p>
+        </header>
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+            <a href="../index.html">?? Home</a> > 
+            <a href="../index.html#specialized-controls">?? Specialized Controls</a> > 
+            <span>BeepCalendarView</span>
+        </nav>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>?? Table of Contents</h3>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#features">Key Features</a></li>
+                    <li><a href="#visual-preview">Visual Preview</a></li>
+                    <li><a href="#basic-usage">Basic Usage</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#methods">Methods</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#theming">Theming</a></li>
+                    <li><a href="#best-practices">Best Practices</a></li>
+                </ul>
+            </div>
+
+            <!-- Overview -->
+            <section id="overview" class="section">
+                <h2>?? Overview</h2>
+                <p>
+                    <strong>BeepCalendarView</strong> is a comprehensive calendar and date/time picker control that provides 
+                    an intuitive interface for selecting dates and times. It combines a traditional monthly calendar view 
+                    with a time slot selector, offering users complete control over date and time selection.
+                </p>
+                <p>
+                    Built on the <strong>BeepControl</strong> foundation, BeepCalendarView features navigational arrows, 
+                    month/year display, selectable date grid, time slot list, and action buttons (OK/Cancel). It supports 
+                    full theme integration, responsive layout management, and provides comprehensive event handling for 
+                    date and time selection.
+                </p>
+            </section>
+
+            <!-- Key Features -->
+            <section id="features" class="section">
+                <h2>? Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>?? Full Calendar Display</h4>
+                        <p>Complete monthly calendar with week headers, date grid, and navigation arrows</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Time Selection</h4>
+                        <p>Integrated time slot selector with 24-hour time options and scrollable list</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Interactive Navigation</h4>
+                        <p>Month-by-month navigation with left/right arrow controls and today button</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>? Action Buttons</h4>
+                        <p>Built-in OK and Cancel buttons for confirming or canceling date/time selection</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Visual Indicators</h4>
+                        <p>Selected date highlighting, today marker, and status footer display</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Responsive Layout</h4>
+                        <p>Automatic component positioning and sizing with adaptive layout management</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Visual Preview -->
+            <section id="visual-preview" class="section">
+                <h2>??? Visual Preview</h2>
+                <div class="visual-preview">
+                    <div class="calendar-preview">
+                        <div class="calendar-header">
+                            <span class="calendar-nav">‹</span>
+                            <span class="calendar-title">December 2024</span>
+                            <span class="calendar-nav">›</span>
+                        </div>
+                        
+                        <div class="calendar-days">
+                            <div class="calendar-day-header">M</div>
+                            <div class="calendar-day-header">T</div>
+                            <div class="calendar-day-header">W</div>
+                            <div class="calendar-day-header">T</div>
+                            <div class="calendar-day-header">F</div>
+                            <div class="calendar-day-header">S</div>
+                            <div class="calendar-day-header">S</div>
+                            
+                            <div class="calendar-date"></div>
+                            <div class="calendar-date"></div>
+                            <div class="calendar-date"></div>
+                            <div class="calendar-date"></div>
+                            <div class="calendar-date"></div>
+                            <div class="calendar-date">01</div>
+                            <div class="calendar-date">02</div>
+                            <div class="calendar-date">03</div>
+                            <div class="calendar-date">04</div>
+                            <div class="calendar-date">05</div>
+                            <div class="calendar-date">06</div>
+                            <div class="calendar-date">07</div>
+                            <div class="calendar-date">08</div>
+                            <div class="calendar-date">09</div>
+                            <div class="calendar-date">10</div>
+                            <div class="calendar-date">11</div>
+                            <div class="calendar-date">12</div>
+                            <div class="calendar-date today">13</div>
+                            <div class="calendar-date">14</div>
+                            <div class="calendar-date selected">15</div>
+                            <div class="calendar-date">16</div>
+                            <div class="calendar-date">17</div>
+                            <div class="calendar-date">18</div>
+                            <div class="calendar-date">19</div>
+                            <div class="calendar-date">20</div>
+                            <div class="calendar-date">21</div>
+                            <div class="calendar-date">22</div>
+                            <div class="calendar-date">23</div>
+                            <div class="calendar-date">24</div>
+                            <div class="calendar-date">25</div>
+                            <div class="calendar-date">26</div>
+                            <div class="calendar-date">27</div>
+                            <div class="calendar-date">28</div>
+                            <div class="calendar-date">29</div>
+                            <div class="calendar-date">30</div>
+                            <div class="calendar-date">31</div>
+                        </div>
+
+                        <div class="calendar-time-section">
+                            <div style="flex: 1;">
+                                <div class="calendar-time-list">
+                                    9:00 AM<br>
+                                    10:00 AM<br>
+                                    11:00 AM<br>
+                                    <strong>12:00 PM</strong><br>
+                                    1:00 PM<br>
+                                    2:00 PM
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="calendar-footer">
+                            Selected Date: December 15, 2024 12:00 PM
+                        </div>
+
+                        <div class="calendar-buttons">
+                            <div class="calendar-button">OK</div>
+                            <div class="calendar-button" style="background: #6c757d;">Cancel</div>
+                        </div>
+                    </div>
+                    <p><em>Example BeepCalendarView layout showing all components</em></p>
+                </div>
+            </section>
+
+            <!-- Basic Usage -->
+            <section id="basic-usage" class="section">
+                <h2>?? Basic Usage</h2>
+                
+                <div class="code-example">
+                    <h4>Simple Calendar Control</h4>
+                    <pre><code class="language-csharp">// Create a basic calendar view
+var calendar = new BeepCalendarView
+{
+    Size = new Size(350, 400),
+    Location = new Point(10, 10),
+    SelectedDateTime = DateTime.Now
+};
+
+// Handle date selection
+calendar.DateTimeSelected += (sender, selectedDate) =>
+{
+    if (selectedDate.HasValue)
+    {
+        MessageBox.Show($"Selected: {selectedDate.Value:F}");
+    }
+};
+
+// Handle cancel action
+calendar.Cancelled += (sender, e) =>
+{
+    MessageBox.Show("Selection cancelled");
+};
+
+this.Controls.Add(calendar);</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Appointment Scheduler</h4>
+                    <pre><code class="language-csharp">var appointmentPicker = new BeepCalendarView
+{
+    Size = new Size(400, 450),
+    SelectedDateTime = DateTime.Today.AddHours(9), // Default to 9 AM
+    
+    // Custom appearance
+    HeaderFont = new Font("Arial", 12, FontStyle.Bold),
+    DateFont = new Font("Arial", 10),
+    TimeListFont = new Font("Arial", 9),
+    
+    Location = new Point(20, 20)
+};
+
+appointmentPicker.DateTimeSelected += OnAppointmentSelected;
+this.Controls.Add(appointmentPicker);
+
+private void OnAppointmentSelected(object sender, DateTime? selectedDate)
+{
+    if (selectedDate.HasValue)
+    {
+        // Schedule appointment
+        var appointment = new Appointment
+        {
+            DateTime = selectedDate.Value,
+            Duration = TimeSpan.FromHours(1)
+        };
+        
+        ScheduleAppointment(appointment);
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Event Date Picker Dialog</h4>
+                    <pre><code class="language-csharp">public class EventDatePickerForm : Form
+{
+    private BeepCalendarView calendarView;
+    public DateTime? SelectedEventDate { get; private set; }
+
+    public EventDatePickerForm()
+    {
+        InitializeCalendarDialog();
+    }
+
+    private void InitializeCalendarDialog()
+    {
+        // Form setup
+        this.Text = "Select Event Date & Time";
+        this.Size = new Size(400, 500);
+        this.StartPosition = FormStartPosition.CenterParent;
+        this.FormBorderStyle = FormBorderStyle.FixedDialog;
+        this.MaximizeBox = false;
+        this.MinimizeBox = false;
+
+        // Calendar setup
+        calendarView = new BeepCalendarView
+        {
+            Size = new Size(370, 450),
+            Location = new Point(15, 15),
+            SelectedDateTime = DateTime.Now
+        };
+
+        calendarView.DateTimeSelected += (s, date) =>
+        {
+            SelectedEventDate = date;
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        };
+
+        calendarView.Cancelled += (s, e) =>
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        };
+
+        this.Controls.Add(calendarView);
+    }
+}
+
+// Usage
+using (var picker = new EventDatePickerForm())
+{
+    if (picker.ShowDialog() == DialogResult.OK)
+    {
+        var eventDate = picker.SelectedEventDate;
+        // Use selected date for event creation
+    }
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Properties -->
+            <section id="properties" class="section">
+                <h2>?? Properties</h2>
+
+                <h3>Core Properties</h3>
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SelectedDateTime</td>
+                            <td>DateTime?</td>
+                            <td>null</td>
+                            <td>The currently selected date and time. Null if no selection</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Appearance Properties</h3>
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>HeaderFont</td>
+                            <td>Font</td>
+                            <td>Arial, 10pt, Bold</td>
+                            <td>Font used for the month/year header display</td>
+                        </tr>
+                        <tr>
+                            <td>DaysHeaderFont</td>
+                            <td>Font</td>
+                            <td>Arial, 8pt</td>
+                            <td>Font used for the days of week header (M T W T F S S)</td>
+                        </tr>
+                        <tr>
+                            <td>DateFont</td>
+                            <td>Font</td>
+                            <td>Arial, 9pt</td>
+                            <td>Font used for the date numbers in the grid</td>
+                        </tr>
+                        <tr>
+                            <td>SelectedDateFont</td>
+                            <td>Font</td>
+                            <td>Arial, 8pt</td>
+                            <td>Font used for the selected date display in footer</td>
+                        </tr>
+                        <tr>
+                            <td>FooterButtonFont</td>
+                            <td>Font</td>
+                            <td>Arial, 8pt, Bold</td>
+                            <td>Font used for the footer text and today button</td>
+                        </tr>
+                        <tr>
+                            <td>TimeListFont</td>
+                            <td>Font</td>
+                            <td>Arial, 8pt</td>
+                            <td>Font used for the time list items</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Inherited Properties</h3>
+                <p>BeepCalendarView inherits all properties from <strong>BeepControl</strong>, including:</p>
+                <ul>
+                    <li><strong>Theme</strong> - Theme name for styling</li>
+                    <li><strong>IsRounded</strong> - Enable rounded corners</li>
+                    <li><strong>ShowShadow</strong> - Display drop shadow</li>
+                    <li><strong>BorderRadius</strong> - Corner radius size</li>
+                    <li><strong>BorderThickness</strong> - Border line thickness</li>
+                    <li><strong>UseThemeFont</strong> - Apply theme fonts automatically</li>
+                </ul>
+            </section>
+
+            <!-- Events -->
+            <section id="events" class="section">
+                <h2>?? Events</h2>
+                
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Parameters</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>DateTimeSelected</td>
+                            <td>object sender, DateTime? selectedDate</td>
+                            <td>Fired when user clicks OK button with a selected date and time</td>
+                        </tr>
+                        <tr>
+                            <td>Cancelled</td>
+                            <td>object sender, EventArgs e</td>
+                            <td>Fired when user clicks Cancel button or cancels the selection</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-example">
+                    <h4>Event Handling Example</h4>
+                    <pre><code class="language-csharp">var calendar = new BeepCalendarView();
+
+// Handle successful date/time selection
+calendar.DateTimeSelected += (sender, selectedDate) =>
+{
+    if (selectedDate.HasValue)
+    {
+        Console.WriteLine($"User selected: {selectedDate.Value:F}");
+        // Process the selected date and time
+        ProcessSelectedDateTime(selectedDate.Value);
+    }
+};
+
+// Handle cancellation
+calendar.Cancelled += (sender, e) =>
+{
+    Console.WriteLine("User cancelled date selection");
+    // Handle cancellation logic
+    HandleCancellation();
+};</code></pre>
+                </div>
+            </section>
+
+            <!-- Methods -->
+            <section id="methods" class="section">
+                <h2>?? Methods</h2>
+                
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Parameters</th>
+                            <th>Returns</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>ApplyTheme</td>
+                            <td>None</td>
+                            <td>void</td>
+                            <td>Apply current theme colors and fonts to all calendar components</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-example">
+                    <h4>Method Usage</h4>
+                    <pre><code class="language-csharp">// Apply theme manually after property changes
+calendar.Theme = "DarkTheme";
+calendar.ApplyTheme();
+
+// The calendar will automatically update:
+// - Background and foreground colors
+// - Border colors for dates and components
+// - Font styles if UseThemeFont is enabled
+// - Button appearance and colors</code></pre>
+                </div>
+            </section>
+
+            <!-- Examples -->
+            <section id="examples" class="section">
+                <h2>?? Examples</h2>
+
+                <div class="code-example">
+                    <h4>Meeting Scheduler Interface</h4>
+                    <pre><code class="language-csharp">public class MeetingScheduler : UserControl
+{
+    private BeepCalendarView meetingCalendar;
+    private BeepButton scheduleButton;
+    private BeepLabel selectedTimeLabel;
+    private List<DateTime> bookedSlots;
+
+    public MeetingScheduler()
+    {
+        InitializeMeetingInterface();
+        LoadBookedSlots();
+    }
+
+    private void InitializeMeetingInterface()
+    {
+        // Calendar setup
+        meetingCalendar = new BeepCalendarView
+        {
+            Size = new Size(400, 450),
+            Location = new Point(10, 50),
+            SelectedDateTime = GetNextAvailableSlot()
+        };
+
+        // Event handlers
+        meetingCalendar.DateTimeSelected += OnMeetingTimeSelected;
+        meetingCalendar.Cancelled += OnSelectionCancelled;
+
+        // Status label
+        selectedTimeLabel = new BeepLabel
+        {
+            Text = "Please select a meeting time",
+            Location = new Point(10, 10),
+            Size = new Size(400, 30),
+            Font = new Font("Arial", 10, FontStyle.Bold)
+        };
+
+        // Schedule button
+        scheduleButton = new BeepButton
+        {
+            Text = "Schedule Meeting",
+            Location = new Point(10, 510),
+            Size = new Size(150, 35),
+            Enabled = false
+        };
+        scheduleButton.Click += ScheduleMeeting;
+
+        // Add controls
+        this.Controls.AddRange(new Control[] 
+        { 
+            selectedTimeLabel, 
+            meetingCalendar, 
+            scheduleButton 
+        });
+    }
+
+    private void LoadBookedSlots()
+    {
+        // Load existing meeting times from database
+        bookedSlots = GetBookedMeetingSlots();
+        
+        // You could disable booked slots in a custom calendar implementation
+        // or show warnings when user selects conflicting times
+    }
+
+    private void OnMeetingTimeSelected(object sender, DateTime? selectedTime)
+    {
+        if (selectedTime.HasValue)
+        {
+            // Check for conflicts
+            if (IsTimeSlotAvailable(selectedTime.Value))
+            {
+                selectedTimeLabel.Text = $"Selected: {selectedTime.Value:F}";
+                selectedTimeLabel.ForeColor = Color.Green;
+                scheduleButton.Enabled = true;
+            }
+            else
+            {
+                selectedTimeLabel.Text = $"Time slot unavailable: {selectedTime.Value:F}";
+                selectedTimeLabel.ForeColor = Color.Red;
+                scheduleButton.Enabled = false;
+                
+                MessageBox.Show("This time slot is already booked. Please select another time.",
+                              "Time Conflict", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+    }
+
+    private void OnSelectionCancelled(object sender, EventArgs e)
+    {
+        selectedTimeLabel.Text = "Please select a meeting time";
+        selectedTimeLabel.ForeColor = Color.Black;
+        scheduleButton.Enabled = false;
+    }
+
+    private void ScheduleMeeting(object sender, EventArgs e)
+    {
+        if (meetingCalendar.SelectedDateTime.HasValue)
+        {
+            var meetingTime = meetingCalendar.SelectedDateTime.Value;
+            
+            // Create meeting
+            var meeting = new Meeting
+            {
+                DateTime = meetingTime,
+                Duration = TimeSpan.FromHours(1),
+                Subject = "New Meeting",
+                CreatedDate = DateTime.Now
+            };
+
+            // Save to database
+            SaveMeeting(meeting);
+            
+            // Update UI
+            bookedSlots.Add(meetingTime);
+            selectedTimeLabel.Text = "Meeting scheduled successfully!";
+            selectedTimeLabel.ForeColor = Color.Green;
+            
+            MessageBox.Show($"Meeting scheduled for {meetingTime:F}",
+                          "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+    }
+
+    private bool IsTimeSlotAvailable(DateTime dateTime)
+    {
+        // Check if the selected time conflicts with existing meetings
+        return !bookedSlots.Any(slot => 
+            Math.Abs((slot - dateTime).TotalMinutes) < 60); // 1-hour buffer
+    }
+
+    private DateTime GetNextAvailableSlot()
+    {
+        var now = DateTime.Now;
+        var nextHour = new DateTime(now.Year, now.Month, now.Day, now.Hour + 1, 0, 0);
+        
+        while (bookedSlots.Contains(nextHour))
+        {
+            nextHour = nextHour.AddHours(1);
+        }
+        
+        return nextHour;
+    }
+
+    private List<DateTime> GetBookedMeetingSlots()
+    {
+        // Simulate database query
+        return new List<DateTime>
+        {
+            DateTime.Today.AddHours(10),
+            DateTime.Today.AddHours(14),
+            DateTime.Today.AddDays(1).AddHours(9)
+        };
+    }
+
+    private void SaveMeeting(Meeting meeting)
+    {
+        // Database save logic
+        // ...
+    }
+}
+
+public class Meeting
+{
+    public DateTime DateTime { get; set; }
+    public TimeSpan Duration { get; set; }
+    public string Subject { get; set; }
+    public DateTime CreatedDate { get; set; }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Task Deadline Picker</h4>
+                    <pre><code class="language-csharp">public class TaskDeadlinePicker : UserControl
+{
+    private BeepCalendarView deadlineCalendar;
+    private BeepLabel instructionLabel;
+    private BeepButton setDeadlineButton;
+    private BeepButton clearDeadlineButton;
+
+    public DateTime? TaskDeadline { get; private set; }
+    public event EventHandler<DateTime?> DeadlineChanged;
+
+    public TaskDeadlinePicker()
+    {
+        InitializeDeadlinePicker();
+    }
+
+    private void InitializeDeadlinePicker()
+    {
+        // Instruction label
+        instructionLabel = new BeepLabel
+        {
+            Text = "Select a deadline for this task",
+            Location = new Point(10, 10),
+            Size = new Size(350, 25),
+            Font = new Font("Arial", 10)
+        };
+
+        // Calendar for deadline selection
+        deadlineCalendar = new BeepCalendarView
+        {
+            Size = new Size(350, 400),
+            Location = new Point(10, 40),
+            SelectedDateTime = DateTime.Today.AddDays(7) // Default to one week from now
+        };
+
+        deadlineCalendar.DateTimeSelected += OnDeadlineSelected;
+        deadlineCalendar.Cancelled += OnDeadlineSelectionCancelled;
+
+        // Control buttons
+        setDeadlineButton = new BeepButton
+        {
+            Text = "Set Deadline",
+            Location = new Point(10, 450),
+            Size = new Size(100, 30),
+            Enabled = false
+        };
+        setDeadlineButton.Click += SetTaskDeadline;
+
+        clearDeadlineButton = new BeepButton
+        {
+            Text = "Clear Deadline",
+            Location = new Point(120, 450),
+            Size = new Size(100, 30),
+            Enabled = false
+        };
+        clearDeadlineButton.Click += ClearTaskDeadline;
+
+        // Add all controls
+        this.Controls.AddRange(new Control[]
+        {
+            instructionLabel,
+            deadlineCalendar,
+            setDeadlineButton,
+            clearDeadlineButton
+        });
+
+        this.Size = new Size(380, 500);
+    }
+
+    private void OnDeadlineSelected(object sender, DateTime? selectedDate)
+    {
+        if (selectedDate.HasValue)
+        {
+            // Validate deadline is in the future
+            if (selectedDate.Value <= DateTime.Now)
+            {
+                MessageBox.Show("Deadline must be in the future.",
+                              "Invalid Deadline", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            TaskDeadline = selectedDate.Value;
+            instructionLabel.Text = $"Deadline: {selectedDate.Value:F}";
+            setDeadlineButton.Enabled = true;
+            clearDeadlineButton.Enabled = true;
+
+            // Notify listeners
+            DeadlineChanged?.Invoke(this, TaskDeadline);
+        }
+    }
+
+    private void OnDeadlineSelectionCancelled(object sender, EventArgs e)
+    {
+        instructionLabel.Text = "Select a deadline for this task";
+        setDeadlineButton.Enabled = false;
+    }
+
+    private void SetTaskDeadline(object sender, EventArgs e)
+    {
+        if (TaskDeadline.HasValue)
+        {
+            MessageBox.Show($"Task deadline set to: {TaskDeadline.Value:F}",
+                          "Deadline Set", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+            // Hide calendar or close dialog
+            this.Visible = false;
+        }
+    }
+
+    private void ClearTaskDeadline(object sender, EventArgs e)
+    {
+        TaskDeadline = null;
+        instructionLabel.Text = "Select a deadline for this task";
+        setDeadlineButton.Enabled = false;
+        clearDeadlineButton.Enabled = false;
+        deadlineCalendar.SelectedDateTime = null;
+        
+        DeadlineChanged?.Invoke(this, null);
+    }
+
+    public void SetInitialDeadline(DateTime? deadline)
+    {
+        TaskDeadline = deadline;
+        deadlineCalendar.SelectedDateTime = deadline;
+        
+        if (deadline.HasValue)
+        {
+            instructionLabel.Text = $"Current deadline: {deadline.Value:F}";
+            setDeadlineButton.Enabled = true;
+            clearDeadlineButton.Enabled = true;
+        }
+    }
+}
+
+// Usage in a task management form
+var deadlinePicker = new TaskDeadlinePicker();
+deadlinePicker.DeadlineChanged += (sender, deadline) =>
+{
+    currentTask.Deadline = deadline;
+    UpdateTaskInDatabase(currentTask);
+};
+
+// Set existing deadline if task already has one
+if (currentTask.Deadline.HasValue)
+{
+    deadlinePicker.SetInitialDeadline(currentTask.Deadline);
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Recurring Event Scheduler</h4>
+                    <pre><code class="language-csharp">public class RecurringEventScheduler : Form
+{
+    private BeepCalendarView eventCalendar;
+    private BeepComboBox recurrenceCombo;
+    private BeepTextBox eventNameText;
+    private BeepButton scheduleButton;
+
+    public RecurringEventScheduler()
+    {
+        InitializeSchedulerForm();
+    }
+
+    private void InitializeSchedulerForm()
+    {
+        this.Text = "Schedule Recurring Event";
+        this.Size = new Size(450, 600);
+        this.StartPosition = FormStartPosition.CenterScreen;
+
+        // Event name input
+        var nameLabel = new BeepLabel
+        {
+            Text = "Event Name:",
+            Location = new Point(10, 10),
+            Size = new Size(100, 25)
+        };
+
+        eventNameText = new BeepTextBox
+        {
+            Location = new Point(10, 35),
+            Size = new Size(400, 25),
+            Text = "New Recurring Event"
+        };
+
+        // Recurrence selection
+        var recurrenceLabel = new BeepLabel
+        {
+            Text = "Recurrence:",
+            Location = new Point(10, 70),
+            Size = new Size(100, 25)
+        };
+
+        recurrenceCombo = new BeepComboBox
+        {
+            Location = new Point(10, 95),
+            Size = new Size(200, 25)
+        };
+        recurrenceCombo.Items.AddRange(new string[]
+        {
+            "No Recurrence",
+            "Daily",
+            "Weekly",
+            "Monthly",
+            "Yearly"
+        });
+        recurrenceCombo.SelectedIndex = 0;
+
+        // Calendar for start date selection
+        var startDateLabel = new BeepLabel
+        {
+            Text = "Start Date & Time:",
+            Location = new Point(10, 130),
+            Size = new Size(150, 25)
+        };
+
+        eventCalendar = new BeepCalendarView
+        {
+            Size = new Size(400, 350),
+            Location = new Point(10, 155),
+            SelectedDateTime = DateTime.Now.AddHours(1)
+        };
+
+        eventCalendar.DateTimeSelected += OnEventDateSelected;
+
+        // Schedule button
+        scheduleButton = new BeepButton
+        {
+            Text = "Schedule Event",
+            Location = new Point(10, 520),
+            Size = new Size(150, 35),
+            Enabled = false
+        };
+        scheduleButton.Click += ScheduleRecurringEvent;
+
+        // Add controls
+        this.Controls.AddRange(new Control[]
+        {
+            nameLabel, eventNameText,
+            recurrenceLabel, recurrenceCombo,
+            startDateLabel, eventCalendar,
+            scheduleButton
+        });
+    }
+
+    private void OnEventDateSelected(object sender, DateTime? selectedDate)
+    {
+        scheduleButton.Enabled = selectedDate.HasValue && 
+                                !string.IsNullOrWhiteSpace(eventNameText.Text);
+    }
+
+    private void ScheduleRecurringEvent(object sender, EventArgs e)
+    {
+        if (!eventCalendar.SelectedDateTime.HasValue) return;
+
+        var startDate = eventCalendar.SelectedDateTime.Value;
+        var eventName = eventNameText.Text.Trim();
+        var recurrence = recurrenceCombo.SelectedItem.ToString();
+
+        // Generate recurring dates based on recurrence type
+        var eventDates = GenerateRecurringDates(startDate, recurrence);
+
+        // Create and save events
+        foreach (var eventDate in eventDates)
+        {
+            var recurringEvent = new RecurringEvent
+            {
+                Name = eventName,
+                DateTime = eventDate,
+                Recurrence = recurrence,
+                CreatedDate = DateTime.Now
+            };
+
+            SaveRecurringEvent(recurringEvent);
+        }
+
+        MessageBox.Show($"Scheduled {eventDates.Count} instances of '{eventName}' " +
+                       $"starting {startDate:F} with {recurrence} recurrence.",
+                       "Events Scheduled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        this.DialogResult = DialogResult.OK;
+        this.Close();
+    }
+
+    private List<DateTime> GenerateRecurringDates(DateTime startDate, string recurrence)
+    {
+        var dates = new List<DateTime> { startDate };
+        var endDate = startDate.AddYears(1); // Generate for one year
+
+        switch (recurrence)
+        {
+            case "Daily":
+                for (var date = startDate.AddDays(1); date <= endDate; date = date.AddDays(1))
+                    dates.Add(date);
+                break;
+
+            case "Weekly":
+                for (var date = startDate.AddDays(7); date <= endDate; date = date.AddDays(7))
+                    dates.Add(date);
+                break;
+
+            case "Monthly":
+                for (var date = startDate.AddMonths(1); date <= endDate; date = date.AddMonths(1))
+                    dates.Add(date);
+                break;
+
+            case "Yearly":
+                dates.Add(startDate.AddYears(1));
+                break;
+        }
+
+        return dates.Take(50).ToList(); // Limit to 50 instances
+    }
+
+    private void SaveRecurringEvent(RecurringEvent recurringEvent)
+    {
+        // Database save logic
+        // ...
+    }
+}
+
+public class RecurringEvent
+{
+    public string Name { get; set; }
+    public DateTime DateTime { get; set; }
+    public string Recurrence { get; set; }
+    public DateTime CreatedDate { get; set; }
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Theming -->
+            <section id="theming" class="section">
+                <h2>?? Theming</h2>
+                
+                <p>BeepCalendarView provides comprehensive theming with automatic application of theme colors and fonts:</p>
+
+                <div class="code-example">
+                    <h4>Theme Properties Used</h4>
+                    <pre><code class="language-csharp">// Calendar-specific theme properties:
+// - CalendarBackColor: Main background color
+// - CalendarForeColor: Default text color
+// - CalendarBorderColor: Border colors for calendar and components
+// - CalendarTitleForColor: Month/year header text color
+// - CalendarDaysHeaderForColor: Days of week header color
+// - CalendarSelectedDateBackColor: Selected date background
+// - CalendarSelectedDateForColor: Selected date text color
+// - CalendarTodayForeColor: Today marker color
+// - CalendarFooterColor: Footer background color
+
+// Font properties (when UseThemeFont = true):
+// - CalendarTitleFont: Month/year header font
+// - DaysHeaderFont: Days of week font
+// - DateFont: Date numbers font
+// - CalendarSelectedFont: Selected date display font
+// - FooterFont: Footer text font
+// - CalendarUnSelectedFont: Time list font</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Custom Theme Application</h4>
+                    <pre><code class="language-csharp">public void SetupCalendarWithTheme(BeepCalendarView calendar, string themeName)
+{
+    // Apply theme
+    calendar.Theme = themeName;
+    calendar.UseThemeFont = true;
+    
+    // Enable theme-affected properties
+    calendar.IsRounded = true;
+    calendar.IsRoundedAffectedByTheme = true;
+    calendar.ShowShadow = true;
+    calendar.IsShadowAffectedByTheme = true;
+    
+    // Apply theme to all components
+    calendar.ApplyTheme();
+    
+    // The calendar will automatically style:
+    // - Main calendar background and borders
+    // - Date grid colors and fonts
+    // - Time list appearance
+    // - OK/Cancel button styling
+    // - Navigation arrow colors
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h4>Theme Customization</h4>
+                    <pre><code class="language-csharp">// Custom calendar appearance
+var customCalendar = new BeepCalendarView
+{
+    Theme = "MyCustomTheme",
+    
+    // Custom fonts (overrides theme fonts)
+    HeaderFont = new Font("Segoe UI", 12, FontStyle.Bold),
+    DateFont = new Font("Segoe UI", 10),
+    TimeListFont = new Font("Consolas", 9),
+    
+    // Visual properties
+    IsRounded = true,
+    BorderRadius = 15,
+    ShowShadow = true,
+    BorderThickness = 2,
+    
+    Size = new Size(380, 420)
+};
+
+// Apply custom styling
+customCalendar.ApplyTheme();</code></pre>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices" class="section">
+                <h2>?? Best Practices</h2>
+
+                <h3>?? Date Selection UX</h3>
+                <ul>
+                    <li><strong>Clear feedback:</strong> Always provide visual feedback for selected dates and times</li>
+                    <li><strong>Validation:</strong> Validate selected dates for business rules (working hours, future dates, etc.)</li>
+                    <li><strong>Default values:</strong> Set sensible default dates and times for better user experience</li>
+                    <li><strong>Accessibility:</strong> Ensure keyboard navigation and screen reader compatibility</li>
+                </ul>
+
+                <h3>?? Visual Design</h3>
+                <ul>
+                    <li><strong>Consistent theming:</strong> Use consistent theme across calendar and related controls</li>
+                    <li><strong>Readable fonts:</strong> Choose appropriate font sizes for different calendar elements</li>
+                    <li><strong>Color contrast:</strong> Ensure good contrast between text and background colors</li>
+                    <li><strong>Visual hierarchy:</strong> Use different font weights and sizes to establish information hierarchy</li>
+                </ul>
+
+                <h3>? Performance</h3>
+                <ul>
+                    <li><strong>Event handling:</strong> Handle date selection events efficiently without blocking UI</li>
+                    <li><strong>Memory management:</strong> Properly dispose of calendar instances and event handlers</li>
+                    <li><strong>Update frequency:</strong> Don't refresh calendar too frequently in real-time scenarios</li>
+                    <li><strong>Data validation:</strong> Perform validation asynchronously for better responsiveness</li>
+                </ul>
+
+                <h3>?? Integration</h3>
+                <ul>
+                    <li><strong>Event handling:</strong> Always handle both DateTimeSelected and Cancelled events</li>
+                    <li><strong>Modal dialogs:</strong> Use calendar in modal dialogs for focused date selection</li>
+                    <li><strong>Data binding:</strong> Consider creating wrapper classes for complex data binding scenarios</li>
+                    <li><strong>Validation:</strong> Implement business rule validation before accepting selected dates</li>
+                </ul>
+
+                <div class="tip">
+                    <strong>?? Tip:</strong> Use BeepCalendarView in modal dialogs or dedicated panels for focused date/time selection experiences.
+                </div>
+
+                <div class="success">
+                    <strong>? Success:</strong> BeepCalendarView provides a complete date and time selection solution with integrated navigation, time slots, and action buttons.
+                </div>
+
+                <div class="warning">
+                    <strong>?? Warning:</strong> Always validate selected dates against your business rules (minimum/maximum dates, working hours, availability, etc.).
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="nav-links">
+            <a href="beep-datepicker.html">?? BeepDatePicker</a>
+            <a href="beep-stepper.html">?? BeepStepperBar ?</a>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!-- Start of footer template - copy from here -->
+            </div>
+            
+            <!-- Footer -->
+            <footer class="documentation-footer">
+                <div class="footer-content">
+                    <div class="footer-copyright">
+                        <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                        <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                    </div>
+                    <div class="footer-links">
+                        <a href="<!-- ROOT_PATH -->index.html">Home</a>
+                        <a href="<!-- ROOT_PATH -->getting-started/installation.html">Getting Started</a>
+                        <a href="<!-- ROOT_PATH -->api/beep-control-base.html">API Reference</a>
+                    </div>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Navigation scripts -->
+    <script>
+        // Submenu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+            
+            // Highlight current page in navigation
+            const currentPage = window.location.pathname.split('/').pop();
+            const navLinks = document.querySelectorAll('.nav-menu a');
+            
+            navLinks.forEach(link => {
+                if (link.getAttribute('href')?.endsWith(currentPage)) {
+                    link.classList.add('active');
+                    
+                    // Open parent submenu if in one
+                    const submenuParent = link.closest('.submenu')?.parentElement;
+                    if (submenuParent) {
+                        submenuParent.classList.add('open');
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+<!-- End of footer template -->

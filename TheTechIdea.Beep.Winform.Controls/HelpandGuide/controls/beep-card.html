@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepCard - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html" class="active">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>›</span>
+                    <span>BeepCard</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepCard</h1>
+                    <p class="page-subtitle">Modern card component with multiple view modes, interactive elements, and theming</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#view-modes">View Modes</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepCard</strong> is a versatile card component that displays content in a structured format 
+                        with an optional image, header text, paragraph text, and action button. It supports multiple view modes 
+                        for different layout requirements and provides interactive click areas for each element.
+                    </p>
+                    <p>
+                        Built on top of the <code>BeepControl</code> base class, BeepCard combines BeepImage, BeepLabel, 
+                        and BeepButton components to create a cohesive, themeable card interface suitable for dashboards, 
+                        product displays, user profiles, and content presentation.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📐 Multiple View Modes</h3>
+                            <p>FullImage, Compact, and ImageLeft layouts for different design requirements</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Interactive Elements</h3>
+                            <p>Separate click events for image, header, paragraph, and button areas</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Image Support</h3>
+                            <p>SVG, PNG, JPG support with automatic scaling and positioning</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Rich Text Content</h3>
+                            <p>Header and paragraph text with independent styling and alignment</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Smart Layout</h3>
+                            <p>Automatic component positioning based on view mode and content</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Full theme support with card-specific styling properties</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚙️ Configurable Elements</h3>
+                            <p>Show/hide button, custom alignments, and flexible sizing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Custom Styling</h3>
+                            <p>Rounded corners, shadows, and gradient support</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View Modes -->
+                <section id="view-modes" class="section">
+                    <h2>View Modes</h2>
+                    <p>BeepCard supports three distinct view modes for different layout requirements:</p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>🖼️ FullImage Mode</h4>
+                            <p>📷 Image at top (60% height)<br>
+                            📑 Header below image<br>
+                            📄 Paragraph text<br>
+                            🔘 Button at bottom-right</p>
+                            <p><strong>Best for:</strong> Product cards, media content</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>📄 Compact Mode</h4>
+                            <p>📑 Header at top<br>
+                            📄 Paragraph text<br>
+                            🔘 Button at bottom-right<br>
+                            (No image displayed)</p>
+                            <p><strong>Best for:</strong> Text-only cards, notifications</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <h4>🔄 ImageLeft Mode</h4>
+                            <p>📷 Image on left (33% width)<br>
+                            📑 Header on right<br>
+                            📄 Paragraph on right<br>
+                            🔘 Button at bottom-right</p>
+                            <p><strong>Best for:</strong> List items, user profiles</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Card Creation</h3>
+                        <pre><code class="language-csharp">// Create a basic BeepCard
+var card = new BeepCard
+{
+    HeaderText = "Welcome",
+    ParagraphText = "This is a sample card with basic content.",
+    ButtonText = "Learn More",
+    Size = new Size(300, 200),
+    Location = new Point(10, 10)
+};
+
+// Add to form
+this.Controls.Add(card);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Card with Image</h3>
+                        <pre><code class="language-csharp">var imageCard = new BeepCard
+{
+    HeaderText = "Product Card",
+    ParagraphText = "Premium quality product with excellent features.",
+    ButtonText = "Buy Now",
+    ImagePath = "images/product.jpg",
+    ViewMode = CardViewMode.FullImage,
+    MaxImageSize = 120,
+    Size = new Size(280, 320)
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Compact Information Card</h3>
+                        <pre><code class="language-csharp">var infoCard = new BeepCard
+{
+    HeaderText = "Notification",
+    ParagraphText = "Your account has been successfully updated.",
+    ViewMode = CardViewMode.Compact,
+    ShowButton = false,
+    Size = new Size(300, 120),
+    IsRounded = true,
+    BorderRadius = 8
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Layout Tip</strong>
+                        <p>Choose view modes based on content priority: FullImage for visual content, ImageLeft for profile-style layouts, and Compact for text-focused information.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Content Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>HeaderText</code></td>
+                                <td>string</td>
+                                <td>Text displayed as the card header</td>
+                            </tr>
+                            <tr>
+                                <td><code>ParagraphText</code></td>
+                                <td>string</td>
+                                <td>Main content text of the card</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonText</code></td>
+                                <td>string</td>
+                                <td>Text displayed on the action button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowButton</code></td>
+                                <td>bool</td>
+                                <td>Whether to display the action button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Image Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ImagePath</code></td>
+                                <td>string</td>
+                                <td>Path to image file (SVG, PNG, JPG, etc.)</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxImageSize</code></td>
+                                <td>int</td>
+                                <td>Maximum size for the image in pixels</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImageAlignment</code></td>
+                                <td>ContentAlignment</td>
+                                <td>Alignment of image within its area</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>ViewMode <code>CardViewMode</code></h4>
+                            <p>FullImage, Compact, or ImageLeft layout mode</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>HeaderAlignment <code>ContentAlignment</code></h4>
+                            <p>Alignment of header text within its area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>TextAlignment <code>ContentAlignment</code></h4>
+                            <p>Alignment of paragraph text within its area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>BorderRadius <code>int</code></h4>
+                            <p>Corner radius for rounded appearance</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ImageClicked</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Triggered when image area is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>HeaderClicked</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Triggered when header text is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ParagraphClicked</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Triggered when paragraph text is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonClicked</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Triggered when action button is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var card = new BeepCard
+{
+    HeaderText = "Interactive Card",
+    ParagraphText = "Click different areas to see events in action.",
+    ButtonText = "Primary Action",
+    ImagePath = "images/sample.jpg"
+};
+
+// Handle different click areas
+card.ImageClicked += (s, e) => {
+    MessageBox.Show("Image clicked! Opening gallery...");
+    OpenImageGallery(card.ImagePath);
+};
+
+card.HeaderClicked += (s, e) => {
+    MessageBox.Show("Header clicked! Opening details...");
+    ShowDetailsDialog(card.HeaderText);
+};
+
+card.ParagraphClicked += (s, e) => {
+    MessageBox.Show("Paragraph clicked! Expanding text...");
+    ShowExpandedText(card.ParagraphText);
+};
+
+card.ButtonClicked += (s, e) => {
+    MessageBox.Show("Button clicked! Performing action...");
+    PerformPrimaryAction();
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Product Card Collection</h3>
+                        <pre><code class="language-csharp">public void CreateProductCards()
+{
+    var products = new[]
+    {
+        new { Name = "Laptop Pro", Price = "$1,299", Image = "laptop.jpg" },
+        new { Name = "Smartphone X", Price = "$899", Image = "phone.jpg" },
+        new { Name = "Tablet Plus", Price = "$599", Image = "tablet.jpg" }
+    };
+
+    var panel = new FlowLayoutPanel 
+    { 
+        Dock = DockStyle.Fill, 
+        FlowDirection = FlowDirection.LeftToRight,
+        WrapContents = true,
+        Padding = new Padding(10)
+    };
+
+    foreach (var product in products)
+    {
+        var card = new BeepCard
+        {
+            HeaderText = product.Name,
+            ParagraphText = $"Premium quality device starting at {product.Price}",
+            ButtonText = "Add to Cart",
+            ImagePath = $"images/{product.Image}",
+            ViewMode = CardViewMode.FullImage,
+            Size = new Size(250, 320),
+            Margin = new Padding(10),
+            IsRounded = true,
+            BorderRadius = 12,
+            ShowShadow = true
+        };
+
+        card.ButtonClicked += (s, e) => {
+            AddToCart(product.Name);
+            ShowNotification($"{product.Name} added to cart!");
+        };
+
+        panel.Controls.Add(card);
+    }
+
+    this.Controls.Add(panel);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>User Profile Cards</h3>
+                        <pre><code class="language-csharp">public BeepCard CreateUserProfile(string name, string role, string avatar)
+{
+    var profileCard = new BeepCard
+    {
+        HeaderText = name,
+        ParagraphText = $"Role: {role}\nDepartment: Engineering\nLocation: San Francisco",
+        ButtonText = "View Profile",
+        ImagePath = avatar,
+        ViewMode = CardViewMode.ImageLeft,
+        Size = new Size(400, 150),
+        MaxImageSize = 80,
+        IsRounded = true,
+        BorderRadius = 8
+    };
+
+    profileCard.ImageClicked += (s, e) => {
+        ShowProfilePicture(avatar);
+    };
+
+    profileCard.HeaderClicked += (s, e) => {
+        OpenUserDetails(name);
+    };
+
+    profileCard.ButtonClicked += (s, e) => {
+        OpenFullProfile(name);
+    };
+
+    return profileCard;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dashboard Status Cards</h3>
+                        <pre><code class="language-csharp">public void CreateStatusDashboard()
+{
+    var statusData = new[]
+    {
+        new { Title = "Server Status", Value = "Online", Icon = "server-ok.svg", Color = Color.Green },
+        new { Title = "Database", Value = "Connected", Icon = "database.svg", Color = Color.Blue },
+        new { Title = "API Calls", Value = "1,234", Icon = "api.svg", Color = Color.Orange },
+        new { Title = "Users Online", Value = "56", Icon = "users.svg", Color = Color.Purple }
+    };
+
+    var dashboardPanel = new TableLayoutPanel
+    {
+        ColumnCount = 2,
+        RowCount = 2,
+        Dock = DockStyle.Fill,
+        Padding = new Padding(10)
+    };
+
+    foreach (var status in statusData)
+    {
+        var statusCard = new BeepCard
+        {
+            HeaderText = status.Title,
+            ParagraphText = status.Value,
+            ImagePath = status.Icon,
+            ViewMode = CardViewMode.ImageLeft,
+            ShowButton = false,
+            Size = new Size(200, 100),
+            MaxImageSize = 32,
+            IsRounded = true,
+            BorderRadius = 6,
+            Margin = new Padding(5)
+        };
+
+        // Apply status-specific styling
+        statusCard.ForeColor = status.Color;
+
+        dashboardPanel.Controls.Add(statusCard);
+    }
+
+    this.Controls.Add(dashboardPanel);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>News Article Cards</h3>
+                        <pre><code class="language-csharp">public BeepCard CreateNewsCard(string headline, string summary, string imageUrl, DateTime publishDate)
+{
+    var newsCard = new BeepCard
+    {
+        HeaderText = headline,
+        ParagraphText = $"{summary}\n\nPublished: {publishDate:MMM dd, yyyy}",
+        ButtonText = "Read More",
+        ImagePath = imageUrl,
+        ViewMode = CardViewMode.FullImage,
+        Size = new Size(300, 280),
+        HeaderAlignment = ContentAlignment.TopLeft,
+        TextAlignment = ContentAlignment.TopLeft,
+        UseGradientBackground = true,
+        IsRounded = true,
+        BorderRadius = 10
+    };
+
+    newsCard.ButtonClicked += (s, e) => {
+        OpenArticle(headline);
+    };
+
+    newsCard.HeaderClicked += (s, e) => {
+        OpenArticlePreview(headline);
+    };
+
+    return newsCard;
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepCard supports comprehensive theming with specific card styling properties:</p>
+
+                    <div class="code-example">
+                        <h3>Automatic Theme Application</h3>
+                        <pre><code class="language-csharp">var themedCard = new BeepCard
+{
+    HeaderText = "Themed Card",
+    ParagraphText = "This card uses automatic theme styling.",
+    ButtonText = "Action",
+    Theme = "ModernDark"
+};
+
+// Automatically applies:
+// - CardBackColor for background
+// - CardHeaderStyle for header font and color
+// - CardTextForeColor for paragraph text
+// - CardparagraphStyle for paragraph font
+// - Button theme styling</code></pre>
+                    </div>
+
+                    <h3>Card Theme Properties</h3>
+                    <ul>
+                        <li><strong>CardBackColor</strong> - Card background color</li>
+                        <li><strong>CardHeaderStyle</strong> - Header typography and color</li>
+                        <li><strong>CardTextForeColor</strong> - Paragraph text color</li>
+                        <li><strong>CardparagraphStyle</strong> - Paragraph typography</li>
+                        <li><strong>CardTitleForeColor</strong> - Used for title accents</li>
+                        <li><strong>BorderRadius</strong> - Corner radius styling</li>
+                        <li><strong>ShadowColor/ShadowOpacity</strong> - Shadow effects</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Card Styling</h3>
+                        <pre><code class="language-csharp">public void CreateCustomStyledCard()
+{
+    var customCard = new BeepCard
+    {
+        HeaderText = "Custom Styled Card",
+        ParagraphText = "This card has custom styling overrides.",
+        ButtonText = "Custom Action",
+        Size = new Size(300, 200),
+        
+        // Custom styling
+        BackColor = Color.FromArgb(245, 245, 250),
+        ForeColor = Color.FromArgb(50, 50, 70),
+        IsRounded = true,
+        BorderRadius = 15,
+        ShowShadow = true,
+        UseGradientBackground = true
+    };
+
+    // Apply theme after setting custom properties
+    customCard.ApplyTheme();
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>Card components (image, header, paragraph, button) inherit theme settings but can be customized individually if needed.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 Design Guidelines</h3>
+                    <ul>
+                        <li><strong>Content hierarchy:</strong> Keep headers concise, paragraphs informative but brief</li>
+                        <li><strong>View mode selection:</strong> Use FullImage for media content, ImageLeft for lists, Compact for text-only</li>
+                        <li><strong>Button text:</strong> Use action-oriented button text (Buy Now, Learn More, View Details)</li>
+                        <li><strong>Image quality:</strong> Use high-quality images with appropriate aspect ratios</li>
+                        <li><strong>Consistent sizing:</strong> Maintain consistent card dimensions within collections</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Image optimization:</strong> Use appropriately sized images to prevent scaling overhead</li>
+                        <li><strong>Card collections:</strong> Consider virtualization for large numbers of cards</li>
+                        <li><strong>Event handlers:</strong> Dispose of event handlers properly when removing cards</li>
+                        <li><strong>Theme caching:</strong> Let the theme system manage font and color caching</li>
+                        <li><strong>Layout efficiency:</strong> Use FlowLayoutPanel or TableLayoutPanel for card collections</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard navigation:</strong> Ensure cards can be navigated via keyboard</li>
+                        <li><strong>Screen readers:</strong> Provide meaningful header and paragraph text</li>
+                        <li><strong>Color contrast:</strong> Maintain sufficient contrast for text readability</li>
+                        <li><strong>Click areas:</strong> Ensure interactive areas have adequate size</li>
+                        <li><strong>Focus indicators:</strong> Provide clear visual feedback for focused elements</li>
+                    </ul>
+
+                    <h3>🔧 Technical Considerations</h3>
+                    <ul>
+                        <li><strong>Event handling:</strong> Use specific area events for granular interaction control</li>
+                        <li><strong>Layout updates:</strong> Card layout updates automatically when properties change</li>
+                        <li><strong>Memory management:</strong> Dispose of cards properly when removing from collections</li>
+                        <li><strong>Hit testing:</strong> The card automatically manages hit areas for different regions</li>
+                        <li><strong>Data binding:</strong> Consider binding card properties to data objects for dynamic content</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Layout Warning</strong>
+                        <p>Avoid setting very small sizes as this can cause layout calculation issues with text wrapping and component positioning.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Layout Success</strong>
+                        <p>BeepCard automatically handles layout recalculation when view mode or content changes, ensuring optimal presentation.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-panel.html"><i class="bi bi-arrow-left"></i> BeepPanel</a>
+                    <a href="beep-tabcontrol.html">BeepTabs <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

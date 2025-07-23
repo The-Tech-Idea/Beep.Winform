@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTree - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html" class="active">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepTree</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepTree</h1>
+                    <p class="page-subtitle">Owner-drawn hierarchical tree control with custom rendering, scrolling, and advanced node management</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#node-management">Node Management</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepTree</strong> is a sophisticated owner-drawn tree control that provides advanced 
+                        hierarchical data visualization with complete custom rendering. Unlike traditional TreeView 
+                        controls, BeepTree uses BeepButton, BeepImage, and BeepCheckBox components for rendering 
+                        without creating child controls, offering superior performance and customization.
+                    </p>
+                    <p>
+                        Built on the <code>BeepControl</code> foundation, BeepTree features custom scrollbars, 
+                        multi-selection support, advanced node management, context menus, filtering capabilities, 
+                        and seamless integration with the Beep theming system. It provides hit-testing, hover 
+                        effects, and comprehensive event handling for rich user interactions.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Owner-Drawn Rendering</h3>
+                            <p>Custom rendering using BeepButton, BeepImage, and BeepCheckBox without child controls</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌳 SimpleItem Architecture</h3>
+                            <p>Hierarchical data structure with parent-child relationships and state management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Advanced Interaction</h3>
+                            <p>Hit-testing, hover effects, multi-selection, drag-and-drop ready foundation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📜 Custom Scrollbars</h3>
+                            <p>BeepScrollBar integration with smooth scrolling and viewport management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔍 Search & Filter</h3>
+                            <p>Node finding, filtering with predicates, and visibility management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📋 Context Menus</h3>
+                            <p>BeepPopupListForm integration for dynamic context menu generation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ High Performance</h3>
+                            <p>Efficient rendering with virtual scrolling and hit-area caching</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎭 Complete Theming</h3>
+                            <p>Full integration with Beep theming system for consistent styling</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Tree Creation</h3>
+                        <pre><code class="language-csharp">// Create a basic BeepTree
+var tree = new BeepTree
+{
+    Size = new Size(300, 400),
+    Location = new Point(10, 10),
+    ShowCheckBox = true,
+    AllowMultiSelect = false,
+    ShowVerticalScrollBar = true,
+    ShowHorizontalScrollBar = true
+};
+
+// Create root nodes
+var rootNode1 = new SimpleItem
+{
+    Text = "Root Node 1",
+    ImagePath = "folder.svg",
+    IsExpanded = true
+};
+
+var rootNode2 = new SimpleItem
+{
+    Text = "Root Node 2",
+    ImagePath = "folder.svg",
+    IsExpanded = false
+};
+
+// Add nodes to tree
+var nodes = new List<SimpleItem> { rootNode1, rootNode2 };
+tree.Nodes = nodes;
+
+// Add to form
+this.Controls.Add(tree);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Creating Hierarchical Structure</h3>
+                        <pre><code class="language-csharp">// Create hierarchical tree structure
+var tree = new BeepTree { Size = new Size(400, 500) };
+
+// Create root node
+var rootNode = new SimpleItem
+{
+    Text = "Company",
+    ImagePath = "company.svg",
+    IsExpanded = true,
+    Children = new BindingList<SimpleItem>()
+};
+
+// Create departments
+var departments = new[]
+{
+    new SimpleItem { Text = "Engineering", ImagePath = "engineering.svg" },
+    new SimpleItem { Text = "Marketing", ImagePath = "marketing.svg" },
+    new SimpleItem { Text = "Sales", ImagePath = "sales.svg" }
+};
+
+foreach (var dept in departments)
+{
+    dept.ParentItem = rootNode;
+    dept.Children = new BindingList<SimpleItem>();
+    dept.IsExpanded = true;
+    
+    // Add employees to each department
+    for (int i = 1; i <= 3; i++)
+    {
+        var employee = new SimpleItem
+        {
+            Text = $"Employee {i}",
+            ImagePath = "person.svg",
+            ParentItem = dept
+        };
+        dept.Children.Add(employee);
+    }
+    
+    rootNode.Children.Add(dept);
+}
+
+tree.Nodes = new List<SimpleItem> { rootNode };</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Event Handling</h3>
+                        <pre><code class="language-csharp">var tree = new BeepTree();
+
+// Handle node selection
+tree.NodeSelected += (sender, e) => {
+    if (tree.SelectedNode != null)
+    {
+        Console.WriteLine($"Selected: {tree.SelectedNode.Text}");
+    }
+};
+
+// Handle node expansion
+tree.NodeExpanded += (sender, e) => {
+    Console.WriteLine($"Expanded node");
+};
+
+// Handle node checking
+tree.NodeChecked += (sender, e) => {
+    Console.WriteLine($"Node checked");
+};
+
+// Handle double-click
+tree.NodeDoubleClicked += (sender, e) => {
+    if (tree.SelectedNode != null)
+    {
+        Console.WriteLine($"Double-clicked: {tree.SelectedNode.Text}");
+        EditNode(tree.SelectedNode);
+    }
+};
+
+// Handle right-click for context menu
+tree.NodeRightClicked += (sender, e) => {
+    if (tree.ClickedNode != null)
+    {
+        var contextMenu = CreateContextMenuFor(tree.ClickedNode);
+        tree.ShowContextMenu(contextMenu);
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Node Management -->
+                <section id="node-management" class="section">
+                    <h2>Node Management</h2>
+
+                    <div class="code-example">
+                        <h3>Adding Nodes Dynamically</h3>
+                        <pre><code class="language-csharp">// Add root node
+var newRootNode = new SimpleItem
+{
+    Text = "New Root",
+    ImagePath = "folder.svg",
+    Children = new BindingList<SimpleItem>()
+};
+
+tree.AddNodeWithBranch(newRootNode);
+
+// Add child node to existing parent
+var childNode = new SimpleItem
+{
+    Text = "Child Node",
+    ImagePath = "file.svg"
+};
+
+tree.AddNodeWithBranch(childNode, parentNode.GuidId);
+
+// Add node with full hierarchy
+var projectNode = new SimpleItem
+{
+    Text = "Project Alpha",
+    ImagePath = "project.svg",
+    IsExpanded = true,
+    Children = new BindingList<SimpleItem>
+    {
+        new SimpleItem { Text = "Task 1", ImagePath = "task.svg" },
+        new SimpleItem { Text = "Task 2", ImagePath = "task.svg" },
+        new SimpleItem { Text = "Task 3", ImagePath = "task.svg" }
+    }
+};
+
+foreach (var child in projectNode.Children)
+{
+    child.ParentItem = projectNode;
+}
+
+tree.AddNodeWithBranch(projectNode, departmentNode.GuidId);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Finding and Selecting Nodes</h3>
+                        <pre><code class="language-csharp">// Find node by text
+var foundNode = tree.FindNode("Employee 1");
+if (foundNode != null)
+{
+    tree.SelectedNode = foundNode;
+    tree.EnsureVisible(foundNode);
+}
+
+// Find node by GUID
+var nodeByGuid = tree.GetNodeByGuid("some-guid-id");
+
+// Find node by predicate
+var projectNodes = tree.FindNode(node => 
+    node.Text.StartsWith("Project") && 
+    node.Children.Count > 5);
+
+// Select multiple nodes (if AllowMultiSelect is true)
+tree.AllowMultiSelect = true;
+tree.SelectAllNodes();
+
+// Navigate programmatically
+tree.SelectNextNode();
+tree.SelectPreviousNode();</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Filtering and Searching</h3>
+                        <pre><code class="language-csharp">// Filter nodes by text content
+tree.FilterNodes(node => 
+    node.Text.Contains("Engineering", StringComparison.OrdinalIgnoreCase));
+
+// Filter by node type or custom property
+tree.FilterNodes(node => 
+    node.ImagePath.Contains("person") || 
+    node.Text.StartsWith("Task"));
+
+// Complex filtering with multiple criteria
+tree.FilterNodes(node => {
+    // Show completed tasks or all folders
+    return node.ImagePath.Contains("folder") || 
+           (node.ImagePath.Contains("task") && node.IsChecked);
+});
+
+// Clear filter to show all nodes
+tree.ClearFilter();
+
+// Expand/collapse operations
+tree.ExpandAll();
+tree.CollapseAll();
+
+// Ensure specific node is visible
+tree.EnsureVisible(importantNode);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Nodes</code></td>
+                                <td>IList&lt;SimpleItem&gt;</td>
+                                <td>Root level nodes collection</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedNode</code></td>
+                                <td>SimpleItem</td>
+                                <td>Currently selected node</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedNodes</code></td>
+                                <td>List&lt;SimpleItem&gt;</td>
+                                <td>Multiple selected nodes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ClickedNode</code></td>
+                                <td>SimpleItem</td>
+                                <td>Last clicked node</td>
+                            </tr>
+                            <tr>
+                                <td><code>AllowMultiSelect</code></td>
+                                <td>bool</td>
+                                <td>Enable multiple node selection</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Display Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>ShowCheckBox <code>bool</code></h4>
+                            <p>Show checkboxes for each node</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>TextFont <code>Font</code></h4>
+                            <p>Font used for node text</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>UseThemeFont <code>bool</code></h4>
+                            <p>Use theme font instead of custom font</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>TextAlignment <code>TextAlignment</code></h4>
+                            <p>Text alignment in nodes</p>
+                        </div>
+                    </div>
+
+                    <h3>Scrolling Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowVerticalScrollBar</code></td>
+                                <td>bool</td>
+                                <td>Show vertical scrollbar when needed</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowHorizontalScrollBar</code></td>
+                                <td>bool</td>
+                                <td>Show horizontal scrollbar when needed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AddNodeWithBranch</code></td>
+                                <td>SimpleItem newItem, string parentGuidId</td>
+                                <td>Add node to tree with hierarchical structure</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveNode</code></td>
+                                <td>SimpleItem item</td>
+                                <td>Remove node from tree</td>
+                            </tr>
+                            <tr>
+                                <td><code>FindNode</code></td>
+                                <td>string text</td>
+                                <td>Find node by text content</td>
+                            </tr>
+                            <tr>
+                                <td><code>FindNode</code></td>
+                                <td>Func&lt;SimpleItem, bool&gt; predicate</td>
+                                <td>Find node using custom predicate</td>
+                            </tr>
+                            <tr>
+                                <td><code>FilterNodes</code></td>
+                                <td>Func&lt;SimpleItem, bool&gt; predicate</td>
+                                <td>Filter visible nodes based on predicate</td>
+                            </tr>
+                            <tr>
+                                <td><code>ExpandAll</code></td>
+                                <td>None</td>
+                                <td>Expand all nodes in tree</td>
+                            </tr>
+                            <tr>
+                                <td><code>CollapseAll</code></td>
+                                <td>None</td>
+                                <td>Collapse all nodes in tree</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnsureVisible</code></td>
+                                <td>SimpleItem item</td>
+                                <td>Scroll to make node visible</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectAllNodes</code></td>
+                                <td>None</td>
+                                <td>Select all nodes (multi-select mode)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowContextMenu</code></td>
+                                <td>BindingList&lt;SimpleItem&gt; menuList</td>
+                                <td>Show context menu for current node</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <p>BeepTree provides comprehensive event handling for all user interactions:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>NodeSelected</h4>
+                            <p>Node was selected</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>NodeDoubleClicked</h4>
+                            <p>Node was double-clicked</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>NodeExpanded</h4>
+                            <p>Node was expanded</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>NodeCollapsed</h4>
+                            <p>Node was collapsed</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>NodeChecked</h4>
+                            <p>Node checkbox was checked</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>NodeRightClicked</h4>
+                            <p>Node was right-clicked</p>
+                        </div>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var tree = new BeepTree();
+
+// Selection events
+tree.SelectedItemChanged += (sender, e) => {
+    Console.WriteLine($"Selection changed to: {e.SelectedItem?.Text}");
+    UpdateStatusBar(e.SelectedItem);
+};
+
+tree.NodeSelected += (sender, e) => {
+    var selectedNode = tree.SelectedNode;
+    if (selectedNode != null)
+    {
+        LoadNodeDetails(selectedNode);
+        UpdatePropertyPanel(selectedNode);
+    }
+};
+
+// Interaction events
+tree.NodeDoubleClicked += (sender, e) => {
+    var clickedNode = tree.ClickedNode;
+    if (clickedNode != null)
+    {
+        if (clickedNode.Children.Count > 0)
+        {
+            clickedNode.IsExpanded = !clickedNode.IsExpanded;
+        }
+        else
+        {
+            EditNode(clickedNode);
+        }
+    }
+};
+
+// Context menu events
+tree.NodeRightClicked += (sender, e) => {
+    var rightClickedNode = tree.ClickedNode;
+    if (rightClickedNode != null)
+    {
+        var contextMenu = CreateContextMenuFor(rightClickedNode);
+        tree.ShowContextMenu(contextMenu);
+    }
+};
+
+tree.MenuItemSelected += (sender, e) => {
+    var selectedMenuItem = e.SelectedItem;
+    var targetNode = tree.ClickedNode;
+    
+    switch (selectedMenuItem.Text)
+    {
+        case "Edit":
+            EditNode(targetNode);
+            break;
+        case "Delete":
+            DeleteNode(targetNode);
+            break;
+        case "Add Child":
+            AddChildNode(targetNode);
+            break;
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>File System Explorer</h3>
+                        <pre><code class="language-csharp">public class FileSystemTree : BeepTree
+{
+    public FileSystemTree()
+    {
+        ShowCheckBox = false;
+        AllowMultiSelect = true;
+        
+        // Load root drives
+        LoadDrives();
+        
+        // Handle expansion for lazy loading
+        NodeExpanded += OnNodeExpanded;
+        NodeDoubleClicked += OnNodeDoubleClicked;
+    }
+
+    private void LoadDrives()
+    {
+        var nodes = new List<SimpleItem>();
+        
+        foreach (var drive in DriveInfo.GetDrives())
+        {
+            if (drive.IsReady)
+            {
+                var driveNode = new SimpleItem
+                {
+                    Text = $"{drive.Name} ({drive.DriveType})",
+                    ImagePath = GetDriveIcon(drive.DriveType),
+                    Tag = drive.RootDirectory,
+                    Children = new BindingList<SimpleItem>()
+                };
+                
+                // Add placeholder for expansion
+                if (HasSubDirectories(drive.RootDirectory))
+                {
+                    driveNode.Children.Add(new SimpleItem { Text = "Loading..." });
+                }
+                
+                nodes.Add(driveNode);
+            }
+        }
+        
+        Nodes = nodes;
+    }
+
+    private void OnNodeExpanded(object sender, BeepMouseEventArgs e)
+    {
+        var expandedNode = SelectedNode;
+        if (expandedNode?.Tag is DirectoryInfo directory)
+        {
+            LoadDirectoryContents(expandedNode, directory);
+        }
+    }
+
+    private void LoadDirectoryContents(SimpleItem parentNode, DirectoryInfo directory)
+    {
+        try
+        {
+            parentNode.Children.Clear();
+            
+            // Add subdirectories
+            foreach (var subDir in directory.GetDirectories())
+            {
+                var dirNode = new SimpleItem
+                {
+                    Text = subDir.Name,
+                    ImagePath = "folder.svg",
+                    Tag = subDir,
+                    ParentItem = parentNode,
+                    Children = new BindingList<SimpleItem>()
+                };
+                
+                if (HasSubDirectories(subDir))
+                {
+                    dirNode.Children.Add(new SimpleItem { Text = "Loading..." });
+                }
+                
+                parentNode.Children.Add(dirNode);
+            }
+            
+            // Add files
+            foreach (var file in directory.GetFiles())
+            {
+                var fileNode = new SimpleItem
+                {
+                    Text = file.Name,
+                    ImagePath = GetFileIcon(file.Extension),
+                    Tag = file,
+                    ParentItem = parentNode
+                };
+                
+                parentNode.Children.Add(fileNode);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            parentNode.Children.Clear();
+            parentNode.Children.Add(new SimpleItem 
+            { 
+                Text = "Access Denied",
+                ImagePath = "error.svg"
+            });
+        }
+        
+        Invalidate();
+    }
+
+    private string GetDriveIcon(DriveType driveType)
+    {
+        return driveType switch
+        {
+            DriveType.Fixed => "hard-drive.svg",
+            DriveType.CDRom => "cd-rom.svg",
+            DriveType.Removable => "usb-drive.svg",
+            DriveType.Network => "network-drive.svg",
+            _ => "drive.svg"
+        };
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Project Management Tree</h3>
+                        <pre><code class="language-csharp">public class ProjectManagementTree : BeepTree
+{
+    public ProjectManagementTree()
+    {
+        ShowCheckBox = true;
+        AllowMultiSelect = true;
+        
+        LoadProjects();
+        
+        NodeChecked += OnNodeChecked;
+        NodeUnchecked += OnNodeUnchecked;
+    }
+
+    private void LoadProjects()
+    {
+        var projects = new List<SimpleItem>
+        {
+            CreateProject("Project Alpha", "active"),
+            CreateProject("Project Beta", "planning"),
+            CreateProject("Project Gamma", "completed")
+        };
+
+        Nodes = projects;
+    }
+
+    private SimpleItem CreateProject(string name, string status)
+    {
+        var project = new SimpleItem
+        {
+            Text = name,
+            ImagePath = GetProjectStatusIcon(status),
+            Tag = new { Name = name, Status = status },
+            Children = new BindingList<SimpleItem>(),
+            IsExpanded = true
+        };
+
+        // Add phases
+        var phases = new[] { "Requirements", "Design", "Development", "Testing", "Deployment" };
+
+        foreach (var phaseName in phases)
+        {
+            var phase = new SimpleItem
+            {
+                Text = phaseName,
+                ImagePath = "phase.svg",
+                ParentItem = project,
+                Children = new BindingList<SimpleItem>(),
+                IsExpanded = false
+            };
+
+            // Add tasks to each phase
+            for (int i = 1; i <= 3; i++)
+            {
+                var task = new SimpleItem
+                {
+                    Text = $"{phaseName} Task {i}",
+                    ImagePath = "task.svg",
+                    ParentItem = phase,
+                    IsChecked = Random.Shared.Next(0, 2) == 1
+                };
+                phase.Children.Add(task);
+            }
+
+            project.Children.Add(phase);
+        }
+
+        return project;
+    }
+
+    private void OnNodeChecked(object sender, BeepMouseEventArgs e)
+    {
+        var checkedNode = SelectedNode;
+        if (checkedNode != null)
+        {
+            // Auto-check children
+            SetChildrenChecked(checkedNode, true);
+            
+            // Update parent status
+            UpdateParentCheckStatus(checkedNode);
+            
+            // Update progress
+            UpdateProjectProgress(GetProjectNode(checkedNode));
+        }
+    }
+
+    private void SetChildrenChecked(SimpleItem node, bool isChecked)
+    {
+        foreach (var child in node.Children)
+        {
+            child.IsChecked = isChecked;
+            SetChildrenChecked(child, isChecked);
+        }
+    }
+
+    private SimpleItem GetProjectNode(SimpleItem node)
+    {
+        var current = node;
+        while (current.ParentItem != null)
+        {
+            current = current.ParentItem;
+        }
+        return current;
+    }
+
+    private void UpdateProjectProgress(SimpleItem projectNode)
+    {
+        var totalTasks = CountAllTasks(projectNode);
+        var completedTasks = CountCompletedTasks(projectNode);
+        
+        var progress = totalTasks > 0 ? (completedTasks * 100) / totalTasks : 0;
+        
+        // Update project node text with progress
+        var projectInfo = projectNode.Tag;
+        projectNode.Text = $"{projectInfo.GetType().GetProperty("Name").GetValue(projectInfo)} ({progress}% Complete)";
+        
+        Invalidate();
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Database Schema Tree</h3>
+                        <pre><code class="language-csharp">public class DatabaseSchemaTree : BeepTree
+{
+    private IDMEEditor dmeEditor;
+
+    public DatabaseSchemaTree(IDMEEditor editor)
+    {
+        dmeEditor = editor;
+        ShowCheckBox = true;
+        AllowMultiSelect = true;
+        
+        LoadDatabaseConnections();
+        
+        NodeExpanded += OnNodeExpanded;
+        NodeRightClicked += OnNodeRightClicked;
+    }
+
+    private void LoadDatabaseConnections()
+    {
+        var nodes = new List<SimpleItem>();
+
+        foreach (var connection in dmeEditor.ConfigEditor.DataConnections)
+        {
+            var connectionNode = new SimpleItem
+            {
+                Text = connection.ConnectionName,
+                ImagePath = GetConnectionIcon(connection.DatabaseType),
+                Tag = connection,
+                Children = new BindingList<SimpleItem>(),
+                IsExpanded = false
+            };
+
+            // Add schema placeholder
+            connectionNode.Children.Add(new SimpleItem { Text = "Loading..." });
+            nodes.Add(connectionNode);
+        }
+
+        Nodes = nodes;
+    }
+
+    private void OnNodeExpanded(object sender, BeepMouseEventArgs e)
+    {
+        var expandedNode = SelectedNode;
+        if (expandedNode?.Tag is ConnectionProperties connection)
+        {
+            LoadDatabaseSchema(expandedNode, connection);
+        }
+    }
+
+    private void LoadDatabaseSchema(SimpleItem connectionNode, ConnectionProperties connection)
+    {
+        try
+        {
+            var dataSource = dmeEditor.GetDataSource(connection.ConnectionName);
+            if (dataSource != null)
+            {
+                connectionNode.Children.Clear();
+
+                var entities = dataSource.GetEntitesList();
+                foreach (var entity in entities)
+                {
+                    var entityNode = new SimpleItem
+                    {
+                        Text = entity.EntityName,
+                        ImagePath = entity.Viewtype == ViewType.Table ? "table.svg" : "view.svg",
+                        Tag = entity,
+                        ParentItem = connectionNode,
+                        Children = new BindingList<SimpleItem>()
+                    };
+
+                    // Add columns
+                    foreach (var field in entity.Fields)
+                    {
+                        var columnNode = new SimpleItem
+                        {
+                            Text = $"{field.fieldname} ({field.fieldtype})",
+                            ImagePath = GetColumnIcon(field),
+                            Tag = field,
+                            ParentItem = entityNode
+                        };
+                        entityNode.Children.Add(columnNode);
+                    }
+
+                    connectionNode.Children.Add(entityNode);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            connectionNode.Children.Clear();
+            connectionNode.Children.Add(new SimpleItem
+            {
+                Text = $"Error: {ex.Message}",
+                ImagePath = "error.svg"
+            });
+        }
+
+        Invalidate();
+    }
+
+    private string GetConnectionIcon(DatabaseType dbType)
+    {
+        return dbType switch
+        {
+            DatabaseType.SqlServer => "sql-server.svg",
+            DatabaseType.Oracle => "oracle.svg",
+            DatabaseType.MySql => "mysql.svg",
+            DatabaseType.PostgreSql => "postgresql.svg",
+            _ => "database.svg"
+        };
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepTree provides comprehensive theming support that affects all visual elements:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var tree = new BeepTree
+{
+    Theme = "DarkTheme"
+};
+
+// Theme automatically applies:
+// - TreeBackColor (background)
+// - TreeForeColor (text color)
+// - TreeNodeSelectedBackColor (selected node background)
+// - TreeNodeSelectedForeColor (selected node text)
+// - TreeNodeHoverBackColor (hover background)
+// - TreeNodeHoverForeColor (hover text)
+
+// Apply theme manually if needed
+tree.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive Features</h3>
+                    <ul>
+                        <li><strong>Node Colors</strong> - Background, foreground, and selection colors adapt to theme</li>
+                        <li><strong>Scrollbars</strong> - Custom scrollbars use theme colors and styling</li>
+                        <li><strong>Icons</strong> - SVG icons automatically adapt to theme foreground colors</li>
+                        <li><strong>Checkboxes</strong> - Node checkboxes use theme checkbox styling</li>
+                        <li><strong>Context Menus</strong> - BeepPopupListForm inherits theme styling</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>BeepTree automatically applies theme colors to all internal components including buttons, images, and scrollbars, ensuring a cohesive visual experience.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Lazy Loading:</strong> Load child nodes only when parent is expanded</li>
+                        <li><strong>Virtual Scrolling:</strong> Built-in virtual scrolling handles large trees efficiently</li>
+                        <li><strong>Hit-Testing:</strong> Use efficient hit-testing for mouse interactions</li>
+                        <li><strong>Batch Updates:</strong> Suspend drawing during bulk node operations</li>
+                        <li><strong>Memory Management:</strong> Dispose resources properly, especially with dynamic content</li>
+                    </ul>
+
+                    <h3>📊 Data Management</h3>
+                    <ul>
+                        <li><strong>GUID Usage:</strong> Always use unique GUIDs for node identification</li>
+                        <li><strong>Parent-Child Relations:</strong> Maintain proper parent-child relationships</li>
+                        <li><strong>State Management:</strong> Use node properties for expansion, selection, and visibility states</li>
+                        <li><strong>Data Binding:</strong> Bind complex objects to node Tag property</li>
+                    </ul>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Consistent Icons:</strong> Use consistent icon sets for different node types</li>
+                        <li><strong>Context Menus:</strong> Provide appropriate context menus for different node types</li>
+                        <li><strong>Keyboard Navigation:</strong> Implement keyboard shortcuts for common operations</li>
+                        <li><strong>Visual Feedback:</strong> Use hover effects and selection highlighting</li>
+                        <li><strong>Progressive Disclosure:</strong> Show details gradually as users explore</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard Support:</strong> Ensure full keyboard navigation support</li>
+                        <li><strong>Screen Readers:</strong> Use meaningful node text and descriptions</li>
+                        <li><strong>High Contrast:</strong> Test with high contrast themes</li>
+                        <li><strong>Focus Indicators:</strong> Provide clear focus indication</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>Be careful with recursive operations on very deep trees as they can cause stack overflow. Consider iterative approaches for deep hierarchies.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>Use BeepTree for hierarchical data that benefits from custom rendering and advanced interaction patterns. Perfect for file browsers, organizational charts, and data explorers.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-grid.html"><i class="bi bi-arrow-left"></i> BeepGrid</a>
+                    <a href="beep-listbox.html">BeepListBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

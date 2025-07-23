@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepMultiChipGroup - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-contextmenustrip.html">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-dropdownmenu.html">BeepDropDownMenu</a></li>
+                            <li><a href="beep-flyoutmenu.html">BeepFlyoutMenu</a></li>
+                            <li><a href="beep-functionspanel.html">BeepFunctionsPanel</a></li>
+                            <li><a href="beep-multichipgroup.html" class="active">BeepMultiChipGroup</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepMultiChipGroup</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepMultiChipGroup</h1>
+                    <p class="page-subtitle">Modern chip-based selection control with auto-wrapping layout, hover effects, and comprehensive data binding for tag-style interfaces</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepMultiChipGroup</strong> provides a modern, flexible chip-based selection interface inspired by 
+                        Material Design chip components. It displays a collection of selectable items as rounded "chips" that 
+                        automatically wrap to fit the available space, making it perfect for tag selection, category filtering, 
+                        and multi-choice interfaces.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepMultiChipGroup features intelligent auto-sizing, 
+                        smooth hover animations, comprehensive data binding, title display, and responsive layout behavior. 
+                        Ideal for forms, filters, dashboards, and any interface requiring an intuitive selection mechanism.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎯 Smart Layout</h3>
+                            <p>Auto-wrapping layout with intelligent chip sizing and responsive behavior</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Hover Effects</h3>
+                            <p>Smooth hover animations with scaling, color transitions, and visual feedback</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Title Support</h3>
+                            <p>Configurable title display with alignment options and custom styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 Data Binding</h3>
+                            <p>Complete data binding support with SimpleItem collections and change events</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Full theme support with automatic color application and state management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Design</h3>
+                            <p>Adaptive sizing with auto-height adjustment and container-aware layout</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Basic Chip Group</h3>
+                    <div class="visual-demo">
+                        <div class="chip-group-preview">
+                            <div class="chip-container">
+                                <h4 class="chip-title">Select Categories</h4>
+                                <div class="chip-list">
+                                    <div class="chip">Technology</div>
+                                    <div class="chip selected">Business</div>
+                                    <div class="chip">Design</div>
+                                    <div class="chip">Marketing</div>
+                                    <div class="chip">Finance</div>
+                                    <div class="chip">Education</div>
+                                    <div class="chip">Health</div>
+                                    <div class="chip">Travel</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>BeepMultiChipGroup with auto-wrapping layout and selection state</em></p>
+                    </div>
+
+                    <h3>Hover and Selection States</h3>
+                    <div class="visual-demo">
+                        <div class="chip-group-preview">
+                            <div class="chip-container">
+                                <h4 class="chip-title">Skill Tags</h4>
+                                <div class="chip-list">
+                                    <div class="chip">C#</div>
+                                    <div class="chip hovered">JavaScript</div>
+                                    <div class="chip selected">Python</div>
+                                    <div class="chip">Java</div>
+                                    <div class="chip">TypeScript</div>
+                                    <div class="chip">SQL</div>
+                                    <div class="chip">React</div>
+                                    <div class="chip">Angular</div>
+                                    <div class="chip">Vue.js</div>
+                                    <div class="chip">Node.js</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Different chip states: normal, hovered (scaled), and selected</em></p>
+                    </div>
+
+                    <h3>Application Integration</h3>
+                    <div class="visual-demo">
+                        <div class="app-integration-example">
+                            <div class="mock-form">
+                                <div class="form-header">
+                                    <h3>Project Setup</h3>
+                                    <p>Configure your new project settings</p>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <label>Project Name</label>
+                                    <input type="text" value="My Awesome Project" class="form-input">
+                                </div>
+                                
+                                <div class="form-section">
+                                    <div class="chip-group-wrapper">
+                                        <div class="chip-container compact">
+                                            <h4 class="chip-title small">Technology Stack</h4>
+                                            <div class="chip-list">
+                                                <div class="chip small">ASP.NET Core</div>
+                                                <div class="chip small selected">React</div>
+                                                <div class="chip small">SQL Server</div>
+                                                <div class="chip small">Azure</div>
+                                                <div class="chip small">Docker</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-section">
+                                    <div class="chip-group-wrapper">
+                                        <div class="chip-container compact">
+                                            <h4 class="chip-title small">Target Platforms</h4>
+                                            <div class="chip-list">
+                                                <div class="chip small selected">Web</div>
+                                                <div class="chip small">Mobile</div>
+                                                <div class="chip small selected">Desktop</div>
+                                                <div class="chip small">API</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button class="btn-secondary">Cancel</button>
+                                    <button class="btn-primary">Create Project</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>BeepMultiChipGroup integrated in a project setup form</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .chip-group-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .chip-container {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            padding: 1.5rem;
+                        }
+
+                        .chip-container.compact {
+                            padding: 1rem;
+                            border: none;
+                            background: transparent;
+                        }
+
+                        .chip-title {
+                            margin: 0 0 1rem;
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                        }
+
+                        .chip-title.small {
+                            font-size: 14px;
+                            margin-bottom: 0.75rem;
+                        }
+
+                        .chip-list {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.75rem;
+                        }
+
+                        .chip {
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 0.5rem 1rem;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 15px;
+                            font-size: 14px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            user-select: none;
+                            min-height: 30px;
+                        }
+
+                        .chip.small {
+                            padding: 0.375rem 0.75rem;
+                            font-size: 13px;
+                            border-radius: 12px;
+                            min-height: 26px;
+                        }
+
+                        .chip:hover,
+                        .chip.hovered {
+                            transform: scale(1.05);
+                            background: var(--color-primary-light);
+                            border-color: var(--color-primary);
+                            color: var(--color-primary);
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                        }
+
+                        .chip.selected {
+                            background: var(--color-primary);
+                            border-color: var(--color-primary);
+                            color: white;
+                            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+                        }
+
+                        .chip.selected:hover {
+                            background: var(--color-primary-dark);
+                            border-color: var(--color-primary-dark);
+                            color: white;
+                            transform: scale(1.05);
+                        }
+
+                        .app-integration-example {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 500px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .mock-form {
+                            background: var(--color-background);
+                            border-radius: 8px;
+                            font-family: var(--font-family);
+                        }
+
+                        .form-header {
+                            margin-bottom: 2rem;
+                            padding-bottom: 1rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .form-header h3 {
+                            margin: 0 0 0.5rem;
+                            font-size: 20px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                        }
+
+                        .form-header p {
+                            margin: 0;
+                            font-size: 14px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .form-section {
+                            margin-bottom: 1.5rem;
+                        }
+
+                        .form-section label {
+                            display: block;
+                            margin-bottom: 0.5rem;
+                            font-size: 14px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                        }
+
+                        .form-input {
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            font-size: 14px;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                            box-sizing: border-box;
+                        }
+
+                        .form-input:focus {
+                            outline: none;
+                            border-color: var(--color-primary);
+                            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+                        }
+
+                        .chip-group-wrapper {
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border-light);
+                            border-radius: 6px;
+                            padding: 1rem;
+                        }
+
+                        .form-actions {
+                            display: flex;
+                            gap: 1rem;
+                            justify-content: flex-end;
+                            margin-top: 2rem;
+                            padding-top: 1rem;
+                            border-top: 1px solid var(--color-border-light);
+                        }
+
+                        .btn-primary,
+                        .btn-secondary {
+                            padding: 0.75rem 1.5rem;
+                            border: none;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .btn-primary {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .btn-primary:hover {
+                            background: var(--color-primary-dark);
+                        }
+
+                        .btn-secondary {
+                            background: var(--color-background);
+                            color: var(--color-text);
+                            border: 1px solid var(--color-border);
+                        }
+
+                        .btn-secondary:hover {
+                            background: var(--color-background-secondary);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Chip Group</h3>
+                        <pre><code class="language-csharp">// Create a multi-chip group
+var chipGroup = new BeepMultiChipGroup
+{
+    TitleText = "Select Categories",
+    Location = new Point(20, 20),
+    Width = 400
+};
+
+// Create chip items
+var categories = new BindingList<SimpleItem>
+{
+    new SimpleItem { Id = 1, Name = "Technology", Text = "Technology" },
+    new SimpleItem { Id = 2, Name = "Business", Text = "Business" },
+    new SimpleItem { Id = 3, Name = "Design", Text = "Design" },
+    new SimpleItem { Id = 4, Name = "Marketing", Text = "Marketing" },
+    new SimpleItem { Id = 5, Name = "Finance", Text = "Finance" },
+    new SimpleItem { Id = 6, Name = "Education", Text = "Education" }
+};
+
+// Bind data to chip group
+chipGroup.ListItems = categories;
+
+// Handle selection changes
+chipGroup.SelectedItemChanged += (sender, e) =>
+{
+    if (e.SelectedItem != null)
+    {
+        MessageBox.Show($"Selected: {e.SelectedItem.Text}", "Chip Selected");
+    }
+};
+
+// Add to form
+this.Controls.Add(chipGroup);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Programmatic Selection</h3>
+                        <pre><code class="language-csharp">// Set initial selection
+chipGroup.SelectedItem = categories.FirstOrDefault(c => c.Name == "Technology");
+
+// Or set by index
+chipGroup.SelectedIndex = 1;
+
+// Or set by GUID ID
+chipGroup.SetValue("specific-guid-here");
+
+// Get current selection
+var selected = chipGroup.SelectedItem;
+if (selected != null)
+{
+    Console.WriteLine($"Current selection: {selected.Text}");
+}
+
+// Clear selection
+chipGroup.ClearValue();</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Chip Management</h3>
+                        <pre><code class="language-csharp">// Add new chips dynamically
+var newChip = new SimpleItem 
+{ 
+    Id = categories.Count + 1, 
+    Name = "Science", 
+    Text = "Science" 
+};
+chipGroup.ListItems.Add(newChip);
+
+// Remove chips
+var chipToRemove = chipGroup.ListItems.FirstOrDefault(c => c.Name == "Finance");
+if (chipToRemove != null)
+{
+    chipGroup.ListItems.Remove(chipToRemove);
+}
+
+// Update chip text
+var techChip = chipGroup.ListItems.FirstOrDefault(c => c.Name == "Technology");
+if (techChip != null)
+{
+    techChip.Text = "Tech & Innovation";
+    // The control will automatically refresh
+}
+
+// Bulk update
+var newCategories = new BindingList<SimpleItem>
+{
+    new SimpleItem { Id = 1, Name = "Frontend", Text = "Frontend Development" },
+    new SimpleItem { Id = 2, Name = "Backend", Text = "Backend Development" },
+    new SimpleItem { Id = 3, Name = "DevOps", Text = "DevOps & Infrastructure" },
+    new SimpleItem { Id = 4, Name = "Mobile", Text = "Mobile Development" }
+};
+chipGroup.ListItems = newCategories;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Data Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ListItems</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Empty list</td>
+                                <td>Collection of chip items to display</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>null</td>
+                                <td>Currently selected chip item</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Index of the currently selected chip</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Title Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TitleText</code></td>
+                                <td>string</td>
+                                <td>"Multi-Select Chip Group"</td>
+                                <td>Title text displayed above the chips</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleFont</code></td>
+                                <td>Font</td>
+                                <td>Segoe UI, 12pt, Bold</td>
+                                <td>Font used for the title text</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleColor</code></td>
+                                <td>Color</td>
+                                <td>Black (theme-based)</td>
+                                <td>Color of the title text</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleAlignment</code></td>
+                                <td>ContentAlignment</td>
+                                <td>TopLeft</td>
+                                <td>Alignment of the title text</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AutoSize</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Automatically size control to fit all chips</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoScroll</code></td>
+                                <td>bool</td>
+                                <td>false (disabled)</td>
+                                <td>Scrolling is disabled for chip groups</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Internal Constants</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Chip Padding</td>
+                                <td>5 pixels</td>
+                                <td>Spacing between individual chips</td>
+                            </tr>
+                            <tr>
+                                <td>Chip Height</td>
+                                <td>30 pixels</td>
+                                <td>Fixed height for all chips</td>
+                            </tr>
+                            <tr>
+                                <td>Corner Radius</td>
+                                <td>15 pixels</td>
+                                <td>Rounded corner radius for chips</td>
+                            </tr>
+                            <tr>
+                                <td>Title Height</td>
+                                <td>30 pixels</td>
+                                <td>Height reserved for title display</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedItemChanged</code></td>
+                                <td>SelectedItemChangedEventArgs</td>
+                                <td>Fired when the selected chip changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>SelectedItemChangedEventArgs Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>The newly selected chip item (null if cleared)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Product Category Filter</h3>
+                        <pre><code class="language-csharp">public class ProductFilterForm : Form
+{
+    private BeepMultiChipGroup categoryChips;
+    private BeepMultiChipGroup brandChips;
+    private BeepMultiChipGroup priceRangeChips;
+    private ListView productList;
+    private List<Product> allProducts;
+    private List<Product> filteredProducts;
+
+    public ProductFilterForm()
+    {
+        SetupInterface();
+        LoadData();
+    }
+
+    private void SetupInterface()
+    {
+        this.Size = new Size(800, 600);
+        this.Text = "Product Filter";
+
+        var mainPanel = new Panel { Dock = DockStyle.Fill };
+        var filterPanel = new Panel { Dock = DockStyle.Top, Height = 250, Padding = new Padding(20) };
+        
+        // Category filter
+        categoryChips = new BeepMultiChipGroup
+        {
+            TitleText = "Product Categories",
+            Location = new Point(0, 0),
+            Width = 700,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        var categories = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "electronics", Text = "Electronics" },
+            new SimpleItem { Id = 2, Name = "clothing", Text = "Clothing" },
+            new SimpleItem { Id = 3, Name = "books", Text = "Books" },
+            new SimpleItem { Id = 4, Name = "home", Text = "Home & Garden" },
+            new SimpleItem { Id = 5, Name = "sports", Text = "Sports & Outdoors" },
+            new SimpleItem { Id = 6, Name = "toys", Text = "Toys & Games" }
+        };
+        categoryChips.ListItems = categories;
+        categoryChips.SelectedItemChanged += CategoryChips_SelectedItemChanged;
+
+        // Brand filter
+        brandChips = new BeepMultiChipGroup
+        {
+            TitleText = "Brands",
+            Location = new Point(0, 80),
+            Width = 700,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        var brands = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "apple", Text = "Apple" },
+            new SimpleItem { Id = 2, Name = "samsung", Text = "Samsung" },
+            new SimpleItem { Id = 3, Name = "nike", Text = "Nike" },
+            new SimpleItem { Id = 4, Name = "adidas", Text = "Adidas" },
+            new SimpleItem { Id = 5, Name = "sony", Text = "Sony" },
+            new SimpleItem { Id = 6, Name = "microsoft", Text = "Microsoft" }
+        };
+        brandChips.ListItems = brands;
+        brandChips.SelectedItemChanged += BrandChips_SelectedItemChanged;
+
+        // Price range filter
+        priceRangeChips = new BeepMultiChipGroup
+        {
+            TitleText = "Price Range",
+            Location = new Point(0, 160),
+            Width = 700,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        var priceRanges = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "0-25", Text = "$0 - $25" },
+            new SimpleItem { Id = 2, Name = "25-50", Text = "$25 - $50" },
+            new SimpleItem { Id = 3, Name = "50-100", Text = "$50 - $100" },
+            new SimpleItem { Id = 4, Name = "100-250", Text = "$100 - $250" },
+            new SimpleItem { Id = 5, Name = "250+", Text = "$250+" }
+        };
+        priceRangeChips.ListItems = priceRanges;
+        priceRangeChips.SelectedItemChanged += PriceRangeChips_SelectedItemChanged;
+
+        filterPanel.Controls.AddRange(new Control[] 
+        { 
+            categoryChips, brandChips, priceRangeChips 
+        });
+
+        // Product list
+        productList = new ListView
+        {
+            Dock = DockStyle.Fill,
+            View = View.Details,
+            FullRowSelect = true,
+            GridLines = true
+        };
+
+        productList.Columns.AddRange(new[]
+        {
+            new ColumnHeader { Text = "Name", Width = 200 },
+            new ColumnHeader { Text = "Category", Width = 120 },
+            new ColumnHeader { Text = "Brand", Width = 100 },
+            new ColumnHeader { Text = "Price", Width = 80 },
+            new ColumnHeader { Text = "Rating", Width = 80 }
+        });
+
+        mainPanel.Controls.AddRange(new Control[] { productList, filterPanel });
+        this.Controls.Add(mainPanel);
+    }
+
+    private void CategoryChips_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        ApplyFilters();
+    }
+
+    private void BrandChips_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        ApplyFilters();
+    }
+
+    private void PriceRangeChips_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        filteredProducts = allProducts.Where(product =>
+        {
+            // Category filter
+            if (categoryChips.SelectedItem != null)
+            {
+                var selectedCategory = categoryChips.SelectedItem.Name;
+                if (!product.Category.ToLower().Contains(selectedCategory))
+                    return false;
+            }
+
+            // Brand filter
+            if (brandChips.SelectedItem != null)
+            {
+                var selectedBrand = brandChips.SelectedItem.Name;
+                if (!product.Brand.ToLower().Contains(selectedBrand))
+                    return false;
+            }
+
+            // Price range filter
+            if (priceRangeChips.SelectedItem != null)
+            {
+                var selectedRange = priceRangeChips.SelectedItem.Name;
+                if (!IsInPriceRange(product.Price, selectedRange))
+                    return false;
+            }
+
+            return true;
+        }).ToList();
+
+        UpdateProductList();
+    }
+
+    private bool IsInPriceRange(decimal price, string range)
+    {
+        return range switch
+        {
+            "0-25" => price >= 0 && price <= 25,
+            "25-50" => price > 25 && price <= 50,
+            "50-100" => price > 50 && price <= 100,
+            "100-250" => price > 100 && price <= 250,
+            "250+" => price > 250,
+            _ => true
+        };
+    }
+
+    private void UpdateProductList()
+    {
+        productList.Items.Clear();
+        foreach (var product in filteredProducts)
+        {
+            var item = new ListViewItem(new[]
+            {
+                product.Name,
+                product.Category,
+                product.Brand,
+                product.Price.ToString("C"),
+                product.Rating.ToString("F1")
+            });
+            productList.Items.Add(item);
+        }
+    }
+
+    private void LoadData()
+    {
+        // Sample product data
+        allProducts = new List<Product>
+        {
+            new Product { Name = "iPhone 14", Category = "Electronics", Brand = "Apple", Price = 999, Rating = 4.8m },
+            new Product { Name = "Galaxy S23", Category = "Electronics", Brand = "Samsung", Price = 899, Rating = 4.6m },
+            new Product { Name = "Air Max 90", Category = "Shoes", Brand = "Nike", Price = 120, Rating = 4.4m },
+            new Product { Name = "Ultraboost 22", Category = "Shoes", Brand = "Adidas", Price = 180, Rating = 4.5m },
+            new Product { Name = "WH-1000XM4", Category = "Electronics", Brand = "Sony", Price = 279, Rating = 4.7m },
+            new Product { Name = "Surface Laptop", Category = "Electronics", Brand = "Microsoft", Price = 1299, Rating = 4.3m }
+        };
+
+        filteredProducts = allProducts.ToList();
+        UpdateProductList();
+    }
+}
+
+public class Product
+{
+    public string Name { get; set; }
+    public string Category { get; set; }
+    public string Brand { get; set; }
+    public decimal Price { get; set; }
+    public decimal Rating { get; set; }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Skill Selection Form</h3>
+                        <pre><code class="language-csharp">public class SkillSelectionControl : UserControl
+{
+    private BeepMultiChipGroup programmingChips;
+    private BeepMultiChipGroup frameworkChips;
+    private BeepMultiChipGroup databaseChips;
+    private BeepMultiChipGroup cloudChips;
+    private List<string> selectedSkills = new List<string>();
+
+    public event EventHandler<SkillSelectionChangedEventArgs> SkillSelectionChanged;
+
+    public SkillSelectionControl()
+    {
+        SetupChipGroups();
+        LoadSkillData();
+    }
+
+    private void SetupChipGroups()
+    {
+        this.Size = new Size(600, 400);
+        this.AutoScroll = true;
+
+        // Programming Languages
+        programmingChips = CreateChipGroup("Programming Languages", new Point(20, 20));
+        
+        // Frameworks
+        frameworkChips = CreateChipGroup("Frameworks & Libraries", new Point(20, 120));
+        
+        // Databases
+        databaseChips = CreateChipGroup("Databases", new Point(20, 220));
+        
+        // Cloud Platforms
+        cloudChips = CreateChipGroup("Cloud Platforms", new Point(20, 320));
+
+        this.Controls.AddRange(new Control[] 
+        { 
+            programmingChips, frameworkChips, databaseChips, cloudChips 
+        });
+    }
+
+    private BeepMultiChipGroup CreateChipGroup(string title, Point location)
+    {
+        var chipGroup = new BeepMultiChipGroup
+        {
+            TitleText = title,
+            Location = location,
+            Width = 550,
+            Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+        };
+
+        chipGroup.SelectedItemChanged += ChipGroup_SelectedItemChanged;
+        return chipGroup;
+    }
+
+    private void LoadSkillData()
+    {
+        // Programming languages
+        var programmingLanguages = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "csharp", Text = "C#" },
+            new SimpleItem { Id = 2, Name = "javascript", Text = "JavaScript" },
+            new SimpleItem { Id = 3, Name = "python", Text = "Python" },
+            new SimpleItem { Id = 4, Name = "java", Text = "Java" },
+            new SimpleItem { Id = 5, Name = "typescript", Text = "TypeScript" },
+            new SimpleItem { Id = 6, Name = "go", Text = "Go" },
+            new SimpleItem { Id = 7, Name = "rust", Text = "Rust" },
+            new SimpleItem { Id = 8, Name = "kotlin", Text = "Kotlin" }
+        };
+        programmingChips.ListItems = programmingLanguages;
+
+        // Frameworks
+        var frameworks = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "react", Text = "React" },
+            new SimpleItem { Id = 2, Name = "angular", Text = "Angular" },
+            new SimpleItem { Id = 3, Name = "vue", Text = "Vue.js" },
+            new SimpleItem { Id = 4, Name = "aspnet", Text = "ASP.NET Core" },
+            new SimpleItem { Id = 5, Name = "django", Text = "Django" },
+            new SimpleItem { Id = 6, Name = "spring", Text = "Spring Boot" },
+            new SimpleItem { Id = 7, Name = "express", Text = "Express.js" },
+            new SimpleItem { Id = 8, Name = "fastapi", Text = "FastAPI" }
+        };
+        frameworkChips.ListItems = frameworks;
+
+        // Databases
+        var databases = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "sqlserver", Text = "SQL Server" },
+            new SimpleItem { Id = 2, Name = "mysql", Text = "MySQL" },
+            new SimpleItem { Id = 3, Name = "postgresql", Text = "PostgreSQL" },
+            new SimpleItem { Id = 4, Name = "mongodb", Text = "MongoDB" },
+            new SimpleItem { Id = 5, Name = "redis", Text = "Redis" },
+            new SimpleItem { Id = 6, Name = "sqlite", Text = "SQLite" },
+            new SimpleItem { Id = 7, Name = "oracle", Text = "Oracle" }
+        };
+        databaseChips.ListItems = databases;
+
+        // Cloud platforms
+        var cloudPlatforms = new BindingList<SimpleItem>
+        {
+            new SimpleItem { Id = 1, Name = "azure", Text = "Microsoft Azure" },
+            new SimpleItem { Id = 2, Name = "aws", Text = "Amazon AWS" },
+            new SimpleItem { Id = 3, Name = "gcp", Text = "Google Cloud" },
+            new SimpleItem { Id = 4, Name = "docker", Text = "Docker" },
+            new SimpleItem { Id = 5, Name = "kubernetes", Text = "Kubernetes" },
+            new SimpleItem { Id = 6, Name = "digitalocean", Text = "DigitalOcean" }
+        };
+        cloudChips.ListItems = cloudPlatforms;
+    }
+
+    private void ChipGroup_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        UpdateSelectedSkills();
+        OnSkillSelectionChanged();
+    }
+
+    private void UpdateSelectedSkills()
+    {
+        selectedSkills.Clear();
+
+        // Collect selected skills from all chip groups
+        if (programmingChips.SelectedItem != null)
+            selectedSkills.Add($"Programming: {programmingChips.SelectedItem.Text}");
+
+        if (frameworkChips.SelectedItem != null)
+            selectedSkills.Add($"Framework: {frameworkChips.SelectedItem.Text}");
+
+        if (databaseChips.SelectedItem != null)
+            selectedSkills.Add($"Database: {databaseChips.SelectedItem.Text}");
+
+        if (cloudChips.SelectedItem != null)
+            selectedSkills.Add($"Cloud: {cloudChips.SelectedItem.Text}");
+    }
+
+    private void OnSkillSelectionChanged()
+    {
+        SkillSelectionChanged?.Invoke(this, new SkillSelectionChangedEventArgs
+        {
+            SelectedSkills = selectedSkills.ToList(),
+            ProgrammingLanguage = programmingChips.SelectedItem?.Text,
+            Framework = frameworkChips.SelectedItem?.Text,
+            Database = databaseChips.SelectedItem?.Text,
+            CloudPlatform = cloudChips.SelectedItem?.Text
+        });
+    }
+
+    public void ClearAllSelections()
+    {
+        programmingChips.ClearValue();
+        frameworkChips.ClearValue();
+        databaseChips.ClearValue();
+        cloudChips.ClearValue();
+    }
+
+    public void SetSelections(string programming, string framework, string database, string cloud)
+    {
+        if (!string.IsNullOrEmpty(programming))
+        {
+            var progItem = programmingChips.ListItems.FirstOrDefault(i => i.Text == programming);
+            if (progItem != null) programmingChips.SelectedItem = progItem;
+        }
+
+        if (!string.IsNullOrEmpty(framework))
+        {
+            var fwItem = frameworkChips.ListItems.FirstOrDefault(i => i.Text == framework);
+            if (fwItem != null) frameworkChips.SelectedItem = fwItem;
+        }
+
+        if (!string.IsNullOrEmpty(database))
+        {
+            var dbItem = databaseChips.ListItems.FirstOrDefault(i => i.Text == database);
+            if (dbItem != null) databaseChips.SelectedItem = dbItem;
+        }
+
+        if (!string.IsNullOrEmpty(cloud))
+        {
+            var cloudItem = cloudChips.ListItems.FirstOrDefault(i => i.Text == cloud);
+            if (cloudItem != null) cloudChips.SelectedItem = cloudItem;
+        }
+    }
+}
+
+public class SkillSelectionChangedEventArgs : EventArgs
+{
+    public List<string> SelectedSkills { get; set; }
+    public string ProgrammingLanguage { get; set; }
+    public string Framework { get; set; }
+    public string Database { get; set; }
+    public string CloudPlatform { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepMultiChipGroup provides comprehensive theming with automatic application to all chips and states:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var chipGroup = new BeepMultiChipGroup
+{
+    Theme = "DarkTheme",
+    TitleText = "Select Options"
+};
+
+// Theme automatically applies to:
+// - Chip background colors
+// - Chip text colors
+// - Hover state colors
+// - Selected state colors
+// - Title text color
+// - Border colors
+
+// Manual theme refresh
+chipGroup.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Chip Group Theme Properties</h3>
+                    <ul>
+                        <li><strong>ButtonBackColor</strong> - Normal chip background</li>
+                        <li><strong>ButtonForeColor</strong> - Normal chip text color</li>
+                        <li><strong>ButtonHoverBackColor</strong> - Chip hover background</li>
+                        <li><strong>ButtonHoverForeColor</strong> - Chip hover text color</li>
+                        <li><strong>ButtonSelectedForeColor</strong> - Selected chip colors</li>
+                        <li><strong>CardTitleForeColor</strong> - Title text color</li>
+                        <li><strong>BorderColor</strong> - Chip borders</li>
+                        <li><strong>HoverLinkColor</strong> - Hover border colors</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Chip Styling</h3>
+                        <pre><code class="language-csharp">// Apply theme first
+chipGroup.ApplyTheme();
+
+// Customize title appearance
+chipGroup.TitleColor = Color.FromArgb(52, 73, 94);
+chipGroup.TitleFont = new Font("Segoe UI", 14, FontStyle.Bold);
+chipGroup.TitleAlignment = ContentAlignment.TopCenter;
+
+// The control handles individual chip styling automatically
+// based on the current theme and interaction states</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 Chip Design</h3>
+                    <ul>
+                        <li><strong>Concise labels:</strong> Keep chip text short and descriptive</li>
+                        <li><strong>Logical grouping:</strong> Group related chips in separate chip groups</li>
+                        <li><strong>Consistent sizing:</strong> Let the control handle automatic sizing for consistency</li>
+                        <li><strong>Clear titles:</strong> Use descriptive titles to explain chip purpose</li>
+                    </ul>
+
+                    <h3>📱 Layout Considerations</h3>
+                    <ul>
+                        <li><strong>Width allocation:</strong> Provide adequate width for chip wrapping</li>
+                        <li><strong>AutoSize usage:</strong> Enable AutoSize for dynamic height adjustment</li>
+                        <li><strong>Spacing management:</strong> Use proper margins between chip groups</li>
+                        <li><strong>Responsive design:</strong> Consider how chips wrap on different screen sizes</li>
+                    </ul>
+
+                    <h3>🔗 Data Management</h3>
+                    <ul>
+                        <li><strong>SimpleItem usage:</strong> Properly populate SimpleItem properties (Id, Name, Text)</li>
+                        <li><strong>Change detection:</strong> Use SelectedItemChanged event for responsive updates</li>
+                        <li><strong>State preservation:</strong> Store selections appropriately for form persistence</li>
+                        <li><strong>Dynamic updates:</strong> Use BindingList for automatic UI updates</li>
+                    </ul>
+
+                    <h3>✨ User Experience</h3>
+                    <ul>
+                        <li><strong>Visual feedback:</strong> Leverage hover and selection state animations</li>
+                        <li><strong>Single selection:</strong> Remember this is a single-selection control</li>
+                        <li><strong>Clear indication:</strong> Ensure selected state is visually distinct</li>
+                        <li><strong>Accessibility:</strong> Ensure adequate color contrast for all states</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Layout Tip</strong>
+                        <p>Set a reasonable width (400-600px) to allow proper chip wrapping while maintaining readability. Too narrow causes excessive wrapping, too wide wastes space.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Use descriptive chip text that clearly indicates what selecting the chip will accomplish - avoid ambiguous labels like "Option 1" or "Choice A".</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Selection Warning</strong>
+                        <p>BeepMultiChipGroup supports single selection only. For multi-selection scenarios, consider using multiple chip groups or a different control type.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-functionspanel.html"><i class="bi bi-arrow-left"></i> BeepFunctionsPanel</a>
+                    <a href="beep-login.html">BeepLogin <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

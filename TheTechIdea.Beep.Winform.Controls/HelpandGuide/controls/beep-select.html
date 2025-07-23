@@ -1,0 +1,928 @@
+<!--
+    BeepSelect Control Documentation
+    Professional-grade documentation for the BeepSelect WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepSelect - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                            <li><a href="beep-select.html" class="active">BeepSelect</a></li>
+                            <li><a href="beep-listofvaluesbox.html">BeepListofValuesBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>→</span>
+                    <span>BeepSelect</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepSelect</h1>
+                    <p class="page-subtitle">Modern, theme-aware selection control with advanced filtering, multi-selection, and customizable item templates</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepSelect</strong> provides a modern, enhanced selection interface that goes beyond traditional 
+                        comboboxes and listboxes. It offers advanced filtering, multi-selection capabilities, custom item templates, 
+                        and seamless integration with data sources for sophisticated user selection scenarios.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepSelect features intelligent search functionality, 
+                        grouped items support, custom rendering, virtualization for large datasets, theme integration, 
+                        and accessibility features. Perfect for user management interfaces, product catalogs, 
+                        configuration panels, and any application requiring advanced selection capabilities.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔍 Smart Filtering</h3>
+                            <p>Built-in search with fuzzy matching and custom filter functions</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✅ Multi-Selection</h3>
+                            <p>Support for single and multi-selection modes with chips display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Custom Templates</h3>
+                            <p>Flexible item templating with rich content support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Data Binding</h3>
+                            <p>Seamless integration with data sources and complex objects</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Grouping Support</h3>
+                            <p>Organize items into collapsible groups with headers</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ Virtualization</h3>
+                            <p>Efficient rendering for large datasets with lazy loading</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Single Selection Mode</h3>
+                    <div class="visual-demo">
+                        <div class="select-preview single">
+                            <div class="select-control">
+                                <div class="select-input">
+                                    <span class="selected-item">John Smith - Sales Manager</span>
+                                    <span class="dropdown-arrow">▼</span>
+                                </div>
+                            </div>
+                            <div class="dropdown-panel">
+                                <div class="search-box">
+                                    <input type="text" placeholder="Search employees..." value="john">
+                                </div>
+                                <div class="items-list">
+                                    <div class="group-header">Sales Department</div>
+                                    <div class="select-item selected">
+                                        <div class="item-avatar">👤</div>
+                                        <div class="item-content">
+                                            <div class="item-title">John Smith</div>
+                                            <div class="item-subtitle">Sales Manager</div>
+                                        </div>
+                                        <div class="item-badge">Manager</div>
+                                    </div>
+                                    <div class="select-item">
+                                        <div class="item-avatar">👤</div>
+                                        <div class="item-content">
+                                            <div class="item-title">Jane Johnson</div>
+                                            <div class="item-subtitle">Sales Representative</div>
+                                        </div>
+                                    </div>
+                                    <div class="group-header">Marketing Department</div>
+                                    <div class="select-item">
+                                        <div class="item-avatar">👤</div>
+                                        <div class="item-content">
+                                            <div class="item-title">Mike Wilson</div>
+                                            <div class="item-subtitle">Marketing Specialist</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Single selection with search, grouping, and rich item templates</em></p>
+                    </div>
+
+                    <h3>Multi-Selection Mode</h3>
+                    <div class="visual-demo">
+                        <div class="select-preview multi">
+                            <div class="select-control">
+                                <div class="select-chips">
+                                    <div class="chip">
+                                        <span>JavaScript</span>
+                                        <span class="chip-remove">×</span>
+                                    </div>
+                                    <div class="chip">
+                                        <span>C#</span>
+                                        <span class="chip-remove">×</span>
+                                    </div>
+                                    <div class="chip">
+                                        <span>Python</span>
+                                        <span class="chip-remove">×</span>
+                                    </div>
+                                    <input type="text" class="chip-input" placeholder="Add skills...">
+                                </div>
+                                <span class="dropdown-arrow">▼</span>
+                            </div>
+                        </div>
+                        <p><em>Multi-selection with chips display and inline editing</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .select-preview {
+                            background: var(--color-background);
+                            border-radius: 8px;
+                            overflow: hidden;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 400px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            position: relative;
+                        }
+
+                        .select-control {
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            background: var(--color-background);
+                            position: relative;
+                        }
+
+                        .select-input {
+                            padding: 0.75rem 1rem;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            cursor: pointer;
+                        }
+
+                        .selected-item {
+                            font-size: 14px;
+                            color: var(--color-text);
+                        }
+
+                        .dropdown-arrow {
+                            color: var(--color-text-secondary);
+                            font-size: 12px;
+                            transition: transform 0.2s ease;
+                        }
+
+                        .select-chips {
+                            padding: 0.5rem;
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.5rem;
+                            align-items: center;
+                        }
+
+                        .chip {
+                            background: var(--color-primary);
+                            color: white;
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 16px;
+                            font-size: 12px;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.25rem;
+                        }
+
+                        .chip-remove {
+                            cursor: pointer;
+                            font-weight: bold;
+                            opacity: 0.7;
+                        }
+
+                        .chip-remove:hover {
+                            opacity: 1;
+                        }
+
+                        .chip-input {
+                            border: none;
+                            outline: none;
+                            background: transparent;
+                            font-size: 14px;
+                            flex: 1;
+                            min-width: 100px;
+                            color: var(--color-text);
+                        }
+
+                        .dropdown-panel {
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            right: 0;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-top: none;
+                            border-radius: 0 0 6px 6px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+                            z-index: 1000;
+                            max-height: 300px;
+                            overflow: hidden;
+                        }
+
+                        .search-box {
+                            padding: 0.75rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .search-box input {
+                            width: 100%;
+                            padding: 0.5rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            font-size: 14px;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                        }
+
+                        .items-list {
+                            max-height: 200px;
+                            overflow-y: auto;
+                        }
+
+                        .group-header {
+                            padding: 0.5rem 1rem;
+                            background: var(--color-background-secondary);
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .select-item {
+                            padding: 0.75rem 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            cursor: pointer;
+                            transition: background-color 0.2s ease;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .select-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .select-item.selected {
+                            background: rgba(59, 130, 246, 0.1);
+                            border-left: 3px solid var(--color-primary);
+                        }
+
+                        .item-avatar {
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            background: var(--color-background-secondary);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 16px;
+                        }
+
+                        .item-content {
+                            flex: 1;
+                        }
+
+                        .item-title {
+                            font-size: 14px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                            margin-bottom: 0.125rem;
+                        }
+
+                        .item-subtitle {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .item-badge {
+                            background: var(--color-success);
+                            color: white;
+                            padding: 0.125rem 0.5rem;
+                            border-radius: 12px;
+                            font-size: 10px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Selection Control</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepSelect
+var selectControl = new BeepSelect();
+selectControl.Size = new Size(250, 35);
+selectControl.Placeholder = "Select an option...";
+
+// Add simple string items
+selectControl.Items.AddRange(new[] {
+    "Option 1",
+    "Option 2", 
+    "Option 3",
+    "Option 4"
+});
+
+// Handle selection changes
+selectControl.SelectionChanged += (s, e) =>
+{
+    var selectedItem = selectControl.SelectedItem;
+    MessageBox.Show($"Selected: {selectedItem}");
+};
+
+// Add to form
+this.Controls.Add(selectControl);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Data-Bound Selection with Objects</h3>
+                        <pre><code class="language-csharp">// Define data model
+public class Employee
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Department { get; set; }
+    public string Position { get; set; }
+    public bool IsManager { get; set; }
+}
+
+// Create and configure BeepSelect
+var employeeSelect = new BeepSelect
+{
+    Size = new Size(300, 40),
+    Placeholder = "Select employee...",
+    DisplayMember = "Name",
+    ValueMember = "Id",
+    GroupMember = "Department", // Group by department
+    EnableSearch = true,
+    MultiSelect = false
+};
+
+// Bind data
+var employees = GetEmployees(); // Your data source
+employeeSelect.DataSource = employees;
+
+// Configure custom item template
+employeeSelect.ItemTemplate = (item) =>
+{
+    var emp = item as Employee;
+    return $"{emp.Name} - {emp.Position}" + (emp.IsManager ? " (Manager)" : "");
+};
+
+// Handle selection
+employeeSelect.SelectionChanged += (s, e) =>
+{
+    var selectedEmployee = employeeSelect.SelectedItem as Employee;
+    if (selectedEmployee != null)
+    {
+        ShowEmployeeDetails(selectedEmployee);
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Items</code></td>
+                                <td>IList</td>
+                                <td>Empty</td>
+                                <td>Collection of items to display</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>object</td>
+                                <td>null</td>
+                                <td>Currently selected item (single selection)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItems</code></td>
+                                <td>IList</td>
+                                <td>Empty</td>
+                                <td>Selected items collection (multi-selection)</td>
+                            </tr>
+                            <tr>
+                                <td><code>MultiSelect</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Enable multi-selection mode</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Data Binding Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DataSource</code></td>
+                                <td>object</td>
+                                <td>null</td>
+                                <td>Data source for binding</td>
+                            </tr>
+                            <tr>
+                                <td><code>DisplayMember</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Property name for display text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValueMember</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Property name for item value</td>
+                            </tr>
+                            <tr>
+                                <td><code>GroupMember</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Property name for grouping items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>UI Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Placeholder</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Placeholder text when no selection</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableSearch</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Enable search/filter functionality</td>
+                            </tr>
+                            <tr>
+                                <td><code>SearchPlaceholder</code></td>
+                                <td>string</td>
+                                <td>"Search..."</td>
+                                <td>Placeholder text for search box</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxDropdownHeight</code></td>
+                                <td>int</td>
+                                <td>300</td>
+                                <td>Maximum height of dropdown panel</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectionChanged</code></td>
+                                <td>SelectionChangedEventArgs</td>
+                                <td>Fired when selection changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>SearchTextChanged</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when search text changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemRendering</code></td>
+                                <td>ItemRenderingEventArgs</td>
+                                <td>Fired when custom item rendering is needed</td>
+                            </tr>
+                            <tr>
+                                <td><code>DropdownOpening</code></td>
+                                <td>CancelEventArgs</td>
+                                <td>Fired before dropdown opens (cancellable)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Advanced Multi-Select with Custom Filtering</h3>
+                        <pre><code class="language-csharp">public class SkillsSelector : UserControl
+{
+    private BeepSelect skillsSelect;
+    private List<Skill> availableSkills;
+
+    public List<Skill> SelectedSkills => 
+        skillsSelect.SelectedItems.Cast<Skill>().ToList();
+
+    public SkillsSelector()
+    {
+        InitializeSkillsSelector();
+        LoadSkills();
+    }
+
+    private void InitializeSkillsSelector()
+    {
+        skillsSelect = new BeepSelect
+        {
+            Dock = DockStyle.Fill,
+            MultiSelect = true,
+            Placeholder = "Add skills...",
+            DisplayMember = "Name",
+            ValueMember = "Id",
+            GroupMember = "Category",
+            EnableSearch = true,
+            SearchPlaceholder = "Search skills...",
+            MaxDropdownHeight = 400
+        };
+
+        // Custom search filter
+        skillsSelect.SearchFilter = (item, searchText) =>
+        {
+            var skill = item as Skill;
+            return skill.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                   skill.Category.Contains(searchText, StringComparison.OrdinalIgnoreCase) ||
+                   skill.Keywords.Any(k => k.Contains(searchText, StringComparison.OrdinalIgnoreCase));
+        };
+
+        // Custom item template with badges
+        skillsSelect.ItemTemplate = (item) =>
+        {
+            var skill = item as Skill;
+            var template = $"{skill.Name}";
+            if (skill.IsInDemand)
+                template += " 🔥";
+            if (skill.IsCertified)
+                template += " ✓";
+            return template;
+        };
+
+        // Handle selection changes
+        skillsSelect.SelectionChanged += OnSkillsSelectionChanged;
+
+        this.Controls.Add(skillsSelect);
+    }
+
+    private void LoadSkills()
+    {
+        availableSkills = new List<Skill>
+        {
+            new Skill { Id = 1, Name = "C#", Category = "Programming", IsInDemand = true, IsCertified = true, Keywords = new[] { "dotnet", "csharp", "programming" } },
+            new Skill { Id = 2, Name = "JavaScript", Category = "Programming", IsInDemand = true, Keywords = new[] { "js", "frontend", "web" } },
+            new Skill { Id = 3, Name = "Python", Category = "Programming", IsInDemand = true, Keywords = new[] { "data science", "ml", "ai" } },
+            new Skill { Id = 4, Name = "SQL", Category = "Database", IsInDemand = true, IsCertified = true, Keywords = new[] { "database", "query" } },
+            new Skill { Id = 5, Name = "Docker", Category = "DevOps", IsInDemand = true, Keywords = new[] { "containers", "deployment" } },
+            new Skill { Id = 6, Name = "Kubernetes", Category = "DevOps", Keywords = new[] { "orchestration", "containers" } },
+            new Skill { Id = 7, Name = "Project Management", Category = "Soft Skills", Keywords = new[] { "planning", "coordination" } },
+            new Skill { Id = 8, Name = "Communication", Category = "Soft Skills", Keywords = new[] { "presentation", "teamwork" } }
+        };
+
+        skillsSelect.DataSource = availableSkills;
+    }
+
+    private void OnSkillsSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        var selectedSkills = SelectedSkills;
+        
+        // Update UI or notify parent
+        OnSelectedSkillsChanged(selectedSkills);
+        
+        // Show recommendation based on selected skills
+        ShowSkillRecommendations(selectedSkills);
+    }
+
+    private void ShowSkillRecommendations(List<Skill> selectedSkills)
+    {
+        var recommendations = GetSkillRecommendations(selectedSkills);
+        if (recommendations.Any())
+        {
+            var message = $"Based on your selected skills, you might also be interested in: {string.Join(", ", recommendations.Select(r => r.Name))}";
+            // Show tooltip or notification
+            ToolTip.Show(message, this, 3000);
+        }
+    }
+
+    private List<Skill> GetSkillRecommendations(List<Skill> selectedSkills)
+    {
+        // Simple recommendation logic
+        var selectedCategories = selectedSkills.Select(s => s.Category).Distinct();
+        return availableSkills
+            .Where(s => !selectedSkills.Contains(s) && 
+                       selectedCategories.Contains(s.Category) && 
+                       s.IsInDemand)
+            .Take(3)
+            .ToList();
+    }
+
+    public event Action<List<Skill>> SelectedSkillsChanged;
+    protected virtual void OnSelectedSkillsChanged(List<Skill> skills) =>
+        SelectedSkillsChanged?.Invoke(skills);
+}
+
+public class Skill
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Category { get; set; }
+    public bool IsInDemand { get; set; }
+    public bool IsCertified { get; set; }
+    public string[] Keywords { get; set; } = Array.Empty<string>();
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepSelect provides comprehensive theming support with full integration into the Beep Controls theming system:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var selectControl = new BeepSelect
+{
+    Theme = "ModernDark",
+    UseThemeColors = true
+}
+
+// Theme automatically applies:
+// - ControlBackColor: Input field background
+// - ControlForeColor: Text colors
+// - BorderColor: Input and dropdown borders
+// - DropdownBackColor: Dropdown panel background
+// - SelectionColor: Selected item highlighting
+// - ChipColors: Multi-select chip styling</code></pre>
+                    </div>
+
+                    <h3>Select-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Chip styling</strong> - Multi-select chip colors and hover effects</li>
+                        <li><strong>Dropdown theming</strong> - Panel backgrounds and border colors</li>
+                        <li><strong>Search integration</strong> - Search box styling within theme</li>
+                        <li><strong>Group headers</strong> - Category header styling and colors</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear placeholders:</strong> Use descriptive placeholder text to guide users</li>
+                        <li><strong>Logical grouping:</strong> Group related items for easier navigation</li>
+                        <li><strong>Search optimization:</strong> Implement meaningful search across multiple properties</li>
+                        <li><strong>Visual feedback:</strong> Provide clear visual feedback for selections</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Data binding:</strong> Use proper data binding for dynamic content</li>
+                        <li><strong>Performance:</strong> Implement virtualization for large datasets</li>
+                        <li><strong>Validation:</strong> Validate selections and provide appropriate feedback</li>
+                        <li><strong>Accessibility:</strong> Ensure keyboard navigation and screen reader support</li>
+                    </ul>
+
+                    <h3>📊 Data Handling</h3>
+                    <ul>
+                        <li><strong>Object equality:</strong> Implement proper equality comparison for custom objects</li>
+                        <li><strong>Null handling:</strong> Handle null values gracefully in data sources</li>
+                        <li><strong>State management:</strong> Properly manage selection state across UI updates</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use custom item templates to provide rich, informative displays that help users make better selections.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement intelligent search that includes synonyms, abbreviations, and related terms for better user experience.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>For large datasets (>1000 items), enable virtualization and consider implementing server-side filtering.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-switch.html"><i class="bi bi-arrow-left"></i> BeepSwitch</a>
+                    <a href="beep-listofvaluesbox.html">BeepListofValuesBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

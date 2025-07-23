@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDropDownMenu - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-contextmenustrip.html">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-dropdownmenu.html" class="active">BeepDropDownMenu</a></li>
+                            <li><a href="beep-flyoutmenu.html">BeepFlyoutMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>?</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>?</span>
+                    <span>BeepDropDownMenu</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepDropDownMenu</h1>
+                    <p class="page-subtitle">Advanced dropdown menu control with smooth animations and customizable item lists for modern selection interfaces</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepDropDownMenu</strong> provides an advanced dropdown menu control that extends BeepListBox functionality 
+                        with smooth animations, intelligent sizing, and integrated dropdown button management. It offers a modern alternative 
+                        to traditional ComboBox controls with enhanced customization, theming support, and visual appeal.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepListBox</strong> foundation, BeepDropDownMenu features animated expand/collapse behavior, 
+                        intelligent height management, customizable appearance, hit area detection, and comprehensive theme integration. 
+                        Perfect for selection interfaces, menu systems, filter controls, and any scenario requiring elegant dropdown functionality.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Smooth Animations</h3>
+                            <p>Fluid expand/collapse animations with configurable speed and timing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Integrated Button</h3>
+                            <p>Built-in dropdown button with automatic icon switching and theme integration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Smart Sizing</h3>
+                            <p>Intelligent height calculation with maximum height constraints and content adaptation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>??? Hit Area Detection</h3>
+                            <p>Precise click detection for dropdown button with custom hit area management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? BeepListBox Heritage</h3>
+                            <p>Full BeepListBox functionality including icons, custom items, and selection handling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>? Performance Optimized</h3>
+                            <p>Efficient animation system with minimal resource usage and smooth operation</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Dropdown States</h3>
+                    <div class="visual-demo">
+                        <div class="dropdown-preview">
+                            
+                            <!-- Collapsed State -->
+                            <div class="dropdown-state">
+                                <h4>Collapsed State</h4>
+                                <div class="dropdown-control collapsed">
+                                    <div class="dropdown-header">
+                                        <span class="dropdown-text">Select an option</span>
+                                        <button class="dropdown-button">
+                                            <span class="dropdown-icon">?</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="state-description">Compact collapsed state showing selected value or placeholder</p>
+                            </div>
+
+                            <!-- Expanded State -->
+                            <div class="dropdown-state">
+                                <h4>Expanded State</h4>
+                                <div class="dropdown-control expanded">
+                                    <div class="dropdown-header">
+                                        <span class="dropdown-text">Development Tools</span>
+                                        <button class="dropdown-button">
+                                            <span class="dropdown-icon">?</span>
+                                        </button>
+                                    </div>
+                                    <div class="dropdown-list">
+                                        <div class="dropdown-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Visual Studio</span>
+                                        </div>
+                                        <div class="dropdown-item selected">
+                                            <span class="item-icon">???</span>
+                                            <span class="item-text">Development Tools</span>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <span class="item-icon">???</span>
+                                            <span class="item-text">Database Management</span>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Web Technologies</span>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Mobile Development</span>
+                                        </div>
+                                        <div class="dropdown-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Cloud Services</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="state-description">Expanded state showing animated item list with selection highlighting</p>
+                            </div>
+
+                        </div>
+                        <p><em>BeepDropDownMenu showing collapsed and expanded states with smooth transitions</em></p>
+                    </div>
+
+                    <h3>Filter Dropdown Example</h3>
+                    <div class="visual-demo">
+                        <div class="filter-dropdown-example">
+                            <div class="form-section">
+                                <label class="form-label">Filter by Category:</label>
+                                <div class="dropdown-control filter-style">
+                                    <div class="dropdown-header">
+                                        <span class="dropdown-text">All Categories</span>
+                                        <button class="dropdown-button">
+                                            <span class="dropdown-icon">?</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-section">
+                                <label class="form-label">Sort by:</label>
+                                <div class="dropdown-control filter-style">
+                                    <div class="dropdown-header">
+                                        <span class="dropdown-text">Name (A-Z)</span>
+                                        <button class="dropdown-button">
+                                            <span class="dropdown-icon">?</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <label class="form-label">Status:</label>
+                                <div class="dropdown-control filter-style">
+                                    <div class="dropdown-header">
+                                        <span class="dropdown-text">Active</span>
+                                        <button class="dropdown-button">
+                                            <span class="dropdown-icon">?</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Filter interface using multiple BeepDropDownMenu controls for data filtering</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dropdown-preview {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 2rem;
+                            align-items: start;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            text-align: left;
+                        }
+
+                        .dropdown-state h4 {
+                            margin: 0 0 1rem;
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            text-align: center;
+                        }
+
+                        .dropdown-control {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            font-family: var(--font-family);
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                            transition: all 0.3s ease;
+                            width: 100%;
+                            max-width: 300px;
+                            margin: 0 auto;
+                        }
+
+                        .dropdown-header {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            padding: 0.75rem 1rem;
+                            cursor: pointer;
+                            min-height: 40px;
+                        }
+
+                        .dropdown-text {
+                            font-size: 14px;
+                            color: var(--color-text);
+                            flex: 1;
+                        }
+
+                        .dropdown-button {
+                            background: none;
+                            border: none;
+                            cursor: pointer;
+                            padding: 0.25rem;
+                            border-radius: 4px;
+                            transition: background-color 0.2s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 24px;
+                            height: 24px;
+                        }
+
+                        .dropdown-button:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dropdown-icon {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            transition: transform 0.2s ease;
+                        }
+
+                        .dropdown-list {
+                            border-top: 1px solid var(--color-border-light);
+                            max-height: 200px;
+                            overflow-y: auto;
+                        }
+
+                        .dropdown-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            padding: 0.75rem 1rem;
+                            cursor: pointer;
+                            transition: background-color 0.2s ease;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .dropdown-item:last-child {
+                            border-bottom: none;
+                        }
+
+                        .dropdown-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .dropdown-item.selected {
+                            background: var(--color-primary-light);
+                            color: var(--color-primary);
+                            font-weight: 500;
+                        }
+
+                        .item-icon {
+                            font-size: 16px;
+                            width: 20px;
+                            text-align: center;
+                            flex-shrink: 0;
+                        }
+
+                        .item-text {
+                            font-size: 13px;
+                            flex: 1;
+                        }
+
+                        .state-description {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            margin-top: 0.75rem;
+                            text-align: center;
+                            line-height: 1.4;
+                        }
+
+                        .filter-dropdown-example {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 500px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .form-section {
+                            margin-bottom: 1.5rem;
+                        }
+
+                        .form-section:last-child {
+                            margin-bottom: 0;
+                        }
+
+                        .form-label {
+                            display: block;
+                            font-size: 13px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                            margin-bottom: 0.5rem;
+                        }
+
+                        .dropdown-control.filter-style {
+                            max-width: none;
+                            margin: 0;
+                        }
+
+                        .dropdown-control.collapsed .dropdown-list {
+                            display: none;
+                        }
+
+                        .dropdown-control.expanded {
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+                        }
+
+                        .dropdown-control.expanded .dropdown-icon {
+                            transform: rotate(180deg);
+                        }
+
+                        @media (max-width: 768px) {
+                            .dropdown-preview {
+                                grid-template-columns: 1fr;
+                                gap: 1.5rem;
+                            }
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Dropdown Menu</h3>
+                        <pre><code class="language-csharp">// Create a BeepDropDownMenu
+var dropdownMenu = new BeepDropDownMenu();
+dropdownMenu.Size = new Size(200, 30);
+dropdownMenu.Location = new Point(50, 50);
+
+// Add menu items
+dropdownMenu.ListItems.Add(new SimpleItem
+{
+    Text = "Option 1",
+    ImagePath = "option1-icon.svg",
+    GuidId = Guid.NewGuid().ToString()
+});
+
+dropdownMenu.ListItems.Add(new SimpleItem
+{
+    Text = "Option 2", 
+    ImagePath = "option2-icon.svg",
+    GuidId = Guid.NewGuid().ToString()
+});
+
+dropdownMenu.ListItems.Add(new SimpleItem
+{
+    Text = "Option 3",
+    ImagePath = "option3-icon.svg",
+    GuidId = Guid.NewGuid().ToString()
+});
+
+// Handle selection changes
+dropdownMenu.SelectedItemChanged += (sender, e) =>
+{
+    if (dropdownMenu.SelectedItem != null)
+    {
+        Console.WriteLine($"Selected: {dropdownMenu.SelectedItem.Text}");
+    }
+};
+
+// Add to form
+this.Controls.Add(dropdownMenu);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Category Filter Dropdown</h3>
+                        <pre><code class="language-csharp">public void SetupCategoryFilter()
+{
+    var categoryFilter = new BeepDropDownMenu
+    {
+        Size = new Size(180, 30),
+        Location = new Point(20, 20),
+        Text = "Filter by Category"
+    };
+
+    // Add category options
+    var categories = new[]
+    {
+        new { Name = "All Categories", Icon = "all-icon.svg", Value = "" },
+        new { Name = "Software Development", Icon = "dev-icon.svg", Value = "software" },
+        new { Name = "Design & UI/UX", Icon = "design-icon.svg", Value = "design" },
+        new { Name = "Data Science", Icon = "data-icon.svg", Value = "data" },
+        new { Name = "Project Management", Icon = "project-icon.svg", Value = "management" },
+        new { Name = "Marketing", Icon = "marketing-icon.svg", Value = "marketing" }
+    };
+
+    foreach (var category in categories)
+    {
+        categoryFilter.ListItems.Add(new SimpleItem
+        {
+            Text = category.Name,
+            ImagePath = category.Icon,
+            Tag = category.Value,
+            GuidId = Guid.NewGuid().ToString()
+        });
+    }
+
+    // Handle category selection
+    categoryFilter.SelectedItemChanged += (sender, e) =>
+    {
+        if (categoryFilter.SelectedItem != null)
+        {
+            var selectedCategory = categoryFilter.SelectedItem.Tag?.ToString();
+            ApplyCategoryFilter(selectedCategory);
+        }
+    };
+
+    // Set default selection
+    categoryFilter.SelectedIndex = 0;
+
+    this.Controls.Add(categoryFilter);
+}
+
+private void ApplyCategoryFilter(string category)
+{
+    // Apply filter to data grid or list
+    if (string.IsNullOrEmpty(category))
+    {
+        ShowAllItems();
+    }
+    else
+    {
+        FilterItemsByCategory(category);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-Level Dropdown Configuration</h3>
+                        <pre><code class="language-csharp">public class DropdownConfiguration
+{
+    public string Title { get; set; }
+    public Size Size { get; set; }
+    public Point Location { get; set; }
+    public List<DropdownItem> Items { get; set; } = new List<DropdownItem>();
+    public bool ShowIcons { get; set; } = true;
+    public int MaxHeight { get; set; } = 200;
+}
+
+public class DropdownItem
+{
+    public string Text { get; set; }
+    public string IconPath { get; set; }
+    public object Value { get; set; }
+    public bool IsEnabled { get; set; } = true;
+}
+
+public BeepDropDownMenu CreateConfiguredDropdown(DropdownConfiguration config)
+{
+    var dropdown = new BeepDropDownMenu
+    {
+        Size = config.Size,
+        Location = config.Location,
+        Text = config.Title
+    };
+
+    // Configure maximum height
+    if (config.MaxHeight > 0)
+    {
+        dropdown.MaxMenuHeight = config.MaxHeight;
+    }
+
+    // Add items from configuration
+    foreach (var item in config.Items)
+    {
+        var simpleItem = new SimpleItem
+        {
+            Text = item.Text,
+            ImagePath = config.ShowIcons ? item.IconPath : null,
+            Tag = item.Value,
+            Enabled = item.IsEnabled,
+            GuidId = Guid.NewGuid().ToString()
+        };
+
+        dropdown.ListItems.Add(simpleItem);
+    }
+
+    return dropdown;
+}
+
+// Usage example
+public void SetupApplicationFilters()
+{
+    // Priority filter
+    var priorityConfig = new DropdownConfiguration
+    {
+        Title = "Priority",
+        Size = new Size(120, 30),
+        Location = new Point(20, 60),
+        Items = new List<DropdownItem>
+        {
+            new DropdownItem { Text = "All", IconPath = "all.svg", Value = null },
+            new DropdownItem { Text = "High", IconPath = "high.svg", Value = "high" },
+            new DropdownItem { Text = "Medium", IconPath = "medium.svg", Value = "medium" },
+            new DropdownItem { Text = "Low", IconPath = "low.svg", Value = "low" }
+        }
+    };
+
+    var priorityDropdown = CreateConfiguredDropdown(priorityConfig);
+    priorityDropdown.SelectedItemChanged += (s, e) => FilterByPriority(priorityDropdown.SelectedItem?.Tag?.ToString());
+
+    // Status filter
+    var statusConfig = new DropdownConfiguration
+    {
+        Title = "Status",
+        Size = new Size(140, 30),
+        Location = new Point(150, 60),
+        Items = new List<DropdownItem>
+        {
+            new DropdownItem { Text = "All Statuses", IconPath = "all.svg", Value = null },
+            new DropdownItem { Text = "Active", IconPath = "active.svg", Value = "active" },
+            new DropdownItem { Text = "Pending", IconPath = "pending.svg", Value = "pending" },
+            new DropdownItem { Text = "Completed", IconPath = "completed.svg", Value = "completed" },
+            new DropdownItem { Text = "Cancelled", IconPath = "cancelled.svg", Value = "cancelled" }
+        }
+    };
+
+    var statusDropdown = CreateConfiguredDropdown(statusConfig);
+    statusDropdown.SelectedItemChanged += (s, e) => FilterByStatus(statusDropdown.SelectedItem?.Tag?.ToString());
+
+    // Add to form
+    this.Controls.Add(priorityDropdown);
+    this.Controls.Add(statusDropdown);
+}
+
+private void FilterByPriority(string priority) { /* Implementation */ }
+private void FilterByStatus(string status) { /* Implementation */ }</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Dropdown-Specific Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>IsExpanded</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether the dropdown menu is currently expanded</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxMenuHeight</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Maximum height of the dropdown when expanded</td>
+                            </tr>
+                            <tr>
+                                <td><code>CollapsedHeight</code></td>
+                                <td>int</td>
+                                <td>30</td>
+                                <td>Height of the dropdown when collapsed</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonWidth</code></td>
+                                <td>int</td>
+                                <td>25</td>
+                                <td>Width of the dropdown button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AnimationInterval</code></td>
+                                <td>const int</td>
+                                <td>15</td>
+                                <td>Animation timer interval in milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td><code>HeightIncrement</code></td>
+                                <td>const int</td>
+                                <td>10</td>
+                                <td>Height change per animation step</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsAnimating</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether animation is currently in progress</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Inherited from BeepListBox</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ListItems</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Collection of dropdown menu items</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>Index of currently selected item</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>Currently selected menu item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowCheckBox</code></td>
+                                <td>bool</td>
+                                <td>Whether to show checkboxes for items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Button Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DropDownButtonGDI</code></td>
+                                <td>BeepButton</td>
+                                <td>Internal button used for dropdown rendering</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <h3>Inherited from BeepListBox</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedItemChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the selected item changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ListItemClicked</code></td>
+                                <td>Override method</td>
+                                <td>Handles individual item clicks from list items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Standard Control Events</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Click</code></td>
+                                <td>General click events on the control</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseEnter</code></td>
+                                <td>Mouse entering the control area</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseLeave</code></td>
+                                <td>Mouse leaving the control area</td>
+                            </tr>
+                            <tr>
+                                <td><code>Resize</code></td>
+                                <td>Control size changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Settings Configuration Panel</h3>
+                        <pre><code class="language-csharp">public class SettingsPanel : Panel
+{
+    private BeepDropDownMenu themeSelector;
+    private BeepDropDownMenu languageSelector;
+    private BeepDropDownMenu fontSizeSelector;
+    private BeepDropDownMenu layoutSelector;
+
+    public SettingsPanel()
+    {
+        SetupSettingsControls();
+        ApplyLayout();
+    }
+
+    private void SetupSettingsControls()
+    {
+        // Theme selector
+        themeSelector = new BeepDropDownMenu
+        {
+            Size = new Size(150, 30),
+            Text = "Select Theme"
+        };
+
+        var themes = new[]
+        {
+            new { Name = "Light Theme", Value = "Light", Icon = "sun.svg" },
+            new { Name = "Dark Theme", Value = "Dark", Icon = "moon.svg" },
+            new { Name = "Auto (System)", Value = "Auto", Icon = "auto.svg" },
+            new { Name = "High Contrast", Value = "HighContrast", Icon = "contrast.svg" }
+        };
+
+        foreach (var theme in themes)
+        {
+            themeSelector.ListItems.Add(new SimpleItem
+            {
+                Text = theme.Name,
+                ImagePath = theme.Icon,
+                Tag = theme.Value,
+                GuidId = Guid.NewGuid().ToString()
+            });
+        }
+
+        themeSelector.SelectedItemChanged += (s, e) =>
+        {
+            if (themeSelector.SelectedItem?.Tag is string selectedTheme)
+            {
+                ApplyTheme(selectedTheme);
+            }
+        };
+
+        // Language selector
+        languageSelector = new BeepDropDownMenu
+        {
+            Size = new Size(120, 30),
+            Text = "Language"
+        };
+
+        var languages = new[]
+        {
+            new { Name = "English", Code = "en", Flag = "flag-us.svg" },
+            new { Name = "Spanish", Code = "es", Flag = "flag-es.svg" },
+            new { Name = "French", Code = "fr", Flag = "flag-fr.svg" },
+            new { Name = "German", Code = "de", Flag = "flag-de.svg" },
+            new { Name = "Chinese", Code = "zh", Flag = "flag-cn.svg" }
+        };
+
+        foreach (var lang in languages)
+        {
+            languageSelector.ListItems.Add(new SimpleItem
+            {
+                Text = lang.Name,
+                ImagePath = lang.Flag,
+                Tag = lang.Code,
+                GuidId = Guid.NewGuid().ToString()
+            });
+        }
+
+        languageSelector.SelectedItemChanged += (s, e) =>
+        {
+            if (languageSelector.SelectedItem?.Tag is string langCode)
+            {
+                ChangeLanguage(langCode);
+            }
+        };
+
+        // Font size selector
+        fontSizeSelector = new BeepDropDownMenu
+        {
+            Size = new Size(100, 30),
+            Text = "Font Size"
+        };
+
+        var fontSizes = new[] { 8, 9, 10, 11, 12, 14, 16, 18, 20, 24 };
+
+        foreach (var size in fontSizes)
+        {
+            fontSizeSelector.ListItems.Add(new SimpleItem
+            {
+                Text = $"{size}pt",
+                Tag = size,
+                GuidId = Guid.NewGuid().ToString()
+            });
+        }
+
+        fontSizeSelector.SelectedItemChanged += (s, e) =>
+        {
+            if (fontSizeSelector.SelectedItem?.Tag is int fontSize)
+            {
+                ChangeFontSize(fontSize);
+            }
+        };
+
+        // Layout selector
+        layoutSelector = new BeepDropDownMenu
+        {
+            Size = new Size(140, 30),
+            Text = "Layout"
+        };
+
+        var layouts = new[]
+        {
+            new { Name = "Standard", Value = "standard", Icon = "layout-standard.svg" },
+            new { Name = "Compact", Value = "compact", Icon = "layout-compact.svg" },
+            new { Name = "Wide", Value = "wide", Icon = "layout-wide.svg" },
+            new { Name = "Sidebar", Value = "sidebar", Icon = "layout-sidebar.svg" }
+        };
+
+        foreach (var layout in layouts)
+        {
+            layoutSelector.ListItems.Add(new SimpleItem
+            {
+                Text = layout.Name,
+                ImagePath = layout.Icon,
+                Tag = layout.Value,
+                GuidId = Guid.NewGuid().ToString()
+            });
+        }
+
+        layoutSelector.SelectedItemChanged += (s, e) =>
+        {
+            if (layoutSelector.SelectedItem?.Tag is string layoutType)
+            {
+                ChangeLayout(layoutType);
+            }
+        };
+
+        // Add controls to panel
+        this.Controls.AddRange(new Control[] 
+        { 
+            themeSelector, languageSelector, fontSizeSelector, layoutSelector 
+        });
+    }
+
+    private void ApplyLayout()
+    {
+        var startY = 20;
+        var spacing = 60;
+        var labelOffset = -20;
+
+        // Theme selector
+        var themeLabel = new Label { Text = "Theme:", Size = new Size(60, 20), Location = new Point(20, startY + labelOffset) };
+        themeSelector.Location = new Point(20, startY);
+        this.Controls.Add(themeLabel);
+
+        // Language selector  
+        var langLabel = new Label { Text = "Language:", Size = new Size(70, 20), Location = new Point(190, startY + labelOffset) };
+        languageSelector.Location = new Point(190, startY);
+        this.Controls.Add(langLabel);
+
+        // Font size selector
+        var fontLabel = new Label { Text = "Font Size:", Size = new Size(70, 20), Location = new Point(330, startY + labelOffset) };
+        fontSizeSelector.Location = new Point(330, startY);
+        this.Controls.Add(fontLabel);
+
+        // Layout selector
+        var layoutLabel = new Label { Text = "Layout:", Size = new Size(60, 20), Location = new Point(20, startY + spacing + labelOffset) };
+        layoutSelector.Location = new Point(20, startY + spacing);
+        this.Controls.Add(layoutLabel);
+    }
+
+    private void ApplyTheme(string theme)
+    {
+        // Apply selected theme to application
+        Properties.Settings.Default.Theme = theme;
+        Properties.Settings.Default.Save();
+        
+        // Notify application of theme change
+        Application.Restart();
+    }
+
+    private void ChangeLanguage(string languageCode)
+    {
+        // Change application language
+        Properties.Settings.Default.Language = languageCode;
+        Properties.Settings.Default.Save();
+        
+        // Update UI text
+        UpdateUILanguage(languageCode);
+    }
+
+    private void ChangeFontSize(int fontSize)
+    {
+        // Apply font size change
+        Properties.Settings.Default.FontSize = fontSize;
+        Properties.Settings.Default.Save();
+        
+        // Update application fonts
+        UpdateApplicationFonts(fontSize);
+    }
+
+    private void ChangeLayout(string layoutType)
+    {
+        // Apply layout change
+        Properties.Settings.Default.Layout = layoutType;
+        Properties.Settings.Default.Save();
+        
+        // Update application layout
+        UpdateApplicationLayout(layoutType);
+    }
+
+    // Helper methods
+    private void UpdateUILanguage(string languageCode) { /* Implementation */ }
+    private void UpdateApplicationFonts(int fontSize) { /* Implementation */ }
+    private void UpdateApplicationLayout(string layoutType) { /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepDropDownMenu inherits comprehensive theming from BeepListBox with additional dropdown-specific styling:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var dropdown = new BeepDropDownMenu
+{
+    Theme = "DarkTheme",
+    Size = new Size(200, 30)
+};
+
+// Theme automatically applies to:
+// - Dropdown background and borders
+// - Item list styling
+// - Dropdown button appearance
+// - Animation transitions
+// - Hover and selection states
+
+// Manual theme refresh
+dropdown.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Dropdown Theming Properties</h3>
+                    <ul>
+                        <li><strong>PanelBackColor</strong> - Dropdown background color</li>
+                        <li><strong>ButtonBackColor</strong> - Dropdown button background</li>
+                        <li><strong>ButtonForeColor</strong> - Button icon color</li>
+                        <li><strong>ButtonHoverBackColor</strong> - Button hover state</li>
+                        <li><strong>ListBackColor</strong> - Item list background</li>
+                        <li><strong>ListItemBackColor</strong> - Individual item backgrounds</li>
+                        <li><strong>ListItemHoverBackColor</strong> - Item hover states</li>
+                        <li><strong>BorderColor</strong> - Control borders and dividers</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Visual Design</h3>
+                    <ul>
+                        <li><strong>Consistent sizing:</strong> Use consistent heights for dropdown controls across your application</li>
+                        <li><strong>Clear labeling:</strong> Provide clear labels or placeholder text for dropdown purpose</li>
+                        <li><strong>Icon usage:</strong> Use icons consistently to improve visual recognition</li>
+                        <li><strong>Animation speed:</strong> Keep animations fast enough to feel responsive but smooth</li>
+                    </ul>
+
+                    <h3>?? Data Management</h3>
+                    <ul>
+                        <li><strong>Logical ordering:</strong> Order items logically (alphabetical, frequency, importance)</li>
+                        <li><strong>Default selection:</strong> Set meaningful default selections when appropriate</li>
+                        <li><strong>Dynamic updates:</strong> Update dropdown contents based on context changes</li>
+                        <li><strong>State persistence:</strong> Remember user selections where appropriate</li>
+                    </ul>
+
+                    <h3>? Performance</h3>
+                    <ul>
+                        <li><strong>Efficient animation:</strong> Use timer-based animations sparingly and efficiently</li>
+                        <li><strong>Lazy loading:</strong> Load dropdown items only when needed for large datasets</li>
+                        <li><strong>Memory management:</strong> Dispose of animation timers properly</li>
+                        <li><strong>Update optimization:</strong> Minimize unnecessary UI updates during animations</li>
+                    </ul>
+
+                    <h3>?? Implementation</h3>
+                    <ul>
+                        <li><strong>Event handling:</strong> Handle selection changes appropriately without performance issues</li>
+                        <li><strong>Validation:</strong> Validate selections and provide feedback for invalid states</li>
+                        <li><strong>Accessibility:</strong> Support keyboard navigation and screen readers</li>
+                        <li><strong>Error handling:</strong> Handle edge cases like empty item lists gracefully</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Animation Tip</strong>
+                        <p>Adjust animation speed based on the number of items - shorter lists can animate faster, while longer lists benefit from slightly slower animations for better visual tracking.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Best Practice</strong>
+                        <p>Always provide a meaningful default selection or clear placeholder text to guide users on the dropdown's purpose and expected interaction.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Performance Warning</strong>
+                        <p>Be mindful of animation timer disposal - ensure timers are properly stopped and disposed to prevent memory leaks in long-running applications.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-contextmenustrip.html"><i class="bi bi-arrow-left"></i> BeepContextMenuStrip</a>
+                    <a href="beep-flyoutmenu.html">BeepFlyoutMenu <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

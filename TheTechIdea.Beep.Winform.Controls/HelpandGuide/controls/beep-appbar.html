@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepAppBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html" class="active">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popup.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splash.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>�</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>�</span>
+                    <span>BeepAppBar</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepAppBar</h1>
+                    <p class="page-subtitle">Professional application title bar with logo, search, notifications, and window controls</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepAppBar</strong> is a comprehensive application title bar control that provides a modern, 
+                        professional interface for Windows Forms applications. It combines logo display, title text, 
+                        search functionality, notifications, user profile management, theme switching, and window controls 
+                        in a single cohesive component.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepAppBar features draggable form functionality, 
+                        integrated search with autocomplete, notification badges, dropdown menus, responsive layout, 
+                        and comprehensive theming support. Perfect for modern desktop applications, dashboards, and 
+                        enterprise software interfaces.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Branding Integration</h3>
+                            <p>Logo display with customizable sizing and application title with theme-aware typography</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Integrated Search</h3>
+                            <p>Built-in search box with autocomplete functionality and custom data sources</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Notification System</h3>
+                            <p>Notification icon with badge support and custom menu integration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? User Management</h3>
+                            <p>Profile menu with user actions and customizable dropdown options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Theme Control</h3>
+                            <p>Built-in theme switching with automatic application to entire interface</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Window Controls</h3>
+                            <p>Minimize, maximize, and close buttons with custom styling and behavior</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Form Dragging</h3>
+                            <p>Configurable drag areas for moving the parent form by dragging the app bar</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Responsive Layout</h3>
+                            <p>Adaptive component positioning that adjusts to different window sizes</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <div class="visual-demo">
+                        <div class="appbar-preview">
+                            <div class="appbar-container">
+                                <!-- Logo -->
+                                <div class="appbar-logo">
+                                    <div class="logo-icon">??</div>
+                                </div>
+                                
+                                <!-- Title -->
+                                <div class="appbar-title">
+                                    <span>Enterprise Dashboard</span>
+                                </div>
+                                
+                                <!-- Search Box -->
+                                <div class="appbar-search">
+                                    <input type="text" placeholder="Search..." />
+                                    <i class="bi bi-search"></i>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="appbar-actions">
+                                    <button class="action-btn theme-btn" title="Switch Theme">
+                                        <i class="bi bi-palette"></i>
+                                    </button>
+                                    <button class="action-btn notification-btn" title="Notifications">
+                                        <i class="bi bi-bell"></i>
+                                        <span class="badge">3</span>
+                                    </button>
+                                    <button class="action-btn profile-btn" title="User Profile">
+                                        <i class="bi bi-person-circle"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Window Controls -->
+                                <div class="window-controls">
+                                    <button class="window-btn minimize-btn" title="Minimize">
+                                        <i class="bi bi-dash"></i>
+                                    </button>
+                                    <button class="window-btn maximize-btn" title="Maximize">
+                                        <i class="bi bi-square"></i>
+                                    </button>
+                                    <button class="window-btn close-btn" title="Close">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Complete BeepAppBar with all components and responsive layout</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .appbar-preview {
+                            background: white;
+                            border-radius: 8px;
+                            overflow: hidden;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                            max-width: 900px;
+                            margin: 0 auto;
+                        }
+
+                        .appbar-container {
+                            display: flex;
+                            align-items: center;
+                            height: 48px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            padding: 0 16px;
+                            gap: 16px;
+                        }
+
+                        .appbar-logo {
+                            display: flex;
+                            align-items: center;
+                        }
+
+                        .logo-icon {
+                            width: 32px;
+                            height: 32px;
+                            background: rgba(255, 255, 255, 0.2);
+                            border-radius: 6px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 18px;
+                        }
+
+                        .appbar-title {
+                            font-weight: 600;
+                            font-size: 16px;
+                            flex: 1;
+                            margin-right: auto;
+                        }
+
+                        .appbar-search {
+                            position: relative;
+                            margin-left: auto;
+                        }
+
+                        .appbar-search input {
+                            background: rgba(255, 255, 255, 0.2);
+                            border: 1px solid rgba(255, 255, 255, 0.3);
+                            border-radius: 6px;
+                            padding: 6px 12px 6px 32px;
+                            color: white;
+                            width: 200px;
+                            font-size: 14px;
+                        }
+
+                        .appbar-search input::placeholder {
+                            color: rgba(255, 255, 255, 0.7);
+                        }
+
+                        .appbar-search i {
+                            position: absolute;
+                            left: 10px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            font-size: 14px;
+                            opacity: 0.7;
+                        }
+
+                        .appbar-actions {
+                            display: flex;
+                            gap: 8px;
+                        }
+
+                        .action-btn {
+                            background: rgba(255, 255, 255, 0.2);
+                            border: none;
+                            border-radius: 6px;
+                            width: 32px;
+                            height: 32px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            cursor: pointer;
+                            position: relative;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .action-btn:hover {
+                            background: rgba(255, 255, 255, 0.3);
+                        }
+
+                        .notification-btn .badge {
+                            position: absolute;
+                            top: -6px;
+                            right: -6px;
+                            background: #ff4757;
+                            color: white;
+                            border-radius: 10px;
+                            padding: 2px 6px;
+                            font-size: 11px;
+                            font-weight: bold;
+                            min-width: 18px;
+                            height: 18px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+
+                        .window-controls {
+                            display: flex;
+                            gap: 4px;
+                            margin-left: 16px;
+                        }
+
+                        .window-btn {
+                            background: transparent;
+                            border: none;
+                            width: 32px;
+                            height: 32px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            cursor: pointer;
+                            border-radius: 4px;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .window-btn:hover {
+                            background: rgba(255, 255, 255, 0.2);
+                        }
+
+                        .close-btn:hover {
+                            background: #ff4757;
+                        }
+
+                        .maximize-btn:hover {
+                            background: #2ed573;
+                        }
+
+                        .minimize-btn:hover {
+                            background: #ffa502;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple App Bar Setup</h3>
+                        <pre><code class="language-csharp">// Create and configure the app bar
+var appBar = new BeepAppBar
+{
+    Dock = DockStyle.Top,
+    Height = 48,
+    Title = "My Application",
+    LogoImage = "app-logo.svg",
+    ShowSearchBox = true,
+    SearchBoxPlaceholder = "Search...",
+    ShowNotificationIcon = true,
+    ShowProfileIcon = true,
+    ShowThemeIcon = true
+};
+
+// Handle app bar events
+appBar.OnButtonClicked += AppBar_OnButtonClicked;
+appBar.OnSearchBoxSelected += AppBar_OnSearchBoxSelected;
+appBar.Clicked += AppBar_Clicked;
+
+this.Controls.Add(appBar);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Event Handling</h3>
+                        <pre><code class="language-csharp">private void AppBar_OnButtonClicked(object sender, BeepAppBarEventsArgs e)
+{
+    switch (e.Name)
+    {
+        case "Profile":
+            ShowUserProfile();
+            break;
+        case "Notifications":
+            ShowNotifications();
+            break;
+        case "Theme":
+            // Theme switching is handled automatically
+            Console.WriteLine("Theme changed");
+            break;
+        case "Logo":
+            ShowAboutDialog();
+            break;
+    }
+}
+
+private void AppBar_OnSearchBoxSelected(object sender, BeepAppBarEventsArgs e)
+{
+    string searchText = e.Selectedstring;
+    PerformSearch(searchText);
+}
+
+private void AppBar_Clicked(object sender, BeepMouseEventArgs e)
+{
+    Console.WriteLine($"Clicked on: {e.Name}");
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Search Autocomplete Configuration</h3>
+                        <pre><code class="language-csharp">// Configure search autocomplete
+appBar.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+appBar.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+// Add search suggestions
+var searchSuggestions = new List<string>
+{
+    "Dashboard",
+    "Reports",
+    "Settings",
+    "Users",
+    "Analytics",
+    "Billing",
+    "Support"
+};
+
+appBar.AddToSearchBoxAutoCompleteSource(searchSuggestions);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Display Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>string</td>
+                                <td>"Beep Form"</td>
+                                <td>Application title displayed in the app bar</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowTitle</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the title text</td>
+                            </tr>
+                            <tr>
+                                <td><code>LogoImage</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Path to the logo image file</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowLogo</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the logo image</td>
+                            </tr>
+                            <tr>
+                                <td><code>LogoSize</code></td>
+                                <td>Size</td>
+                                <td>32, 32</td>
+                                <td>Size of the logo image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Search Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowSearchBox</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the search box</td>
+                            </tr>
+                            <tr>
+                                <td><code>SearchBoxPlaceholder</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Placeholder text for the search box</td>
+                            </tr>
+                            <tr>
+                                <td><code>SearchBoxText</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Current text in the search box</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoCompleteMode</code></td>
+                                <td>AutoCompleteMode</td>
+                                <td>None</td>
+                                <td>Autocomplete behavior for search box</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoCompleteSource</code></td>
+                                <td>AutoCompleteSource</td>
+                                <td>None</td>
+                                <td>Source for autocomplete suggestions</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoCompleteCustomSource</code></td>
+                                <td>AutoCompleteStringCollection</td>
+                                <td>null</td>
+                                <td>Custom autocomplete data source</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Icon Visibility Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowProfileIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the profile icon</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowNotificationIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the notification icon</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowThemeIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the theme icon</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowCloseIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the close button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowMaximizeIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the maximize button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowMinimizeIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show or hide the minimize button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Behavior Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>EnableFormDragging</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Enable dragging the parent form</td>
+                            </tr>
+                            <tr>
+                                <td><code>DraggableAreas</code></td>
+                                <td>List&lt;string&gt;</td>
+                                <td>["Title", "Logo"]</td>
+                                <td>Areas where dragging is allowed</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyThemeButtons</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Apply theme colors to buttons</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>OnButtonClicked</code></td>
+                                <td>object sender, BeepAppBarEventsArgs e</td>
+                                <td>Fired when any app bar button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>OnSearchBoxSelected</code></td>
+                                <td>object sender, BeepAppBarEventsArgs e</td>
+                                <td>Fired when search box is interacted with</td>
+                            </tr>
+                            <tr>
+                                <td><code>Clicked</code></td>
+                                <td>object sender, BeepMouseEventArgs e</td>
+                                <td>Fired when any app bar area is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItemChanged</code></td>
+                                <td>object sender, SelectedItemChangedEventArgs e</td>
+                                <td>Fired when menu item is selected from dropdowns</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Arguments</h3>
+                        <pre><code class="language-csharp">// BeepAppBarEventsArgs provides access to:
+public class BeepAppBarEventsArgs : EventArgs
+{
+    public string Name { get; set; }           // Component name ("Profile", "Theme", etc.)
+    public BeepButton Button { get; set; }     // The button that was clicked
+    public SimpleItem SelectedItem { get; set; } // Selected menu item
+    public string Selectedstring { get; set; }   // Selected text or search string
+}
+
+// Example usage
+private void AppBar_OnButtonClicked(object sender, BeepAppBarEventsArgs e)
+{
+    Console.WriteLine($"Button: {e.Name}");
+    
+    if (e.SelectedItem != null)
+    {
+        Console.WriteLine($"Selected: {e.SelectedItem.Text}");
+    }
+    
+    if (!string.IsNullOrEmpty(e.Selectedstring))
+    {
+        Console.WriteLine($"Text: {e.Selectedstring}");
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowBadgeOnNotificationIcon</code></td>
+                                <td>string badgeText</td>
+                                <td>void</td>
+                                <td>Shows a badge on the notification icon</td>
+                            </tr>
+                            <tr>
+                                <td><code>HideShowLogo</code></td>
+                                <td>bool show</td>
+                                <td>void</td>
+                                <td>Shows or hides the logo</td>
+                            </tr>
+                            <tr>
+                                <td><code>HideShowTitle</code></td>
+                                <td>bool show</td>
+                                <td>void</td>
+                                <td>Shows or hides the title</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetDraggableAreas</code></td>
+                                <td>params string[] areas</td>
+                                <td>void</td>
+                                <td>Sets which areas allow form dragging</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetFormDraggingEnabled</code></td>
+                                <td>bool enabled</td>
+                                <td>void</td>
+                                <td>Enables or disables form dragging</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetSearchBoxAutoCompleteSource</code></td>
+                                <td>AutoCompleteStringCollection source</td>
+                                <td>void</td>
+                                <td>Sets the autocomplete source collection</td>
+                            </tr>
+                            <tr>
+                                <td><code>AddToSearchBoxAutoCompleteSource</code></td>
+                                <td>List&lt;string&gt; source</td>
+                                <td>void</td>
+                                <td>Adds items to autocomplete source</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowContextMenu</code></td>
+                                <td>BindingList&lt;SimpleItem&gt; menuList, Point adj</td>
+                                <td>void</td>
+                                <td>Shows a context menu at specified location</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Method Usage Examples</h3>
+                        <pre><code class="language-csharp">// Show notification badge
+appBar.ShowBadgeOnNotificationIcon("5");
+
+// Configure dragging behavior
+appBar.SetDraggableAreas("Title", "Logo", "Empty");
+appBar.SetFormDraggingEnabled(true);
+
+// Add search autocomplete
+var suggestions = new List<string> { "Users", "Reports", "Settings" };
+appBar.AddToSearchBoxAutoCompleteSource(suggestions);
+
+// Show/hide components dynamically
+appBar.HideShowLogo(false);
+appBar.HideShowTitle(true);
+
+// Show custom context menu
+var menuItems = new BindingList<SimpleItem>
+{
+    new SimpleItem { Text = "Option 1", ImagePath = "icon1.svg" },
+    new SimpleItem { Text = "Option 2", ImagePath = "icon2.svg" }
+};
+appBar.ShowContextMenu(menuItems, new Point(100, 50));</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Complete Application Setup</h3>
+                        <pre><code class="language-csharp">public partial class MainForm : Form
+{
+    private BeepAppBar appBar;
+
+    public MainForm()
+    {
+        InitializeComponent();
+        SetupAppBar();
+        SetupForm();
+    }
+
+    private void SetupAppBar()
+    {
+        appBar = new BeepAppBar
+        {
+            Dock = DockStyle.Top,
+            Height = 50,
+            Title = "Enterprise Dashboard",
+            LogoImage = "company-logo.svg",
+            LogoSize = new Size(40, 40),
+            ShowSearchBox = true,
+            SearchBoxPlaceholder = "Search employees, reports, projects...",
+            ShowNotificationIcon = true,
+            ShowProfileIcon = true,
+            ShowThemeIcon = true,
+            EnableFormDragging = true
+        };
+
+        // Configure search
+        appBar.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+        appBar.AutoCompleteSource = AutoCompleteSource.CustomSource;
+        
+        var searchItems = new List<string>
+        {
+            "Dashboard", "Analytics", "Reports", "Users", "Settings",
+            "Projects", "Tasks", "Calendar", "Messages", "Files"
+        };
+        appBar.AddToSearchBoxAutoCompleteSource(searchItems);
+
+        // Set up events
+        appBar.OnButtonClicked += AppBar_OnButtonClicked;
+        appBar.OnSearchBoxSelected += AppBar_OnSearchBoxSelected;
+        appBar.SelectedItemChanged += AppBar_SelectedItemChanged;
+
+        // Add to form
+        this.Controls.Add(appBar);
+    }
+
+    private void SetupForm()
+    {
+        this.FormBorderStyle = FormBorderStyle.None;
+        this.StartPosition = FormStartPosition.CenterScreen;
+        this.Size = new Size(1200, 800);
+        this.WindowState = FormWindowState.Normal;
+    }
+
+    private void AppBar_OnButtonClicked(object sender, BeepAppBarEventsArgs e)
+    {
+        switch (e.Name)
+        {
+            case "Profile":
+                ShowUserProfileMenu();
+                break;
+            case "Notifications":
+                ShowNotificationsPanel();
+                break;
+            case "Theme":
+                // Theme is handled automatically by BeepAppBar
+                break;
+            case "Logo":
+                ShowAboutDialog();
+                break;
+        }
+    }
+
+    private void AppBar_OnSearchBoxSelected(object sender, BeepAppBarEventsArgs e)
+    {
+        string searchQuery = e.Selectedstring;
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            PerformGlobalSearch(searchQuery);
+        }
+    }
+
+    private void AppBar_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        if (e.SelectedItem != null)
+        {
+            ProcessMenuSelection(e.SelectedItem.Text);
+        }
+    }
+
+    private void ShowUserProfileMenu()
+    {
+        // User profile menu is automatically shown by BeepAppBar
+        // You can customize it by handling SelectedItemChanged event
+    }
+
+    private void ShowNotificationsPanel()
+    {
+        // Show notification count badge
+        appBar.ShowBadgeOnNotificationIcon("3");
+        
+        // Open notifications side panel or popup
+        var notificationsForm = new NotificationsForm();
+        notificationsForm.Show();
+    }
+
+    private void PerformGlobalSearch(string query)
+    {
+        // Implement global search functionality
+        var searchResults = SearchEngine.Search(query);
+        ShowSearchResults(searchResults);
+    }
+
+    private void ShowSearchResults(List<SearchResult> results)
+    {
+        // Display search results in main content area
+        var resultsPanel = new SearchResultsPanel(results);
+        // Add to main content area
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Theme Integration</h3>
+                        <pre><code class="language-csharp">public class CustomAppBarForm : Form
+{
+    private BeepAppBar appBar;
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        
+        CreateCustomAppBar();
+        ApplyCustomStyling();
+    }
+
+    private void CreateCustomAppBar()
+    {
+        appBar = new BeepAppBar
+        {
+            Dock = DockStyle.Top,
+            Height = 56,
+            Title = "Custom Styled App",
+            LogoImage = "brand-logo.svg"
+        };
+
+        // Custom theming
+        appBar.Theme = "DarkTheme";
+        appBar.BackColor = Color.FromArgb(25, 25, 25);
+        appBar.ForeColor = Color.White;
+        appBar.UseGradientBackground = true;
+        appBar.GradientStartColor = Color.FromArgb(45, 45, 45);
+        appBar.GradientEndColor = Color.FromArgb(25, 25, 25);
+
+        // Respond to theme changes
+        BeepThemesManager.ThemeChanged += (s, themeName) =>
+        {
+            appBar.ApplyTheme();
+            ApplyCustomStyling();
+        };
+
+        this.Controls.Add(appBar);
+    }
+
+    private void ApplyCustomStyling()
+    {
+        // Apply custom styling after theme changes
+        if (appBar.Theme == "DarkTheme")
+        {
+            appBar.LogoSize = new Size(48, 48);
+            appBar.SearchBoxPlaceholder = "Search in dark mode...";
+        }
+        else
+        {
+            appBar.LogoSize = new Size(40, 40);
+            appBar.SearchBoxPlaceholder = "Search...";
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Advanced Search Integration</h3>
+                        <pre><code class="language-csharp">public class SearchIntegratedForm : Form
+{
+    private BeepAppBar appBar;
+    private SearchService searchService;
+
+    protected override void OnLoad(EventArgs e)
+    {
+        base.OnLoad(e);
+        
+        searchService = new SearchService();
+        SetupAdvancedSearch();
+    }
+
+    private void SetupAdvancedSearch()
+    {
+        appBar = new BeepAppBar
+        {
+            Dock = DockStyle.Top,
+            Height = 48,
+            Title = "Search Demo",
+            ShowSearchBox = true
+        };
+
+        // Configure advanced autocomplete
+        appBar.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+        appBar.AutoCompleteSource = AutoCompleteSource.CustomSource;
+
+        // Load initial search suggestions
+        LoadSearchSuggestions();
+
+        // Handle search events
+        appBar.OnSearchBoxSelected += async (s, e) =>
+        {
+            if (!string.IsNullOrWhiteSpace(e.Selectedstring))
+            {
+                await PerformRealTimeSearch(e.Selectedstring);
+            }
+        };
+
+        this.Controls.Add(appBar);
+    }
+
+    private async void LoadSearchSuggestions()
+    {
+        // Load search suggestions from various sources
+        var suggestions = new List<string>();
+        
+        // Add recent searches
+        suggestions.AddRange(await searchService.GetRecentSearches());
+        
+        // Add popular searches
+        suggestions.AddRange(await searchService.GetPopularSearches());
+        
+        // Add system commands
+        suggestions.AddRange(new[]
+        {
+            "Settings", "Help", "About", "Logout", "Preferences"
+        });
+
+        appBar.AddToSearchBoxAutoCompleteSource(suggestions);
+    }
+
+    private async Task PerformRealTimeSearch(string query)
+    {
+        try
+        {
+            // Show loading indicator
+            appBar.SearchBoxPlaceholder = "Searching...";
+
+            // Perform search
+            var results = await searchService.SearchAsync(query);
+
+            // Update autocomplete with new suggestions
+            var newSuggestions = results.Select(r => r.Title).ToList();
+            appBar.AddToSearchBoxAutoCompleteSource(newSuggestions);
+
+            // Display results
+            ShowSearchResults(results);
+
+            // Reset placeholder
+            appBar.SearchBoxPlaceholder = "Search...";
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Search error: {ex.Message}", "Error", 
+                          MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void ShowSearchResults(List<SearchResult> results)
+    {
+        // Implementation for displaying search results
+        var resultsForm = new SearchResultsForm(results);
+        resultsForm.Show(this);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepAppBar provides comprehensive theming with specialized app bar theme properties:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var appBar = new BeepAppBar
+{
+    Theme = "DarkTheme",
+    UseThemeFont = true,
+    ApplyThemeButtons = true
+};
+
+// Theme automatically applies:
+// - AppBarBackColor: Main app bar background
+// - AppBarForeColor: Main app bar text color
+// - AppBarTitleForeColor: Title text color
+// - AppBarTitleBackColor: Title background color
+// - AppBarButtonBackColor: Button background colors
+// - AppBarButtonForeColor: Button text/icon colors
+// - AppBarTextBoxBackColor: Search box background
+// - AppBarTextBoxForeColor: Search box text color
+
+// Apply theme manually if needed
+appBar.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Specialized App Bar Theme Properties</h3>
+                    <ul>
+                        <li><strong>AppBarBackColor</strong> - Main app bar background color</li>
+                        <li><strong>AppBarForeColor</strong> - Main app bar text color</li>
+                        <li><strong>AppBarGradiantStartColor</strong> - Gradient start color</li>
+                        <li><strong>AppBarGradiantEndColor</strong> - Gradient end color</li>
+                        <li><strong>AppBarTitleForeColor</strong> - Title text color</li>
+                        <li><strong>AppBarTitleBackColor</strong> - Title background color</li>
+                        <li><strong>AppBarTitleStyle</strong> - Title font styling</li>
+                        <li><strong>AppBarTextStyle</strong> - General text font styling</li>
+                        <li><strong>AppBarButtonBackColor</strong> - Button background color</li>
+                        <li><strong>AppBarButtonForeColor</strong> - Button text/icon color</li>
+                        <li><strong>AppBarTextBoxBackColor</strong> - Search box background</li>
+                        <li><strong>AppBarTextBoxForeColor</strong> - Search box text color</li>
+                        <li><strong>AppBarMinButtonColor</strong> - Minimize button color</li>
+                        <li><strong>AppBarMaxButtonColor</strong> - Maximize button color</li>
+                        <li><strong>AppBarCloseButtonColor</strong> - Close button color</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Visual Design</h3>
+                    <ul>
+                        <li><strong>Consistent branding:</strong> Use appropriate logo size and company colors</li>
+                        <li><strong>Clear hierarchy:</strong> Make the title prominent but not overwhelming</li>
+                        <li><strong>Icon clarity:</strong> Use recognizable icons for notifications, profile, and theme</li>
+                        <li><strong>Responsive layout:</strong> Test at different window sizes to ensure proper layout</li>
+                    </ul>
+
+                    <h3>?? Search Functionality</h3>
+                    <ul>
+                        <li><strong>Meaningful autocomplete:</strong> Provide relevant search suggestions</li>
+                        <li><strong>Performance:</strong> Implement debounced search to avoid excessive API calls</li>
+                        <li><strong>Clear feedback:</strong> Show loading states and search result counts</li>
+                        <li><strong>Contextual results:</strong> Tailor search results to current application context</li>
+                    </ul>
+
+                    <h3>?? Notification Management</h3>
+                    <ul>
+                        <li><strong>Badge visibility:</strong> Use notification badges sparingly to maintain impact</li>
+                        <li><strong>Real-time updates:</strong> Update notification counts in real-time</li>
+                        <li><strong>Clear indicators:</strong> Provide clear visual feedback for notification states</li>
+                        <li><strong>Accessibility:</strong> Ensure notification badges are screen reader accessible</li>
+                    </ul>
+
+                    <h3>??? User Interaction</h3>
+                    <ul>
+                        <li><strong>Drag areas:</strong> Configure appropriate drag areas for form movement</li>
+                        <li><strong>Hover states:</strong> Provide clear hover feedback for interactive elements</li>
+                        <li><strong>Menu organization:</strong> Organize profile and theme menus logically</li>
+                        <li><strong>Keyboard support:</strong> Ensure all functionality works with keyboard navigation</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Design Tip</strong>
+                        <p>Keep the app bar height between 40-60px for optimal usability. Heights below 40px make buttons too small, while heights above 60px waste valuable screen space.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Success Pattern</strong>
+                        <p>Implement global search with category-based results and keyboard shortcuts (Ctrl+K) for power users. This significantly improves application usability and user productivity.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Important</strong>
+                        <p>When using custom form borders (FormBorderStyle.None), ensure the app bar's window controls (minimize, maximize, close) are properly configured and visible to maintain standard Windows behavior.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-toolstrip.html"><i class="bi bi-arrow-left"></i> BeepToolStrip</a>
+                    <a href="beep-sidemenu.html">BeepSideMenu <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

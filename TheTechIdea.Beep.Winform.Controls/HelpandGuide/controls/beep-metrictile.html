@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepMetricTile - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html" class="active">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popup.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splash.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepMetricTile</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepMetricTile</h1>
+                    <p class="page-subtitle">Dashboard metric tile with icon, value, and background silhouette for data visualization</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepMetricTile</strong> is a sophisticated dashboard tile control designed to display key metrics 
+                        in an attractive, informative format. It combines a title, large metric value, delta information, 
+                        an icon, and an optional background silhouette to create visually appealing metric displays.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepMetricTile features gradient backgrounds, 
+                        shadow effects, multiple text elements with proper typography, icon integration, and semi-transparent 
+                        background imagery. Perfect for dashboards, KPI displays, analytics interfaces, and executive summaries.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📊 Multi-Element Layout</h3>
+                            <p>Title, metric value, delta text, and icon in a structured dashboard-friendly layout</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Gradient Backgrounds</h3>
+                            <p>Beautiful gradient backgrounds with customizable colors and directions</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Icon Integration</h3>
+                            <p>Top-right icon display with support for SVG, PNG, and other image formats</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>👻 Background Silhouettes</h3>
+                            <p>Semi-transparent background images for visual enhancement and branding</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Visual Effects</h3>
+                            <p>Drop shadows, rounded corners, and smooth rendering for professional appearance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Interactive Areas</h3>
+                            <p>Built-in hit testing for clickable regions within the tile</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <div class="visual-demo">
+                        <div class="metric-tiles-container">
+                            
+                            <div class="metric-tile purple">
+                                <div class="tile-header">
+                                    <span class="tile-title">Page Views</span>
+                                    <div class="tile-icon">📈</div>
+                                </div>
+                                <div class="tile-background">📊</div>
+                                <div class="tile-footer">
+                                    <span class="tile-metric">2,847</span>
+                                    <span class="tile-delta">+12% today</span>
+                                </div>
+                            </div>
+
+                            <div class="metric-tile blue">
+                                <div class="tile-header">
+                                    <span class="tile-title">Users</span>
+                                    <div class="tile-icon">👥</div>
+                                </div>
+                                <div class="tile-background">👤</div>
+                                <div class="tile-footer">
+                                    <span class="tile-metric">1,254</span>
+                                    <span class="tile-delta">+8.5% week</span>
+                                </div>
+                            </div>
+
+                            <div class="metric-tile green">
+                                <div class="tile-header">
+                                    <span class="tile-title">Revenue</span>
+                                    <div class="tile-icon">💰</div>
+                                </div>
+                                <div class="tile-background">💵</div>
+                                <div class="tile-footer">
+                                    <span class="tile-metric">$18.2K</span>
+                                    <span class="tile-delta">+15% month</span>
+                                </div>
+                            </div>
+
+                            <div class="metric-tile orange">
+                                <div class="tile-header">
+                                    <span class="tile-title">Orders</span>
+                                    <div class="tile-icon">📦</div>
+                                </div>
+                                <div class="tile-background">🛒</div>
+                                <div class="tile-footer">
+                                    <span class="tile-metric">346</span>
+                                    <span class="tile-delta">+23 today</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <p><em>Examples of BeepMetricTile with different themes and data</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .metric-tiles-container {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                            gap: 1.5rem;
+                            max-width: 700px;
+                            margin: 2rem auto;
+                        }
+
+                        .metric-tile {
+                            width: 150px;
+                            height: 150px;
+                            border-radius: 12px;
+                            position: relative;
+                            overflow: hidden;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                            padding: 16px;
+                            color: white;
+                            font-family: var(--font-family);
+                        }
+
+                        .metric-tile.purple {
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                        }
+
+                        .metric-tile.blue {
+                            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+                        }
+
+                        .metric-tile.green {
+                            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+                        }
+
+                        .metric-tile.orange {
+                            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+                        }
+
+                        .tile-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: flex-start;
+                        }
+
+                        .tile-title {
+                            font-size: 12px;
+                            font-weight: 600;
+                            opacity: 0.9;
+                        }
+
+                        .tile-icon {
+                            font-size: 20px;
+                            opacity: 0.8;
+                        }
+
+                        .tile-background {
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            font-size: 60px;
+                            opacity: 0.15;
+                            z-index: 0;
+                        }
+
+                        .tile-footer {
+                            z-index: 1;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: flex-start;
+                        }
+
+                        .tile-metric {
+                            font-size: 28px;
+                            font-weight: 700;
+                            line-height: 1;
+                            margin-bottom: 4px;
+                        }
+
+                        .tile-delta {
+                            font-size: 11px;
+                            opacity: 0.8;
+                            font-weight: 500;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Metric Tile</h3>
+                        <pre><code class="language-csharp">// Create a basic metric tile
+var viewsTile = new BeepMetricTile
+{
+    Size = new Size(150, 150),
+    Location = new Point(20, 20),
+    TitleText = "Page Views",
+    MetricValue = "2,847",
+    DeltaValue = "+12% today",
+    IconImage = "analytics-icon.svg",
+    BackgroundSilhouette = "chart-silhouette.png"
+};
+
+// Customize appearance
+viewsTile.GradientStartColor = Color.FromArgb(102, 126, 234);
+viewsTile.GradientEndColor = Color.FromArgb(118, 75, 162);
+viewsTile.BorderRadius = 12;
+viewsTile.ShowShadow = true;
+
+this.Controls.Add(viewsTile);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dashboard Layout</h3>
+                        <pre><code class="language-csharp">// Create multiple metric tiles for a dashboard
+var tiles = new[]
+{
+    new BeepMetricTile
+    {
+        TitleText = "Users",
+        MetricValue = "1,254",
+        DeltaValue = "+8.5% this week",
+        IconImage = "users-icon.svg",
+        GradientStartColor = Color.FromArgb(79, 172, 254),
+        GradientEndColor = Color.FromArgb(0, 242, 254)
+    },
+    new BeepMetricTile
+    {
+        TitleText = "Revenue",
+        MetricValue = "$18.2K",
+        DeltaValue = "+15% this month",
+        IconImage = "revenue-icon.svg",
+        GradientStartColor = Color.FromArgb(67, 233, 123),
+        GradientEndColor = Color.FromArgb(56, 249, 215)
+    },
+    new BeepMetricTile
+    {
+        TitleText = "Orders",
+        MetricValue = "346",
+        DeltaValue = "+23 today",
+        IconImage = "orders-icon.svg",
+        GradientStartColor = Color.FromArgb(250, 112, 154),
+        GradientEndColor = Color.FromArgb(254, 225, 64)
+    }
+};
+
+// Layout tiles in a grid
+int x = 20, y = 20;
+foreach (var tile in tiles)
+{
+    tile.Size = new Size(150, 150);
+    tile.Location = new Point(x, y);
+    tile.BorderRadius = 12;
+    tile.ShowShadow = true;
+    
+    this.Controls.Add(tile);
+    
+    x += 170; // Move to next column
+    if (x > this.Width - 170) // Wrap to next row
+    {
+        x = 20;
+        y += 170;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Data Binding</h3>
+                        <pre><code class="language-csharp">// Bind tile to data source
+public void UpdateMetricTile(BeepMetricTile tile, MetricData data)
+{
+    tile.TitleText = data.Title;
+    tile.MetricValue = data.FormattedValue;
+    tile.DeltaValue = data.FormattedDelta;
+    
+    // Update colors based on trend
+    if (data.Trend > 0)
+    {
+        tile.GradientStartColor = Color.FromArgb(67, 233, 123);  // Green
+        tile.GradientEndColor = Color.FromArgb(56, 249, 215);
+    }
+    else if (data.Trend < 0)
+    {
+        tile.GradientStartColor = Color.FromArgb(255, 107, 107); // Red
+        tile.GradientEndColor = Color.FromArgb(255, 142, 142);
+    }
+    else
+    {
+        tile.GradientStartColor = Color.FromArgb(158, 158, 158); // Gray
+        tile.GradientEndColor = Color.FromArgb(189, 189, 189);
+    }
+}
+
+// Example usage with data model
+var salesData = new MetricData
+{
+    Title = "Sales",
+    Value = 15420.50m,
+    Trend = 8.5f,
+    FormattedValue = "$15.4K",
+    FormattedDelta = "+8.5% vs last month"
+};
+
+UpdateMetricTile(salesTile, salesData);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Text Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TitleText</code></td>
+                                <td>string</td>
+                                <td>"Views"</td>
+                                <td>Title displayed in the top-left corner</td>
+                            </tr>
+                            <tr>
+                                <td><code>MetricValue</code></td>
+                                <td>string</td>
+                                <td>"31"</td>
+                                <td>Main numeric or text metric value</td>
+                            </tr>
+                            <tr>
+                                <td><code>DeltaValue</code></td>
+                                <td>string</td>
+                                <td>"+3 last day"</td>
+                                <td>Delta or additional information text</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Image Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>IconImage</code></td>
+                                <td>string</td>
+                                <td>null</td>
+                                <td>Icon shown in the top-right corner</td>
+                            </tr>
+                            <tr>
+                                <td><code>BackgroundSilhouette</code></td>
+                                <td>string</td>
+                                <td>null</td>
+                                <td>Semi-transparent background image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Inherited Properties</h3>
+                    <p>BeepMetricTile inherits all properties from <strong>BeepControl</strong>, including:</p>
+                    <ul>
+                        <li><strong>BorderRadius</strong> - Corner radius for rounded appearance</li>
+                        <li><strong>ShowShadow</strong> - Enable/disable drop shadow</li>
+                        <li><strong>UseGradientBackground</strong> - Enable gradient background</li>
+                        <li><strong>GradientStartColor</strong> - Starting color for gradient</li>
+                        <li><strong>GradientEndColor</strong> - Ending color for gradient</li>
+                        <li><strong>GradientDirection</strong> - Direction of gradient effect</li>
+                        <li><strong>Theme</strong> - Theme name for styling</li>
+                    </ul>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Analytics Dashboard</h3>
+                        <pre><code class="language-csharp">public class AnalyticsDashboard : UserControl
+{
+    private List<BeepMetricTile> metricTiles;
+    private Timer refreshTimer;
+
+    public AnalyticsDashboard()
+    {
+        InitializeDashboard();
+        SetupAutoRefresh();
+    }
+
+    private void InitializeDashboard()
+    {
+        metricTiles = new List<BeepMetricTile>();
+
+        // Create metric tiles for different analytics
+        var metrics = new[]
+        {
+            new { Title = "Page Views", Icon = "eye.svg", Color1 = Color.FromArgb(102, 126, 234), Color2 = Color.FromArgb(118, 75, 162) },
+            new { Title = "Unique Visitors", Icon = "users.svg", Color1 = Color.FromArgb(79, 172, 254), Color2 = Color.FromArgb(0, 242, 254) },
+            new { Title = "Bounce Rate", Icon = "trending-down.svg", Color1 = Color.FromArgb(255, 107, 107), Color2 = Color.FromArgb(255, 142, 142) },
+            new { Title = "Avg. Session", Icon = "clock.svg", Color1 = Color.FromArgb(67, 233, 123), Color2 = Color.FromArgb(56, 249, 215) },
+            new { Title = "Conversions", Icon = "target.svg", Color1 = Color.FromArgb(250, 112, 154), Color2 = Color.FromArgb(254, 225, 64) },
+            new { Title = "Revenue", Icon = "dollar-sign.svg", Color1 = Color.FromArgb(132, 94, 194), Color2 = Color.FromArgb(144, 175, 197) }
+        };
+
+        int x = 20, y = 20;
+        foreach (var metric in metrics)
+        {
+            var tile = new BeepMetricTile
+            {
+                Size = new Size(180, 160),
+                Location = new Point(x, y),
+                TitleText = metric.Title,
+                MetricValue = "Loading...",
+                DeltaValue = "Calculating...",
+                IconImage = metric.Icon,
+                GradientStartColor = metric.Color1,
+                GradientEndColor = metric.Color2,
+                BorderRadius = 16,
+                ShowShadow = true
+            };
+
+            metricTiles.Add(tile);
+            this.Controls.Add(tile);
+
+            x += 200;
+            if (x > this.Width - 200)
+            {
+                x = 20;
+                y += 180;
+            }
+        }
+    }
+
+    private void SetupAutoRefresh()
+    {
+        refreshTimer = new Timer { Interval = 30000 };
+        refreshTimer.Tick += async (s, e) => await RefreshMetrics();
+        refreshTimer.Start();
+
+        Task.Run(async () => await RefreshMetrics());
+    }
+
+    private async Task RefreshMetrics()
+    {
+        var analyticsService = new AnalyticsService();
+        var data = await analyticsService.GetRealTimeMetrics();
+
+        if (InvokeRequired)
+        {
+            Invoke(new Action(() => UpdateTiles(data)));
+        }
+        else
+        {
+            UpdateTiles(data);
+        }
+    }
+
+    private void UpdateTiles(AnalyticsData data)
+    {
+        metricTiles[0].MetricValue = data.PageViews.ToString("N0");
+        metricTiles[0].DeltaValue = $"{data.PageViewsDelta:+0.0;-0.0}% today";
+
+        metricTiles[1].MetricValue = data.UniqueVisitors.ToString("N0");
+        metricTiles[1].DeltaValue = $"{data.VisitorsDelta:+0.0;-0.0}% week";
+
+        metricTiles[2].MetricValue = $"{data.BounceRate:F1}%";
+        metricTiles[2].DeltaValue = $"{data.BounceRateDelta:+0.0;-0.0}% change";
+
+        metricTiles[3].MetricValue = FormatDuration(data.AvgSessionDuration);
+        metricTiles[3].DeltaValue = $"{data.SessionDelta:+0.0;-0.0}% avg";
+
+        metricTiles[4].MetricValue = data.Conversions.ToString("N0");
+        metricTiles[4].DeltaValue = $"{data.ConversionsDelta:+0.0;-0.0}% rate";
+
+        metricTiles[5].MetricValue = data.Revenue.ToString("C0");
+        metricTiles[5].DeltaValue = $"{data.RevenueDelta:+0.0;-0.0}% month";
+    }
+
+    private string FormatDuration(TimeSpan duration)
+    {
+        if (duration.TotalHours >= 1)
+            return $"{duration.TotalHours:F1}h";
+        else
+            return $"{duration.TotalMinutes:F0}m";
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>E-commerce Dashboard</h3>
+                        <pre><code class="language-csharp">public class EcommerceDashboard : UserControl
+{
+    private BeepMetricTile salesTile;
+    private BeepMetricTile ordersTile;
+    private BeepMetricTile customersTile;
+    private BeepMetricTile inventoryTile;
+
+    public EcommerceDashboard()
+    {
+        InitializeEcommerceTiles();
+        LoadEcommerceData();
+    }
+
+    private void InitializeEcommerceTiles()
+    {
+        // Sales tile
+        salesTile = new BeepMetricTile
+        {
+            Size = new Size(200, 180),
+            Location = new Point(20, 20),
+            TitleText = "Total Sales",
+            IconImage = "shopping-cart.svg",
+            BackgroundSilhouette = "money-silhouette.png",
+            GradientStartColor = Color.FromArgb(67, 233, 123),
+            GradientEndColor = Color.FromArgb(56, 249, 215),
+            BorderRadius = 20,
+            ShowShadow = true
+        };
+
+        // Orders tile
+        ordersTile = new BeepMetricTile
+        {
+            Size = new Size(200, 180),
+            Location = new Point(240, 20),
+            TitleText = "Orders Today",
+            IconImage = "package.svg",
+            BackgroundSilhouette = "box-silhouette.png",
+            GradientStartColor = Color.FromArgb(79, 172, 254),
+            GradientEndColor = Color.FromArgb(0, 242, 254),
+            BorderRadius = 20,
+            ShowShadow = true
+        };
+
+        // Customers tile
+        customersTile = new BeepMetricTile
+        {
+            Size = new Size(200, 180),
+            Location = new Point(460, 20),
+            TitleText = "New Customers",
+            IconImage = "user-plus.svg",
+            BackgroundSilhouette = "users-silhouette.png",
+            GradientStartColor = Color.FromArgb(250, 112, 154),
+            GradientEndColor = Color.FromArgb(254, 225, 64),
+            BorderRadius = 20,
+            ShowShadow = true
+        };
+
+        // Inventory tile
+        inventoryTile = new BeepMetricTile
+        {
+            Size = new Size(200, 180),
+            Location = new Point(680, 20),
+            TitleText = "Low Stock Items",
+            IconImage = "alert-triangle.svg",
+            BackgroundSilhouette = "warehouse-silhouette.png",
+            GradientStartColor = Color.FromArgb(255, 107, 107),
+            GradientEndColor = Color.FromArgb(255, 142, 142),
+            BorderRadius = 20,
+            ShowShadow = true
+        };
+
+        this.Controls.AddRange(new Control[] {
+            salesTile, ordersTile, customersTile, inventoryTile
+        });
+    }
+
+    private async void LoadEcommerceData()
+    {
+        var ecommerceService = new EcommerceService();
+        var data = await ecommerceService.GetDashboardMetrics();
+
+        salesTile.MetricValue = data.TotalSales.ToString("C0");
+        salesTile.DeltaValue = $"{data.SalesGrowth:+0.0;-0.0}% vs yesterday";
+
+        ordersTile.MetricValue = data.OrdersToday.ToString("N0");
+        ordersTile.DeltaValue = $"{data.OrdersGrowth:+0;-0} vs yesterday";
+
+        customersTile.MetricValue = data.NewCustomers.ToString("N0");
+        customersTile.DeltaValue = $"{data.CustomerGrowth:+0.0;-0.0}% this week";
+
+        inventoryTile.MetricValue = data.LowStockItems.ToString("N0");
+        inventoryTile.DeltaValue = $"{data.LowStockChange:+0;-0} items";
+
+        // Update tile colors based on performance
+        UpdateTileColors(data);
+    }
+
+    private void UpdateTileColors(EcommerceMetrics data)
+    {
+        // Update sales tile color based on performance
+        if (data.SalesGrowth > 10)
+        {
+            salesTile.GradientStartColor = Color.FromArgb(67, 233, 123);
+            salesTile.GradientEndColor = Color.FromArgb(56, 249, 215);
+        }
+        else if (data.SalesGrowth < 0)
+        {
+            salesTile.GradientStartColor = Color.FromArgb(255, 107, 107);
+            salesTile.GradientEndColor = Color.FromArgb(255, 142, 142);
+        }
+
+        // Update inventory tile urgency
+        if (data.LowStockItems > 50)
+        {
+            inventoryTile.GradientStartColor = Color.FromArgb(220, 38, 127);
+            inventoryTile.GradientEndColor = Color.FromArgb(249, 168, 37);
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Real-time System Monitoring</h3>
+                        <pre><code class="language-csharp">public class SystemMonitoringDashboard : UserControl
+{
+    private BeepMetricTile cpuTile;
+    private BeepMetricTile memoryTile;
+    private BeepMetricTile diskTile;
+    private BeepMetricTile networkTile;
+    private PerformanceCounter cpuCounter;
+    private PerformanceCounter memoryCounter;
+
+    public SystemMonitoringDashboard()
+    {
+        InitializeSystemTiles();
+        InitializePerformanceCounters();
+        StartRealTimeUpdates();
+    }
+
+    private void InitializeSystemTiles()
+    {
+        cpuTile = new BeepMetricTile
+        {
+            Size = new Size(160, 160),
+            Location = new Point(20, 20),
+            TitleText = "CPU Usage",
+            IconImage = "cpu.svg",
+            BackgroundSilhouette = "processor-silhouette.png",
+            BorderRadius = 16,
+            ShowShadow = true
+        };
+
+        memoryTile = new BeepMetricTile
+        {
+            Size = new Size(160, 160),
+            Location = new Point(200, 20),
+            TitleText = "Memory",
+            IconImage = "memory.svg",
+            BackgroundSilhouette = "ram-silhouette.png",
+            BorderRadius = 16,
+            ShowShadow = true
+        };
+
+        diskTile = new BeepMetricTile
+        {
+            Size = new Size(160, 160),
+            Location = new Point(380, 20),
+            TitleText = "Disk Space",
+            IconImage = "hard-drive.svg",
+            BackgroundSilhouette = "storage-silhouette.png",
+            BorderRadius = 16,
+            ShowShadow = true
+        };
+
+        networkTile = new BeepMetricTile
+        {
+            Size = new Size(160, 160),
+            Location = new Point(560, 20),
+            TitleText = "Network",
+            IconImage = "wifi.svg",
+            BackgroundSilhouette = "network-silhouette.png",
+            BorderRadius = 16,
+            ShowShadow = true
+        };
+
+        this.Controls.AddRange(new Control[] {
+            cpuTile, memoryTile, diskTile, networkTile
+        });
+    }
+
+    private void InitializePerformanceCounters()
+    {
+        cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
+        memoryCounter = new PerformanceCounter("Memory", "Available MBytes");
+    }
+
+    private void StartRealTimeUpdates()
+    {
+        var updateTimer = new Timer { Interval = 2000 }; // 2 seconds
+        updateTimer.Tick += UpdateSystemMetrics;
+        updateTimer.Start();
+    }
+
+    private void UpdateSystemMetrics(object sender, EventArgs e)
+    {
+        try
+        {
+            // CPU Usage
+            float cpuUsage = cpuCounter.NextValue();
+            cpuTile.MetricValue = $"{cpuUsage:F1}%";
+            cpuTile.DeltaValue = GetCpuStatus(cpuUsage);
+            UpdateCpuTileColor(cpuUsage);
+
+            // Memory Usage
+            float availableMemory = memoryCounter.NextValue();
+            float totalMemory = GetTotalPhysicalMemory();
+            float memoryUsage = ((totalMemory - availableMemory) / totalMemory) * 100;
+            memoryTile.MetricValue = $"{memoryUsage:F1}%";
+            memoryTile.DeltaValue = $"{availableMemory:F0} MB free";
+            UpdateMemoryTileColor(memoryUsage);
+
+            // Disk Space
+            var driveInfo = new DriveInfo("C:");
+            long totalBytes = driveInfo.TotalSize;
+            long freeBytes = driveInfo.TotalFreeSpace;
+            float diskUsage = ((float)(totalBytes - freeBytes) / totalBytes) * 100;
+            diskTile.MetricValue = $"{diskUsage:F1}%";
+            diskTile.DeltaValue = $"{freeBytes / (1024 * 1024 * 1024):F1} GB free";
+            UpdateDiskTileColor(diskUsage);
+
+            // Network (simplified)
+            networkTile.MetricValue = "Online";
+            networkTile.DeltaValue = "Connected";
+            networkTile.GradientStartColor = Color.FromArgb(67, 233, 123);
+            networkTile.GradientEndColor = Color.FromArgb(56, 249, 215);
+        }
+        catch (Exception ex)
+        {
+            // Handle performance counter errors
+            System.Diagnostics.Debug.WriteLine($"Performance counter error: {ex.Message}");
+        }
+    }
+
+    private void UpdateCpuTileColor(float usage)
+    {
+        if (usage > 80)
+        {
+            cpuTile.GradientStartColor = Color.FromArgb(255, 107, 107);
+            cpuTile.GradientEndColor = Color.FromArgb(255, 142, 142);
+        }
+        else if (usage > 60)
+        {
+            cpuTile.GradientStartColor = Color.FromArgb(250, 112, 154);
+            cpuTile.GradientEndColor = Color.FromArgb(254, 225, 64);
+        }
+        else
+        {
+            cpuTile.GradientStartColor = Color.FromArgb(67, 233, 123);
+            cpuTile.GradientEndColor = Color.FromArgb(56, 249, 215);
+        }
+    }
+
+    private string GetCpuStatus(float usage)
+    {
+        if (usage > 80) return "High load";
+        if (usage > 60) return "Moderate load";
+        return "Normal";
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepMetricTile provides comprehensive theming with automatic application of theme colors and fonts:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var metricTile = new BeepMetricTile
+{
+    Theme = "DarkTheme",
+    UseThemeFont = true,
+    BorderRadius = 16,
+    ShowShadow = true
+};
+
+// Theme automatically applies:
+// - DashboardBackColor: Main tile background
+// - GradientStartColor: Theme gradient start
+// - GradientEndColor: Theme gradient end
+// - CardTitleForeColor: Title text color
+// - CardSubTitleForeColor: Delta text color
+
+// Apply theme manually if needed
+metricTile.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Custom Color Schemes</h3>
+                    <div class="code-example">
+                        <pre><code class="language-csharp">// Success theme (green)
+tile.GradientStartColor = Color.FromArgb(67, 233, 123);
+tile.GradientEndColor = Color.FromArgb(56, 249, 215);
+
+// Warning theme (orange)
+tile.GradientStartColor = Color.FromArgb(250, 112, 154);
+tile.GradientEndColor = Color.FromArgb(254, 225, 64);
+
+// Error theme (red)
+tile.GradientStartColor = Color.FromArgb(255, 107, 107);
+tile.GradientEndColor = Color.FromArgb(255, 142, 142);
+
+// Info theme (blue)
+tile.GradientStartColor = Color.FromArgb(79, 172, 254);
+tile.GradientEndColor = Color.FromArgb(0, 242, 254);</code></pre>
+                    </div>
+
+                    <h3>Typography Theming</h3>
+                    <ul>
+                        <li><strong>Title text</strong> - Uses CardTitleFont from theme</li>
+                        <li><strong>Metric value</strong> - Large bold font (28pt) for prominence</li>
+                        <li><strong>Delta text</strong> - Uses CardSubTitleFont from theme</li>
+                        <li><strong>Color adaptation</strong> - Text colors adapt based on background contrast</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>📊 Data Presentation</h3>
+                    <ul>
+                        <li><strong>Clear metrics:</strong> Use concise, meaningful titles and properly formatted values</li>
+                        <li><strong>Contextual deltas:</strong> Provide relevant comparison periods (today, week, month)</li>
+                        <li><strong>Consistent formatting:</strong> Use consistent number formatting across similar metrics</li>
+                        <li><strong>Meaningful icons:</strong> Choose icons that clearly represent the metric type</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Color coding:</strong> Use consistent colors to indicate performance (green=good, red=bad)</li>
+                        <li><strong>Appropriate gradients:</strong> Choose gradient colors that maintain text readability</li>
+                        <li><strong>Consistent sizing:</strong> Use uniform tile sizes within the same dashboard</li>
+                        <li><strong>Subtle backgrounds:</strong> Keep background silhouettes subtle (20% opacity or less)</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Efficient updates:</strong> Update only changed values to minimize redraws</li>
+                        <li><strong>Image optimization:</strong> Use appropriately sized images for icons and backgrounds</li>
+                        <li><strong>Batch updates:</strong> Group multiple tile updates to reduce flicker</li>
+                        <li><strong>Memory management:</strong> Dispose of large background images when not needed</li>
+                    </ul>
+
+                    <h3>📱 Responsiveness</h3>
+                    <ul>
+                        <li><strong>Scalable layouts:</strong> Design tiles to work at different sizes</li>
+                        <li><strong>Text scaling:</strong> Ensure text remains readable at smaller tile sizes</li>
+                        <li><strong>Grid layouts:</strong> Use responsive grid layouts for multiple tiles</li>
+                        <li><strong>Touch targets:</strong> Ensure adequate size for touch interaction</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use a maximum of 6-8 metric tiles per dashboard view to avoid overwhelming users. Group related metrics together and use consistent color schemes for related data.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>Implement real-time updates with proper error handling and fallback values to ensure your dashboard remains functional even when data sources are temporarily unavailable.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Accessibility Note</strong>
+                        <p>Ensure sufficient color contrast between text and background gradients, and provide alternative text representations for screen readers.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-statcard.html"><i class="bi bi-arrow-left"></i> BeepStatCard</a>
+                    <a href="beep-tree.html">BeepTree <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

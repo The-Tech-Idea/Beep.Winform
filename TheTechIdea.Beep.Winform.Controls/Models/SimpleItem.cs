@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
@@ -199,6 +198,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
     public class SelectedItemChangedEventArgs : EventArgs
     {
         public SimpleItem SelectedItem { get; }
+        
+        // Add Item property for backward compatibility and consistency with documentation
+      //  public SimpleItem Item => SelectedItem;
 
         public SelectedItemChangedEventArgs(SimpleItem selectedItem)
         {

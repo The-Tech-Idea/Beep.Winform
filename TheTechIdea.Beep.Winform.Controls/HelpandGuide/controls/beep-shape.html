@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepShape - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html" class="active">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#display-controls">Display Controls</a>
+                    <span>›</span>
+                    <span>BeepShape</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepShape</h1>
+                    <p class="page-subtitle">Advanced shape control with connection support, interactive features, and professional drawing capabilities</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#shapes">Shape Types</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#connections">Connections</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepShape</strong> is a powerful geometric shape control designed for creating diagrams, flowcharts, 
+                        and visual layouts. It supports multiple shape types, connection management, interactive features like 
+                        dragging and resizing, and professional rendering with gradients and effects.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, it provides advanced features including connection 
+                        points, rotation, custom fill styles, and text overlays, making it ideal for diagram editors, 
+                        flowchart builders, and visual design applications.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔷 Multiple Shape Types</h3>
+                            <p>Rectangle, Ellipse, Triangle, Star, Diamond, Pentagon, Hexagon, Octagon, and Line</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 Connection Support</h3>
+                            <p>Connect shapes with lines and manage relationships between controls</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Interactive Editing</h3>
+                            <p>Drag to move, resize handles, rotation, and selection management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Professional Rendering</h3>
+                            <p>Gradients, patterns, line styles, and anti-aliased drawing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Text Integration</h3>
+                            <p>Display text inside shapes with automatic centering</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Connection Points</h3>
+                            <p>Visual connection points for linking shapes together</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Transformation</h3>
+                            <p>Rotation, scaling, and positioning with smooth rendering</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Hit Testing</h3>
+                            <p>Advanced hit testing for precise interaction and selection</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Rectangle Shape</h3>
+                        <pre><code class="language-csharp">// Create a basic rectangle shape
+var rectangle = new BeepShape
+{
+    ShapeType = BeepShapeType.Rectangle,
+    Size = new Size(100, 60),
+    Location = new Point(50, 50),
+    BackColor = Color.LightBlue,
+    BorderColor = Color.DarkBlue,
+    BorderThickness = 2
+};
+
+// Add to form
+this.Controls.Add(rectangle);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Circle with Text</h3>
+                        <pre><code class="language-csharp">var circle = new BeepShape
+{
+    ShapeType = BeepShapeType.Ellipse,
+    Size = new Size(80, 80),
+    Location = new Point(150, 100),
+    ShapeText = "Start",
+    BackColor = Color.LightGreen,
+    ForeColor = Color.DarkGreen,
+    Font = new Font("Arial", 12, FontStyle.Bold)
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Star with Gradient Fill</h3>
+                        <pre><code class="language-csharp">var star = new BeepShape
+{
+    ShapeType = BeepShapeType.Star,
+    StarPoints = 5,
+    StarInnerRatio = 0.4f,
+    Size = new Size(100, 100),
+    FillStyle = ShapeFillStyle.Gradient,
+    GradientStartColor = Color.Yellow,
+    GradientEndColor = Color.Orange,
+    BorderColor = Color.Red
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Quick Tip</strong>
+                        <p>Use different shape types to represent different elements in your diagrams: rectangles for processes, diamonds for decisions, ellipses for start/end points.</p>
+                    </div>
+                </section>
+
+                <!-- Shape Types -->
+                <section id="shapes" class="section">
+                    <h2>Shape Types</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Shape Type</th>
+                                <th>Description</th>
+                                <th>Special Properties</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Rectangle</td>
+                                <td>Standard rectangle with optional rounded corners</td>
+                                <td>CornerRadius for rounded corners</td>
+                            </tr>
+                            <tr>
+                                <td>Ellipse</td>
+                                <td>Oval or circle shape</td>
+                                <td>Perfect circle when width equals height</td>
+                            </tr>
+                            <tr>
+                                <td>Triangle</td>
+                                <td>Three-sided polygon pointing upward</td>
+                                <td>Equilateral triangle shape</td>
+                            </tr>
+                            <tr>
+                                <td>Diamond</td>
+                                <td>Four-sided diamond shape</td>
+                                <td>Perfect diamond with centered points</td>
+                            </tr>
+                            <tr>
+                                <td>Star</td>
+                                <td>Multi-pointed star shape</td>
+                                <td>StarPoints (number of points), StarInnerRatio</td>
+                            </tr>
+                            <tr>
+                                <td>Pentagon</td>
+                                <td>Five-sided regular polygon</td>
+                                <td>PolygonSides property (set to 5)</td>
+                            </tr>
+                            <tr>
+                                <td>Hexagon</td>
+                                <td>Six-sided regular polygon</td>
+                                <td>PolygonSides property (set to 6)</td>
+                            </tr>
+                            <tr>
+                                <td>Octagon</td>
+                                <td>Eight-sided regular polygon</td>
+                                <td>PolygonSides property (set to 8)</td>
+                            </tr>
+                            <tr>
+                                <td>Line</td>
+                                <td>Straight line with optional arrow head</td>
+                                <td>ShowArrowHead, ArrowHeadSize</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Shape Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShapeType</code></td>
+                                <td>BeepShapeType</td>
+                                <td>Rectangle</td>
+                                <td>Type of shape to draw</td>
+                            </tr>
+                            <tr>
+                                <td><code>RotationAngle</code></td>
+                                <td>float</td>
+                                <td>0f</td>
+                                <td>Rotation angle in degrees</td>
+                            </tr>
+                            <tr>
+                                <td><code>PolygonSides</code></td>
+                                <td>int</td>
+                                <td>6</td>
+                                <td>Number of sides for polygon shapes</td>
+                            </tr>
+                            <tr>
+                                <td><code>StarPoints</code></td>
+                                <td>int</td>
+                                <td>5</td>
+                                <td>Number of points for star shapes</td>
+                            </tr>
+                            <tr>
+                                <td><code>StarInnerRatio</code></td>
+                                <td>float</td>
+                                <td>0.5f</td>
+                                <td>Inner radius ratio for star shapes (0.0 to 1.0)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CornerRadius</code></td>
+                                <td>int</td>
+                                <td>10</td>
+                                <td>Corner radius for rounded shapes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShapeText</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Text to display inside the shape</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>FillStyle</code></td>
+                                <td>ShapeFillStyle</td>
+                                <td>Solid</td>
+                                <td>Fill style (Solid, Gradient, Hatch, None)</td>
+                            </tr>
+                            <tr>
+                                <td><code>LineStyle</code></td>
+                                <td>DashStyle</td>
+                                <td>Solid</td>
+                                <td>Line style for the shape outline</td>
+                            </tr>
+                            <tr>
+                                <td><code>GradientStartColor</code></td>
+                                <td>Color</td>
+                                <td>White</td>
+                                <td>Gradient start color</td>
+                            </tr>
+                            <tr>
+                                <td><code>GradientEndColor</code></td>
+                                <td>Color</td>
+                                <td>LightGray</td>
+                                <td>Gradient end color</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Behavior Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>AllowDrag <code>bool</code></h4>
+                            <p>Allow shape to be dragged</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>AllowResize <code>bool</code></h4>
+                            <p>Allow shape to be resized</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ShowResizeHandles <code>bool</code></h4>
+                            <p>Show resize handles when selected</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ShowConnectionPoints <code>bool</code></h4>
+                            <p>Show connection points when selected</p>
+                        </div>
+                    </div>
+
+                    <h3>Connection Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ConnectedStart</code></td>
+                                <td>BeepControl</td>
+                                <td>Control connected to the start of this shape</td>
+                            </tr>
+                            <tr>
+                                <td><code>ConnectedEnd</code></td>
+                                <td>BeepControl</td>
+                                <td>Control connected to the end of this shape</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Line-Specific Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowArrowHead</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show arrow head on line end</td>
+                            </tr>
+                            <tr>
+                                <td><code>ArrowHeadSize</code></td>
+                                <td>int</td>
+                                <td>12</td>
+                                <td>Arrow head size for line shapes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ConnectTo</code></td>
+                                <td>BeepControl target, bool asStart = true</td>
+                                <td>Connect this shape to another control</td>
+                            </tr>
+                            <tr>
+                                <td><code>Disconnect</code></td>
+                                <td>bool fromStart = true</td>
+                                <td>Disconnect from connected control</td>
+                            </tr>
+                            <tr>
+                                <td><code>DrawContent</code></td>
+                                <td>Graphics g</td>
+                                <td>Draw the shape content with all effects</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpdateConnectionPoints</code></td>
+                                <td>none</td>
+                                <td>Update the positions of connection points</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetupHitAreas</code></td>
+                                <td>none</td>
+                                <td>Configure hit test areas for interaction</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>none</td>
+                                <td>Apply current theme to shape appearance</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>MouseDown</code></td>
+                                <td>Handle mouse down for dragging and selection</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseMove</code></td>
+                                <td>Handle mouse movement for dragging and resizing</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseUp</code></td>
+                                <td>Handle mouse release to end dragging/resizing</td>
+                            </tr>
+                            <tr>
+                                <td><code>Resize</code></td>
+                                <td>Update connection points and hit areas when size changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>HitDetected</code></td>
+                                <td>Triggered when a hit test area is activated</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var shape = new BeepShape
+{
+    ShapeType = BeepShapeType.Rectangle,
+    ShapeText = "Process"
+};
+
+// Handle shape selection
+shape.HitDetected += (s, e) => {
+    if (e.HitTest.Name == "Shape")
+    {
+        shape.IsSelected = !shape.IsSelected;
+        UpdateSelectionUI(shape.IsSelected);
+    }
+};
+
+// Handle custom mouse interactions
+shape.MouseDown += (s, e) => {
+    if (e.Button == MouseButtons.Right)
+    {
+        ShowContextMenu(shape, e.Location);
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Flowchart Node</h3>
+                        <pre><code class="language-csharp">public BeepShape CreateFlowchartNode(string text, BeepShapeType shapeType, Point location)
+{
+    var node = new BeepShape
+    {
+        ShapeType = shapeType,
+        ShapeText = text,
+        Size = new Size(120, 60),
+        Location = location,
+        BackColor = Color.LightBlue,
+        BorderColor = Color.DarkBlue,
+        BorderThickness = 2,
+        Font = new Font("Arial", 10, FontStyle.Bold),
+        ForeColor = Color.DarkBlue,
+        AllowDrag = true,
+        AllowResize = true,
+        ShowConnectionPoints = true
+    };
+
+    // Add to form
+    this.Controls.Add(node);
+    return node;
+}
+
+// Create flowchart elements
+var startNode = CreateFlowchartNode("Start", BeepShapeType.Ellipse, new Point(50, 50));
+var processNode = CreateFlowchartNode("Process Data", BeepShapeType.Rectangle, new Point(50, 150));
+var decisionNode = CreateFlowchartNode("Valid?", BeepShapeType.Diamond, new Point(50, 250));</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Diagram Designer</h3>
+                        <pre><code class="language-csharp">public class DiagramDesigner : UserControl
+{
+    private List<BeepShape> shapes = new List<BeepShape>();
+    private BeepShape selectedShape;
+
+    public void AddShape(BeepShapeType shapeType, Point location)
+    {
+        var shape = new BeepShape
+        {
+            ShapeType = shapeType,
+            Size = GetDefaultSize(shapeType),
+            Location = location,
+            BackColor = Color.White,
+            BorderColor = Color.Black,
+            BorderThickness = 1,
+            AllowDrag = true,
+            AllowResize = true
+        };
+
+        // Configure based on shape type
+        switch (shapeType)
+        {
+            case BeepShapeType.Star:
+                shape.StarPoints = 5;
+                shape.StarInnerRatio = 0.4f;
+                shape.FillStyle = ShapeFillStyle.Gradient;
+                shape.GradientStartColor = Color.Yellow;
+                shape.GradientEndColor = Color.Orange;
+                break;
+
+            case BeepShapeType.Rectangle:
+                shape.CornerRadius = 5;
+                break;
+
+            case BeepShapeType.Line:
+                shape.ShowArrowHead = true;
+                shape.ArrowHeadSize = 10;
+                break;
+        }
+
+        // Handle selection
+        shape.HitDetected += (s, e) => {
+            SelectShape(shape);
+        };
+
+        shapes.Add(shape);
+        this.Controls.Add(shape);
+    }
+
+    private void SelectShape(BeepShape shape)
+    {
+        // Deselect previous
+        if (selectedShape != null)
+            selectedShape.IsSelected = false;
+
+        // Select new shape
+        selectedShape = shape;
+        selectedShape.IsSelected = true;
+        
+        // Update property panel
+        UpdatePropertyPanel(selectedShape);
+    }
+
+    private Size GetDefaultSize(BeepShapeType shapeType)
+    {
+        return shapeType switch
+        {
+            BeepShapeType.Line => new Size(100, 2),
+            BeepShapeType.Ellipse => new Size(80, 80),
+            BeepShapeType.Star => new Size(100, 100),
+            _ => new Size(100, 60)
+        };
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Network Diagram</h3>
+                        <pre><code class="language-csharp">public void CreateNetworkDiagram()
+{
+    // Server node
+    var server = new BeepShape
+    {
+        ShapeType = BeepShapeType.Rectangle,
+        ShapeText = "Server",
+        Size = new Size(100, 60),
+        Location = new Point(200, 50),
+        BackColor = Color.LightGray,
+        BorderColor = Color.Black,
+        CornerRadius = 8
+    };
+
+    // Client nodes
+    var client1 = CreateClientNode("Client 1", new Point(50, 200));
+    var client2 = CreateClientNode("Client 2", new Point(200, 200));
+    var client3 = CreateClientNode("Client 3", new Point(350, 200));
+
+    // Connection lines
+    var connection1 = CreateConnectionLine(server, client1);
+    var connection2 = CreateConnectionLine(server, client2);
+    var connection3 = CreateConnectionLine(server, client3);
+
+    // Add all to form
+    this.Controls.AddRange(new Control[] {
+        server, client1, client2, client3,
+        connection1, connection2, connection3
+    });
+}
+
+private BeepShape CreateClientNode(string name, Point location)
+{
+    return new BeepShape
+    {
+        ShapeType = BeepShapeType.Ellipse,
+        ShapeText = name,
+        Size = new Size(80, 80),
+        Location = location,
+        BackColor = Color.LightBlue,
+        BorderColor = Color.DarkBlue,
+        Font = new Font("Arial", 9)
+    };
+}
+
+private BeepShape CreateConnectionLine(BeepShape start, BeepShape end)
+{
+    var line = new BeepShape
+    {
+        ShapeType = BeepShapeType.Line,
+        ShowArrowHead = true,
+        ArrowHeadSize = 8,
+        BorderColor = Color.Gray,
+        BorderThickness = 2,
+        AllowDrag = false,
+        AllowResize = false
+    };
+
+    // Connect the line to the shapes
+    line.ConnectTo(start, true);
+    line.ConnectTo(end, false);
+
+    return line;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Interactive Shape with Animations</h3>
+                        <pre><code class="language-csharp">public class AnimatedShape : BeepShape
+{
+    private Timer animationTimer;
+    private float currentRotation = 0f;
+
+    public bool IsAnimating { get; private set; }
+
+    public AnimatedShape()
+    {
+        animationTimer = new Timer { Interval = 50 };
+        animationTimer.Tick += AnimationTimer_Tick;
+    }
+
+    public void StartRotationAnimation()
+    {
+        IsAnimating = true;
+        animationTimer.Start();
+    }
+
+    public void StopRotationAnimation()
+    {
+        IsAnimating = false;
+        animationTimer.Stop();
+    }
+
+    private void AnimationTimer_Tick(object sender, EventArgs e)
+    {
+        currentRotation += 5f;
+        if (currentRotation >= 360f)
+            currentRotation = 0f;
+
+        RotationAngle = currentRotation;
+        Invalidate();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            animationTimer?.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Connections -->
+                <section id="connections" class="section">
+                    <h2>Connections</h2>
+                    
+                    <p>BeepShape supports connecting shapes together to create relationships and data flow diagrams:</p>
+
+                    <div class="code-example">
+                        <h3>Basic Connection</h3>
+                        <pre><code class="language-csharp">// Create two shapes
+var sourceShape = new BeepShape { ShapeType = BeepShapeType.Rectangle };
+var targetShape = new BeepShape { ShapeType = BeepShapeType.Ellipse };
+
+// Create a connecting line
+var connector = new BeepShape 
+{ 
+    ShapeType = BeepShapeType.Line,
+    ShowArrowHead = true
+};
+
+// Connect the line to both shapes
+connector.ConnectTo(sourceShape, true);  // Connect start to source
+connector.ConnectTo(targetShape, false); // Connect end to target</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Connection Management</h3>
+                        <pre><code class="language-csharp">public class ConnectionManager
+{
+    private List<BeepShape> connectors = new List<BeepShape>();
+
+    public BeepShape CreateConnection(BeepShape from, BeepShape to, string label = "")
+    {
+        var connector = new BeepShape
+        {
+            ShapeType = BeepShapeType.Line,
+            ShowArrowHead = true,
+            ArrowHeadSize = 10,
+            BorderColor = Color.DarkGray,
+            BorderThickness = 2,
+            ShapeText = label
+        };
+
+        connector.ConnectTo(from, true);
+        connector.ConnectTo(to, false);
+        
+        connectors.Add(connector);
+        return connector;
+    }
+
+    public void RemoveConnection(BeepShape connector)
+    {
+        connector.Disconnect(true);  // Disconnect from start
+        connector.Disconnect(false); // Disconnect from end
+        connectors.Remove(connector);
+    }
+
+    public void UpdateConnections()
+    {
+        foreach (var connector in connectors)
+        {
+            connector.Invalidate(); // Redraw with updated positions
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Connection Tip</strong>
+                        <p>Connection points are automatically positioned at the top, right, bottom, and left of each shape. Use ShowConnectionPoints = true to visualize them during design.</p>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepShape integrates with the Beep theming system to provide consistent appearance:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Integration</h3>
+                        <pre><code class="language-csharp">var themedShape = new BeepShape
+{
+    ShapeType = BeepShapeType.Rectangle,
+    Theme = "DarkTheme"
+};
+
+// Theme properties are automatically applied:
+// - BorderColor uses theme.BorderColor
+// - GradientStartColor uses theme.GradientStartColor  
+// - GradientEndColor uses theme.GradientEndColor
+// - BackColor uses theme.BackColor</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Themed Shapes</h3>
+                        <pre><code class="language-csharp">public void CreateThemedDiagram(string themeName)
+{
+    var shapes = new[]
+    {
+        new BeepShape { ShapeType = BeepShapeType.Rectangle, ShapeText = "Input" },
+        new BeepShape { ShapeType = BeepShapeType.Diamond, ShapeText = "Decision" },
+        new BeepShape { ShapeType = BeepShapeType.Ellipse, ShapeText = "Output" }
+    };
+
+    foreach (var shape in shapes)
+    {
+        shape.Theme = themeName;
+        shape.FillStyle = ShapeFillStyle.Gradient;
+        shape.ApplyTheme(); // Ensure theme is applied
+        
+        this.Controls.Add(shape);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>BeepShape automatically applies theme colors to all visual elements. Use FillStyle = Gradient with theme colors for professional-looking shapes.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 Design Guidelines</h3>
+                    <ul>
+                        <li><strong>Consistent sizing:</strong> Use standard sizes for similar shape types</li>
+                        <li><strong>Color coding:</strong> Use consistent colors to represent different categories</li>
+                        <li><strong>Text placement:</strong> Keep text concise and centered within shapes</li>
+                        <li><strong>Connection clarity:</strong> Use arrow heads to indicate direction of flow</li>
+                        <li><strong>Shape semantics:</strong> Use appropriate shapes for their intended meaning (diamond for decisions, etc.)</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Caching:</strong> BeepShape automatically caches GraphicsPath objects for better performance</li>
+                        <li><strong>Hit testing:</strong> Use hit areas efficiently for interactive elements</li>
+                        <li><strong>Rendering:</strong> Avoid unnecessary redraws by checking if changes actually affect appearance</li>
+                        <li><strong>Memory:</strong> Dispose of custom brushes and pens in drawing methods</li>
+                        <li><strong>Connection updates:</strong> Batch connection updates when moving multiple shapes</li>
+                    </ul>
+
+                    <h3>🖱️ Interaction Design</h3>
+                    <ul>
+                        <li><strong>Selection feedback:</strong> Provide clear visual feedback when shapes are selected</li>
+                        <li><strong>Resize handles:</strong> Show resize handles only when needed to reduce visual clutter</li>
+                        <li><strong>Drag behavior:</strong> Implement smooth dragging with appropriate cursors</li>
+                        <li><strong>Connection points:</strong> Make connection points visible during connection operations</li>
+                        <li><strong>Context menus:</strong> Provide right-click context menus for shape operations</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Text contrast:</strong> Ensure sufficient contrast between text and shape background</li>
+                        <li><strong>Size constraints:</strong> Maintain minimum sizes for readability</li>
+                        <li><strong>Keyboard support:</strong> Consider adding keyboard navigation for accessibility</li>
+                        <li><strong>Screen readers:</strong> Provide meaningful text content for shapes</li>
+                        <li><strong>Focus indicators:</strong> Ensure focused shapes have clear visual indicators</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Rotation Warning</strong>
+                        <p>When using rotation, be aware that hit testing areas may not align perfectly with visual appearance. Test interaction carefully with rotated shapes.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Auto-Updates</strong>
+                        <p>BeepShape automatically manages connection point updates when shapes are moved or resized, ensuring connections remain accurate.</p>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Pro Tip</strong>
+                        <p>Use the ShapeText property combined with appropriate fonts to create professional-looking diagram elements with clear labeling.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-progressbar.html"><i class="bi bi-arrow-left"></i> BeepProgressBar</a>
+                    <a href="beep-starrating.html">BeepStarRating <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

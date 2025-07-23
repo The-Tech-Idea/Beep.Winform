@@ -1,0 +1,1077 @@
+<!--
+    BeepTaskCard Control Documentation
+    Professional-grade documentation for the BeepTaskCard WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTaskCard - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                            <li><a href="beep-taskcard.html" class="active">BeepTaskCard</a></li>
+                            <li><a href="beep-featurecard.html">BeepFeatureCard</a></li>
+                            <li><a href="beep-companyprofile.html">BeepCompanyProfile</a></li>
+                            <li><a href="beep-tasklistitem.html">BeepTaskListItem</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepTaskCard</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepTaskCard</h1>
+                    <p class="page-subtitle">Modern, theme-aware card component for tasks, project summaries, and actionable items with progress tracking</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepTaskCard</strong> provides a modern, visually rich card component designed for displaying 
+                        tasks, project summaries, and actionable items. It combines attractive design with practical functionality 
+                        including progress tracking, status indicators, action buttons, and comprehensive theming support.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepTaskCard features flexible layouts, 
+                        customizable content areas, interactive elements, animation support, theme integration, 
+                        and accessibility features. Perfect for dashboards, project management systems, 
+                        Kanban boards, and any application requiring organized task presentation.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Rich Visual Design</h3>
+                            <p>Modern card layout with icons, images, and professional styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Progress Tracking</h3>
+                            <p>Built-in progress bars and status indicators for task completion</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ Interactive Actions</h3>
+                            <p>Customizable action buttons and context menus for task operations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Layout</h3>
+                            <p>Adaptive sizing with support for different card arrangements</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Status Management</h3>
+                            <p>Multiple status types with color coding and priority indicators</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Animation Support</h3>
+                            <p>Smooth transitions and hover effects for enhanced user experience</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Task Cards in Different States</h3>
+                    <div class="visual-demo">
+                        <div class="cards-container">
+                            <!-- In Progress Task -->
+                            <div class="task-card in-progress">
+                                <div class="card-header">
+                                    <div class="card-icon">🎨</div>
+                                    <div class="card-status">In Progress</div>
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">Design UI Mockups</h3>
+                                    <p class="card-description">Create and review UI mockups for the new dashboard interface</p>
+                                    <div class="card-meta">
+                                        <span class="due-date">📅 Due: Mar 15</span>
+                                        <span class="assignee">👤 Sarah Chen</span>
+                                    </div>
+                                </div>
+                                <div class="card-progress">
+                                    <div class="progress-label">Progress: 65%</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 65%"></div>
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="action-btn primary">Update</button>
+                                    <button class="action-btn secondary">Comment</button>
+                                    <button class="action-btn menu">⋯</button>
+                                </div>
+                            </div>
+
+                            <!-- Completed Task -->
+                            <div class="task-card completed">
+                                <div class="card-header">
+                                    <div class="card-icon">✅</div>
+                                    <div class="card-status">Completed</div>
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">API Documentation</h3>
+                                    <p class="card-description">Complete API documentation for v2.0 endpoints</p>
+                                    <div class="card-meta">
+                                        <span class="completed-date">✅ Completed: Mar 12</span>
+                                        <span class="assignee">👤 Alex Kumar</span>
+                                    </div>
+                                </div>
+                                <div class="card-progress">
+                                    <div class="progress-label">Progress: 100%</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill completed" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="action-btn secondary">View</button>
+                                    <button class="action-btn secondary">Archive</button>
+                                </div>
+                            </div>
+
+                            <!-- High Priority Task -->
+                            <div class="task-card high-priority">
+                                <div class="card-header">
+                                    <div class="card-icon">🔥</div>
+                                    <div class="card-status">Urgent</div>
+                                </div>
+                                <div class="card-content">
+                                    <h3 class="card-title">Security Patch</h3>
+                                    <p class="card-description">Critical security update for authentication system</p>
+                                    <div class="card-meta">
+                                        <span class="due-date overdue">⚠️ Overdue: Mar 10</span>
+                                        <span class="assignee">👤 Mike Johnson</span>
+                                    </div>
+                                </div>
+                                <div class="card-progress">
+                                    <div class="progress-label">Progress: 25%</div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill urgent" style="width: 25%"></div>
+                                    </div>
+                                </div>
+                                <div class="card-actions">
+                                    <button class="action-btn urgent">Start Now</button>
+                                    <button class="action-btn secondary">Escalate</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Task cards showing different states: in progress, completed, and high priority</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .cards-container {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                            gap: 1.5rem;
+                            text-align: left;
+                        }
+
+                        .task-card {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            transition: all 0.3s ease;
+                            font-family: var(--font-family);
+                        }
+
+                        .task-card:hover {
+                            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+                            transform: translateY(-2px);
+                        }
+
+                        .task-card.completed {
+                            border-color: var(--color-success);
+                            background: linear-gradient(145deg, var(--color-background), rgba(34, 197, 94, 0.05));
+                        }
+
+                        .task-card.high-priority {
+                            border-color: #ef4444;
+                            background: linear-gradient(145deg, var(--color-background), rgba(239, 68, 68, 0.05));
+                        }
+
+                        .card-header {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 1rem;
+                        }
+
+                        .card-icon {
+                            font-size: 24px;
+                            width: 40px;
+                            height: 40px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            background: var(--color-background-secondary);
+                            border-radius: 8px;
+                        }
+
+                        .card-status {
+                            padding: 0.25rem 0.75rem;
+                            border-radius: 16px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .in-progress .card-status {
+                            background: rgba(59, 130, 246, 0.1);
+                            color: #3b82f6;
+                        }
+
+                        .completed .card-status {
+                            background: rgba(34, 197, 94, 0.1);
+                            color: #22c55e;
+                        }
+
+                        .high-priority .card-status {
+                            background: rgba(239, 68, 68, 0.1);
+                            color: #ef4444;
+                        }
+
+                        .card-title {
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            margin: 0 0 0.5rem;
+                        }
+
+                        .card-description {
+                            font-size: 14px;
+                            color: var(--color-text-secondary);
+                            margin: 0 0 1rem;
+                            line-height: 1.5;
+                        }
+
+                        .card-meta {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.25rem;
+                            margin-bottom: 1rem;
+                        }
+
+                        .due-date, .completed-date, .assignee {
+                            font-size: 12px;
+                            color: var(--color-text-muted);
+                        }
+
+                        .due-date.overdue {
+                            color: #ef4444;
+                            font-weight: 600;
+                        }
+
+                        .card-progress {
+                            margin-bottom: 1rem;
+                        }
+
+                        .progress-label {
+                            font-size: 12px;
+                            font-weight: 500;
+                            color: var(--color-text-secondary);
+                            margin-bottom: 0.5rem;
+                        }
+
+                        .progress-bar {
+                            width: 100%;
+                            height: 6px;
+                            background: var(--color-border-light);
+                            border-radius: 3px;
+                            overflow: hidden;
+                        }
+
+                        .progress-fill {
+                            height: 100%;
+                            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary, #6366f1));
+                            border-radius: 3px;
+                            transition: width 0.3s ease;
+                        }
+
+                        .progress-fill.completed {
+                            background: linear-gradient(90deg, var(--color-success), #16a34a);
+                        }
+
+                        .progress-fill.urgent {
+                            background: linear-gradient(90deg, #ef4444, #dc2626);
+                        }
+
+                        .card-actions {
+                            display: flex;
+                            gap: 0.5rem;
+                            flex-wrap: wrap;
+                        }
+
+                        .action-btn {
+                            padding: 0.5rem 1rem;
+                            border: none;
+                            border-radius: 6px;
+                            font-size: 12px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .action-btn.primary {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .action-btn.primary:hover {
+                            background: var(--color-primary-dark, #1e40af);
+                        }
+
+                        .action-btn.secondary {
+                            background: var(--color-background-secondary);
+                            color: var(--color-text);
+                            border: 1px solid var(--color-border);
+                        }
+
+                        .action-btn.secondary:hover {
+                            background: var(--color-border-light);
+                        }
+
+                        .action-btn.urgent {
+                            background: #ef4444;
+                            color: white;
+                        }
+
+                        .action-btn.urgent:hover {
+                            background: #dc2626;
+                        }
+
+                        .action-btn.menu {
+                            background: transparent;
+                            color: var(--color-text-secondary);
+                            border: 1px solid var(--color-border);
+                            width: 36px;
+                            padding: 0.5rem;
+                        }
+
+                        .action-btn.menu:hover {
+                            background: var(--color-background-secondary);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Task Card</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepTaskCard
+var taskCard = new BeepTaskCard();
+taskCard.Size = new Size(300, 200);
+taskCard.Title = "Design UI Mockups";
+taskCard.Description = "Create and review UI mockups for the new dashboard.";
+taskCard.Status = TaskStatus.InProgress;
+taskCard.Progress = 60;
+
+// Set task metadata
+taskCard.DueDate = DateTime.Now.AddDays(3);
+taskCard.Assignee = "Sarah Chen";
+taskCard.Priority = TaskPriority.Medium;
+
+// Handle task interactions
+taskCard.TaskClicked += (s, e) =>
+{
+    ShowTaskDetails(taskCard.TaskId);
+};
+
+taskCard.StatusChanged += (s, e) =>
+{
+    UpdateTaskInDatabase(taskCard);
+};
+
+// Add to form or panel
+this.Controls.Add(taskCard);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Task Card with Custom Actions</h3>
+                        <pre><code class="language-csharp">// Create task card with custom actions
+var taskCard = new BeepTaskCard
+{
+    Title = "API Development",
+    Description = "Implement REST API endpoints for user management",
+    Status = TaskStatus.InProgress,
+    Progress = 45,
+    Priority = TaskPriority.High,
+    Icon = Properties.Resources.ApiIcon
+};
+
+// Add custom action buttons
+var updateButton = new BeepButton 
+{ 
+    Text = "Update Progress",
+    Size = new Size(100, 30)
+};
+updateButton.Click += (s, e) => ShowProgressDialog(taskCard);
+
+var commentButton = new BeepButton 
+{ 
+    Text = "Add Comment",
+    Size = new Size(100, 30)
+};
+commentButton.Click += (s, e) => ShowCommentDialog(taskCard);
+
+// Add actions to the card
+taskCard.AddAction(updateButton);
+taskCard.AddAction(commentButton);
+
+// Configure context menu
+var contextMenu = new ContextMenuStrip();
+contextMenu.Items.Add("Edit Task", null, (s, e) => EditTask(taskCard));
+contextMenu.Items.Add("Delete Task", null, (s, e) => DeleteTask(taskCard));
+contextMenu.Items.Add("Duplicate Task", null, (s, e) => DuplicateTask(taskCard));
+taskCard.ContextMenuStrip = contextMenu;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Main task title or name</td>
+                            </tr>
+                            <tr>
+                                <td><code>Description</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Task description or details</td>
+                            </tr>
+                            <tr>
+                                <td><code>Status</code></td>
+                                <td>TaskStatus</td>
+                                <td>NotStarted</td>
+                                <td>Current task status</td>
+                            </tr>
+                            <tr>
+                                <td><code>Progress</code></td>
+                                <td>int</td>
+                                <td>0</td>
+                                <td>Progress percentage (0-100)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Task Metadata</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Priority</code></td>
+                                <td>TaskPriority</td>
+                                <td>Medium</td>
+                                <td>Task priority level</td>
+                            </tr>
+                            <tr>
+                                <td><code>DueDate</code></td>
+                                <td>DateTime?</td>
+                                <td>null</td>
+                                <td>Task due date</td>
+                            </tr>
+                            <tr>
+                                <td><code>Assignee</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Assigned user or team member</td>
+                            </tr>
+                            <tr>
+                                <td><code>TaskId</code></td>
+                                <td>string</td>
+                                <td>Auto-generated</td>
+                                <td>Unique task identifier</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Visual Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Icon</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Task icon or image</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowProgress</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide progress bar</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowActions</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide action buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>CompactMode</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Use compact layout for smaller cards</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TaskClicked</code></td>
+                                <td>TaskEventArgs</td>
+                                <td>Fired when task card is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>StatusChanged</code></td>
+                                <td>StatusChangedEventArgs</td>
+                                <td>Fired when task status changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ProgressChanged</code></td>
+                                <td>ProgressEventArgs</td>
+                                <td>Fired when progress value changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ActionClicked</code></td>
+                                <td>ActionEventArgs</td>
+                                <td>Fired when action button is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Project Dashboard with Task Cards</h3>
+                        <pre><code class="language-csharp">public partial class ProjectDashboard : UserControl
+{
+    private FlowLayoutPanel taskPanel;
+    private List<TaskData> projectTasks;
+    private ITaskService taskService;
+
+    public ProjectDashboard(ITaskService taskService)
+    {
+        this.taskService = taskService;
+        InitializeComponents();
+        LoadProjectTasks();
+    }
+
+    private void InitializeComponents()
+    {
+        taskPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
+            AutoScroll = true,
+            Padding = new Padding(10)
+        };
+
+        this.Controls.Add(taskPanel);
+    }
+
+    private async void LoadProjectTasks()
+    {
+        try
+        {
+            projectTasks = await taskService.GetTasksAsync(ProjectId);
+            CreateTaskCards();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading tasks: {ex.Message}");
+        }
+    }
+
+    private void CreateTaskCards()
+    {
+        taskPanel.Controls.Clear();
+
+        foreach (var taskData in projectTasks)
+        {
+            var taskCard = CreateTaskCard(taskData);
+            taskPanel.Controls.Add(taskCard);
+        }
+    }
+
+    private BeepTaskCard CreateTaskCard(TaskData taskData)
+    {
+        var card = new BeepTaskCard
+        {
+            Size = new Size(300, 220),
+            Margin = new Padding(10),
+            Title = taskData.Title,
+            Description = taskData.Description,
+            Status = taskData.Status,
+            Progress = taskData.ProgressPercentage,
+            Priority = taskData.Priority,
+            DueDate = taskData.DueDate,
+            Assignee = taskData.AssignedTo,
+            TaskId = taskData.Id.ToString()
+        };
+
+        // Set icon based on task type
+        card.Icon = GetTaskTypeIcon(taskData.TaskType);
+
+        // Add event handlers
+        card.TaskClicked += OnTaskClicked;
+        card.StatusChanged += OnTaskStatusChanged;
+        card.ProgressChanged += OnTaskProgressChanged;
+
+        // Add context-specific actions
+        AddTaskActions(card, taskData);
+
+        return card;
+    }
+
+    private void AddTaskActions(BeepTaskCard card, TaskData taskData)
+    {
+        // Edit action
+        var editButton = new BeepButton
+        {
+            Text = "Edit",
+            Size = new Size(60, 28),
+            Theme = card.Theme
+        };
+        editButton.Click += (s, e) => EditTask(taskData.Id);
+        card.AddAction(editButton);
+
+        // Status-specific actions
+        switch (taskData.Status)
+        {
+            case TaskStatus.NotStarted:
+                var startButton = new BeepButton
+                {
+                    Text = "Start",
+                    Size = new Size(60, 28),
+                    Theme = card.Theme
+                };
+                startButton.Click += (s, e) => StartTask(taskData.Id);
+                card.AddAction(startButton);
+                break;
+
+            case TaskStatus.InProgress:
+                var completeButton = new BeepButton
+                {
+                    Text = "Complete",
+                    Size = new Size(70, 28),
+                    Theme = card.Theme
+                };
+                completeButton.Click += (s, e) => CompleteTask(taskData.Id);
+                card.AddAction(completeButton);
+                break;
+
+            case TaskStatus.Completed:
+                var archiveButton = new BeepButton
+                {
+                    Text = "Archive",
+                    Size = new Size(70, 28),
+                    Theme = card.Theme
+                };
+                archiveButton.Click += (s, e) => ArchiveTask(taskData.Id);
+                card.AddAction(archiveButton);
+                break;
+        }
+
+        // Comment action (always available)
+        var commentButton = new BeepButton
+        {
+            Text = "💬",
+            Size = new Size(35, 28),
+            Theme = card.Theme,
+            ToolTipText = "Add Comment"
+        };
+        commentButton.Click += (s, e) => ShowCommentDialog(taskData.Id);
+        card.AddAction(commentButton);
+    }
+
+    private async void OnTaskClicked(object sender, TaskEventArgs e)
+    {
+        var taskDetails = await taskService.GetTaskDetailsAsync(e.TaskId);
+        ShowTaskDetailsDialog(taskDetails);
+    }
+
+    private async void OnTaskStatusChanged(object sender, StatusChangedEventArgs e)
+    {
+        try
+        {
+            await taskService.UpdateTaskStatusAsync(e.TaskId, e.NewStatus);
+            
+            // Update the task in our local list
+            var task = projectTasks.FirstOrDefault(t => t.Id.ToString() == e.TaskId);
+            if (task != null)
+            {
+                task.Status = e.NewStatus;
+                
+                // Refresh the card to show updated actions
+                RefreshTaskCard(e.TaskId);
+            }
+
+            // Show success notification
+            ShowNotification($"Task status updated to {e.NewStatus}", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error updating task status: {ex.Message}");
+        }
+    }
+
+    private async void OnTaskProgressChanged(object sender, ProgressEventArgs e)
+    {
+        try
+        {
+            await taskService.UpdateTaskProgressAsync(e.TaskId, e.NewProgress);
+            
+            // Update local data
+            var task = projectTasks.FirstOrDefault(t => t.Id.ToString() == e.TaskId);
+            if (task != null)
+            {
+                task.ProgressPercentage = e.NewProgress;
+            }
+
+            ShowNotification($"Progress updated to {e.NewProgress}%", NotificationType.Info);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error updating progress: {ex.Message}");
+        }
+    }
+
+    private void RefreshTaskCard(string taskId)
+    {
+        var taskData = projectTasks.FirstOrDefault(t => t.Id.ToString() == taskId);
+        if (taskData != null)
+        {
+            // Find and replace the card
+            var oldCard = taskPanel.Controls.OfType<BeepTaskCard>()
+                .FirstOrDefault(c => c.TaskId == taskId);
+            
+            if (oldCard != null)
+            {
+                var index = taskPanel.Controls.GetChildIndex(oldCard);
+                taskPanel.Controls.Remove(oldCard);
+                
+                var newCard = CreateTaskCard(taskData);
+                taskPanel.Controls.Add(newCard);
+                taskPanel.Controls.SetChildIndex(newCard, index);
+            }
+        }
+    }
+
+    private Image GetTaskTypeIcon(TaskType taskType)
+    {
+        return taskType switch
+        {
+            TaskType.Development => Properties.Resources.CodeIcon,
+            TaskType.Design => Properties.Resources.DesignIcon,
+            TaskType.Testing => Properties.Resources.TestIcon,
+            TaskType.Documentation => Properties.Resources.DocIcon,
+            TaskType.Bug => Properties.Resources.BugIcon,
+            _ => Properties.Resources.DefaultTaskIcon
+        };
+    }
+
+    // Helper methods
+    private void EditTask(Guid taskId) { /* Implementation */ }
+    private async void StartTask(Guid taskId) { /* Implementation */ }
+    private async void CompleteTask(Guid taskId) { /* Implementation */ }
+    private async void ArchiveTask(Guid taskId) { /* Implementation */ }
+    private void ShowCommentDialog(Guid taskId) { /* Implementation */ }
+    private void ShowTaskDetailsDialog(TaskDetails details) { /* Implementation */ }
+    private void ShowNotification(string message, NotificationType type) { /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepTaskCard provides comprehensive theming support with automatic adaptation to different visual styles:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var taskCard = new BeepTaskCard
+{
+    Theme = "ModernDark",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - CardBackColor: Main card background
+// - BorderColor: Card border styling
+// - TextColors: Title and description colors
+// - StatusColors: Status indicator colors
+// - ProgressColors: Progress bar styling
+// - ActionColors: Button and action styling</code></pre>
+                    </div>
+
+                    <h3>Task-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Status indicators</strong> - Color-coded status badges with theme integration</li>
+                        <li><strong>Progress bars</strong> - Theme-aware progress visualization</li>
+                        <li><strong>Priority styling</strong> - Visual priority indicators with appropriate colors</li>
+                        <li><strong>Action buttons</strong> - Consistent button styling within theme</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear information hierarchy:</strong> Prioritize title, description, and status</li>
+                        <li><strong>Consistent actions:</strong> Provide consistent action patterns across all cards</li>
+                        <li><strong>Visual feedback:</strong> Use colors and animations to indicate state changes</li>
+                        <li><strong>Accessible design:</strong> Ensure sufficient contrast and keyboard navigation</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Performance:</strong> Use virtualization for large numbers of task cards</li>
+                        <li><strong>State management:</strong> Keep card state synchronized with data sources</li>
+                        <li><strong>Event handling:</strong> Implement proper event handling for all interactions</li>
+                        <li><strong>Error handling:</strong> Gracefully handle task update failures</li>
+                    </ul>
+
+                    <h3>📊 Data Management</h3>
+                    <ul>
+                        <li><strong>Real-time updates:</strong> Implement live updates for collaborative environments</li>
+                        <li><strong>Optimistic updates:</strong> Update UI immediately, handle conflicts gracefully</li>
+                        <li><strong>Caching:</strong> Cache task data appropriately for performance</li>
+                        <li><strong>Validation:</strong> Validate task data before updating</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use consistent card sizes and layouts to create a clean, organized appearance in dashboard views.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement contextual actions that change based on task status to guide user workflow effectively.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>For dashboards with many task cards (>100), implement virtualization or pagination to maintain responsiveness.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-calendar.html"><i class="bi bi-arrow-left"></i> BeepCalendarView</a>
+                    <a href="beep-featurecard.html">BeepFeatureCard <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

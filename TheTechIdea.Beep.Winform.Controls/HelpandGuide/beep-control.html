@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepControl Base Class - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>?? Beep Controls</h2>
+                <p class="version">v1.0.164</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Overview</a></li>
+                <li class="has-submenu">
+                    <a href="#getting-started" class="nav-link">Getting Started</a>
+                    <ul class="submenu">
+                        <li><a href="index.html#installation" class="nav-link">Installation</a></li>
+                        <li><a href="index.html#basic-usage" class="nav-link">Basic Usage</a></li>
+                        <li><a href="index.html#theming" class="nav-link">Theming System</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#controls" class="nav-link">Control Reference</a>
+                    <ul class="submenu">
+                        <li><a href="beep-control.html" class="nav-link active">BeepControl (Base)</a></li>
+                        <li><a href="beep-button.html" class="nav-link">BeepButton</a></li>
+                        <li><a href="#beep-textbox" class="nav-link">BeepTextBox</a></li>
+                        <li><a href="#beep-panel" class="nav-link">BeepPanel</a></li>
+                        <li><a href="#beep-image" class="nav-link">BeepImage</a></li>
+                        <li><a href="#data-controls" class="nav-link">Data Controls</a></li>
+                        <li><a href="#layout-controls" class="nav-link">Layout Controls</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu open">
+                    <a href="examples.html" class="nav-link">Examples</a>
+                    <ul class="submenu">
+                        <li><a href="examples.html#basic-examples" class="nav-link">Basic Examples</a></li>
+                        <li><a href="examples.html#advanced-examples" class="nav-link">Advanced Examples</a></li>
+                        <li><a href="examples.html#react-style" class="nav-link">React-Style UI</a></li>
+                    </ul>
+                </li>
+                <li><a href="api-reference.html" class="nav-link">API Reference</a></li>
+                <li><a href="index.html#best-practices" class="nav-link">Best Practices</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <h1>?? BeepControl Base Class</h1>
+                <p class="lead">
+                    BeepControl is the foundational base class for all Beep UI components. It provides comprehensive functionality 
+                    including theming, React-style properties, Material Design support, animations, hit testing, and advanced drawing capabilities.
+                </p>
+
+                <div class="tip">
+                    <strong>?? Inheritance:</strong> All Beep controls inherit from BeepControl, giving them access to all base functionality described here.
+                </div>
+
+                <h2>?? Core Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Theming System</h3>
+                        <p>Built-in theme support with automatic style inheritance and custom theme creation.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>React-Style Properties</h3>
+                        <p>Modern component variants, sizes, colors, and elevation properties like React UI libraries.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Material Design</h3>
+                        <p>Material Design border variants, floating labels, and ripple effects.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Hit Testing</h3>
+                        <p>Advanced hit testing for complex interactions and custom drawing areas.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Animations</h3>
+                        <p>Built-in animations including fade, slide, and easing functions.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">???</div>
+                        <h3>External Drawing</h3>
+                        <p>Advanced drawing system for custom child control rendering.</p>
+                    </div>
+                </div>
+
+                <h2>?? Key Properties</h2>
+
+                <h3>Theme Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Theme</td>
+                                <td>string</td>
+                                <td>null</td>
+                                <td>The theme name to apply to the control</td>
+                            </tr>
+                            <tr>
+                                <td>UseThemeFont</td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether to use the theme's font settings</td>
+                            </tr>
+                            <tr>
+                                <td>ApplyThemeToChilds</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Automatically apply theme to child controls</td>
+                            </tr>
+                            <tr>
+                                <td>IsBorderAffectedByTheme</td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether borders are styled by the theme</td>
+                            </tr>
+                            <tr>
+                                <td>IsShadowAffectedByTheme</td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether shadows are styled by the theme</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Appearance Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>IsRounded</td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether the control has rounded corners</td>
+                            </tr>
+                            <tr>
+                                <td>BorderRadius</td>
+                                <td>int</td>
+                                <td>8</td>
+                                <td>The radius of rounded corners (if IsRounded is true)</td>
+                            </tr>
+                            <tr>
+                                <td>ShowShadow</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether to display a drop shadow</td>
+                            </tr>
+                            <tr>
+                                <td>ShadowOpacity</td>
+                                <td>float</td>
+                                <td>0.5f</td>
+                                <td>Opacity of the shadow (0.0 to 1.0)</td>
+                            </tr>
+                            <tr>
+                                <td>ShowAllBorders</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether to show borders on all sides</td>
+                            </tr>
+                            <tr>
+                                <td>BorderThickness</td>
+                                <td>int</td>
+                                <td>1</td>
+                                <td>Thickness of the border</td>
+                            </tr>
+                            <tr>
+                                <td>IsFrameless</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether to hide all borders and frame</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>React-Style UI Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>UIVariant</td>
+                                <td>ReactUIVariant</td>
+                                <td>Default</td>
+                                <td>Visual variant style (Default, Outlined, Contained, Text, Filled, Ghost)</td>
+                            </tr>
+                            <tr>
+                                <td>UISize</td>
+                                <td>ReactUISize</td>
+                                <td>Medium</td>
+                                <td>Size variant (ExtraSmall, Small, Medium, Large, ExtraLarge)</td>
+                            </tr>
+                            <tr>
+                                <td>UIColor</td>
+                                <td>ReactUIColor</td>
+                                <td>Primary</td>
+                                <td>Color scheme (Primary, Secondary, Success, Error, Warning, Info)</td>
+                            </tr>
+                            <tr>
+                                <td>UIElevation</td>
+                                <td>ReactUIElevation</td>
+                                <td>None</td>
+                                <td>Shadow/elevation level (None, Low, Medium, High, Custom)</td>
+                            </tr>
+                            <tr>
+                                <td>UIShape</td>
+                                <td>ReactUIShape</td>
+                                <td>Rounded</td>
+                                <td>Corner shape (Square, Rounded, Circular, Pill)</td>
+                            </tr>
+                            <tr>
+                                <td>UIFullWidth</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether to take full width of container</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Material Design Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>MaterialBorderVariant</td>
+                                <td>MaterialTextFieldVariant</td>
+                                <td>Standard</td>
+                                <td>Material Design border style (Standard, Outlined, Filled)</td>
+                            </tr>
+                            <tr>
+                                <td>FloatingLabel</td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether labels should float when focused</td>
+                            </tr>
+                            <tr>
+                                <td>LabelText</td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Label text displayed with the control</td>
+                            </tr>
+                            <tr>
+                                <td>HelperText</td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Helper text displayed below the control</td>
+                            </tr>
+                            <tr>
+                                <td>EnableRippleEffect</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Enable Material Design ripple effect on click</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>?? Animation Properties</h2>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AnimationType</td>
+                                <td>DisplayAnimationType</td>
+                                <td>None</td>
+                                <td>Type of display animation (None, Fade, Slide, SlideAndFade)</td>
+                            </tr>
+                            <tr>
+                                <td>AnimationDuration</td>
+                                <td>int</td>
+                                <td>500</td>
+                                <td>Duration of animations in milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td>SlideFrom</td>
+                                <td>SlideDirection</td>
+                                <td>Left</td>
+                                <td>Direction for slide animations (Left, Right, Top, Bottom)</td>
+                            </tr>
+                            <tr>
+                                <td>Easing</td>
+                                <td>EasingType</td>
+                                <td>Linear</td>
+                                <td>Animation easing function (Linear, EaseIn, EaseOut, EaseInOut)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>?? Key Methods</h2>
+
+                <h3>Theme Methods</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Apply theme to control
+public virtual void ApplyTheme()
+
+// Apply specific theme
+public virtual void ApplyTheme(IBeepTheme theme)
+
+// Apply theme by name
+public virtual void ApplyTheme(string themeName)
+
+// Apply theme to child control
+public virtual void ApplyThemeToControl(Control control)</code></pre>
+                </div>
+
+                <h3>Animation Methods</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Show control with animation
+public void ShowWithAnimation(DisplayAnimationType animationType, Control parentControl = null)
+
+// Show with dropdown animation
+public void ShowWithDropdownAnimation(Control parentControl = null)
+
+// Stop current animation
+public void StopAnimation()
+
+// Start Material ripple effect
+protected void StartMaterialRipple(Point clickPosition)</code></pre>
+                </div>
+
+                <h3>Hit Testing Methods</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Add hit test area
+public virtual void AddHitArea(string name, Rectangle rect, IBeepUIComponent component = null, Action hitAction = null)
+
+// Add hit test for component
+public virtual void AddHitArea(string name, IBeepUIComponent component = null, Action hitAction = null)
+
+// Test point for hits
+public virtual bool HitTest(Point location)
+
+// Clear all hit tests
+public virtual void ClearHitList()</code></pre>
+                </div>
+
+                <h3>External Drawing Methods</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Register child external drawing
+public void AddChildExternalDrawing(Control child, DrawExternalHandler handler, DrawingLayer layer = DrawingLayer.AfterAll)
+
+// Clear child external drawing
+public void ClearChildExternalDrawing(Control child)
+
+// Clear all external drawing
+public void ClearAllChildExternalDrawing()</code></pre>
+                </div>
+
+                <h2>?? Usage Examples</h2>
+
+                <h3>Basic Setup</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Create a basic BeepControl-derived control
+var myControl = new BeepPanel
+{
+    Theme = "DefaultTheme",
+    IsRounded = true,
+    BorderRadius = 12,
+    ShowShadow = true,
+    ShadowOpacity = 0.3f,
+    Size = new Size(300, 200),
+    UIVariant = ReactUIVariant.Outlined,
+    UIColor = ReactUIColor.Primary
+};</code></pre>
+                </div>
+
+                <h3>React-Style Configuration</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Configure React-style properties
+var reactButton = new BeepButton
+{
+    Text = "React Style Button",
+    UIVariant = ReactUIVariant.Contained,
+    UISize = ReactUISize.Large,
+    UIColor = ReactUIColor.Success,
+    UIElevation = ReactUIElevation.Medium,
+    UIShape = ReactUIShape.Pill,
+    UIFullWidth = true
+};</code></pre>
+                </div>
+
+                <h3>Material Design Setup</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Configure Material Design properties
+var materialTextBox = new BeepTextBox
+{
+    MaterialBorderVariant = MaterialTextFieldVariant.Outlined,
+    LabelText = "Email Address",
+    HelperText = "Enter your email",
+    FloatingLabel = true,
+    EnableRippleEffect = true,
+    FocusBorderColor = Color.Blue
+};</code></pre>
+                </div>
+
+                <h3>Animation Example</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Animate control appearance
+var animatedPanel = new BeepPanel();
+animatedPanel.ShowWithAnimation(DisplayAnimationType.SlideAndFade, parentControl);
+
+// Or with dropdown animation
+animatedPanel.ShowWithDropdownAnimation(parentControl);</code></pre>
+                </div>
+
+                <h3>Hit Testing Example</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Add hit test areas
+var panel = new BeepPanel();
+
+// Add rectangular hit area
+panel.AddHitArea("button1", new Rectangle(10, 10, 100, 30), null, () => {
+    MessageBox.Show("Button 1 clicked!");
+});
+
+// Add hit area for child component
+var childButton = new BeepButton { Text = "Child" };
+panel.AddHitArea("childButton", childButton, () => {
+    MessageBox.Show("Child button clicked!");
+});</code></pre>
+                </div>
+
+                <h3>External Drawing Example</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Parent control with external drawing
+public partial class ParentControl : BeepControl
+{
+    protected override void OnParentChanged(EventArgs e)
+    {
+        base.OnParentChanged(e);
+        
+        if (Parent is BeepControl beepParent)
+        {
+            // Register for external drawing
+            beepParent.AddChildExternalDrawing(
+                this,
+                DrawBadgeExternally,
+                DrawingLayer.AfterAll
+            );
+        }
+    }
+
+    private void DrawBadgeExternally(Graphics g, Rectangle childBounds)
+    {
+        // Custom drawing logic
+        if (!string.IsNullOrEmpty(BadgeText))
+        {
+            var badgeRect = new Rectangle(
+                childBounds.Right - 20,
+                childBounds.Top - 10,
+                20, 20
+            );
+            
+            using (var brush = new SolidBrush(Color.Red))
+            {
+                g.FillEllipse(brush, badgeRect);
+            }
+            
+            TextRenderer.DrawText(g, BadgeText, Font, badgeRect, Color.White,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        }
+    }
+}</code></pre>
+                </div>
+
+                <h2>?? Event Handling</h2>
+
+                <h3>Key Events</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PropertyChanged</td>
+                                <td>Fired when a property value changes</td>
+                            </tr>
+                            <tr>
+                                <td>OnSelected</td>
+                                <td>Fired when the control is selected</td>
+                            </tr>
+                            <tr>
+                                <td>OnValidate</td>
+                                <td>Fired during validation</td>
+                            </tr>
+                            <tr>
+                                <td>OnValueChanged</td>
+                                <td>Fired when the control value changes</td>
+                            </tr>
+                            <tr>
+                                <td>HitDetected</td>
+                                <td>Fired when a hit test area is activated</td>
+                            </tr>
+                            <tr>
+                                <td>TabKeyPressed</td>
+                                <td>Fired when Tab key is pressed</td>
+                            </tr>
+                            <tr>
+                                <td>EnterKeyPressed</td>
+                                <td>Fired when Enter key is pressed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="code-example">
+                    <h3>Event Handler Example</h3>
+                    <pre><code class="language-csharp">var control = new BeepPanel();
+
+// Handle property changes
+control.PropertyChanged += (sender, e) => {
+    Console.WriteLine($"Property {e.PropertyName} changed to {e.NewValue}");
+};
+
+// Handle hit detection
+control.HitDetected += (sender, e) => {
+    Console.WriteLine($"Hit detected on {e.HitTest.Name}");
+};
+
+// Handle key presses
+control.EnterKeyPressed += (sender, e) => {
+    // Handle Enter key
+    ProcessForm();
+};
+
+control.TabKeyPressed += (sender, e) => {
+    // Handle Tab navigation
+    MoveToNextControl();
+};</code></pre>
+                </div>
+
+                <div class="tip">
+                    <strong>?? Best Practice:</strong> Always unsubscribe from events in the Dispose method to prevent memory leaks.
+                </div>
+
+                <h2>?? Related Controls</h2>
+                <div class="step-cards">
+                    <a href="beep-button.html" class="step-card">
+                        <h3>?? BeepButton</h3>
+                        <p>Enhanced button control with all BeepControl features</p>
+                    </a>
+                    
+                    <a href="#beep-panel" class="step-card">
+                        <h3>?? BeepPanel</h3>
+                        <p>Container panel with styling and layout capabilities</p>
+                    </a>
+                    
+                    <a href="examples.html" class="step-card">
+                        <h3>?? Examples</h3>
+                        <p>See BeepControl in action with practical examples</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

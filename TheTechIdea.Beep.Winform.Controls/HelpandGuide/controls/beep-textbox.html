@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTextBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html" class="active">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>›</span>
+                    <span>BeepTextBox</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepTextBox</h1>
+                    <p class="page-subtitle">Enhanced text input control with Material Design, validation, and floating labels</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#validation">Validation</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepTextBox</strong> is an enhanced text input control that extends the standard 
+                        Windows Forms TextBox with Material Design principles, built-in validation, floating labels, 
+                        placeholder text, and comprehensive theming support.
+                    </p>
+                    <p>
+                        Built on the <code>BeepControl</code> foundation, BeepTextBox provides a modern user experience 
+                        with features like input validation, character counting, password visibility toggles, and 
+                        seamless integration with the Beep theming system.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🏷️ Floating Labels</h3>
+                            <p>Material Design floating labels that animate on focus</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Placeholder Text</h3>
+                            <p>Customizable placeholder text with theme-aware styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✅ Built-in Validation</h3>
+                            <p>Email, URL, number, and custom validation patterns</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔢 Character Counting</h3>
+                            <p>Optional character counter with maximum length limits</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>👁️ Password Visibility</h3>
+                            <p>Toggle password visibility with eye icon</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Seamless integration with Beep theming system</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Text Input</h3>
+                        <pre><code class="language-csharp">// Create a basic text box
+var textBox = new BeepTextBox
+{
+    PlaceholderText = "Enter your name",
+    Size = new Size(250, 30),
+    Location = new Point(10, 10)
+};
+
+this.Controls.Add(textBox);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Text Box with Floating Label</h3>
+                        <pre><code class="language-csharp">// Create text box with floating label
+var emailTextBox = new BeepTextBox
+{
+    PlaceholderText = "Enter your email",
+    FloatingLabelText = "Email Address",
+    HasFloatingLabel = true,
+    ValidationType = InputValidationType.Email,
+    Size = new Size(300, 50),
+    Location = new Point(10, 70)
+};
+
+this.Controls.Add(emailTextBox);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Password Input</h3>
+                        <pre><code class="language-csharp">// Create password input with visibility toggle
+var passwordTextBox = new BeepTextBox
+{
+    PlaceholderText = "Enter password",
+    FloatingLabelText = "Password",
+    HasFloatingLabel = true,
+    UseSystemPasswordChar = true,
+    ShowPasswordToggle = true,
+    MinLength = 8,
+    Size = new Size(300, 50),
+    Location = new Point(10, 130)
+};
+
+this.Controls.Add(passwordTextBox);</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Quick Tip</strong>
+                        <p>Use floating labels for forms where space is limited. They provide clear field identification while maintaining a clean, modern appearance.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Content Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>string</td>
+                                <td>The current text content of the text box</td>
+                            </tr>
+                            <tr>
+                                <td><code>PlaceholderText</code></td>
+                                <td>string</td>
+                                <td>Placeholder text shown when control is empty</td>
+                            </tr>
+                            <tr>
+                                <td><code>FloatingLabelText</code></td>
+                                <td>string</td>
+                                <td>Text for the floating label</td>
+                            </tr>
+                            <tr>
+                                <td><code>HasFloatingLabel</code></td>
+                                <td>bool</td>
+                                <td>Whether to show floating label animation</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Validation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ValidationType</code></td>
+                                <td>InputValidationType</td>
+                                <td>Type of validation (None, Email, URL, Number, Custom)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValidationPattern</code></td>
+                                <td>string</td>
+                                <td>Custom regex pattern for validation</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsRequired</code></td>
+                                <td>bool</td>
+                                <td>Whether the field is required</td>
+                            </tr>
+                            <tr>
+                                <td><code>MinLength</code></td>
+                                <td>int</td>
+                                <td>Minimum required text length</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxLength</code></td>
+                                <td>int</td>
+                                <td>Maximum allowed text length</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowCharacterCount</code></td>
+                                <td>bool</td>
+                                <td>Whether to show character counter</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Behavior Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>ReadOnly <code>bool</code></h4>
+                            <p>Makes the text box read-only</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Multiline <code>bool</code></h4>
+                            <p>Enables multi-line text input</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>UseSystemPasswordChar <code>bool</code></h4>
+                            <p>Masks input for password fields</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ShowPasswordToggle <code>bool</code></h4>
+                            <p>Shows eye icon to toggle password visibility</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Validation -->
+                <section id="validation" class="section">
+                    <h2>Validation</h2>
+                    
+                    <p>BeepTextBox includes built-in validation with visual feedback and error messages.</p>
+
+                    <h3>Validation Types</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th>Example</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>None</code></td>
+                                <td>No validation</td>
+                                <td>Any text input</td>
+                            </tr>
+                            <tr>
+                                <td><code>Email</code></td>
+                                <td>Valid email format</td>
+                                <td>user@example.com</td>
+                            </tr>
+                            <tr>
+                                <td><code>URL</code></td>
+                                <td>Valid URL format</td>
+                                <td>https://example.com</td>
+                            </tr>
+                            <tr>
+                                <td><code>Number</code></td>
+                                <td>Numeric input only</td>
+                                <td>123.45</td>
+                            </tr>
+                            <tr>
+                                <td><code>Custom</code></td>
+                                <td>Custom regex pattern</td>
+                                <td>User-defined pattern</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Validation Examples</h3>
+                        <pre><code class="language-csharp">// Email validation
+var emailField = new BeepTextBox
+{
+    PlaceholderText = "Enter email address",
+    ValidationType = InputValidationType.Email,
+    IsRequired = true,
+    ErrorMessage = "Please enter a valid email address"
+};
+
+// Custom validation (phone number)
+var phoneField = new BeepTextBox
+{
+    PlaceholderText = "Enter phone number",
+    ValidationType = InputValidationType.Custom,
+    ValidationPattern = @"^\+?[\d\s\-\(\)]{10,}$",
+    ErrorMessage = "Please enter a valid phone number"
+};
+
+// Number validation with range
+var ageField = new BeepTextBox
+{
+    PlaceholderText = "Enter your age",
+    ValidationType = InputValidationType.Number,
+    MinValue = 18,
+    MaxValue = 120,
+    ErrorMessage = "Age must be between 18 and 120"
+};
+
+// Validate manually
+if (emailField.ValidateInput())
+{
+    // Input is valid
+    ProcessEmail(emailField.Text);
+}
+else
+{
+    // Show validation errors
+    ShowErrorMessage(emailField.ErrorMessage);
+}</code></pre>
+                    </div>
+
+                    <div class="note">
+                        <strong>📝 Note:</strong>
+                        <p>Validation occurs automatically on <code>TextChanged</code> and <code>Leave</code> events. You can also trigger validation manually using the <code>ValidateInput()</code> method.</p>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Registration Form</h3>
+                        <pre><code class="language-csharp">private void CreateRegistrationForm()
+{
+    var panel = new BeepPanel
+    {
+        Dock = DockStyle.Fill,
+        ShowTitle = true,
+        TitleText = "User Registration",
+        Padding = new Padding(20)
+    };
+
+    // Username field
+    var usernameField = new BeepTextBox
+    {
+        PlaceholderText = "Choose a username",
+        FloatingLabelText = "Username",
+        HasFloatingLabel = true,
+        IsRequired = true,
+        MinLength = 3,
+        MaxLength = 20,
+        Size = new Size(300, 50),
+        Location = new Point(20, 60)
+    };
+
+    // Email field
+    var emailField = new BeepTextBox
+    {
+        PlaceholderText = "Enter your email",
+        FloatingLabelText = "Email Address",
+        HasFloatingLabel = true,
+        ValidationType = InputValidationType.Email,
+        IsRequired = true,
+        Size = new Size(300, 50),
+        Location = new Point(20, 120)
+    };
+
+    // Password field
+    var passwordField = new BeepTextBox
+    {
+        PlaceholderText = "Create a password",
+        FloatingLabelText = "Password",
+        HasFloatingLabel = true,
+        UseSystemPasswordChar = true,
+        ShowPasswordToggle = true,
+        MinLength = 8,
+        IsRequired = true,
+        Size = new Size(300, 50),
+        Location = new Point(20, 180)
+    };
+
+    // Confirm password field
+    var confirmPasswordField = new BeepTextBox
+    {
+        PlaceholderText = "Confirm your password",
+        FloatingLabelText = "Confirm Password",
+        HasFloatingLabel = true,
+        UseSystemPasswordChar = true,
+        IsRequired = true,
+        Size = new Size(300, 50),
+        Location = new Point(20, 240)
+    };
+
+    // Custom validation for password confirmation
+    confirmPasswordField.TextChanged += (s, e) => {
+        if (confirmPasswordField.Text != passwordField.Text)
+        {
+            confirmPasswordField.SetError("Passwords do not match");
+        }
+        else
+        {
+            confirmPasswordField.ClearError();
+        }
+    };
+
+    panel.Controls.AddRange(new Control[] 
+    { 
+        usernameField, emailField, passwordField, confirmPasswordField 
+    });
+
+    this.Controls.Add(panel);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Search Form with Auto-Complete</h3>
+                        <pre><code class="language-csharp">private void CreateSearchForm()
+{
+    var searchBox = new BeepTextBox
+    {
+        PlaceholderText = "Search products, categories, or brands...",
+        Size = new Size(400, 40),
+        Location = new Point(20, 20),
+        Font = new Font("Segoe UI", 12),
+        ShowClearButton = true
+    };
+
+    // Add search icon
+    searchBox.LeftIcon = "🔍";
+
+    // Auto-complete functionality
+    var autoCompleteSource = new AutoCompleteStringCollection();
+    autoCompleteSource.AddRange(new string[] 
+    {
+        "Laptops", "Smartphones", "Tablets", "Headphones",
+        "Keyboards", "Mice", "Monitors", "Speakers"
+    });
+
+    searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+    searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
+    searchBox.AutoCompleteCustomSource = autoCompleteSource;
+
+    // Search event
+    searchBox.KeyDown += (s, e) => {
+        if (e.KeyCode == Keys.Enter)
+        {
+            PerformSearch(searchBox.Text);
+        }
+    };
+
+    this.Controls.Add(searchBox);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-line Text Area</h3>
+                        <pre><code class="language-csharp">private void CreateCommentForm()
+{
+    var commentBox = new BeepTextBox
+    {
+        PlaceholderText = "Write your comment here...",
+        FloatingLabelText = "Comment",
+        HasFloatingLabel = true,
+        Multiline = true,
+        MaxLength = 500,
+        ShowCharacterCount = true,
+        ScrollBars = ScrollBars.Vertical,
+        Size = new Size(400, 120),
+        Location = new Point(20, 20)
+    };
+
+    // Auto-resize based on content
+    commentBox.TextChanged += (s, e) => {
+        var lines = commentBox.Lines.Length;
+        var newHeight = Math.Max(120, Math.Min(300, lines * 20 + 40));
+        if (commentBox.Height != newHeight)
+        {
+            commentBox.Height = newHeight;
+        }
+    };
+
+    this.Controls.Add(commentBox);
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepTextBox automatically adapts to your application's theme, changing colors, fonts, and visual effects.</p>
+
+                    <div class="code-example">
+                        <h3>Applying Themes</h3>
+                        <pre><code class="language-csharp">// Apply theme to individual text box
+textBox.Theme = "DarkTheme";
+textBox.ApplyTheme();
+
+// Apply theme to all text boxes in a form
+private void ApplyThemeToForm(string themeName)
+{
+    foreach (Control control in this.Controls)
+    {
+        if (control is BeepTextBox textBox)
+        {
+            textBox.Theme = themeName;
+            textBox.ApplyTheme();
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Theme-Affected Properties</h3>
+                    <ul>
+                        <li><strong>Background and border colors</strong> - Adapt to theme color scheme</li>
+                        <li><strong>Text and placeholder colors</strong> - Use theme foreground colors</li>
+                        <li><strong>Focus and validation colors</strong> - Use theme accent colors</li>
+                        <li><strong>Font family and sizing</strong> - Apply theme typography settings</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Use meaningful placeholders:</strong> Provide examples or hints about expected input format</li>
+                        <li><strong>Enable floating labels:</strong> For better space utilization and visual hierarchy</li>
+                        <li><strong>Provide immediate feedback:</strong> Use validation colors and messages for real-time feedback</li>
+                        <li><strong>Group related fields:</strong> Use consistent spacing and alignment</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Debounce validation:</strong> Don't validate on every keystroke for expensive operations</li>
+                        <li><strong>Use appropriate validation types:</strong> Built-in validation is faster than custom regex</li>
+                        <li><strong>Limit auto-complete items:</strong> Too many items can slow down the UI</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Provide clear labels:</strong> Use floating labels or associated label controls</li>
+                        <li><strong>Error announcements:</strong> Ensure error messages are accessible to screen readers</li>
+                        <li><strong>Tab order:</strong> Set appropriate tab indices for keyboard navigation</li>
+                        <li><strong>High contrast support:</strong> Test with high contrast themes</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Common Pitfalls</strong>
+                        <p>Avoid using placeholder text as the only label - it disappears when users start typing, making it difficult to remember what the field is for.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Pro Tip</strong>
+                        <p>Use the <code>ShowCharacterCount</code> property for fields with length limits to help users understand constraints before they hit them.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-button.html"><i class="bi bi-arrow-left"></i> BeepButton</a>
+                    <a href="beep-combobox.html">BeepComboBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

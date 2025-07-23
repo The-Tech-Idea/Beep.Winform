@@ -1,0 +1,1190 @@
+<!--
+    BeepTaskListItem Control Documentation
+    Professional-grade documentation for the BeepTaskListItem WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTaskListItem - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                            <li><a href="beep-taskcard.html">BeepTaskCard</a></li>
+                            <li><a href="beep-featurecard.html">BeepFeatureCard</a></li>
+                            <li><a href="beep-companyprofile.html">BeepCompanyProfile</a></li>
+                            <li><a href="beep-tasklistitem.html" class="active">BeepTaskListItem</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepTaskListItem</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepTaskListItem</h1>
+                    <p class="page-subtitle">Compact, theme-aware list item control for individual tasks, checklist items, and to-do entries with interactive features</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepTaskListItem</strong> provides a streamlined, compact control for displaying individual 
+                        tasks or checklist items within larger list interfaces. It combines essential task information with 
+                        interactive elements like checkboxes, priority indicators, and action buttons in a space-efficient design.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepTaskListItem features checkbox integration, 
+                        priority visualization, status indicators, hover effects, selection states, 
+                        and comprehensive theming support. Perfect for task lists, to-do applications, 
+                        checklist interfaces, and any application requiring compact task presentation within collections.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>☑️ Interactive Checkboxes</h3>
+                            <p>Built-in checkbox support with completion state management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Compact Information</h3>
+                            <p>Efficient display of task titles, descriptions, and metadata</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Priority Indicators</h3>
+                            <p>Visual priority levels with color coding and icons</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📅 Due Date Display</h3>
+                            <p>Smart due date formatting with overdue indicators</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Hover Effects</h3>
+                            <p>Interactive hover states and selection highlighting</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 List Integration</h3>
+                            <p>Seamless integration with list controls and collections</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Task List Items in Different States</h3>
+                    <div class="visual-demo">
+                        <div class="task-list-preview">
+                            <!-- Pending Task -->
+                            <div class="task-list-item pending">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task1">
+                                    <label for="task1" class="checkbox-label"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <h4 class="task-title">Review pull request #145</h4>
+                                        <div class="task-priority high">High</div>
+                                    </div>
+                                    <p class="task-description">Review the new authentication system implementation</p>
+                                    <div class="task-meta">
+                                        <span class="due-date">📅 Due: Tomorrow</span>
+                                        <span class="assignee">👤 Sarah Chen</span>
+                                        <span class="category">🏷️ Code Review</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn small">Edit</button>
+                                    <button class="action-btn small">⋯</button>
+                                </div>
+                            </div>
+
+                            <!-- Completed Task -->
+                            <div class="task-list-item completed">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task2" checked>
+                                    <label for="task2" class="checkbox-label"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <h4 class="task-title">Update documentation</h4>
+                                        <div class="task-priority medium">Medium</div>
+                                    </div>
+                                    <p class="task-description">Update API documentation for v2.0 release</p>
+                                    <div class="task-meta">
+                                        <span class="completed-date">✅ Completed: Yesterday</span>
+                                        <span class="assignee">👤 Alex Kumar</span>
+                                        <span class="category">🏷️ Documentation</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn small">View</button>
+                                </div>
+                            </div>
+
+                            <!-- Overdue Task -->
+                            <div class="task-list-item overdue">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task3">
+                                    <label for="task3" class="checkbox-label"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <h4 class="task-title">Security patch deployment</h4>
+                                        <div class="task-priority urgent">Urgent</div>
+                                    </div>
+                                    <p class="task-description">Deploy critical security patches to production</p>
+                                    <div class="task-meta">
+                                        <span class="due-date overdue">⚠️ Overdue: 2 days ago</span>
+                                        <span class="assignee">👤 Mike Johnson</span>
+                                        <span class="category">🏷️ Security</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn small urgent">Start</button>
+                                    <button class="action-btn small">Escalate</button>
+                                </div>
+                            </div>
+
+                            <!-- In Progress Task -->
+                            <div class="task-list-item in-progress">
+                                <div class="task-checkbox">
+                                    <input type="checkbox" id="task4">
+                                    <label for="task4" class="checkbox-label"></label>
+                                </div>
+                                <div class="task-content">
+                                    <div class="task-header">
+                                        <h4 class="task-title">Design new dashboard layout</h4>
+                                        <div class="task-priority medium">Medium</div>
+                                    </div>
+                                    <p class="task-description">Create wireframes and mockups for the analytics dashboard</p>
+                                    <div class="task-meta">
+                                        <span class="progress">🔄 In Progress (60%)</span>
+                                        <span class="assignee">👤 Lisa Wong</span>
+                                        <span class="category">🏷️ Design</span>
+                                    </div>
+                                </div>
+                                <div class="task-actions">
+                                    <button class="action-btn small">Update</button>
+                                    <button class="action-btn small">Comment</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Task list items showing different states: pending, completed, overdue, and in progress</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .task-list-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .task-list-item {
+                            display: flex;
+                            align-items: flex-start;
+                            gap: 1rem;
+                            padding: 1rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                            transition: all 0.2s ease;
+                            cursor: pointer;
+                        }
+
+                        .task-list-item:last-child {
+                            border-bottom: none;
+                        }
+
+                        .task-list-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .task-list-item.completed {
+                            opacity: 0.7;
+                        }
+
+                        .task-list-item.completed .task-title {
+                            text-decoration: line-through;
+                            color: var(--color-text-muted);
+                        }
+
+                        .task-list-item.overdue {
+                            border-left: 3px solid #ef4444;
+                            background: rgba(239, 68, 68, 0.05);
+                        }
+
+                        .task-list-item.in-progress {
+                            border-left: 3px solid var(--color-primary);
+                            background: rgba(59, 130, 246, 0.05);
+                        }
+
+                        .task-checkbox {
+                            margin-top: 0.125rem;
+                        }
+
+                        .task-checkbox input[type="checkbox"] {
+                            display: none;
+                        }
+
+                        .checkbox-label {
+                            width: 18px;
+                            height: 18px;
+                            border: 2px solid var(--color-border);
+                            border-radius: 3px;
+                            display: block;
+                            cursor: pointer;
+                            position: relative;
+                            background: var(--color-background);
+                            transition: all 0.2s ease;
+                        }
+
+                        .task-checkbox input:checked + .checkbox-label {
+                            background: var(--color-success);
+                            border-color: var(--color-success);
+                        }
+
+                        .task-checkbox input:checked + .checkbox-label:after {
+                            content: "✓";
+                            position: absolute;
+                            top: -2px;
+                            left: 2px;
+                            color: white;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+
+                        .task-content {
+                            flex: 1;
+                        }
+
+                        .task-header {
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            margin-bottom: 0.25rem;
+                        }
+
+                        .task-title {
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            margin: 0;
+                        }
+
+                        .task-priority {
+                            padding: 0.125rem 0.5rem;
+                            border-radius: 12px;
+                            font-size: 10px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .task-priority.high {
+                            background: rgba(251, 146, 60, 0.1);
+                            color: #f59e0b;
+                        }
+
+                        .task-priority.medium {
+                            background: rgba(59, 130, 246, 0.1);
+                            color: #3b82f6;
+                        }
+
+                        .task-priority.urgent {
+                            background: rgba(239, 68, 68, 0.1);
+                            color: #ef4444;
+                        }
+
+                        .task-description {
+                            font-size: 13px;
+                            color: var(--color-text-secondary);
+                            margin: 0 0 0.5rem;
+                            line-height: 1.4;
+                        }
+
+                        .task-meta {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.75rem;
+                            font-size: 11px;
+                            color: var(--color-text-muted);
+                        }
+
+                        .due-date.overdue {
+                            color: #ef4444;
+                            font-weight: 600;
+                        }
+
+                        .progress {
+                            color: var(--color-primary);
+                            font-weight: 500;
+                        }
+
+                        .completed-date {
+                            color: var(--color-success);
+                        }
+
+                        .task-actions {
+                            display: flex;
+                            gap: 0.25rem;
+                            align-items: center;
+                        }
+
+                        .action-btn.small {
+                            padding: 0.25rem 0.5rem;
+                            border: 1px solid var(--color-border);
+                            background: var(--color-background);
+                            border-radius: 4px;
+                            font-size: 11px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            color: var(--color-text);
+                        }
+
+                        .action-btn.small:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .action-btn.small.urgent {
+                            background: #ef4444;
+                            color: white;
+                            border-color: #ef4444;
+                        }
+
+                        .action-btn.small.urgent:hover {
+                            background: #dc2626;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Task List Item</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepTaskListItem
+var taskItem = new BeepTaskListItem();
+taskItem.Size = new Size(400, 80);
+taskItem.TaskTitle = "Review code changes";
+taskItem.TaskDescription = "Review pull request #123 for the new feature";
+taskItem.IsCompleted = false;
+taskItem.Priority = TaskPriority.High;
+taskItem.DueDate = DateTime.Now.AddDays(2);
+
+// Set additional metadata
+taskItem.Assignee = "Sarah Chen";
+taskItem.Category = "Code Review";
+taskItem.TaskId = "TASK-123";
+
+// Handle completion changes
+taskItem.CompletionChanged += (s, e) =>
+{
+    var item = s as BeepTaskListItem;
+    if (e.IsCompleted)
+    {
+        UpdateTaskStatus(item.TaskId, "Completed");
+        ShowCompletionAnimation(item);
+    }
+    else
+    {
+        UpdateTaskStatus(item.TaskId, "Pending");
+    }
+};
+
+// Handle task clicks
+taskItem.TaskClicked += (s, e) =>
+{
+    ShowTaskDetails(taskItem.TaskId);
+};
+
+// Add to list container
+taskListPanel.Controls.Add(taskItem);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Task List Item with Actions</h3>
+                        <pre><code class="language-csharp">// Create task list item with custom actions
+var taskItem = new BeepTaskListItem
+{
+    TaskTitle = "Security patch deployment",
+    TaskDescription = "Deploy critical security patches to production",
+    Priority = TaskPriority.Urgent,
+    DueDate = DateTime.Now.AddDays(-2), // Overdue
+    Assignee = "Mike Johnson",
+    Category = "Security",
+    ShowActions = true
+};
+
+// Add custom action buttons
+var startButton = new BeepButton 
+{ 
+    Text = "Start Now",
+    Size = new Size(80, 24),
+    BackColor = Color.OrangeRed,
+    ForeColor = Color.White
+};
+startButton.Click += (s, e) => StartUrgentTask(taskItem);
+
+var escalateButton = new BeepButton 
+{ 
+    Text = "Escalate",
+    Size = new Size(70, 24)
+};
+escalateButton.Click += (s, e) => EscalateTask(taskItem);
+
+// Add actions to the item
+taskItem.AddAction(startButton);
+taskItem.AddAction(escalateButton);
+
+// Handle priority-based styling
+taskItem.ApplyPriorityTheme();
+
+// Add context menu
+var contextMenu = new ContextMenuStrip();
+contextMenu.Items.Add("Edit Task", null, (s, e) => EditTask(taskItem));
+contextMenu.Items.Add("Delete Task", null, (s, e) => DeleteTask(taskItem));
+contextMenu.Items.Add("Duplicate Task", null, (s, e) => DuplicateTask(taskItem));
+taskItem.ContextMenuStrip = contextMenu;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TaskTitle</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Main task title or name</td>
+                            </tr>
+                            <tr>
+                                <td><code>TaskDescription</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Task description or details</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsCompleted</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether the task is completed</td>
+                            </tr>
+                            <tr>
+                                <td><code>TaskId</code></td>
+                                <td>string</td>
+                                <td>Auto-generated</td>
+                                <td>Unique task identifier</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Task Metadata</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Priority</code></td>
+                                <td>TaskPriority</td>
+                                <td>Medium</td>
+                                <td>Task priority level</td>
+                            </tr>
+                            <tr>
+                                <td><code>DueDate</code></td>
+                                <td>DateTime?</td>
+                                <td>null</td>
+                                <td>Task due date</td>
+                            </tr>
+                            <tr>
+                                <td><code>Assignee</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Assigned user or team member</td>
+                            </tr>
+                            <tr>
+                                <td><code>Category</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Task category or type</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Display Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowCheckbox</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide completion checkbox</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowPriority</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide priority indicator</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowActions</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show/hide action buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>CompactMode</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Use compact layout for smaller items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CompletionChanged</code></td>
+                                <td>CompletionEventArgs</td>
+                                <td>Fired when task completion status changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>TaskClicked</code></td>
+                                <td>TaskEventArgs</td>
+                                <td>Fired when task item is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ActionClicked</code></td>
+                                <td>ActionEventArgs</td>
+                                <td>Fired when action button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>PriorityChanged</code></td>
+                                <td>PriorityEventArgs</td>
+                                <td>Fired when task priority changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Dynamic Task List Management</h3>
+                        <pre><code class="language-csharp">public partial class TaskListManager : UserControl
+{
+    private FlowLayoutPanel taskListPanel;
+    private List<TaskData> tasks;
+    private ITaskService taskService;
+    private Timer refreshTimer;
+
+    public TaskListManager(ITaskService taskService)
+    {
+        this.taskService = taskService;
+        InitializeComponents();
+        LoadTasks();
+        SetupAutoRefresh();
+    }
+
+    private void InitializeComponents()
+    {
+        taskListPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.TopDown,
+            WrapContents = false,
+            AutoScroll = true,
+            Padding = new Padding(10)
+        };
+
+        this.Controls.Add(taskListPanel);
+    }
+
+    private async void LoadTasks()
+    {
+        try
+        {
+            tasks = await taskService.GetTasksAsync();
+            CreateTaskListItems();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading tasks: {ex.Message}");
+        }
+    }
+
+    private void CreateTaskListItems()
+    {
+        taskListPanel.Controls.Clear();
+
+        foreach (var taskData in tasks.OrderBy(t => t.DueDate))
+        {
+            var taskItem = CreateTaskListItem(taskData);
+            taskListPanel.Controls.Add(taskItem);
+        }
+    }
+
+    private BeepTaskListItem CreateTaskListItem(TaskData taskData)
+    {
+        var item = new BeepTaskListItem
+        {
+            Width = taskListPanel.Width - 40,
+            Height = 80,
+            Margin = new Padding(0, 0, 0, 8),
+            TaskTitle = taskData.Title,
+            TaskDescription = taskData.Description,
+            IsCompleted = taskData.IsCompleted,
+            Priority = taskData.Priority,
+            DueDate = taskData.DueDate,
+            Assignee = taskData.AssignedTo,
+            Category = taskData.Category,
+            TaskId = taskData.Id.ToString()
+        };
+
+        // Apply conditional styling
+        ApplyConditionalStyling(item, taskData);
+
+        // Add event handlers
+        item.CompletionChanged += OnTaskCompletionChanged;
+        item.TaskClicked += OnTaskClicked;
+        item.ActionClicked += OnTaskActionClicked;
+
+        // Add context-specific actions
+        AddTaskActions(item, taskData);
+
+        return item;
+    }
+
+    private void ApplyConditionalStyling(BeepTaskListItem item, TaskData taskData)
+    {
+        // Overdue styling
+        if (taskData.DueDate.HasValue && taskData.DueDate < DateTime.Now && !taskData.IsCompleted)
+        {
+            item.BackColor = Color.FromArgb(255, 245, 245); // Light red background
+            item.BorderColor = Color.FromArgb(239, 68, 68); // Red border
+        }
+
+        // High priority styling
+        if (taskData.Priority == TaskPriority.Urgent || taskData.Priority == TaskPriority.High)
+        {
+            item.PriorityColor = taskData.Priority == TaskPriority.Urgent ? Color.Red : Color.Orange;
+        }
+
+        // Completed styling
+        if (taskData.IsCompleted)
+        {
+            item.Opacity = 0.7f;
+            item.TitleStrikethrough = true;
+        }
+    }
+
+    private void AddTaskActions(BeepTaskListItem item, TaskData taskData)
+    {
+        if (taskData.IsCompleted)
+        {
+            // Completed task actions
+            var viewButton = new BeepButton
+            {
+                Text = "View",
+                Size = new Size(50, 24),
+                Theme = item.Theme
+            };
+            viewButton.Click += (s, e) => ViewTask(taskData.Id);
+            item.AddAction(viewButton);
+
+            var archiveButton = new BeepButton
+            {
+                Text = "Archive",
+                Size = new Size(60, 24),
+                Theme = item.Theme
+            };
+            archiveButton.Click += (s, e) => ArchiveTask(taskData.Id);
+            item.AddAction(archiveButton);
+        }
+        else
+        {
+            // Pending task actions
+            var editButton = new BeepButton
+            {
+                Text = "Edit",
+                Size = new Size(50, 24),
+                Theme = item.Theme
+            };
+            editButton.Click += (s, e) => EditTask(taskData.Id);
+            item.AddAction(editButton);
+
+            // Priority-specific actions
+            if (taskData.Priority == TaskPriority.Urgent)
+            {
+                var escalateButton = new BeepButton
+                {
+                    Text = "Escalate",
+                    Size = new Size(70, 24),
+                    BackColor = Color.Red,
+                    ForeColor = Color.White
+                };
+                escalateButton.Click += (s, e) => EscalateTask(taskData.Id);
+                item.AddAction(escalateButton);
+            }
+        }
+
+        // Common actions
+        var commentButton = new BeepButton
+        {
+            Text = "💬",
+            Size = new Size(30, 24),
+            Theme = item.Theme,
+            ToolTipText = "Add Comment"
+        };
+        commentButton.Click += (s, e) => ShowCommentDialog(taskData.Id);
+        item.AddAction(commentButton);
+    }
+
+    private async void OnTaskCompletionChanged(object sender, CompletionEventArgs e)
+    {
+        var item = sender as BeepTaskListItem;
+        try
+        {
+            await taskService.UpdateTaskCompletionAsync(e.TaskId, e.IsCompleted);
+            
+            // Update local data
+            var task = tasks.FirstOrDefault(t => t.Id.ToString() == e.TaskId);
+            if (task != null)
+            {
+                task.IsCompleted = e.IsCompleted;
+                task.CompletedDate = e.IsCompleted ? DateTime.Now : null;
+                
+                // Refresh the item to show updated styling and actions
+                RefreshTaskItem(e.TaskId);
+                
+                // Show completion animation
+                if (e.IsCompleted)
+                {
+                    ShowCompletionAnimation(item);
+                }
+            }
+
+            ShowNotification($"Task {(e.IsCompleted ? "completed" : "reopened")}", NotificationType.Success);
+        }
+        catch (Exception ex)
+        {
+            // Revert checkbox state on error
+            item.IsCompleted = !e.IsCompleted;
+            MessageBox.Show($"Error updating task: {ex.Message}");
+        }
+    }
+
+    private async void OnTaskClicked(object sender, TaskEventArgs e)
+    {
+        var taskDetails = await taskService.GetTaskDetailsAsync(e.TaskId);
+        ShowTaskDetailsDialog(taskDetails);
+    }
+
+    private void OnTaskActionClicked(object sender, ActionEventArgs e)
+    {
+        // Handle custom action events
+        switch (e.ActionName)
+        {
+            case "QuickComplete":
+                QuickCompleteTask(e.TaskId);
+                break;
+            case "Snooze":
+                SnoozeTask(e.TaskId);
+                break;
+            case "Delegate":
+                ShowDelegateDialog(e.TaskId);
+                break;
+        }
+    }
+
+    private void RefreshTaskItem(string taskId)
+    {
+        var taskData = tasks.FirstOrDefault(t => t.Id.ToString() == taskId);
+        if (taskData != null)
+        {
+            var oldItem = taskListPanel.Controls.OfType<BeepTaskListItem>()
+                .FirstOrDefault(i => i.TaskId == taskId);
+            
+            if (oldItem != null)
+            {
+                var index = taskListPanel.Controls.GetChildIndex(oldItem);
+                taskListPanel.Controls.Remove(oldItem);
+                
+                var newItem = CreateTaskListItem(taskData);
+                taskListPanel.Controls.Add(newItem);
+                taskListPanel.Controls.SetChildIndex(newItem, index);
+            }
+        }
+    }
+
+    private void ShowCompletionAnimation(BeepTaskListItem item)
+    {
+        // Simple fade-out animation
+        var timer = new Timer { Interval = 50 };
+        var opacity = 1.0f;
+        
+        timer.Tick += (s, e) =>
+        {
+            opacity -= 0.1f;
+            if (opacity <= 0.7f)
+            {
+                timer.Stop();
+                item.Opacity = 0.7f;
+            }
+            else
+            {
+                item.Opacity = opacity;
+            }
+        };
+        
+        timer.Start();
+    }
+
+    private void SetupAutoRefresh()
+    {
+        refreshTimer = new Timer { Interval = 30000 }; // 30 seconds
+        refreshTimer.Tick += async (s, e) =>
+        {
+            await RefreshTaskList();
+        };
+        refreshTimer.Start();
+    }
+
+    private async Task RefreshTaskList()
+    {
+        try
+        {
+            var updatedTasks = await taskService.GetTasksAsync();
+            
+            // Check for changes
+            if (HasTaskChanges(updatedTasks))
+            {
+                tasks = updatedTasks;
+                CreateTaskListItems();
+            }
+        }
+        catch (Exception ex)
+        {
+            // Silent failure for background refresh
+            Console.WriteLine($"Background refresh failed: {ex.Message}");
+        }
+    }
+
+    private bool HasTaskChanges(List<TaskData> newTasks)
+    {
+        if (newTasks.Count != tasks.Count) return true;
+        
+        return newTasks.Any(newTask =>
+        {
+            var existingTask = tasks.FirstOrDefault(t => t.Id == newTask.Id);
+            return existingTask == null || 
+                   existingTask.IsCompleted != newTask.IsCompleted ||
+                   existingTask.Priority != newTask.Priority ||
+                   existingTask.DueDate != newTask.DueDate;
+        });
+    }
+
+    // Helper methods
+    private void ViewTask(Guid taskId) { /* Implementation */ }
+    private void EditTask(Guid taskId) { /* Implementation */ }
+    private void ArchiveTask(Guid taskId) { /* Implementation */ }
+    private void EscalateTask(Guid taskId) { /* Implementation */ }
+    private void QuickCompleteTask(string taskId) { /* Implementation */ }
+    private void SnoozeTask(string taskId) { /* Implementation */ }
+    private void ShowCommentDialog(Guid taskId) { /* Implementation */ }
+    private void ShowDelegateDialog(string taskId) { /* Implementation */ }
+    private void ShowTaskDetailsDialog(object taskDetails) { /* Implementation */ }
+    private void ShowNotification(string message, NotificationType type) { /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepTaskListItem provides comprehensive theming support with automatic adaptation to list contexts:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var taskItem = new BeepTaskListItem
+{
+    Theme = "ProductivityLight",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - ItemBackColor: List item background
+// - HoverBackColor: Hover state background
+// - TextColors: Title and description colors
+// - CheckboxColors: Completion checkbox styling
+// - PriorityColors: Priority indicator colors
+// - BorderColors: Item border and dividers</code></pre>
+                    </div>
+
+                    <h3>List-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Hover states</strong> - Smooth hover transitions with theme colors</li>
+                        <li><strong>Selection indicators</strong> - Theme-aware selection highlighting</li>
+                        <li><strong>Priority visualization</strong> - Color-coded priority levels</li>
+                        <li><strong>Completion states</strong> - Visual indication of completed tasks</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear hierarchy:</strong> Use consistent spacing and typography for scannable lists</li>
+                        <li><strong>Interactive feedback:</strong> Provide immediate visual feedback for all interactions</li>
+                        <li><strong>Priority indication:</strong> Use color and icons to clearly indicate task priorities</li>
+                        <li><strong>Completion animations:</strong> Use subtle animations to acknowledge task completion</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Performance:</strong> Use virtualization for large task lists (>100 items)</li>
+                        <li><strong>State synchronization:</strong> Keep list items synchronized with data sources</li>
+                        <li><strong>Batch operations:</strong> Support multi-select for bulk task operations</li>
+                        <li><strong>Keyboard navigation:</strong> Implement arrow key navigation and spacebar selection</li>
+                    </ul>
+
+                    <h3>📊 List Management</h3>
+                    <ul>
+                        <li><strong>Sorting and filtering:</strong> Provide intuitive ways to organize task lists</li>
+                        <li><strong>Auto-refresh:</strong> Keep lists current with background updates</li>
+                        <li><strong>Conflict resolution:</strong> Handle concurrent edits gracefully</li>
+                        <li><strong>Undo support:</strong> Allow users to undo accidental completions</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use compact mode for dense lists and full mode for detailed task information in focused views.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement smart auto-completion suggestions based on task patterns and user behavior.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>For task lists with frequent updates, implement efficient diff algorithms to minimize UI redraws.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-companyprofile.html"><i class="bi bi-arrow-left"></i> BeepCompanyProfile</a>
+                    <a href="beep-calendar.html">BeepCalendarView <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

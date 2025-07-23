@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepChart - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html" class="active">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepChart</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepChart</h1>
+                    <p class="page-subtitle">Advanced data visualization control with multiple chart types, interactive features, and comprehensive theming</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#chart-types">Chart Types</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#data-structure">Data Structure</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#interactivity">Interactivity</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepChart</strong> is a sophisticated data visualization control that provides professional 
+                        charting capabilities for WinForms applications. It supports multiple chart types including line, 
+                        bar, pie, area, and bubble charts with advanced features like zooming, panning, interactive tooltips, 
+                        and custom drawing capabilities.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepChart features flexible axis types 
+                        (numeric, text, date), auto-scaling viewports, legend management, and comprehensive theming support. 
+                        It's designed for high-performance rendering with support for large datasets and real-time updates.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📊 Multiple Chart Types</h3>
+                            <p>Line, Bar, Pie, Area, and Bubble charts with customizable styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Flexible Axis Types</h3>
+                            <p>Support for numeric, text, and date/time axes with automatic detection</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Interactive Features</h3>
+                            <p>Zooming, panning, tooltips, and hover effects for data exploration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📐 Auto-Scaling</h3>
+                            <p>Intelligent viewport management with automatic scaling and padding</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Rich Theming</h3>
+                            <p>Comprehensive theme support with chart-specific color schemes</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Smart Legends</h3>
+                            <p>Automatic legend generation with customizable positioning</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✏️ Custom Drawing</h3>
+                            <p>Extensible custom drawing events for specialized visualizations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⚡ Performance</h3>
+                            <p>Optimized rendering with double buffering and efficient redraw logic</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Chart Types -->
+                <section id="chart-types" class="section">
+                    <h2>Chart Types</h2>
+                    <p>BeepChart supports various visualization types for different data scenarios:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>📈 Line Charts</h4>
+                            <p>Perfect for trends and continuous data over time</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📊 Bar Charts</h4>
+                            <p>Ideal for categorical comparisons and discrete values</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🥧 Pie Charts</h4>
+                            <p>Great for part-to-whole relationships and percentages</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📈 Area Charts</h4>
+                            <p>Excellent for volume over time and cumulative data</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🫧 Bubble Charts</h4>
+                            <p>Perfect for three-dimensional data relationships</p>
+                        </div>
+                    </div>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Chart Type</th>
+                                <th>Best For</th>
+                                <th>Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Line</td>
+                                <td>Trends over time, continuous data</td>
+                                <td>Points, lines, hover effects, multiple series</td>
+                            </tr>
+                            <tr>
+                                <td>Bar</td>
+                                <td>Categorical comparisons, discrete values</td>
+                                <td>Horizontal/vertical bars, stacked bars, categories</td>
+                            </tr>
+                            <tr>
+                                <td>Pie</td>
+                                <td>Part-to-whole relationships, percentages</td>
+                                <td>Slices, labels, custom colors, legends</td>
+                            </tr>
+                            <tr>
+                                <td>Area</td>
+                                <td>Volume over time, cumulative data</td>
+                                <td>Filled areas, transparency, stacked areas</td>
+                            </tr>
+                            <tr>
+                                <td>Bubble</td>
+                                <td>Three-dimensional data relationships</td>
+                                <td>Variable bubble sizes, transparency, value labels</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Line Chart</h3>
+                        <pre><code class="language-csharp">// Create a basic line chart
+var chart = new BeepChart
+{
+    Size = new Size(600, 400),
+    Location = new Point(10, 10),
+    ChartType = ChartType.Line,
+    ChartTitle = "Sales Trend",
+    ChartValue = "$125,000",
+    ChartSubtitle = "Monthly Revenue",
+    XAxisTitle = "Month",
+    YAxisTitle = "Revenue ($)",
+    ShowLegend = true
+};
+
+// Create data series
+var salesSeries = new ChartDataSeries
+{
+    Name = "Sales",
+    Color = Color.Blue,
+    ShowLine = true,
+    ShowPoint = true,
+    ChartType = ChartType.Line
+};
+
+// Add data points
+salesSeries.Points.AddRange(new[]
+{
+    new ChartDataPoint("Jan", "10000", 10000f, "January"),
+    new ChartDataPoint("Feb", "15000", 15000f, "February"),
+    new ChartDataPoint("Mar", "12000", 12000f, "March"),
+    new ChartDataPoint("Apr", "18000", 18000f, "April"),
+    new ChartDataPoint("May", "22000", 22000f, "May")
+});
+
+// Set data and add to form
+chart.DataSeries = new List<ChartDataSeries> { salesSeries };
+this.Controls.Add(chart);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-Series Chart</h3>
+                        <pre><code class="language-csharp">var chart = new BeepChart
+{
+    ChartType = ChartType.Line,
+    ChartTitle = "Performance Comparison",
+    Size = new Size(800, 500)
+};
+
+// Create multiple series
+var series1 = new ChartDataSeries
+{
+    Name = "Product A",
+    Color = Color.Blue,
+    ShowLine = true,
+    ShowPoint = true
+};
+
+var series2 = new ChartDataSeries
+{
+    Name = "Product B", 
+    Color = Color.Red,
+    ShowLine = true,
+    ShowPoint = true
+};
+
+// Add data to both series
+// ... (add data points)
+
+chart.DataSeries = new List<ChartDataSeries> { series1, series2 };</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Pie Chart</h3>
+                        <pre><code class="language-csharp">var pieChart = new BeepChart
+{
+    ChartType = ChartType.Pie,
+    ChartTitle = "Market Share",
+    Size = new Size(500, 400),
+    ShowLegend = true
+};
+
+var pieSeries = new ChartDataSeries
+{
+    Name = "Market Share",
+    ChartType = ChartType.Pie
+};
+
+pieSeries.Points.AddRange(new[]
+{
+    new ChartDataPoint("Company A", "", 35f, "Company A", Color.Blue),
+    new ChartDataPoint("Company B", "", 25f, "Company B", Color.Red),
+    new ChartDataPoint("Company C", "", 20f, "Company C", Color.Green),
+    new ChartDataPoint("Others", "", 20f, "Others", Color.Gray)
+});
+
+pieChart.DataSeries = new List<ChartDataSeries> { pieSeries };</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Quick Tip</strong>
+                        <p>Use the appropriate chart type based on your data: Line for trends, Bar for comparisons, Pie for distributions, Area for cumulative values, and Bubble for multi-dimensional relationships.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Chart Configuration</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ChartType</code></td>
+                                <td>ChartType</td>
+                                <td>Line</td>
+                                <td>Type of chart to display (Line, Bar, Pie, Area, Bubble)</td>
+                            </tr>
+                            <tr>
+                                <td><code>DataSeries</code></td>
+                                <td>List&lt;ChartDataSeries&gt;</td>
+                                <td>new</td>
+                                <td>Collection of data series to display</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowLegend</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether to display the legend</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowTitle</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether to display title area</td>
+                            </tr>
+                            <tr>
+                                <td><code>CustomDraw</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Enable custom drawing events</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Display Text Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ChartTitle</code></td>
+                                <td>string</td>
+                                <td>Main chart title</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChartValue</code></td>
+                                <td>string</td>
+                                <td>Large value display (e.g., "$12,000,000")</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChartSubtitle</code></td>
+                                <td>string</td>
+                                <td>Subtitle or description text</td>
+                            </tr>
+                            <tr>
+                                <td><code>XAxisTitle</code></td>
+                                <td>string</td>
+                                <td>X-axis title label</td>
+                            </tr>
+                            <tr>
+                                <td><code>YAxisTitle</code></td>
+                                <td>string</td>
+                                <td>Y-axis title label</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Axis Configuration</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>BottomAxisType <code>AxisType</code></h4>
+                            <p>Type of bottom axis (Numeric, Text, Date)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>LeftAxisType <code>AxisType</code></h4>
+                            <p>Type of left axis (Numeric, Text, Date)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ViewportXMin/Max <code>float</code></h4>
+                            <p>X-axis viewport range for zooming</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ViewportYMin/Max <code>float</code></h4>
+                            <p>Y-axis viewport range for zooming</p>
+                        </div>
+                    </div>
+
+                    <h3>Font Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ChartTitleFont</code></td>
+                                <td>Font</td>
+                                <td>Arial, 12, Bold</td>
+                                <td>Font for chart title</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChartValueFont</code></td>
+                                <td>Font</td>
+                                <td>Arial, 20, Bold</td>
+                                <td>Font for main value display</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChartSubtitleFont</code></td>
+                                <td>Font</td>
+                                <td>Arial, 9, Regular</td>
+                                <td>Font for subtitle text</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Data Structure -->
+                <section id="data-structure" class="section">
+                    <h2>Data Structure</h2>
+                    
+                    <h3>ChartDataSeries</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Name</code></td>
+                                <td>string</td>
+                                <td>Series name for legend display</td>
+                            </tr>
+                            <tr>
+                                <td><code>Color</code></td>
+                                <td>Color</td>
+                                <td>Primary color for this series</td>
+                            </tr>
+                            <tr>
+                                <td><code>Points</code></td>
+                                <td>List&lt;ChartDataPoint&gt;</td>
+                                <td>Collection of data points</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChartType</code></td>
+                                <td>ChartType</td>
+                                <td>Chart type for this series</td>
+                            </tr>
+                            <tr>
+                                <td><code>Visible</code></td>
+                                <td>bool</td>
+                                <td>Whether series is visible</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowInLegend</code></td>
+                                <td>bool</td>
+                                <td>Whether to show in legend</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowLine</code></td>
+                                <td>bool</td>
+                                <td>Whether to show connecting lines</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowPoint</code></td>
+                                <td>bool</td>
+                                <td>Whether to show data points</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowLabel</code></td>
+                                <td>bool</td>
+                                <td>Whether to show point labels</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ChartDataPoint</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>X</code></td>
+                                <td>string</td>
+                                <td>X-coordinate value (numeric, text, or date)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Y</code></td>
+                                <td>string</td>
+                                <td>Y-coordinate value (numeric, text, or date)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Value</code></td>
+                                <td>float</td>
+                                <td>Numeric value for bubble size or calculations</td>
+                            </tr>
+                            <tr>
+                                <td><code>Label</code></td>
+                                <td>string</td>
+                                <td>Display label for this point</td>
+                            </tr>
+                            <tr>
+                                <td><code>Color</code></td>
+                                <td>Color</td>
+                                <td>Individual point color override</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToolTip</code></td>
+                                <td>string</td>
+                                <td>Tooltip text for this point</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Data Structure Example</h3>
+                        <pre><code class="language-csharp">// Create a data series
+var series = new ChartDataSeries
+{
+    Name = "Revenue",
+    Color = Color.Blue,
+    ShowLine = true,
+    ShowPoint = true,
+    ChartType = ChartType.Line
+};
+
+// Add various types of data points
+series.Points.Add(new ChartDataPoint("2024-01", "10000", 10000f, "Jan 2024", Color.Blue, "January: $10,000"));
+series.Points.Add(new ChartDataPoint("2024-02", "15000", 15000f, "Feb 2024", Color.Blue, "February: $15,000"));
+
+// For bubble charts, the Value property determines bubble size
+var bubblePoint = new ChartDataPoint("100", "200", 50f, "Large Bubble", Color.Red, "X:100, Y:200, Size:50");</code></pre>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ConvertXValue</code></td>
+                                <td>ChartDataPoint point</td>
+                                <td>object</td>
+                                <td>Convert X value based on axis type</td>
+                            </tr>
+                            <tr>
+                                <td><code>ConvertYValue</code></td>
+                                <td>ChartDataPoint point</td>
+                                <td>object</td>
+                                <td>Convert Y value based on axis type</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoScaleViewport</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Automatically scale viewport to fit all data</td>
+                            </tr>
+                            <tr>
+                                <td><code>PanViewport</code></td>
+                                <td>int deltaX, int deltaY</td>
+                                <td>void</td>
+                                <td>Pan the viewport by specified pixels</td>
+                            </tr>
+                            <tr>
+                                <td><code>GetHoveredDataPoint</code></td>
+                                <td>Point location</td>
+                                <td>ChartDataPoint</td>
+                                <td>Find data point at mouse location</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowTooltip</code></td>
+                                <td>ChartDataPoint point</td>
+                                <td>void</td>
+                                <td>Display tooltip for data point</td>
+                            </tr>
+                            <tr>
+                                <td><code>DetectAxisTypes</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Auto-detect axis types from data</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Apply current theme colors and fonts</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CustomDrawSeries</code></td>
+                                <td>EventHandler&lt;CustomDrawSeriesEventArgs&gt;</td>
+                                <td>Fired when custom drawing is enabled</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseWheel</code></td>
+                                <td>MouseEventHandler</td>
+                                <td>Handles zooming via mouse wheel</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseMove</code></td>
+                                <td>MouseEventHandler</td>
+                                <td>Handles panning and hover detection</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseDown</code></td>
+                                <td>MouseEventHandler</td>
+                                <td>Initiates panning operation</td>
+                            </tr>
+                            <tr>
+                                <td><code>Paint</code></td>
+                                <td>PaintEventHandler</td>
+                                <td>Custom chart rendering</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var chart = new BeepChart();
+
+// Handle custom drawing
+chart.CustomDrawSeries += (s, e) => {
+    // Custom rendering logic
+    var graphics = e.Graphics;
+    var chartArea = e.ChartArea;
+    var dataSeries = e.DataSeries;
+    
+    // Draw custom elements
+    graphics.DrawString("Custom Overlay", SystemFonts.DefaultFont, 
+        Brushes.Red, chartArea.Location);
+};
+
+// Handle mouse interactions
+chart.MouseMove += (s, e) => {
+    // Custom hover logic
+    var point = chart.GetHoveredDataPoint(e.Location);
+    if (point != null)
+    {
+        // Update status bar or perform custom actions
+        UpdateStatusBar($"Value: {point.Value}, Label: {point.Label}");
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Real-time Data Chart</h3>
+                        <pre><code class="language-csharp">public class RealTimeChart : UserControl
+{
+    private BeepChart chart;
+    private Timer updateTimer;
+    private ChartDataSeries dataSeries;
+    private Random random = new Random();
+
+    public RealTimeChart()
+    {
+        InitializeChart();
+        StartRealTimeUpdates();
+    }
+
+    private void InitializeChart()
+    {
+        chart = new BeepChart
+        {
+            Dock = DockStyle.Fill,
+            ChartType = ChartType.Line,
+            ChartTitle = "Real-time Data Stream",
+            XAxisTitle = "Time",
+            YAxisTitle = "Value",
+            ShowLegend = true
+        };
+
+        dataSeries = new ChartDataSeries
+        {
+            Name = "Sensor Data",
+            Color = Color.Blue,
+            ShowLine = true,
+            ShowPoint = false // Don't show points for smoother real-time display
+        };
+
+        chart.DataSeries = new List<ChartDataSeries> { dataSeries };
+        this.Controls.Add(chart);
+    }
+
+    private void StartRealTimeUpdates()
+    {
+        updateTimer = new Timer { Interval = 100 }; // 10 FPS
+        updateTimer.Tick += UpdateData;
+        updateTimer.Start();
+    }
+
+    private void UpdateData(object sender, EventArgs e)
+    {
+        // Add new data point
+        var timestamp = DateTime.Now.ToString("HH:mm:ss");
+        var value = Math.Sin(DateTime.Now.Ticks / 10000000.0) * 100 + random.Next(-10, 10);
+        
+        dataSeries.Points.Add(new ChartDataPoint(timestamp, value.ToString(), (float)value));
+
+        // Keep only last 100 points for performance
+        if (dataSeries.Points.Count > 100)
+        {
+            dataSeries.Points.RemoveAt(0);
+        }
+
+        // Update chart
+        chart.AutoScaleViewport();
+        chart.Invalidate();
+    }
+
+    public void StopUpdates() => updateTimer?.Stop();
+    public void StartUpdates() => updateTimer?.Start();
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Financial Dashboard</h3>
+                        <pre><code class="language-csharp">public void CreateFinancialDashboard()
+{
+    // Revenue trend chart
+    var revenueChart = new BeepChart
+    {
+        Size = new Size(400, 300),
+        Location = new Point(10, 10),
+        ChartType = ChartType.Area,
+        ChartTitle = "Revenue",
+        ChartValue = "$2.4M",
+        ChartSubtitle = "↗ 12% from last month",
+        XAxisTitle = "Month",
+        YAxisTitle = "Revenue ($)",
+        ShowTitle = true
+    };
+
+    var revenueSeries = new ChartDataSeries
+    {
+        Name = "Monthly Revenue",
+        Color = Color.Green,
+        ShowArea = true,
+        ShowLine = true
+    };
+
+    // Add revenue data
+    var revenueData = new[]
+    {
+        ("Jan", 180000f), ("Feb", 220000f), ("Mar", 195000f),
+        ("Apr", 240000f), ("May", 285000f), ("Jun", 310000f)
+    };
+
+    foreach (var (month, amount) in revenueData)
+    {
+        revenueSeries.Points.Add(new ChartDataPoint(month, amount.ToString(), amount));
+    }
+
+    revenueChart.DataSeries = new List<ChartDataSeries> { revenueSeries };
+
+    // Market share pie chart
+    var marketChart = new BeepChart
+    {
+        Size = new Size(300, 300),
+        Location = new Point(430, 10),
+        ChartType = ChartType.Pie,
+        ChartTitle = "Market Share",
+        ShowLegend = true
+    };
+
+    var marketSeries = new ChartDataSeries
+    {
+        Name = "Market Share",
+        ChartType = ChartType.Pie
+    };
+
+    marketSeries.Points.AddRange(new[]
+    {
+        new ChartDataPoint("Our Company", "", 35f, "Our Company", Color.Blue),
+        new ChartDataPoint("Competitor A", "", 28f, "Competitor A", Color.Red),
+        new ChartDataPoint("Competitor B", "", 22f, "Competitor B", Color.Green),
+        new ChartDataPoint("Others", "", 15f, "Others", Color.Gray)
+    });
+
+    marketChart.DataSeries = new List<ChartDataSeries> { marketSeries };
+
+    // Add to form
+    this.Controls.Add(revenueChart);
+    this.Controls.Add(marketChart);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Interactive Data Explorer</h3>
+                        <pre><code class="language-csharp">public class DataExplorer : UserControl
+{
+    private BeepChart chart;
+    private Label statusLabel;
+    private Button resetZoomButton;
+
+    public DataExplorer()
+    {
+        InitializeExplorer();
+    }
+
+    private void InitializeExplorer()
+    {
+        // Create chart with interactive features
+        chart = new BeepChart
+        {
+            Dock = DockStyle.Fill,
+            ChartType = ChartType.Line,
+            ChartTitle = "Interactive Data Explorer",
+            XAxisTitle = "X Values",
+            YAxisTitle = "Y Values"
+        };
+
+        // Generate sample data
+        var series = new ChartDataSeries
+        {
+            Name = "Sample Data",
+            Color = Color.Blue,
+            ShowLine = true,
+            ShowPoint = true
+        };
+
+        var random = new Random();
+        for (int i = 0; i < 1000; i++)
+        {
+            var x = i;
+            var y = Math.Sin(i * 0.1) * 100 + random.Next(-20, 20);
+            series.Points.Add(new ChartDataPoint(x.ToString(), y.ToString(), (float)y, 
+                $"Point {i}", Color.Blue, $"X: {x}, Y: {y:F2}"));
+        }
+
+        chart.DataSeries = new List<ChartDataSeries> { series };
+
+        // Add status bar
+        statusLabel = new Label
+        {
+            Dock = DockStyle.Bottom,
+            Height = 25,
+            Text = "Mouse wheel to zoom, drag to pan, hover for details"
+        };
+
+        // Add reset button
+        resetZoomButton = new Button
+        {
+            Text = "Reset Zoom",
+            Size = new Size(100, 30),
+            Location = new Point(10, 10)
+        };
+        resetZoomButton.Click += (s, e) => {
+            chart.AutoScaleViewport();
+            chart.Invalidate();
+        };
+
+        // Handle mouse events for status updates
+        chart.MouseMove += OnChartMouseMove;
+
+        this.Controls.Add(chart);
+        this.Controls.Add(statusLabel);
+        this.Controls.Add(resetZoomButton);
+        resetZoomButton.BringToFront();
+    }
+
+    private void OnChartMouseMove(object sender, MouseEventArgs e)
+    {
+        var point = chart.GetHoveredDataPoint(e.Location);
+        if (point != null)
+        {
+            statusLabel.Text = $"Hovered: {point.ToolTip ?? $"X: {point.X}, Y: {point.Y}"}";
+        }
+        else
+        {
+            statusLabel.Text = "Mouse wheel to zoom, drag to pan, hover for details";
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Interactivity -->
+                <section id="interactivity" class="section">
+                    <h2>Interactivity</h2>
+                    
+                    <p>BeepChart provides rich interactive features for data exploration:</p>
+
+                    <h3>Mouse Interactions</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Interaction</th>
+                                <th>Action</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Mouse Wheel</td>
+                                <td>Zoom In/Out</td>
+                                <td>Zoom at mouse cursor position</td>
+                            </tr>
+                            <tr>
+                                <td>Click + Drag</td>
+                                <td>Pan</td>
+                                <td>Move viewport around the data</td>
+                            </tr>
+                            <tr>
+                                <td>Hover</td>
+                                <td>Tooltip</td>
+                                <td>Show data point details</td>
+                            </tr>
+                            <tr>
+                                <td>Click</td>
+                                <td>Select</td>
+                                <td>Custom point selection logic</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Implementing Custom Interactions</h3>
+                        <pre><code class="language-csharp">public class InteractiveChart : BeepChart
+{
+    private ChartDataPoint selectedPoint;
+
+    public event EventHandler<ChartDataPoint> PointSelected;
+
+    protected override void OnMouseClick(MouseEventArgs e)
+    {
+        base.OnMouseClick(e);
+
+        var clickedPoint = GetHoveredDataPoint(e.Location);
+        if (clickedPoint != null)
+        {
+            selectedPoint = clickedPoint;
+            PointSelected?.Invoke(this, clickedPoint);
+            
+            // Highlight selected point
+            Invalidate();
+        }
+    }
+
+    protected override void OnMouseDoubleClick(MouseEventArgs e)
+    {
+        base.OnMouseDoubleClick(e);
+
+        // Reset zoom on double-click
+        AutoScaleViewport();
+        Invalidate();
+    }
+
+    // Custom drawing to highlight selected point
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        base.OnPaint(e);
+
+        if (selectedPoint != null)
+        {
+            // Draw selection indicator
+            // Custom highlighting logic here
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepChart provides comprehensive theming with chart-specific color properties:</p>
+
+                    <div class="code-example">
+                        <h3>Chart Theme Colors</h3>
+                        <pre><code class="language-csharp">// Theme colors automatically applied
+var chart = new BeepChart
+{
+    Theme = "DarkTheme"
+};
+
+// Chart-specific theme properties:
+// - ChartBackColor: Chart background
+// - ChartLineColor: Default line color
+// - ChartFillColor: Fill areas
+// - ChartAxisColor: Axis lines
+// - ChartTitleColor: Title text
+// - ChartTextColor: Labels and text
+// - ChartLegendBackColor: Legend background
+// - ChartLegendTextColor: Legend text
+// - ChartGridLineColor: Grid lines
+// - ChartDefaultSeriesColors: Series color palette</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Chart Styling</h3>
+                        <pre><code class="language-csharp">public void ApplyCustomChartTheme(BeepChart chart)
+{
+    // Override theme colors for custom styling
+    chart.ChartBackColor = Color.FromArgb(32, 32, 32);
+    chart.ChartLineColor = Color.White;
+    chart.ChartAxisColor = Color.Gray;
+    chart.ChartTitleColor = Color.White;
+    chart.ChartTextColor = Color.LightGray;
+    chart.ChartGridLineColor = Color.FromArgb(64, 64, 64);
+
+    // Custom series colors
+    chart.ChartDefaultSeriesColors = new List<Color>
+    {
+        Color.FromArgb(0, 150, 255),   // Blue
+        Color.FromArgb(255, 100, 0),   // Orange
+        Color.FromArgb(0, 200, 100),   // Green
+        Color.FromArgb(255, 50, 150),  // Pink
+        Color.FromArgb(150, 0, 255)    // Purple
+    };
+
+    // Apply custom fonts
+    chart.ChartTitleFont = new Font("Arial", 14, FontStyle.Bold);
+    chart.ChartValueFont = new Font("Arial", 24, FontStyle.Bold);
+    chart.ChartSubtitleFont = new Font("Arial", 10, FontStyle.Regular);
+
+    chart.ApplyTheme();
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>BeepChart automatically applies theme colors to all visual elements. Use the ChartDefaultSeriesColors property to define a cohesive color palette for multiple data series.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>📊 Data Visualization</h3>
+                    <ul>
+                        <li><strong>Choose appropriate chart types:</strong> Line for trends, bar for comparisons, pie for parts of whole</li>
+                        <li><strong>Limit data points:</strong> Use reasonable point counts for performance (< 10,000 points)</li>
+                        <li><strong>Meaningful labels:</strong> Provide clear axis titles and series names</li>
+                        <li><strong>Consistent colors:</strong> Use consistent color schemes across related charts</li>
+                        <li><strong>Readable scales:</strong> Ensure axis scales are appropriate for your data range</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Auto-scaling:</strong> Use AutoScaleViewport() for initial display</li>
+                        <li><strong>Selective updates:</strong> Update only changed data series when possible</li>
+                        <li><strong>Point optimization:</strong> Remove unnecessary points for line charts with many data points</li>
+                        <li><strong>Custom drawing:</strong> Use CustomDrawSeries events sparingly for complex overlays</li>
+                        <li><strong>Memory management:</strong> Clear large datasets when no longer needed</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Readable fonts:</strong> Ensure title and axis fonts are appropriately sized</li>
+                        <li><strong>Color contrast:</strong> Maintain good contrast between chart elements and background</li>
+                        <li><strong>Legend placement:</strong> Position legends to not obscure important data</li>
+                        <li><strong>Grid lines:</strong> Use subtle grid lines to aid reading without clutter</li>
+                        <li><strong>Tooltip content:</strong> Provide meaningful tooltip information for data points</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Color independence:</strong> Don't rely solely on color to convey information</li>
+                        <li><strong>Tooltips:</strong> Provide detailed tooltips for screen readers</li>
+                        <li><strong>High contrast:</strong> Test charts in high contrast themes</li>
+                        <li><strong>Alternative formats:</strong> Consider data tables as alternatives for complex charts</li>
+                        <li><strong>Keyboard navigation:</strong> Implement keyboard shortcuts for zooming and panning</li>
+                    </ul>
+
+                    <h3>🔧 Implementation Tips</h3>
+                    <ul>
+                        <li><strong>Axis types:</strong> Use appropriate axis types (Numeric, Text, Date) for your data</li>
+                        <li><strong>Error handling:</strong> Handle invalid data points gracefully</li>
+                        <li><strong>Real-time data:</strong> Implement efficient update strategies for live data</li>
+                        <li><strong>Export functionality:</strong> Consider adding export capabilities for charts</li>
+                        <li><strong>Responsive design:</strong> Ensure charts work well at different sizes</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>Large datasets (>10,000 points) may impact performance. Consider data aggregation or sampling for better responsiveness.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Auto-Detection</strong>
+                        <p>BeepChart automatically detects axis types and scales viewports, making it easy to get started with minimal configuration.</p>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Custom Overlays</strong>
+                        <p>Use the CustomDrawSeries event for adding custom annotations, trend lines, or specialized visualizations on top of standard chart types.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-grid.html"><i class="bi bi-arrow-left"></i> BeepGrid</a>
+                    <a href="beep-statcard.html">BeepStatCard <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

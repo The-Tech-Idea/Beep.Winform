@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTabs - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html" class="active">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>›</span>
+                    <span>BeepTabs</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepTabs</h1>
+                    <p class="page-subtitle">Fully custom tab control with themed headers, closeable tabs, drag-and-drop reordering, and SVG close buttons</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#header-positions">Header Positions</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepTabs</strong> is a fully custom tab control that extends the standard TabControl 
+                        with advanced features including themed headers, closeable tabs, drag-and-drop tab reordering, 
+                        and flexible header positioning. Unlike traditional tab controls, BeepTabs provides complete 
+                        custom rendering with owner-drawn headers and smooth anti-aliased graphics.
+                    </p>
+                    <p>
+                        Built as an enhanced TabControl, BeepTabs features SVG close buttons, rounded corners, 
+                        custom color schemes, and supports header positioning on all four sides (Top, Bottom, Left, Right). 
+                        It includes comprehensive drag-and-drop functionality for tab reordering and integrates 
+                        seamlessly with the Beep theming system.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Custom Owner-Drawn Headers</h3>
+                            <p>Fully custom-rendered tab headers with anti-aliasing and smooth graphics</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>❌ Closeable Tabs</h3>
+                            <p>SVG close buttons on each tab with TabRemoved event notification</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Drag-and-Drop Reordering</h3>
+                            <p>Full drag-and-drop support for tab reordering with visual feedback</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📐 Flexible Header Positioning</h3>
+                            <p>Headers can be positioned on Top, Bottom, Left, or Right sides</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔘 Rounded Corner Design</h3>
+                            <p>Modern rounded corners on tab headers for professional appearance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎭 Complete Theme Integration</h3>
+                            <p>Full integration with Beep theming system for consistent styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Dynamic Tab Sizing</h3>
+                            <p>Automatic tab sizing based on content with configurable min/max limits</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>♿ Accessibility Support</h3>
+                            <p>Built-in accessibility features for screen readers and keyboard navigation</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Tab Control</h3>
+                        <pre><code class="language-csharp">// Create a basic BeepTabs control
+var tabControl = new BeepTabs
+{
+    Size = new Size(500, 400),
+    Location = new Point(10, 10),
+    HeaderPosition = TabHeaderPosition.Top,
+    HeaderHeight = 30
+};
+
+// Create and add tab pages
+var tabPage1 = new TabPage("General")
+{
+    BackColor = Color.White
+};
+var tabPage2 = new TabPage("Advanced")
+{
+    BackColor = Color.White
+};
+var tabPage3 = new TabPage("Settings")
+{
+    BackColor = Color.White
+};
+
+// Add content to tabs
+var label1 = new Label { Text = "General Settings", Dock = DockStyle.Fill };
+var label2 = new Label { Text = "Advanced Options", Dock = DockStyle.Fill };
+var label3 = new Label { Text = "Configuration", Dock = DockStyle.Fill };
+
+tabPage1.Controls.Add(label1);
+tabPage2.Controls.Add(label2);
+tabPage3.Controls.Add(label3);
+
+// Add tabs to control
+tabControl.TabPages.Add(tabPage1);
+tabControl.TabPages.Add(tabPage2);
+tabControl.TabPages.Add(tabPage3);
+
+// Add to form
+this.Controls.Add(tabControl);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Themed Tab Control with Event Handling</h3>
+                        <pre><code class="language-csharp">var tabControl = new BeepTabs
+{
+    Theme = "DarkTheme",
+    HeaderPosition = TabHeaderPosition.Top,
+    HeaderHeight = 35,
+    Size = new Size(600, 450)
+};
+
+// Handle tab removal
+tabControl.TabRemoved += (sender, e) => {
+    Console.WriteLine($"Tab '{e.TabText}' was removed");
+    
+    // Perform cleanup if needed
+    CleanupTabResources(e.TabText);
+};
+
+// Handle selection changes
+tabControl.SelectedIndexChanged += (sender, e) => {
+    var selectedTab = tabControl.SelectedTab;
+    if (selectedTab != null)
+    {
+        Console.WriteLine($"Selected tab: {selectedTab.Text}");
+        LoadTabContent(selectedTab);
+    }
+};
+
+// Add tabs dynamically
+for (int i = 1; i <= 5; i++)
+{
+    var tabPage = new TabPage($"Tab {i}");
+    var content = new Panel { Dock = DockStyle.Fill, BackColor = Color.LightBlue };
+    content.Controls.Add(new Label 
+    { 
+        Text = $"Content for Tab {i}", 
+        Dock = DockStyle.Fill, 
+        TextAlign = ContentAlignment.MiddleCenter 
+    });
+    
+    tabPage.Controls.Add(content);
+    tabControl.TabPages.Add(tabPage);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Tab Control with Different Header Positions</h3>
+                        <pre><code class="language-csharp">// Create tabs with different header positions
+var topTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Top,
+    HeaderHeight = 30,
+    Size = new Size(400, 300),
+    Location = new Point(10, 10)
+};
+
+var leftTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Left,
+    HeaderHeight = 150, // Width when vertical
+    Size = new Size(400, 300),
+    Location = new Point(420, 10)
+};
+
+var bottomTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Bottom,
+    HeaderHeight = 30,
+    Size = new Size(400, 300),
+    Location = new Point(10, 320)
+};
+
+var rightTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Right,
+    HeaderHeight = 150, // Width when vertical
+    Size = new Size(400, 300),
+    Location = new Point(420, 320)
+};
+
+// Add sample tabs to each
+foreach (var tabs in new[] { topTabs, leftTabs, bottomTabs, rightTabs })
+{
+    for (int i = 1; i <= 3; i++)
+    {
+        var tabPage = new TabPage($"Tab {i}");
+        var label = new Label 
+        { 
+            Text = $"Content {i}\nPosition: {tabs.HeaderPosition}", 
+            Dock = DockStyle.Fill, 
+            TextAlign = ContentAlignment.MiddleCenter 
+        };
+        tabPage.Controls.Add(label);
+        tabs.TabPages.Add(tabPage);
+    }
+}
+
+// Add all to form
+this.Controls.AddRange(new Control[] { topTabs, leftTabs, bottomTabs, rightTabs });</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>BeepTabs automatically handles layout adjustments when switching header positions, making it easy to create flexible interfaces.</p>
+                    </div>
+                </section>
+
+                <!-- Header Positions -->
+                <section id="header-positions" class="section">
+                    <h2>Header Positions</h2>
+                    <p>BeepTabs supports four different header positions for maximum layout flexibility:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>📄 Top Headers</h4>
+                            <p>Traditional tab layout with headers above content</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📋 Bottom Headers</h4>
+                            <p>Headers positioned below content area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📑 Left Headers</h4>
+                            <p>Vertical tab layout with headers on the left side</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📄 Right Headers</h4>
+                            <p>Vertical tab layout with headers on the right side</p>
+                        </div>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Header Position Configuration</h3>
+                        <pre><code class="language-csharp">// Top headers (default)
+var topHeaderTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Top,
+    HeaderHeight = 30 // Height of header area
+};
+
+// Bottom headers
+var bottomHeaderTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Bottom,
+    HeaderHeight = 30 // Height of header area
+};
+
+// Left headers (vertical)
+var leftHeaderTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Left,
+    HeaderHeight = 120 // Width of header area when vertical
+};
+
+// Right headers (vertical)
+var rightHeaderTabs = new BeepTabs
+{
+    HeaderPosition = TabHeaderPosition.Right,
+    HeaderHeight = 120 // Width of header area when vertical
+};
+
+// Dynamic header position change
+private void ChangeHeaderPosition()
+{
+    switch (currentPosition)
+    {
+        case TabHeaderPosition.Top:
+            tabControl.HeaderPosition = TabHeaderPosition.Right;
+            tabControl.HeaderHeight = 150;
+            break;
+        case TabHeaderPosition.Right:
+            tabControl.HeaderPosition = TabHeaderPosition.Bottom;
+            tabControl.HeaderHeight = 30;
+            break;
+        case TabHeaderPosition.Bottom:
+            tabControl.HeaderPosition = TabHeaderPosition.Left;
+            tabControl.HeaderHeight = 150;
+            break;
+        case TabHeaderPosition.Left:
+            tabControl.HeaderPosition = TabHeaderPosition.Top;
+            tabControl.HeaderHeight = 30;
+            break;
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>HeaderPosition</code></td>
+                                <td>TabHeaderPosition</td>
+                                <td>Top</td>
+                                <td>Position of tab headers (Top, Bottom, Left, Right)</td>
+                            </tr>
+                            <tr>
+                                <td><code>HeaderHeight</code></td>
+                                <td>int</td>
+                                <td>30</td>
+                                <td>Height of header area (width for vertical positions)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Theme</code></td>
+                                <td>string</td>
+                                <td>Default</td>
+                                <td>Theme name for styling</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectTab</code></td>
+                                <td>TabPage</td>
+                                <td>null</td>
+                                <td>Currently selected tab page</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectTabByIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Select tab by index (write-only)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Inherited TabControl Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TabPages</code></td>
+                                <td>TabPageCollection</td>
+                                <td>Collection of tab pages</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedTab</code></td>
+                                <td>TabPage</td>
+                                <td>Currently selected tab page</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>Index of currently selected tab</td>
+                            </tr>
+                            <tr>
+                                <td><code>TabCount</code></td>
+                                <td>int</td>
+                                <td>Number of tabs in the control</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>TabHeaderPosition Enumeration</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Top</h4>
+                            <p>Headers at the top<br>HeaderHeight = height of header area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Bottom</h4>
+                            <p>Headers at the bottom<br>HeaderHeight = height of header area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Left</h4>
+                            <p>Headers on the left (vertical)<br>HeaderHeight = width of header area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Right</h4>
+                            <p>Headers on the right (vertical)<br>HeaderHeight = width of header area</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Apply current theme to all visual elements</td>
+                            </tr>
+                            <tr>
+                                <td><code>SuspendFormLayout</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Suspend layout updates for performance</td>
+                            </tr>
+                            <tr>
+                                <td><code>ResumeFormLayout</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Resume layout updates and refresh display</td>
+                            </tr>
+                            <tr>
+                                <td><code>ReceiveMouseClick</code></td>
+                                <td>Point clientLocation</td>
+                                <td>void</td>
+                                <td>Handle mouse click from parent control</td>
+                            </tr>
+                            <tr>
+                                <td><code>ReceiveMouseMove</code></td>
+                                <td>Point clientLocation</td>
+                                <td>void</td>
+                                <td>Handle mouse move from parent control</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Method Usage Examples</h3>
+                        <pre><code class="language-csharp">var tabControl = new BeepTabs();
+
+// Apply theme changes
+tabControl.Theme = "DarkTheme";
+tabControl.ApplyTheme();
+
+// Performance optimization during bulk updates
+tabControl.SuspendFormLayout();
+try
+{
+    // Add multiple tabs
+    for (int i = 0; i < 10; i++)
+    {
+        var tabPage = new TabPage($"Tab {i}");
+        // Add content...
+        tabControl.TabPages.Add(tabPage);
+    }
+}
+finally
+{
+    tabControl.ResumeFormLayout();
+}
+
+// Handle mouse events from parent container
+protected override void OnMouseClick(MouseEventArgs e)
+{
+    base.OnMouseClick(e);
+    
+    // Forward click to tab control if within bounds
+    if (tabControl.Bounds.Contains(e.Location))
+    {
+        Point relativeLocation = new Point(
+            e.Location.X - tabControl.Left,
+            e.Location.Y - tabControl.Top
+        );
+        tabControl.ReceiveMouseClick(relativeLocation);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TabRemoved</code></td>
+                                <td>EventHandler&lt;TabRemovedEventArgs&gt;</td>
+                                <td>Fired when a tab is closed via close button</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndexChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the selected tab changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>DrawItem</code></td>
+                                <td>DrawItemEventHandler</td>
+                                <td>Fired for custom tab drawing (internal use)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var tabControl = new BeepTabs();
+
+// Handle tab removal
+tabControl.TabRemoved += (sender, e) => {
+    Console.WriteLine($"Tab '{e.TabText}' was removed");
+    
+    // Perform cleanup
+    CleanupTabResources(e.TabText);
+    
+    // Save state
+    SaveTabConfiguration();
+    
+    // Check if no tabs remain
+    if (tabControl.TabCount == 0)
+    {
+        ShowWelcomeScreen();
+    }
+};
+
+// Handle tab selection changes
+tabControl.SelectedIndexChanged += (sender, e) => {
+    var selectedTab = tabControl.SelectedTab;
+    if (selectedTab != null)
+    {
+        Console.WriteLine($"Selected tab: {selectedTab.Text}");
+        
+        // Update status bar
+        UpdateStatusBar($"Viewing: {selectedTab.Text}");
+        
+        // Load tab-specific data
+        LoadTabContent(selectedTab);
+        
+        // Update menu state
+        UpdateMenuForTab(selectedTab);
+    }
+};
+
+// Advanced tab management
+private void CleanupTabResources(string tabText)
+{
+    // Dispose of any resources associated with the tab
+    if (tabResources.ContainsKey(tabText))
+    {
+        var resources = tabResources[tabText];
+        resources.Dispose();
+        tabResources.Remove(tabText);
+    }
+}
+
+private void LoadTabContent(TabPage tabPage)
+{
+    // Lazy load content when tab is selected
+    if (tabPage.Controls.Count == 0)
+    {
+        // Create and add content
+        var content = CreateContentForTab(tabPage.Text);
+        if (content != null)
+        {
+            tabPage.Controls.Add(content);
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Document Editor with Closeable Tabs</h3>
+                        <pre><code class="language-csharp">public class DocumentEditor : Form
+{
+    private BeepTabs documentTabs;
+    private Dictionary<string, DocumentData> openDocuments;
+
+    public DocumentEditor()
+    {
+        InitializeDocumentTabs();
+        openDocuments = new Dictionary<string, DocumentData>();
+    }
+
+    private void InitializeDocumentTabs()
+    {
+        documentTabs = new BeepTabs
+        {
+            Dock = DockStyle.Fill,
+            HeaderPosition = TabHeaderPosition.Top,
+            HeaderHeight = 32,
+            Theme = "DefaultTheme"
+        };
+
+        // Handle tab removal
+        documentTabs.TabRemoved += DocumentTabs_TabRemoved;
+        documentTabs.SelectedIndexChanged += DocumentTabs_SelectedIndexChanged;
+
+        this.Controls.Add(documentTabs);
+    }
+
+    public void OpenDocument(string filePath)
+    {
+        string fileName = Path.GetFileName(filePath);
+        
+        // Check if document is already open
+        foreach (TabPage existingTab in documentTabs.TabPages)
+        {
+            if (existingTab.Text == fileName)
+            {
+                documentTabs.SelectedTab = existingTab;
+                return;
+            }
+        }
+
+        // Create new tab for document
+        var tabPage = new TabPage(fileName);
+        var textEditor = new RichTextBox
+        {
+            Dock = DockStyle.Fill,
+            Font = new Font("Consolas", 11f),
+            Text = File.ReadAllText(filePath)
+        };
+
+        // Track document state
+        var docData = new DocumentData
+        {
+            FilePath = filePath,
+            Editor = textEditor,
+            IsModified = false
+        };
+
+        textEditor.TextChanged += (s, e) => {
+            docData.IsModified = true;
+            UpdateTabTitle(tabPage, fileName);
+        };
+
+        tabPage.Controls.Add(textEditor);
+        documentTabs.TabPages.Add(tabPage);
+        documentTabs.SelectedTab = tabPage;
+
+        openDocuments[fileName] = docData;
+    }
+
+    private void DocumentTabs_TabRemoved(object sender, TabRemovedEventArgs e)
+    {
+        string fileName = e.TabText.TrimEnd('*'); // Remove modified indicator
+
+        if (openDocuments.ContainsKey(fileName))
+        {
+            var docData = openDocuments[fileName];
+            
+            // Check for unsaved changes
+            if (docData.IsModified)
+            {
+                var result = MessageBox.Show(
+                    $"Save changes to {fileName}?",
+                    "Unsaved Changes",
+                    MessageBoxButtons.YesNoCancel,
+                    MessageBoxIcon.Question);
+
+                switch (result)
+                {
+                    case DialogResult.Yes:
+                        SaveDocument(docData);
+                        break;
+                    case DialogResult.Cancel:
+                        // Re-add the tab (user cancelled)
+                        var tabPage = new TabPage(e.TabText);
+                        tabPage.Controls.Add(docData.Editor);
+                        documentTabs.TabPages.Add(tabPage);
+                        return;
+                }
+            }
+
+            openDocuments.Remove(fileName);
+        }
+
+        // Show welcome screen if no documents open
+        if (documentTabs.TabCount == 0)
+        {
+            ShowWelcomeTab();
+        }
+    }
+
+    private class DocumentData
+    {
+        public string FilePath { get; set; }
+        public RichTextBox Editor { get; set; }
+        public bool IsModified { get; set; }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Settings Dialog with Multiple Categories</h3>
+                        <pre><code class="language-csharp">public class AdvancedSettingsDialog : Form
+{
+    private BeepTabs settingsTabs;
+
+    public AdvancedSettingsDialog()
+    {
+        InitializeComponents();
+        CreateSettingsTabs();
+    }
+
+    private void InitializeComponents()
+    {
+        this.Text = "Advanced Settings";
+        this.Size = new Size(800, 600);
+        this.StartPosition = FormStartPosition.CenterParent;
+    }
+
+    private void CreateSettingsTabs()
+    {
+        settingsTabs = new BeepTabs
+        {
+            HeaderPosition = TabHeaderPosition.Left,
+            HeaderHeight = 180,
+            Theme = "DefaultTheme",
+            Dock = DockStyle.Fill
+        };
+
+        // Create setting categories
+        CreateGeneralTab();
+        CreateAdvancedTab();
+        CreateAppearanceTab();
+        CreateKeyboardTab();
+        CreatePluginsTab();
+
+        this.Controls.Add(settingsTabs);
+    }
+
+    private void CreateGeneralTab()
+    {
+        var tabPage = new TabPage("General Settings");
+        var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+
+        // Add general settings controls
+        var languageLabel = new Label { Text = "Language:", Location = new Point(0, 10), AutoSize = true };
+        var languageCombo = new ComboBox 
+        { 
+            Location = new Point(100, 7), 
+            Width = 150,
+            Items = { "English", "Spanish", "French", "German" }
+        };
+
+        var startupCheckBox = new CheckBox 
+        { 
+            Text = "Start with Windows", 
+            Location = new Point(0, 40), 
+            AutoSize = true 
+        };
+
+        var autoSaveCheckBox = new CheckBox 
+        { 
+            Text = "Auto-save documents", 
+            Location = new Point(0, 70), 
+            AutoSize = true 
+        };
+
+        panel.Controls.AddRange(new Control[] 
+        { 
+            languageLabel, languageCombo, 
+            startupCheckBox, autoSaveCheckBox 
+        });
+
+        tabPage.Controls.Add(panel);
+        settingsTabs.TabPages.Add(tabPage);
+    }
+
+    private void CreateAdvancedTab()
+    {
+        var tabPage = new TabPage("Advanced Options");
+        var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+
+        // Add advanced settings
+        var debugCheckBox = new CheckBox 
+        { 
+            Text = "Enable debug mode", 
+            Location = new Point(0, 10), 
+            AutoSize = true 
+        };
+
+        var cacheLabel = new Label { Text = "Cache size (MB):", Location = new Point(0, 40), AutoSize = true };
+        var cacheUpDown = new NumericUpDown 
+        { 
+            Location = new Point(120, 37), 
+            Width = 80, 
+            Minimum = 50, 
+            Maximum = 1000, 
+            Value = 200 
+        };
+
+        panel.Controls.AddRange(new Control[] { debugCheckBox, cacheLabel, cacheUpDown });
+        tabPage.Controls.Add(panel);
+        settingsTabs.TabPages.Add(tabPage);
+    }
+
+    private void CreateAppearanceTab()
+    {
+        var tabPage = new TabPage("Appearance");
+        var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+
+        // Theme selection
+        var themeLabel = new Label { Text = "Theme:", Location = new Point(0, 10), AutoSize = true };
+        var themeCombo = new ComboBox 
+        { 
+            Location = new Point(60, 7), 
+            Width = 150,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Items = { "Light", "Dark", "Auto" }
+        };
+
+        panel.Controls.AddRange(new Control[] { themeLabel, themeCombo });
+        tabPage.Controls.Add(panel);
+        settingsTabs.TabPages.Add(tabPage);
+    }
+
+    private void CreateKeyboardTab()
+    {
+        var tabPage = new TabPage("Keyboard");
+        var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+
+        var shortcutsListView = new ListView
+        {
+            Dock = DockStyle.Fill,
+            View = View.Details,
+            FullRowSelect = true,
+            GridLines = true
+        };
+
+        shortcutsListView.Columns.Add("Action", 200);
+        shortcutsListView.Columns.Add("Shortcut", 150);
+
+        // Add sample shortcuts
+        shortcutsListView.Items.Add(new ListViewItem(new[] { "New Document", "Ctrl+N" }));
+        shortcutsListView.Items.Add(new ListViewItem(new[] { "Open Document", "Ctrl+O" }));
+        shortcutsListView.Items.Add(new ListViewItem(new[] { "Save Document", "Ctrl+S" }));
+
+        panel.Controls.Add(shortcutsListView);
+        tabPage.Controls.Add(panel);
+        settingsTabs.TabPages.Add(tabPage);
+    }
+
+    private void CreatePluginsTab()
+    {
+        var tabPage = new TabPage("Plugins");
+        var panel = new Panel { Dock = DockStyle.Fill, Padding = new Padding(20) };
+
+        var pluginsCheckListBox = new CheckedListBox
+        {
+            Dock = DockStyle.Fill
+        };
+
+        // Add sample plugins
+        pluginsCheckListBox.Items.Add("Spell Checker", true);
+        pluginsCheckListBox.Items.Add("Code Highlighter", true);
+        pluginsCheckListBox.Items.Add("Auto Complete", false);
+        pluginsCheckListBox.Items.Add("Git Integration", true);
+
+        panel.Controls.Add(pluginsCheckListBox);
+        tabPage.Controls.Add(panel);
+        settingsTabs.TabPages.Add(tabPage);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepTabs provides comprehensive theming support for all visual elements:</p>
+
+                    <div class="code-example">
+                        <h3>Apply Theme</h3>
+                        <pre><code class="language-csharp">var tabControl = new BeepTabs
+{
+    Theme = "DarkTheme"
+};
+
+// Theme automatically applies:
+// - TabBackColor (inactive tab background)
+// - TabForeColor (inactive tab text)
+// - TabSelectedBackColor (active tab background)
+// - TabSelectedForeColor (active tab text)
+
+// Apply theme manually if needed
+tabControl.ApplyTheme();</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Theme Integration</h3>
+                        <pre><code class="language-csharp">// Apply theme to nested controls
+tabControl.ApplyTheme();
+
+// Theme is automatically applied to:
+// - All TabPage backgrounds
+// - Child controls implementing IBeepUIComponent
+// - Addin controls and their children
+
+// Custom theme application for specific scenarios
+foreach (TabPage tabPage in tabControl.TabPages)
+{
+    tabPage.BackColor = currentTheme.TabBackColor;
+    tabPage.ForeColor = currentTheme.TabForeColor;
+    
+    foreach (Control control in tabPage.Controls)
+    {
+        if (control is IBeepUIComponent beepControl)
+        {
+            beepControl.Theme = tabControl.Theme;
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>BeepTabs automatically applies theme colors to tab headers, close buttons, and content areas, ensuring consistent visual appearance across your application.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Tab Limits:</strong> Consider limiting the number of tabs to prevent overcrowding</li>
+                        <li><strong>Close Confirmation:</strong> Implement confirmation for closing modified content</li>
+                        <li><strong>Tab Ordering:</strong> Provide logical tab ordering and allow user customization</li>
+                        <li><strong>Visual Feedback:</strong> Use modified indicators (*) for unsaved content</li>
+                        <li><strong>Keyboard Navigation:</strong> Support Ctrl+Tab for tab switching</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Lazy Loading:</strong> Load tab content only when selected</li>
+                        <li><strong>Resource Management:</strong> Dispose of tab resources when tabs are closed</li>
+                        <li><strong>Layout Suspension:</strong> Use SuspendFormLayout during bulk operations</li>
+                        <li><strong>Memory Optimization:</strong> Clear unused tab references</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Header Position:</strong> Choose appropriate header position for your layout</li>
+                        <li><strong>Header Sizing:</strong> Set appropriate HeaderHeight for readability</li>
+                        <li><strong>Theme Consistency:</strong> Apply consistent theming across all tabs</li>
+                        <li><strong>Icon Usage:</strong> Consider adding icons to tab headers for better identification</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard Support:</strong> Ensure full keyboard navigation</li>
+                        <li><strong>Screen Readers:</strong> Use meaningful tab text and descriptions</li>
+                        <li><strong>Focus Indicators:</strong> Provide clear focus indication</li>
+                        <li><strong>High Contrast:</strong> Test with high contrast themes</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>Be careful with tab limits and resource management. Too many tabs can impact performance and user experience.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>Use BeepTabs for document interfaces, settings dialogs, and any scenario requiring organized content sections with closeable tabs.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-card.html"><i class="bi bi-arrow-left"></i> BeepCard</a>
+                    <a href="beep-accordion.html">BeepAccordionMenu <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

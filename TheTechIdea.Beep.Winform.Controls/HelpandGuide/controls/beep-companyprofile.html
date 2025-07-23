@@ -1,0 +1,1077 @@
+<!--
+    BeepCompanyProfile Control Documentation
+    Professional-grade documentation for the BeepCompanyProfile WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepCompanyProfile - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                            <li><a href="beep-taskcard.html">BeepTaskCard</a></li>
+                            <li><a href="beep-featurecard.html">BeepFeatureCard</a></li>
+                            <li><a href="beep-companyprofile.html" class="active">BeepCompanyProfile</a></li>
+                            <li><a href="beep-tasklistitem.html">BeepTaskListItem</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepCompanyProfile</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepCompanyProfile</h1>
+                    <p class="page-subtitle">Comprehensive, theme-aware profile display control for showcasing company or organization information with branding</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepCompanyProfile</strong> provides a comprehensive, professional display component for 
+                        showcasing company or organization information. It combines visual branding elements with detailed 
+                        contact information, key metrics, and social media integration in a cohesive, branded interface.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepCompanyProfile features flexible layout options, 
+                        customizable branding elements, metric displays, social media integration, 
+                        contact information management, and comprehensive theming support. Perfect for about pages, 
+                        company dashboards, CRM systems, and any application requiring professional company presentation.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🏢 Professional Branding</h3>
+                            <p>Company logo, name, tagline, and description with branded layouts</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📞 Contact Information</h3>
+                            <p>Complete contact details with clickable email, phone, and website links</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Key Metrics</h3>
+                            <p>Customizable business metrics and statistics display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌐 Social Integration</h3>
+                            <p>Social media links and sharing capabilities</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Flexible Layouts</h3>
+                            <p>Multiple layout options from compact to detailed presentations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Industry Support</h3>
+                            <p>Industry-specific templates and certification displays</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Professional Company Profile Display</h3>
+                    <div class="visual-demo">
+                        <div class="company-profile-preview">
+                            <!-- Header Section -->
+                            <div class="profile-header">
+                                <div class="company-logo">
+                                    <div class="logo-placeholder">🏢</div>
+                                </div>
+                                <div class="company-info">
+                                    <h2 class="company-name">TheTechIdea</h2>
+                                    <p class="company-tagline">Innovative Software Solutions</p>
+                                    <div class="company-location">📍 San Francisco, CA</div>
+                                </div>
+                                <div class="company-actions">
+                                    <button class="action-btn primary">Contact Us</button>
+                                    <button class="action-btn secondary">Follow</button>
+                                </div>
+                            </div>
+
+                            <!-- Description Section -->
+                            <div class="profile-description">
+                                <h3>About Us</h3>
+                                <p>Leading provider of enterprise software solutions, specializing in data management, business intelligence, and custom application development. We help organizations transform their operations through innovative technology.</p>
+                            </div>
+
+                            <!-- Metrics Section -->
+                            <div class="profile-metrics">
+                                <h3>Company Highlights</h3>
+                                <div class="metrics-grid">
+                                    <div class="metric-card">
+                                        <div class="metric-value">2020</div>
+                                        <div class="metric-label">Founded</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value">50+</div>
+                                        <div class="metric-label">Team Members</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value">200+</div>
+                                        <div class="metric-label">Projects Delivered</div>
+                                    </div>
+                                    <div class="metric-card">
+                                        <div class="metric-value">25+</div>
+                                        <div class="metric-label">Countries Served</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Contact Section -->
+                            <div class="profile-contact">
+                                <h3>Get In Touch</h3>
+                                <div class="contact-grid">
+                                    <div class="contact-item">
+                                        <div class="contact-icon">📧</div>
+                                        <div class="contact-details">
+                                            <div class="contact-label">Email</div>
+                                            <div class="contact-value">info@thetechidea.net</div>
+                                        </div>
+                                    </div>
+                                    <div class="contact-item">
+                                        <div class="contact-icon">📞</div>
+                                        <div class="contact-details">
+                                            <div class="contact-label">Phone</div>
+                                            <div class="contact-value">+1 (555) 123-4567</div>
+                                        </div>
+                                    </div>
+                                    <div class="contact-item">
+                                        <div class="contact-icon">🌐</div>
+                                        <div class="contact-details">
+                                            <div class="contact-label">Website</div>
+                                            <div class="contact-value">www.thetechidea.net</div>
+                                        </div>
+                                    </div>
+                                    <div class="contact-item">
+                                        <div class="contact-icon">💼</div>
+                                        <div class="contact-details">
+                                            <div class="contact-label">LinkedIn</div>
+                                            <div class="contact-value">@TheTechIdea</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Certifications Section -->
+                            <div class="profile-certifications">
+                                <h3>Certifications & Awards</h3>
+                                <div class="certifications-grid">
+                                    <div class="cert-badge">ISO 9001</div>
+                                    <div class="cert-badge">Microsoft Partner</div>
+                                    <div class="cert-badge">AWS Certified</div>
+                                    <div class="cert-badge">Best Workplace 2024</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Professional company profile showcasing branding, metrics, contact information, and certifications</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .company-profile-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                        }
+
+                        .profile-header {
+                            display: flex;
+                            align-items: center;
+                            gap: 1.5rem;
+                            margin-bottom: 2rem;
+                            padding-bottom: 1.5rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .company-logo .logo-placeholder {
+                            width: 80px;
+                            height: 80px;
+                            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary, #6366f1));
+                            border-radius: 12px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 32px;
+                            color: white;
+                        }
+
+                        .company-info {
+                            flex: 1;
+                        }
+
+                        .company-name {
+                            font-size: 24px;
+                            font-weight: 700;
+                            color: var(--color-text);
+                            margin: 0 0 0.5rem;
+                        }
+
+                        .company-tagline {
+                            font-size: 16px;
+                            color: var(--color-text-secondary);
+                            margin: 0 0 0.5rem;
+                            font-style: italic;
+                        }
+
+                        .company-location {
+                            font-size: 14px;
+                            color: var(--color-text-muted);
+                        }
+
+                        .company-actions {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                        }
+
+                        .action-btn {
+                            padding: 0.5rem 1rem;
+                            border: none;
+                            border-radius: 6px;
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            min-width: 100px;
+                        }
+
+                        .action-btn.primary {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .action-btn.primary:hover {
+                            background: var(--color-primary-dark, #1e40af);
+                        }
+
+                        .action-btn.secondary {
+                            background: var(--color-background-secondary);
+                            color: var(--color-text);
+                            border: 1px solid var(--color-border);
+                        }
+
+                        .action-btn.secondary:hover {
+                            background: var(--color-border-light);
+                        }
+
+                        .profile-description, .profile-metrics, .profile-contact, .profile-certifications {
+                            margin-bottom: 2rem;
+                        }
+
+                        .profile-description h3, .profile-metrics h3, .profile-contact h3, .profile-certifications h3 {
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            margin: 0 0 1rem;
+                        }
+
+                        .profile-description p {
+                            color: var(--color-text-secondary);
+                            line-height: 1.6;
+                            margin: 0;
+                        }
+
+                        .metrics-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                            gap: 1rem;
+                        }
+
+                        .metric-card {
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            text-align: center;
+                        }
+
+                        .metric-value {
+                            font-size: 24px;
+                            font-weight: 700;
+                            color: var(--color-primary);
+                            margin-bottom: 0.25rem;
+                        }
+
+                        .metric-label {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .contact-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                            gap: 1rem;
+                        }
+
+                        .contact-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                        }
+
+                        .contact-icon {
+                            width: 32px;
+                            height: 32px;
+                            background: var(--color-background-secondary);
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 14px;
+                        }
+
+                        .contact-label {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .contact-value {
+                            font-size: 14px;
+                            color: var(--color-text);
+                            font-weight: 500;
+                        }
+
+                        .certifications-grid {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.75rem;
+                        }
+
+                        .cert-badge {
+                            background: linear-gradient(135deg, var(--color-success), #16a34a);
+                            color: white;
+                            padding: 0.5rem 1rem;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Company Profile</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepCompanyProfile
+var companyProfile = new BeepCompanyProfile();
+companyProfile.Size = new Size(400, 300);
+companyProfile.CompanyName = "TheTechIdea";
+companyProfile.Tagline = "Innovative Software Solutions";
+companyProfile.Description = "Leading provider of enterprise software solutions.";
+companyProfile.Logo = Properties.Resources.CompanyLogo;
+
+// Set contact information
+companyProfile.Website = "https://thetechidea.net";
+companyProfile.Email = "info@thetechidea.net";
+companyProfile.Phone = "+1 (555) 123-4567";
+companyProfile.Address = "San Francisco, CA";
+
+// Handle profile interactions
+companyProfile.ContactClicked += (s, e) =>
+{
+    switch (e.ContactType)
+    {
+        case ContactType.Email:
+            Process.Start($"mailto:{companyProfile.Email}");
+            break;
+        case ContactType.Website:
+            Process.Start(companyProfile.Website);
+            break;
+        case ContactType.Phone:
+            MessageBox.Show($"Call {companyProfile.Phone}");
+            break;
+    }
+};
+
+// Add to form or panel
+this.Controls.Add(companyProfile);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Profile with Metrics and Social Media</h3>
+                        <pre><code class="language-csharp">// Create comprehensive company profile
+var profile = new BeepCompanyProfile
+{
+    CompanyName = "TheTechIdea",
+    Tagline = "Innovative Software Solutions",
+    Description = "We help organizations transform through technology",
+    Size = new Size(500, 600),
+    ProfileLayout = CompanyProfileLayout.Detailed
+};
+
+// Add key metrics
+profile.AddMetric("Founded", "2020");
+profile.AddMetric("Employees", "50+");
+profile.AddMetric("Projects", "200+");
+profile.AddMetric("Countries", "25+");
+profile.AddMetric("Revenue", "$5M+");
+
+// Add social media links
+profile.AddSocialLink("LinkedIn", "https://linkedin.com/company/thetechidea", SocialPlatform.LinkedIn);
+profile.AddSocialLink("Twitter", "https://twitter.com/thetechidea", SocialPlatform.Twitter);
+profile.AddSocialLink("GitHub", "https://github.com/thetechidea", SocialPlatform.GitHub);
+
+// Add certifications and awards
+profile.AddCertification("ISO 9001", CertificationType.Quality);
+profile.AddCertification("Microsoft Partner", CertificationType.Technology);
+profile.AddCertification("AWS Certified", CertificationType.Cloud);
+
+// Handle social media clicks
+profile.SocialLinkClicked += (s, e) =>
+{
+    Process.Start(e.Url);
+    LogSocialInteraction(e.Platform, e.Url);
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CompanyName</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Company or organization name</td>
+                            </tr>
+                            <tr>
+                                <td><code>Tagline</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Company tagline or slogan</td>
+                            </tr>
+                            <tr>
+                                <td><code>Description</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Company description or mission statement</td>
+                            </tr>
+                            <tr>
+                                <td><code>Logo</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Company logo or branding image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Contact Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Website</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Company website URL</td>
+                            </tr>
+                            <tr>
+                                <td><code>Email</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Primary contact email address</td>
+                            </tr>
+                            <tr>
+                                <td><code>Phone</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Primary contact phone number</td>
+                            </tr>
+                            <tr>
+                                <td><code>Address</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Physical address or location</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Display Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ProfileLayout</code></td>
+                                <td>CompanyProfileLayout</td>
+                                <td>Standard</td>
+                                <td>Layout style (Compact, Standard, Detailed)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowMetrics</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide metrics section</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowSocialLinks</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide social media links</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowCertifications</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide certifications and awards</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ContactClicked</code></td>
+                                <td>ContactEventArgs</td>
+                                <td>Fired when contact information is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>SocialLinkClicked</code></td>
+                                <td>SocialLinkEventArgs</td>
+                                <td>Fired when social media link is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>MetricClicked</code></td>
+                                <td>MetricEventArgs</td>
+                                <td>Fired when metric display is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>LogoClicked</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when company logo is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Corporate Dashboard Integration</h3>
+                        <pre><code class="language-csharp">public partial class CorporateDashboard : UserControl
+{
+    private BeepCompanyProfile companyProfile;
+    private ICompanyService companyService;
+    private IAnalyticsService analyticsService;
+
+    public CorporateDashboard(ICompanyService companyService, IAnalyticsService analyticsService)
+    {
+        this.companyService = companyService;
+        this.analyticsService = analyticsService;
+        InitializeComponents();
+        LoadCompanyProfile();
+    }
+
+    private void InitializeComponents()
+    {
+        companyProfile = new BeepCompanyProfile
+        {
+            Dock = DockStyle.Top,
+            Height = 400,
+            ProfileLayout = CompanyProfileLayout.Detailed,
+            ShowMetrics = true,
+            ShowSocialLinks = true,
+            ShowCertifications = true
+        };
+
+        // Configure event handlers
+        companyProfile.ContactClicked += OnContactClicked;
+        companyProfile.SocialLinkClicked += OnSocialLinkClicked;
+        companyProfile.MetricClicked += OnMetricClicked;
+        companyProfile.LogoClicked += OnLogoClicked;
+
+        this.Controls.Add(companyProfile);
+    }
+
+    private async void LoadCompanyProfile()
+    {
+        try
+        {
+            var companyInfo = await companyService.GetCompanyInfoAsync();
+            var metrics = await analyticsService.GetCompanyMetricsAsync();
+
+            // Set basic company information
+            companyProfile.CompanyName = companyInfo.Name;
+            companyProfile.Tagline = companyInfo.Tagline;
+            companyProfile.Description = companyInfo.Description;
+            companyProfile.Logo = await LoadImageAsync(companyInfo.LogoUrl);
+
+            // Set contact information
+            companyProfile.Website = companyInfo.Website;
+            companyProfile.Email = companyInfo.ContactEmail;
+            companyProfile.Phone = companyInfo.ContactPhone;
+            companyProfile.Address = companyInfo.Address;
+
+            // Add dynamic metrics
+            foreach (var metric in metrics)
+            {
+                companyProfile.AddMetric(metric.Name, metric.Value, metric.Icon);
+            }
+
+            // Add social media links
+            foreach (var socialLink in companyInfo.SocialLinks)
+            {
+                companyProfile.AddSocialLink(
+                    socialLink.Name,
+                    socialLink.Url,
+                    ParseSocialPlatform(socialLink.Platform)
+                );
+            }
+
+            // Add certifications
+            foreach (var cert in companyInfo.Certifications)
+            {
+                companyProfile.AddCertification(
+                    cert.Name,
+                    cert.Type,
+                    cert.ExpiryDate,
+                    cert.BadgeImage
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading company profile: {ex.Message}");
+        }
+    }
+
+    private async void OnContactClicked(object sender, ContactEventArgs e)
+    {
+        try
+        {
+            // Track contact interaction
+            await analyticsService.TrackContactInteractionAsync(e.ContactType);
+
+            switch (e.ContactType)
+            {
+                case ContactType.Email:
+                    if (IsEmailClientAvailable())
+                    {
+                        Process.Start($"mailto:{e.ContactValue}");
+                    }
+                    else
+                    {
+                        Clipboard.SetText(e.ContactValue);
+                        ShowNotification($"Email address copied to clipboard: {e.ContactValue}");
+                    }
+                    break;
+
+                case ContactType.Phone:
+                    if (IsDialerAvailable())
+                    {
+                        Process.Start($"tel:{e.ContactValue}");
+                    }
+                    else
+                    {
+                        Clipboard.SetText(e.ContactValue);
+                        ShowNotification($"Phone number copied to clipboard: {e.ContactValue}");
+                    }
+                    break;
+
+                case ContactType.Website:
+                    Process.Start(e.ContactValue);
+                    break;
+
+                case ContactType.Address:
+                    var mapsUrl = $"https://maps.google.com/maps?q={Uri.EscapeDataString(e.ContactValue)}";
+                    Process.Start(mapsUrl);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error handling contact interaction: {ex.Message}");
+        }
+    }
+
+    private async void OnSocialLinkClicked(object sender, SocialLinkEventArgs e)
+    {
+        try
+        {
+            // Track social media interaction
+            await analyticsService.TrackSocialInteractionAsync(e.Platform, e.Url);
+
+            // Open social media link
+            Process.Start(e.Url);
+
+            // Show follow prompt for first-time interactions
+            var interactionCount = await analyticsService.GetSocialInteractionCountAsync(e.Platform);
+            if (interactionCount == 1)
+            {
+                ShowFollowPrompt(e.Platform);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error opening social link: {ex.Message}");
+        }
+    }
+
+    private async void OnMetricClicked(object sender, MetricEventArgs e)
+    {
+        try
+        {
+            // Track metric interaction
+            await analyticsService.TrackMetricClickAsync(e.MetricName);
+
+            // Show detailed metric information
+            var detailedMetric = await analyticsService.GetDetailedMetricAsync(e.MetricName);
+            ShowMetricDetailDialog(detailedMetric);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading metric details: {ex.Message}");
+        }
+    }
+
+    private void OnLogoClicked(object sender, EventArgs e)
+    {
+        // Show company information dialog or navigate to about page
+        ShowCompanyInfoDialog();
+    }
+
+    // Helper methods
+    private async Task<Image> LoadImageAsync(string imageUrl)
+    {
+        if (string.IsNullOrEmpty(imageUrl))
+            return Properties.Resources.DefaultCompanyLogo;
+
+        try
+        {
+            using (var httpClient = new HttpClient())
+            {
+                var imageBytes = await httpClient.GetByteArrayAsync(imageUrl);
+                using (var stream = new MemoryStream(imageBytes))
+                {
+                    return Image.FromStream(stream);
+                }
+            }
+        }
+        catch
+        {
+            return Properties.Resources.DefaultCompanyLogo;
+        }
+    }
+
+    private SocialPlatform ParseSocialPlatform(string platform)
+    {
+        return platform.ToLower() switch
+        {
+            "linkedin" => SocialPlatform.LinkedIn,
+            "twitter" => SocialPlatform.Twitter,
+            "facebook" => SocialPlatform.Facebook,
+            "instagram" => SocialPlatform.Instagram,
+            "github" => SocialPlatform.GitHub,
+            "youtube" => SocialPlatform.YouTube,
+            _ => SocialPlatform.Other
+        };
+    }
+
+    private bool IsEmailClientAvailable() { /* Implementation */ return true; }
+    private bool IsDialerAvailable() { /* Implementation */ return false; }
+    private void ShowNotification(string message) { /* Implementation */ }
+    private void ShowFollowPrompt(SocialPlatform platform) { /* Implementation */ }
+    private void ShowMetricDetailDialog(object detailedMetric) { /* Implementation */ }
+    private void ShowCompanyInfoDialog() { /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepCompanyProfile provides comprehensive theming support with automatic adaptation to corporate branding:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var companyProfile = new BeepCompanyProfile
+{
+    Theme = "CorporateBrand",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - HeaderBackColor: Profile header background
+// - ContentBackColor: Main content area background
+// - AccentColor: Metrics and highlight colors
+// - TextColors: Primary and secondary text colors
+// - BorderColors: Section dividers and borders
+// - ButtonColors: Action button styling</code></pre>
+                    </div>
+
+                    <h3>Corporate Branding Features</h3>
+                    <ul>
+                        <li><strong>Brand color integration</strong> - Automatic application of corporate color schemes</li>
+                        <li><strong>Logo positioning</strong> - Flexible logo placement and sizing options</li>
+                        <li><strong>Typography consistency</strong> - Corporate font families and sizing</li>
+                        <li><strong>Professional layouts</strong> - Industry-appropriate design templates</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🏢 Corporate Presentation</h3>
+                    <ul>
+                        <li><strong>Professional imagery:</strong> Use high-quality logos and brand-consistent visuals</li>
+                        <li><strong>Accurate information:</strong> Keep contact details and metrics current and accurate</li>
+                        <li><strong>Consistent branding:</strong> Apply corporate colors and fonts throughout</li>
+                        <li><strong>Clear value proposition:</strong> Highlight unique strengths and achievements</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Responsive design:</strong> Ensure profile displays well at different sizes</li>
+                        <li><strong>Performance:</strong> Optimize image loading and metric calculation</li>
+                        <li><strong>Accessibility:</strong> Provide alt text and keyboard navigation</li>
+                        <li><strong>Analytics:</strong> Track user interactions for insights</li>
+                    </ul>
+
+                    <h3>📊 Content Management</h3>
+                    <ul>
+                        <li><strong>Dynamic updates:</strong> Pull metrics and information from live data sources</li>
+                        <li><strong>Content validation:</strong> Validate contact information and links</li>
+                        <li><strong>Multi-language support:</strong> Provide localized content where needed</li>
+                        <li><strong>SEO optimization:</strong> Structure content for search engine visibility</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use the detailed layout for comprehensive about pages and compact layout for dashboard widgets or sidebar displays.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Regularly update metrics and certifications to maintain credibility and showcase current achievements.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Privacy Warning</strong>
+                        <p>Be mindful of privacy regulations when displaying contact information and ensure compliance with data protection laws.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-featurecard.html"><i class="bi bi-arrow-left"></i> BeepFeatureCard</a>
+                    <a href="beep-tasklistitem.html">BeepTaskListItem <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepListBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-palette"></i> Theming & UI</a>
+                        <ul class="submenu">
+                            <li><a href="beep-themes-manager.html">BeepThemesManager</a></li>
+                            <li><a href="beep-form-ui-manager.html">BeepFormUIManager</a></li>
+                            <li><a href="beep-theme-functions.html">Theme Functions</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html" class="active">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepListBox</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>📋 BeepListBox</h1>
+                    <p class="page-subtitle">Advanced list control with search, filtering, multi-selection, collapsible mode, and comprehensive theming</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📚 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#search-filtering">Search & Filtering</a></li>
+                        <li><a href="#selection-modes">Selection Modes</a></li>
+                        <li><a href="#visual-customization">Visual Customization</a></li>
+                        <li><a href="#collapsible-mode">Collapsible Mode</a></li>
+                        <li><a href="#data-binding">Data Binding</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#examples">Real-World Examples</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>📋 Overview</h2>
+                    <p>
+                        <strong>BeepListBox</strong> is a sophisticated list control that extends the functionality of 
+                        traditional list boxes with modern features like real-time search, filtering, multi-selection 
+                        with checkboxes, image support, collapsible mode, and comprehensive theming. Built on the 
+                        BeepPanel foundation, it provides a professional, customizable solution for data selection scenarios.
+                    </p>
+                    <p>
+                        The control supports both simple text lists and complex data objects, with automatic layout 
+                        management, responsive design, and full integration with the Beep theming system. It's designed 
+                        for enterprise applications requiring robust data selection and presentation capabilities.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>🚀 Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔍 Real-Time Search</h3>
+                            <p>Built-in search functionality with instant filtering and placeholder text support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>☑️ Multi-Selection</h3>
+                            <p>Checkbox-based multi-selection with programmatic access to selected items</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Image Support</h3>
+                            <p>Display images alongside text with configurable sizing and theme integration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📁 Collapsible Mode</h3>
+                            <p>Minimize to title-only view to save space in dense UIs</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Advanced Theming</h3>
+                            <p>Full theme integration with hover effects, selection states, and custom styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Layout</h3>
+                            <p>Automatic sizing and layout adjustment based on content and container size</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>🚀 Basic Usage</h2>
+
+                    <div class="code-example">
+                        <h3>Simple List Box</h3>
+                        <pre><code class="language-csharp">// Create a basic list box
+var listBox = new BeepListBox
+{
+    Size = new Size(200, 250),
+    Location = new Point(10, 10),
+    TitleText = "Select Items"
+};
+
+// Add items
+listBox.ListItems.Add(new SimpleItem { Text = "Item 1", Value = "1" });
+listBox.ListItems.Add(new SimpleItem { Text = "Item 2", Value = "2" });
+listBox.ListItems.Add(new SimpleItem { Text = "Item 3", Value = "3" });
+
+// Handle selection
+listBox.ItemClicked += (sender, item) => {
+    MessageBox.Show($"Selected: {item.Text}");
+};
+
+// Add to form
+this.Controls.Add(listBox);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>List Box with Search</h3>
+                        <pre><code class="language-csharp">// Create list box with search functionality
+var searchableList = new BeepListBox
+{
+    Size = new Size(300, 400),
+    Location = new Point(10, 10),
+    TitleText = "Product Categories",
+    
+    // Enable search
+    ShowSearch = true,
+    SearchPlaceholderText = "Search categories...",
+    SearchAreaHeight = 30
+};
+
+// Add items
+var categories = new[]
+{
+    "Electronics", "Clothing", "Books", "Home & Garden",
+    "Sports", "Automotive", "Health", "Beauty",
+    "Toys", "Jewelry", "Food", "Office Supplies"
+};
+
+foreach (var category in categories)
+{
+    searchableList.ListItems.Add(new SimpleItem 
+    { 
+        Text = category, 
+        Value = category.ToLower().Replace(" ", "_") 
+    });
+}
+
+this.Controls.Add(searchableList);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-Selection List Box</h3>
+                        <pre><code class="language-csharp">// Create list box with checkboxes for multi-selection
+var multiSelectList = new BeepListBox
+{
+    Size = new Size(250, 300),
+    Location = new Point(10, 10),
+    TitleText = "Select Features",
+    
+    // Enable checkboxes
+    ShowCheckBox = true,
+    
+    // Visual settings
+    MenuItemHeight = 25,
+    ShowHilightBox = true
+};
+
+// Add feature options
+var features = new[]
+{
+    "Auto-save", "Dark mode", "Notifications", 
+    "Sync", "Backup", "Encryption", "Analytics"
+};
+
+foreach (var feature in features)
+{
+    multiSelectList.ListItems.Add(new SimpleItem 
+    { 
+        Text = feature, 
+        Value = feature 
+    });
+}
+
+// Get selected items
+var getSelectedButton = new Button
+{
+    Text = "Get Selected",
+    Location = new Point(270, 10)
+};
+
+getSelectedButton.Click += (s, e) => {
+    var selected = multiSelectList.SelectedItems;
+    var selectedTexts = selected.Select(item => item.Text);
+    MessageBox.Show($"Selected: {string.Join(", ", selectedTexts)}");
+};
+
+this.Controls.Add(multiSelectList);
+this.Controls.Add(getSelectedButton);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Programmatic Selection</h3>
+                        <pre><code class="language-csharp">// Select by index
+listBox.SelectedIndex = 2;
+
+// Select by item text
+listBox.SetItemIndex("Item Name");
+
+// Select by item text and value
+listBox.SetItemIndex("Item Name", "item_value");
+
+// Select by SimpleItem object
+listBox.SelectedItem = specificItem;
+
+// Get current selection
+var currentItem = listBox.SelectedItem;
+var currentIndex = listBox.SelectedIndex;</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>BeepListBox automatically adjusts its layout based on enabled features. Enable ShowSearch for large lists and ShowCheckBox for multi-selection scenarios.</p>
+                    </div>
+                </section>
+
+                <!-- Search & Filtering -->
+                <section id="search-filtering" class="section">
+                    <h2>🔍 Search & Filtering</h2>
+
+                    <div class="code-example">
+                        <h3>Advanced Search Configuration</h3>
+                        <pre><code class="language-csharp">// Configure search functionality
+var advancedList = new BeepListBox
+{
+    TitleText = "Employee Directory",
+    ShowSearch = true,
+    SearchPlaceholderText = "Search by name or department...",
+    SearchAreaHeight = 35,
+    Size = new Size(350, 400)
+};
+
+// Add employee data
+var employees = new[]
+{
+    new { Name = "John Smith", Dept = "Engineering", Email = "john@company.com" },
+    new { Name = "Sarah Johnson", Dept = "Marketing", Email = "sarah@company.com" },
+    new { Name = "Mike Davis", Dept = "Engineering", Email = "mike@company.com" },
+    new { Name = "Lisa Brown", Dept = "Sales", Email = "lisa@company.com" }
+};
+
+foreach (var emp in employees)
+{
+    advancedList.ListItems.Add(new SimpleItem
+    {
+        Text = emp.Name,
+        SubText = emp.Dept, // Secondary text for search
+        Value = emp.Email
+    });
+}
+
+// Programmatic search
+public void SearchEmployees(string searchTerm)
+{
+    advancedList.Search(searchTerm);
+}
+
+// Clear search
+public void ClearEmployeeSearch()
+{
+    advancedList.ClearSearch();
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Filtering Logic</h3>
+                        <pre><code class="language-csharp">public class FilterableListBox : BeepListBox
+{
+    private Func<SimpleItem, string, bool> _customFilter;
+    
+    public Func<SimpleItem, string, bool> CustomFilter
+    {
+        get => _customFilter;
+        set
+        {
+            _customFilter = value;
+            ApplyCurrentFilter();
+        }
+    }
+    
+    public void ApplyCustomFilter(string criteria)
+    {
+        if (_customFilter == null) return;
+        
+        // Clear current filtered items
+        _filteredOutItems.Clear();
+        
+        // Apply custom filter logic
+        foreach (var item in ListItems)
+        {
+            if (!_customFilter(item, criteria))
+            {
+                _filteredOutItems.Add(item);
+            }
+        }
+        
+        Invalidate(); // Redraw with filtered items
+    }
+    
+    private void ApplyCurrentFilter()
+    {
+        if (!string.IsNullOrEmpty(SearchText))
+        {
+            ApplyCustomFilter(SearchText);
+        }
+    }
+}
+
+// Usage with custom filter
+var filterableList = new FilterableListBox
+{
+    TitleText = "Advanced Search",
+    ShowSearch = true
+};
+
+// Set up custom filter (search in multiple fields)
+filterableList.CustomFilter = (item, searchTerm) =>
+{
+    var term = searchTerm.ToLowerInvariant();
+    return item.Text.ToLowerInvariant().Contains(term) ||
+           (item.SubText?.ToLowerInvariant().Contains(term) ?? false) ||
+           (item.Value?.ToString().ToLowerInvariant().Contains(term) ?? false);
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Search with Categories</h3>
+                        <pre><code class="language-csharp">public void CreateCategorizedSearchList()
+{
+    var categorizedList = new BeepListBox
+    {
+        TitleText = "Document Library",
+        ShowSearch = true,
+        SearchPlaceholderText = "Search documents...",
+        Size = new Size(400, 500)
+    };
+    
+    // Add documents with categories
+    var documents = new[]
+    {
+        new { Name = "Project Plan.docx", Category = "Documents", Type = "Word" },
+        new { Name = "Budget 2024.xlsx", Category = "Spreadsheets", Type = "Excel" },
+        new { Name = "Presentation.pptx", Category = "Presentations", Type = "PowerPoint" },
+        new { Name = "Database Backup.sql", Category = "Database", Type = "SQL" },
+        new { Name = "User Manual.pdf", Category = "Documents", Type = "PDF" }
+    };
+    
+    foreach (var doc in documents)
+    {
+        categorizedList.ListItems.Add(new SimpleItem
+        {
+            Text = doc.Name,
+            SubText = $"{doc.Category} - {doc.Type}",
+            Value = doc.Name,
+            ImagePath = GetDocumentIcon(doc.Type) // Category-based icons
+        });
+    }
+    
+    this.Controls.Add(categorizedList);
+}
+
+private string GetDocumentIcon(string type)
+{
+    return type switch
+    {
+        "Word" => @"Assets\icons\word.svg",
+        "Excel" => @"Assets\icons\excel.svg",
+        "PowerPoint" => @"Assets\icons\powerpoint.svg",
+        "PDF" => @"Assets\icons\pdf.svg",
+        "SQL" => @"Assets\icons\database.svg",
+        _ => @"Assets\icons\document.svg"
+    };
+}</code></pre>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Search Features</strong>
+                        <ul>
+                            <li><strong>Real-time filtering:</strong> Results update as you type</li>
+                            <li><strong>Multi-field search:</strong> Searches both main text and sub-text</li>
+                            <li><strong>Case-insensitive:</strong> Search is not case-sensitive</li>
+                            <li><strong>Programmatic control:</strong> Search and clear methods available</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Selection Modes -->
+                <section id="selection-modes" class="section">
+                    <h2>☑️ Selection Modes</h2>
+
+                    <div class="code-example">
+                        <h3>Single Selection Mode</h3>
+                        <pre><code class="language-csharp">// Single selection (default behavior)
+var singleSelectList = new BeepListBox
+{
+    TitleText = "Choose Theme",
+    ShowCheckBox = false, // Single selection mode
+    Size = new Size(200, 300)
+};
+
+// Add theme options
+var themes = new[] { "Light", "Dark", "Auto", "High Contrast" };
+foreach (var theme in themes)
+{
+    singleSelectList.ListItems.Add(new SimpleItem { Text = theme, Value = theme });
+}
+
+// Handle single selection
+singleSelectList.SelectedItemChanged += (sender, e) => {
+    if (e.SelectedItem != null)
+    {
+        ApplyTheme(e.SelectedItem.Value.ToString());
+        Console.WriteLine($"Theme changed to: {e.SelectedItem.Text}");
+    }
+};
+
+// Get current selection
+public SimpleItem GetCurrentTheme()
+{
+    return singleSelectList.SelectedItem;
+}
+
+// Set selection programmatically
+public void SetTheme(string themeName)
+{
+    singleSelectList.SetItemIndex(themeName);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-Selection with Checkboxes</h3>
+                        <pre><code class="language-csharp">// Multi-selection mode
+var multiSelectList = new BeepListBox
+{
+    TitleText = "Select Permissions",
+    ShowCheckBox = true, // Enable multi-selection
+    Size = new Size(300, 400)
+};
+
+// Add permission options
+var permissions = new[]
+{
+    new { Name = "Read Data", Description = "View information" },
+    new { Name = "Write Data", Description = "Create and edit" },
+    new { Name = "Delete Data", Description = "Remove information" },
+    new { Name = "Admin Access", Description = "Full system access" },
+    new { Name = "User Management", Description = "Manage users" },
+    new { Name = "System Config", Description = "Change settings" }
+};
+
+foreach (var perm in permissions)
+{
+    multiSelectList.ListItems.Add(new SimpleItem
+    {
+        Text = perm.Name,
+        SubText = perm.Description,
+        Value = perm.Name
+    });
+}
+
+// Handle selection changes (individual items)
+multiSelectList.ItemClicked += (sender, item) => {
+    UpdatePermissionSummary();
+};
+
+// Get all selected items
+public List<string> GetSelectedPermissions()
+{
+    return multiSelectList.SelectedItems
+        .Select(item => item.Value.ToString())
+        .ToList();
+}
+
+// Set specific permissions
+public void SetPermissions(List<string> permissionNames)
+{
+    // Clear current selections
+    ClearAllSelections();
+    
+    // Select specified permissions
+    foreach (string permName in permissionNames)
+    {
+        var item = multiSelectList.ListItems
+            .FirstOrDefault(i => i.Value.ToString() == permName);
+        if (item != null)
+        {
+            // Set checkbox state (implementation depends on internal structure)
+            SelectItem(item);
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Selection Management Utilities</h3>
+                        <pre><code class="language-csharp">public class SelectionManager
+{
+    private readonly BeepListBox _listBox;
+    
+    public SelectionManager(BeepListBox listBox)
+    {
+        _listBox = listBox;
+    }
+    
+    // Select all items (if multi-select enabled)
+    public void SelectAll()
+    {
+        if (!_listBox.ShowCheckBox) return;
+        
+        foreach (var item in _listBox.ListItems)
+        {
+            SetItemSelected(item, true);
+        }
+    }
+    
+    // Clear all selections
+    public void ClearAll()
+    {
+        if (_listBox.ShowCheckBox)
+        {
+            foreach (var item in _listBox.ListItems)
+            {
+                SetItemSelected(item, false);
+            }
+        }
+        else
+        {
+            _listBox.SelectedIndex = -1;
+        }
+    }
+    
+    // Select items by criteria
+    public void SelectWhere(Func<SimpleItem, bool> predicate)
+    {
+        if (!_listBox.ShowCheckBox) return;
+        
+        foreach (var item in _listBox.ListItems)
+        {
+            bool shouldSelect = predicate(item);
+            SetItemSelected(item, shouldSelect);
+        }
+    }
+    
+    // Get selection statistics
+    public SelectionStats GetSelectionStats()
+    {
+        if (_listBox.ShowCheckBox)
+        {
+            int total = _listBox.ListItems.Count;
+            int selected = _listBox.SelectedItems.Count;
+            
+            return new SelectionStats
+            {
+                TotalItems = total,
+                SelectedItems = selected,
+                SelectionPercentage = total > 0 ? (double)selected / total * 100 : 0
+            };
+        }
+        else
+        {
+            return new SelectionStats
+            {
+                TotalItems = _listBox.ListItems.Count,
+                SelectedItems = _listBox.SelectedItem != null ? 1 : 0,
+                SelectionPercentage = _listBox.SelectedItem != null ? 100 : 0
+            };
+        }
+    }
+    
+    private void SetItemSelected(SimpleItem item, bool selected)
+    {
+        // Implementation would depend on internal checkbox structure
+        // This is a conceptual example
+    }
+}
+
+public class SelectionStats
+{
+    public int TotalItems { get; set; }
+    public int SelectedItems { get; set; }
+    public double SelectionPercentage { get; set; }
+    
+    public bool HasSelection => SelectedItems > 0;
+    public bool IsFullSelection => SelectedItems == TotalItems && TotalItems > 0;
+    public bool IsPartialSelection => SelectedItems > 0 && SelectedItems < TotalItems;
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Visual Customization -->
+                <section id="visual-customization" class="section">
+                    <h2>🎨 Visual Customization</h2>
+
+                    <div class="code-example">
+                        <h3>Image and Icon Configuration</h3>
+                        <pre><code class="language-csharp">// Configure visual appearance
+var visualList = new BeepListBox
+{
+    TitleText = "File Browser",
+    Size = new Size(350, 400),
+    
+    // Image settings
+    ShowImage = true,
+    ImageSize = 24,
+    ApplyThemeOnImage = true,
+    
+    // Item settings
+    MenuItemHeight = 32,
+    ShowHilightBox = true,
+    
+    // Layout settings
+    IsItemChilds = true
+};
+
+// Add files with icons
+var files = new[]
+{
+    new { Name = "Document.pdf", Type = "pdf", Size = "2.3 MB" },
+    new { Name = "Spreadsheet.xlsx", Type = "excel", Size = "1.8 MB" },
+    new { Name = "Image.jpg", Type = "image", Size = "5.4 MB" },
+    new { Name = "Archive.zip", Type = "archive", Size = "12.1 MB" }
+};
+
+foreach (var file in files)
+{
+    visualList.ListItems.Add(new SimpleItem
+    {
+        Text = file.Name,
+        SubText = file.Size,
+        Value = file.Name,
+        ImagePath = GetFileTypeIcon(file.Type)
+    });
+}
+
+// Font customization
+visualList.TextFont = new Font("Segoe UI", 10, FontStyle.Regular);
+visualList.UseThemeFont = false; // Use custom font</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Styling and Colors</h3>
+                        <pre><code class="language-csharp">public class StyledListBox : BeepListBox
+{
+    public StyledListBox()
+    {
+        InitializeCustomStyling();
+    }
+    
+    private void InitializeCustomStyling()
+    {
+        // Override default theme colors
+        HoverBackColor = Color.FromArgb(240, 248, 255);
+        HoverForeColor = Color.FromArgb(0, 100, 200);
+        HoverBorderColor = Color.FromArgb(0, 100, 200);
+        
+        SelectedBackColor = Color.FromArgb(0, 120, 215);
+        SelectedForeColor = Color.White;
+        SelectedBorderColor = Color.FromArgb(0, 100, 200);
+        
+        FocusBackColor = Color.FromArgb(230, 245, 255);
+        FocusForeColor = Color.FromArgb(0, 100, 200);
+        
+        // Custom border and radius
+        BorderRadius = 8;
+        BorderThickness = 2;
+        IsRounded = true;
+        ShowShadow = true;
+    }
+    
+    public void ApplyCustomColorScheme(ColorScheme scheme)
+    {
+        switch (scheme)
+        {
+            case ColorScheme.Professional:
+                ApplyProfessionalColors();
+                break;
+            case ColorScheme.Vibrant:
+                ApplyVibrantColors();
+                break;
+            case ColorScheme.Minimal:
+                ApplyMinimalColors();
+                break;
+        }
+        
+        ApplyTheme();
+        Invalidate();
+    }
+    
+    private void ApplyProfessionalColors()
+    {
+        BackColor = Color.White;
+        ForeColor = Color.FromArgb(33, 37, 41);
+        HoverBackColor = Color.FromArgb(248, 249, 250);
+        SelectedBackColor = Color.FromArgb(0, 86, 179);
+    }
+    
+    private void ApplyVibrantColors()
+    {
+        BackColor = Color.FromArgb(255, 255, 255);
+        ForeColor = Color.FromArgb(51, 51, 51);
+        HoverBackColor = Color.FromArgb(255, 235, 59);
+        SelectedBackColor = Color.FromArgb(76, 175, 80);
+    }
+    
+    private void ApplyMinimalColors()
+    {
+        BackColor = Color.FromArgb(250, 250, 250);
+        ForeColor = Color.FromArgb(80, 80, 80);
+        HoverBackColor = Color.FromArgb(240, 240, 240);
+        SelectedBackColor = Color.FromArgb(120, 120, 120);
+    }
+}
+
+public enum ColorScheme
+{
+    Professional,
+    Vibrant,
+    Minimal
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Sizing and Layout</h3>
+                        <pre><code class="language-csharp">public class ResponsiveListBox : BeepListBox
+{
+    public void OptimizeForContent()
+    {
+        // Auto-size based on content
+        int optimalWidth = GetMaxWidth();
+        int optimalHeight = GetMaxHeight();
+        
+        // Apply size with constraints
+        Width = Math.Max(200, Math.Min(400, optimalWidth));
+        Height = Math.Max(100, Math.Min(600, optimalHeight));
+    }
+    
+    public void SetCompactMode(bool compact)
+    {
+        if (compact)
+        {
+            MenuItemHeight = 20;
+            ImageSize = 16;
+            SearchAreaHeight = 24;
+            
+            // Reduce padding
+            Padding = new Padding(4);
+        }
+        else
+        {
+            MenuItemHeight = 28;
+            ImageSize = 24;
+            SearchAreaHeight = 30;
+            
+            // Standard padding
+            Padding = new Padding(8);
+        }
+        
+        Invalidate();
+    }
+    
+    public void SetDensity(ListDensity density)
+    {
+        switch (density)
+        {
+            case ListDensity.Compact:
+                MenuItemHeight = 20;
+                ImageSize = 16;
+                break;
+                
+            case ListDensity.Standard:
+                MenuItemHeight = 28;
+                ImageSize = 24;
+                break;
+                
+            case ListDensity.Comfortable:
+                MenuItemHeight = 36;
+                ImageSize = 32;
+                break;
+        }
+        
+        Invalidate();
+    }
+}
+
+public enum ListDensity
+{
+    Compact,
+    Standard,
+    Comfortable
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Collapsible Mode -->
+                <section id="collapsible-mode" class="section">
+                    <h2>📁 Collapsible Mode</h2>
+
+                    <div class="code-example">
+                        <h3>Basic Collapsible Functionality</h3>
+                        <pre><code class="language-csharp">// Create collapsible list box
+var collapsibleList = new BeepListBox
+{
+    TitleText = "Tools Panel",
+    Size = new Size(250, 300),
+    Location = new Point(10, 10),
+    ShowTitle = true
+};
+
+// Add items
+var tools = new[] { "Calculator", "Notepad", "Color Picker", "Screen Capture" };
+foreach (var tool in tools)
+{
+    collapsibleList.ListItems.Add(new SimpleItem { Text = tool, Value = tool });
+}
+
+// Collapse/expand functionality
+var toggleButton = new Button
+{
+    Text = "Toggle",
+    Location = new Point(270, 10),
+    Size = new Size(80, 30)
+};
+
+toggleButton.Click += (s, e) => {
+    collapsibleList.Collapsed = !collapsibleList.Collapsed;
+    toggleButton.Text = collapsibleList.Collapsed ? "Expand" : "Collapse";
+};
+
+this.Controls.Add(collapsibleList);
+this.Controls.Add(toggleButton);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Smart Collapsible Layout Manager</h3>
+                        <pre><code class="language-csharp">public class CollapsibleLayoutManager
+{
+    private readonly List<BeepListBox> _managedListBoxes;
+    private readonly Dictionary<BeepListBox, int> _originalHeights;
+    
+    public CollapsibleLayoutManager()
+    {
+        _managedListBoxes = new List<BeepListBox>();
+        _originalHeights = new Dictionary<BeepListBox, int>();
+    }
+    
+    public void RegisterListBox(BeepListBox listBox, string groupName = null)
+    {
+        _managedListBoxes.Add(listBox);
+        _originalHeights[listBox] = listBox.Height;
+        
+        // Add expand/collapse capability to title
+        AddToggleToTitle(listBox);
+    }
+    
+    private void AddToggleToTitle(BeepListBox listBox)
+    {
+        // Add click handler to title area for toggle
+        listBox.Click += (s, e) => {
+            // Check if click was in title area
+            if (IsClickInTitleArea(listBox, e as MouseEventArgs))
+            {
+                ToggleCollapse(listBox);
+            }
+        };
+    }
+    
+    public void ToggleCollapse(BeepListBox listBox)
+    {
+        listBox.Collapsed = !listBox.Collapsed;
+        
+        // Trigger layout update event
+        OnLayoutChanged?.Invoke(new LayoutChangedEventArgs
+        {
+            ListBox = listBox,
+            IsCollapsed = listBox.Collapsed,
+            PreviousHeight = _originalHeights[listBox],
+            NewHeight = listBox.Height
+        });
+    }
+    
+    public void CollapseAll()
+    {
+        foreach (var listBox in _managedListBoxes)
+        {
+            if (!listBox.Collapsed)
+            {
+                listBox.Collapsed = true;
+            }
+        }
+    }
+    
+    public void ExpandAll()
+    {
+        foreach (var listBox in _managedListBoxes)
+        {
+            if (listBox.Collapsed)
+            {
+                listBox.Collapsed = false;
+            }
+        }
+    }
+    
+    public void SaveLayout(string layoutName)
+    {
+        var layout = new LayoutState
+        {
+            Name = layoutName,
+            CollapsedStates = _managedListBoxes.ToDictionary(
+                lb => lb.TitleText, 
+                lb => lb.Collapsed)
+        };
+        
+        // Save to settings or file
+        SaveLayoutState(layout);
+    }
+    
+    public void LoadLayout(string layoutName)
+    {
+        var layout = LoadLayoutState(layoutName);
+        if (layout == null) return;
+        
+        foreach (var listBox in _managedListBoxes)
+        {
+            if (layout.CollapsedStates.TryGetValue(listBox.TitleText, out bool collapsed))
+            {
+                listBox.Collapsed = collapsed;
+            }
+        }
+    }
+    
+    public event Action<LayoutChangedEventArgs> OnLayoutChanged;
+    
+    private bool IsClickInTitleArea(BeepListBox listBox, MouseEventArgs e)
+    {
+        // Implementation depends on internal title area structure
+        return e != null && e.Y <= listBox.TitleBottomY;
+    }
+}
+
+public class LayoutChangedEventArgs
+{
+    public BeepListBox ListBox { get; set; }
+    public bool IsCollapsed { get; set; }
+    public int PreviousHeight { get; set; }
+    public int NewHeight { get; set; }
+}
+
+public class LayoutState
+{
+    public string Name { get; set; }
+    public Dictionary<string, bool> CollapsedStates { get; set; }
+}</code></pre>
+                    </div>
+
+                    <div class="note">
+                        <strong>📝 Collapsible Mode Benefits</strong>
+                        <ul>
+                            <li><strong>Space Efficiency:</strong> Maximize screen real estate in dense UIs</li>
+                            <li><strong>Organization:</strong> Group related functionality that can be hidden when not needed</li>
+                            <li><strong>User Control:</strong> Let users customize their workspace layout</li>
+                            <li><strong>Focus:</strong> Reduce visual clutter by hiding secondary options</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Data Binding -->
+                <section id="data-binding" class="section">
+                    <h2>🔗 Data Binding</h2>
+
+                    <div class="code-example">
+                        <h3>Simple Data Binding</h3>
+                        <pre><code class="language-csharp">public class Customer
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Company { get; set; }
+    public string Email { get; set; }
+    public string Phone { get; set; }
+}
+
+// Bind list of customers
+public void BindCustomers(List<Customer> customers)
+{
+    var customerList = new BeepListBox
+    {
+        TitleText = "Customer List",
+        ShowSearch = true,
+        SearchPlaceholderText = "Search customers...",
+        Size = new Size(400, 500)
+    };
+    
+    // Clear existing items
+    customerList.ListItems.Clear();
+    
+    // Add customers
+    foreach (var customer in customers)
+    {
+        customerList.ListItems.Add(new SimpleItem
+        {
+            Text = customer.Name,
+            SubText = customer.Company,
+            Value = customer.Id.ToString(),
+            Tag = customer // Store full object
+        });
+    }
+    
+    // Handle selection
+    customerList.SelectedItemChanged += (s, e) => {
+        if (e.SelectedItem?.Tag is Customer selectedCustomer)
+        {
+            DisplayCustomerDetails(selectedCustomer);
+        }
+    };
+    
+    this.Controls.Add(customerList);
+}
+
+// Get selected customer
+public Customer GetSelectedCustomer(BeepListBox customerList)
+{
+    return customerList.SelectedItem?.Tag as Customer;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Observable Collection Binding</h3>
+                        <pre><code class="language-csharp">public class DataBoundListBox : BeepListBox
+{
+    private INotifyCollectionChanged _dataSource;
+    
+    public IEnumerable DataSource
+    {
+        get => _dataSource as IEnumerable;
+        set
+        {
+            if (_dataSource != null)
+            {
+                _dataSource.CollectionChanged -= OnDataSourceChanged;
+            }
+            
+            _dataSource = value as INotifyCollectionChanged;
+            
+            if (_dataSource != null)
+            {
+                _dataSource.CollectionChanged += OnDataSourceChanged;
+            }
+            
+            RefreshFromDataSource();
+        }
+    }
+    
+    public string DisplayMember { get; set; } = "Text";
+    public string ValueMember { get; set; } = "Value";
+    public string SubTextMember { get; set; } = "SubText";
+    public string ImageMember { get; set; } = "ImagePath";
+    
+    private void OnDataSourceChanged(object sender, NotifyCollectionChangedEventArgs e)
+    {
+        if (InvokeRequired)
+        {
+            Invoke(new Action(() => OnDataSourceChanged(sender, e)));
+            return;
+        }
+        
+        switch (e.Action)
+        {
+            case NotifyCollectionChangedAction.Add:
+                foreach (var item in e.NewItems)
+                {
+                    AddDataItem(item);
+                }
+                break;
+                
+            case NotifyCollectionChangedAction.Remove:
+                foreach (var item in e.OldItems)
+                {
+                    RemoveDataItem(item);
+                }
+                break;
+                
+            case NotifyCollectionChangedAction.Reset:
+                RefreshFromDataSource();
+                break;
+        }
+    }
+    
+    private void RefreshFromDataSource()
+    {
+        ListItems.Clear();
+        
+        if (DataSource != null)
+        {
+            foreach (var item in DataSource)
+            {
+                AddDataItem(item);
+            }
+        }
+    }
+    
+    private void AddDataItem(object dataItem)
+    {
+        var listItem = new SimpleItem
+        {
+            Text = GetPropertyValue(dataItem, DisplayMember)?.ToString() ?? "",
+            SubText = GetPropertyValue(dataItem, SubTextMember)?.ToString(),
+            Value = GetPropertyValue(dataItem, ValueMember),
+            ImagePath = GetPropertyValue(dataItem, ImageMember)?.ToString(),
+            Tag = dataItem
+        };
+        
+        ListItems.Add(listItem);
+    }
+    
+    private void RemoveDataItem(object dataItem)
+    {
+        var listItem = ListItems.FirstOrDefault(item => item.Tag == dataItem);
+        if (listItem != null)
+        {
+            ListItems.Remove(listItem);
+        }
+    }
+    
+    private object GetPropertyValue(object obj, string propertyName)
+    {
+        if (string.IsNullOrEmpty(propertyName) || obj == null)
+            return null;
+            
+        var property = obj.GetType().GetProperty(propertyName);
+        return property?.GetValue(obj);
+    }
+}
+
+// Usage
+var observableCustomers = new ObservableCollection<Customer>();
+var dataList = new DataBoundListBox
+{
+    DataSource = observableCustomers,
+    DisplayMember = "Name",
+    ValueMember = "Id",
+    SubTextMember = "Company",
+    TitleText = "Live Customer List"
+};
+
+// Add items - they'll automatically appear in the list
+observableCustomers.Add(new Customer { Id = 1, Name = "John Doe", Company = "Acme Corp" });</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>🎨 Theming</h2>
+
+                    <div class="code-example">
+                        <h3>Theme Integration</h3>
+                        <pre><code class="language-csharp">// BeepListBox automatically applies comprehensive theming
+public override void ApplyTheme()
+{
+    base.ApplyTheme();
+    
+    if (_currentTheme == null) return;
+    
+    // Apply list-specific theme properties
+    BackColor = _currentTheme.ListBackColor;
+    ForeColor = _currentTheme.ListForeColor;
+    BorderColor = _currentTheme.ListBorderColor;
+    
+    // Apply hover, selected and disabled states
+    HoverBackColor = _currentTheme.ListItemHoverBackColor;
+    HoverForeColor = _currentTheme.ListItemHoverForeColor;
+    HoverBorderColor = _currentTheme.ListItemHoverBorderColor;
+    
+    SelectedBackColor = _currentTheme.ListItemSelectedBackColor;
+    SelectedForeColor = _currentTheme.ListItemSelectedForeColor;
+    SelectedBorderColor = _currentTheme.ListItemSelectedBorderColor;
+    
+    // Apply fonts based on theme
+    if (UseThemeFont)
+    {
+        if (_currentTheme.ListUnSelectedFont != null)
+        {
+            TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.ListUnSelectedFont);
+        }
+        else if (_currentTheme.LabelMedium != null)
+        {
+            TextFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
+        }
+    }
+    
+    // Apply search box theming
+    if (_searchTextBox != null)
+    {
+        _searchTextBox.BackColor = _currentTheme.TextBoxBackColor;
+        _searchTextBox.ForeColor = _currentTheme.TextBoxForeColor;
+        _searchTextBox.BorderStyle = BorderStyle.FixedSingle;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Features</strong>
+                        <ul>
+                            <li><strong>Automatic Integration:</strong> Inherits all colors from current Beep theme</li>
+                            <li><strong>State-Aware:</strong> Different colors for hover, selected, focused, and disabled states</li>
+                            <li><strong>Typography:</strong> Respects theme font settings or allows custom fonts</li>
+                            <li><strong>Search Integration:</strong> Search box automatically themed to match</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>⭐ Best Practices</h2>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Search for Large Lists:</strong> Enable search when you have more than 10-15 items</li>
+                        <li><strong>Meaningful Item Text:</strong> Use clear, descriptive text for list items</li>
+                        <li><strong>Consistent Icons:</strong> Use a consistent icon style across all items</li>
+                        <li><strong>Appropriate Sizing:</strong> Choose item heights that balance density with readability</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Efficient Updates:</strong> Use batch operations when adding many items</li>
+                        <li><strong>Virtual Mode:</strong> Consider virtual mode for very large datasets (1000+ items)</li>
+                        <li><strong>Search Optimization:</strong> Implement efficient search algorithms for large lists</li>
+                        <li><strong>Memory Management:</strong> Dispose of resources properly, especially with data binding</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard Navigation:</strong> Ensure full keyboard accessibility</li>
+                        <li><strong>Screen Reader Support:</strong> Use meaningful text and avoid icon-only items</li>
+                        <li><strong>High Contrast:</strong> Test with high contrast themes</li>
+                        <li><strong>Focus Indicators:</strong> Ensure focused items are clearly visible</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Common Pitfalls</strong>
+                        <ul>
+                            <li><strong>Too Many Items:</strong> Consider pagination or grouping for lists with 100+ items</li>
+                            <li><strong>Poor Search UX:</strong> Provide clear feedback when search returns no results</li>
+                            <li><strong>Inconsistent Selection:</strong> Be clear about single vs multi-selection modes</li>
+                            <li><strong>Missing Context:</strong> Provide sufficient information for users to make informed selections</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-statcard.html"><i class="bi bi-arrow-left"></i> BeepStatCard</a>
+                    <a href="../api/beep-control-base.html">API Reference <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

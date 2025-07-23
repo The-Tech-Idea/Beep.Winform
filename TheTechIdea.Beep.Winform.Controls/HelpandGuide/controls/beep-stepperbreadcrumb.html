@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepStepperBreadCrumb - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                            <li><a href="beep-stepperbreadcrumb.html" class="active">BeepStepperBreadCrumb</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>?</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>?</span>
+                    <span>BeepStepperBreadCrumb</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepStepperBreadCrumb</h1>
+                    <p class="page-subtitle">Chevron-shaped breadcrumb stepper with smooth animations and precise click detection for modern navigation experiences</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepStepperBreadCrumb</strong> provides a modern, chevron-shaped breadcrumb navigation control 
+                        designed for wizard-style interfaces and multi-step processes. Unlike traditional breadcrumbs, it features 
+                        distinctive arrow-shaped segments that visually connect to create a flowing navigation experience.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepStepperBreadCrumb features precise click detection 
+                        using custom graphics paths, smooth color animations, dual orientation support, and comprehensive theming. 
+                        Perfect for setup wizards, checkout processes, form workflows, and any application requiring clear step-by-step navigation.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Chevron Design</h3>
+                            <p>Distinctive arrow-shaped segments with smooth connections and custom-drawn graphics</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Precise Click Detection</h3>
+                            <p>Advanced hit-testing using graphics paths for accurate step selection</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>? Smooth Animations</h3>
+                            <p>Color transition animations when selecting different steps</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Dual Orientation</h3>
+                            <p>Support for both horizontal and vertical layouts with automatic adaptation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Rich Text Display</h3>
+                            <p>Step headers and subtitles with proper centering and font styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Progress Tracking</h3>
+                            <p>Visual indication of completed, current, and pending steps</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Horizontal Chevron Layout</h3>
+                    <div class="visual-demo">
+                        <div class="breadcrumb-preview">
+                            <div class="chevron-container horizontal">
+                                <div class="chevron-step completed start">
+                                    <div class="step-content">
+                                        <div class="step-header">Personal</div>
+                                        <div class="step-subtitle">Basic info</div>
+                                    </div>
+                                </div>
+                                <div class="chevron-step completed middle">
+                                    <div class="step-content">
+                                        <div class="step-header">Account</div>
+                                        <div class="step-subtitle">Credentials</div>
+                                    </div>
+                                </div>
+                                <div class="chevron-step current middle">
+                                    <div class="step-content">
+                                        <div class="step-header">Preferences</div>
+                                        <div class="step-subtitle">Settings</div>
+                                    </div>
+                                </div>
+                                <div class="chevron-step pending middle">
+                                    <div class="step-content">
+                                        <div class="step-header">Review</div>
+                                        <div class="step-subtitle">Confirm</div>
+                                    </div>
+                                </div>
+                                <div class="chevron-step pending end">
+                                    <div class="step-content">
+                                        <div class="step-header">Complete</div>
+                                        <div class="step-subtitle">Finish</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Horizontal chevron breadcrumb showing connected arrow-shaped steps</em></p>
+                    </div>
+
+                    <h3>Vertical Chevron Layout</h3>
+                    <div class="visual-demo">
+                        <div class="breadcrumb-preview vertical">
+                            <div class="chevron-container vertical">
+                                <div class="chevron-step-v completed start-v">
+                                    <div class="step-content-v">Setup</div>
+                                </div>
+                                <div class="chevron-step-v completed middle-v">
+                                    <div class="step-content-v">Configuration</div>
+                                </div>
+                                <div class="chevron-step-v current middle-v">
+                                    <div class="step-content-v">Testing</div>
+                                </div>
+                                <div class="chevron-step-v pending middle-v">
+                                    <div class="step-content-v">Deployment</div>
+                                </div>
+                                <div class="chevron-step-v pending end-v">
+                                    <div class="step-content-v">Complete</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Vertical chevron layout with top-to-bottom flow</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .breadcrumb-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            font-family: var(--font-family);
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .breadcrumb-preview.vertical {
+                            max-width: 300px;
+                            margin: 0 auto;
+                        }
+
+                        .chevron-container {
+                            display: flex;
+                            gap: 0;
+                        }
+
+                        .chevron-container.horizontal {
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: center;
+                        }
+
+                        .chevron-container.vertical {
+                            flex-direction: column;
+                            align-items: stretch;
+                        }
+
+                        .chevron-step {
+                            position: relative;
+                            height: 60px;
+                            width: 140px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-weight: 500;
+                            font-size: 14px;
+                            text-align: center;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        }
+
+                        .chevron-step-v {
+                            position: relative;
+                            height: 50px;
+                            width: 200px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            color: white;
+                            font-weight: 500;
+                            font-size: 14px;
+                            text-align: center;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            margin-bottom: -10px;
+                        }
+
+                        /* Horizontal Chevron Shapes */
+                        .chevron-step.start {
+                            background: linear-gradient(135deg, var(--color-success), #16a085);
+                            clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%);
+                        }
+
+                        .chevron-step.middle {
+                            background: linear-gradient(135deg, var(--color-success), #16a085);
+                            clip-path: polygon(15% 0%, 85% 0%, 100% 50%, 85% 100%, 15% 100%, 0% 50%);
+                            margin-left: -20px;
+                        }
+
+                        .chevron-step.end {
+                            background: linear-gradient(135deg, var(--color-border-light), #bdc3c7);
+                            clip-path: polygon(15% 0%, 100% 0%, 100% 100%, 15% 100%, 0% 50%);
+                            margin-left: -20px;
+                        }
+
+                        .chevron-step.current {
+                            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+                            animation: pulse 2s infinite;
+                        }
+
+                        .chevron-step.pending {
+                            background: linear-gradient(135deg, var(--color-border-light), #bdc3c7);
+                            color: var(--color-text-muted);
+                        }
+
+                        /* Vertical Chevron Shapes */
+                        .chevron-step-v.start-v {
+                            background: linear-gradient(135deg, var(--color-success), #16a085);
+                            clip-path: polygon(0% 0%, 100% 0%, 100% 85%, 50% 100%, 0% 85%);
+                        }
+
+                        .chevron-step-v.middle-v {
+                            background: linear-gradient(135deg, var(--color-success), #16a085);
+                            clip-path: polygon(0% 15%, 50% 0%, 100% 15%, 100% 85%, 50% 100%, 0% 85%);
+                        }
+
+                        .chevron-step-v.end-v {
+                            background: linear-gradient(135deg, var(--color-border-light), #bdc3c7);
+                            clip-path: polygon(0% 15%, 50% 0%, 100% 15%, 100% 100%, 0% 100%);
+                        }
+
+                        .chevron-step-v.current {
+                            background: linear-gradient(135deg, var(--color-primary), #2980b9);
+                            animation: pulse 2s infinite;
+                        }
+
+                        .chevron-step-v.pending {
+                            background: linear-gradient(135deg, var(--color-border-light), #bdc3c7);
+                            color: var(--color-text-muted);
+                        }
+
+                        .step-content {
+                            z-index: 1;
+                            padding: 0 10px;
+                        }
+
+                        .step-content-v {
+                            z-index: 1;
+                            padding: 0 10px;
+                        }
+
+                        .step-header {
+                            font-size: 12px;
+                            font-weight: 600;
+                            line-height: 1.2;
+                            margin-bottom: 2px;
+                        }
+
+                        .step-subtitle {
+                            font-size: 10px;
+                            opacity: 0.9;
+                            line-height: 1;
+                        }
+
+                        @keyframes pulse {
+                            0%, 100% { transform: scale(1); }
+                            50% { transform: scale(1.05); }
+                        }
+
+                        .chevron-step:hover {
+                            transform: translateY(-2px);
+                            filter: brightness(1.1);
+                        }
+
+                        .chevron-step-v:hover {
+                            transform: translateX(2px);
+                            filter: brightness(1.1);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Horizontal Breadcrumb</h3>
+                        <pre><code class="language-csharp">// Create a horizontal chevron breadcrumb
+var breadcrumb = new BeepStepperBreadCrumb
+{
+    Size = new Size(600, 80),
+    Location = new Point(20, 20),
+    Orientation = Orientation.Horizontal,
+    Direction = ChevronDirection.Forward
+};
+
+// Add steps
+breadcrumb.ListItems.Add(new SimpleItem 
+{ 
+    Name = "Personal Info", 
+    Text = "Basic details",
+    IsChecked = true 
+});
+
+breadcrumb.ListItems.Add(new SimpleItem 
+{ 
+    Name = "Account Setup", 
+    Text = "Credentials",
+    IsChecked = true 
+});
+
+breadcrumb.ListItems.Add(new SimpleItem 
+{ 
+    Name = "Preferences", 
+    Text = "Settings",
+    IsChecked = false 
+});
+
+breadcrumb.ListItems.Add(new SimpleItem 
+{ 
+    Name = "Review", 
+    Text = "Confirm",
+    IsChecked = false 
+});
+
+breadcrumb.ListItems.Add(new SimpleItem 
+{ 
+    Name = "Complete", 
+    Text = "Finish",
+    IsChecked = false 
+});
+
+// Handle step selection
+breadcrumb.SelectedItemChanged += (sender, e) =>
+{
+    MessageBox.Show($"Selected step: {e.Item.Name}");
+};
+
+this.Controls.Add(breadcrumb);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Vertical Sidebar Breadcrumb</h3>
+                        <pre><code class="language-csharp">var verticalBreadcrumb = new BeepStepperBreadCrumb
+{
+    Size = new Size(200, 400),
+    Location = new Point(20, 20),
+    Orientation = Orientation.Vertical,
+    CheckImage = "check.svg" // Display checkmarks for completed steps
+};
+
+// Add process steps
+var processSteps = new[]
+{
+    new SimpleItem { Name = "Initialize", Text = "Setup environment", IsChecked = true },
+    new SimpleItem { Name = "Configure", Text = "Apply settings", IsChecked = true },
+    new SimpleItem { Name = "Test", Text = "Validate setup", IsChecked = false },
+    new SimpleItem { Name = "Deploy", Text = "Go live", IsChecked = false },
+    new SimpleItem { Name = "Monitor", Text = "Track performance", IsChecked = false }
+};
+
+foreach (var step in processSteps)
+{
+    verticalBreadcrumb.ListItems.Add(step);
+}
+
+// Set current step to "Test"
+verticalBreadcrumb.UpdateCurrentStep(2);
+
+this.Controls.Add(verticalBreadcrumb);</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>?? Layout Tip</strong>
+                        <p>Use horizontal orientation for header placement and vertical orientation for sidebar navigation. The chevron shapes automatically adapt to create proper visual flow.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Orientation</code></td>
+                                <td>Orientation</td>
+                                <td>Horizontal</td>
+                                <td>Layout direction - Horizontal or Vertical</td>
+                            </tr>
+                            <tr>
+                                <td><code>Direction</code></td>
+                                <td>ChevronDirection</td>
+                                <td>Forward</td>
+                                <td>Direction of chevron arrows</td>
+                            </tr>
+                            <tr>
+                                <td><code>ListItems</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Empty list</td>
+                                <td>Collection of breadcrumb steps</td>
+                            </tr>
+                            <tr>
+                                <td><code>CheckImage</code></td>
+                                <td>string</td>
+                                <td>"check.svg"</td>
+                                <td>Image path for completed step indicators</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Selection Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>Currently selected step index (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>Currently selected step item (read-only)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>ChevronDirection Enumeration</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Forward</code></td>
+                                <td>Chevrons point in the direction of flow (right for horizontal, down for vertical)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Backward</code></td>
+                                <td>Chevrons point opposite to the direction of flow</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedItemChanged</code></td>
+                                <td>object sender, SelectedItemChangedEventArgs e</td>
+                                <td>Fired when user clicks on a chevron step</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Example</h3>
+                        <pre><code class="language-csharp">var breadcrumb = new BeepStepperBreadCrumb();
+
+// Handle step selection with validation
+breadcrumb.SelectedItemChanged += (sender, e) =>
+{
+    var selectedItem = e.Item;
+    var currentIndex = breadcrumb.SelectedIndex;
+    
+    Console.WriteLine($"Step selected: {selectedItem.Name} (Index: {currentIndex})");
+    
+    // Validate step selection
+    if (ValidateStepSelection(currentIndex))
+    {
+        // Update UI based on selection
+        UpdateContentForStep(selectedItem);
+        
+        // Mark previous steps as completed
+        breadcrumb.UpdateCurrentStep(currentIndex);
+    }
+    else
+    {
+        MessageBox.Show("Please complete the current step before proceeding.", 
+                       "Step Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+    }
+};
+
+private bool ValidateStepSelection(int stepIndex)
+{
+    // Implement your validation logic
+    switch (stepIndex)
+    {
+        case 0: // Personal Info
+            return ValidatePersonalInfo();
+        case 1: // Account Setup
+            return ValidateAccountSetup();
+        case 2: // Preferences
+            return ValidatePreferences();
+        default:
+            return true;
+    }
+}
+
+private void UpdateContentForStep(SimpleItem step)
+{
+    // Update main content area based on selected step
+    switch (step.Name)
+    {
+        case "Personal Info":
+            ShowPersonalInfoPanel();
+            break;
+        case "Account Setup":
+            ShowAccountSetupPanel();
+            break;
+        case "Preferences":
+            ShowPreferencesPanel();
+            break;
+        case "Review":
+            ShowReviewPanel();
+            break;
+        case "Complete":
+            ShowCompletionPanel();
+            break;
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>UpdateCurrentStep</code></td>
+                                <td>int index</td>
+                                <td>void</td>
+                                <td>Set the current step and mark all previous steps as completed</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpdateCheckedState</code></td>
+                                <td>SimpleItem item</td>
+                                <td>void</td>
+                                <td>Update the checked state of a specific step item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Apply current theme colors and styles to the breadcrumb</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Method Usage Examples</h3>
+                        <pre><code class="language-csharp">// Programmatically navigate to a specific step
+breadcrumb.UpdateCurrentStep(2); // Move to third step (0-based)
+
+// Mark a specific step as completed
+var completedStep = breadcrumb.ListItems[1];
+completedStep.IsChecked = true;
+breadcrumb.UpdateCheckedState(completedStep);
+
+// Apply theme after changing theme settings
+breadcrumb.Theme = "DarkTheme";
+breadcrumb.ApplyTheme();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Complete Checkout Process</h3>
+                        <pre><code class="language-csharp">public class CheckoutForm : Form
+{
+    private BeepStepperBreadCrumb checkoutBreadcrumb;
+    private Panel contentPanel;
+    private List<UserControl> checkoutPages;
+    private CheckoutData checkoutData;
+
+    public CheckoutForm()
+    {
+        InitializeCheckoutForm();
+        SetupCheckoutSteps();
+        LoadCheckoutPages();
+    }
+
+    private void InitializeCheckoutForm()
+    {
+        this.Text = "Checkout Process";
+        this.Size = new Size(800, 600);
+        this.StartPosition = FormStartPosition.CenterScreen;
+
+        checkoutData = new CheckoutData();
+
+        // Create breadcrumb
+        checkoutBreadcrumb = new BeepStepperBreadCrumb
+        {
+            Dock = DockStyle.Top,
+            Height = 80,
+            Orientation = Orientation.Horizontal,
+            Direction = ChevronDirection.Forward
+        };
+
+        // Content panel
+        contentPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(20)
+        };
+
+        checkoutBreadcrumb.SelectedItemChanged += OnBreadcrumbStepChanged;
+
+        this.Controls.AddRange(new Control[] { contentPanel, checkoutBreadcrumb });
+    }
+
+    private void SetupCheckoutSteps()
+    {
+        var steps = new[]
+        {
+            new SimpleItem { Name = "Cart", Text = "Review items", IsChecked = true },
+            new SimpleItem { Name = "Shipping", Text = "Delivery info", IsChecked = false },
+            new SimpleItem { Name = "Payment", Text = "Billing details", IsChecked = false },
+            new SimpleItem { Name = "Review", Text = "Confirm order", IsChecked = false },
+            new SimpleItem { Name = "Complete", Text = "Order placed", IsChecked = false }
+        };
+
+        foreach (var step in steps)
+        {
+            checkoutBreadcrumb.ListItems.Add(step);
+        }
+
+        // Start with cart step
+        checkoutBreadcrumb.UpdateCurrentStep(0);
+    }
+
+    private void LoadCheckoutPages()
+    {
+        checkoutPages = new List<UserControl>
+        {
+            new CartReviewPage(checkoutData),
+            new ShippingInfoPage(checkoutData),
+            new PaymentDetailsPage(checkoutData),
+            new OrderReviewPage(checkoutData),
+            new OrderCompletePage(checkoutData)
+        };
+
+        // Show initial page
+        ShowPage(0);
+    }
+
+    private void OnBreadcrumbStepChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        int stepIndex = checkoutBreadcrumb.SelectedIndex;
+        
+        // Validate step progression
+        if (!ValidateStepProgression(stepIndex))
+        {
+            MessageBox.Show("Please complete the current step before proceeding.",
+                          "Checkout Validation", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        ShowPage(stepIndex);
+        UpdateBreadcrumbProgress(stepIndex);
+    }
+
+    private bool ValidateStepProgression(int targetStep)
+    {
+        // Don't allow skipping steps forward
+        int currentStep = GetCurrentCompletedStep();
+        return targetStep <= currentStep + 1;
+    }
+
+    private int GetCurrentCompletedStep()
+    {
+        for (int i = checkoutBreadcrumb.ListItems.Count - 1; i >= 0; i--)
+        {
+            if (checkoutBreadcrumb.ListItems[i].IsChecked)
+                return i;
+        }
+        return -1;
+    }
+
+    private void ShowPage(int pageIndex)
+    {
+        contentPanel.Controls.Clear();
+        
+        if (pageIndex >= 0 && pageIndex < checkoutPages.Count)
+        {
+            var page = checkoutPages[pageIndex];
+            page.Dock = DockStyle.Fill;
+            contentPanel.Controls.Add(page);
+            
+            // Handle page-specific events
+            SetupPageEvents(page, pageIndex);
+        }
+    }
+
+    private void SetupPageEvents(UserControl page, int pageIndex)
+    {
+        switch (page)
+        {
+            case CartReviewPage cartPage:
+                cartPage.ProceedToShipping += () => AdvanceToStep(1);
+                break;
+                
+            case ShippingInfoPage shippingPage:
+                shippingPage.ShippingCompleted += () => AdvanceToStep(2);
+                shippingPage.BackToCart += () => checkoutBreadcrumb.UpdateCurrentStep(0);
+                break;
+                
+            case PaymentDetailsPage paymentPage:
+                paymentPage.PaymentValidated += () => AdvanceToStep(3);
+                paymentPage.BackToShipping += () => checkoutBreadcrumb.UpdateCurrentStep(1);
+                break;
+                
+            case OrderReviewPage reviewPage:
+                reviewPage.OrderConfirmed += () => ProcessOrder();
+                reviewPage.BackToPayment += () => checkoutBreadcrumb.UpdateCurrentStep(2);
+                break;
+        }
+    }
+
+    private void AdvanceToStep(int stepIndex)
+    {
+        checkoutBreadcrumb.UpdateCurrentStep(stepIndex);
+        ShowPage(stepIndex);
+    }
+
+    private void UpdateBreadcrumbProgress(int completedStep)
+    {
+        // Mark all steps up to and including the completed step as checked
+        for (int i = 0; i <= completedStep && i < checkoutBreadcrumb.ListItems.Count; i++)
+        {
+            checkoutBreadcrumb.ListItems[i].IsChecked = true;
+        }
+    }
+
+    private void ProcessOrder()
+    {
+        try
+        {
+            // Process the order
+            OrderProcessor.ProcessOrder(checkoutData);
+            
+            // Advance to completion
+            AdvanceToStep(4);
+            
+            MessageBox.Show("Order placed successfully!", "Order Complete",
+                          MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Order processing failed: {ex.Message}", "Error",
+                          MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+}
+
+public class CheckoutData
+{
+    public List<CartItem> CartItems { get; set; } = new();
+    public ShippingInfo ShippingDetails { get; set; } = new();
+    public PaymentInfo PaymentDetails { get; set; } = new();
+    public decimal TotalAmount { get; set; }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Installation Wizard with Vertical Breadcrumb</h3>
+                        <pre><code class="language-csharp">public class InstallationWizard : Form
+{
+    private BeepStepperBreadCrumb sidebarBreadcrumb;
+    private Panel mainPanel;
+    private BeepLabel titleLabel;
+    private BeepLabel descriptionLabel;
+    private Dictionary<string, UserControl> wizardPages;
+
+    public InstallationWizard()
+    {
+        InitializeWizard();
+        SetupSidebarNavigation();
+        CreateWizardPages();
+    }
+
+    private void InitializeWizard()
+    {
+        this.Text = "Software Installation Wizard";
+        this.Size = new Size(900, 700);
+        this.StartPosition = FormStartPosition.CenterScreen;
+        this.FormBorderStyle = FormBorderStyle.FixedDialog;
+        this.MaximizeBox = false;
+
+        // Create layout panels
+        var sidePanel = new Panel
+        {
+            Dock = DockStyle.Left,
+            Width = 250,
+            BackColor = Color.FromArgb(240, 240, 240),
+            Padding = new Padding(10)
+        };
+
+        mainPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(20)
+        };
+
+        // Title and description
+        titleLabel = new BeepLabel
+        {
+            Text = "Welcome to Installation",
+            Font = new Font("Segoe UI", 18, FontStyle.Bold),
+            Dock = DockStyle.Top,
+            Height = 40,
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        descriptionLabel = new BeepLabel
+        {
+            Text = "Follow the steps to install the software on your computer.",
+            Font = new Font("Segoe UI", 10),
+            Dock = DockStyle.Top,
+            Height = 30,
+            TextAlign = ContentAlignment.MiddleLeft
+        };
+
+        // Sidebar breadcrumb
+        sidebarBreadcrumb = new BeepStepperBreadCrumb
+        {
+            Dock = DockStyle.Fill,
+            Orientation = Orientation.Vertical,
+            Direction = ChevronDirection.Forward
+        };
+
+        sidePanel.Controls.Add(sidebarBreadcrumb);
+        mainPanel.Controls.AddRange(new Control[] { titleLabel, descriptionLabel });
+
+        this.Controls.AddRange(new Control[] { mainPanel, sidePanel });
+    }
+
+    private void SetupSidebarNavigation()
+    {
+        var installationSteps = new[]
+        {
+            new SimpleItem { Name = "Welcome", Text = "Getting started", IsChecked = true },
+            new SimpleItem { Name = "License", Text = "Accept terms", IsChecked = false },
+            new SimpleItem { Name = "Destination", Text = "Choose folder", IsChecked = false },
+            new SimpleItem { Name = "Components", Text = "Select features", IsChecked = false },
+            new SimpleItem { Name = "Install", Text = "Copy files", IsChecked = false },
+            new SimpleItem { Name = "Finish", Text = "Installation complete", IsChecked = false }
+        };
+
+        foreach (var step in installationSteps)
+        {
+            sidebarBreadcrumb.ListItems.Add(step);
+        }
+
+        sidebarBreadcrumb.SelectedItemChanged += OnNavigationStepChanged;
+        sidebarBreadcrumb.UpdateCurrentStep(0);
+    }
+
+    private void OnNavigationStepChanged(object sender, SelectedItemChangedEventArgs e)
+    {
+        string stepName = e.Item.Name;
+        
+        // Update page content
+        ShowStepPage(stepName);
+        
+        // Update title and description
+        UpdatePageHeader(stepName);
+    }
+
+    private void ShowStepPage(string stepName)
+    {
+        // Remove current page
+        var currentPage = mainPanel.Controls.OfType<UserControl>().FirstOrDefault();
+        currentPage?.Dispose();
+        mainPanel.Controls.Remove(currentPage);
+
+        // Add new page
+        if (wizardPages.ContainsKey(stepName))
+        {
+            var newPage = wizardPages[stepName];
+            newPage.Dock = DockStyle.Fill;
+            mainPanel.Controls.Add(newPage);
+            newPage.BringToFront();
+        }
+    }
+
+    private void UpdatePageHeader(string stepName)
+    {
+        var stepInfo = GetStepInfo(stepName);
+        titleLabel.Text = stepInfo.Title;
+        descriptionLabel.Text = stepInfo.Description;
+    }
+
+    private (string Title, string Description) GetStepInfo(string stepName)
+    {
+        return stepName switch
+        {
+            "Welcome" => ("Welcome to Installation", "This wizard will guide you through the installation process."),
+            "License" => ("License Agreement", "Please read and accept the license terms to continue."),
+            "Destination" => ("Choose Destination", "Select where you want to install the software."),
+            "Components" => ("Select Components", "Choose which features you want to install."),
+            "Install" => ("Installing", "Please wait while files are being copied to your computer."),
+            "Finish" => ("Installation Complete", "The software has been successfully installed."),
+            _ => ("Installation", "Follow the steps to complete installation.")
+        };
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepStepperBreadCrumb provides comprehensive theming with automatic color application to chevron shapes and text:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var breadcrumb = new BeepStepperBreadCrumb
+{
+    Theme = "DarkTheme",
+    Orientation = Orientation.Horizontal
+};
+
+// Theme automatically applies:
+// - ButtonSelectedBackColor: Completed steps
+// - ButtonBackColor: Current step
+// - DisabledBackColor: Pending steps
+// - ButtonForeColor: Step text color
+// - AccentTextColor: Selected step text
+// - ShadowColor: Chevron borders
+
+// Manual theme application
+breadcrumb.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Breadcrumb Theme Properties</h3>
+                    <ul>
+                        <li><strong>ButtonSelectedBackColor</strong> - Completed chevron steps background</li>
+                        <li><strong>ButtonBackColor</strong> - Current/selected step background</li>
+                        <li><strong>DisabledBackColor</strong> - Pending/incomplete steps background</li>
+                        <li><strong>ButtonForeColor</strong> - General step text color</li>
+                        <li><strong>AccentTextColor</strong> - Current step text highlight color</li>
+                        <li><strong>ShadowColor</strong> - Chevron borders and outlines</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Design Tip</strong>
+                        <p>The chevron shapes use gradient backgrounds by default. Theme colors blend smoothly with the gradient effects for a professional appearance.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Navigation Design</h3>
+                    <ul>
+                        <li><strong>Clear step naming:</strong> Use concise, descriptive names for each chevron step</li>
+                        <li><strong>Logical progression:</strong> Ensure steps follow a natural workflow sequence</li>
+                        <li><strong>Visual hierarchy:</strong> Use completed/current/pending states effectively</li>
+                        <li><strong>Click feedback:</strong> Provide clear visual feedback when steps are clicked</li>
+                    </ul>
+
+                    <h3>?? Layout Considerations</h3>
+                    <ul>
+                        <li><strong>Horizontal layout:</strong> Best for 3-6 steps in headers or top navigation</li>
+                        <li><strong>Vertical layout:</strong> Ideal for sidebar navigation with many steps</li>
+                        <li><strong>Responsive sizing:</strong> Ensure chevrons maintain proper proportions at different sizes</li>
+                        <li><strong>Text fitting:</strong> Keep step names short enough to fit within chevron shapes</li>
+                    </ul>
+
+                    <h3>?? Step Management</h3>
+                    <ul>
+                        <li><strong>Validation:</strong> Implement proper step validation before allowing progression</li>
+                        <li><strong>State persistence:</strong> Save step progress for complex workflows</li>
+                        <li><strong>Error handling:</strong> Provide clear feedback for invalid step transitions</li>
+                        <li><strong>Completion tracking:</strong> Use UpdateCurrentStep to mark progress accurately</li>
+                    </ul>
+
+                    <h3>? Performance</h3>
+                    <ul>
+                        <li><strong>Hit testing:</strong> Built-in graphics path hit testing provides accurate click detection</li>
+                        <li><strong>Animation efficiency:</strong> Color animations are optimized for smooth transitions</li>
+                        <li><strong>Drawing optimization:</strong> Custom drawing is efficient and scales well</li>
+                        <li><strong>Memory management:</strong> Graphics paths are properly disposed of</li>
+                    </ul>
+
+                    <div class="success">
+                        <strong>? Visual Excellence</strong>
+                        <p>BeepStepperBreadCrumb provides unique chevron-shaped navigation that stands out from traditional breadcrumbs while maintaining excellent usability.</p>
+                    </div>
+
+                    <div name="warning">
+                        <strong>?? Text Length Warning</strong>
+                        <p>Keep step names concise - very long text may not fit properly within the chevron shapes, especially in smaller layouts.</p>
+                    </div>
+
+                    <div class="tip">
+                        <strong>?? Animation Tip</strong>
+                        <p>The built-in color animations provide smooth visual feedback when selecting steps. The animations are automatically timed for optimal user experience.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-stepper.html"><i class="bi bi-arrow-left"></i> BeepSteppperBar</a>
+                    <a href="../index.html">Back to Controls <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

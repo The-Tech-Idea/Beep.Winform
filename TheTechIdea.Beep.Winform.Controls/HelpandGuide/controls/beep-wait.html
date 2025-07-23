@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepWait - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-datanavigator.html">BeepDataNavigator</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popup.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html" class="active">BeepWait</a></li>
+                            <li><a href="beep-splash.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#dialogs-popups">Dialogs & Popups</a>
+                    <span>›</span>
+                    <span>BeepWait</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepWait</h1>
+                    <p class="page-subtitle">Loading and progress display form with spinner animation and real-time message updates</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepWait</strong> is a sophisticated loading and progress display form designed to provide 
+                        visual feedback during long-running operations. It features an animated spinner, customizable 
+                        title and messages, logo display, and real-time progress updates with thread-safe operation.
+                    </p>
+                    <p>
+                        Built as a standalone form, BeepWait provides a professional loading experience with theme support, 
+                        safe cross-thread updates, and comprehensive customization options. Perfect for file operations, 
+                        data loading, network requests, and any operation that requires user patience.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Animated Spinner</h3>
+                            <p>Smooth rotating spinner animation with customizable speed and appearance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Real-time Updates</h3>
+                            <p>Thread-safe progress updates with scrolling message display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>??? Logo Integration</h3>
+                            <p>Company logo display with image path customization</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Theme Support</h3>
+                            <p>Complete theming integration with automatic color application</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Thread Safety</h3>
+                            <p>Safe cross-thread operations with proper invoke patterns</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>? Async Operations</h3>
+                            <p>Full async/await support for modern C# applications</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <div class="visual-demo">
+                        <div class="wait-dialog-preview">
+                            <div class="wait-dialog">
+                                <div class="wait-header">
+                                    <div class="wait-logo">??</div>
+                                    <h3 class="wait-title">Loading Data...</h3>
+                                </div>
+                                <div class="wait-content">
+                                    <div class="wait-spinner"></div>
+                                    <div class="wait-messages">
+                                        <div class="wait-message">Connecting to database...</div>
+                                        <div class="wait-message">Loading customer records...</div>
+                                        <div class="wait-message">Processing 1,234 items...</div>
+                                        <div class="wait-message current">Applying filters...</div>
+                                    </div>
+                                </div>
+                                <div class="wait-footer">
+                                    <div class="wait-status">Please wait while the operation completes...</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>BeepWait dialog showing animated spinner and progress messages</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .wait-dialog-preview {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 300px;
+                        }
+
+                        .wait-dialog {
+                            width: 350px;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+                            overflow: hidden;
+                            font-family: var(--font-family);
+                        }
+
+                        .wait-header {
+                            padding: 24px 24px 16px;
+                            background: linear-gradient(135deg, var(--color-brand-primary), var(--color-brand-secondary));
+                            color: white;
+                            text-align: center;
+                        }
+
+                        .wait-logo {
+                            font-size: 32px;
+                            margin-bottom: 8px;
+                        }
+
+                        .wait-title {
+                            margin: 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                        }
+
+                        .wait-content {
+                            padding: 24px;
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 20px;
+                        }
+
+                        .wait-spinner {
+                            width: 48px;
+                            height: 48px;
+                            border: 4px solid var(--color-border-light);
+                            border-top: 4px solid var(--color-brand-primary);
+                            border-radius: 50%;
+                            animation: spin 1s linear infinite;
+                        }
+
+                        @keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                        }
+
+                        .wait-messages {
+                            width: 100%;
+                            max-height: 120px;
+                            overflow-y: auto;
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border-light);
+                            border-radius: 6px;
+                            padding: 12px;
+                        }
+
+                        .wait-message {
+                            font-size: 13px;
+                            color: var(--color-text-secondary);
+                            margin-bottom: 4px;
+                            opacity: 0.7;
+                        }
+
+                        .wait-message.current {
+                            color: var(--color-brand-primary);
+                            font-weight: 500;
+                            opacity: 1;
+                        }
+
+                        .wait-footer {
+                            padding: 16px 24px 24px;
+                            text-align: center;
+                        }
+
+                        .wait-status {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            font-style: italic;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Wait Dialog</h3>
+                        <pre><code class="language-csharp">// Show a simple wait dialog
+var waitForm = new BeepWait();
+var args = new PassedArgs
+{
+    Title = "Processing...",
+    Messege = "Please wait while we process your request.",
+    ImagePath = "company-logo.png"
+};
+
+await waitForm.ShowAsync(args);
+
+// Perform your long-running operation
+await SomeTimeConsumingOperation();
+
+// Close the wait dialog
+await waitForm.CloseAsync();</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>With Progress Updates</h3>
+                        <pre><code class="language-csharp">// Create and show wait form with progress updates
+var waitForm = new BeepWait();
+var args = new PassedArgs
+{
+    Title = "Loading Data",
+    Messege = "Initializing...",
+    ImagePath = "app-icon.png"
+};
+
+// Show the form
+await waitForm.ShowAsync(args);
+
+try
+{
+    // Simulate a multi-step operation with progress updates
+    for (int i = 0; i < 100; i++)
+    {
+        // Update progress with new message
+        waitForm.UpdateProgress(i, $"Processing item {i + 1} of 100...");
+        
+        // Simulate work
+        await Task.Delay(50);
+    }
+    
+    waitForm.UpdateProgress(100, "Operation completed successfully!");
+    await Task.Delay(1000); // Show completion message briefly
+}
+finally
+{
+    // Always close the wait form
+    await waitForm.CloseAsync();
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>File Processing Example</h3>
+                        <pre><code class="language-csharp">public async Task ProcessLargeFile(string filePath)
+{
+    var waitForm = new BeepWait();
+    var args = new PassedArgs
+    {
+        Title = "File Processing",
+        Messege = "Reading file...",
+        ImagePath = "file-icon.png"
+    };
+
+    await waitForm.ShowAsync(args);
+
+    try
+    {
+        waitForm.UpdateProgress(0, "Opening file...");
+        var lines = await File.ReadAllLinesAsync(filePath);
+        
+        waitForm.UpdateProgress(10, $"Processing {lines.Length} lines...");
+        
+        for (int i = 0; i < lines.Length; i++)
+        {
+            // Process each line
+            ProcessLine(lines[i]);
+            
+            // Update progress every 100 lines
+            if (i % 100 == 0)
+            {
+                int percentage = (i * 90) / lines.Length + 10; // 10-100%
+                waitForm.UpdateProgress(percentage, 
+                    $"Processed {i + 1} of {lines.Length} lines...");
+            }
+        }
+        
+        waitForm.UpdateProgress(100, "File processing completed!");
+        await Task.Delay(500);
+    }
+    catch (Exception ex)
+    {
+        waitForm.UpdateProgress(0, $"Error: {ex.Message}");
+        await Task.Delay(2000);
+    }
+    finally
+    {
+        await waitForm.CloseAsync();
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Passedarguments</code></td>
+                                <td>PassedArgs</td>
+                                <td>Configuration object containing title, message, and image path</td>
+                            </tr>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>BeepLabel</td>
+                                <td>Main title label displayed at the top</td>
+                            </tr>
+                            <tr>
+                                <td><code>messege</code></td>
+                                <td>RichTextBox</td>
+                                <td>Scrollable message area for progress updates</td>
+                            </tr>
+                            <tr>
+                                <td><code>LogopictureBox</code></td>
+                                <td>BeepImage</td>
+                                <td>Logo/image display control</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>_spinnerImage</code></td>
+                                <td>BeepImage</td>
+                                <td>Spinner animation control</td>
+                            </tr>
+                            <tr>
+                                <td><code>_rotationAngle</code></td>
+                                <td>float</td>
+                                <td>Current rotation angle of the spinner</td>
+                            </tr>
+                            <tr>
+                                <td><code>_spinnerTimer</code></td>
+                                <td>Timer</td>
+                                <td>Timer controlling spinner animation speed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>PassedArgs Structure</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>string</td>
+                                <td>Dialog title text</td>
+                            </tr>
+                            <tr>
+                                <td><code>Messege</code></td>
+                                <td>string</td>
+                                <td>Initial message text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImagePath</code></td>
+                                <td>string</td>
+                                <td>Path to logo/icon image file</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+
+                    <h3>Main Operations</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowAsync</code></td>
+                                <td>PassedArgs args</td>
+                                <td>Task&lt;IErrorsInfo&gt;</td>
+                                <td>Shows the wait form with specified configuration</td>
+                            </tr>
+                            <tr>
+                                <td><code>CloseAsync</code></td>
+                                <td>-</td>
+                                <td>Task&lt;IErrorsInfo&gt;</td>
+                                <td>Closes the wait form after optional delay</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpdateProgress</code></td>
+                                <td>int progress, string text</td>
+                                <td>void</td>
+                                <td>Updates progress with new message (thread-safe)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Configuration Methods</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SetTitle</code></td>
+                                <td>string title</td>
+                                <td>Sets the dialog title text</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetText</code></td>
+                                <td>string text</td>
+                                <td>Sets the main message text</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetImage</code></td>
+                                <td>string imagePath</td>
+                                <td>Sets the logo/icon image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation Methods</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>StartSpinner</code></td>
+                                <td>Starts the spinner animation</td>
+                            </tr>
+                            <tr>
+                                <td><code>StopSpinner</code></td>
+                                <td>Stops the spinner animation</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>Applies current theme to all child controls</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Database Operation with Progress</h3>
+                        <pre><code class="language-csharp">public async Task<List<Customer>> LoadCustomersAsync()
+{
+    var waitForm = new BeepWait();
+    var args = new PassedArgs
+    {
+        Title = "Loading Customers",
+        Messege = "Connecting to database...",
+        ImagePath = "database-icon.png"
+    };
+
+    await waitForm.ShowAsync(args);
+    var customers = new List<Customer>();
+
+    try
+    {
+        waitForm.UpdateProgress(10, "Establishing database connection...");
+        using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
+
+        waitForm.UpdateProgress(25, "Executing customer query...");
+        var command = new SqlCommand("SELECT * FROM Customers", connection);
+        using var reader = await command.ExecuteReaderAsync();
+
+        waitForm.UpdateProgress(50, "Reading customer data...");
+        int customerCount = 0;
+        
+        while (await reader.ReadAsync())
+        {
+            customers.Add(new Customer
+            {
+                Id = reader.GetInt32("Id"),
+                Name = reader.GetString("Name"),
+                Email = reader.GetString("Email"),
+                Phone = reader.GetString("Phone")
+            });
+            
+            customerCount++;
+            if (customerCount % 50 == 0)
+            {
+                waitForm.UpdateProgress(
+                    50 + (customerCount * 40 / 1000), // Estimate progress
+                    $"Loaded {customerCount} customers...");
+            }
+        }
+
+        waitForm.UpdateProgress(95, "Finalizing data...");
+        await Task.Delay(500); // Simulate final processing
+
+        waitForm.UpdateProgress(100, $"Successfully loaded {customers.Count} customers!");
+        await Task.Delay(1000);
+    }
+    catch (Exception ex)
+    {
+        waitForm.UpdateProgress(0, $"Error loading customers: {ex.Message}");
+        await Task.Delay(3000);
+        throw;
+    }
+    finally
+    {
+        await waitForm.CloseAsync();
+    }
+
+    return customers;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>File Upload with Progress</h3>
+                        <pre><code class="language-csharp">public async Task<bool> UploadFileAsync(string filePath, string uploadUrl)
+{
+    var waitForm = new BeepWait();
+    var fileInfo = new FileInfo(filePath);
+    var args = new PassedArgs
+    {
+        Title = "File Upload",
+        Messege = $"Preparing to upload {fileInfo.Name}...",
+        ImagePath = "upload-icon.png"
+    };
+
+    await waitForm.ShowAsync(args);
+
+    try
+    {
+        waitForm.UpdateProgress(5, "Validating file...");
+        if (!fileInfo.Exists)
+        {
+            waitForm.UpdateProgress(0, "Error: File not found!");
+            await Task.Delay(2000);
+            return false;
+        }
+
+        waitForm.UpdateProgress(10, "Preparing upload request...");
+        using var httpClient = new HttpClient();
+        using var content = new MultipartFormDataContent();
+        
+        waitForm.UpdateProgress(20, "Reading file content...");
+        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+        var streamContent = new StreamContent(fileStream);
+        content.Add(streamContent, "file", fileInfo.Name);
+
+        waitForm.UpdateProgress(30, "Starting upload...");
+        
+        // Create progress tracking
+        var progress = new Progress<long>(bytesUploaded =>
+        {
+            var percentage = (int)((bytesUploaded * 60.0) / fileInfo.Length) + 30; // 30-90%
+            waitForm.UpdateProgress(percentage, 
+                $"Uploaded {FormatBytes(bytesUploaded)} of {FormatBytes(fileInfo.Length)}...");
+        });
+
+        var response = await httpClient.PostAsync(uploadUrl, content);
+        
+        waitForm.UpdateProgress(95, "Verifying upload...");
+        response.EnsureSuccessStatusCode();
+        
+        waitForm.UpdateProgress(100, "Upload completed successfully!");
+        await Task.Delay(1000);
+        
+        return true;
+    }
+    catch (Exception ex)
+    {
+        waitForm.UpdateProgress(0, $"Upload failed: {ex.Message}");
+        await Task.Delay(3000);
+        return false;
+    }
+    finally
+    {
+        await waitForm.CloseAsync();
+    }
+}
+
+private string FormatBytes(long bytes)
+{
+    string[] sizes = { "B", "KB", "MB", "GB" };
+    double len = bytes;
+    int order = 0;
+    while (len >= 1024 && order < sizes.Length - 1)
+    {
+        order++;
+        len = len / 1024;
+    }
+    return $"{len:0.##} {sizes[order]}";
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Batch Processing with Status Updates</h3>
+                        <pre><code class="language-csharp">public async Task ProcessOrdersAsync(List<Order> orders)
+{
+    var waitForm = new BeepWait();
+    var args = new PassedArgs
+    {
+        Title = "Processing Orders",
+        Messege = "Initializing batch processing...",
+        ImagePath = "process-icon.png"
+    };
+
+    await waitForm.ShowAsync(args);
+
+    try
+    {
+        var totalOrders = orders.Count;
+        var processedOrders = 0;
+        var errorCount = 0;
+
+        waitForm.UpdateProgress(5, $"Starting batch processing for {totalOrders} orders...");
+
+        foreach (var order in orders)
+        {
+            try
+            {
+                waitForm.UpdateProgress(
+                    (processedOrders * 90) / totalOrders + 5, // 5-95%
+                    $"Processing order {order.OrderNumber} ({processedOrders + 1} of {totalOrders})...");
+
+                // Simulate order processing steps
+                await ValidateOrder(order);
+                waitForm.UpdateProgress(
+                    (processedOrders * 90) / totalOrders + 5,
+                    $"Validating payment for order {order.OrderNumber}...");
+
+                await ProcessPayment(order);
+                waitForm.UpdateProgress(
+                    (processedOrders * 90) / totalOrders + 5,
+                    $"Updating inventory for order {order.OrderNumber}...");
+
+                await UpdateInventory(order);
+                waitForm.UpdateProgress(
+                    (processedOrders * 90) / totalOrders + 5,
+                    $"Sending confirmation for order {order.OrderNumber}...");
+
+                await SendConfirmation(order);
+                
+                processedOrders++;
+            }
+            catch (Exception ex)
+            {
+                errorCount++;
+                waitForm.UpdateProgress(
+                    (processedOrders * 90) / totalOrders + 5,
+                    $"Error processing order {order.OrderNumber}: {ex.Message}");
+                await Task.Delay(1000); // Brief pause to show error
+            }
+        }
+
+        waitForm.UpdateProgress(100, 
+            $"Batch processing completed! Processed: {processedOrders}, Errors: {errorCount}");
+        await Task.Delay(2000);
+    }
+    catch (Exception ex)
+    {
+        waitForm.UpdateProgress(0, $"Batch processing failed: {ex.Message}");
+        await Task.Delay(3000);
+        throw;
+    }
+    finally
+    {
+        await waitForm.CloseAsync();
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepWait provides comprehensive theming with automatic application of theme colors and fonts to all child controls:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var waitForm = new BeepWait
+{
+    Theme = "DarkTheme"
+};
+
+// Theme automatically applies to:
+// - Form background color
+// - Title label styling
+// - Message area colors
+// - Spinner colors
+// - Logo control theming
+
+// Manual theme application
+waitForm.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Theme Properties Applied</h3>
+                    <ul>
+                        <li><strong>BackColor</strong> - Form background from theme</li>
+                        <li><strong>ForeColor</strong> - Text color from theme</li>
+                        <li><strong>Title theming</strong> - Title label uses theme fonts and colors</li>
+                        <li><strong>Message area</strong> - RichTextBox uses theme colors</li>
+                        <li><strong>Spinner colors</strong> - Animation colors match theme</li>
+                        <li><strong>Logo theming</strong> - BeepImage control theme application</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Theme Colors</h3>
+                        <pre><code class="language-csharp">// Create wait form with custom theme
+var waitForm = new BeepWait();
+
+// Apply theme before showing
+waitForm.Theme = "CustomTheme";
+waitForm.ApplyTheme();
+
+// Or customize individual controls after theme application
+waitForm.Title.ForeColor = Color.White;
+waitForm.messege.BackColor = Color.FromArgb(30, 30, 30);
+waitForm.messege.ForeColor = Color.LightGray;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Thread Safety</h3>
+                    <ul>
+                        <li><strong>Use UpdateProgress:</strong> Always use UpdateProgress method for thread-safe message updates</li>
+                        <li><strong>Async operations:</strong> Use async/await pattern for all long-running operations</li>
+                        <li><strong>Proper disposal:</strong> Always call CloseAsync in finally blocks</li>
+                        <li><strong>UI thread:</strong> Ensure ShowAsync is called from the UI thread</li>
+                    </ul>
+
+                    <h3>?? Progress Updates</h3>
+                    <ul>
+                        <li><strong>Meaningful messages:</strong> Provide clear, specific progress messages</li>
+                        <li><strong>Regular updates:</strong> Update progress frequently enough to show activity</li>
+                        <li><strong>Percentage tracking:</strong> Use the progress parameter for completion percentage</li>
+                        <li><strong>Error handling:</strong> Show clear error messages when operations fail</li>
+                    </ul>
+
+                    <h3>?? User Experience</h3>
+                    <ul>
+                        <li><strong>Clear titles:</strong> Use descriptive titles that explain the operation</li>
+                        <li><strong>Appropriate imagery:</strong> Choose relevant icons/logos for the operation context</li>
+                        <li><strong>Reasonable delays:</strong> Don't show wait dialogs for very quick operations (&lt;1 second)</li>
+                        <li><strong>Completion feedback:</strong> Show success/completion messages before closing</li>
+                    </ul>
+
+                    <h3>? Performance</h3>
+                    <ul>
+                        <li><strong>Minimal updates:</strong> Don't update progress too frequently (avoid spam)</li>
+                        <li><strong>Batch operations:</strong> Group related operations for better user experience</li>
+                        <li><strong>Resource cleanup:</strong> Properly dispose of resources in finally blocks</li>
+                        <li><strong>Cancellation support:</strong> Consider adding cancellation tokens for long operations</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Design Tip</strong>
+                        <p>Keep progress messages specific and informative. Instead of "Processing...", use "Processing order 5 of 20..." or "Uploading file (2.1 MB of 5.3 MB)..."</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Success Pattern</strong>
+                        <p>Always use try-catch-finally blocks with CloseAsync in the finally block to ensure the wait dialog is properly closed even if errors occur.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Thread Safety Warning</strong>
+                        <p>Never update UI controls directly from background threads. Always use the UpdateProgress method which handles cross-thread operations safely.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-filedialog.html"><i class="bi bi-arrow-left"></i> BeepFileDialog</a>
+                    <a href="beep-splash.html">BeepSplashScreen <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

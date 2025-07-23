@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepGrid - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html" class="active">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepGrid</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepGrid</h1>
+                    <p class="page-subtitle">Advanced data grid control with custom columns, filtering, sorting, and comprehensive data management</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#column-types">Custom Column Types</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#filtering">Filtering & Sorting</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepGrid</strong> is a sophisticated data grid control that extends the functionality 
+                        of standard DataGridView with advanced features for enterprise applications. It provides 
+                        custom column types, integrated filtering, sorting, totals calculation, printing capabilities, 
+                        and comprehensive data management tools.
+                    </p>
+                    <p>
+                        Built on the <code>BeepControl</code> foundation, BeepGrid features a modular panel 
+                        system with customizable header, filter, totals, and navigation panels. It supports dynamic 
+                        column creation from EntityStructure, layout persistence, and seamless integration with 
+                        data sources through the Beep framework.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔧 Custom Column Types</h3>
+                            <p>12+ specialized column types including progress bars, sliders, ratings, and combo boxes</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔍 Advanced Filtering</h3>
+                            <p>Per-column text filtering with real-time updates and complex filter combinations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Automatic Totals</h3>
+                            <p>Dynamic calculation and display of column totals for numeric data</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 Data Binding</h3>
+                            <p>Seamless binding to various data sources with automatic column generation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖨️ Print & Export</h3>
+                            <p>Built-in printing and CSV export functionality with customizable layouts</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Complete theming support with consistent visual styling across all components</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>💾 Layout Persistence</h3>
+                            <p>Save and restore column layouts, widths, and configurations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🧭 Integrated Navigation</h3>
+                            <p>Built-in binding navigator for record navigation and data operations</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Data Grid</h3>
+                        <pre><code class="language-csharp">// Create a basic BeepGrid
+var grid = new BeepGrid
+{
+    Size = new Size(800, 400),
+    Location = new Point(10, 10),
+    ShowHeaderPanel = true,
+    ShowFilterPanel = false,
+    ShowTotalsPanel = false,
+    ShowNavigatorPanel = true
+};
+
+// Set data source
+var dataTable = GetSampleData();
+grid.DataSource = dataTable;
+
+// Add to form
+this.Controls.Add(grid);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Grid with Entity Structure</h3>
+                        <pre><code class="language-csharp">// Create grid with entity-based columns
+var grid = new BeepGrid();
+grid.SetConfig(dmeEditor, logger, util, null, null, null);
+
+// Define entity structure
+var entityStructure = new EntityStructure
+{
+    EntityName = "Employees",
+    Fields = new List<EntityField>
+    {
+        new EntityField { fieldname = "ID", fieldtype = "System.Int32" },
+        new EntityField { fieldname = "Name", fieldtype = "System.String" },
+        new EntityField { fieldname = "Salary", fieldtype = "System.Decimal" },
+        new EntityField { fieldname = "HireDate", fieldtype = "System.DateTime" },
+        new EntityField { fieldname = "IsActive", fieldtype = "System.Boolean" }
+    }
+};
+
+// Reset grid with data and entity
+var employees = GetEmployeeData();
+grid.ResetData(employees, entityStructure);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Grid with Panel Configuration</h3>
+                        <pre><code class="language-csharp">var grid = new BeepGrid
+{
+    Size = new Size(1000, 600),
+    
+    // Panel visibility
+    ShowHeaderPanel = true,      // Show title and action buttons
+    ShowColumnHeaderPanel = true, // Show custom column headers
+    ShowFilterPanel = true,       // Show filter row
+    ShowTotalsPanel = true,       // Show totals row
+    ShowNavigatorPanel = true,    // Show navigation controls
+    
+    // Grid properties
+    AllowUserToAddRows = false,
+    AllowUserToDeleteRows = true,
+    ReadOnly = false
+};
+
+// Configure title
+grid.Title.Text = "Employee Management Grid";
+
+// Handle events
+grid.CellDoubleClick += (s, e) => {
+    if (e.RowIndex >= 0)
+    {
+        var employee = GetEmployeeFromRow(e.RowIndex);
+        EditEmployee(employee);
+    }
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>Use EntityStructure for automatic column generation with appropriate data types and formatting, ensuring consistent data presentation.</p>
+                    </div>
+                </section>
+
+                <!-- Custom Column Types -->
+                <section id="column-types" class="section">
+                    <h2>Custom Column Types</h2>
+                    <p>BeepGrid provides specialized column types for different data scenarios:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>📊 Progress Bar</h4>
+                            <p>Visual progress indicators with customizable colors and ranges</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📋 ComboBox</h4>
+                            <p>Dropdown selection with data binding support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>📅 DateTime Picker</h4>
+                            <p>Date and time selection with format options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>☑️ Three-State CheckBox</h4>
+                            <p>Checkbox with indeterminate state support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🎚️ Slider</h4>
+                            <p>Range slider for numeric value adjustment</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>⭐ Rating</h4>
+                            <p>Star rating display and input control</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🖼️ SVG Image</h4>
+                            <p>Scalable vector graphics with theme support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>🔢 Numeric</h4>
+                            <p>Formatted numeric input with validation</p>
+                        </div>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Adding Custom Columns</h3>
+                        <pre><code class="language-csharp">// Clear auto-generated columns
+grid.Columns.Clear();
+
+// Add progress bar column
+var performanceColumn = new BeepDataGridViewProgressBarColumn
+{
+    Name = "Performance",
+    HeaderText = "Performance",
+    DataPropertyName = "PerformanceScore",
+    ProgressBarColor = Color.Green,
+    Minimum = 0,
+    Maximum = 100,
+    Width = 150
+};
+grid.Columns.Add(performanceColumn);
+
+// Add combo box column
+var departmentColumn = new BeepDataGridViewComboBoxColumn
+{
+    Name = "Department",
+    HeaderText = "Department",
+    DataPropertyName = "DepartmentId",
+    DisplayMember = "Name",
+    ValueMember = "Id",
+    Width = 130
+};
+departmentColumn.DataSource = GetDepartments();
+grid.Columns.Add(departmentColumn);
+
+// Add rating column
+var ratingColumn = new BeepDataGridViewRatingColumn
+{
+    Name = "Rating",
+    HeaderText = "Performance Rating",
+    DataPropertyName = "Rating",
+    MaxStars = 5,
+    Width = 140
+};
+grid.Columns.Add(ratingColumn);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GridId</code></td>
+                                <td>string</td>
+                                <td>Unique identifier for layout persistence</td>
+                            </tr>
+                            <tr>
+                                <td><code>DataSource</code></td>
+                                <td>object</td>
+                                <td>Data source bound to the grid</td>
+                            </tr>
+                            <tr>
+                                <td><code>Columns</code></td>
+                                <td>DataGridViewColumnCollection</td>
+                                <td>Collection of grid columns</td>
+                            </tr>
+                            <tr>
+                                <td><code>EntityStructure</code></td>
+                                <td>EntityStructure</td>
+                                <td>Entity definition for automatic column generation</td>
+                            </tr>
+                            <tr>
+                                <td><code>ColumnsConfigurations</code></td>
+                                <td>List&lt;BeepColumnConfig&gt;</td>
+                                <td>Column configuration settings</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Panel Visibility Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>ShowHeaderPanel <code>bool</code></h4>
+                            <p>Show title and action buttons panel</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ShowFilterPanel <code>bool</code></h4>
+                            <p>Show filtering row below headers</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ShowTotalsPanel <code>bool</code></h4>
+                            <p>Show totals calculation row</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ShowNavigatorPanel <code>bool</code></h4>
+                            <p>Show data navigation controls</p>
+                        </div>
+                    </div>
+
+                    <h3>Component Access Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GridView</code></td>
+                                <td>DataGridView</td>
+                                <td>Access to underlying DataGridView</td>
+                            </tr>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>BeepLabel</td>
+                                <td>Access to title label component</td>
+                            </tr>
+                            <tr>
+                                <td><code>BindingNavigator</code></td>
+                                <td>BeepBindingNavigator</td>
+                                <td>Access to navigation component</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SetConfig</code></td>
+                                <td>IDMEEditor, IDMLogger, IUtil, args</td>
+                                <td>Initialize grid with editor and utilities</td>
+                            </tr>
+                            <tr>
+                                <td><code>ResetData</code></td>
+                                <td>object data, EntityStructure entity</td>
+                                <td>Reset grid with new data and entity structure</td>
+                            </tr>
+                            <tr>
+                                <td><code>ResetEntity</code></td>
+                                <td>EntityStructure entity</td>
+                                <td>Reset grid columns from entity structure</td>
+                            </tr>
+                            <tr>
+                                <td><code>CreateColumnsForEntity</code></td>
+                                <td>None</td>
+                                <td>Generate columns from current entity structure</td>
+                            </tr>
+                            <tr>
+                                <td><code>RefreshGrid</code></td>
+                                <td>None</td>
+                                <td>Refresh grid display and data</td>
+                            </tr>
+                            <tr>
+                                <td><code>LoadGridLayout</code></td>
+                                <td>None</td>
+                                <td>Load saved layout for current GridId</td>
+                            </tr>
+                            <tr>
+                                <td><code>SaveGridLayout</code></td>
+                                <td>None</td>
+                                <td>Save current layout for GridId</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Method Usage Examples</h3>
+                        <pre><code class="language-csharp">// Initialize grid with framework components
+grid.SetConfig(dmeEditor, logger, utilities, args, passedArgs, errorInfo);
+
+// Reset with new data and entity
+var result = grid.ResetData(customerData, customerEntityStructure);
+if (result.Flag == Errors.Ok)
+{
+    Console.WriteLine("Grid reset successfully");
+}
+
+// Create columns from entity structure
+grid.EntityStructure = productEntityStructure;
+grid.CreateColumnsForEntity();
+
+// Refresh grid display
+grid.RefreshGrid();
+
+// Save/load layout for persistence
+grid.SaveGridLayout();
+grid.LoadGridLayout();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CellClick</code></td>
+                                <td>DataGridViewCellEventHandler</td>
+                                <td>Cell is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>CellDoubleClick</code></td>
+                                <td>DataGridViewCellEventHandler</td>
+                                <td>Cell is double-clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>CellFormatting</code></td>
+                                <td>DataGridViewCellFormattingEventHandler</td>
+                                <td>Cell needs formatting</td>
+                            </tr>
+                            <tr>
+                                <td><code>SaveCalled</code></td>
+                                <td>EventHandler&lt;BindingSource&gt;</td>
+                                <td>Save operation requested</td>
+                            </tr>
+                            <tr>
+                                <td><code>DeleteCalled</code></td>
+                                <td>EventHandler&lt;BindingSource&gt;</td>
+                                <td>Delete operation requested</td>
+                            </tr>
+                            <tr>
+                                <td><code>NewRecordCreated</code></td>
+                                <td>EventHandler&lt;BindingSource&gt;</td>
+                                <td>New record was created</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var grid = new BeepGrid();
+
+// Handle cell interactions
+grid.CellDoubleClick += (s, e) => {
+    if (e.RowIndex >= 0 && e.ColumnIndex >= 0)
+    {
+        var value = grid[e.ColumnIndex, e.RowIndex].Value;
+        Console.WriteLine($"Double-clicked: {value}");
+        
+        // Open edit dialog
+        EditRecord(e.RowIndex);
+    }
+};
+
+// Handle data operations
+grid.SaveCalled += (s, e) => {
+    try
+    {
+        SaveChangesToDatabase(e.DataSource);
+        MessageBox.Show("Changes saved successfully");
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Save failed: {ex.Message}");
+    }
+};
+
+// Handle formatting
+grid.CellFormatting += (s, e) => {
+    if (e.ColumnIndex == salaryColumnIndex && e.Value != null)
+    {
+        if (decimal.TryParse(e.Value.ToString(), out decimal salary))
+        {
+            e.CellStyle.BackColor = salary > 50000 ? Color.LightGreen : Color.LightPink;
+            e.FormattingApplied = true;
+        }
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Employee Management Grid</h3>
+                        <pre><code class="language-csharp">public void CreateEmployeeGrid()
+{
+    var employeeGrid = new BeepGrid
+    {
+        Size = new Size(1200, 600),
+        Location = new Point(10, 10),
+        ShowHeaderPanel = true,
+        ShowFilterPanel = true,
+        ShowTotalsPanel = true,
+        ShowNavigatorPanel = true
+    };
+
+    // Configure grid
+    employeeGrid.SetConfig(dmeEditor, logger, utilities, null, null, null);
+    employeeGrid.Title.Text = "Employee Management System";
+
+    // Define entity structure
+    var employeeEntity = new EntityStructure
+    {
+        EntityName = "Employees",
+        Fields = new List<EntityField>
+        {
+            new EntityField { fieldname = "EmployeeID", fieldtype = "System.Int32" },
+            new EntityField { fieldname = "FirstName", fieldtype = "System.String" },
+            new EntityField { fieldname = "LastName", fieldtype = "System.String" },
+            new EntityField { fieldname = "Email", fieldtype = "System.String" },
+            new EntityField { fieldname = "HireDate", fieldtype = "System.DateTime" },
+            new EntityField { fieldname = "Salary", fieldtype = "System.Decimal" },
+            new EntityField { fieldname = "Department", fieldtype = "System.String" },
+            new EntityField { fieldname = "IsActive", fieldtype = "System.Boolean" },
+            new EntityField { fieldname = "Performance", fieldtype = "System.Int32" }
+        }
+    };
+
+    // Get employee data and reset grid
+    var employees = GetEmployeeData();
+    employeeGrid.ResetData(employees, employeeEntity);
+
+    // Customize specific columns
+    CustomizeEmployeeColumns(employeeGrid);
+
+    this.Controls.Add(employeeGrid);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Product Catalog Grid</h3>
+                        <pre><code class="language-csharp">public class ProductCatalogGrid : UserControl
+{
+    private BeepGrid productGrid;
+
+    public ProductCatalogGrid()
+    {
+        InitializeProductGrid();
+        LoadProductData();
+    }
+
+    private void InitializeProductGrid()
+    {
+        productGrid = new BeepGrid
+        {
+            Dock = DockStyle.Fill,
+            ShowHeaderPanel = true,
+            ShowFilterPanel = true,
+            ShowTotalsPanel = true,
+            ShowNavigatorPanel = true
+        };
+
+        productGrid.Title.Text = "Product Catalog";
+        CreateProductColumns();
+        this.Controls.Add(productGrid);
+    }
+
+    private void CreateProductColumns()
+    {
+        productGrid.Columns.Clear();
+
+        // Product Name
+        productGrid.Columns.Add(new DataGridViewTextBoxColumn
+        {
+            Name = "ProductName",
+            HeaderText = "Product Name",
+            DataPropertyName = "ProductName",
+            Width = 200
+        });
+
+        // Category ComboBox
+        var categoryColumn = new BeepDataGridViewComboBoxColumn
+        {
+            Name = "Category",
+            HeaderText = "Category",
+            DataPropertyName = "CategoryID",
+            DisplayMember = "CategoryName",
+            ValueMember = "CategoryID",
+            Width = 150
+        };
+        categoryColumn.DataSource = GetCategories();
+        productGrid.Columns.Add(categoryColumn);
+
+        // Price with formatting
+        var priceColumn = new BeepDataGridViewNumericColumn
+        {
+            Name = "Price",
+            HeaderText = "Unit Price",
+            DataPropertyName = "UnitPrice",
+            DefaultCellStyle = { Format = "C2" },
+            Width = 100
+        };
+        productGrid.Columns.Add(priceColumn);
+
+        // Stock Level Progress Bar
+        var stockColumn = new BeepDataGridViewProgressBarColumn
+        {
+            Name = "StockLevel",
+            HeaderText = "Stock Level",
+            DataPropertyName = "UnitsInStock",
+            ProgressBarColor = Color.Orange,
+            Minimum = 0,
+            Maximum = 100,
+            Width = 120
+        };
+        productGrid.Columns.Add(stockColumn);
+
+        // Rating
+        var ratingColumn = new BeepDataGridViewRatingColumn
+        {
+            Name = "Rating",
+            HeaderText = "Customer Rating",
+            DataPropertyName = "Rating",
+            MaxStars = 5,
+            Width = 130
+        };
+        productGrid.Columns.Add(ratingColumn);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic Configuration Grid</h3>
+                        <pre><code class="language-csharp">public void CreateConfigurableGrid()
+{
+    var configurableGrid = new BeepGrid
+    {
+        GridId = "ConfigurableDataGrid", // For layout persistence
+        Size = new Size(900, 500)
+    };
+
+    // Column configurations for advanced scenarios
+    var columnConfigs = new List<BeepColumnConfig>
+    {
+        new BeepColumnConfig
+        {
+            ColumnName = "ID",
+            ColumnCaption = "Record ID",
+            Width = 80,
+            IsFilteOn = false,
+            IsTotalOn = false
+        },
+        new BeepColumnConfig
+        {
+            ColumnName = "Amount",
+            ColumnCaption = "Transaction Amount",
+            Width = 120,
+            IsFilteOn = true,
+            IsTotalOn = true,
+            HasTotal = true
+        }
+    };
+
+    configurableGrid.ColumnsConfigurations = columnConfigs;
+
+    // Enable all panels for full functionality
+    configurableGrid.ShowHeaderPanel = true;
+    configurableGrid.ShowFilterPanel = true;
+    configurableGrid.ShowTotalsPanel = true;
+    configurableGrid.ShowNavigatorPanel = true;
+
+    // Load and save layout automatically
+    configurableGrid.LoadGridLayout();
+    
+    // Save layout when form closes
+    this.FormClosing += (s, e) => {
+        configurableGrid.SaveGridLayout();
+    };
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Filtering & Sorting -->
+                <section id="filtering" class="section">
+                    <h2>Filtering & Sorting</h2>
+                    <p>BeepGrid provides powerful filtering and sorting capabilities:</p>
+
+                    <div class="code-example">
+                        <h3>Enable Filtering</h3>
+                        <pre><code class="language-csharp">// Show filter panel
+grid.ShowFilterPanel = true;
+
+// Filters are automatically available for each column
+// Users can type in filter boxes to filter data
+
+// Programmatic filtering example
+private void ApplyCustomFilter()
+{
+    // Access the binding source for complex filtering
+    var bindingSource = grid.BindingNavigator.BindingSource;
+    
+    // Apply complex filter
+    bindingSource.Filter = "Salary > 50000 AND Department = 'Engineering'";
+    
+    // Remove filter
+    bindingSource.RemoveFilter();
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Column Sorting</h3>
+                        <pre><code class="language-csharp">// Sorting is automatically enabled on column headers
+// Click to sort, click again to reverse, third click to remove sort
+
+// Programmatic sorting
+grid.Sort(grid.Columns["Salary"], ListSortDirection.Descending);
+
+// Handle sort events
+grid.GridView.Sorted += (s, e) => {
+    Console.WriteLine("Grid sorted");
+    UpdateTotalCalculations();
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Totals Calculation</h3>
+                        <pre><code class="language-csharp">// Enable totals panel
+grid.ShowTotalsPanel = true;
+
+// Totals are automatically calculated for numeric columns
+// Custom total calculation can be implemented through column configs
+
+// Access calculated totals
+foreach (var config in grid.ColumnsConfigurations)
+{
+    if (config.HasTotal && config.IsTotalOn)
+    {
+        Console.WriteLine($"{config.ColumnName}: {config.Total}");
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepGrid provides comprehensive theming support for all components:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var grid = new BeepGrid
+{
+    Theme = "DarkTheme"
+};
+
+// Theme automatically applies to:
+// - Grid background and foreground colors
+// - Selected row colors
+// - Header styling
+// - Panel backgrounds
+// - Button and control styling
+
+// Apply theme manually if needed
+grid.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive Features</h3>
+                    <ul>
+                        <li><strong>Grid Colors</strong> - Background, foreground, and selection colors</li>
+                        <li><strong>Header Styling</strong> - Column headers adapt to theme colors</li>
+                        <li><strong>Panel Backgrounds</strong> - All panels use consistent theme colors</li>
+                        <li><strong>Custom Columns</strong> - Specialized columns respect theme settings</li>
+                        <li><strong>Controls</strong> - Navigation and action buttons use theme styling</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>BeepGrid automatically applies theme colors to all its custom column types, ensuring a consistent visual experience across the entire grid.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Virtual Mode:</strong> Use virtual mode for large datasets (>10,000 rows)</li>
+                        <li><strong>Column Types:</strong> Use appropriate column types for better performance and UX</li>
+                        <li><strong>Data Binding:</strong> Bind to proper data sources (DataTable, BindingList, etc.)</li>
+                        <li><strong>Layout Persistence:</strong> Use GridId for automatic layout saving/loading</li>
+                        <li><strong>Suspend Layout:</strong> Suspend layout during bulk column operations</li>
+                    </ul>
+
+                    <h3>📊 Data Management</h3>
+                    <ul>
+                        <li><strong>Entity Structure:</strong> Define proper EntityStructure for automatic column generation</li>
+                        <li><strong>Data Validation:</strong> Implement cell validation for data integrity</li>
+                        <li><strong>Error Handling:</strong> Handle DataError events for robust applications</li>
+                        <li><strong>Transaction Support:</strong> Use transactions for data modifications</li>
+                    </ul>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Panel Configuration:</strong> Show/hide panels based on user needs</li>
+                        <li><strong>Column Sizing:</strong> Set appropriate default column widths</li>
+                        <li><strong>Filtering:</strong> Enable filtering for searchable data sets</li>
+                        <li><strong>Sorting:</strong> Ensure sortable columns are properly configured</li>
+                        <li><strong>Visual Feedback:</strong> Use formatting and custom columns for better data visualization</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard Navigation:</strong> Ensure full keyboard accessibility</li>
+                        <li><strong>Screen Readers:</strong> Use meaningful column headers and descriptions</li>
+                        <li><strong>High Contrast:</strong> Test with high contrast themes</li>
+                        <li><strong>Focus Indicators:</strong> Provide clear focus indication</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>Be cautious with totals panel on very large datasets as it can impact performance. Consider implementing lazy loading or virtual totals for large data sets.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>Use EntityStructure-based column generation for consistent data handling and automatic type-appropriate column creation.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-chart.html"><i class="bi bi-arrow-left"></i> BeepChart</a>
+                    <a href="beep-tree.html">BeepTree <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

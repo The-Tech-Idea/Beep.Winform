@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepPanel - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html" class="active">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>›</span>
+                    <span>BeepPanel</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepPanel</h1>
+                    <p class="page-subtitle">Flexible container control with title bars, theming, and enhanced layout capabilities</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#title-bar">Title Bar</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepPanel</strong> is an enhanced container control that extends the standard
+                        Windows Forms Panel with optional title bars, improved theming support, border customization,
+                        and flexible layout options for organizing content in your applications.
+                    </p>
+                    <p>
+                        Built on the <code>BeepControl</code> foundation, BeepPanel provides a clean, modern
+                        container that can display titles, icons, and action buttons while maintaining seamless
+                        integration with the Beep theming system.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🏷️ Optional Title Bar</h3>
+                            <p>Configurable title bar with text, icons, and action buttons</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Enhanced Theming</h3>
+                            <p>Full integration with Beep theming system for consistent styling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔲 Border Customization</h3>
+                            <p>Flexible border styles, colors, and radius options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Flexible Layout</h3>
+                            <p>Support for all standard layout options plus enhanced padding</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Action Buttons</h3>
+                            <p>Built-in support for minimize, maximize, and close buttons</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Design</h3>
+                            <p>Automatic layout adjustments for different screen sizes</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+
+                    <div class="code-example">
+                        <h3>Simple Panel</h3>
+                        <pre><code class="language-csharp">// Create a basic panel
+var panel = new BeepPanel
+{
+    Size = new Size(300, 200),
+    Location = new Point(10, 10),
+    BorderStyle = BorderStyle.FixedSingle
+};
+
+// Add some content
+var label = new Label
+{
+    Text = "Panel Content",
+    Dock = DockStyle.Fill,
+    TextAlign = ContentAlignment.MiddleCenter
+};
+
+panel.Controls.Add(label);
+this.Controls.Add(panel);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Panel with Title Bar</h3>
+                        <pre><code class="language-csharp">// Create panel with title bar
+var titlePanel = new BeepPanel
+{
+    ShowTitle = true,
+    TitleText = "Settings Panel",
+    TitleHeight = 30,
+    Size = new Size(400, 300),
+    Location = new Point(10, 10),
+    BorderRadius = 8
+};
+
+// Add content to the panel
+var contentArea = new BeepPanel
+{
+    Dock = DockStyle.Fill,
+    Padding = new Padding(10)
+};
+
+// Add some controls to content area
+var checkBox1 = new BeepCheckBox
+{
+    Text = "Enable notifications",
+    Location = new Point(10, 10),
+    AutoSize = true
+};
+
+var checkBox2 = new BeepCheckBox
+{
+    Text = "Auto-save changes",
+    Location = new Point(10, 40),
+    AutoSize = true
+};
+
+contentArea.Controls.AddRange(new Control[] { checkBox1, checkBox2 });
+titlePanel.Controls.Add(contentArea);
+this.Controls.Add(titlePanel);</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Layout Tip</strong>
+                        <p>When using title bars, the content area automatically adjusts to fill the remaining space. Use
+                            <code>Dock = DockStyle.Fill</code> for child controls to take advantage of this.</p>
+                    </div>
+                </section>
+
+                <!-- Title Bar -->
+                <section id="title-bar" class="section">
+                    <h2>Title Bar</h2>
+
+                    <p>The title bar provides a clean header area for your panel with support for text, icons, and action buttons.</p>
+
+                    <div class="code-example">
+                        <h3>Title Bar with Action Buttons</h3>
+                        <pre><code class="language-csharp">var panel = new BeepPanel
+{
+    ShowTitle = true,
+    TitleText = "Data Panel",
+    TitleIcon = "📊", // Emoji or use SVG
+    ShowMinimizeButton = true,
+    ShowMaximizeButton = true,
+    ShowCloseButton = true,
+    TitleHeight = 35,
+    Size = new Size(500, 400),
+    Dock = DockStyle.Fill
+};
+
+// Handle title bar button events
+panel.MinimizeClicked += (s, e) => {
+    panel.Height = panel.TitleHeight;
+    panel.Minimized = true;
+};
+
+panel.MaximizeClicked += (s, e) => {
+    if (panel.WindowState == FormWindowState.Maximized)
+    {
+        panel.WindowState = FormWindowState.Normal;
+    }
+    else
+    {
+        panel.WindowState = FormWindowState.Maximized;
+    }
+};
+
+panel.CloseClicked += (s, e) => {
+    panel.Visible = false;
+    // Or remove from parent container
+    // panel.Parent.Controls.Remove(panel);
+};</code></pre>
+                    </div>
+
+                    <h3>Title Bar Customization</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowTitle</code></td>
+                                <td>bool</td>
+                                <td>Whether to display the title bar</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleText</code></td>
+                                <td>string</td>
+                                <td>Text displayed in the title bar</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleIcon</code></td>
+                                <td>string</td>
+                                <td>Icon displayed before the title text</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleHeight</code></td>
+                                <td>int</td>
+                                <td>Height of the title bar in pixels</td>
+                            </tr>
+                            <tr>
+                                <td><code>TitleAlignment</code></td>
+                                <td>ContentAlignment</td>
+                                <td>Alignment of title text within the bar</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Layout Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>BorderStyle <code>BorderStyle</code></h4>
+                            <p>Standard border style (None, FixedSingle, Fixed3D)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>BorderRadius <code>int</code></h4>
+                            <p>Radius for rounded corners</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>AutoScroll <code>bool</code></h4>
+                            <p>Enable automatic scrollbars when content overflows</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Padding <code>Padding</code></h4>
+                            <p>Internal spacing around content</p>
+                        </div>
+                    </div>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>BackgroundColor</code></td>
+                                <td>Color</td>
+                                <td>Background color of the panel</td>
+                            </tr>
+                            <tr>
+                                <td><code>BorderColor</code></td>
+                                <td>Color</td>
+                                <td>Color of the panel border</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShadowEnabled</code></td>
+                                <td>bool</td>
+                                <td>Whether to show drop shadow</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShadowColor</code></td>
+                                <td>Color</td>
+                                <td>Color of the drop shadow</td>
+                            </tr>
+                            <tr>
+                                <td><code>Opacity</code></td>
+                                <td>float</td>
+                                <td>Panel transparency (0.0 to 1.0)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Dashboard Layout with Multiple Panels</h3>
+                        <pre><code class="language-csharp">private void CreateDashboardLayout()
+{
+    var mainContainer = new BeepPanel
+    {
+        Dock = DockStyle.Fill,
+        Padding = new Padding(10)
+    };
+
+    // Header panel
+    var headerPanel = new BeepPanel
+    {
+        ShowTitle = true,
+        TitleText = "Dashboard Overview",
+        TitleIcon = "📊",
+        Dock = DockStyle.Top,
+        Height = 80,
+        Margin = new Padding(0, 0, 0, 10),
+        BorderRadius = 8
+    };
+
+    // Left sidebar panel
+    var sidebarPanel = new BeepPanel
+    {
+        ShowTitle = true,
+        TitleText = "Navigation",
+        Dock = DockStyle.Left,
+        Width = 200,
+        Margin = new Padding(0, 0, 10, 0),
+        BorderRadius = 8
+    };
+
+    // Main content panel
+    var contentPanel = new BeepPanel
+    {
+        ShowTitle = true,
+        TitleText = "Main Content",
+        TitleIcon = "📋",
+        ShowMaximizeButton = true,
+        Dock = DockStyle.Fill,
+        BorderRadius = 8
+    };
+
+    // Add navigation items to sidebar
+    var navItems = new string[] { "Home", "Reports", "Settings", "Help" };
+    var yPosition = 10;
+
+    foreach (var item in navItems)
+    {
+        var navButton = new BeepButton
+        {
+            Text = item,
+            Size = new Size(180, 35),
+            Location = new Point(10, yPosition),
+            UIVariant = ReactUIVariant.Text,
+            UIColor = ReactUIColor.Primary
+        };
+
+        sidebarPanel.Controls.Add(navButton);
+        yPosition += 45;
+    }
+
+    mainContainer.Controls.AddRange(new Control[]
+    {
+        headerPanel, sidebarPanel, contentPanel
+    });
+
+    this.Controls.Add(mainContainer);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Card-Style Information Panels</h3>
+                        <pre><code class="language-csharp">private void CreateInfoCards()
+{
+    var cardContainer = new FlowLayoutPanel
+    {
+        Dock = DockStyle.Fill,
+        FlowDirection = FlowDirection.LeftToRight,
+        WrapContents = true,
+        Padding = new Padding(20)
+    };
+
+    // Create multiple info cards
+    var cardData = new[]
+    {
+        new { Title = "Total Sales", Value = "$125,430", Icon = "💰", Color = Color.FromArgb(76, 175, 80) },
+        new { Title = "New Customers", Value = "1,234", Icon = "👥", Color = Color.FromArgb(33, 150, 243) },
+        new { Title = "Orders Today", Value = "567", Icon = "📦", Color = Color.FromArgb(255, 152, 0) },
+        new { Title = "Revenue Growth", Value = "+12.5%", Icon = "📈", Color = Color.FromArgb(156, 39, 176) }
+    };
+
+    foreach (var data in cardData)
+    {
+        var card = new BeepPanel
+        {
+            ShowTitle = true,
+            TitleText = data.Title,
+            TitleIcon = data.Icon,
+            Size = new Size(250, 120),
+            Margin = new Padding(10),
+            BorderRadius = 12,
+            ShadowEnabled = true,
+            BorderColor = data.Color
+        };
+
+        // Add value label
+        var valueLabel = new BeepLabel
+        {
+            Text = data.Value,
+            Font = new Font("Segoe UI", 24, FontStyle.Bold),
+            ForeColor = data.Color,
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+
+        card.Controls.Add(valueLabel);
+        cardContainer.Controls.Add(card);
+    }
+
+    this.Controls.Add(cardContainer);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Collapsible Settings Panel</h3>
+                        <pre><code class="language-csharp">private void CreateCollapsiblePanel()
+{
+    var settingsPanel = new BeepPanel
+    {
+        ShowTitle = true,
+        TitleText = "Advanced Settings",
+        TitleIcon = "⚙️",
+        ShowMinimizeButton = true,
+        Size = new Size(400, 300),
+        Location = new Point(20, 20),
+        BorderRadius = 10
+    };
+
+    // Create content that can be collapsed
+    var contentPanel = new BeepPanel
+    {
+        Dock = DockStyle.Fill,
+        Padding = new Padding(15),
+        AutoScroll = true
+    };
+
+    // Add settings controls
+    var settings = new Control[]
+    {
+        new BeepCheckBox { Text = "Enable auto-save", Location = new Point(0, 0), AutoSize = true },
+        new BeepCheckBox { Text = "Show notifications", Location = new Point(0, 30), AutoSize = true },
+        new BeepCheckBox { Text = "Dark mode", Location = new Point(0, 60), AutoSize = true },
+        new BeepComboBox {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Location = new Point(0, 90),
+            Size = new Size(200, 25)
+        }
+    };
+
+    contentPanel.Controls.AddRange(settings);
+    settingsPanel.Controls.Add(contentPanel);
+
+    // Handle collapse/expand
+    bool isCollapsed = false;
+    int originalHeight = settingsPanel.Height;
+
+    settingsPanel.MinimizeClicked += (s, e) => {
+        if (isCollapsed)
+        {
+            // Expand
+            settingsPanel.Height = originalHeight;
+            contentPanel.Visible = true;
+            isCollapsed = false;
+        }
+        else
+        {
+            // Collapse
+            originalHeight = settingsPanel.Height;
+            settingsPanel.Height = settingsPanel.TitleHeight;
+            contentPanel.Visible = false;
+            isCollapsed = true;
+        }
+    };
+
+    this.Controls.Add(settingsPanel);
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+
+                    <p>BeepPanel integrates seamlessly with the Beep theming system, automatically adapting colors, fonts, and visual effects.</p>
+
+                    <div class="code-example">
+                        <h3>Applying Themes</h3>
+                        <pre><code class="language-csharp">// Apply theme to individual panel
+panel.Theme = "DarkTheme";
+panel.ApplyTheme();
+
+// Apply theme to all panels recursively
+private void ApplyThemeToPanels(Control container, string themeName)
+{
+    foreach (Control control in container.Controls)
+    {
+        if (control is BeepPanel panel)
+        {
+            panel.Theme = themeName;
+            panel.ApplyTheme();
+        }
+
+        // Recursively apply to nested containers
+        if (control.HasChildren)
+        {
+            ApplyThemeToPanels(control, themeName);
+        }
+    }
+}
+
+// Apply to entire form
+ApplyThemeToPanels(this, "DarkTheme");</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive Properties</h3>
+                    <ul>
+                        <li><strong>Background colors</strong> - Automatically use theme background colors</li>
+                        <li><strong>Border colors</strong> - Adapt to theme accent and border colors</li>
+                        <li><strong>Title bar styling</strong> - Use theme colors for title text and buttons</li>
+                        <li><strong>Shadow effects</strong> - Adjust shadow colors based on theme</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Consistent spacing:</strong> Use consistent margins and padding across panels</li>
+                        <li><strong>Logical grouping:</strong> Group related content within panels</li>
+                        <li><strong>Visual hierarchy:</strong> Use title bars to establish content importance</li>
+                        <li><strong>Appropriate sizing:</strong> Size panels based on their content and context</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Minimize nesting:</strong> Avoid excessive panel nesting for better performance</li>
+                        <li><strong>Use AutoScroll wisely:</strong> Enable only when necessary to avoid layout issues</li>
+                        <li><strong>Batch updates:</strong> Suspend layout when adding multiple controls</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Meaningful titles:</strong> Use descriptive title text for screen readers</li>
+                        <li><strong>Keyboard navigation:</strong> Ensure panel contents are keyboard accessible</li>
+                        <li><strong>High contrast support:</strong> Test panels with high contrast themes</li>
+                        <li><strong>Focus management:</strong> Handle focus properly when collapsing/expanding</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Layout Considerations</strong>
+                        <p>When using title bars, remember that they consume vertical space. Plan your layout accordingly and
+                            consider using shorter titles for small panels.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Pro Tip</strong>
+                        <p>Use the Dock property strategically with BeepPanel to create responsive layouts that adapt to
+                            window resizing automatically.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="../index.html"><i class="bi bi-arrow-left"></i> Back to Controls</a>
+                    <a href="beep-multisplitter.html">BeepMultiSplitter <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+
+            submenus.forEach(item => {
+                item.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const codeBlocks = document.querySelectorAll('pre code');
+
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

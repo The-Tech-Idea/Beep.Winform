@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepScrollBar - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-ui-checks"></i> Basic Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-scrollbar.html" class="active">BeepScrollBar</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>?</span>
+                    <a href="../index.html#basic-controls">Basic Controls</a>
+                    <span>?</span>
+                    <span>BeepScrollBar</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepScrollBar</h1>
+                    <p class="page-subtitle">Modern, customizable scrollbar control with horizontal and vertical orientations, smooth dragging, and comprehensive theming support</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepScrollBar</strong> provides a modern, fully customizable scrollbar control that can replace 
+                        the standard Windows scrollbar with a more contemporary appearance. Supporting both horizontal and 
+                        vertical orientations, it offers smooth dragging, hover effects, and comprehensive theming integration.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepScrollBar features intelligent thumb sizing, 
+                        proportional movement, keyboard navigation, mouse wheel support, and seamless integration with custom 
+                        container controls. Perfect for modern interfaces requiring custom scrolling experiences.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Dual Orientation</h3>
+                            <p>Supports both vertical and horizontal scrolling with automatic sizing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>??? Smooth Interaction</h3>
+                            <p>Drag and drop thumb movement with immediate visual feedback</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Keyboard Support</h3>
+                            <p>Arrow keys, Page Up/Down, and mouse wheel navigation</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Customizable Colors</h3>
+                            <p>Track, thumb, hover, and active state color customization</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Proportional Sizing</h3>
+                            <p>Intelligent thumb sizing based on content ratio and large change values</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Theme Integration</h3>
+                            <p>Full theme support with specialized scrollbar color properties</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Vertical ScrollBar</h3>
+                    <div class="visual-demo">
+                        <div class="scrollbar-preview vertical">
+                            <div class="scrollbar-track">
+                                <div class="scrollbar-thumb"></div>
+                            </div>
+                            <div class="scrollbar-info">
+                                <span>Value: 30</span>
+                                <span>Range: 0-100</span>
+                                <span>Large Change: 10</span>
+                            </div>
+                        </div>
+                        <p><em>Vertical BeepScrollBar with thumb positioned at 30% of range</em></p>
+                    </div>
+
+                    <h3>Horizontal ScrollBar</h3>
+                    <div class="visual-demo">
+                        <div class="scrollbar-preview horizontal">
+                            <div class="scrollbar-track horizontal">
+                                <div class="scrollbar-thumb horizontal"></div>
+                            </div>
+                            <div class="scrollbar-info">
+                                <span>Value: 45</span>
+                                <span>Range: 0-200</span>
+                                <span>Large Change: 20</span>
+                            </div>
+                        </div>
+                        <p><em>Horizontal BeepScrollBar with proportional thumb sizing</em></p>
+                    </div>
+
+                    <h3>Interactive States</h3>
+                    <div class="visual-demo">
+                        <div class="scrollbar-states">
+                            <div class="state-group">
+                                <h4>Normal</h4>
+                                <div class="scrollbar-track mini">
+                                    <div class="scrollbar-thumb mini normal"></div>
+                                </div>
+                            </div>
+                            <div class="state-group">
+                                <h4>Hover</h4>
+                                <div class="scrollbar-track mini">
+                                    <div class="scrollbar-thumb mini hover"></div>
+                                </div>
+                            </div>
+                            <div class="state-group">
+                                <h4>Active</h4>
+                                <div class="scrollbar-track mini">
+                                    <div class="scrollbar-thumb mini active"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Different scrollbar states: normal, hover, and active (dragging)</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .scrollbar-preview {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 2rem;
+                            padding: 1rem;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            margin: 0 auto;
+                            max-width: 400px;
+                        }
+
+                        .scrollbar-preview.horizontal {
+                            flex-direction: column;
+                        }
+
+                        .scrollbar-track {
+                            background: var(--color-border-light);
+                            border-radius: 4px;
+                            position: relative;
+                        }
+
+                        .scrollbar-track:not(.horizontal) {
+                            width: 12px;
+                            height: 120px;
+                        }
+
+                        .scrollbar-track.horizontal {
+                            width: 120px;
+                            height: 12px;
+                        }
+
+                        .scrollbar-track.mini {
+                            width: 8px;
+                            height: 60px;
+                        }
+
+                        .scrollbar-thumb {
+                            background: var(--color-primary);
+                            border-radius: 4px;
+                            position: absolute;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .scrollbar-thumb:not(.horizontal) {
+                            width: 100%;
+                            height: 40px;
+                            top: 36px;
+                        }
+
+                        .scrollbar-thumb.horizontal {
+                            height: 100%;
+                            width: 40px;
+                            left: 36px;
+                        }
+
+                        .scrollbar-thumb.mini {
+                            height: 20px;
+                            top: 15px;
+                        }
+
+                        .scrollbar-thumb.normal {
+                            background: var(--color-primary);
+                        }
+
+                        .scrollbar-thumb.hover {
+                            background: var(--color-primary-light);
+                            transform: scale(1.1);
+                        }
+
+                        .scrollbar-thumb.active {
+                            background: var(--color-primary-dark);
+                        }
+
+                        .scrollbar-info {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .scrollbar-states {
+                            display: flex;
+                            justify-content: center;
+                            gap: 2rem;
+                            align-items: center;
+                        }
+
+                        .state-group {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 0.5rem;
+                        }
+
+                        .state-group h4 {
+                            margin: 0;
+                            font-size: 14px;
+                            color: var(--color-text);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Vertical ScrollBar</h3>
+                        <pre><code class="language-csharp">// Create a vertical scrollbar
+var verticalScrollBar = new BeepScrollBar
+{
+    ScrollOrientation = Orientation.Vertical,
+    Location = new Point(200, 50),
+    Size = new Size(15, 200),
+    Minimum = 0,
+    Maximum = 100,
+    Value = 0,
+    LargeChange = 10,
+    SmallChange = 1
+};
+
+// Handle value changes
+verticalScrollBar.ValueChanged += (sender, e) =>
+{
+    var scrollBar = sender as BeepScrollBar;
+    Console.WriteLine($"ScrollBar value: {scrollBar.Value}");
+    
+    // Update content position based on scrollbar value
+    UpdateContentPosition(scrollBar.Value);
+};
+
+// Handle scroll events (fired on any scroll action)
+verticalScrollBar.Scroll += (sender, e) =>
+{
+    var scrollBar = sender as BeepScrollBar;
+    // Perform smooth scrolling or animation
+    SmoothScrollToPosition(scrollBar.Value);
+};
+
+this.Controls.Add(verticalScrollBar);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Horizontal ScrollBar</h3>
+                        <pre><code class="language-csharp">// Create a horizontal scrollbar
+var horizontalScrollBar = new BeepScrollBar
+{
+    ScrollOrientation = Orientation.Horizontal,
+    Location = new Point(50, 300),
+    Size = new Size(200, 15),
+    Minimum = 0,
+    Maximum = 500,
+    Value = 0,
+    LargeChange = 50,
+    SmallChange = 5
+};
+
+// Handle scrolling for horizontal content
+horizontalScrollBar.ValueChanged += (sender, e) =>
+{
+    var scrollBar = sender as BeepScrollBar;
+    
+    // Update horizontal scroll position
+    contentPanel.AutoScrollPosition = new Point(scrollBar.Value, 0);
+};
+
+this.Controls.Add(horizontalScrollBar);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Appearance</h3>
+                        <pre><code class="language-csharp">// Create scrollbar with custom colors
+var customScrollBar = new BeepScrollBar
+{
+    ScrollOrientation = Orientation.Vertical,
+    Location = new Point(250, 50),
+    Size = new Size(12, 200),
+    
+    // Custom colors
+    TrackColor = Color.FromArgb(240, 240, 240),
+    ThumbColor = Color.FromArgb(100, 100, 100),
+    ThumbColorHover = Color.FromArgb(80, 80, 80),
+    ThumbColorActive = Color.FromArgb(60, 60, 60),
+    
+    // Range settings
+    Minimum = 0,
+    Maximum = 1000,
+    LargeChange = 100,
+    SmallChange = 10
+};
+
+// Apply theme colors
+customScrollBar.ApplyTheme();
+
+this.Controls.Add(customScrollBar);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Behavior Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ScrollOrientation</code></td>
+                                <td>Orientation</td>
+                                <td>Vertical</td>
+                                <td>Orientation of the scrollbar (Vertical or Horizontal)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Value</code></td>
+                                <td>int</td>
+                                <td>0</td>
+                                <td>Current scroll position value</td>
+                            </tr>
+                            <tr>
+                                <td><code>Minimum</code></td>
+                                <td>int</td>
+                                <td>0</td>
+                                <td>Minimum scroll value</td>
+                            </tr>
+                            <tr>
+                                <td><code>Maximum</code></td>
+                                <td>int</td>
+                                <td>100</td>
+                                <td>Maximum scroll value</td>
+                            </tr>
+                            <tr>
+                                <td><code>LargeChange</code></td>
+                                <td>int</td>
+                                <td>10</td>
+                                <td>Value change for page up/down and track clicks</td>
+                            </tr>
+                            <tr>
+                                <td><code>SmallChange</code></td>
+                                <td>int</td>
+                                <td>1</td>
+                                <td>Value change for arrow keys and mouse wheel</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TrackColor</code></td>
+                                <td>Color</td>
+                                <td>ControlDark</td>
+                                <td>Color of the scrollbar track (background)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ThumbColor</code></td>
+                                <td>Color</td>
+                                <td>ControlDarkDark</td>
+                                <td>Color of the scrollbar thumb (normal state)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ThumbColorHover</code></td>
+                                <td>Color</td>
+                                <td>ControlDark</td>
+                                <td>Color of the scrollbar thumb when hovering</td>
+                            </tr>
+                            <tr>
+                                <td><code>ThumbColorActive</code></td>
+                                <td>Color</td>
+                                <td>ControlDarkDark</td>
+                                <td>Color of the scrollbar thumb when dragging</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Size Guidelines</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Orientation</th>
+                                <th>Recommended Width</th>
+                                <th>Recommended Height</th>
+                                <th>Minimum Length</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Vertical</td>
+                                <td>10-20 pixels</td>
+                                <td>100+ pixels</td>
+                                <td>50 pixels</td>
+                            </tr>
+                            <tr>
+                                <td>Horizontal</td>
+                                <td>100+ pixels</td>
+                                <td>10-20 pixels</td>
+                                <td>50 pixels</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ValueChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the Value property changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>Scroll</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired on any scroll action (drag, click, keyboard)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling</h3>
+                        <pre><code class="language-csharp">var scrollBar = new BeepScrollBar();
+
+// Handle value changes for precise positioning
+scrollBar.ValueChanged += (sender, e) =>
+{
+    var sb = sender as BeepScrollBar;
+    
+    // Calculate percentage
+    double percentage = (double)(sb.Value - sb.Minimum) / (sb.Maximum - sb.Minimum);
+    
+    // Update content position
+    UpdateContentPosition(percentage);
+    
+    // Update status
+    statusLabel.Text = $"Position: {sb.Value}/{sb.Maximum} ({percentage:P0})";
+};
+
+// Handle scroll events for animation or feedback
+scrollBar.Scroll += (sender, e) =>
+{
+    var sb = sender as BeepScrollBar;
+    
+    // Trigger scroll animation
+    if (enableSmoothScrolling)
+    {
+        AnimateToPosition(sb.Value);
+    }
+    
+    // Update scroll indicators
+    UpdateScrollIndicators(sb.Value, sb.Maximum);
+    
+    // Log scroll activity
+    LogScrollActivity(sb.Value);
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Custom Scrollable Panel</h3>
+                        <pre><code class="language-csharp">public class CustomScrollablePanel : Panel
+{
+    private BeepScrollBar verticalScrollBar;
+    private BeepScrollBar horizontalScrollBar;
+    private Panel contentPanel;
+    private Size contentSize;
+
+    public CustomScrollablePanel()
+    {
+        SetupScrollablePanelContent();
+        SetupScrollBars();
+        UpdateScrollBars();
+    }
+
+    private void SetupScrollablePanelContent()
+    {
+        // Content panel that can be larger than visible area
+        contentPanel = new Panel
+        {
+            Location = new Point(0, 0),
+            BackColor = Color.White,
+            BorderStyle = BorderStyle.None
+        };
+
+        // Set initial content size
+        contentSize = new Size(800, 600);
+        contentPanel.Size = contentSize;
+
+        this.Controls.Add(contentPanel);
+    }
+
+    private void SetupScrollBars()
+    {
+        // Vertical scrollbar
+        verticalScrollBar = new BeepScrollBar
+        {
+            ScrollOrientation = Orientation.Vertical,
+            Dock = DockStyle.Right,
+            Width = 16,
+            Visible = false
+        };
+
+        verticalScrollBar.ValueChanged += OnVerticalScroll;
+
+        // Horizontal scrollbar  
+        horizontalScrollBar = new BeepScrollBar
+        {
+            ScrollOrientation = Orientation.Horizontal,
+            Dock = DockStyle.Bottom,
+            Height = 16,
+            Visible = false
+        };
+
+        horizontalScrollBar.ValueChanged += OnHorizontalScroll;
+
+        this.Controls.AddRange(new Control[] { verticalScrollBar, horizontalScrollBar });
+    }
+
+    private void OnVerticalScroll(object sender, EventArgs e)
+    {
+        var scrollBar = sender as BeepScrollBar;
+        
+        // Update content panel position
+        int newY = -scrollBar.Value;
+        contentPanel.Location = new Point(contentPanel.Location.X, newY);
+    }
+
+    private void OnHorizontalScroll(object sender, EventArgs e)
+    {
+        var scrollBar = sender as BeepScrollBar;
+        
+        // Update content panel position
+        int newX = -scrollBar.Value;
+        contentPanel.Location = new Point(newX, contentPanel.Location.Y);
+    }
+
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        UpdateScrollBars();
+    }
+
+    private void UpdateScrollBars()
+    {
+        if (contentPanel == null) return;
+
+        // Calculate available area (excluding scrollbar space)
+        int availableWidth = this.Width - (verticalScrollBar.Visible ? verticalScrollBar.Width : 0);
+        int availableHeight = this.Height - (horizontalScrollBar.Visible ? horizontalScrollBar.Height : 0);
+
+        // Determine if scrollbars are needed
+        bool needVertical = contentSize.Height > availableHeight;
+        bool needHorizontal = contentSize.Width > availableWidth;
+
+        // Adjust available area if scrollbars are needed
+        if (needVertical) availableWidth -= verticalScrollBar.Width;
+        if (needHorizontal) availableHeight -= horizontalScrollBar.Height;
+
+        // Re-check in case adding one scrollbar affects the other
+        needVertical = contentSize.Height > availableHeight;
+        needHorizontal = contentSize.Width > availableWidth;
+
+        // Configure vertical scrollbar
+        verticalScrollBar.Visible = needVertical;
+        if (needVertical)
+        {
+            verticalScrollBar.Minimum = 0;
+            verticalScrollBar.Maximum = contentSize.Height - availableHeight;
+            verticalScrollBar.LargeChange = Math.Max(1, availableHeight / 10);
+            verticalScrollBar.SmallChange = 20;
+        }
+
+        // Configure horizontal scrollbar
+        horizontalScrollBar.Visible = needHorizontal;
+        if (needHorizontal)
+        {
+            horizontalScrollBar.Minimum = 0;
+            horizontalScrollBar.Maximum = contentSize.Width - availableWidth;
+            horizontalScrollBar.LargeChange = Math.Max(1, availableWidth / 10);
+            horizontalScrollBar.SmallChange = 20;
+        }
+    }
+
+    public void SetContentSize(Size newSize)
+    {
+        contentSize = newSize;
+        contentPanel.Size = contentSize;
+        UpdateScrollBars();
+    }
+
+    public void ScrollToPosition(Point position)
+    {
+        if (verticalScrollBar.Visible)
+        {
+            verticalScrollBar.Value = Math.Max(verticalScrollBar.Minimum, 
+                                               Math.Min(position.Y, verticalScrollBar.Maximum));
+        }
+
+        if (horizontalScrollBar.Visible)
+        {
+            horizontalScrollBar.Value = Math.Max(horizontalScrollBar.Minimum, 
+                                                  Math.Min(position.X, horizontalScrollBar.Maximum));
+        }
+    }
+
+    public void ScrollToTop()
+    {
+        if (verticalScrollBar.Visible)
+            verticalScrollBar.Value = verticalScrollBar.Minimum;
+    }
+
+    public void ScrollToBottom()
+    {
+        if (verticalScrollBar.Visible)
+            verticalScrollBar.Value = verticalScrollBar.Maximum;
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Image Viewer with Custom Scrollbars</h3>
+                        <pre><code class="language-csharp">public class ImageViewerControl : UserControl
+{
+    private BeepScrollBar vScrollBar;
+    private BeepScrollBar hScrollBar;
+    private PictureBox pictureBox;
+    private Image currentImage;
+    private float zoomFactor = 1.0f;
+
+    public ImageViewerControl()
+    {
+        SetupImageViewer();
+    }
+
+    private void SetupImageViewer()
+    {
+        this.BackColor = Color.Gray;
+
+        // Picture box for image display
+        pictureBox = new PictureBox
+        {
+            SizeMode = PictureBoxSizeMode.Normal,
+            Location = new Point(0, 0),
+            BackColor = Color.Transparent
+        };
+
+        // Vertical scrollbar
+        vScrollBar = new BeepScrollBar
+        {
+            ScrollOrientation = Orientation.Vertical,
+            Dock = DockStyle.Right,
+            Width = 18,
+            Visible = false
+        };
+        vScrollBar.ValueChanged += OnVerticalScroll;
+
+        // Horizontal scrollbar
+        hScrollBar = new BeepScrollBar
+        {
+            ScrollOrientation = Orientation.Horizontal,
+            Dock = DockStyle.Bottom,
+            Height = 18,
+            Visible = false
+        };
+        hScrollBar.ValueChanged += OnHorizontalScroll;
+
+        this.Controls.AddRange(new Control[] { pictureBox, vScrollBar, hScrollBar });
+
+        // Handle mouse wheel for zooming
+        this.MouseWheel += OnMouseWheel;
+    }
+
+    public void LoadImage(Image image)
+    {
+        currentImage = image;
+        UpdateImageDisplay();
+    }
+
+    private void UpdateImageDisplay()
+    {
+        if (currentImage == null) return;
+
+        // Calculate scaled image size
+        int scaledWidth = (int)(currentImage.Width * zoomFactor);
+        int scaledHeight = (int)(currentImage.Height * zoomFactor);
+
+        pictureBox.Size = new Size(scaledWidth, scaledHeight);
+        pictureBox.Image = currentImage;
+
+        UpdateScrollBars();
+    }
+
+    private void UpdateScrollBars()
+    {
+        if (currentImage == null) return;
+
+        // Calculate available viewing area
+        int viewWidth = this.Width - (vScrollBar.Visible ? vScrollBar.Width : 0);
+        int viewHeight = this.Height - (hScrollBar.Visible ? hScrollBar.Height : 0);
+
+        // Check if scrollbars are needed
+        bool needVScroll = pictureBox.Height > viewHeight;
+        bool needHScroll = pictureBox.Width > viewWidth;
+
+        // Update available area if scrollbars will be shown
+        if (needVScroll) viewWidth -= vScrollBar.Width;
+        if (needHScroll) viewHeight -= hScrollBar.Height;
+
+        // Re-check after accounting for scrollbar space
+        needVScroll = pictureBox.Height > viewHeight;
+        needHScroll = pictureBox.Width > viewWidth;
+
+        // Configure vertical scrollbar
+        vScrollBar.Visible = needVScroll;
+        if (needVScroll)
+        {
+            vScrollBar.Minimum = 0;
+            vScrollBar.Maximum = pictureBox.Height - viewHeight;
+            vScrollBar.LargeChange = Math.Max(1, viewHeight);
+            vScrollBar.SmallChange = 20;
+        }
+
+        // Configure horizontal scrollbar
+        hScrollBar.Visible = needHScroll;
+        if (needHScroll)
+        {
+            hScrollBar.Minimum = 0;
+            hScrollBar.Maximum = pictureBox.Width - viewWidth;
+            hScrollBar.LargeChange = Math.Max(1, viewWidth);
+            hScrollBar.SmallChange = 20;
+        }
+
+        // Center image if smaller than view area
+        if (!needVScroll && !needHScroll)
+        {
+            pictureBox.Location = new Point(
+                (viewWidth - pictureBox.Width) / 2,
+                (viewHeight - pictureBox.Height) / 2
+            );
+        }
+    }
+
+    private void OnVerticalScroll(object sender, EventArgs e)
+    {
+        var scrollBar = sender as BeepScrollBar;
+        pictureBox.Location = new Point(pictureBox.Location.X, -scrollBar.Value);
+    }
+
+    private void OnHorizontalScroll(object sender, EventArgs e)
+    {
+        var scrollBar = sender as BeepScrollBar;
+        pictureBox.Location = new Point(-scrollBar.Value, pictureBox.Location.Y);
+    }
+
+    protected override void OnResize(EventArgs e)
+    {
+        base.OnResize(e);
+        UpdateScrollBars();
+    }
+
+    private void OnMouseWheel(object sender, MouseEventArgs e)
+    {
+        // Zoom in/out with mouse wheel
+        float zoomDelta = e.Delta > 0 ? 1.1f : 0.9f;
+        SetZoom(zoomFactor * zoomDelta);
+    }
+
+    public void SetZoom(float newZoom)
+    {
+        zoomFactor = Math.Max(0.1f, Math.Min(newZoom, 10.0f));
+        UpdateImageDisplay();
+    }
+
+    public void ZoomToFit()
+    {
+        if (currentImage == null) return;
+
+        float scaleX = (float)this.Width / currentImage.Width;
+        float scaleY = (float)this.Height / currentImage.Height;
+        SetZoom(Math.Min(scaleX, scaleY));
+    }
+
+    public void ZoomActualSize()
+    {
+        SetZoom(1.0f);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepScrollBar provides specialized theming with dedicated scrollbar color properties:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var scrollBar = new BeepScrollBar
+{
+    ScrollOrientation = Orientation.Vertical,
+    Size = new Size(15, 200)
+};
+
+// Apply theme - automatically sets scrollbar-specific colors
+scrollBar.Theme = "DarkTheme";
+scrollBar.ApplyTheme();
+
+// Theme sets these properties automatically:
+// - BackColor: ScrollBarBackColor
+// - TrackColor: ScrollBarTrackColor  
+// - ThumbColor: ScrollBarThumbColor
+// - ThumbColorHover: ScrollBarHoverThumbColor
+// - ThumbColorActive: ScrollBarActiveThumbColor</code></pre>
+                    </div>
+
+                    <h3>ScrollBar Theme Properties</h3>
+                    <ul>
+                        <li><strong>ScrollBarBackColor</strong> - Overall scrollbar background</li>
+                        <li><strong>ScrollBarTrackColor</strong> - Track (groove) background color</li>
+                        <li><strong>ScrollBarThumbColor</strong> - Thumb (slider) normal color</li>
+                        <li><strong>ScrollBarHoverThumbColor</strong> - Thumb color when hovering</li>
+                        <li><strong>ScrollBarActiveThumbColor</strong> - Thumb color when dragging</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom ScrollBar Styling</h3>
+                        <pre><code class="language-csharp">// Create custom theme for scrollbars
+var customTheme = new BeepTheme
+{
+    ScrollBarBackColor = Color.FromArgb(248, 250, 252),
+    ScrollBarTrackColor = Color.FromArgb(226, 232, 240),
+    ScrollBarThumbColor = Color.FromArgb(148, 163, 184),
+    ScrollBarHoverThumbColor = Color.FromArgb(100, 116, 139),
+    ScrollBarActiveThumbColor = Color.FromArgb(71, 85, 105)
+};
+
+// Apply to scrollbar
+BeepThemesManager.AddTheme("CustomScrollBar", customTheme);
+scrollBar.Theme = "CustomScrollBar";
+scrollBar.ApplyTheme();
+
+// Or set colors directly
+scrollBar.TrackColor = Color.LightGray;
+scrollBar.ThumbColor = Color.DarkGray;
+scrollBar.ThumbColorHover = Color.Gray;
+scrollBar.ThumbColorActive = Color.Black;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Sizing Guidelines</h3>
+                    <ul>
+                        <li><strong>Width/Height:</strong> Use 12-20 pixels for scrollbar thickness</li>
+                        <li><strong>Minimum length:</strong> Ensure at least 50 pixels of length for usability</li>
+                        <li><strong>Proportional thumbs:</strong> Set LargeChange to match visible content ratio</li>
+                        <li><strong>Auto-sizing:</strong> Update scrollbar ranges when content changes</li>
+                    </ul>
+
+                    <h3>?? User Experience</h3>
+                    <ul>
+                        <li><strong>Visual feedback:</strong> Use distinct hover and active states</li>
+                        <li><strong>Smooth movement:</strong> Ensure responsive thumb dragging</li>
+                        <li><strong>Keyboard support:</strong> Test arrow key and page up/down navigation</li>
+                        <li><strong>Mouse wheel:</strong> Implement mouse wheel scrolling for convenience</li>
+                    </ul>
+
+                    <h3>?? Implementation</h3>
+                    <ul>
+                        <li><strong>Range validation:</strong> Ensure Maximum > Minimum + LargeChange</li>
+                        <li><strong>Change values:</strong> Set appropriate SmallChange and LargeChange values</li>
+                        <li><strong>Event handling:</strong> Use ValueChanged for position updates, Scroll for animations</li>
+                        <li><strong>Performance:</strong> Minimize redraws during continuous scrolling</li>
+                    </ul>
+
+                    <h3>?? Visual Design</h3>
+                    <ul>
+                        <li><strong>Color contrast:</strong> Ensure sufficient contrast between track and thumb</li>
+                        <li><strong>State indication:</strong> Make hover and active states clearly visible</li>
+                        <li><strong>Theme consistency:</strong> Use theme colors for brand consistency</li>
+                        <li><strong>Modern appearance:</strong> Consider rounded corners and subtle shadows</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Performance Tip</strong>
+                        <p>For large content, use virtual scrolling techniques and update only visible portions during scroll events to maintain smooth performance.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Best Practice</strong>
+                        <p>Set LargeChange to approximately the size of the visible content area for intuitive page-up/page-down behavior.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Range Warning</strong>
+                        <p>Ensure Maximum is always greater than Minimum + LargeChange, or the scrollbar may not function correctly.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-progressbar.html"><i class="bi bi-arrow-left"></i> BeepProgressBar</a>
+                    <a href="beep-slider.html">BeepSlider <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

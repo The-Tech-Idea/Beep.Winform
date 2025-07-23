@@ -1,0 +1,118 @@
+<!-- Shared Navigation Template for Control Pages -->
+<!-- Mobile Menu Toggle -->
+<button class="mobile-menu-toggle" onclick="toggleSidebar()">
+    <i class="bi bi-list"></i>
+</button>
+
+<!-- Theme Toggle -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+    <i class="bi bi-sun-fill" id="theme-icon"></i>
+</button>
+
+<div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">
+            <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+            <div class="logo-text">
+                <h2>Beep Controls</h2>
+                <span class="version">v1.0.164</span>
+            </div>
+        </div>
+        
+        <!-- Search -->
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+        </div>
+        
+        <nav>
+            <ul class="nav-menu">
+                <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                <li class="has-submenu">
+                    <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                    <ul class="submenu">
+                        <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                        <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                        <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        <li><a href="../getting-started/migration.html">Migration Guide</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu" id="input-controls-nav">
+                    <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                    <ul class="submenu">
+                        <li><a href="beep-button.html">BeepButton</a></li>
+                        <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                        <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                        <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                        <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                        <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                        <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                        <li><a href="beep-switch.html">BeepSwitch</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu" id="display-controls-nav">
+                    <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                    <ul class="submenu">
+                        <li><a href="beep-label.html">BeepLabel</a></li>
+                        <li><a href="beep-image.html">BeepImage</a></li>
+                        <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                        <li><a href="beep-shape.html">BeepShape</a></li>
+                        <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                        <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                        <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu" id="layout-controls-nav">
+                    <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                    <ul class="submenu">
+                        <li><a href="beep-panel.html">BeepPanel</a></li>
+                        <li><a href="beep-card.html">BeepCard</a></li>
+                        <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                        <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                        <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                        <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                        <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu" id="data-controls-nav">
+                    <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                    <ul class="submenu">
+                        <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                        <li><a href="beep-chart.html">BeepChart</a></li>
+                        <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                        <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                        <li><a href="beep-tree.html">BeepTree</a></li>
+                        <li><a href="beep-listbox.html">BeepListBox</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu" id="specialized-controls-nav">
+                    <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                    <ul class="submenu">
+                        <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu" id="dialogs-controls-nav">
+                    <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                    <ul class="submenu">
+                        <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="#"><i class="bi bi-book"></i> Guides & Examples</a>
+                    <ul class="submenu">
+                        <li><a href="../examples/basic-examples.html">Basic Examples</a></li>
+                        <li><a href="../examples/advanced-examples.html">Advanced Examples</a></li>
+                        <li><a href="../examples/complete-applications.html">Complete Applications</a></li>
+                        <li><a href="../guides/best-practices.html">Best Practices</a></li>
+                        <li><a href="../guides/performance.html">Performance Guide</a></li>
+                        <li><a href="../guides/accessibility.html">Accessibility Guide</a></li>
+                    </ul>
+                </li>
+                <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content">
+        <div class="content-wrapper">

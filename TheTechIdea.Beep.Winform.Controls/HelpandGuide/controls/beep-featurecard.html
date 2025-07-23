@@ -1,0 +1,1042 @@
+<!--
+    BeepFeatureCard Control Documentation
+    Professional-grade documentation for the BeepFeatureCard WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFeatureCard - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                            <li><a href="beep-taskcard.html">BeepTaskCard</a></li>
+                            <li><a href="beep-featurecard.html" class="active">BeepFeatureCard</a></li>
+                            <li><a href="beep-companyprofile.html">BeepCompanyProfile</a></li>
+                            <li><a href="beep-tasklistitem.html">BeepTaskListItem</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepFeatureCard</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepFeatureCard</h1>
+                    <p class="page-subtitle">Modern, theme-aware card component for showcasing features, capabilities, and promotional content with rich visuals</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepFeatureCard</strong> provides a visually compelling card component designed for showcasing 
+                        application features, services, capabilities, or promotional content. It combines attractive design 
+                        with informative content presentation, making it ideal for landing pages, feature galleries, and marketing interfaces.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepFeatureCard features rich image support, 
+                        flexible content layouts, interactive elements, animation capabilities, comprehensive theming, 
+                        and accessibility features. Perfect for product showcases, service catalogs, feature announcements, 
+                        and any application requiring attractive content presentation.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Rich Visual Design</h3>
+                            <p>Hero images, icons, and graphics with modern card layouts</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Content Presentation</h3>
+                            <p>Structured content with titles, descriptions, and metadata</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 Interactive Elements</h3>
+                            <p>Call-to-action buttons and clickable content areas</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏷️ Category Support</h3>
+                            <p>Organize features with tags, categories, and badges</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Layouts</h3>
+                            <p>Adaptive designs for different screen sizes and orientations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Hover Effects</h3>
+                            <p>Engaging animations and transitions for better user experience</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Feature Showcase Gallery</h3>
+                    <div class="visual-demo">
+                        <div class="features-grid">
+                            <!-- Analytics Feature -->
+                            <div class="feature-card-preview">
+                                <div class="card-image">
+                                    <div class="feature-icon analytics">📊</div>
+                                    <div class="card-badge">Premium</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-category">Data & Analytics</div>
+                                    <h3 class="card-title">Advanced Analytics</h3>
+                                    <p class="card-description">Powerful analytics tools to visualize and analyze your data with interactive charts and reports.</p>
+                                    <ul class="feature-list">
+                                        <li>Interactive dashboards</li>
+                                        <li>Real-time data processing</li>
+                                        <li>Custom report generation</li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="action-btn primary">Learn More</button>
+                                    <button class="action-btn secondary">Try Demo</button>
+                                </div>
+                            </div>
+
+                            <!-- Security Feature -->
+                            <div class="feature-card-preview">
+                                <div class="card-image">
+                                    <div class="feature-icon security">🔒</div>
+                                    <div class="card-badge new">New</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-category">Security</div>
+                                    <h3 class="card-title">Enterprise Security</h3>
+                                    <p class="card-description">Comprehensive security features including encryption, access controls, and audit trails.</p>
+                                    <ul class="feature-list">
+                                        <li>Multi-factor authentication</li>
+                                        <li>Role-based access control</li>
+                                        <li>Security monitoring</li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="action-btn primary">Get Started</button>
+                                    <button class="action-btn secondary">Documentation</button>
+                                </div>
+                            </div>
+
+                            <!-- Integration Feature -->
+                            <div class="feature-card-preview">
+                                <div class="card-image">
+                                    <div class="feature-icon integration">🔗</div>
+                                    <div class="card-badge">Popular</div>
+                                </div>
+                                <div class="card-content">
+                                    <div class="card-category">Integration</div>
+                                    <h3 class="card-title">API Integration</h3>
+                                    <p class="card-description">Seamless integration with third-party services and existing systems through robust APIs.</p>
+                                    <ul class="feature-list">
+                                        <li>RESTful API endpoints</li>
+                                        <li>Webhook support</li>
+                                        <li>SDK libraries</li>
+                                    </ul>
+                                </div>
+                                <div class="card-footer">
+                                    <button class="action-btn primary">View API</button>
+                                    <button class="action-btn secondary">Examples</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Feature cards displaying different services with rich content and interactive elements</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .features-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                            gap: 2rem;
+                            text-align: left;
+                        }
+
+                        .feature-card-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 16px;
+                            overflow: hidden;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            transition: all 0.3s ease;
+                            font-family: var(--font-family);
+                        }
+
+                        .feature-card-preview:hover {
+                            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+                            transform: translateY(-4px);
+                        }
+
+                        .card-image {
+                            position: relative;
+                            background: linear-gradient(135deg, var(--color-primary), var(--color-secondary, #6366f1));
+                            padding: 2rem;
+                            text-align: center;
+                            color: white;
+                        }
+
+                        .feature-icon {
+                            font-size: 48px;
+                            margin-bottom: 1rem;
+                        }
+
+                        .feature-icon.analytics {
+                            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+                            background-clip: text;
+                            -webkit-background-clip: text;
+                            color: transparent;
+                            font-size: 64px;
+                        }
+
+                        .feature-icon.security {
+                            background: linear-gradient(135deg, #10b981, #059669);
+                            background-clip: text;
+                            -webkit-background-clip: text;
+                            color: transparent;
+                            font-size: 64px;
+                        }
+
+                        .feature-icon.integration {
+                            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+                            background-clip: text;
+                            -webkit-background-clip: text;
+                            color: transparent;
+                            font-size: 64px;
+                        }
+
+                        .card-badge {
+                            position: absolute;
+                            top: 1rem;
+                            right: 1rem;
+                            padding: 0.25rem 0.75rem;
+                            border-radius: 12px;
+                            font-size: 11px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .card-badge.premium {
+                            background: linear-gradient(45deg, #fbbf24, #f59e0b);
+                            color: white;
+                        }
+
+                        .card-badge.new {
+                            background: linear-gradient(45deg, #10b981, #059669);
+                            color: white;
+                        }
+
+                        .card-badge.popular {
+                            background: linear-gradient(45deg, #8b5cf6, #7c3aed);
+                            color: white;
+                        }
+
+                        .card-content {
+                            padding: 1.5rem;
+                        }
+
+                        .card-category {
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: var(--color-primary);
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                            margin-bottom: 0.5rem;
+                        }
+
+                        .card-title {
+                            font-size: 20px;
+                            font-weight: 700;
+                            color: var(--color-text);
+                            margin: 0 0 0.75rem;
+                        }
+
+                        .card-description {
+                            font-size: 14px;
+                            color: var(--color-text-secondary);
+                            line-height: 1.6;
+                            margin: 0 0 1rem;
+                        }
+
+                        .feature-list {
+                            list-style: none;
+                            padding: 0;
+                            margin: 0 0 1rem;
+                        }
+
+                        .feature-list li {
+                            position: relative;
+                            padding-left: 1.5rem;
+                            margin-bottom: 0.5rem;
+                            font-size: 13px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .feature-list li:before {
+                            content: "✓";
+                            position: absolute;
+                            left: 0;
+                            color: var(--color-success);
+                            font-weight: bold;
+                        }
+
+                        .card-footer {
+                            padding: 1rem 1.5rem 1.5rem;
+                            display: flex;
+                            gap: 0.75rem;
+                            flex-wrap: wrap;
+                        }
+
+                        .action-btn {
+                            flex: 1;
+                            min-width: 100px;
+                            padding: 0.75rem 1rem;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 13px;
+                            font-weight: 600;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            text-align: center;
+                        }
+
+                        .action-btn.primary {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .action-btn.primary:hover {
+                            background: var(--color-primary-dark, #1e40af);
+                            transform: translateY(-1px);
+                        }
+
+                        .action-btn.secondary {
+                            background: var(--color-background-secondary);
+                            color: var(--color-text);
+                            border: 1px solid var(--color-border);
+                        }
+
+                        .action-btn.secondary:hover {
+                            background: var(--color-border-light);
+                            border-color: var(--color-border-dark, #d1d5db);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Feature Card</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepFeatureCard
+var featureCard = new BeepFeatureCard();
+featureCard.Size = new Size(300, 400);
+featureCard.Title = "Data Analytics";
+featureCard.Description = "Powerful analytics tools to visualize and analyze your data.";
+featureCard.Category = "Analytics";
+featureCard.FeatureImage = Properties.Resources.AnalyticsImage;
+
+// Add action buttons
+var learnMoreButton = new BeepButton 
+{ 
+    Text = "Learn More",
+    Size = new Size(120, 35)
+};
+learnMoreButton.Click += (s, e) => OpenFeatureDetails("analytics");
+
+var demoButton = new BeepButton 
+{ 
+    Text = "Try Demo",
+    Size = new Size(100, 35)
+};
+demoButton.Click += (s, e) => StartDemo("analytics");
+
+featureCard.Actions.Add(learnMoreButton);
+featureCard.Actions.Add(demoButton);
+
+// Add to panel or form
+this.Controls.Add(featureCard);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Feature Card with Rich Content</h3>
+                        <pre><code class="language-csharp">// Create feature card with detailed content
+var featureCard = new BeepFeatureCard
+{
+    Title = "Enterprise Security",
+    Description = "Comprehensive security features for enterprise applications",
+    Category = "Security",
+    Badge = "New Feature",
+    FeatureImage = Properties.Resources.SecurityIcon,
+    Size = new Size(350, 450)
+};
+
+// Add feature highlights
+featureCard.Features.AddRange(new[]
+{
+    "Multi-factor authentication",
+    "Role-based access control", 
+    "Audit logging and monitoring",
+    "Data encryption at rest and in transit"
+});
+
+// Configure pricing information
+featureCard.PricingInfo = new FeaturePricing
+{
+    PlanName = "Enterprise",
+    Price = "$99/month",
+    BillingCycle = "per user"
+};
+
+// Add custom metadata
+featureCard.Metadata.Add("version", "2.0");
+featureCard.Metadata.Add("availability", "Available now");
+featureCard.Metadata.Add("support", "24/7 Enterprise support");
+
+// Handle feature interactions
+featureCard.FeatureClicked += (s, e) =>
+{
+    ShowFeatureDetailDialog(e.FeatureId);
+};
+
+featureCard.ActionRequested += (s, e) =>
+{
+    HandleFeatureAction(e.ActionType, e.FeatureId);
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Feature or service title</td>
+                            </tr>
+                            <tr>
+                                <td><code>Description</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Feature description or details</td>
+                            </tr>
+                            <tr>
+                                <td><code>Category</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Feature category or classification</td>
+                            </tr>
+                            <tr>
+                                <td><code>FeatureImage</code></td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Main feature image or icon</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Content Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Features</code></td>
+                                <td>StringCollection</td>
+                                <td>Empty</td>
+                                <td>List of feature highlights or bullet points</td>
+                            </tr>
+                            <tr>
+                                <td><code>Badge</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Feature badge text (e.g., "New", "Premium")</td>
+                            </tr>
+                            <tr>
+                                <td><code>PricingInfo</code></td>
+                                <td>FeaturePricing</td>
+                                <td>null</td>
+                                <td>Pricing information for the feature</td>
+                            </tr>
+                            <tr>
+                                <td><code>Metadata</code></td>
+                                <td>Dictionary</td>
+                                <td>Empty</td>
+                                <td>Additional metadata key-value pairs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Visual Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CardLayout</code></td>
+                                <td>FeatureCardLayout</td>
+                                <td>Standard</td>
+                                <td>Card layout style (Standard, Compact, Hero)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowBadge</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide the feature badge</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowFeatures</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide feature bullet points</td>
+                            </tr>
+                            <tr>
+                                <td><code>HoverEffects</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Enable hover animations and effects</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>FeatureClicked</code></td>
+                                <td>FeatureEventArgs</td>
+                                <td>Fired when feature card is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ActionRequested</code></td>
+                                <td>ActionEventArgs</td>
+                                <td>Fired when action button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>BadgeClicked</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when feature badge is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImageClicked</code></td>
+                                <td>EventArgs</td>
+                                <td>Fired when feature image is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Product Feature Showcase</h3>
+                        <pre><code class="language-csharp">public partial class ProductShowcase : UserControl
+{
+    private FlowLayoutPanel featuresPanel;
+    private List<ProductFeature> productFeatures;
+    private IFeatureService featureService;
+
+    public ProductShowcase(IFeatureService featureService)
+    {
+        this.featureService = featureService;
+        InitializeComponents();
+        LoadProductFeatures();
+    }
+
+    private void InitializeComponents()
+    {
+        featuresPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Fill,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
+            AutoScroll = true,
+            Padding = new Padding(20)
+        };
+
+        this.Controls.Add(featuresPanel);
+    }
+
+    private async void LoadProductFeatures()
+    {
+        try
+        {
+            productFeatures = await featureService.GetFeaturesAsync();
+            CreateFeatureCards();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading features: {ex.Message}");
+        }
+    }
+
+    private void CreateFeatureCards()
+    {
+        featuresPanel.Controls.Clear();
+
+        foreach (var feature in productFeatures)
+        {
+            var featureCard = CreateFeatureCard(feature);
+            featuresPanel.Controls.Add(featureCard);
+        }
+    }
+
+    private BeepFeatureCard CreateFeatureCard(ProductFeature feature)
+    {
+        var card = new BeepFeatureCard
+        {
+            Size = new Size(350, 500),
+            Margin = new Padding(15),
+            Title = feature.Name,
+            Description = feature.Description,
+            Category = feature.Category,
+            Badge = GetFeatureBadge(feature),
+            FeatureImage = LoadFeatureImage(feature.ImagePath),
+            CardLayout = feature.IsPremium ? FeatureCardLayout.Hero : FeatureCardLayout.Standard
+        };
+
+        // Add feature highlights
+        if (feature.Highlights?.Any() == true)
+        {
+            card.Features.AddRange(feature.Highlights);
+        }
+
+        // Add pricing information
+        if (feature.PricingTier != null)
+        {
+            card.PricingInfo = new FeaturePricing
+            {
+                PlanName = feature.PricingTier.Name,
+                Price = feature.PricingTier.Price,
+                BillingCycle = feature.PricingTier.BillingCycle
+            };
+        }
+
+        // Add metadata
+        card.Metadata.Add("version", feature.Version);
+        card.Metadata.Add("availability", feature.AvailabilityStatus);
+        card.Metadata.Add("support", feature.SupportLevel);
+
+        // Add event handlers
+        card.FeatureClicked += OnFeatureClicked;
+        card.ActionRequested += OnActionRequested;
+
+        // Add context-specific actions
+        AddFeatureActions(card, feature);
+
+        return card;
+    }
+
+    private void AddFeatureActions(BeepFeatureCard card, ProductFeature feature)
+    {
+        // Primary action based on feature status
+        switch (feature.Status)
+        {
+            case FeatureStatus.Available:
+                var getStartedButton = new BeepButton
+                {
+                    Text = "Get Started",
+                    Size = new Size(120, 40),
+                    Theme = card.Theme
+                };
+                getStartedButton.Click += (s, e) => StartFeatureTour(feature.Id);
+                card.Actions.Add(getStartedButton);
+                break;
+
+            case FeatureStatus.Preview:
+                var previewButton = new BeepButton
+                {
+                    Text = "Preview",
+                    Size = new Size(120, 40),
+                    Theme = card.Theme
+                };
+                previewButton.Click += (s, e) => ShowFeaturePreview(feature.Id);
+                card.Actions.Add(previewButton);
+                break;
+
+            case FeatureStatus.ComingSoon:
+                var notifyButton = new BeepButton
+                {
+                    Text = "Notify Me",
+                    Size = new Size(120, 40),
+                    Theme = card.Theme
+                };
+                notifyButton.Click += (s, e) => SubscribeToFeatureUpdates(feature.Id);
+                card.Actions.Add(notifyButton);
+                break;
+        }
+
+        // Secondary actions
+        var learnMoreButton = new BeepButton
+        {
+            Text = "Learn More",
+            Size = new Size(100, 40),
+            Theme = card.Theme
+        };
+        learnMoreButton.Click += (s, e) => ShowFeatureDetails(feature.Id);
+        card.Actions.Add(learnMoreButton);
+
+        // Demo action (if available)
+        if (feature.HasDemo)
+        {
+            var demoButton = new BeepButton
+            {
+                Text = "Try Demo",
+                Size = new Size(100, 40),
+                Theme = card.Theme
+            };
+            demoButton.Click += (s, e) => LaunchFeatureDemo(feature.Id);
+            card.Actions.Add(demoButton);
+        }
+    }
+
+    private string GetFeatureBadge(ProductFeature feature)
+    {
+        if (feature.IsNew) return "New";
+        if (feature.IsPremium) return "Premium";
+        if (feature.IsPopular) return "Popular";
+        if (feature.Status == FeatureStatus.Preview) return "Preview";
+        return string.Empty;
+    }
+
+    private async void OnFeatureClicked(object sender, FeatureEventArgs e)
+    {
+        var feature = productFeatures.FirstOrDefault(f => f.Id.ToString() == e.FeatureId);
+        if (feature != null)
+        {
+            // Track feature click for analytics
+            await featureService.TrackFeatureInteractionAsync(feature.Id, "card_click");
+            
+            // Show detailed feature information
+            ShowFeatureDetailDialog(feature);
+        }
+    }
+
+    private async void OnActionRequested(object sender, ActionEventArgs e)
+    {
+        try
+        {
+            await featureService.TrackFeatureInteractionAsync(e.FeatureId, e.ActionType);
+            
+            switch (e.ActionType.ToLower())
+            {
+                case "get_started":
+                    StartFeatureTour(e.FeatureId);
+                    break;
+                case "preview":
+                    ShowFeaturePreview(e.FeatureId);
+                    break;
+                case "demo":
+                    LaunchFeatureDemo(e.FeatureId);
+                    break;
+                case "learn_more":
+                    ShowFeatureDetails(e.FeatureId);
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error handling action: {ex.Message}");
+        }
+    }
+
+    // Helper methods
+    private Image LoadFeatureImage(string imagePath) 
+    { 
+        // Load image from resources or file system
+        return !string.IsNullOrEmpty(imagePath) ? 
+            Image.FromFile(imagePath) : Properties.Resources.DefaultFeatureIcon;
+    }
+
+    private void StartFeatureTour(string featureId) { /* Implementation */ }
+    private void ShowFeaturePreview(string featureId) { /* Implementation */ }
+    private void LaunchFeatureDemo(string featureId) { /* Implementation */ }
+    private void ShowFeatureDetails(string featureId) { /* Implementation */ }
+    private void SubscribeToFeatureUpdates(string featureId) { /* Implementation */ }
+    private void ShowFeatureDetailDialog(ProductFeature feature) { /* Implementation */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepFeatureCard provides comprehensive theming support with automatic adaptation to brand colors and visual styles:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var featureCard = new BeepFeatureCard
+{
+    Theme = "CorporateBrand",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - CardBackColor: Main card background
+// - BorderColor: Card border styling
+// - TextColors: Title, description, and content colors
+// - BadgeColors: Feature badge styling
+// - ActionColors: Button and interaction styling
+// - HoverColors: Hover state animations</code></pre>
+                    </div>
+
+                    <h3>Feature-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Hero layouts</strong> - Enhanced styling for premium features</li>
+                        <li><strong>Category colors</strong> - Different color schemes per category</li>
+                        <li><strong>Badge theming</strong> - Custom badge colors and styles</li>
+                        <li><strong>Image overlays</strong> - Theme-aware image effects and overlays</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 Content Strategy</h3>
+                    <ul>
+                        <li><strong>Clear value proposition:</strong> Highlight key benefits and unique selling points</li>
+                        <li><strong>Consistent messaging:</strong> Use consistent tone and terminology across features</li>
+                        <li><strong>Scannable content:</strong> Use bullet points and short descriptions for easy reading</li>
+                        <li><strong>Quality visuals:</strong> Use high-quality images and icons that represent features</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Performance:</strong> Optimize images and use lazy loading for large feature galleries</li>
+                        <li><strong>Accessibility:</strong> Provide alt text for images and keyboard navigation</li>
+                        <li><strong>Responsive design:</strong> Ensure cards work well at different sizes</li>
+                        <li><strong>Analytics:</strong> Track feature interactions for product insights</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Consistent spacing:</strong> Use consistent padding and margins across cards</li>
+                        <li><strong>Visual hierarchy:</strong> Establish clear hierarchy with typography and color</li>
+                        <li><strong>Brand alignment:</strong> Ensure cards align with overall brand aesthetics</li>
+                        <li><strong>Action clarity:</strong> Make calls-to-action prominent and clear</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use the hero layout for your most important features to draw attention and increase engagement.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement progressive disclosure - show essential information in the card, detailed info in dialogs or dedicated pages.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>For feature galleries with many cards (>50), implement virtualization or pagination to maintain smooth scrolling.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-taskcard.html"><i class="bi bi-arrow-left"></i> BeepTaskCard</a>
+                    <a href="beep-companyprofile.html">BeepCompanyProfile <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

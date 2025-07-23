@@ -1,0 +1,989 @@
+<!--
+    BeepCircularButton Control Documentation
+    Professional-grade documentation for the BeepCircularButton WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepCircularButton - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                            <li><a href="beep-select.html">BeepSelect</a></li>
+                            <li><a href="beep-listofvaluesbox.html">BeepListofValuesBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-datanavigator.html">BeepDataNavigator</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-filter.html">BeepFilter</a></li>
+                            <li><a href="beep-dualpercentagecontrol.html">BeepDualPercentageControl</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                            <li><a href="beep-taskcard.html">BeepTaskCard</a></li>
+                            <li><a href="beep-featurecard.html">BeepFeatureCard</a></li>
+                            <li><a href="beep-companyprofile.html">BeepCompanyProfile</a></li>
+                            <li><a href="beep-tasklistitem.html">BeepTaskListItem</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popupform.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splashscreen.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-cursor-fill"></i> Button Variants</a>
+                        <ul class="submenu">
+                            <li><a href="beep-circularbutton.html" class="active">BeepCircularButton</a></li>
+                            <li><a href="beep-chevronbutton.html">BeepChevronButton</a></li>
+                            <li><a href="beep-extendedbutton.html">BeepExtendedButton</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#button-variants">Button Variants</a>
+                    <span>→</span>
+                    <span>BeepCircularButton</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepCircularButton</h1>
+                    <p class="page-subtitle">Modern, circular floating action button with icon support and customizable animations</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepCircularButton</strong> is a modern, circular button control perfect for floating 
+                        action buttons (FABs), icon buttons, or anywhere a circular design aesthetic is needed. 
+                        It provides Material Design-inspired appearance with customizable sizes and animations.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepCircularButton features perfect 
+                        circular geometry, icon integration, hover effects, ripple animations, size variants, and 
+                        comprehensive theming support. Perfect for primary actions, floating buttons, icon launchers, 
+                        and modern interface elements.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>⭕ Perfect Circles</h3>
+                            <p>Mathematically perfect circular geometry with automatic sizing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Material Design</h3>
+                            <p>Material Design principles with elevation shadows and ripple effects</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📐 Size Variants</h3>
+                            <p>Multiple predefined sizes: Small, Medium, Large, and Custom</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Icon Integration</h3>
+                            <p>Built-in support for icons with automatic centering and scaling</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Hover Effects</h3>
+                            <p>Smooth hover animations with customizable transitions</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌊 Ripple Animations</h3>
+                            <p>Optional Material Design ripple effect on click</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Size Variants</h3>
+                    <div class="visual-demo">
+                        <div class="circular-buttons-showcase">
+                            <div class="button-group">
+                                <div class="circular-btn small">
+                                    <span class="btn-icon">+</span>
+                                </div>
+                                <div class="btn-label">Small (32px)</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn medium">
+                                    <span class="btn-icon">🏠</span>
+                                </div>
+                                <div class="btn-label">Medium (48px)</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn large">
+                                    <span class="btn-icon">📧</span>
+                                </div>
+                                <div class="btn-label">Large (64px)</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn extra-large">
+                                    <span class="btn-icon">⚙️</span>
+                                </div>
+                                <div class="btn-label">XL (80px)</div>
+                            </div>
+                        </div>
+                        <p><em>BeepCircularButton size variants with different icons</em></p>
+                    </div>
+
+                    <h3>Color Variants</h3>
+                    <div class="visual-demo">
+                        <div class="circular-buttons-showcase">
+                            <div class="button-group">
+                                <div class="circular-btn medium primary">
+                                    <span class="btn-icon">✓</span>
+                                </div>
+                                <div class="btn-label">Primary</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn medium secondary">
+                                    <span class="btn-icon">ℹ️</span>
+                                </div>
+                                <div class="btn-label">Secondary</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn medium success">
+                                    <span class="btn-icon">✓</span>
+                                </div>
+                                <div class="btn-label">Success</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn medium danger">
+                                    <span class="btn-icon">×</span>
+                                </div>
+                                <div class="btn-label">Danger</div>
+                            </div>
+                            <div class="button-group">
+                                <div class="circular-btn medium warning">
+                                    <span class="btn-icon">!</span>
+                                </div>
+                                <div class="btn-label">Warning</div>
+                            </div>
+                        </div>
+                        <p><em>BeepCircularButton color variants with themed backgrounds</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .circular-buttons-showcase {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            gap: 2rem;
+                            flex-wrap: wrap;
+                        }
+
+                        .button-group {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 0.5rem;
+                        }
+
+                        .circular-btn {
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+                            background: var(--color-primary);
+                            color: white;
+                            font-weight: 600;
+                        }
+
+                        .circular-btn:hover {
+                            transform: translateY(-2px);
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+                        }
+
+                        .circular-btn.small {
+                            width: 32px;
+                            height: 32px;
+                            font-size: 14px;
+                        }
+
+                        .circular-btn.medium {
+                            width: 48px;
+                            height: 48px;
+                            font-size: 16px;
+                        }
+
+                        .circular-btn.large {
+                            width: 64px;
+                            height: 64px;
+                            font-size: 20px;
+                        }
+
+                        .circular-btn.extra-large {
+                            width: 80px;
+                            height: 80px;
+                            font-size: 24px;
+                        }
+
+                        .circular-btn.primary {
+                            background: var(--color-primary);
+                        }
+
+                        .circular-btn.secondary {
+                            background: var(--color-secondary, #6c757d);
+                        }
+
+                        .circular-btn.success {
+                            background: var(--color-success, #28a745);
+                        }
+
+                        .circular-btn.danger {
+                            background: var(--color-danger, #dc3545);
+                        }
+
+                        .circular-btn.warning {
+                            background: var(--color-warning, #ffc107);
+                            color: #212529;
+                        }
+
+                        .btn-icon {
+                            display: block;
+                        }
+
+                        .btn-label {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                            font-weight: 500;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Circular Button</h3>
+                        <pre><code class="language-csharp">// Create a basic circular button
+var circularButton = new BeepCircularButton();
+circularButton.Size = new Size(48, 48);
+circularButton.BackColor = Color.FromArgb(25, 118, 210);
+circularButton.ForeColor = Color.White;
+circularButton.Text = "+";
+circularButton.Font = new Font("Segoe UI", 16, FontStyle.Bold);
+
+// Add click handler
+circularButton.Click += (s, e) =>
+{
+    MessageBox.Show("Circular button clicked!");
+};
+
+// Add to form
+this.Controls.Add(circularButton);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Floating Action Button (FAB)</h3>
+                        <pre><code class="language-csharp">// Create a floating action button
+var fabButton = new BeepCircularButton
+{
+    Size = new Size(64, 64),
+    BackColor = Color.FromArgb(244, 67, 54), // Material Red
+    ForeColor = Color.White,
+    Text = "✉", // Email icon
+    Font = new Font("Segoe UI", 18),
+    Anchor = AnchorStyles.Bottom | AnchorStyles.Right,
+    Location = new Point(this.Width - 80, this.Height - 80),
+    EnableRippleEffect = true,
+    ShowShadow = true
+};
+
+// Handle click to open compose dialog
+fabButton.Click += (s, e) =>
+{
+    OpenComposeEmailDialog();
+};
+
+this.Controls.Add(fabButton);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Icon Button with Image</h3>
+                        <pre><code class="language-csharp">// Create icon button with image
+var iconButton = new BeepCircularButton
+{
+    Size = new Size(40, 40),
+    BackColor = Color.White,
+    ForeColor = Color.FromArgb(100, 100, 100),
+    Image = Properties.Resources.SettingsIcon, // Load from resources
+    ImageSize = new Size(20, 20),
+    BorderStyle = BorderStyle.FixedSingle,
+    FlatStyle = FlatStyle.Flat
+};
+
+// Remove border for clean look
+iconButton.FlatAppearance.BorderSize = 1;
+iconButton.FlatAppearance.BorderColor = Color.FromArgb(200, 200, 200);
+
+// Handle settings action
+iconButton.Click += (s, e) =>
+{
+    ShowSettingsDialog();
+};
+
+this.Controls.Add(iconButton);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CircularSize</code></td>
+                                <td>CircularButtonSize</td>
+                                <td>Medium</td>
+                                <td>Predefined size variant (Small, Medium, Large, Custom)</td>
+                            </tr>
+                            <tr>
+                                <td><code>IconSize</code></td>
+                                <td>Size</td>
+                                <td>Auto</td>
+                                <td>Size of the icon/text content</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableRippleEffect</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Enable Material Design ripple animation</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowShadow</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Display elevation shadow effect</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>HoverElevation</code></td>
+                                <td>int</td>
+                                <td>8</td>
+                                <td>Shadow elevation on hover (pixels)</td>
+                            </tr>
+                            <tr>
+                                <td><code>AnimationDuration</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Animation duration in milliseconds</td>
+                            </tr>
+                            <tr>
+                                <td><code>HoverScaleEffect</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Scale button slightly on hover</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>GradientStyle</code></td>
+                                <td>GradientStyle</td>
+                                <td>None</td>
+                                <td>Gradient background style</td>
+                            </tr>
+                            <tr>
+                                <td><code>GradientColor1</code></td>
+                                <td>Color</td>
+                                <td>Transparent</td>
+                                <td>First gradient color</td>
+                            </tr>
+                            <tr>
+                                <td><code>GradientColor2</code></td>
+                                <td>Color</td>
+                                <td>Transparent</td>
+                                <td>Second gradient color</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Action Button Panel</h3>
+                        <pre><code class="language-csharp">public void CreateActionButtonPanel()
+{
+    var buttonPanel = new Panel
+    {
+        Dock = DockStyle.Bottom,
+        Height = 80,
+        Padding = new Padding(20)
+    };
+
+    // Primary action button (Save)
+    var saveButton = new BeepCircularButton
+    {
+        Size = new Size(56, 56),
+        BackColor = Color.FromArgb(76, 175, 80), // Material Green
+        ForeColor = Color.White,
+        Text = "💾",
+        Font = new Font("Segoe UI", 16),
+        Location = new Point(20, 12),
+        EnableRippleEffect = true,
+        ToolTipText = "Save Changes"
+    };
+    saveButton.Click += SaveButton_Click;
+
+    // Secondary action button (Cancel)
+    var cancelButton = new BeepCircularButton
+    {
+        Size = new Size(48, 48),
+        BackColor = Color.FromArgb(244, 67, 54), // Material Red
+        ForeColor = Color.White,
+        Text = "✕",
+        Font = new Font("Segoe UI", 14, FontStyle.Bold),
+        Location = new Point(88, 16),
+        ToolTipText = "Cancel"
+    };
+    cancelButton.Click += CancelButton_Click;
+
+    // Settings button
+    var settingsButton = new BeepCircularButton
+    {
+        Size = new Size(40, 40),
+        BackColor = Color.FromArgb(158, 158, 158), // Material Gray
+        ForeColor = Color.White,
+        Text = "⚙",
+        Font = new Font("Segoe UI", 12),
+        Location = new Point(148, 20),
+        ToolTipText = "Settings"
+    };
+    settingsButton.Click += SettingsButton_Click;
+
+    buttonPanel.Controls.AddRange(new Control[] { 
+        saveButton, cancelButton, settingsButton 
+    });
+
+    this.Controls.Add(buttonPanel);
+}
+
+private void SaveButton_Click(object sender, EventArgs e)
+{
+    // Implement save logic
+    MessageBox.Show("Changes saved successfully!", "Save", 
+        MessageBoxButtons.OK, MessageBoxIcon.Information);
+}
+
+private void CancelButton_Click(object sender, EventArgs e)
+{
+    // Implement cancel logic
+    this.Close();
+}
+
+private void SettingsButton_Click(object sender, EventArgs e)
+{
+    // Open settings dialog
+    var settingsForm = new SettingsForm();
+    settingsForm.ShowDialog(this);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Media Player Controls</h3>
+                        <pre><code class="language-csharp">public class MediaPlayerControls : UserControl
+{
+    private BeepCircularButton playPauseButton;
+    private BeepCircularButton stopButton;
+    private BeepCircularButton previousButton;
+    private BeepCircularButton nextButton;
+    private bool isPlaying = false;
+
+    public MediaPlayerControls()
+    {
+        CreateMediaControls();
+    }
+
+    private void CreateMediaControls()
+    {
+        this.Size = new Size(300, 80);
+        this.BackColor = Color.FromArgb(50, 50, 50);
+
+        // Previous button
+        previousButton = new BeepCircularButton
+        {
+            Size = new Size(40, 40),
+            BackColor = Color.FromArgb(70, 70, 70),
+            ForeColor = Color.White,
+            Text = "⏮",
+            Font = new Font("Segoe UI", 12),
+            Location = new Point(20, 20)
+        };
+        previousButton.Click += PreviousButton_Click;
+
+        // Play/Pause button (larger, primary)
+        playPauseButton = new BeepCircularButton
+        {
+            Size = new Size(60, 60),
+            BackColor = Color.FromArgb(33, 150, 243), // Material Blue
+            ForeColor = Color.White,
+            Text = "▶",
+            Font = new Font("Segoe UI", 18),
+            Location = new Point(80, 10),
+            EnableRippleEffect = true
+        };
+        playPauseButton.Click += PlayPauseButton_Click;
+
+        // Stop button
+        stopButton = new BeepCircularButton
+        {
+            Size = new Size(40, 40),
+            BackColor = Color.FromArgb(70, 70, 70),
+            ForeColor = Color.White,
+            Text = "⏹",
+            Font = new Font("Segoe UI", 12),
+            Location = new Point(160, 20)
+        };
+        stopButton.Click += StopButton_Click;
+
+        // Next button
+        nextButton = new BeepCircularButton
+        {
+            Size = new Size(40, 40),
+            BackColor = Color.FromArgb(70, 70, 70),
+            ForeColor = Color.White,
+            Text = "⏭",
+            Font = new Font("Segoe UI", 12),
+            Location = new Point(220, 20)
+        };
+        nextButton.Click += NextButton_Click;
+
+        this.Controls.AddRange(new Control[] {
+            previousButton, playPauseButton, stopButton, nextButton
+        });
+    }
+
+    private void PlayPauseButton_Click(object sender, EventArgs e)
+    {
+        isPlaying = !isPlaying;
+        playPauseButton.Text = isPlaying ? "⏸" : "▶";
+        
+        if (isPlaying)
+        {
+            // Start playback
+            PlayMedia();
+        }
+        else
+        {
+            // Pause playback
+            PauseMedia();
+        }
+    }
+
+    private void StopButton_Click(object sender, EventArgs e)
+    {
+        isPlaying = false;
+        playPauseButton.Text = "▶";
+        StopMedia();
+    }
+
+    private void PreviousButton_Click(object sender, EventArgs e)
+    {
+        PlayPreviousTrack();
+    }
+
+    private void NextButton_Click(object sender, EventArgs e)
+    {
+        PlayNextTrack();
+    }
+
+    // Placeholder methods for media operations
+    private void PlayMedia() { /* Implement play logic */ }
+    private void PauseMedia() { /* Implement pause logic */ }
+    private void StopMedia() { /* Implement stop logic */ }
+    private void PlayPreviousTrack() { /* Implement previous logic */ }
+    private void PlayNextTrack() { /* Implement next logic */ }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepCircularButton provides comprehensive theming support with automatic application of theme colors and effects:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var circularButton = new BeepCircularButton
+{
+    Theme = "DarkTheme",
+    UseThemeColors = true,
+    CircularSize = CircularButtonSize.Large
+};
+
+// Theme automatically applies:
+// - BackColor: Primary theme color
+// - ForeColor: Contrasting text color
+// - HoverColor: Lighter/darker variant
+// - ShadowColor: Appropriate shadow color
+
+// Apply theme manually if needed
+circularButton.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Button-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Color variants</strong> - Primary, secondary, success, warning, danger themes</li>
+                        <li><strong>Shadow effects</strong> - Theme-appropriate shadow colors and intensities</li>
+                        <li><strong>Hover states</strong> - Automatic hover color calculation</li>
+                        <li><strong>Ripple effects</strong> - Theme-aware ripple colors</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 Design Guidelines</h3>
+                    <ul>
+                        <li><strong>Single action focus:</strong> Use for one primary action or icon</li>
+                        <li><strong>Appropriate sizing:</strong> Choose size based on importance and context</li>
+                        <li><strong>Clear iconography:</strong> Use universally understood icons</li>
+                        <li><strong>Consistent styling:</strong> Maintain consistent appearance across app</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Accessibility:</strong> Provide meaningful tooltips and keyboard support</li>
+                        <li><strong>State feedback:</strong> Provide clear visual feedback for interactions</li>
+                        <li><strong>Performance:</strong> Use animations judiciously to maintain responsiveness</li>
+                        <li><strong>Color contrast:</strong> Ensure sufficient contrast for accessibility</li>
+                    </ul>
+
+                    <h3>📱 Usage Patterns</h3>
+                    <ul>
+                        <li><strong>FAB placement:</strong> Position floating action buttons consistently</li>
+                        <li><strong>Icon buttons:</strong> Use in toolbars and action bars</li>
+                        <li><strong>Media controls:</strong> Perfect for play/pause/stop controls</li>
+                        <li><strong>Quick actions:</strong> Ideal for frequently used functions</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use BeepCircularButton for primary actions that need to stand out. The circular shape naturally draws attention and suggests interaction.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement hover effects and ripple animations to provide satisfying user feedback and modern interaction patterns.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-splashscreen.html"><i class="bi bi-arrow-left"></i> BeepSplashScreen</a>
+                    <a href="beep-chevronbutton.html">BeepChevronButton <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

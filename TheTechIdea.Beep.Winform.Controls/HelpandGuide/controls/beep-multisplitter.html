@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepMultiSplitter - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                            <li><a href="../getting-started/migration.html">Migration Guide</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html" class="active">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-datanavigator.html">BeepDataNavigator</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-filter.html">BeepFilter</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popup.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splash.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-book"></i> Guides & Examples</a>
+                        <ul class="submenu">
+                            <li><a href="../examples/basic-examples.html">Basic Examples</a></li>
+                            <li><a href="../examples/advanced-examples.html">Advanced Examples</a></li>
+                            <li><a href="../examples/complete-applications.html">Complete Applications</a></li>
+                            <li><a href="../guides/best-practices.html">Best Practices</a></li>
+                            <li><a href="../guides/performance.html">Performance Guide</a></li>
+                            <li><a href="../guides/accessibility.html">Accessibility Guide</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>›</span>
+                    <span>BeepMultiSplitter</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepMultiSplitter</h1>
+                    <p class="page-subtitle">Resizable multi-panel layout with dynamic row and column management</p>
+                </div>
+
+                <!-- Demo Image -->
+                <div style="text-align: center; margin: 2rem 0;">
+                    <img src="../assets/images/beep-multisplitter-demo.svg" alt="BeepMultiSplitter demonstration" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: var(--shadow-elevation-medium);">
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepMultiSplitter</strong> is a flexible layout control that allows you to create 
+                        resizable multi-panel layouts with dynamic row and column management. It provides intuitive 
+                        user interaction for resizing panels and a robust API for programmatically managing the layout.
+                    </p>
+                    <p>
+                        Built on top of the <code>TableLayoutPanel</code> control, BeepMultiSplitter enhances it with 
+                        interactive resizing capabilities, context menu support for adding/removing rows and columns, 
+                        and drag-and-drop functionality for content reorganization.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔄 Interactive Resizing</h3>
+                            <p>Resize rows and columns by dragging the borders between panels</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Dynamic Layout</h3>
+                            <p>Add or remove rows and columns at runtime through code or context menu</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Drag and Drop Support</h3>
+                            <p>Move content between panels with intuitive drag and drop operations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Responsive Design</h3>
+                            <p>Automatically adjusts to container size changes with flexible sizing options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Context Menu Integration</h3>
+                            <p>Built-in context menu for common layout operations</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Support</h3>
+                            <p>Integrates with Beep theming system for consistent application styling</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple 2x2 Layout</h3>
+                        <pre><code class="language-csharp">// Create the BeepMultiSplitter control
+BeepMultiSplitter splitter = new BeepMultiSplitter
+{
+    Dock = DockStyle.Fill,
+};
+
+// Configure the initial layout (2x2)
+splitter.tableLayoutPanel.ColumnCount = 2;
+splitter.tableLayoutPanel.RowCount = 2;
+
+// Add content to the cells
+var panel1 = new BeepPanel { Dock = DockStyle.Fill };
+var panel2 = new BeepPanel { Dock = DockStyle.Fill };
+var panel3 = new BeepPanel { Dock = DockStyle.Fill };
+var panel4 = new BeepPanel { Dock = DockStyle.Fill };
+
+splitter.tableLayoutPanel.Controls.Add(panel1, 0, 0);
+splitter.tableLayoutPanel.Controls.Add(panel2, 1, 0);
+splitter.tableLayoutPanel.Controls.Add(panel3, 0, 1);
+splitter.tableLayoutPanel.Controls.Add(panel4, 1, 1);
+
+// Add to form or parent container
+this.Controls.Add(splitter);</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Tip: Easy Access to TableLayoutPanel</strong>
+                        <p>The BeepMultiSplitter exposes its internal TableLayoutPanel as a public property, making it easy to access all standard TableLayoutPanel functionality while gaining the additional resizing capabilities.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>tableLayoutPanel</code></td>
+                                <td>TableLayoutPanel</td>
+                                <td>The underlying TableLayoutPanel that manages the layout of child controls</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Inherited Properties</h3>
+                    <p>As a subclass of <code>BeepControl</code>, BeepMultiSplitter inherits all the standard BeepControl properties including:</p>
+
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>Theme <code>string</code></h4>
+                            <p>The name of the theme to apply to this control</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>BorderRadius <code>int</code></h4>
+                            <p>Radius for rounded corners of the control</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>IsFrameless <code>bool</code></h4>
+                            <p>Whether the control has a visible frame</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>IsShadowAffectedByTheme <code>bool</code></h4>
+                            <p>Whether the shadow appearance is affected by the theme</p>
+                        </div>
+                    </div>
+
+                    <div class="note">
+                        <strong>📝 Note:</strong>
+                        <p>You can also access and manipulate all standard TableLayoutPanel properties through the <code>tableLayoutPanel</code> property:</p>
+                        <ul>
+                            <li><code>splitter.tableLayoutPanel.ColumnCount</code></li>
+                            <li><code>splitter.tableLayoutPanel.RowCount</code></li>
+                            <li><code>splitter.tableLayoutPanel.ColumnStyles</code></li>
+                            <li><code>splitter.tableLayoutPanel.RowStyles</code></li>
+                            <li><code>splitter.tableLayoutPanel.CellBorderStyle</code></li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+
+                    <h3>Layout Management</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AddRow()</code></td>
+                                <td>Adds a new row to the layout</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveRow()</code></td>
+                                <td>Removes the last row from the layout</td>
+                            </tr>
+                            <tr>
+                                <td><code>AddColumn()</code></td>
+                                <td>Adds a new column to the layout</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveColumn()</code></td>
+                                <td>Removes the last column from the layout</td>
+                            </tr>
+                            <tr>
+                                <td><code>MoveColumn(int sourceIndex, int destinationIndex)</code></td>
+                                <td>Moves a column from one index to another</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Adding Rows and Columns Programmatically</h3>
+                        <pre><code class="language-csharp">// Add a new row
+splitter.AddRow();
+
+// Add a new column
+splitter.AddColumn();
+
+// Remove the last row
+splitter.RemoveRow();
+
+// Remove the last column
+splitter.RemoveColumn();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Creating a Code Editor with Preview Layout</h3>
+                        <pre><code class="language-csharp">// Create splitter with code editor and preview panels
+private void CreateCodeEditorLayout()
+{
+    // Create the splitter control
+    BeepMultiSplitter editorSplitter = new BeepMultiSplitter
+    {
+        Dock = DockStyle.Fill
+    };
+
+    // Configure as a 1x2 layout (side by side)
+    editorSplitter.tableLayoutPanel.ColumnCount = 2;
+    editorSplitter.tableLayoutPanel.RowCount = 1;
+    
+    // Set column widths (60% for editor, 40% for preview)
+    editorSplitter.tableLayoutPanel.ColumnStyles.Clear();
+    editorSplitter.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 60F));
+    editorSplitter.tableLayoutPanel.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 40F));
+
+    // Create the editor panel
+    BeepPanel editorPanel = new BeepPanel
+    {
+        Dock = DockStyle.Fill,
+        ShowTitle = true,
+        TitleText = "Code Editor"
+    };
+    TextBox codeTextBox = new TextBox
+    {
+        Multiline = true,
+        Dock = DockStyle.Fill,
+        ScrollBars = ScrollBars.Both,
+        Font = new Font("Consolas", 10)
+    };
+    editorPanel.Controls.Add(codeTextBox);
+
+    // Create the preview panel
+    BeepPanel previewPanel = new BeepPanel
+    {
+        Dock = DockStyle.Fill,
+        ShowTitle = true,
+        TitleText = "Preview"
+    };
+    
+    // Add panels to the splitter
+    editorSplitter.tableLayoutPanel.Controls.Add(editorPanel, 0, 0);
+    editorSplitter.tableLayoutPanel.Controls.Add(previewPanel, 1, 0);
+
+    // Add to form
+    this.Controls.Add(editorSplitter);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Creating a Dashboard Layout</h3>
+                        <pre><code class="language-csharp">// Create a dashboard layout with multiple panels
+private void CreateDashboardLayout()
+{
+    // Create the splitter control
+    BeepMultiSplitter dashboardSplitter = new BeepMultiSplitter
+    {
+        Dock = DockStyle.Fill
+    };
+
+    // Configure as a 2x2 layout
+    dashboardSplitter.tableLayoutPanel.ColumnCount = 2;
+    dashboardSplitter.tableLayoutPanel.RowCount = 2;
+    
+    // Create metric panels
+    BeepStatCard revenueCard = new BeepStatCard
+    {
+        Dock = DockStyle.Fill,
+        HeaderText = "Total Revenue",
+        ValueText = "$12,456.78",
+        PercentageText = "+8.5%",
+        IsTrendingUp = true
+    };
+    
+    BeepStatCard visitsCard = new BeepStatCard
+    {
+        Dock = DockStyle.Fill,
+        HeaderText = "Visitors",
+        ValueText = "45,239",
+        PercentageText = "+12.7%",
+        IsTrendingUp = true
+    };
+    
+    BeepStatCard conversionCard = new BeepStatCard
+    {
+        Dock = DockStyle.Fill,
+        HeaderText = "Conversion Rate",
+        ValueText = "3.2%",
+        PercentageText = "-0.8%",
+        IsTrendingUp = false
+    };
+    
+    BeepChart chart = new BeepChart
+    {
+        Dock = DockStyle.Fill
+    };
+    
+    // Add panels to the splitter
+    dashboardSplitter.tableLayoutPanel.Controls.Add(revenueCard, 0, 0);
+    dashboardSplitter.tableLayoutPanel.Controls.Add(visitsCard, 1, 0);
+    dashboardSplitter.tableLayoutPanel.Controls.Add(conversionCard, 0, 1);
+    dashboardSplitter.tableLayoutPanel.Controls.Add(chart, 1, 1);
+
+    // Add to form
+    this.Controls.Add(dashboardSplitter);
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>The BeepMultiSplitter integrates with the Beep theming system to maintain a consistent look and feel across your application.</p>
+
+                    <div class="code-example">
+                        <h3>Applying Themes</h3>
+                        <pre><code class="language-csharp">// Apply a theme to the splitter
+splitter.Theme = "DarkTheme";
+splitter.ApplyTheme();
+
+// Theme properties that affect BeepMultiSplitter:
+// - PanelBackColor: Background color of the splitter
+// - PanelForeColor: Text color of any labels within the splitter
+// - BorderColor: Color of the cell borders</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Tip: Cell Border Styling</strong>
+                        <p>You can customize the appearance of cell borders using the standard TableLayoutPanel properties:</p>
+                        <div class="code-example">
+                            <pre><code class="language-csharp">splitter.tableLayoutPanel.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
+// Other options: None, Inset, InsetDouble, Outset, OutsetDouble, OutsetPartial</code></pre>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>Layout Design</h3>
+                    <ul>
+                        <li><strong>Initial sizing:</strong> Set appropriate initial sizes for rows and columns using RowStyles and ColumnStyles collections</li>
+                        <li><strong>Minimum sizes:</strong> Consider setting minimum sizes for panels to prevent users from resizing them too small</li>
+                        <li><strong>Dock property:</strong> Use Dock = DockStyle.Fill for child controls to ensure they fill their cells</li>
+                    </ul>
+
+                    <h3>Performance</h3>
+                    <ul>
+                        <li><strong>Limit nested splitters:</strong> While you can nest BeepMultiSplitter controls, limit the depth to avoid performance issues</li>
+                        <li><strong>SuspendLayout/ResumeLayout:</strong> When adding multiple controls, use SuspendLayout() and ResumeLayout() to improve performance</li>
+                    </ul>
+
+                    <h3>User Experience</h3>
+                    <ul>
+                        <li><strong>Consistent resizing:</strong> Maintain consistent resize behavior across your application</li>
+                        <li><strong>Visual feedback:</strong> Consider adding visual cues when the user is near resizable borders</li>
+                        <li><strong>Restore state:</strong> Save and restore the splitter state between sessions for a better user experience</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Suspending Layout During Mass Updates</h3>
+                        <pre><code class="language-csharp">// Improve performance during batch operations
+splitter.tableLayoutPanel.SuspendLayout();
+
+// Add multiple controls or make multiple changes
+for (int i = 0; i < 10; i++)
+{
+    for (int j = 0; j < 5; j++)
+    {
+        var control = new Label { Text = $"Cell {i},{j}", Dock = DockStyle.Fill };
+        splitter.tableLayoutPanel.Controls.Add(control, j, i);
+    }
+}
+
+// Resume layout and refresh
+splitter.tableLayoutPanel.ResumeLayout(true);</code></pre>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Watch Out!</strong>
+                        <p>Be careful when removing rows or columns that contain important controls. Always ensure you're properly disposing of controls or relocating them before removing their containing rows or columns.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="../index.html"><i class="bi bi-arrow-left"></i> Back to Controls</a>
+                    <a href="beep-statcard.html">BeepStatCard <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Submenu toggle
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        // Theme toggle functionality
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        // Simple search functionality
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        // Copy code functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

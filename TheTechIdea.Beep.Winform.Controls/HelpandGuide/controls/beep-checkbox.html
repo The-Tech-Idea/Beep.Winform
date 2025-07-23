@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepCheckBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html" class="active">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>›</span>
+                    <span>BeepCheckBox</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepCheckBox</h1>
+                    <p class="page-subtitle">Modern checkbox control with three-state support, theming, and enhanced styling</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#states">Check States</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepCheckBox</strong> is an enhanced checkbox control that extends the standard 
+                        Windows Forms CheckBox with modern styling, three-state support, improved theming, 
+                        and better visual feedback for user interactions.
+                    </p>
+                    <p>
+                        Built on the <code>BeepControl</code> foundation, BeepCheckBox provides smooth animations, 
+                        customizable check marks, state-aware theming, and support for indeterminate states 
+                        commonly used in tree views and option lists.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>☑️ Three-State Support</h3>
+                            <p>Checked, unchecked, and indeterminate states for complex UI scenarios</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Modern Styling</h3>
+                            <p>Smooth animations, hover effects, and customizable check mark styles</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Enhanced Interaction</h3>
+                            <p>Improved mouse and keyboard interaction with visual feedback</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Flexible Layout</h3>
+                            <p>Support for different text alignments and check box positioning</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌈 Theme Integration</h3>
+                            <p>Full integration with Beep theming system for consistent appearance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>♿ Accessibility</h3>
+                            <p>Proper keyboard navigation and screen reader support</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple CheckBox</h3>
+                        <pre><code class="language-csharp">// Create a basic checkbox
+var checkBox = new BeepCheckBox
+{
+    Text = "Enable notifications",
+    Size = new Size(200, 30),
+    Location = new Point(10, 10),
+    Checked = false
+};
+
+// Add to form
+this.Controls.Add(checkBox);
+
+// Handle check changed event
+checkBox.CheckedChanged += (sender, e) => {
+    MessageBox.Show($"Notifications: {checkBox.Checked}");
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Three-State CheckBox</h3>
+                        <pre><code class="language-csharp">// Create checkbox with three states
+var threeStateCheckBox = new BeepCheckBox
+{
+    Text = "Select All Items",
+    ThreeState = true,
+    CheckState = CheckState.Indeterminate,
+    Size = new Size(150, 30),
+    Location = new Point(10, 50)
+};
+
+// Handle state changes
+threeStateCheckBox.CheckStateChanged += (sender, e) => {
+    switch (threeStateCheckBox.CheckState)
+    {
+        case CheckState.Checked:
+            SelectAllItems();
+            break;
+        case CheckState.Unchecked:
+            DeselectAllItems();
+            break;
+        case CheckState.Indeterminate:
+            // Some items selected
+            break;
+    }
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>Use three-state checkboxes for "Select All" functionality where some child items might be selected while others are not.</p>
+                    </div>
+                </section>
+
+                <!-- Check States -->
+                <section id="states" class="section">
+                    <h2>Check States</h2>
+                    
+                    <p>BeepCheckBox supports three distinct states for flexible user interaction:</p>
+
+                    <h3>State Types</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>State</th>
+                                <th>Value</th>
+                                <th>Visual</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Unchecked</code></td>
+                                <td>false</td>
+                                <td>Empty checkbox</td>
+                                <td>Option is not selected</td>
+                            </tr>
+                            <tr>
+                                <td><code>Checked</code></td>
+                                <td>true</td>
+                                <td>Checkbox with checkmark</td>
+                                <td>Option is selected</td>
+                            </tr>
+                            <tr>
+                                <td><code>Indeterminate</code></td>
+                                <td>null</td>
+                                <td>Checkbox with filled square</td>
+                                <td>Partial selection (some child items selected)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>State Management</h3>
+                        <pre><code class="language-csharp">// Set specific states
+checkBox.CheckState = CheckState.Checked;
+checkBox.CheckState = CheckState.Unchecked;
+checkBox.CheckState = CheckState.Indeterminate;
+
+// Check boolean property (ignores indeterminate)
+bool isChecked = checkBox.Checked;
+
+// Check for specific state
+if (checkBox.CheckState == CheckState.Indeterminate)
+{
+    // Handle partial selection
+    UpdateChildItems();
+}
+
+// Toggle through states programmatically
+checkBox.CheckState = checkBox.CheckState == CheckState.Checked 
+    ? CheckState.Unchecked 
+    : CheckState.Checked;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Checked</code></td>
+                                <td>bool</td>
+                                <td>Whether the checkbox is checked (ignores indeterminate)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CheckState</code></td>
+                                <td>CheckState</td>
+                                <td>Current state (Checked, Unchecked, Indeterminate)</td>
+                            </tr>
+                            <tr>
+                                <td><code>ThreeState</code></td>
+                                <td>bool</td>
+                                <td>Whether to allow indeterminate state</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>string</td>
+                                <td>Text displayed next to the checkbox</td>
+                            </tr>
+                            <tr>
+                                <td><code>AutoCheck</code></td>
+                                <td>bool</td>
+                                <td>Whether clicking toggles the check state automatically</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>CheckAlign <code>ContentAlignment</code></h4>
+                            <p>Position of checkbox relative to text</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>TextAlign <code>ContentAlignment</code></h4>
+                            <p>Alignment of text within control bounds</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Appearance <code>Appearance</code></h4>
+                            <p>Normal checkbox or button-style appearance</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>FlatStyle <code>FlatStyle</code></h4>
+                            <p>Visual style (Flat, Standard, Popup, System)</p>
+                        </div>
+                    </div>
+
+                    <h3>Visual Customization</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CheckedBackColor</code></td>
+                                <td>Color</td>
+                                <td>Background color when checked</td>
+                            </tr>
+                            <tr>
+                                <td><code>CheckedForeColor</code></td>
+                                <td>Color</td>
+                                <td>Text color when checked</td>
+                            </tr>
+                            <tr>
+                                <td><code>UncheckedBackColor</code></td>
+                                <td>Color</td>
+                                <td>Background color when unchecked</td>
+                            </tr>
+                            <tr>
+                                <td><code>UncheckedForeColor</code></td>
+                                <td>Color</td>
+                                <td>Text color when unchecked</td>
+                            </tr>
+                            <tr>
+                                <td><code>BorderRadius</code></td>
+                                <td>int</td>
+                                <td>Corner radius for rounded checkbox</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Description</th>
+                                <th>When Triggered</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CheckedChanged</code></td>
+                                <td>Checked property has changed</td>
+                                <td>When checkbox is checked or unchecked (not indeterminate)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CheckStateChanged</code></td>
+                                <td>CheckState property has changed</td>
+                                <td>When any state change occurs (including indeterminate)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Click</code></td>
+                                <td>Control has been clicked</td>
+                                <td>When user clicks on the control</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var checkBox = new BeepCheckBox 
+{ 
+    Text = "Sample CheckBox",
+    ThreeState = true
+};
+
+// Handle checked state changes (boolean only)
+checkBox.CheckedChanged += (sender, e) => {
+    Console.WriteLine($"Checked: {checkBox.Checked}");
+    UpdateRelatedControls(checkBox.Checked);
+};
+
+// Handle all state changes (including indeterminate)
+checkBox.CheckStateChanged += (sender, e) => {
+    switch (checkBox.CheckState)
+    {
+        case CheckState.Checked:
+            Console.WriteLine("Fully selected");
+            break;
+        case CheckState.Unchecked:
+            Console.WriteLine("Not selected");
+            break;
+        case CheckState.Indeterminate:
+            Console.WriteLine("Partially selected");
+            break;
+    }
+};
+
+// Handle click events for custom logic
+checkBox.Click += (sender, e) => {
+    Console.WriteLine("CheckBox clicked");
+    // Perform custom validation or logging
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Settings Panel with Multiple Options</h3>
+                        <pre><code class="language-csharp">public class SettingsPanel : UserControl
+{
+    private BeepCheckBox[] settingsCheckBoxes;
+    
+    public SettingsPanel()
+    {
+        InitializeSettings();
+    }
+    
+    private void InitializeSettings()
+    {
+        var settings = new[]
+        {
+            "Enable auto-save",
+            "Show notifications",
+            "Dark mode",
+            "Check for updates",
+            "Enable sound effects",
+            "Show tooltips"
+        };
+        
+        settingsCheckBoxes = new BeepCheckBox[settings.Length];
+        
+        for (int i = 0; i < settings.Length; i++)
+        {
+            settingsCheckBoxes[i] = new BeepCheckBox
+            {
+                Text = settings[i],
+                Size = new Size(200, 30),
+                Location = new Point(20, 20 + (i * 35)),
+                Checked = GetSettingValue(settings[i]) // Load from config
+            };
+            
+            // Handle changes
+            int index = i; // Capture for closure
+            settingsCheckBoxes[i].CheckedChanged += (s, e) => {
+                SaveSettingValue(settings[index], settingsCheckBoxes[index].Checked);
+            };
+            
+            this.Controls.Add(settingsCheckBoxes[i]);
+        }
+    }
+    
+    public void ApplyTheme(string themeName)
+    {
+        foreach (var checkBox in settingsCheckBoxes)
+        {
+            checkBox.Theme = themeName;
+            checkBox.ApplyTheme();
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Tree View with Select All</h3>
+                        <pre><code class="language-csharp">public class SelectableTreePanel : UserControl
+{
+    private BeepCheckBox selectAllCheckBox;
+    private List<BeepCheckBox> itemCheckBoxes;
+    
+    public SelectableTreePanel()
+    {
+        InitializeControls();
+    }
+    
+    private void InitializeControls()
+    {
+        // Master "Select All" checkbox
+        selectAllCheckBox = new BeepCheckBox
+        {
+            Text = "Select All",
+            ThreeState = true,
+            Size = new Size(100, 25),
+            Location = new Point(10, 10),
+            Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+        };
+        selectAllCheckBox.CheckStateChanged += SelectAllCheckBox_CheckStateChanged;
+        
+        // Individual item checkboxes
+        itemCheckBoxes = new List<BeepCheckBox>();
+        var items = new[] { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+        
+        for (int i = 0; i < items.Length; i++)
+        {
+            var itemCheckBox = new BeepCheckBox
+            {
+                Text = items[i],
+                Size = new Size(150, 25),
+                Location = new Point(30, 40 + (i * 30))
+            };
+            itemCheckBox.CheckedChanged += ItemCheckBox_CheckedChanged;
+            
+            itemCheckBoxes.Add(itemCheckBox);
+            this.Controls.Add(itemCheckBox);
+        }
+        
+        this.Controls.Add(selectAllCheckBox);
+        UpdateSelectAllState();
+    }
+    
+    private void SelectAllCheckBox_CheckStateChanged(object sender, EventArgs e)
+    {
+        if (selectAllCheckBox.CheckState != CheckState.Indeterminate)
+        {
+            bool newState = selectAllCheckBox.Checked;
+            
+            // Update all items without triggering events
+            foreach (var item in itemCheckBoxes)
+            {
+                item.CheckedChanged -= ItemCheckBox_CheckedChanged;
+                item.Checked = newState;
+                item.CheckedChanged += ItemCheckBox_CheckedChanged;
+            }
+        }
+    }
+    
+    private void ItemCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        UpdateSelectAllState();
+    }
+    
+    private void UpdateSelectAllState()
+    {
+        int checkedCount = itemCheckBoxes.Count(cb => cb.Checked);
+        
+        selectAllCheckBox.CheckStateChanged -= SelectAllCheckBox_CheckStateChanged;
+        
+        if (checkedCount == 0)
+        {
+            selectAllCheckBox.CheckState = CheckState.Unchecked;
+        }
+        else if (checkedCount == itemCheckBoxes.Count)
+        {
+            selectAllCheckBox.CheckState = CheckState.Checked;
+        }
+        else
+        {
+            selectAllCheckBox.CheckState = CheckState.Indeterminate;
+        }
+        
+        selectAllCheckBox.CheckStateChanged += SelectAllCheckBox_CheckStateChanged;
+    }
+    
+    public List<string> GetSelectedItems()
+    {
+        return itemCheckBoxes
+            .Where(cb => cb.Checked)
+            .Select(cb => cb.Text)
+            .ToList();
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Permission Matrix</h3>
+                        <pre><code class="language-csharp">public class PermissionMatrix : UserControl
+{
+    private Dictionary<string, BeepCheckBox[]> permissionMatrix;
+    
+    public PermissionMatrix()
+    {
+        CreatePermissionMatrix();
+    }
+    
+    private void CreatePermissionMatrix()
+    {
+        var roles = new[] { "Admin", "Manager", "User", "Guest" };
+        var permissions = new[] { "Read", "Write", "Delete", "Execute" };
+        
+        permissionMatrix = new Dictionary<string, BeepCheckBox[]>();
+        
+        // Create header labels
+        for (int i = 0; i < permissions.Length; i++)
+        {
+            var headerLabel = new Label
+            {
+                Text = permissions[i],
+                Size = new Size(80, 20),
+                Location = new Point(100 + (i * 90), 10),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+            };
+            this.Controls.Add(headerLabel);
+        }
+        
+        // Create role rows
+        for (int roleIndex = 0; roleIndex < roles.Length; roleIndex++)
+        {
+            string role = roles[roleIndex];
+            var roleLabel = new Label
+            {
+                Text = role,
+                Size = new Size(80, 25),
+                Location = new Point(10, 40 + (roleIndex * 35)),
+                TextAlign = ContentAlignment.MiddleRight,
+                Font = new Font("Segoe UI", 9f, FontStyle.Bold)
+            };
+            this.Controls.Add(roleLabel);
+            
+            // Create permission checkboxes for this role
+            var rolePermissions = new BeepCheckBox[permissions.Length];
+            
+            for (int permIndex = 0; permIndex < permissions.Length; permIndex++)
+            {
+                rolePermissions[permIndex] = new BeepCheckBox
+                {
+                    Size = new Size(25, 25),
+                    Location = new Point(130 + (permIndex * 90), 40 + (roleIndex * 35)),
+                    CheckAlign = ContentAlignment.MiddleCenter,
+                    Text = "",
+                    Tag = new { Role = role, Permission = permissions[permIndex] }
+                };
+                
+                rolePermissions[permIndex].CheckedChanged += PermissionCheckBox_CheckedChanged;
+                this.Controls.Add(rolePermissions[permIndex]);
+            }
+            
+            permissionMatrix[role] = rolePermissions;
+        }
+        
+        LoadPermissions();
+    }
+    
+    private void PermissionCheckBox_CheckedChanged(object sender, EventArgs e)
+    {
+        var checkBox = sender as BeepCheckBox;
+        var info = (dynamic)checkBox.Tag;
+        
+        // Save permission change
+        SavePermission(info.Role, info.Permission, checkBox.Checked);
+        
+        // Update dependent permissions (e.g., Write requires Read)
+        UpdateDependentPermissions(info.Role, info.Permission, checkBox.Checked);
+    }
+    
+    private void UpdateDependentPermissions(string role, string permission, bool granted)
+    {
+        var rolePermissions = permissionMatrix[role];
+        
+        if (permission == "Write" && granted)
+        {
+            // Write permission requires Read
+            rolePermissions[0].Checked = true; // Read is index 0
+        }
+        else if (permission == "Delete" && granted)
+        {
+            // Delete permission requires Read and Write
+            rolePermissions[0].Checked = true; // Read
+            rolePermissions[1].Checked = true; // Write
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepCheckBox integrates seamlessly with the Beep theming system, automatically adapting colors and styles.</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">// Apply theme to individual checkbox
+checkBox.Theme = "DarkTheme";
+checkBox.ApplyTheme();
+
+// Theme properties automatically applied:
+// - CheckBoxBackColor (unchecked background)
+// - CheckBoxForeColor (text color)
+// - CheckBoxCheckedBackColor (checked background)
+// - CheckBoxCheckedForeColor (checked text color)
+// - CheckBoxBorderColor (border color)
+// - CheckBoxCheckMarkColor (checkmark color)
+
+// Custom theme overrides
+checkBox.CheckedBackColor = Color.LightBlue;
+checkBox.CheckedForeColor = Color.DarkBlue;
+checkBox.UncheckedBackColor = Color.White;
+checkBox.UncheckedForeColor = Color.Black;</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive States</h3>
+                    <ul>
+                        <li><strong>Normal State</strong> - Uses theme's default checkbox colors</li>
+                        <li><strong>Hover State</strong> - Slightly highlighted appearance</li>
+                        <li><strong>Focused State</strong> - Visual focus indicator for keyboard navigation</li>
+                        <li><strong>Checked State</strong> - Theme's checked appearance with checkmark</li>
+                        <li><strong>Indeterminate State</strong> - Special styling for partial selection</li>
+                        <li><strong>Disabled State</strong> - Grayed out appearance</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>Use consistent checkbox styling across your application by applying the same theme to all BeepCheckBox instances for a unified look.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>Clear labeling:</strong> Use descriptive text that clearly explains what the checkbox controls</li>
+                        <li><strong>Logical grouping:</strong> Group related checkboxes together visually</li>
+                        <li><strong>Appropriate spacing:</strong> Provide adequate spacing between checkboxes for easy clicking</li>
+                        <li><strong>Consistent alignment:</strong> Align checkboxes consistently (usually left-aligned)</li>
+                        <li><strong>Three-state usage:</strong> Only use indeterminate state when it adds value (like "Select All" scenarios)</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Event handling:</strong> Avoid heavy processing in CheckedChanged events</li>
+                        <li><strong>Batch updates:</strong> When updating multiple checkboxes, temporarily disable events</li>
+                        <li><strong>Efficient validation:</strong> Validate form state only when necessary</li>
+                        <li><strong>Memory management:</strong> Properly dispose of event handlers in long-running applications</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard navigation:</strong> Ensure proper tab order for keyboard users</li>
+                        <li><strong>Screen readers:</strong> Use meaningful text that describes the checkbox function</li>
+                        <li><strong>High contrast:</strong> Test with high contrast themes for visibility</li>
+                        <li><strong>Focus indicators:</strong> Ensure focused checkboxes have clear visual indicators</li>
+                        <li><strong>Touch targets:</strong> Make clickable areas large enough for touch interfaces</li>
+                    </ul>
+
+                    <h3>📋 Data Binding</h3>
+                    <ul>
+                        <li><strong>Property binding:</strong> Use the Checked property for simple boolean binding</li>
+                        <li><strong>State binding:</strong> Use CheckState property when supporting three states</li>
+                        <li><strong>Validation:</strong> Implement proper validation for required checkboxes</li>
+                        <li><strong>Change tracking:</strong> Track changes for undo/redo functionality</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ State Management</strong>
+                        <p>When using three-state checkboxes, be careful about how user interactions affect the indeterminate state. Users can't directly set indeterminate state through clicking.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Pro Tip</strong>
+                        <p>Use CheckStateChanged instead of CheckedChanged when working with three-state checkboxes to capture all state transitions including indeterminate states.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-combobox.html"><i class="bi bi-arrow-left"></i> BeepComboBox</a>
+                    <a href="beep-radiobutton.html">BeepRadioButton <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

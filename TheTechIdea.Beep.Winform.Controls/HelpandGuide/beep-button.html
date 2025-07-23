@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepButton Control - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>?? Beep Controls</h2>
+                <p class="version">v1.0.164</p>
+            </div>
+            
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Overview</a></li>
+                <li class="has-submenu">
+                    <a href="#getting-started" class="nav-link">Getting Started</a>
+                    <ul class="submenu">
+                        <li><a href="index.html#installation" class="nav-link">Installation</a></li>
+                        <li><a href="index.html#basic-usage" class="nav-link">Basic Usage</a></li>
+                        <li><a href="index.html#theming" class="nav-link">Theming System</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu open">
+                    <a href="#controls" class="nav-link">Control Reference</a>
+                    <ul class="submenu">
+                        <li><a href="beep-control.html" class="nav-link">BeepControl (Base)</a></li>
+                        <li><a href="beep-button.html" class="nav-link active">BeepButton</a></li>
+                        <li><a href="#beep-textbox" class="nav-link">BeepTextBox</a></li>
+                        <li><a href="#beep-panel" class="nav-link">BeepPanel</a></li>
+                        <li><a href="#beep-image" class="nav-link">BeepImage</a></li>
+                        <li><a href="#data-controls" class="nav-link">Data Controls</a></li>
+                        <li><a href="#layout-controls" class="nav-link">Layout Controls</a></li>
+                    </ul>
+                </li>
+                <li class="has-submenu">
+                    <a href="examples.html" class="nav-link">Examples</a>
+                    <ul class="submenu">
+                        <li><a href="examples.html#basic-examples" class="nav-link">Basic Examples</a></li>
+                        <li><a href="examples.html#advanced-examples" class="nav-link">Advanced Examples</a></li>
+                        <li><a href="examples.html#react-style" class="nav-link">React-Style UI</a></li>
+                    </ul>
+                </li>
+                <li><a href="api-reference.html" class="nav-link">API Reference</a></li>
+                <li><a href="index.html#best-practices" class="nav-link">Best Practices</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <h1>?? BeepButton Control</h1>
+                <p class="lead">
+                    BeepButton is an enhanced button control that extends BeepControl with advanced features including 
+                    image support, animations, popup menus, Material Design ripple effects, long press gestures, 
+                    and badge notifications.
+                </p>
+
+                <div class="tip">
+                    <strong>?? Inheritance:</strong> BeepButton inherits from BeepControl, providing all base functionality plus button-specific features.
+                </div>
+
+                <h2>? Key Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">???</div>
+                        <h3>Image Support</h3>
+                        <p>Full SVG and raster image support with theme-aware coloring and flexible positioning.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Popup Lists</h3>
+                        <p>Built-in dropdown menu functionality with cascading submenus and item selection.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Ripple Effects</h3>
+                        <p>Material Design splash animations and ripple effects on click interactions.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Long Press</h3>
+                        <p>Long press gesture detection for context menus and secondary actions.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">???</div>
+                        <h3>Badge Support</h3>
+                        <p>Notification badges with customizable shapes, colors, and positioning.</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">??</div>
+                        <h3>Auto Sizing</h3>
+                        <p>Automatic sizing based on content with scaled font support.</p>
+                    </div>
+                </div>
+
+                <h2>?? Basic Usage</h2>
+                <div class="code-example">
+                    <h3>Simple Button</h3>
+                    <pre><code class="language-csharp">var button = new BeepButton
+{
+    Text = "Click Me",
+    Size = new Size(120, 40),
+    Location = new Point(10, 10),
+    Theme = "DefaultTheme"
+};
+
+button.Click += (sender, e) => {
+    MessageBox.Show("Button clicked!");
+};</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h3>Button with Image</h3>
+                    <pre><code class="language-csharp">var imageButton = new BeepButton
+{
+    Text = "Save Document",
+    ImagePath = "icons/save.svg",
+    TextImageRelation = TextImageRelation.ImageBeforeText,
+    MaxImageSize = new Size(24, 24),
+    Size = new Size(150, 45),
+    ApplyThemeOnImage = true
+};</code></pre>
+                </div>
+
+                <h2>?? Properties Reference</h2>
+
+                <h3>Image Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ImagePath</td>
+                                <td>string</td>
+                                <td>null</td>
+                                <td>Path to image file (SVG, PNG, JPG, etc.)</td>
+                            </tr>
+                            <tr>
+                                <td>Image</td>
+                                <td>Image</td>
+                                <td>null</td>
+                                <td>Direct image object assignment</td>
+                            </tr>
+                            <tr>
+                                <td>MaxImageSize</td>
+                                <td>Size</td>
+                                <td>32x32</td>
+                                <td>Maximum size for the image</td>
+                            </tr>
+                            <tr>
+                                <td>TextImageRelation</td>
+                                <td>TextImageRelation</td>
+                                <td>ImageBeforeText</td>
+                                <td>Positioning of text relative to image</td>
+                            </tr>
+                            <tr>
+                                <td>ImageAlign</td>
+                                <td>ContentAlignment</td>
+                                <td>MiddleLeft</td>
+                                <td>Image alignment within the button</td>
+                            </tr>
+                            <tr>
+                                <td>ApplyThemeOnImage</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Apply theme colors to SVG images</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Text Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Text</td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Button text content</td>
+                            </tr>
+                            <tr>
+                                <td>TextAlign</td>
+                                <td>ContentAlignment</td>
+                                <td>MiddleCenter</td>
+                                <td>Text alignment within the button</td>
+                            </tr>
+                            <tr>
+                                <td>TextFont</td>
+                                <td>Font</td>
+                                <td>Arial, 10pt</td>
+                                <td>Font used for button text</td>
+                            </tr>
+                            <tr>
+                                <td>HideText</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Hide text display (image only button)</td>
+                            </tr>
+                            <tr>
+                                <td>UseScaledFont</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Automatically scale font to fit button size</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Popup List Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>PopupMode</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Enable popup dropdown functionality</td>
+                            </tr>
+                            <tr>
+                                <td>ListItems</td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>empty</td>
+                                <td>Items to display in popup list</td>
+                            </tr>
+                            <tr>
+                                <td>SelectedItem</td>
+                                <td>SimpleItem</td>
+                                <td>null</td>
+                                <td>Currently selected item</td>
+                            </tr>
+                            <tr>
+                                <td>SelectedIndex</td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Index of selected item</td>
+                            </tr>
+                            <tr>
+                                <td>PopPosition</td>
+                                <td>BeepPopupFormPosition</td>
+                                <td>Bottom</td>
+                                <td>Position of popup relative to button</td>
+                            </tr>
+                            <tr>
+                                <td>IsPopupOpen</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether popup is currently open</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Animation Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>SplashColor</td>
+                                <td>Color</td>
+                                <td>Gray</td>
+                                <td>Color of the splash/ripple effect</td>
+                            </tr>
+                            <tr>
+                                <td>EnableRippleEffect</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Enable Material Design ripple effect</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h3>Behavior Properties</h3>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>AutoSize</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Automatically size button based on content</td>
+                            </tr>
+                            <tr>
+                                <td>IsStillButton</td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Maintain hover state appearance</td>
+                            </tr>
+                            <tr>
+                                <td>IsColorFromTheme</td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Use colors from current theme</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>?? Events</h2>
+                <div class="config-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Click</td>
+                                <td>EventArgs</td>
+                                <td>Standard button click event</td>
+                            </tr>
+                            <tr>
+                                <td>LongPress</td>
+                                <td>EventArgs</td>
+                                <td>Fired when button is long-pressed</td>
+                            </tr>
+                            <tr>
+                                <td>DoubleClickAction</td>
+                                <td>EventArgs</td>
+                                <td>Fired on double-click</td>
+                            </tr>
+                            <tr>
+                                <td>ImageClicked</td>
+                                <td>BeepEventDataArgs</td>
+                                <td>Fired when image area is clicked</td>
+                            </tr>
+                            <tr>
+                                <td>SelectedItemChanged</td>
+                                <td>SelectedItemChangedEventArgs</td>
+                                <td>Fired when popup list selection changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>?? Practical Examples</h2>
+
+                <h3>React-Style Buttons</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Primary contained button
+var primaryButton = new BeepButton
+{
+    Text = "Save Changes",
+    UIVariant = ReactUIVariant.Contained,
+    UIColor = ReactUIColor.Primary,
+    UISize = ReactUISize.Large,
+    EnableRippleEffect = true
+};
+
+// Secondary outlined button
+var secondaryButton = new BeepButton
+{
+    Text = "Cancel",
+    UIVariant = ReactUIVariant.Outlined,
+    UIColor = ReactUIColor.Secondary,
+    UISize = ReactUISize.Large
+};
+
+// Success text button
+var textButton = new BeepButton
+{
+    Text = "Learn More",
+    UIVariant = ReactUIVariant.Text,
+    UIColor = ReactUIColor.Info,
+    UISize = ReactUISize.Medium
+};</code></pre>
+                </div>
+
+                <h3>Image Button with Theme</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var iconButton = new BeepButton
+{
+    Text = "Download",
+    ImagePath = "resources/download.svg",
+    TextImageRelation = TextImageRelation.ImageBeforeText,
+    MaxImageSize = new Size(20, 20),
+    ApplyThemeOnImage = true,
+    Theme = "DarkTheme",
+    Size = new Size(120, 40),
+    IsRounded = true,
+    BorderRadius = 20,
+    ShowShadow = true
+};
+
+// Handle click
+iconButton.Click += (s, e) => {
+    // Start download process
+    StartDownload();
+};</code></pre>
+                </div>
+
+                <h3>Popup Menu Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var menuButton = new BeepButton
+{
+    Text = "Actions ?",
+    PopupMode = true,
+    PopPosition = BeepPopupFormPosition.Bottom,
+    UIVariant = ReactUIVariant.Outlined
+};
+
+// Add menu items
+menuButton.ListItems.Add(new SimpleItem { Text = "Edit", Value = "edit", ImagePath = "icons/edit.svg" });
+menuButton.ListItems.Add(new SimpleItem { Text = "Delete", Value = "delete", ImagePath = "icons/delete.svg" });
+menuButton.ListItems.Add(new SimpleItem { Text = "Copy", Value = "copy", ImagePath = "icons/copy.svg" });
+
+// Handle selection
+menuButton.SelectedItemChanged += (s, e) => {
+    switch (e.SelectedItem.Value.ToString())
+    {
+        case "edit":
+            EditItem();
+            break;
+        case "delete":
+            DeleteItem();
+            break;
+        case "copy":
+            CopyItem();
+            break;
+    }
+};</code></pre>
+                </div>
+
+                <h3>Long Press Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var longPressButton = new BeepButton
+{
+    Text = "Hold for Options",
+    UIColor = ReactUIColor.Warning,
+    ToolTipText = "Click for quick action, hold for more options"
+};
+
+// Handle normal click
+longPressButton.Click += (s, e) => {
+    // Quick action
+    QuickAction();
+};
+
+// Handle long press
+longPressButton.LongPress += (s, e) => {
+    // Show context menu or additional options
+    ShowContextMenu();
+};</code></pre>
+                </div>
+
+                <h3>Badge Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var notificationButton = new BeepButton
+{
+    Text = "Messages",
+    ImagePath = "icons/message.svg",
+    BadgeText = "5",
+    BadgeBackColor = Color.Red,
+    BadgeForeColor = Color.White,
+    BadgeShape = BadgeShape.Circle,
+    TextImageRelation = TextImageRelation.ImageBeforeText
+};
+
+// Update badge count
+private void UpdateNotificationCount(int count)
+{
+    notificationButton.BadgeText = count > 0 ? count.ToString() : "";
+}</code></pre>
+                </div>
+
+                <h3>Auto-Sizing Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var autoButton = new BeepButton
+{
+    Text = "This button will size itself",
+    AutoSize = true,
+    UseScaledFont = true,
+    Padding = new Padding(15, 10, 15, 10),
+    UIVariant = ReactUIVariant.Contained,
+    UIColor = ReactUIColor.Primary
+};
+
+// The button will automatically size to fit its content</code></pre>
+                </div>
+
+                <h2>?? Styling Examples</h2>
+
+                <h3>Material Design Floating Action Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var fab = new BeepButton
+{
+    Text = "",
+    ImagePath = "icons/add.svg",
+    HideText = true,
+    UIShape = ReactUIShape.Circular,
+    UIColor = ReactUIColor.Primary,
+    UIElevation = ReactUIElevation.High,
+    EnableRippleEffect = true,
+    Size = new Size(56, 56),
+    MaxImageSize = new Size(24, 24),
+    ApplyThemeOnImage = true
+};
+
+// Position as floating button
+fab.Location = new Point(
+    parentForm.Width - fab.Width - 20,
+    parentForm.Height - fab.Height - 20
+);
+
+fab.Click += (s, e) => {
+    // Add new item action
+    AddNewItem();
+};</code></pre>
+                </div>
+
+                <h3>Toolbar Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">var toolbarButton = new BeepButton
+{
+    Text = "Bold",
+    ImagePath = "icons/bold.svg",
+    TextImageRelation = TextImageRelation.Overlay,
+    UIVariant = ReactUIVariant.Ghost,
+    UISize = ReactUISize.Small,
+    MaxImageSize = new Size(16, 16),
+    ToolTipText = "Bold (Ctrl+B)",
+    IsStillButton = true, // Maintain state when selected
+    Size = new Size(32, 32)
+};
+
+// Toggle functionality
+toolbarButton.Click += (s, e) => {
+    toolbarButton.IsSelected = !toolbarButton.IsSelected;
+    ToggleBold();
+};</code></pre>
+                </div>
+
+                <h3>Split Button</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">// Main action button
+var saveButton = new BeepButton
+{
+    Text = "Save",
+    UIVariant = ReactUIVariant.Contained,
+    UIColor = ReactUIColor.Primary,
+    Size = new Size(80, 36),
+    Location = new Point(10, 10)
+};
+
+// Dropdown button
+var saveOptionsButton = new BeepButton
+{
+    Text = "?",
+    PopupMode = true,
+    UIVariant = ReactUIVariant.Contained,
+    UIColor = ReactUIColor.Primary,
+    Size = new Size(30, 36),
+    Location = new Point(90, 10),
+    BorderRadius = 0
+};
+
+// Configure as split button appearance
+saveButton.ShowRightBorder = false;
+saveOptionsButton.ShowLeftBorder = false;
+
+// Add save options
+saveOptionsButton.ListItems.Add(new SimpleItem { Text = "Save", Value = "save" });
+saveOptionsButton.ListItems.Add(new SimpleItem { Text = "Save As...", Value = "saveas" });
+saveOptionsButton.ListItems.Add(new SimpleItem { Text = "Save All", Value = "saveall" });
+
+// Handle main save action
+saveButton.Click += (s, e) => Save();
+
+// Handle save options
+saveOptionsButton.SelectedItemChanged += (s, e) => {
+    switch (e.SelectedItem.Value.ToString())
+    {
+        case "save": Save(); break;
+        case "saveas": SaveAs(); break;
+        case "saveall": SaveAll(); break;
+    }
+};</code></pre>
+                </div>
+
+                <h2>?? Advanced Features</h2>
+
+                <h3>Custom Drawing Integration</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">public class CustomButton : BeepButton
+{
+    protected override void OnParentChanged(EventArgs e)
+    {
+        base.OnParentChanged(e);
+        
+        if (Parent is BeepControl beepParent)
+        {
+            // Register for custom external drawing
+            beepParent.AddChildExternalDrawing(
+                this,
+                DrawCustomIndicator,
+                DrawingLayer.AfterContent
+            );
+        }
+    }
+
+    private void DrawCustomIndicator(Graphics g, Rectangle bounds)
+    {
+        // Draw custom indicator (e.g., loading spinner, progress bar, etc.)
+        if (IsLoading)
+        {
+            var indicatorRect = new Rectangle(
+                bounds.Right - 20, bounds.Top + 5,
+                10, 10
+            );
+            
+            // Draw spinning indicator
+            DrawSpinner(g, indicatorRect);
+        }
+    }
+
+    public bool IsLoading { get; set; }
+    
+    private void DrawSpinner(Graphics g, Rectangle rect)
+    {
+        // Implementation for spinner drawing
+        // ...
+    }
+}</code></pre>
+                </div>
+
+                <h3>State Management</h3>
+                <div class="code-example">
+                    <pre><code class="language-csharp">public class StatefulButton : BeepButton
+{
+    public enum ButtonState
+    {
+        Normal,
+        Loading,
+        Success,
+        Error
+    }
+
+    private ButtonState _state = ButtonState.Normal;
+    
+    public ButtonState State
+    {
+        get => _state;
+        set
+        {
+            _state = value;
+            UpdateButtonAppearance();
+        }
+    }
+
+    private void UpdateButtonAppearance()
+    {
+        switch (State)
+        {
+            case ButtonState.Normal:
+                Text = "Submit";
+                UIColor = ReactUIColor.Primary;
+                Enabled = true;
+                break;
+                
+            case ButtonState.Loading:
+                Text = "Loading...";
+                UIColor = ReactUIColor.Default;
+                Enabled = false;
+                break;
+                
+            case ButtonState.Success:
+                Text = "Success!";
+                UIColor = ReactUIColor.Success;
+                Enabled = true;
+                break;
+                
+            case ButtonState.Error:
+                Text = "Error - Retry";
+                UIColor = ReactUIColor.Error;
+                Enabled = true;
+                break;
+        }
+        
+        Invalidate();
+    }
+}</code></pre>
+                </div>
+
+                <div class="tip">
+                    <strong>?? Performance Tip:</strong> When using many buttons with images, consider caching SVG objects and using the same BeepImage instance across similar buttons.
+                </div>
+
+                <h2>?? Related Controls</h2>
+                <div class="step-cards">
+                    <a href="beep-control.html" class="step-card">
+                        <h3>?? BeepControl</h3>
+                        <p>Learn about the base class and inherited functionality</p>
+                    </a>
+                    
+                    <a href="#beep-image" class="step-card">
+                        <h3>??? BeepImage</h3>
+                        <p>Understand image handling and SVG theming</p>
+                    </a>
+                    
+                    <a href="examples.html" class="step-card">
+                        <h3>?? More Examples</h3>
+                        <p>See BeepButton in real-world scenarios</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

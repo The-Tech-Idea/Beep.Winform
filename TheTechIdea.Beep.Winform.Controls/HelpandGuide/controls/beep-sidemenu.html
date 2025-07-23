@@ -1,0 +1,1056 @@
+<!--
+    BeepSideMenu Control Documentation
+    Professional-grade documentation for the BeepSideMenu WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepSideMenu - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                            <li><a href="beep-select.html">BeepSelect</a></li>
+                            <li><a href="beep-listofvaluesbox.html">BeepListofValuesBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-datanavigator.html">BeepDataNavigator</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-filter.html">BeepFilter</a></li>
+                            <li><a href="beep-dualpercentagecontrol.html">BeepDualPercentageControl</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html" class="active">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                            <li><a href="beep-taskcard.html">BeepTaskCard</a></li>
+                            <li><a href="beep-featurecard.html">BeepFeatureCard</a></li>
+                            <li><a href="beep-companyprofile.html">BeepCompanyProfile</a></li>
+                            <li><a href="beep-tasklistitem.html">BeepTaskListItem</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popupform.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splashscreen.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-cursor-fill"></i> Button Variants</a>
+                        <ul class="submenu">
+                            <li><a href="beep-circularbutton.html">BeepCircularButton</a></li>
+                            <li><a href="beep-chevronbutton.html">BeepChevronButton</a></li>
+                            <li><a href="beep-extendedbutton.html">BeepExtendedButton</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepSideMenu</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepSideMenu</h1>
+                    <p class="page-subtitle">Collapsible, theme-aware side navigation menu supporting icons, grouping, and dynamic content</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepSideMenu</strong> provides a modern, customizable side navigation experience for 
+                        WinForms applications. It supports hierarchical menu items, icons, grouping, and dynamic updates, 
+                        making it ideal for application navigation and dashboards.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepSideMenu features smooth expand/collapse 
+                        animations, multi-level menu hierarchies, icon integration, theme awareness, and seamless integration 
+                        with application layouts. Perfect for desktop applications, administrative interfaces, and modern 
+                        navigation-heavy applications.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Collapsible Design</h3>
+                            <p>Smooth expand/collapse animation with customizable triggers</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🗂️ Hierarchical Support</h3>
+                            <p>Multi-level menu items with icons, grouping, and nested structures</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎭 Theme Integration</h3>
+                            <p>Complete theme awareness with automatic color scheme application</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Dynamic Updates</h3>
+                            <p>Runtime menu item management and dynamic content updates</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Layout</h3>
+                            <p>Adaptive sizing and layout for different screen sizes</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 App Integration</h3>
+                            <p>Seamless integration with BeepAppBar and BeepMenuBar</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Expanded Side Menu</h3>
+                    <div class="visual-demo">
+                        <div class="sidemenu-preview expanded">
+                            <div class="sidemenu-header">
+                                <div class="logo">🏢</div>
+                                <div class="app-title">My Application</div>
+                                <div class="toggle-btn">☰</div>
+                            </div>
+                            <div class="sidemenu-content">
+                                <div class="menu-section">
+                                    <div class="section-title">NAVIGATION</div>
+                                    <div class="menu-item active">
+                                        <span class="menu-icon">🏠</span>
+                                        <span class="menu-text">Dashboard</span>
+                                    </div>
+                                    <div class="menu-item">
+                                        <span class="menu-icon">👥</span>
+                                        <span class="menu-text">Users</span>
+                                        <span class="menu-badge">12</span>
+                                    </div>
+                                    <div class="menu-item expandable">
+                                        <span class="menu-icon">📊</span>
+                                        <span class="menu-text">Reports</span>
+                                        <span class="expand-arrow">▼</span>
+                                    </div>
+                                    <div class="submenu">
+                                        <div class="submenu-item">Sales Reports</div>
+                                        <div class="submenu-item">User Analytics</div>
+                                        <div class="submenu-item">Performance</div>
+                                    </div>
+                                </div>
+                                <div class="menu-section">
+                                    <div class="section-title">TOOLS</div>
+                                    <div class="menu-item">
+                                        <span class="menu-icon">⚙️</span>
+                                        <span class="menu-text">Settings</span>
+                                    </div>
+                                    <div class="menu-item">
+                                        <span class="menu-icon">❓</span>
+                                        <span class="menu-text">Help</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Expanded side menu with grouped navigation items and badges</em></p>
+                    </div>
+
+                    <h3>Collapsed Side Menu</h3>
+                    <div class="visual-demo">
+                        <div class="sidemenu-preview collapsed">
+                            <div class="sidemenu-header">
+                                <div class="logo">🏢</div>
+                                <div class="toggle-btn">☰</div>
+                            </div>
+                            <div class="sidemenu-content">
+                                <div class="menu-item active">
+                                    <span class="menu-icon">🏠</span>
+                                </div>
+                                <div class="menu-item">
+                                    <span class="menu-icon">👥</span>
+                                    <span class="menu-badge">12</span>
+                                </div>
+                                <div class="menu-item">
+                                    <span class="menu-icon">📊</span>
+                                </div>
+                                <div class="menu-divider"></div>
+                                <div class="menu-item">
+                                    <span class="menu-icon">⚙️</span>
+                                </div>
+                                <div class="menu-item">
+                                    <span class="menu-icon">❓</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Collapsed side menu showing only icons with tooltips on hover</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .sidemenu-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            overflow: hidden;
+                            text-align: left;
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                            margin: 0 auto;
+                        }
+
+                        .sidemenu-preview.expanded {
+                            width: 250px;
+                            height: 400px;
+                        }
+
+                        .sidemenu-preview.collapsed {
+                            width: 60px;
+                            height: 300px;
+                        }
+
+                        .sidemenu-header {
+                            background: var(--color-primary);
+                            color: white;
+                            padding: 1rem;
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                        }
+
+                        .logo {
+                            font-size: 1.5rem;
+                        }
+
+                        .app-title {
+                            font-weight: 600;
+                            font-size: 14px;
+                            flex: 1;
+                        }
+
+                        .collapsed .app-title {
+                            display: none;
+                        }
+
+                        .toggle-btn {
+                            cursor: pointer;
+                            padding: 0.25rem;
+                            border-radius: 4px;
+                            font-size: 14px;
+                        }
+
+                        .toggle-btn:hover {
+                            background: rgba(255, 255, 255, 0.1);
+                        }
+
+                        .sidemenu-content {
+                            padding: 1rem 0;
+                        }
+
+                        .menu-section {
+                            margin-bottom: 1.5rem;
+                        }
+
+                        .section-title {
+                            font-size: 11px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            padding: 0 1rem;
+                            margin-bottom: 0.5rem;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .collapsed .section-title {
+                            display: none;
+                        }
+
+                        .menu-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            padding: 0.75rem 1rem;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                            position: relative;
+                        }
+
+                        .collapsed .menu-item {
+                            justify-content: center;
+                            padding: 0.75rem 0.5rem;
+                        }
+
+                        .menu-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .menu-item.active {
+                            background: rgba(59, 130, 246, 0.1);
+                            border-right: 3px solid var(--color-primary);
+                            color: var(--color-primary);
+                        }
+
+                        .menu-icon {
+                            font-size: 1.1rem;
+                            width: 20px;
+                            text-align: center;
+                        }
+
+                        .menu-text {
+                            flex: 1;
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+
+                        .collapsed .menu-text {
+                            display: none;
+                        }
+
+                        .menu-badge {
+                            background: var(--color-danger);
+                            color: white;
+                            border-radius: 10px;
+                            padding: 0.125rem 0.375rem;
+                            font-size: 11px;
+                            font-weight: 600;
+                            min-width: 18px;
+                            text-align: center;
+                        }
+
+                        .collapsed .menu-badge {
+                            position: absolute;
+                            top: 4px;
+                            right: 4px;
+                            transform: scale(0.8);
+                        }
+
+                        .expand-arrow {
+                            font-size: 10px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .collapsed .expand-arrow {
+                            display: none;
+                        }
+
+                        .submenu {
+                            background: var(--color-background-secondary);
+                            margin-left: 2.5rem;
+                            border-radius: 4px;
+                        }
+
+                        .collapsed .submenu {
+                            display: none;
+                        }
+
+                        .submenu-item {
+                            padding: 0.5rem 0.75rem;
+                            font-size: 13px;
+                            color: var(--color-text-secondary);
+                            cursor: pointer;
+                            transition: color 0.2s ease;
+                        }
+
+                        .submenu-item:hover {
+                            color: var(--color-text);
+                        }
+
+                        .menu-divider {
+                            height: 1px;
+                            background: var(--color-border-light);
+                            margin: 0.5rem 1rem;
+                        }
+
+                        .collapsed .menu-divider {
+                            margin: 0.5rem 0.75rem;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Side Menu</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepSideMenu
+var sideMenu = new BeepSideMenu();
+sideMenu.Theme = "Dark";
+sideMenu.Dock = DockStyle.Left;
+sideMenu.Width = 220;
+
+// Add menu items
+sideMenu.Items.Add(new BeepSideMenuItem {
+    Text = "Dashboard",
+    Icon = Properties.Resources.DashboardIcon,
+    Tag = "dashboard"
+});
+sideMenu.Items.Add(new BeepSideMenuItem {
+    Text = "Reports",
+    Icon = Properties.Resources.ReportIcon,
+    Tag = "reports"
+});
+
+// Handle selection
+sideMenu.ItemSelected += (s, e) =>
+{
+    // Navigate to selected section
+    NavigateTo(e.SelectedItem.Tag.ToString());
+};
+
+// Add to form
+this.Controls.Add(sideMenu);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Hierarchical Menu Structure</h3>
+                        <pre><code class="language-csharp">// Create main navigation section
+var navigationGroup = new BeepSideMenuGroup
+{
+    Title = "NAVIGATION",
+    IsCollapsible = false
+};
+
+// Dashboard item
+var dashboardItem = new BeepSideMenuItem
+{
+    Text = "Dashboard",
+    Icon = "dashboard.svg",
+    Tag = "dashboard"
+};
+navigationGroup.Items.Add(dashboardItem);
+
+// Reports with submenu
+var reportsItem = new BeepSideMenuItem
+{
+    Text = "Reports",
+    Icon = "reports.svg",
+    IsExpandable = true
+};
+
+reportsItem.SubItems.Add(new BeepSideMenuItem
+{
+    Text = "Sales Reports",
+    Tag = "reports-sales"
+});
+reportsItem.SubItems.Add(new BeepSideMenuItem
+{
+    Text = "User Analytics",
+    Tag = "reports-users"
+});
+
+navigationGroup.Items.Add(reportsItem);
+
+// Add group to side menu
+sideMenu.Groups.Add(navigationGroup);</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Items</code></td>
+                                <td>BindingList&lt;BeepSideMenuItem&gt;</td>
+                                <td>Empty</td>
+                                <td>Collection of menu items</td>
+                            </tr>
+                            <tr>
+                                <td><code>Groups</code></td>
+                                <td>BindingList&lt;BeepSideMenuGroup&gt;</td>
+                                <td>Empty</td>
+                                <td>Collection of grouped menu sections</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>BeepSideMenuItem</td>
+                                <td>null</td>
+                                <td>Currently selected menu item</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsCollapsed</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Whether the menu is in collapsed state</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ExpandedWidth</code></td>
+                                <td>int</td>
+                                <td>220</td>
+                                <td>Width when menu is expanded</td>
+                            </tr>
+                            <tr>
+                                <td><code>CollapsedWidth</code></td>
+                                <td>int</td>
+                                <td>60</td>
+                                <td>Width when menu is collapsed</td>
+                            </tr>
+                            <tr>
+                                <td><code>AnimationDuration</code></td>
+                                <td>int</td>
+                                <td>300</td>
+                                <td>Animation duration in milliseconds</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowToggleButton</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide the collapse toggle button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowGroupTitles</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Show/hide group section titles</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemHeight</code></td>
+                                <td>int</td>
+                                <td>40</td>
+                                <td>Height of individual menu items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ItemSelected</code></td>
+                                <td>object sender, SideMenuItemEventArgs e</td>
+                                <td>Fired when a menu item is selected</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemExpanded</code></td>
+                                <td>object sender, SideMenuItemEventArgs e</td>
+                                <td>Fired when an expandable item is expanded</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemCollapsed</code></td>
+                                <td>object sender, SideMenuItemEventArgs e</td>
+                                <td>Fired when an expandable item is collapsed</td>
+                            </tr>
+                            <tr>
+                                <td><code>MenuToggled</code></td>
+                                <td>object sender, MenuToggleEventArgs e</td>
+                                <td>Fired when menu is expanded or collapsed</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Complete Application Side Menu</h3>
+                        <pre><code class="language-csharp">public void CreateApplicationSideMenu()
+{
+    var sideMenu = new BeepSideMenu
+    {
+        Dock = DockStyle.Left,
+        Theme = "Professional",
+        ShowToggleButton = true,
+        ExpandedWidth = 250,
+        CollapsedWidth = 60
+    };
+
+    // Main navigation group
+    var mainNav = new BeepSideMenuGroup { Title = "NAVIGATION" };
+    
+    mainNav.Items.AddRange(new[]
+    {
+        new BeepSideMenuItem
+        {
+            Text = "Dashboard",
+            Icon = "dashboard.svg",
+            Tag = "dashboard",
+            IsSelected = true
+        },
+        new BeepSideMenuItem
+        {
+            Text = "Users",
+            Icon = "users.svg",
+            Tag = "users",
+            Badge = "12",
+            BadgeColor = Color.Red
+        },
+        CreateReportsMenuItem(),
+        new BeepSideMenuItem
+        {
+            Text = "Analytics",
+            Icon = "analytics.svg",
+            Tag = "analytics"
+        }
+    });
+
+    // Tools group
+    var toolsNav = new BeepSideMenuGroup { Title = "TOOLS" };
+    
+    toolsNav.Items.AddRange(new[]
+    {
+        new BeepSideMenuItem
+        {
+            Text = "Settings",
+            Icon = "settings.svg",
+            Tag = "settings"
+        },
+        new BeepSideMenuItem
+        {
+            Text = "Help",
+            Icon = "help.svg",
+            Tag = "help"
+        }
+    });
+
+    sideMenu.Groups.Add(mainNav);
+    sideMenu.Groups.Add(toolsNav);
+
+    // Handle navigation
+    sideMenu.ItemSelected += SideMenu_ItemSelected;
+    sideMenu.MenuToggled += SideMenu_MenuToggled;
+
+    this.Controls.Add(sideMenu);
+}
+
+private BeepSideMenuItem CreateReportsMenuItem()
+{
+    var reportsItem = new BeepSideMenuItem
+    {
+        Text = "Reports",
+        Icon = "reports.svg",
+        IsExpandable = true
+    };
+
+    reportsItem.SubItems.AddRange(new[]
+    {
+        new BeepSideMenuItem
+        {
+            Text = "Sales Reports",
+            Tag = "reports-sales"
+        },
+        new BeepSideMenuItem
+        {
+            Text = "User Analytics",
+            Tag = "reports-users"
+        },
+        new BeepSideMenuItem
+        {
+            Text = "Performance",
+            Tag = "reports-performance"
+        }
+    });
+
+    return reportsItem;
+}
+
+private void SideMenu_ItemSelected(object sender, SideMenuItemEventArgs e)
+{
+    var selectedTag = e.SelectedItem.Tag?.ToString();
+    
+    // Navigate to appropriate view
+    switch (selectedTag)
+    {
+        case "dashboard":
+            ShowDashboard();
+            break;
+        case "users":
+            ShowUsersView();
+            break;
+        case "reports-sales":
+            ShowSalesReports();
+            break;
+        case "settings":
+            ShowSettings();
+            break;
+        default:
+            MessageBox.Show($"Navigation to '{selectedTag}' not implemented yet.");
+            break;
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepSideMenu provides comprehensive theming support with specialized navigation styling:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var sideMenu = new BeepSideMenu
+{
+    Theme = "DarkTheme",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - SideMenuBackColor: Main menu background
+// - SideMenuForeColor: Text and icon colors
+// - SideMenuSelectedBackColor: Selected item background
+// - SideMenuHoverBackColor: Hover effects
+// - SideMenuBorderColor: Borders and dividers
+
+// Apply theme manually if needed
+sideMenu.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Navigation-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Group headers</strong> - Styled section titles with theme colors</li>
+                        <li><strong>Item states</strong> - Normal, hover, selected, and disabled states</li>
+                        <li><strong>Badges</strong> - Notification badges with customizable colors</li>
+                        <li><strong>Expand indicators</strong> - Theme-aware chevron and expand icons</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 User Experience</h3>
+                    <ul>
+                        <li><strong>Logical grouping:</strong> Group related navigation items for clarity</li>
+                        <li><strong>Meaningful icons:</strong> Use consistent, recognizable icons</li>
+                        <li><strong>Visual hierarchy:</strong> Use section headers and proper spacing</li>
+                        <li><strong>Collapse consideration:</strong> Ensure collapsed state remains functional</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Integrate with BeepAppBar:</strong> Create seamless header/sidebar experience</li>
+                        <li><strong>Handle state persistence:</strong> Remember collapsed/expanded state</li>
+                        <li><strong>Support keyboard navigation:</strong> Implement arrow key navigation</li>
+                        <li><strong>Badge updates:</strong> Keep notification badges current</li>
+                    </ul>
+
+                    <h3>📱 Responsive Design</h3>
+                    <ul>
+                        <li><strong>Auto-collapse:</strong> Consider auto-collapse on smaller screens</li>
+                        <li><strong>Touch-friendly:</strong> Ensure adequate touch targets</li>
+                        <li><strong>Overlay mode:</strong> Support overlay mode for mobile-like experiences</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use BeepSideMenu in combination with BeepAppBar for a complete application shell that provides both header and navigation functionality.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement smooth animations and provide clear visual feedback for user interactions to create a polished navigation experience.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-appbar.html"><i class="bi bi-arrow-left"></i> BeepAppBar</a>
+                    <a href="beep-login.html">BeepLogin <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

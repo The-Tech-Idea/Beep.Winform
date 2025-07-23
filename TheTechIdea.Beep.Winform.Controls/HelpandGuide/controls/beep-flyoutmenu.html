@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepFlyoutMenu - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-contextmenustrip.html">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-dropdownmenu.html">BeepDropDownMenu</a></li>
+                            <li><a href="beep-flyoutmenu.html" class="active">BeepFlyoutMenu</a></li>
+                            <li><a href="beep-functionspanel.html">BeepFunctionsPanel</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>?</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>?</span>
+                    <span>BeepFlyoutMenu</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepFlyoutMenu</h1>
+                    <p class="page-subtitle">Versatile flyout menu control with multi-directional sliding and animated interactions for modern navigation systems</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepFlyoutMenu</strong> provides a sophisticated flyout menu control that combines a labeled trigger button 
+                        with a sliding menu panel that can appear from multiple directions. It offers seamless integration with parent forms, 
+                        intelligent positioning, and smooth animations for creating modern, space-efficient navigation interfaces.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepFlyoutMenu features multi-directional sliding (left, right, bottom), 
+                        configurable label positioning, automatic form integration, intelligent collision detection, and comprehensive 
+                        theme support. Perfect for toolbars, sidebar navigation, contextual menus, and space-constrained interface layouts.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Multi-Directional Flyouts</h3>
+                            <p>Slide menus from left, right, or bottom with intelligent positioning and collision detection</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Configurable Layout</h3>
+                            <p>Customizable label and button positioning with flexible sizing and alignment options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Integrated Label</h3>
+                            <p>Built-in label control with customizable text, fonts, and positioning relative to the trigger button</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Smart Form Integration</h3>
+                            <p>Automatic parent form detection and menu placement for proper layering and positioning</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Dynamic Icons</h3>
+                            <p>Automatic icon switching based on flyout direction and expansion state</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>? Performance Optimized</h3>
+                            <p>Efficient menu management with proper cleanup and resource handling</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Flyout Directions</h3>
+                    <div class="visual-demo">
+                        <div class="flyout-directions">
+                            
+                            <!-- Bottom Flyout -->
+                            <div class="flyout-example">
+                                <h4>Bottom Flyout</h4>
+                                <div class="flyout-container">
+                                    <div class="flyout-trigger bottom">
+                                        <span class="flyout-label">Navigation</span>
+                                        <button class="flyout-button">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                    </div>
+                                    <div class="flyout-menu bottom-menu">
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Home</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Dashboard</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Settings</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Profile</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="direction-note">Menu slides down from trigger</p>
+                            </div>
+
+                            <!-- Right Flyout -->
+                            <div class="flyout-example">
+                                <h4>Right Flyout</h4>
+                                <div class="flyout-container right">
+                                    <div class="flyout-trigger right">
+                                        <span class="flyout-label">Tools</span>
+                                        <button class="flyout-button">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                    </div>
+                                    <div class="flyout-menu right-menu">
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Settings</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Editor</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Search</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Export</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="direction-note">Menu slides right from trigger</p>
+                            </div>
+
+                            <!-- Left Flyout -->
+                            <div class="flyout-example">
+                                <h4>Left Flyout</h4>
+                                <div class="flyout-container left">
+                                    <div class="flyout-menu left-menu">
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Projects</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Tasks</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Reports</span>
+                                        </div>
+                                        <div class="flyout-item">
+                                            <span class="item-icon">??</span>
+                                            <span class="item-text">Team</span>
+                                        </div>
+                                    </div>
+                                    <div class="flyout-trigger left">
+                                        <button class="flyout-button">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                        <span class="flyout-label">Projects</span>
+                                    </div>
+                                </div>
+                                <p class="direction-note">Menu slides left from trigger</p>
+                            </div>
+
+                        </div>
+                        <p><em>BeepFlyoutMenu supporting multiple slide directions with dynamic icon updates</em></p>
+                    </div>
+
+                    <h3>Toolbar Integration</h3>
+                    <div class="visual-demo">
+                        <div class="toolbar-integration">
+                            <div class="mock-toolbar">
+                                <div class="toolbar-section">
+                                    <div class="flyout-trigger toolbar-item">
+                                        <span class="flyout-label">File</span>
+                                        <button class="flyout-button compact">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                    </div>
+                                    <div class="flyout-trigger toolbar-item">
+                                        <span class="flyout-label">Edit</span>
+                                        <button class="flyout-button compact">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                    </div>
+                                    <div class="flyout-trigger toolbar-item">
+                                        <span class="flyout-label">View</span>
+                                        <button class="flyout-button compact">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                    </div>
+                                    <div class="toolbar-divider"></div>
+                                    <div class="flyout-trigger toolbar-item">
+                                        <span class="flyout-label">Tools</span>
+                                        <button class="flyout-button compact">
+                                            <span class="flyout-icon">?</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Active flyout menu -->
+                                <div class="flyout-menu toolbar-menu visible">
+                                    <div class="flyout-item">
+                                        <span class="item-icon">??</span>
+                                        <span class="item-text">New Document</span>
+                                        <span class="item-shortcut">Ctrl+N</span>
+                                    </div>
+                                    <div class="flyout-item">
+                                        <span class="item-icon">??</span>
+                                        <span class="item-text">Open File</span>
+                                        <span class="item-shortcut">Ctrl+O</span>
+                                    </div>
+                                    <div class="flyout-item">
+                                        <span class="item-icon">??</span>
+                                        <span class="item-text">Save</span>
+                                        <span class="item-shortcut">Ctrl+S</span>
+                                    </div>
+                                    <div class="flyout-divider"></div>
+                                    <div class="flyout-item">
+                                        <span class="item-icon">???</span>
+                                        <span class="item-text">Print</span>
+                                        <span class="item-shortcut">Ctrl+P</span>
+                                    </div>
+                                    <div class="flyout-item">
+                                        <span class="item-icon">??</span>
+                                        <span class="item-text">Exit</span>
+                                        <span class="item-shortcut">Alt+F4</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Toolbar integration showing File menu flyout with keyboard shortcuts</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .flyout-directions {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                            gap: 2rem;
+                            text-align: left;
+                            max-width: 900px;
+                            margin: 0 auto;
+                        }
+
+                        .flyout-example h4 {
+                            margin: 0 0 1rem;
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                            text-align: center;
+                        }
+
+                        .flyout-container {
+                            position: relative;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            padding: 1.5rem;
+                            min-height: 200px;
+                            font-family: var(--font-family);
+                        }
+
+                        .flyout-container.right {
+                            display: flex;
+                            justify-content: flex-end;
+                        }
+
+                        .flyout-container.left {
+                            display: flex;
+                            justify-content: flex-start;
+                        }
+
+                        .flyout-trigger {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            padding: 0.5rem 0.75rem;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .flyout-trigger:hover {
+                            background: var(--color-primary-light);
+                            border-color: var(--color-primary);
+                        }
+
+                        .flyout-trigger.left {
+                            flex-direction: row-reverse;
+                        }
+
+                        .flyout-label {
+                            font-size: 13px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                            user-select: none;
+                        }
+
+                        .flyout-button {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            width: 20px;
+                            height: 20px;
+                            background: none;
+                            border: none;
+                            cursor: pointer;
+                            border-radius: 3px;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .flyout-button:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .flyout-icon {
+                            font-size: 10px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .flyout-menu {
+                            position: absolute;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+                            padding: 0.25rem 0;
+                            min-width: 160px;
+                            z-index: 1000;
+                        }
+
+                        .flyout-menu.bottom-menu {
+                            top: 100%;
+                            left: 0;
+                            margin-top: 0.5rem;
+                        }
+
+                        .flyout-menu.right-menu {
+                            top: 0;
+                            left: 100%;
+                            margin-left: 0.5rem;
+                        }
+
+                        .flyout-menu.left-menu {
+                            top: 0;
+                            right: 100%;
+                            margin-right: 0.5rem;
+                        }
+
+                        .flyout-item {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            padding: 0.5rem 0.75rem;
+                            cursor: pointer;
+                            transition: background-color 0.2s ease;
+                            user-select: none;
+                        }
+
+                        .flyout-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .item-icon {
+                            font-size: 14px;
+                            width: 16px;
+                            text-align: center;
+                            flex-shrink: 0;
+                        }
+
+                        .item-text {
+                            font-size: 13px;
+                            color: var(--color-text);
+                            flex: 1;
+                        }
+
+                        .item-shortcut {
+                            font-size: 11px;
+                            color: var(--color-text-secondary);
+                            font-family: monospace;
+                        }
+
+                        .direction-note {
+                            font-size: 11px;
+                            color: var(--color-text-secondary);
+                            text-align: center;
+                            margin-top: 0.75rem;
+                            font-style: italic;
+                        }
+
+                        .toolbar-integration {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 1.5rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 600px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .mock-toolbar {
+                            position: relative;
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            padding: 0.5rem;
+                        }
+
+                        .toolbar-section {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.25rem;
+                        }
+
+                        .toolbar-item {
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 4px;
+                        }
+
+                        .flyout-button.compact {
+                            width: 16px;
+                            height: 16px;
+                        }
+
+                        .toolbar-divider {
+                            width: 1px;
+                            height: 20px;
+                            background: var(--color-border);
+                            margin: 0 0.5rem;
+                        }
+
+                        .flyout-menu.toolbar-menu {
+                            top: 100%;
+                            left: 0;
+                            margin-top: 0.25rem;
+                            opacity: 0;
+                            visibility: hidden;
+                            transform: translateY(-10px);
+                            transition: all 0.2s ease;
+                        }
+
+                        .flyout-menu.toolbar-menu.visible {
+                            opacity: 1;
+                            visibility: visible;
+                            transform: translateY(0);
+                        }
+
+                        .flyout-divider {
+                            height: 1px;
+                            background: var(--color-border-light);
+                            margin: 0.25rem 0.5rem;
+                        }
+
+                        @media (max-width: 768px) {
+                            .flyout-directions {
+                                grid-template-columns: 1fr;
+                                gap: 1.5rem;
+                            }
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Flyout Menu</h3>
+                        <pre><code class="language-csharp">// Create a BeepFlyoutMenu
+var flyoutMenu = new BeepFlyoutMenu();
+flyoutMenu.Text = "Navigation";
+flyoutMenu.Size = new Size(120, 25);
+flyoutMenu.Location = new Point(20, 20);
+flyoutMenu.FlyoutDirection = SlideDirection.Bottom;
+flyoutMenu.LabelPosition = LabelPosition.Left;
+
+// Add menu items
+flyoutMenu.ListItems.Add(new SimpleItem
+{
+    Text = "Home",
+    ImagePath = "home-icon.svg",
+    GuidId = Guid.NewGuid().ToString()
+});
+
+flyoutMenu.ListItems.Add(new SimpleItem
+{
+    Text = "Dashboard",
+    ImagePath = "dashboard-icon.svg",
+    GuidId = Guid.NewGuid().ToString()
+});
+
+flyoutMenu.ListItems.Add(new SimpleItem
+{
+    Text = "Settings",
+    ImagePath = "settings-icon.svg",
+    GuidId = Guid.NewGuid().ToString()
+});
+
+// Handle menu item selection
+flyoutMenu.SelectedIndexChanged += (sender, e) =>
+{
+    if (flyoutMenu.SelectedIndex >= 0)
+    {
+        var selectedItem = flyoutMenu.ListItems[flyoutMenu.SelectedIndex];
+        Console.WriteLine($"Selected: {selectedItem.Text}");
+    }
+};
+
+// Handle menu click events
+flyoutMenu.MenuClicked += (sender, args) =>
+{
+    if (args.EventData is SimpleItem clickedItem)
+    {
+        MessageBox.Show($"Clicked: {clickedItem.Text}");
+    }
+};
+
+// Add to form
+this.Controls.Add(flyoutMenu);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-Direction Flyout Setup</h3>
+                        <pre><code class="language-csharp">public void SetupMultiDirectionalFlyouts()
+{
+    // Bottom flyout for main navigation
+    var mainNav = new BeepFlyoutMenu
+    {
+        Text = "Main Menu",
+        Size = new Size(100, 25),
+        Location = new Point(20, 20),
+        FlyoutDirection = SlideDirection.Bottom,
+        LabelPosition = LabelPosition.Left
+    };
+
+    mainNav.ListItems.AddRange(new[]
+    {
+        new SimpleItem { Text = "Home", ImagePath = "home.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Projects", ImagePath = "projects.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Reports", ImagePath = "reports.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Settings", ImagePath = "settings.svg", GuidId = Guid.NewGuid().ToString() }
+    });
+
+    // Right flyout for tools
+    var toolsMenu = new BeepFlyoutMenu
+    {
+        Text = "Tools",
+        Size = new Size(80, 25),
+        Location = new Point(140, 20),
+        FlyoutDirection = SlideDirection.Right,
+        LabelPosition = LabelPosition.Left
+    };
+
+    toolsMenu.ListItems.AddRange(new[]
+    {
+        new SimpleItem { Text = "Calculator", ImagePath = "calc.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Text Editor", ImagePath = "editor.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Color Picker", ImagePath = "color.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Screen Capture", ImagePath = "capture.svg", GuidId = Guid.NewGuid().ToString() }
+    });
+
+    // Left flyout for recent items (positioned on right side)
+    var recentMenu = new BeepFlyoutMenu
+    {
+        Text = "Recent",
+        Size = new Size(80, 25),
+        Location = new Point(this.Width - 100, 20),
+        FlyoutDirection = SlideDirection.Left,
+        LabelPosition = LabelPosition.Right,
+        Anchor = AnchorStyles.Top | AnchorStyles.Right
+    };
+
+    recentMenu.ListItems.AddRange(new[]
+    {
+        new SimpleItem { Text = "Document1.txt", ImagePath = "file.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Project2.beep", ImagePath = "project.svg", GuidId = Guid.NewGuid().ToString() },
+        new SimpleItem { Text = "Report3.pdf", ImagePath = "pdf.svg", GuidId = Guid.NewGuid().ToString() }
+    });
+
+    // Wire up event handlers
+    mainNav.MenuClicked += HandleMainNavigation;
+    toolsMenu.MenuClicked += HandleToolsSelection;
+    recentMenu.MenuClicked += HandleRecentFile;
+
+    // Add to form
+    this.Controls.AddRange(new Control[] { mainNav, toolsMenu, recentMenu });
+}
+
+private void HandleMainNavigation(object sender, BeepEventDataArgs e)
+{
+    if (e.EventData is SimpleItem item)
+    {
+        switch (item.Text)
+        {
+            case "Home":
+                NavigateToHome();
+                break;
+            case "Projects":
+                ShowProjectsView();
+                break;
+            case "Reports":
+                OpenReportsModule();
+                break;
+            case "Settings":
+                ShowSettingsDialog();
+                break;
+        }
+    }
+}
+
+private void HandleToolsSelection(object sender, BeepEventDataArgs e)
+{
+    if (e.EventData is SimpleItem item)
+    {
+        switch (item.Text)
+        {
+            case "Calculator":
+                Process.Start("calc.exe");
+                break;
+            case "Text Editor":
+                OpenTextEditor();
+                break;
+            case "Color Picker":
+                ShowColorPicker();
+                break;
+            case "Screen Capture":
+                StartScreenCapture();
+                break;
+        }
+    }
+}
+
+private void HandleRecentFile(object sender, BeepEventDataArgs e)
+{
+    if (e.EventData is SimpleItem item)
+    {
+        OpenRecentFile(item.Text);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Toolbar Integration</h3>
+                        <pre><code class="language-csharp">public class ToolbarPanel : Panel
+{
+    private List<BeepFlyoutMenu> toolbarMenus;
+
+    public ToolbarPanel()
+    {
+        Height = 35;
+        Dock = DockStyle.Top;
+        BackColor = SystemColors.Control;
+        BorderStyle = BorderStyle.FixedSingle;
+        
+        SetupToolbarMenus();
+    }
+
+    private void SetupToolbarMenus()
+    {
+        toolbarMenus = new List<BeepFlyoutMenu>();
+
+        // File menu
+        var fileMenu = CreateToolbarMenu("File", 0, new[]
+        {
+            new MenuItem("New Document", "new.svg", "Ctrl+N"),
+            new MenuItem("Open File", "open.svg", "Ctrl+O"),
+            new MenuItem("Save", "save.svg", "Ctrl+S"),
+            new MenuItem("Save As", "save-as.svg", "Ctrl+Shift+S"),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Print", "print.svg", "Ctrl+P"),
+            new MenuItem("Print Preview", "print-preview.svg", ""),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Recent Files", "recent.svg", ""),
+            new MenuItem("Exit", "exit.svg", "Alt+F4")
+        });
+
+        // Edit menu
+        var editMenu = CreateToolbarMenu("Edit", 1, new[]
+        {
+            new MenuItem("Undo", "undo.svg", "Ctrl+Z"),
+            new MenuItem("Redo", "redo.svg", "Ctrl+Y"),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Cut", "cut.svg", "Ctrl+X"),
+            new MenuItem("Copy", "copy.svg", "Ctrl+C"),
+            new MenuItem("Paste", "paste.svg", "Ctrl+V"),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Select All", "select-all.svg", "Ctrl+A"),
+            new MenuItem("Find", "find.svg", "Ctrl+F"),
+            new MenuItem("Replace", "replace.svg", "Ctrl+H")
+        });
+
+        // View menu
+        var viewMenu = CreateToolbarMenu("View", 2, new[]
+        {
+            new MenuItem("Zoom In", "zoom-in.svg", "Ctrl++"),
+            new MenuItem("Zoom Out", "zoom-out.svg", "Ctrl+-"),
+            new MenuItem("Actual Size", "zoom-actual.svg", "Ctrl+0"),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Full Screen", "fullscreen.svg", "F11"),
+            new MenuItem("Show Toolbar", "toolbar.svg", ""),
+            new MenuItem("Show Status Bar", "statusbar.svg", ""),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Light Theme", "light-theme.svg", ""),
+            new MenuItem("Dark Theme", "dark-theme.svg", "")
+        });
+
+        // Tools menu
+        var toolsMenu = CreateToolbarMenu("Tools", 3, new[]
+        {
+            new MenuItem("Options", "options.svg", ""),
+            new MenuItem("Customize", "customize.svg", ""),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Extensions", "extensions.svg", ""),
+            new MenuItem("Plugin Manager", "plugins.svg", ""),
+            new MenuItem("-", "", ""), // Separator
+            new MenuItem("Import Data", "import.svg", ""),
+            new MenuItem("Export Data", "export.svg", "")
+        });
+
+        toolbarMenus.AddRange(new[] { fileMenu, editMenu, viewMenu, toolsMenu });
+        
+        // Add all menus to panel
+        foreach (var menu in toolbarMenus)
+        {
+            this.Controls.Add(menu);
+        }
+    }
+
+    private BeepFlyoutMenu CreateToolbarMenu(string title, int index, MenuItem[] items)
+    {
+        var menu = new BeepFlyoutMenu
+        {
+            Text = title,
+            Size = new Size(60, 25),
+            Location = new Point(10 + (index * 65), 5),
+            FlyoutDirection = SlideDirection.Bottom,
+            LabelPosition = LabelPosition.Left
+        };
+
+        foreach (var item in items)
+        {
+            if (item.Text == "-")
+            {
+                // Add separator
+                menu.ListItems.Add(new SimpleItem
+                {
+                    Text = "-",
+                    IsSeparator = true,
+                    GuidId = Guid.NewGuid().ToString()
+                });
+            }
+            else
+            {
+                menu.ListItems.Add(new SimpleItem
+                {
+                    Text = item.Text,
+                    ImagePath = item.IconPath,
+                    Tag = item.Shortcut,
+                    GuidId = Guid.NewGuid().ToString()
+                });
+            }
+        }
+
+        menu.MenuClicked += (sender, e) =>
+        {
+            if (e.EventData is SimpleItem clickedItem)
+            {
+                HandleToolbarAction(title, clickedItem.Text);
+            }
+        };
+
+        return menu;
+    }
+
+    private void HandleToolbarAction(string menuName, string actionName)
+    {
+        Console.WriteLine($"Menu: {menuName}, Action: {actionName}");
+        
+        // Implement specific actions based on menu and item
+        switch (menuName)
+        {
+            case "File":
+                HandleFileAction(actionName);
+                break;
+            case "Edit":
+                HandleEditAction(actionName);
+                break;
+            case "View":
+                HandleViewAction(actionName);
+                break;
+            case "Tools":
+                HandleToolsAction(actionName);
+                break;
+        }
+    }
+
+    private void HandleFileAction(string action) { /* File action implementation */ }
+    private void HandleEditAction(string action) { /* Edit action implementation */ }
+    private void HandleViewAction(string action) { /* View action implementation */ }
+    private void HandleToolsAction(string action) { /* Tools action implementation */ }
+
+    private struct MenuItem
+    {
+        public string Text { get; }
+        public string IconPath { get; }
+        public string Shortcut { get; }
+
+        public MenuItem(string text, string iconPath, string shortcut)
+        {
+            Text = text;
+            IconPath = iconPath;
+            Shortcut = shortcut;
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ListItems</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Empty</td>
+                                <td>Collection of flyout menu items</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Index of currently selected item</td>
+                            </tr>
+                            <tr>
+                                <td><code>FlyoutDirection</code></td>
+                                <td>SlideDirection</td>
+                                <td>Bottom</td>
+                                <td>Direction from which the flyout menu appears</td>
+                            </tr>
+                            <tr>
+                                <td><code>LabelPosition</code></td>
+                                <td>LabelPosition</td>
+                                <td>Left</td>
+                                <td>Position of label relative to dropdown button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Layout Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>FlyoutMenuWidth</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Width of the flyout menu panel</td>
+                            </tr>
+                            <tr>
+                                <td><code>CollapsedHeight</code></td>
+                                <td>int</td>
+                                <td>25</td>
+                                <td>Height of the control when collapsed</td>
+                            </tr>
+                            <tr>
+                                <td><code>MaxMenuHeight</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Maximum height of the expanded menu</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Component Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DropDownButton</code></td>
+                                <td>BeepButton</td>
+                                <td>Internal button that triggers the flyout</td>
+                            </tr>
+                            <tr>
+                                <td><code>DropDownLabel</code></td>
+                                <td>BeepLabel</td>
+                                <td>Internal label displaying the menu text</td>
+                            </tr>
+                            <tr>
+                                <td><code>Menu</code></td>
+                                <td>BeepListBox</td>
+                                <td>Internal menu list control</td>
+                            </tr>
+                            <tr>
+                                <td><code>IsExpanded</code></td>
+                                <td>bool</td>
+                                <td>Whether the flyout menu is currently expanded</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Enum Values</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Enum</th>
+                                <th>Values</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SlideDirection</code></td>
+                                <td>Left, Right, Bottom</td>
+                                <td>Direction from which the flyout menu slides</td>
+                            </tr>
+                            <tr>
+                                <td><code>LabelPosition</code></td>
+                                <td>Left, Right</td>
+                                <td>Position of label relative to the trigger button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <h3>Selection Events</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>SelectedIndexChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the selected item index changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>MenuClicked</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Fired when a menu item is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>BeepEventDataArgs Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>EventName</code></td>
+                                <td>string</td>
+                                <td>Name of the event that occurred</td>
+                            </tr>
+                            <tr>
+                                <td><code>EventData</code></td>
+                                <td>object</td>
+                                <td>Data associated with the event (usually SimpleItem)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Dynamic Menu Content</h3>
+                        <pre><code class="language-csharp">public class DynamicFlyoutMenu : BeepFlyoutMenu
+{
+    private readonly Timer refreshTimer;
+    private readonly List<Project> projects;
+
+    public DynamicFlyoutMenu()
+    {
+        Text = "Active Projects";
+        FlyoutDirection = SlideDirection.Bottom;
+        projects = new List<Project>();
+        
+        // Setup automatic refresh
+        refreshTimer = new Timer { Interval = 5000 }; // Refresh every 5 seconds
+        refreshTimer.Tick += RefreshProjectList;
+        refreshTimer.Start();
+        
+        LoadInitialProjects();
+    }
+
+    private void LoadInitialProjects()
+    {
+        // Simulate loading projects from database
+        projects.AddRange(new[]
+        {
+            new Project { Id = 1, Name = "Website Redesign", Status = "Active", Priority = "High" },
+            new Project { Id = 2, Name = "Mobile App", Status = "In Progress", Priority = "Medium" },
+            new Project { Id = 3, Name = "Database Migration", Status = "Planning", Priority = "Low" }
+        });
+        
+        UpdateMenuItems();
+    }
+
+    private void RefreshProjectList(object sender, EventArgs e)
+    {
+        // Simulate getting updated project list
+        var updatedProjects = GetProjectsFromAPI();
+        
+        if (ProjectsChanged(updatedProjects))
+        {
+            projects.Clear();
+            projects.AddRange(updatedProjects);
+            UpdateMenuItems();
+        }
+    }
+
+    private void UpdateMenuItems()
+    {
+        ListItems.Clear();
+        
+        foreach (var project in projects.OrderBy(p => p.Priority).ThenBy(p => p.Name))
+        {
+            var icon = project.Priority switch
+            {
+                "High" => "priority-high.svg",
+                "Medium" => "priority-medium.svg",
+                "Low" => "priority-low.svg",
+                _ => "project.svg"
+            };
+            
+            var statusColor = project.Status switch
+            {
+                "Active" => "??",
+                "In Progress" => "??", 
+                "Planning" => "??",
+                "On Hold" => "??",
+                "Completed" => "?",
+                _ => "?"
+            };
+            
+            ListItems.Add(new SimpleItem
+            {
+                Text = $"{statusColor} {project.Name}",
+                ImagePath = icon,
+                Tag = project,
+                ToolTip = $"Status: {project.Status}\nPriority: {project.Priority}",
+                GuidId = Guid.NewGuid().ToString()
+            });
+        }
+        
+        // Add separator and management options
+        if (projects.Any())
+        {
+            ListItems.Add(new SimpleItem 
+            { 
+                Text = "-", 
+                IsSeparator = true, 
+                GuidId = Guid.NewGuid().ToString() 
+            });
+        }
+        
+        ListItems.Add(new SimpleItem
+        {
+            Text = "Create New Project",
+            ImagePath = "add-project.svg",
+            Tag = "new_project",
+            GuidId = Guid.NewGuid().ToString()
+        });
+        
+        ListItems.Add(new SimpleItem
+        {
+            Text = "Manage Projects",
+            ImagePath = "manage-projects.svg",
+            Tag = "manage_projects",
+            GuidId = Guid.NewGuid().ToString()
+        });
+    }
+
+    protected override void OnMenuClicked(BeepEventDataArgs e)
+    {
+        if (e.EventData is SimpleItem item)
+        {
+            if (item.Tag is Project project)
+            {
+                OpenProjectDetails(project);
+            }
+            else if (item.Tag is string action)
+            {
+                switch (action)
+                {
+                    case "new_project":
+                        ShowCreateProjectDialog();
+                        break;
+                    case "manage_projects":
+                        OpenProjectManager();
+                        break;
+                }
+            }
+        }
+        
+        base.OnMenuClicked(e);
+    }
+
+    private List<Project> GetProjectsFromAPI()
+    {
+        // Simulate API call
+        return new List<Project>
+        {
+            new Project { Id = 1, Name = "Website Redesign", Status = "Active", Priority = "High" },
+            new Project { Id = 2, Name = "Mobile App", Status = "In Progress", Priority = "Medium" },
+            new Project { Id = 3, Name = "Database Migration", Status = "Completed", Priority = "Low" },
+            new Project { Id = 4, Name = "API Integration", Status = "Planning", Priority = "High" }
+        };
+    }
+
+    private bool ProjectsChanged(List<Project> newProjects)
+    {
+        if (projects.Count != newProjects.Count) return true;
+        
+        return projects.Any(existing => 
+            !newProjects.Any(updated => 
+                updated.Id == existing.Id && 
+                updated.Status == existing.Status && 
+                updated.Name == existing.Name));
+    }
+
+    private void OpenProjectDetails(Project project) { /* Implementation */ }
+    private void ShowCreateProjectDialog() { /* Implementation */ }
+    private void OpenProjectManager() { /* Implementation */ }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            refreshTimer?.Stop();
+            refreshTimer?.Dispose();
+        }
+        base.Dispose(disposing);
+    }
+}
+
+public class Project
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Status { get; set; }
+    public string Priority { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepFlyoutMenu provides comprehensive theming for all internal components including label, button, and menu:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var flyoutMenu = new BeepFlyoutMenu
+{
+    Theme = "DarkTheme",
+    Text = "Navigation",
+    FlyoutDirection = SlideDirection.Bottom
+};
+
+// Theme automatically applies to:
+// - DropDownLabel styling
+// - DropDownButton appearance
+// - Menu (BeepListBox) theming
+// - Icon color adjustments
+
+// Manual theme application
+flyoutMenu.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Component Theming</h3>
+                    <ul>
+                        <li><strong>Label Theming</strong> - Text color, font, and background styling</li>
+                        <li><strong>Button Theming</strong> - Button colors, hover states, and icon styling</li>
+                        <li><strong>Menu Theming</strong> - Full BeepListBox theme inheritance</li>
+                        <li><strong>Animation Integration</strong> - Theme-aware animation effects</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Direction Selection</h3>
+                    <ul>
+                        <li><strong>Screen boundaries:</strong> Choose flyout direction based on available screen space</li>
+                        <li><strong>User expectations:</strong> Use bottom flyouts for toolbar menus, side flyouts for panels</li>
+                        <li><strong>Content length:</strong> Consider menu item count when choosing direction</li>
+                        <li><strong>Parent container:</strong> Ensure adequate space for menu expansion</li>
+                    </ul>
+
+                    <h3>?? Visual Design</h3>
+                    <ul>
+                        <li><strong>Consistent sizing:</strong> Use consistent flyout widths across application</li>
+                        <li><strong>Clear labeling:</strong> Provide descriptive labels that indicate menu purpose</li>
+                        <li><strong>Icon usage:</strong> Use consistent icon styles and meaningful representations</li>
+                        <li><strong>Animation performance:</strong> Test animations on target hardware for smoothness</li>
+                    </ul>
+
+                    <h3>? Performance</h3>
+                    <ul>
+                        <li><strong>Dynamic content:</strong> Update menu items efficiently without recreation</li>
+                        <li><strong>Form integration:</strong> Manage parent form controls properly</li>
+                        <li><strong>Event handling:</strong> Avoid heavy operations in event handlers</li>
+                        <li><strong>Resource cleanup:</strong> Dispose of timers and dynamic content appropriately</li>
+                    </ul>
+
+                    <h3>?? Implementation</h3>
+                    <ul>
+                        <li><strong>Event binding:</strong> Handle both SelectedIndexChanged and MenuClicked appropriately</li>
+                        <li><strong>Error handling:</strong> Gracefully handle empty menu states</li>
+                        <li><strong>Accessibility:</strong> Support keyboard navigation and screen readers</li>
+                        <li><strong>State management:</strong> Track expansion state for complex scenarios</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Layout Tip</strong>
+                        <p>Consider the label position carefully - left positioning works well for most scenarios, while right positioning is useful for right-aligned interface elements.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Best Practice</strong>
+                        <p>Always handle the MenuClicked event for immediate action execution, and use SelectedIndexChanged for state tracking and UI updates.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Integration Warning</strong>
+                        <p>Be mindful of parent form control management - ensure flyout menus are properly added/removed from parent containers to prevent visual and memory issues.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-dropdownmenu.html"><i class="bi bi-arrow-left"></i> BeepDropDownMenu</a>
+                    <a href="beep-functionspanel.html">BeepFunctionsPanel <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

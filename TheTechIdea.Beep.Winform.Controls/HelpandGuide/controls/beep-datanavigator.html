@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDataNavigator - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-datanavigator.html" class="active">BeepDataNavigator</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                            <li><a href="beep-calendar.html">BeepCalendarView</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-chat-square"></i> Dialogs & Popups</a>
+                        <ul class="submenu">
+                            <li><a href="beep-dialogbox.html">BeepDialogBox</a></li>
+                            <li><a href="beep-popup.html">BeepPopupForm</a></li>
+                            <li><a href="beep-filedialog.html">BeepFileDialog</a></li>
+                            <li><a href="beep-wait.html">BeepWait</a></li>
+                            <li><a href="beep-splash.html">BeepSplashScreen</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#data-controls">Data Controls</a>
+                    <span>›</span>
+                    <span>BeepDataNavigator</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepDataNavigator</h1>
+                    <p class="page-subtitle">Advanced data navigation control with UnitOfWork integration and customizable button layout</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>?? Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepDataNavigator</strong> is a comprehensive data navigation control that provides 
+                        complete record navigation functionality with UnitOfWork integration. It offers first, previous, 
+                        next, last navigation buttons, along with optional query, filter, email, and print capabilities.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepDataNavigator features automatic 
+                        button layout, record position display, theming support, and seamless integration with data 
+                        sources through the UnitOfWork pattern. Perfect for data entry forms, record browsing interfaces, 
+                        and administrative dashboards.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>?? Complete Navigation</h3>
+                            <p>First, Previous, Next, Last navigation with automatic button state management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? UnitOfWork Integration</h3>
+                            <p>Seamless integration with UnitOfWork pattern for data management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Extended Actions</h3>
+                            <p>Optional Query, Filter, Email, and Print functionality</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Position Display</h3>
+                            <p>Real-time record position indicator showing current record and total count</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Auto Layout</h3>
+                            <p>Intelligent button arrangement with center alignment and proper spacing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>?? Customizable UI</h3>
+                            <p>Configurable button visibility, sizes, and spacing options</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <div class="visual-demo">
+                        <div class="navigator-preview">
+                            <div class="navigator-container">
+                                <button class="nav-btn first-btn" title="First Record">?</button>
+                                <button class="nav-btn prev-btn" title="Previous Record">?</button>
+                                <span class="record-position">12 of 156</span>
+                                <button class="nav-btn next-btn" title="Next Record">?</button>
+                                <button class="nav-btn last-btn" title="Last Record">?</button>
+                                <div class="separator"></div>
+                                <button class="nav-btn action-btn" title="Query">??</button>
+                                <button class="nav-btn action-btn" title="Filter">??</button>
+                                <button class="nav-btn action-btn" title="Email">??</button>
+                                <button class="nav-btn action-btn" title="Print">??</button>
+                            </div>
+                        </div>
+                        <p><em>BeepDataNavigator with all navigation and action buttons</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .navigator-preview {
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            min-height: 80px;
+                        }
+
+                        .navigator-container {
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            padding: 12px 20px;
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .nav-btn {
+                            width: 32px;
+                            height: 32px;
+                            border: 1px solid var(--color-border);
+                            background: var(--color-background);
+                            border-radius: 6px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 14px;
+                            transition: all 0.2s ease;
+                        }
+
+                        .nav-btn:hover {
+                            background: var(--color-brand-primary);
+                            color: white;
+                            border-color: var(--color-brand-primary);
+                        }
+
+                        .nav-btn:active {
+                            transform: translateY(1px);
+                        }
+
+                        .record-position {
+                            padding: 8px 16px;
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border-light);
+                            border-radius: 4px;
+                            font-family: var(--font-family-mono);
+                            font-size: 13px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                            margin: 0 8px;
+                        }
+
+                        .separator {
+                            width: 1px;
+                            height: 24px;
+                            background: var(--color-border);
+                            margin: 0 8px;
+                        }
+
+                        .action-btn {
+                            opacity: 0.8;
+                        }
+
+                        .action-btn:hover {
+                            opacity: 1;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Data Navigator</h3>
+                        <pre><code class="language-csharp">// Create a basic data navigator
+var dataNavigator = new BeepDataNavigator
+{
+    Size = new Size(400, 50),
+    Location = new Point(20, 20),
+    Dock = DockStyle.Bottom // Common placement
+};
+
+// Connect to UnitOfWork
+dataNavigator.UnitOfWork = myUnitOfWork;
+
+// Add to form
+this.Controls.Add(dataNavigator);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Navigator with Custom Actions</h3>
+                        <pre><code class="language-csharp">// Create navigator with all features enabled
+var navigator = new BeepDataNavigator
+{
+    Size = new Size(500, 60),
+    Location = new Point(20, 400),
+    ShowQuery = true,
+    ShowFilter = true,
+    ShowSendEmail = true,
+    ShowPrint = true,
+    ButtonWidth = 35,
+    ButtonHeight = 35
+};
+
+// Configure events
+navigator.QueryCalled += OnQueryClicked;
+navigator.FilterCalled += OnFilterClicked;
+navigator.EmailCalled += OnEmailClicked;
+navigator.PrintCalled += OnPrintClicked;
+
+// Set data source
+navigator.UnitOfWork = customerUnitOfWork;
+
+this.Controls.Add(navigator);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Event Handling</h3>
+                        <pre><code class="language-csharp">private void OnQueryClicked(object sender, BeepEventDataArgs e)
+{
+    var queryDialog = new QueryBuilderForm();
+    if (queryDialog.ShowDialog() == DialogResult.OK)
+    {
+        // Apply query to data source
+        ApplyQuery(queryDialog.QueryExpression);
+    }
+}
+
+private void OnFilterClicked(object sender, BeepEventDataArgs e)
+{
+    var filterPanel = new FilterPanel();
+    filterPanel.Show();
+}
+
+private void OnEmailClicked(object sender, BeepEventDataArgs e)
+{
+    var currentRecord = navigator.UnitOfWork.Units.Current;
+    if (currentRecord != null)
+    {
+        EmailCurrentRecord(currentRecord);
+    }
+}
+
+private void OnPrintClicked(object sender, BeepEventDataArgs e)
+{
+    var currentRecord = navigator.UnitOfWork.Units.Current;
+    if (currentRecord != null)
+    {
+        PrintCurrentRecord(currentRecord);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>UnitOfWork</code></td>
+                                <td>IUnitofWork</td>
+                                <td>null</td>
+                                <td>Data source providing navigation functionality</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonWidth</code></td>
+                                <td>int</td>
+                                <td>30</td>
+                                <td>Width of navigation buttons in pixels</td>
+                            </tr>
+                            <tr>
+                                <td><code>ButtonHeight</code></td>
+                                <td>int</td>
+                                <td>30</td>
+                                <td>Height of navigation buttons in pixels</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Visibility Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ShowQuery</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show/hide the Query button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowFilter</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show/hide the Filter button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowSendEmail</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show/hide the Email button</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowPrint</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Show/hide the Print button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Button References</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>btnFirst</code></td>
+                                <td>BeepButton</td>
+                                <td>First record navigation button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnPrevious</code></td>
+                                <td>BeepButton</td>
+                                <td>Previous record navigation button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnNext</code></td>
+                                <td>BeepButton</td>
+                                <td>Next record navigation button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnLast</code></td>
+                                <td>BeepButton</td>
+                                <td>Last record navigation button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnQuery</code></td>
+                                <td>BeepButton</td>
+                                <td>Query action button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnFilter</code></td>
+                                <td>BeepButton</td>
+                                <td>Filter action button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnEmail</code></td>
+                                <td>BeepButton</td>
+                                <td>Email action button</td>
+                            </tr>
+                            <tr>
+                                <td><code>btnPrint</code></td>
+                                <td>BeepButton</td>
+                                <td>Print action button</td>
+                            </tr>
+                            <tr>
+                                <td><code>txtPosition</code></td>
+                                <td>BeepLabel</td>
+                                <td>Record position display label</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <h3>Navigation Events</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CurrentChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Raised when the current record changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>ListChanged</code></td>
+                                <td>ListChangedEventHandler</td>
+                                <td>Raised when the data list changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>PositionChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Raised when the record position changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>DataSourceChanged</code></td>
+                                <td>EventHandler</td>
+                                <td>Raised when the data source changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Action Events</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>QueryCalled</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Raised when Query button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>FilterCalled</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Raised when Filter button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>EmailCalled</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Raised when Email button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>PrintCalled</code></td>
+                                <td>EventHandler&lt;BeepEventDataArgs&gt;</td>
+                                <td>Raised when Print button is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Complete Data Entry Form</h3>
+                        <pre><code class="language-csharp">public partial class CustomerEntryForm : Form
+{
+    private BeepDataNavigator navigator;
+    private IUnitofWork<Customer> customerUoW;
+    private BeepTextBox txtName;
+    private BeepTextBox txtEmail;
+    private BeepTextBox txtPhone;
+
+    public CustomerEntryForm()
+    {
+        InitializeComponent();
+        SetupDataNavigator();
+        SetupDataBinding();
+    }
+
+    private void SetupDataNavigator()
+    {
+        navigator = new BeepDataNavigator
+        {
+            Dock = DockStyle.Bottom,
+            Height = 60,
+            ShowQuery = true,
+            ShowFilter = true,
+            ShowPrint = true,
+            ButtonWidth = 40,
+            ButtonHeight = 40
+        };
+
+        // Wire up events
+        navigator.QueryCalled += Navigator_QueryCalled;
+        navigator.FilterCalled += Navigator_FilterCalled;
+        navigator.PrintCalled += Navigator_PrintCalled;
+        navigator.CurrentChanged += Navigator_CurrentChanged;
+
+        this.Controls.Add(navigator);
+    }
+
+    private void SetupDataBinding()
+    {
+        // Initialize UnitOfWork
+        customerUoW = new UnitofWork<Customer>();
+        customerUoW.LoadData(); // Load customer data
+
+        // Connect navigator
+        navigator.UnitOfWork = customerUoW;
+
+        // Bind form controls to current customer
+        BindControls();
+    }
+
+    private void BindControls()
+    {
+        txtName.DataBindings.Clear();
+        txtEmail.DataBindings.Clear();
+        txtPhone.DataBindings.Clear();
+
+        if (customerUoW.Units != null)
+        {
+            txtName.DataBindings.Add("Text", customerUoW.Units, "Name");
+            txtEmail.DataBindings.Add("Text", customerUoW.Units, "Email");
+            txtPhone.DataBindings.Add("Text", customerUoW.Units, "Phone");
+        }
+    }
+
+    private void Navigator_CurrentChanged(object sender, EventArgs e)
+    {
+        // Update form title with current customer info
+        var current = customerUoW.Units.Current as Customer;
+        if (current != null)
+        {
+            this.Text = $"Customer Entry - {current.Name} (ID: {current.Id})";
+        }
+        else
+        {
+            this.Text = "Customer Entry - No Record";
+        }
+    }
+
+    private void Navigator_QueryCalled(object sender, BeepEventDataArgs e)
+    {
+        var queryForm = new CustomerQueryForm();
+        if (queryForm.ShowDialog() == DialogResult.OK)
+        {
+            // Apply query and refresh data
+            customerUoW.ApplyFilter(queryForm.FilterExpression);
+            BindControls(); // Rebind after filter
+        }
+    }
+
+    private void Navigator_FilterCalled(object sender, BeepEventDataArgs e)
+    {
+        var filterForm = new CustomerFilterForm();
+        filterForm.ShowForm(this);
+    }
+
+    private void Navigator_PrintCalled(object sender, BeepEventDataArgs e)
+    {
+        var current = customerUoW.Units.Current as Customer;
+        if (current != null)
+        {
+            var report = new CustomerReport(current);
+            report.Print();
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Master-Detail with Navigator</h3>
+                        <pre><code class="language-csharp">public partial class OrderMasterDetailForm : Form
+{
+    private BeepDataNavigator orderNavigator;
+    private BeepDataNavigator orderItemNavigator;
+    private IUnitofWork<Order> orderUoW;
+    private IUnitofWork<OrderItem> orderItemUoW;
+    private BeepGrid orderItemGrid;
+
+    public OrderMasterDetailForm()
+    {
+        InitializeComponent();
+        SetupNavigators();
+        SetupMasterDetailRelationship();
+    }
+
+    private void SetupNavigators()
+    {
+        // Master navigator (Orders)
+        orderNavigator = new BeepDataNavigator
+        {
+            Location = new Point(20, 250),
+            Size = new Size(400, 50),
+            ShowQuery = true,
+            ShowFilter = true
+        };
+        orderNavigator.CurrentChanged += OrderNavigator_CurrentChanged;
+
+        // Detail navigator (Order Items)
+        orderItemNavigator = new BeepDataNavigator
+        {
+            Location = new Point(20, 500),
+            Size = new Size(400, 50),
+            ShowQuery = false,
+            ShowFilter = false
+        };
+
+        this.Controls.AddRange(new Control[] {
+            orderNavigator, orderItemNavigator
+        });
+    }
+
+    private void SetupMasterDetailRelationship()
+    {
+        // Initialize UnitOfWork objects
+        orderUoW = new UnitofWork<Order>();
+        orderItemUoW = new UnitofWork<OrderItem>();
+
+        // Load data
+        orderUoW.LoadData();
+        
+        // Connect navigators
+        orderNavigator.UnitOfWork = orderUoW;
+        orderItemNavigator.UnitOfWork = orderItemUoW;
+
+        // Setup initial detail data
+        LoadOrderItems();
+    }
+
+    private void OrderNavigator_CurrentChanged(object sender, EventArgs e)
+    {
+        LoadOrderItems();
+    }
+
+    private void LoadOrderItems()
+    {
+        var currentOrder = orderUoW.Units.Current as Order;
+        if (currentOrder != null)
+        {
+            // Load order items for current order
+            orderItemUoW.LoadDataWithFilter($"OrderId = {currentOrder.Id}");
+            
+            // Refresh the grid
+            orderItemGrid.DataSource = orderItemUoW.Units;
+        }
+        else
+        {
+            // Clear order items if no order selected
+            orderItemUoW.Clear();
+            orderItemGrid.DataSource = null;
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Navigation Logic</h3>
+                        <pre><code class="language-csharp">public class CustomDataNavigator : BeepDataNavigator
+{
+    private bool _hasUnsavedChanges;
+    private Form _parentForm;
+
+    public bool HasUnsavedChanges 
+    { 
+        get => _hasUnsavedChanges; 
+        set => _hasUnsavedChanges = value; 
+    }
+
+    public CustomDataNavigator(Form parentForm)
+    {
+        _parentForm = parentForm;
+        SetupCustomBehavior();
+    }
+
+    private void SetupCustomBehavior()
+    {
+        // Override button clicks to check for unsaved changes
+        btnFirst.Click += (s, e) => NavigateWithUnsavedCheck(() => UnitOfWork?.MoveFirst());
+        btnPrevious.Click += (s, e) => NavigateWithUnsavedCheck(() => UnitOfWork?.MovePrevious());
+        btnNext.Click += (s, e) => NavigateWithUnsavedCheck(() => UnitOfWork?.MoveNext());
+        btnLast.Click += (s, e) => NavigateWithUnsavedCheck(() => UnitOfWork?.MoveLast());
+    }
+
+    private void NavigateWithUnsavedCheck(Action navigationAction)
+    {
+        if (HasUnsavedChanges)
+        {
+            var result = MessageBox.Show(
+                _parentForm,
+                "You have unsaved changes. Do you want to save before navigating?",
+                "Unsaved Changes",
+                MessageBoxButtons.YesNoCancel,
+                MessageBoxIcon.Question);
+
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    if (SaveCurrentRecord())
+                    {
+                        HasUnsavedChanges = false;
+                        navigationAction?.Invoke();
+                    }
+                    break;
+                case DialogResult.No:
+                    HasUnsavedChanges = false;
+                    navigationAction?.Invoke();
+                    break;
+                case DialogResult.Cancel:
+                    // Do nothing - stay on current record
+                    break;
+            }
+        }
+        else
+        {
+            navigationAction?.Invoke();
+        }
+
+        UpdateRecordCountDisplay();
+    }
+
+    private bool SaveCurrentRecord()
+    {
+        try
+        {
+            // Implement your save logic here
+            // Return true if save successful, false otherwise
+            UnitOfWork?.SaveChanges();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(
+                _parentForm,
+                $"Error saving record: {ex.Message}",
+                "Save Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error);
+            return false;
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepDataNavigator provides comprehensive theming with automatic application of theme styles to all child buttons and labels:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var navigator = new BeepDataNavigator
+{
+    Theme = "DarkTheme",
+    UseThemeFont = true
+};
+
+// Theme automatically applies to:
+// - All navigation buttons (First, Previous, Next, Last)
+// - Action buttons (Query, Filter, Email, Print)
+// - Position label (txtPosition)
+
+// Manual theme application
+navigator.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Button Theming</h3>
+                    <p>All buttons inherit theme properties:</p>
+                    <ul>
+                        <li><strong>Button colors</strong> - Background and foreground from theme</li>
+                        <li><strong>Border styles</strong> - Border colors and radius from theme</li>
+                        <li><strong>Hover effects</strong> - Theme-based hover colors</li>
+                        <li><strong>Disabled states</strong> - Proper disabled appearance</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Button Styling</h3>
+                        <pre><code class="language-csharp">// Customize individual button themes after initialization
+navigator.btnFirst.Theme = "PrimaryTheme";
+navigator.btnPrevious.Theme = "PrimaryTheme";
+navigator.btnNext.Theme = "PrimaryTheme";
+navigator.btnLast.Theme = "PrimaryTheme";
+
+// Customize action buttons differently
+navigator.btnQuery.Theme = "AccentTheme";
+navigator.btnFilter.Theme = "AccentTheme";
+navigator.btnEmail.Theme = "SuccessTheme";
+navigator.btnPrint.Theme = "InfoTheme";</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>?? Data Integration</h3>
+                    <ul>
+                        <li><strong>UnitOfWork pattern:</strong> Always use proper UnitOfWork implementation for data management</li>
+                        <li><strong>Data binding:</strong> Use DataBindings for automatic synchronization with UI controls</li>
+                        <li><strong>Error handling:</strong> Implement proper error handling for navigation operations</li>
+                        <li><strong>Performance:</strong> Load data efficiently and use pagination for large datasets</li>
+                    </ul>
+
+                    <h3>?? User Experience</h3>
+                    <ul>
+                        <li><strong>Consistent placement:</strong> Place navigator at bottom of forms for conventional behavior</li>
+                        <li><strong>Clear feedback:</strong> Provide visual feedback for navigation state changes</li>
+                        <li><strong>Keyboard support:</strong> Implement keyboard shortcuts for power users</li>
+                        <li><strong>Unsaved changes:</strong> Always check for unsaved changes before navigation</li>
+                    </ul>
+
+                    <h3>? Performance</h3>
+                    <ul>
+                        <li><strong>Lazy loading:</strong> Load detail data only when needed</li>
+                        <li><strong>Efficient queries:</strong> Use filtering to limit data loads</li>
+                        <li><strong>Cache management:</strong> Implement proper caching for frequently accessed data</li>
+                        <li><strong>Background operations:</strong> Use async operations for data loading</li>
+                    </ul>
+
+                    <h3>?? Customization</h3>
+                    <ul>
+                        <li><strong>Button visibility:</strong> Show only relevant action buttons for your use case</li>
+                        <li><strong>Custom events:</strong> Implement custom logic for action button events</li>
+                        <li><strong>Validation:</strong> Add validation logic before allowing navigation</li>
+                        <li><strong>State management:</strong> Maintain proper state across navigation operations</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>?? Design Tip</strong>
+                        <p>Position the navigator at the bottom of your form and ensure it's always visible. Users expect navigation controls to be consistently placed and easily accessible.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>? Success Pattern</strong>
+                        <p>Implement proper data validation and unsaved changes detection to prevent data loss during navigation operations.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>?? Important Note</strong>
+                        <p>Always implement proper error handling for data operations. Network issues, database locks, and other factors can cause navigation operations to fail.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-metrictile.html"><i class="bi bi-arrow-left"></i> BeepMetricTile</a>
+                    <a href="beep-filter.html">BeepFilter <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

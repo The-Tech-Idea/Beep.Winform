@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepWizard - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-contextmenustrip.html">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-dropdownmenu.html">BeepDropDownMenu</a></li>
+                            <li><a href="beep-flyoutmenu.html">BeepFlyoutMenu</a></li>
+                            <li><a href="beep-functionspanel.html">BeepFunctionsPanel</a></li>
+                            <li><a href="beep-multichipgroup.html">BeepMultiChipGroup</a></li>
+                            <li><a href="beep-login.html">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html" class="active">BeepWizard</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepWizard</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepWizard</h1>
+                    <p class="page-subtitle">Complete wizard framework with multiple layouts, smooth animations, and comprehensive step management for guided user experiences</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#view-types">View Types</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepWizard</strong> provides a complete wizard framework designed to guide users through multi-step 
+                        processes with ease and elegance. It combines powerful step management, smooth slide animations, multiple 
+                        layout options, and comprehensive validation support to create professional wizard experiences for applications.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepWizard features intelligent step navigation, 
+                        three distinct view layouts, logo and branding support, slide transition animations, and extensive theming 
+                        integration. Perfect for setup wizards, onboarding flows, data collection forms, and any guided user process.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎭 Three View Layouts</h3>
+                            <p>TopConnectedCircles, TopBreadcrumb, and SideList layouts for different design needs</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✨ Smooth Animations</h3>
+                            <p>Built-in slide transitions between steps with configurable animation timing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏗️ Step Management</h3>
+                            <p>Complete step lifecycle with validation, navigation control, and state management</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Logo Integration</h3>
+                            <p>Brand logo support with automatic positioning based on view layout</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔄 Navigation Control</h3>
+                            <p>Intelligent navigation buttons with automatic enable/disable based on step state</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Progress Indicators</h3>
+                            <p>Visual progress tracking with stepper bars and breadcrumb navigation</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View Types -->
+                <section id="view-types" class="section">
+                    <h2>View Types</h2>
+                    
+                    <div class="view-types-grid">
+                        <div class="view-type-card">
+                            <h3>TopConnectedCircles</h3>
+                            <p>Horizontal stepper with connected circular step indicators in the top panel</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Circle Steps</span>
+                                <span class="feature-tag">Connected Lines</span>
+                                <span class="feature-tag">Side Logo</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>TopBreadcrumb</h3>
+                            <p>Breadcrumb-style navigation in the top panel with clean, minimal design</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Breadcrumb Style</span>
+                                <span class="feature-tag">Clean Layout</span>
+                                <span class="feature-tag">Side Logo</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>SideList</h3>
+                            <p>Vertical step list in the sidebar with top logo placement for compact layouts</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Vertical Steps</span>
+                                <span class="feature-tag">Sidebar Layout</span>
+                                <span class="feature-tag">Top Logo</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .view-types-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                            gap: 1.5rem;
+                            margin: 2rem 0;
+                        }
+
+                        .view-type-card {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            padding: 1.5rem;
+                            transition: all 0.2s ease;
+                        }
+
+                        .view-type-card:hover {
+                            border-color: var(--color-primary);
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .view-type-card h3 {
+                            margin: 0 0 0.75rem;
+                            color: var(--color-primary);
+                            font-size: 16px;
+                            font-weight: 600;
+                        }
+
+                        .view-type-card p {
+                            margin: 0 0 1rem;
+                            color: var(--color-text-secondary);
+                            font-size: 14px;
+                            line-height: 1.4;
+                        }
+
+                        .view-features {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.5rem;
+                        }
+
+                        .feature-tag {
+                            display: inline-block;
+                            padding: 0.25rem 0.5rem;
+                            background: var(--color-primary-light);
+                            color: var(--color-primary);
+                            border-radius: 12px;
+                            font-size: 11px;
+                            font-weight: 500;
+                        }
+                    </style>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>TopBreadcrumb Layout</h3>
+                    <div class="visual-demo">
+                        <div class="wizard-preview breadcrumb">
+                            <div class="wizard-container">
+                                <!-- Top Panel with Breadcrumb -->
+                                <div class="wizard-top-panel">
+                                    <div class="wizard-logo">🏢</div>
+                                    <div class="wizard-breadcrumb">
+                                        <span class="breadcrumb-item completed">Welcome</span>
+                                        <span class="breadcrumb-separator">›</span>
+                                        <span class="breadcrumb-item completed">Personal Info</span>
+                                        <span class="breadcrumb-separator">›</span>
+                                        <span class="breadcrumb-item current">Preferences</span>
+                                        <span class="breadcrumb-separator">›</span>
+                                        <span class="breadcrumb-item pending">Review</span>
+                                        <span class="breadcrumb-separator">›</span>
+                                        <span class="breadcrumb-item pending">Complete</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Content Area -->
+                                <div class="wizard-content">
+                                    <h3>Step 3: Preferences</h3>
+                                    <p>Configure your application preferences and settings.</p>
+                                    <div class="form-section">
+                                        <label>Theme</label>
+                                        <select class="form-input">
+                                            <option>Light</option>
+                                            <option>Dark</option>
+                                            <option>Auto</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-section">
+                                        <label>
+                                            <input type="checkbox" checked> Enable notifications
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <div class="wizard-footer">
+                                    <button class="wizard-btn secondary">Previous</button>
+                                    <button class="wizard-btn primary">Next</button>
+                                    <button class="wizard-btn secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>TopBreadcrumb layout with clean navigation and side logo</em></p>
+                    </div>
+
+                    <h3>TopConnectedCircles Layout</h3>
+                    <div class="visual-demo">
+                        <div class="wizard-preview circles">
+                            <div class="wizard-container">
+                                <!-- Top Panel with Connected Circles -->
+                                <div class="wizard-top-panel">
+                                    <div class="wizard-logo">🏢</div>
+                                    <div class="wizard-stepper">
+                                        <div class="stepper-step">
+                                            <div class="step-circle completed">✓</div>
+                                            <div class="step-label">Welcome</div>
+                                        </div>
+                                        <div class="step-connector completed"></div>
+                                        
+                                        <div class="stepper-step">
+                                            <div class="step-circle completed">✓</div>
+                                            <div class="step-label">Personal</div>
+                                        </div>
+                                        <div class="step-connector completed"></div>
+                                        
+                                        <div class="stepper-step">
+                                            <div class="step-circle current">3</div>
+                                            <div class="step-label">Preferences</div>
+                                        </div>
+                                        <div class="step-connector"></div>
+                                        
+                                        <div class="stepper-step">
+                                            <div class="step-circle pending">4</div>
+                                            <div class="step-label">Review</div>
+                                        </div>
+                                        <div class="step-connector"></div>
+                                        
+                                        <div class="stepper-step">
+                                            <div class="step-circle pending">5</div>
+                                            <div class="step-label">Complete</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Content Area -->
+                                <div class="wizard-content">
+                                    <h3>Application Preferences</h3>
+                                    <p>Choose your preferred settings for the application.</p>
+                                    <div class="form-grid">
+                                        <div class="form-section">
+                                            <label>Language</label>
+                                            <select class="form-input">
+                                                <option>English</option>
+                                                <option>Spanish</option>
+                                                <option>French</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-section">
+                                            <label>Time Zone</label>
+                                            <select class="form-input">
+                                                <option>UTC-5 (EST)</option>
+                                                <option>UTC-8 (PST)</option>
+                                                <option>UTC+0 (GMT)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <div class="wizard-footer">
+                                    <button class="wizard-btn secondary">Previous</button>
+                                    <button class="wizard-btn primary">Next</button>
+                                    <button class="wizard-btn secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>TopConnectedCircles layout with visual progress indicators</em></p>
+                    </div>
+
+                    <h3>SideList Layout</h3>
+                    <div class="visual-demo">
+                        <div class="wizard-preview sidelist">
+                            <div class="wizard-container">
+                                <!-- Top Panel with Logo -->
+                                <div class="wizard-top-panel">
+                                    <div class="wizard-logo-large">🏢 Setup Wizard</div>
+                                </div>
+                                
+                                <div class="wizard-main">
+                                    <!-- Side Panel with Steps -->
+                                    <div class="wizard-side-panel">
+                                        <div class="side-steps">
+                                            <div class="side-step completed">
+                                                <div class="side-step-circle">✓</div>
+                                                <div class="side-step-text">Welcome</div>
+                                            </div>
+                                            <div class="side-step completed">
+                                                <div class="side-step-circle">✓</div>
+                                                <div class="side-step-text">Personal Info</div>
+                                            </div>
+                                            <div class="side-step current">
+                                                <div class="side-step-circle">3</div>
+                                                <div class="side-step-text">Preferences</div>
+                                            </div>
+                                            <div class="side-step pending">
+                                                <div class="side-step-circle">4</div>
+                                                <div class="side-step-text">Review</div>
+                                            </div>
+                                            <div class="side-step pending">
+                                                <div class="side-step-circle">5</div>
+                                                <div class="side-step-text">Complete</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Content Area -->
+                                    <div class="wizard-content-main">
+                                        <h3>Configure Preferences</h3>
+                                        <p>Set up your application preferences and default settings.</p>
+                                        <div class="preference-sections">
+                                            <div class="pref-section">
+                                                <h4>Display Settings</h4>
+                                                <label><input type="radio" name="theme" checked> Light Theme</label>
+                                                <label><input type="radio" name="theme"> Dark Theme</label>
+                                                <label><input type="radio" name="theme"> Auto</label>
+                                            </div>
+                                            <div class="pref-section">
+                                                <h4>Notifications</h4>
+                                                <label><input type="checkbox" checked> Email notifications</label>
+                                                <label><input type="checkbox"> SMS alerts</label>
+                                                <label><input type="checkbox" checked> In-app notifications</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <div class="wizard-footer">
+                                    <button class="wizard-btn secondary">Previous</button>
+                                    <button class="wizard-btn primary">Next</button>
+                                    <button class="wizard-btn secondary">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>SideList layout with vertical step navigation and expanded content area</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .wizard-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            overflow: hidden;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            font-family: var(--font-family);
+                            text-align: left;
+                        }
+
+                        .wizard-container {
+                            display: flex;
+                            flex-direction: column;
+                            min-height: 400px;
+                        }
+
+                        .wizard-top-panel {
+                            display: flex;
+                            align-items: center;
+                            padding: 1rem 1.5rem;
+                            background: var(--color-background-secondary);
+                            border-bottom: 1px solid var(--color-border);
+                            gap: 1.5rem;
+                        }
+
+                        .wizard-logo {
+                            font-size: 24px;
+                            width: 60px;
+                            text-align: center;
+                        }
+
+                        .wizard-logo-large {
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                        }
+
+                        .wizard-breadcrumb {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            flex: 1;
+                        }
+
+                        .breadcrumb-item {
+                            padding: 0.25rem 0.5rem;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+
+                        .breadcrumb-item.completed {
+                            background: var(--color-success);
+                            color: white;
+                        }
+
+                        .breadcrumb-item.current {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .breadcrumb-item.pending {
+                            background: var(--color-border-light);
+                            color: var(--color-text-muted);
+                        }
+
+                        .breadcrumb-separator {
+                            color: var(--color-text-muted);
+                        }
+
+                        .wizard-stepper {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            flex: 1;
+                        }
+
+                        .stepper-step {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 0.25rem;
+                        }
+
+                        .step-circle {
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+
+                        .step-circle.completed {
+                            background: var(--color-success);
+                            color: white;
+                        }
+
+                        .step-circle.current {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .step-circle.pending {
+                            background: var(--color-border-light);
+                            color: var(--color-text-muted);
+                        }
+
+                        .step-label {
+                            font-size: 11px;
+                            text-align: center;
+                            max-width: 60px;
+                        }
+
+                        .step-connector {
+                            width: 30px;
+                            height: 2px;
+                            background: var(--color-border-light);
+                        }
+
+                        .step-connector.completed {
+                            background: var(--color-success);
+                        }
+
+                        .wizard-main {
+                            display: flex;
+                            flex: 1;
+                        }
+
+                        .wizard-side-panel {
+                            width: 180px;
+                            background: var(--color-background-secondary);
+                            border-right: 1px solid var(--color-border);
+                            padding: 1rem;
+                        }
+
+                        .side-steps {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 0.5rem;
+                        }
+
+                        .side-step {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.75rem;
+                            padding: 0.75rem;
+                            border-radius: 6px;
+                            transition: all 0.2s ease;
+                        }
+
+                        .side-step.completed {
+                            background: rgba(34, 197, 94, 0.1);
+                        }
+
+                        .side-step.current {
+                            background: rgba(59, 130, 246, 0.1);
+                            border: 1px solid var(--color-primary);
+                        }
+
+                        .side-step-circle {
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+
+                        .side-step.completed .side-step-circle {
+                            background: var(--color-success);
+                            color: white;
+                        }
+
+                        .side-step.current .side-step-circle {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .side-step.pending .side-step-circle {
+                            background: var(--color-border-light);
+                            color: var(--color-text-muted);
+                        }
+
+                        .side-step-text {
+                            font-size: 14px;
+                            font-weight: 500;
+                        }
+
+                        .wizard-content,
+                        .wizard-content-main {
+                            flex: 1;
+                            padding: 2rem;
+                        }
+
+                        .wizard-content h3,
+                        .wizard-content-main h3 {
+                            margin: 0 0 0.5rem;
+                            font-size: 18px;
+                            color: var(--color-text);
+                        }
+
+                        .wizard-content p,
+                        .wizard-content-main p {
+                            margin: 0 0 1.5rem;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .form-section {
+                            margin-bottom: 1.5rem;
+                        }
+
+                        .form-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 1rem;
+                        }
+
+                        .form-section label {
+                            display: block;
+                            margin-bottom: 0.5rem;
+                            font-weight: 500;
+                            font-size: 14px;
+                        }
+
+                        .form-input {
+                            width: 100%;
+                            padding: 0.5rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            font-size: 14px;
+                        }
+
+                        .preference-sections {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 2rem;
+                        }
+
+                        .pref-section h4 {
+                            margin: 0 0 1rem;
+                            font-size: 16px;
+                            color: var(--color-text);
+                        }
+
+                        .pref-section label {
+                            display: block;
+                            margin-bottom: 0.5rem;
+                            font-size: 14px;
+                        }
+
+                        .wizard-footer {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            padding: 1rem 1.5rem;
+                            background: var(--color-background-secondary);
+                            border-top: 1px solid var(--color-border);
+                            gap: 1rem;
+                        }
+
+                        .wizard-btn {
+                            padding: 0.5rem 1rem;
+                            border: none;
+                            border-radius: 4px;
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .wizard-btn.primary {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .wizard-btn.secondary {
+                            background: var(--color-background);
+                            color: var(--color-text);
+                            border: 1px solid var(--color-border);
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Setup Wizard</h3>
+                        <pre><code class="language-csharp">// Create wizard with breadcrumb layout
+var setupWizard = new BeepWizard
+{
+    Size = new Size(700, 500),
+    Location = new Point(50, 50),
+    ViewType = WizardViewType.TopBreadcrumb,
+    Title = "Application Setup",
+    Description = "Configure your application settings",
+    LogoPath = "Resources/app-logo.svg"
+};
+
+// Create wizard steps (implement IWizardNode)
+var welcomeStep = new WelcomeWizardNode();
+var userInfoStep = new UserInfoWizardNode();
+var preferencesStep = new PreferencesWizardNode();
+var reviewStep = new ReviewWizardNode();
+var completeStep = new CompleteWizardNode();
+
+// Add steps to wizard
+setupWizard.AddSteps(new[] {
+    welcomeStep,
+    userInfoStep,
+    preferencesStep,
+    reviewStep,
+    completeStep
+});
+
+// Handle wizard events
+setupWizard.NodeChanging += OnWizardNodeChanging;
+setupWizard.NodeChanged += OnWizardNodeChanged;
+setupWizard.FinishRequested += OnWizardFinishRequested;
+setupWizard.CancelRequested += OnWizardCancelRequested;
+
+this.Controls.Add(setupWizard);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Creating Wizard Nodes</h3>
+                        <pre><code class="language-csharp">public class UserInfoWizardNode : IWizardNode
+{
+    public string Name => "User Information";
+    public Control Page { get; private set; }
+    public bool CanMoveNext => ValidateUserInfo();
+    public bool CanMovePrevious => true;
+    public bool CanFinish => false;
+    public bool CanCancel => true;
+
+    private BeepTextBox txtFirstName;
+    private BeepTextBox txtLastName;
+    private BeepTextBox txtEmail;
+
+    public UserInfoWizardNode()
+    {
+        InitializePage();
+    }
+
+    private void InitializePage()
+    {
+        Page = new Panel { Dock = DockStyle.Fill };
+        
+        var titleLabel = new BeepLabel
+        {
+            Text = "Enter Your Information",
+            Font = new Font("Segoe UI", 16, FontStyle.Bold),
+            Location = new Point(20, 20),
+            Size = new Size(400, 30)
+        };
+
+        txtFirstName = new BeepTextBox
+        {
+            PlaceholderText = "First Name",
+            Location = new Point(20, 70),
+            Size = new Size(200, 30)
+        };
+
+        txtLastName = new BeepTextBox
+        {
+            PlaceholderText = "Last Name",
+            Location = new Point(240, 70),
+            Size = new Size(200, 30)
+        };
+
+        txtEmail = new BeepTextBox
+        {
+            PlaceholderText = "Email Address",
+            Location = new Point(20, 120),
+            Size = new Size(420, 30)
+        };
+
+        // Add validation events
+        txtFirstName.TextChanged += (s, e) => OnValidationChanged();
+        txtLastName.TextChanged += (s, e) => OnValidationChanged();
+        txtEmail.TextChanged += (s, e) => OnValidationChanged();
+
+        Page.Controls.AddRange(new Control[]
+        {
+            titleLabel, txtFirstName, txtLastName, txtEmail
+        });
+    }
+
+    private bool ValidateUserInfo()
+    {
+        return !string.IsNullOrWhiteSpace(txtFirstName.Text) &&
+               !string.IsNullOrWhiteSpace(txtLastName.Text) &&
+               !string.IsNullOrWhiteSpace(txtEmail.Text) &&
+               IsValidEmail(txtEmail.Text);
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            return addr.Address == email;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void OnValidationChanged()
+    {
+        // Notify wizard that validation state may have changed
+        ValidationChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    public event EventHandler ValidationChanged;
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Event Handlers</h3>
+                        <pre><code class="language-csharp">private void OnWizardNodeChanging(object sender, NodeChangeEventArgs e)
+{
+    // Validate before allowing navigation
+    if (!e.CurrentNode.CanMoveNext && e.ToNode != null)
+    {
+        var result = MessageBox.Show(
+            "Current step is not complete. Continue anyway?",
+            "Validation Warning",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Warning);
+            
+        if (result == DialogResult.No)
+        {
+            e.Cancel = true;
+        }
+    }
+}
+
+private void OnWizardNodeChanged(object sender, NodeChangeEventArgs e)
+{
+    // Update UI or perform actions after step change
+    Console.WriteLine($"Moved from {e.CurrentNode.Name} to {e.ToNode.Name}");
+    
+    // Save step data or update progress
+    SaveStepData(e.CurrentNode);
+}
+
+private void OnWizardFinishRequested(object sender, EventArgs e)
+{
+    // Complete the wizard process
+    if (ValidateAllSteps())
+    {
+        CompleteWizardProcess();
+        this.Close();
+    }
+    else
+    {
+        MessageBox.Show("Please complete all required steps.", "Validation Error");
+    }
+}
+
+private void OnWizardCancelRequested(object sender, EventArgs e)
+{
+    var result = MessageBox.Show(
+        "Are you sure you want to cancel the setup? All progress will be lost.",
+        "Cancel Setup",
+        MessageBoxButtons.YesNo,
+        MessageBoxIcon.Question);
+        
+    if (result == DialogResult.Yes)
+    {
+        this.Close();
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ViewType</code></td>
+                                <td>WizardViewType</td>
+                                <td>TopBreadcrumb</td>
+                                <td>Layout style for the wizard interface</td>
+                            </tr>
+                            <tr>
+                                <td><code>Title</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Title displayed in the wizard header</td>
+                            </tr>
+                            <tr>
+                                <td><code>Description</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Description text for the wizard</td>
+                            </tr>
+                            <tr>
+                                <td><code>LogoPath</code></td>
+                                <td>string</td>
+                                <td>"logo.svg"</td>
+                                <td>Path to the wizard logo image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Navigation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Nodes</code></td>
+                                <td>IReadOnlyList&lt;IWizardNode&gt;</td>
+                                <td>Collection of wizard steps (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>CurrentIdx</code></td>
+                                <td>int</td>
+                                <td>Index of the current step (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>Count</code></td>
+                                <td>int</td>
+                                <td>Total number of steps (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>EntryForm</code></td>
+                                <td>IWizardNode</td>
+                                <td>First step in the wizard (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>LastForm</code></td>
+                                <td>IWizardNode</td>
+                                <td>Last step in the wizard (read-only)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>WizardViewType Enumeration</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Value</th>
+                                <th>Description</th>
+                                <th>Features</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>TopConnectedCircles</code></td>
+                                <td>Horizontal stepper with connected circles</td>
+                                <td>Visual progress circles, connector lines, side logo</td>
+                            </tr>
+                            <tr>
+                                <td><code>TopBreadcrumb</code></td>
+                                <td>Breadcrumb-style navigation</td>
+                                <td>Clean breadcrumb design, side logo, minimal layout</td>
+                            </tr>
+                            <tr>
+                                <td><code>SideList</code></td>
+                                <td>Vertical step list in sidebar</td>
+                                <td>Sidebar navigation, top logo, expanded content area</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>NodeChanging</code></td>
+                                <td>NodeChangeEventArgs</td>
+                                <td>Fired before changing steps (cancellable)</td>
+                            </tr>
+                            <tr>
+                                <td><code>NodeChanged</code></td>
+                                <td>NodeChangeEventArgs</td>
+                                <td>Fired after step has changed</td>
+                            </tr>
+                            <tr>
+                                <td><code>FinishRequested</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when user clicks the Finish button</td>
+                            </tr>
+                            <tr>
+                                <td><code>CancelRequested</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when user clicks the Cancel button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>NodeChangeEventArgs Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CurrentNode</code></td>
+                                <td>IWizardNode</td>
+                                <td>The current wizard step</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToNode</code></td>
+                                <td>IWizardNode</td>
+                                <td>The destination wizard step</td>
+                            </tr>
+                            <tr>
+                                <td><code>Cancel</code></td>
+                                <td>bool</td>
+                                <td>Set to true to cancel the navigation (NodeChanging only)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AddStep</code></td>
+                                <td>IWizardNode node</td>
+                                <td>Add a single step to the wizard</td>
+                            </tr>
+                            <tr>
+                                <td><code>AddSteps</code></td>
+                                <td>IEnumerable&lt;IWizardNode&gt; nodes</td>
+                                <td>Add multiple steps to the wizard</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveStep</code></td>
+                                <td>IWizardNode node</td>
+                                <td>Remove a specific step from the wizard</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveStep</code></td>
+                                <td>int index</td>
+                                <td>Remove a step by index</td>
+                            </tr>
+                            <tr>
+                                <td><code>ClearSteps</code></td>
+                                <td>None</td>
+                                <td>Remove all steps from the wizard</td>
+                            </tr>
+                            <tr>
+                                <td><code>MoveNext</code></td>
+                                <td>None</td>
+                                <td>Navigate to the next step</td>
+                            </tr>
+                            <tr>
+                                <td><code>MovePrevious</code></td>
+                                <td>None</td>
+                                <td>Navigate to the previous step</td>
+                            </tr>
+                            <tr>
+                                <td><code>Show</code></td>
+                                <td>IWizardNode node</td>
+                                <td>Navigate to a specific step</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Complete Application Setup Wizard</h3>
+                        <pre><code class="language-csharp">public class ApplicationSetupWizard : Form
+{
+    private BeepWizard wizard;
+    private WizardData wizardData;
+
+    public ApplicationSetupWizard()
+    {
+        InitializeWizard();
+        SetupWizardSteps();
+    }
+
+    private void InitializeWizard()
+    {
+        this.Size = new Size(800, 600);
+        this.Text = "Application Setup Wizard";
+        this.StartPosition = FormStartPosition.CenterScreen;
+        this.FormBorderStyle = FormBorderStyle.FixedDialog;
+        this.MaximizeBox = false;
+
+        wizardData = new WizardData();
+
+        wizard = new BeepWizard
+        {
+            Dock = DockStyle.Fill,
+            ViewType = WizardViewType.TopConnectedCircles,
+            Title = "Setup Application",
+            Description = "Configure your application settings",
+            LogoPath = "Resources/company-logo.svg"
+        };
+
+        wizard.NodeChanging += Wizard_NodeChanging;
+        wizard.NodeChanged += Wizard_NodeChanged;
+        wizard.FinishRequested += Wizard_FinishRequested;
+        wizard.CancelRequested += Wizard_CancelRequested;
+
+        this.Controls.Add(wizard);
+    }
+
+    private void SetupWizardSteps()
+    {
+        var steps = new IWizardNode[]
+        {
+            new WelcomeStep(wizardData),
+            new DatabaseConnectionStep(wizardData),
+            new UserAccountStep(wizardData),
+            new ApplicationSettingsStep(wizardData),
+            new ReviewStep(wizardData),
+            new CompletionStep(wizardData)
+        };
+
+        wizard.AddSteps(steps);
+    }
+
+    private void Wizard_NodeChanging(object sender, NodeChangeEventArgs e)
+    {
+        // Validate current step before allowing navigation
+        if (!e.CurrentNode.CanMoveNext && e.ToNode != null)
+        {
+            var stepValidation = ValidateStep(e.CurrentNode);
+            if (!stepValidation.IsValid)
+            {
+                MessageBox.Show(stepValidation.ErrorMessage, "Validation Error", 
+                              MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                e.Cancel = true;
+            }
+        }
+    }
+
+    private void Wizard_NodeChanged(object sender, NodeChangeEventArgs e)
+    {
+        // Save progress and update UI
+        SaveWizardProgress();
+        UpdateWindowTitle(e.ToNode.Name);
+    }
+
+    private void Wizard_FinishRequested(object sender, EventArgs e)
+    {
+        try
+        {
+            // Perform final setup operations
+            ApplyConfiguration();
+            
+            MessageBox.Show("Application setup completed successfully!", 
+                          "Setup Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Setup failed: {ex.Message}", "Setup Error", 
+                          MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void Wizard_CancelRequested(object sender, EventArgs e)
+    {
+        var result = MessageBox.Show(
+            "Are you sure you want to cancel the setup? All progress will be lost.",
+            "Cancel Setup", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+
+        if (result == DialogResult.Yes)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+    }
+
+    private ValidationResult ValidateStep(IWizardNode step)
+    {
+        // Implement step-specific validation
+        return step switch
+        {
+            DatabaseConnectionStep dbStep => ValidateDatabaseConnection(dbStep),
+            UserAccountStep userStep => ValidateUserAccount(userStep),
+            ApplicationSettingsStep settingsStep => ValidateSettings(settingsStep),
+            _ => new ValidationResult { IsValid = true }
+        };
+    }
+
+    private void ApplyConfiguration()
+    {
+        // Apply all configuration settings
+        ConfigurationManager.Instance.ApplySettings(wizardData);
+        DatabaseManager.Instance.InitializeConnection(wizardData.DatabaseConfig);
+        UserManager.Instance.CreateInitialUser(wizardData.UserConfig);
+    }
+
+    private void SaveWizardProgress()
+    {
+        // Save current progress to allow resumption
+        var progress = new WizardProgress
+        {
+            CurrentStep = wizard.CurrentIdx,
+            Data = wizardData,
+            Timestamp = DateTime.Now
+        };
+        ProgressManager.SaveProgress(progress);
+    }
+
+    private void UpdateWindowTitle(string stepName)
+    {
+        this.Text = $"Application Setup Wizard - {stepName}";
+    }
+}
+
+public class WizardData
+{
+    public DatabaseConfig DatabaseConfig { get; set; } = new();
+    public UserConfig UserConfig { get; set; } = new();
+    public ApplicationConfig ApplicationConfig { get; set; } = new();
+}
+
+public class ValidationResult
+{
+    public bool IsValid { get; set; }
+    public string ErrorMessage { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepWizard provides comprehensive theming with automatic application to all panels, buttons, and navigation elements:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var wizard = new BeepWizard
+{
+    Theme = "DarkTheme",
+    ViewType = WizardViewType.TopBreadcrumb
+};
+
+// Theme automatically applies to:
+// - AppBarTitleBackColor: Top panel background
+// - SideMenuBackColor: Side panel and footer backgrounds
+// - CardBackColor: Content panel background
+// - Button themes: Navigation buttons
+// - Stepper/breadcrumb themes: Progress indicators
+
+// Manual theme application
+wizard.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Wizard Theme Properties</h3>
+                    <ul>
+                        <li><strong>AppBarTitleBackColor</strong> - Top panel background color</li>
+                        <li><strong>SideMenuBackColor</strong> - Side panel and footer backgrounds</li>
+                        <li><strong>CardBackColor</strong> - Main content area background</li>
+                        <li><strong>ButtonBackColor</strong> - Navigation button backgrounds</li>
+                        <li><strong>ButtonForeColor</strong> - Navigation button text colors</li>
+                        <li><strong>BorderColor</strong> - Panel borders and separators</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎯 Wizard Design</h3>
+                    <ul>
+                        <li><strong>Clear progression:</strong> Design logical step sequences that users can easily follow</li>
+                        <li><strong>Validation strategy:</strong> Implement comprehensive validation at each step</li>
+                        <li><strong>Progress visibility:</strong> Choose view types that clearly show wizard progress</li>
+                        <li><strong>Save progress:</strong> Allow users to save and resume wizard sessions</li>
+                    </ul>
+
+                    <h3>📱 Layout Selection</h3>
+                    <ul>
+                        <li><strong>TopConnectedCircles:</strong> Best for 3-7 steps with clear visual progression</li>
+                        <li><strong>TopBreadcrumb:</strong> Ideal for simple, linear workflows</li>
+                        <li><strong>SideList:</strong> Perfect for complex wizards with many steps or detailed content</li>
+                        <li><strong>Content sizing:</strong> Ensure adequate content area for each step's requirements</li>
+                    </ul>
+
+                    <h3>🔄 Navigation Management</h3>
+                    <ul>
+                        <li><strong>Step validation:</strong> Always validate before allowing forward navigation</li>
+                        <li><strong>Graceful degradation:</strong> Handle validation failures with clear error messages</li>
+                        <li><strong>Back navigation:</strong> Allow users to go back and modify previous steps</li>
+                        <li><strong>Cancel handling:</strong> Implement proper cancel confirmation and cleanup</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Lazy loading:</strong> Load step content only when needed</li>
+                        <li><strong>Animation efficiency:</strong> Use built-in slide animations for smooth transitions</li>
+                        <li><strong>Memory management:</strong> Dispose of step resources properly</li>
+                        <li><strong>Data persistence:</strong> Implement efficient data storage between steps</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use TopConnectedCircles for setup wizards, TopBreadcrumb for simple forms, and SideList for complex configuration workflows with multiple sections.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Validation Best Practice</strong>
+                        <p>Implement both real-time validation (as users type) and step validation (before navigation) for the best user experience.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Navigation Warning</strong>
+                        <p>Always handle the NodeChanging event to implement proper validation - this prevents users from proceeding with incomplete or invalid data.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-login.html"><i class="bi bi-arrow-left"></i> BeepLogin</a>
+                    <a href="../index.html">Back to Controls <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

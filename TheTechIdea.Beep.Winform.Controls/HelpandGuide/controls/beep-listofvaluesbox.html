@@ -1,0 +1,1071 @@
+<!--
+    BeepListofValuesBox Control Documentation
+    Professional-grade documentation for the BeepListofValuesBox WinForms control.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepListofValuesBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                            <li><a href="beep-select.html">BeepSelect</a></li>
+                            <li><a href="beep-listofvaluesbox.html" class="active">BeepListofValuesBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>→</span>
+                    <span>BeepListofValuesBox</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepListofValuesBox</h1>
+                    <p class="page-subtitle">Specialized control for predefined value lists with advanced lookup, validation, and business rule support</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepListofValuesBox</strong> provides a sophisticated interface for working with predefined 
+                        value lists in business applications. It combines the functionality of a combobox with advanced 
+                        lookup capabilities, validation rules, and business logic integration for structured data entry scenarios.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepListofValuesBox features value list management, 
+                        lookup operations, validation engine, business rule support, caching mechanisms, and audit trails. 
+                        Perfect for ERP systems, business forms, configuration panels, and any application requiring 
+                        structured value selection with business logic validation.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>📋 Value List Management</h3>
+                            <p>Centralized management of predefined value lists with hierarchical support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔍 Advanced Lookup</h3>
+                            <p>Intelligent lookup with fuzzy matching and multi-field search capabilities</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>✅ Business Validation</h3>
+                            <p>Built-in validation engine with custom business rule support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏢 Enterprise Ready</h3>
+                            <p>Caching, audit trails, and integration with enterprise data sources</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Context Awareness</h3>
+                            <p>Dynamic value lists based on user context and business rules</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📊 Analytics Integration</h3>
+                            <p>Usage tracking and analytics for value selection patterns</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Business Lookup Interface</h3>
+                    <div class="visual-demo">
+                        <div class="lov-preview">
+                            <div class="lov-label">Country/Region</div>
+                            <div class="lov-control">
+                                <div class="lov-input">
+                                    <span class="selected-value">United States</span>
+                                    <div class="lov-buttons">
+                                        <button class="lookup-btn" title="Lookup">🔍</button>
+                                        <button class="clear-btn" title="Clear">×</button>
+                                        <button class="dropdown-btn" title="Dropdown">▼</button>
+                                    </div>
+                                </div>
+                                <div class="validation-indicator valid">✓</div>
+                            </div>
+                            <div class="lov-dropdown">
+                                <div class="dropdown-header">
+                                    <input type="text" class="search-input" placeholder="Search countries...">
+                                    <div class="filter-options">
+                                        <button class="filter-btn active">All</button>
+                                        <button class="filter-btn">Americas</button>
+                                        <button class="filter-btn">Europe</button>
+                                        <button class="filter-btn">Asia</button>
+                                    </div>
+                                </div>
+                                <div class="value-list">
+                                    <div class="value-group">
+                                        <div class="group-header">North America</div>
+                                        <div class="value-item selected">
+                                            <div class="value-content">
+                                                <div class="value-code">US</div>
+                                                <div class="value-description">United States</div>
+                                                <div class="value-details">USD, +1</div>
+                                            </div>
+                                            <div class="value-status">Active</div>
+                                        </div>
+                                        <div class="value-item">
+                                            <div class="value-content">
+                                                <div class="value-code">CA</div>
+                                                <div class="value-description">Canada</div>
+                                                <div class="value-details">CAD, +1</div>
+                                            </div>
+                                            <div class="value-status">Active</div>
+                                        </div>
+                                    </div>
+                                    <div class="value-group">
+                                        <div class="group-header">Europe</div>
+                                        <div class="value-item">
+                                            <div class="value-content">
+                                                <div class="value-code">UK</div>
+                                                <div class="value-description">United Kingdom</div>
+                                                <div class="value-details">GBP, +44</div>
+                                            </div>
+                                            <div class="value-status">Active</div>
+                                        </div>
+                                        <div class="value-item">
+                                            <div class="value-content">
+                                                <div class="value-code">DE</div>
+                                                <div class="value-description">Germany</div>
+                                                <div class="value-details">EUR, +49</div>
+                                            </div>
+                                            <div class="value-status">Active</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Business lookup interface with grouping, validation, and detailed value information</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .lov-preview {
+                            background: var(--color-background);
+                            border-radius: 8px;
+                            padding: 1.5rem;
+                            text-align: left;
+                            margin: 0 auto;
+                            max-width: 450px;
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            position: relative;
+                        }
+
+                        .lov-label {
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            margin-bottom: 0.5rem;
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .lov-control {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            margin-bottom: 1rem;
+                        }
+
+                        .lov-input {
+                            flex: 1;
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            background: var(--color-background);
+                            display: flex;
+                            align-items: center;
+                            padding: 0.75rem;
+                            gap: 0.5rem;
+                        }
+
+                        .selected-value {
+                            flex: 1;
+                            font-size: 14px;
+                            color: var(--color-text);
+                            font-weight: 500;
+                        }
+
+                        .lov-buttons {
+                            display: flex;
+                            gap: 0.25rem;
+                        }
+
+                        .lookup-btn, .clear-btn, .dropdown-btn {
+                            width: 24px;
+                            height: 24px;
+                            border: none;
+                            background: var(--color-background-secondary);
+                            border-radius: 4px;
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .lookup-btn:hover, .clear-btn:hover, .dropdown-btn:hover {
+                            background: var(--color-border);
+                        }
+
+                        .validation-indicator {
+                            width: 24px;
+                            height: 24px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
+
+                        .validation-indicator.valid {
+                            background: var(--color-success);
+                            color: white;
+                        }
+
+                        .lov-dropdown {
+                            border: 1px solid var(--color-border);
+                            border-radius: 6px;
+                            background: var(--color-background);
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+                            overflow: hidden;
+                        }
+
+                        .dropdown-header {
+                            padding: 1rem;
+                            border-bottom: 1px solid var(--color-border-light);
+                            background: var(--color-background-secondary);
+                        }
+
+                        .search-input {
+                            width: 100%;
+                            padding: 0.5rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            font-size: 14px;
+                            margin-bottom: 0.75rem;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                        }
+
+                        .filter-options {
+                            display: flex;
+                            gap: 0.5rem;
+                        }
+
+                        .filter-btn {
+                            padding: 0.25rem 0.75rem;
+                            border: 1px solid var(--color-border);
+                            background: var(--color-background);
+                            border-radius: 16px;
+                            cursor: pointer;
+                            font-size: 12px;
+                            transition: all 0.2s ease;
+                        }
+
+                        .filter-btn.active {
+                            background: var(--color-primary);
+                            color: white;
+                            border-color: var(--color-primary);
+                        }
+
+                        .value-list {
+                            max-height: 300px;
+                            overflow-y: auto;
+                        }
+
+                        .value-group {
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .group-header {
+                            padding: 0.75rem 1rem 0.5rem;
+                            background: var(--color-background-secondary);
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: var(--color-text-secondary);
+                            text-transform: uppercase;
+                            letter-spacing: 0.5px;
+                        }
+
+                        .value-item {
+                            padding: 0.75rem 1rem;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            cursor: pointer;
+                            transition: background-color 0.2s ease;
+                            border-bottom: 1px solid var(--color-border-light);
+                        }
+
+                        .value-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .value-item.selected {
+                            background: rgba(59, 130, 246, 0.1);
+                            border-left: 3px solid var(--color-primary);
+                        }
+
+                        .value-content {
+                            flex: 1;
+                        }
+
+                        .value-code {
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: var(--color-primary);
+                            font-family: monospace;
+                        }
+
+                        .value-description {
+                            font-size: 14px;
+                            font-weight: 500;
+                            color: var(--color-text);
+                            margin: 0.125rem 0;
+                        }
+
+                        .value-details {
+                            font-size: 12px;
+                            color: var(--color-text-secondary);
+                        }
+
+                        .value-status {
+                            background: var(--color-success);
+                            color: white;
+                            padding: 0.125rem 0.5rem;
+                            border-radius: 12px;
+                            font-size: 10px;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Value List</h3>
+                        <pre><code class="language-csharp">// Create and configure a BeepListofValuesBox
+var lovBox = new BeepListofValuesBox();
+lovBox.Size = new Size(200, 35);
+lovBox.ValueListName = "Countries";
+
+// Define value items
+var countryList = new List<ValueItem>
+{
+    new ValueItem { Code = "US", Description = "United States", Category = "North America" },
+    new ValueItem { Code = "CA", Description = "Canada", Category = "North America" },
+    new ValueItem { Code = "UK", Description = "United Kingdom", Category = "Europe" },
+    new ValueItem { Code = "DE", Description = "Germany", Category = "Europe" }
+};
+
+// Configure the control
+lovBox.ValueList = countryList;
+lovBox.DisplayField = "Description";
+lovBox.ValueField = "Code";
+lovBox.GroupField = "Category";
+
+// Handle value changes
+lovBox.ValueChanged += (s, e) =>
+{
+    var selectedCode = lovBox.SelectedValue;
+    var selectedItem = lovBox.SelectedItem as ValueItem;
+    MessageBox.Show($"Selected: {selectedItem.Description} ({selectedCode})");
+};
+
+this.Controls.Add(lovBox);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Business Entity Lookup</h3>
+                        <pre><code class="language-csharp">// Define business entity
+public class Customer
+{
+    public string CustomerCode { get; set; }
+    public string CompanyName { get; set; }
+    public string ContactName { get; set; }
+    public string Country { get; set; }
+    public bool IsActive { get; set; }
+    public string CreditRating { get; set; }
+}
+
+// Create customer lookup
+var customerLookup = new BeepListofValuesBox
+{
+    Size = new Size(300, 40),
+    ValueListName = "Customers",
+    DisplayField = "CompanyName",
+    ValueField = "CustomerCode",
+    GroupField = "Country",
+    AllowFreeText = false,
+    RequiredField = true,
+    ValidationMessage = "Please select a valid customer"
+};
+
+// Load customers from business layer
+var customers = await CustomerService.GetActiveCustomersAsync();
+customerLookup.ValueList = customers;
+
+// Configure validation rules
+customerLookup.AddValidationRule("CreditCheck", (item) =>
+{
+    var customer = item as Customer;
+    return customer.IsActive && customer.CreditRating != "Poor";
+});
+
+// Handle selection with business logic
+customerLookup.ValueChanged += async (s, e) =>
+{
+    var selectedCustomer = customerLookup.SelectedItem as Customer;
+    if (selectedCustomer != null)
+    {
+        await LoadCustomerDetails(selectedCustomer.CustomerCode);
+        ValidateCustomerCredit(selectedCustomer);
+    }
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ValueList</code></td>
+                                <td>IEnumerable</td>
+                                <td>null</td>
+                                <td>Collection of value items</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValueListName</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Unique identifier for the value list</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedValue</code></td>
+                                <td>object</td>
+                                <td>null</td>
+                                <td>Currently selected value</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>object</td>
+                                <td>null</td>
+                                <td>Currently selected item object</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Display Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>DisplayField</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Property name for display text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValueField</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Property name for value</td>
+                            </tr>
+                            <tr>
+                                <td><code>GroupField</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Property name for grouping</td>
+                            </tr>
+                            <tr>
+                                <td><code>DetailsFields</code></td>
+                                <td>string[]</td>
+                                <td>null</td>
+                                <td>Additional fields to display</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Behavior Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AllowFreeText</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Allow user-entered values</td>
+                            </tr>
+                            <tr>
+                                <td><code>RequiredField</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Require value selection</td>
+                            </tr>
+                            <tr>
+                                <td><code>CacheResults</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Cache lookup results</td>
+                            </tr>
+                            <tr>
+                                <td><code>EnableAuditTrail</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Track value selection history</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ValueChanged</code></td>
+                                <td>ValueChangedEventArgs</td>
+                                <td>Fired when selected value changes</td>
+                            </tr>
+                            <tr>
+                                <td><code>LookupRequested</code></td>
+                                <td>LookupEventArgs</td>
+                                <td>Fired when lookup dialog is requested</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValidationRequired</code></td>
+                                <td>ValidationEventArgs</td>
+                                <td>Fired when value validation is needed</td>
+                            </tr>
+                            <tr>
+                                <td><code>ValueListLoading</code></td>
+                                <td>LoadingEventArgs</td>
+                                <td>Fired when value list is being loaded</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Enterprise Customer Management System</h3>
+                        <pre><code class="language-csharp">public class CustomerManagementForm : Form
+{
+    private BeepListofValuesBox customerLookup;
+    private BeepListofValuesBox salesRepLookup;
+    private BeepListofValuesBox territoryLookup;
+    private ICustomerService customerService;
+    private IAuditService auditService;
+
+    public CustomerManagementForm(ICustomerService customerService, IAuditService auditService)
+    {
+        this.customerService = customerService;
+        this.auditService = auditService;
+        InitializeComponents();
+        SetupBusinessRules();
+    }
+
+    private void InitializeComponents()
+    {
+        // Customer lookup with advanced features
+        customerLookup = new BeepListofValuesBox
+        {
+            ValueListName = "ActiveCustomers",
+            DisplayField = "CompanyName",
+            ValueField = "CustomerCode",
+            GroupField = "CustomerType",
+            DetailsFields = new[] { "ContactName", "Country", "CreditRating" },
+            AllowFreeText = false,
+            RequiredField = true,
+            CacheResults = true,
+            EnableAuditTrail = true,
+            ValidationMessage = "Please select a valid active customer"
+        };
+
+        // Sales representative lookup
+        salesRepLookup = new BeepListofValuesBox
+        {
+            ValueListName = "SalesReps",
+            DisplayField = "FullName",
+            ValueField = "EmployeeId",
+            GroupField = "Department",
+            DependentOn = "Territory" // Depends on territory selection
+        };
+
+        // Territory lookup
+        territoryLookup = new BeepListofValuesBox
+        {
+            ValueListName = "SalesTerritories",
+            DisplayField = "TerritoryName",
+            ValueField = "TerritoryCode",
+            GroupField = "Region"
+        };
+
+        // Setup event handlers
+        customerLookup.ValueChanged += OnCustomerChanged;
+        territoryLookup.ValueChanged += OnTerritoryChanged;
+        salesRepLookup.ValueChanged += OnSalesRepChanged;
+
+        // Load initial data
+        LoadValueLists();
+    }
+
+    private async void LoadValueLists()
+    {
+        try
+        {
+            // Load customers with business rules
+            var customers = await customerService.GetCustomersAsync(new CustomerFilter
+            {
+                ActiveOnly = true,
+                HasValidCredit = true,
+                ExcludeBlacklisted = true
+            });
+            customerLookup.ValueList = customers;
+
+            // Load territories
+            var territories = await customerService.GetTerritoriesAsync();
+            territoryLookup.ValueList = territories;
+
+            // Sales reps will be loaded based on territory selection
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading data: {ex.Message}", "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void SetupBusinessRules()
+    {
+        // Customer validation rules
+        customerLookup.AddValidationRule("ActiveStatus", customer =>
+        {
+            var c = customer as Customer;
+            return c.IsActive && c.Status != CustomerStatus.Suspended;
+        });
+
+        customerLookup.AddValidationRule("CreditLimit", customer =>
+        {
+            var c = customer as Customer;
+            return c.CreditRating != "Poor" || c.RequiresApproval;
+        });
+
+        // Sales rep validation
+        salesRepLookup.AddValidationRule("ActiveEmployee", salesRep =>
+        {
+            var sr = salesRep as SalesRepresentative;
+            return sr.IsActive && sr.HireDate <= DateTime.Now;
+        });
+    }
+
+    private async void OnCustomerChanged(object sender, ValueChangedEventArgs e)
+    {
+        var selectedCustomer = e.NewValue as Customer;
+        if (selectedCustomer != null)
+        {
+            // Audit trail
+            if (customerLookup.EnableAuditTrail)
+            {
+                await auditService.LogValueSelectionAsync(new AuditEntry
+                {
+                    Control = "CustomerLookup",
+                    OldValue = e.OldValue?.ToString(),
+                    NewValue = selectedCustomer.CustomerCode,
+                    UserId = CurrentUser.Id,
+                    Timestamp = DateTime.Now
+                });
+            }
+
+            // Business logic
+            await LoadCustomerDetails(selectedCustomer);
+            ValidateCustomerBusinessRules(selectedCustomer);
+            UpdateFormBasedOnCustomer(selectedCustomer);
+        }
+    }
+
+    private async void OnTerritoryChanged(object sender, ValueChangedEventArgs e)
+    {
+        var selectedTerritory = e.NewValue as Territory;
+        if (selectedTerritory != null)
+        {
+            // Load sales reps for selected territory
+            var salesReps = await customerService.GetSalesRepsByTerritoryAsync(selectedTerritory.TerritoryCode);
+            salesRepLookup.ValueList = salesReps;
+            
+            // Clear current sales rep if not valid for new territory
+            if (salesRepLookup.SelectedItem != null)
+            {
+                var currentRep = salesRepLookup.SelectedItem as SalesRepresentative;
+                if (currentRep.TerritoryCode != selectedTerritory.TerritoryCode)
+                {
+                    salesRepLookup.SelectedValue = null;
+                }
+            }
+        }
+    }
+
+    private void OnSalesRepChanged(object sender, ValueChangedEventArgs e)
+    {
+        var selectedRep = e.NewValue as SalesRepresentative;
+        if (selectedRep != null)
+        {
+            UpdateFormBasedOnSalesRep(selectedRep);
+        }
+    }
+
+    private async Task LoadCustomerDetails(Customer customer)
+    {
+        // Load additional customer details
+        var details = await customerService.GetCustomerDetailsAsync(customer.CustomerCode);
+        
+        // Update form with customer information
+        UpdateCustomerInformation(details);
+        
+        // Check for any alerts or notifications
+        var alerts = await customerService.GetCustomerAlertsAsync(customer.CustomerCode);
+        DisplayCustomerAlerts(alerts);
+    }
+
+    private void ValidateCustomerBusinessRules(Customer customer)
+    {
+        var validationResults = new List<string>();
+
+        // Credit limit validation
+        if (customer.CreditRating == "Poor")
+        {
+            validationResults.Add("Customer has poor credit rating - approval required");
+        }
+
+        // Payment history validation
+        if (customer.DaysOutstanding > 90)
+        {
+            validationResults.Add("Customer has overdue payments");
+        }
+
+        // Display validation results
+        if (validationResults.Any())
+        {
+            DisplayValidationWarnings(validationResults);
+        }
+    }
+
+    private void UpdateFormBasedOnCustomer(Customer customer)
+    {
+        // Enable/disable controls based on customer type
+        // Set default values
+        // Apply business rules
+    }
+
+    private void UpdateFormBasedOnSalesRep(SalesRepresentative salesRep)
+    {
+        // Update commission rates
+        // Set approval limits
+        // Apply territory-specific rules
+    }
+
+    private void UpdateCustomerInformation(CustomerDetails details)
+    {
+        // Update UI with customer details
+    }
+
+    private void DisplayCustomerAlerts(List<CustomerAlert> alerts)
+    {
+        // Display alerts to user
+    }
+
+    private void DisplayValidationWarnings(List<string> warnings)
+    {
+        // Display validation warnings
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepListofValuesBox provides comprehensive theming support for business applications:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var lovBox = new BeepListofValuesBox
+{
+    Theme = "BusinessProfessional",
+    UseThemeColors = true
+};
+
+// Theme automatically applies:
+// - ControlBackColor: Input field background
+// - DropdownBackColor: Lookup panel background
+// - ValidationColors: Success/error indicators
+// - GroupHeaderColors: Category header styling
+// - ButtonColors: Lookup and action buttons</code></pre>
+                    </div>
+
+                    <h3>Business Theme Features</h3>
+                    <ul>
+                        <li><strong>Professional styling</strong> - Clean, business-appropriate appearance</li>
+                        <li><strong>Validation indicators</strong> - Clear success/error color coding</li>
+                        <li><strong>Group visualization</strong> - Distinct grouping with professional headers</li>
+                        <li><strong>Button integration</strong> - Consistent button styling with theme</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🏢 Business Applications</h3>
+                    <ul>
+                        <li><strong>Value list management:</strong> Centralize value lists for consistency across application</li>
+                        <li><strong>Validation rules:</strong> Implement comprehensive business rule validation</li>
+                        <li><strong>Audit trails:</strong> Enable audit logging for compliance requirements</li>
+                        <li><strong>Performance optimization:</strong> Use caching for frequently accessed value lists</li>
+                    </ul>
+
+                    <h3>🔧 Implementation</h3>
+                    <ul>
+                        <li><strong>Data integrity:</strong> Always validate selected values against current business rules</li>
+                        <li><strong>Error handling:</strong> Provide clear error messages for validation failures</li>
+                        <li><strong>User experience:</strong> Implement progressive disclosure for complex value lists</li>
+                        <li><strong>Dependencies:</strong> Handle dependent value lists with proper cascade logic</li>
+                    </ul>
+
+                    <h3>📊 Enterprise Integration</h3>
+                    <ul>
+                        <li><strong>Data sources:</strong> Integrate with enterprise data sources and APIs</li>
+                        <li><strong>Security:</strong> Implement role-based value list filtering</li>
+                        <li><strong>Localization:</strong> Support multiple languages and regional formats</li>
+                        <li><strong>Analytics:</strong> Track usage patterns for business intelligence</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Design value lists with clear hierarchies and groupings to help users quickly find the values they need.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Best Practice</strong>
+                        <p>Implement comprehensive validation rules that check both data integrity and business logic requirements.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Performance Warning</strong>
+                        <p>For large value lists (>10,000 items), implement server-side filtering and lazy loading to maintain responsiveness.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-select.html"><i class="bi bi-arrow-left"></i> BeepSelect</a>
+                    <a href="beep-label.html">BeepLabel <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

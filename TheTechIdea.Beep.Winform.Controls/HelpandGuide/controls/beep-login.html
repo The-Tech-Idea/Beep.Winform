@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepLogin - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-tools"></i> Specialized Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-menubar.html">BeepMenuBar</a></li>
+                            <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
+                            <li><a href="beep-appbar.html">BeepAppBar</a></li>
+                            <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
+                            <li><a href="beep-contextmenustrip.html">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-dropdownmenu.html">BeepDropDownMenu</a></li>
+                            <li><a href="beep-flyoutmenu.html">BeepFlyoutMenu</a></li>
+                            <li><a href="beep-functionspanel.html">BeepFunctionsPanel</a></li>
+                            <li><a href="beep-multichipgroup.html">BeepMultiChipGroup</a></li>
+                            <li><a href="beep-login.html" class="active">BeepLogin</a></li>
+                            <li><a href="beep-wizard.html">BeepWizard</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>→</span>
+                    <a href="../index.html#specialized-controls">Specialized Controls</a>
+                    <span>→</span>
+                    <span>BeepLogin</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepLogin</h1>
+                    <p class="page-subtitle">Comprehensive login control with 9 distinct view types, social authentication support, and complete customization for modern authentication interfaces</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📋 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#view-types">View Types</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepLogin</strong> provides a comprehensive, ready-to-use login interface with nine distinct 
+                        view types to match any application design. From simple username/password forms to complex social 
+                        authentication layouts, BeepLogin adapts to your specific authentication needs while maintaining 
+                        consistency and professional appearance.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepLogin features automatic layout management, 
+                        social media integration buttons, avatar and logo support, remember me functionality, and comprehensive 
+                        theming. Perfect for desktop applications, admin panels, and any software requiring user authentication.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎭 Nine View Types</h3>
+                            <p>Multiple pre-designed layouts from simple to complex social authentication interfaces</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔐 Complete Authentication</h3>
+                            <p>Username/password, social login buttons, remember me, forgot password, and registration links</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌐 Social Integration</h3>
+                            <p>Built-in support for Google, Facebook, and Twitter authentication buttons</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>👤 Avatar & Logo Support</h3>
+                            <p>Customizable logo and user avatar display with SVG and image support</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Design</h3>
+                            <p>Automatic layout adjustment and intelligent positioning for different view types</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Theme Integration</h3>
+                            <p>Comprehensive theming with specialized login color schemes and styling</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- View Types -->
+                <section id="view-types" class="section">
+                    <h2>View Types</h2>
+                    
+                    <div class="view-types-grid">
+                        <div class="view-type-card">
+                            <h3>Simple</h3>
+                            <p>Basic login with title, avatar, username/password fields, remember me, and login button</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Avatar</span>
+                                <span class="feature-tag">Remember Me</span>
+                                <span class="feature-tag">Clean Layout</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Compact</h3>
+                            <p>Space-efficient design with side-by-side username/password fields</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Side-by-Side</span>
+                                <span class="feature-tag">Minimal Space</span>
+                                <span class="feature-tag">Links</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Minimal</h3>
+                            <p>Streamlined interface with avatar, username/password, and essential links</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Streamlined</span>
+                                <span class="feature-tag">Avatar Row</span>
+                                <span class="feature-tag">Essential Only</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Social</h3>
+                            <p>Comprehensive social login with remember me, forgot password, and social buttons</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Social Buttons</span>
+                                <span class="feature-tag">Full Featured</span>
+                                <span class="feature-tag">Card Layout</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>SocialView2</h3>
+                            <p>Alternative social layout with horizontal social buttons and centered design</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Horizontal Social</span>
+                                <span class="feature-tag">Centered</span>
+                                <span class="feature-tag">Modern</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Modern</h3>
+                            <p>Contemporary design with subtitle, checkbox, and clean typography</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Contemporary</span>
+                                <span class="feature-tag">Subtitle</span>
+                                <span class="feature-tag">Typography</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Avatar</h3>
+                            <p>User-focused design with prominent avatar and personal login experience</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Prominent Avatar</span>
+                                <span class="feature-tag">Personal</span>
+                                <span class="feature-tag">User-Focused</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Extended</h3>
+                            <p>Advanced layout with social icons, save password, and comprehensive options</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Advanced</span>
+                                <span class="feature-tag">Social Icons</span>
+                                <span class="feature-tag">Comprehensive</span>
+                            </div>
+                        </div>
+
+                        <div class="view-type-card">
+                            <h3>Full</h3>
+                            <p>Complete login experience with logo, avatar, subtitle, and all available features</p>
+                            <div class="view-features">
+                                <span class="feature-tag">Complete</span>
+                                <span class="feature-tag">Logo + Avatar</span>
+                                <span class="feature-tag">All Features</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <style>
+                        .view-types-grid {
+                            display: grid;
+                            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+                            gap: 1.5rem;
+                            margin: 2rem 0;
+                        }
+
+                        .view-type-card {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 8px;
+                            padding: 1.5rem;
+                            transition: all 0.2s ease;
+                        }
+
+                        .view-type-card:hover {
+                            border-color: var(--color-primary);
+                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .view-type-card h3 {
+                            margin: 0 0 0.75rem;
+                            color: var(--color-primary);
+                            font-size: 16px;
+                            font-weight: 600;
+                        }
+
+                        .view-type-card p {
+                            margin: 0 0 1rem;
+                            color: var(--color-text-secondary);
+                            font-size: 14px;
+                            line-height: 1.4;
+                        }
+
+                        .view-features {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 0.5rem;
+                        }
+
+                        .feature-tag {
+                            display: inline-block;
+                            padding: 0.25rem 0.5rem;
+                            background: var(--color-primary-light);
+                            color: var(--color-primary);
+                            border-radius: 12px;
+                            font-size: 11px;
+                            font-weight: 500;
+                        }
+                    </style>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    
+                    <h3>Simple View</h3>
+                    <div class="visual-demo">
+                        <div class="login-preview simple">
+                            <div class="login-container">
+                                <h2 class="login-title">Login</h2>
+                                <div class="login-avatar">👤</div>
+                                <input type="text" placeholder="Username or Email" class="login-input">
+                                <input type="password" placeholder="Password" class="login-input">
+                                <div class="login-row">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox"> Remember Me
+                                    </label>
+                                    <a href="#" class="login-link">Forgot Password?</a>
+                                </div>
+                                <button class="login-btn">Login</button>
+                            </div>
+                        </div>
+                        <p><em>Simple view with avatar, remember me, and clean layout</em></p>
+                    </div>
+
+                    <h3>Social View</h3>
+                    <div class="visual-demo">
+                        <div class="login-preview social">
+                            <div class="login-container">
+                                <h2 class="login-title">Sign In</h2>
+                                <p class="login-subtitle">Lorem ipsum dolor sit amet elit. Sapiente sit aut eos consectetur adipisicing.</p>
+                                <div class="login-card">
+                                    <input type="text" placeholder="Username" class="login-input">
+                                    <input type="password" placeholder="Password" class="login-input">
+                                    <div class="login-row">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox"> Remember me
+                                        </label>
+                                        <a href="#" class="login-link">Forgot Password</a>
+                                    </div>
+                                </div>
+                                <button class="login-btn">Log In</button>
+                                <div class="login-separator">— or —</div>
+                                <button class="social-btn facebook">🇫 Login with Facebook</button>
+                                <button class="social-btn twitter">🐦 Login with Twitter</button>
+                                <button class="social-btn google">📧 Login with Google</button>
+                            </div>
+                        </div>
+                        <p><em>Social view with comprehensive social authentication options</em></p>
+                    </div>
+
+                    <h3>Modern View</h3>
+                    <div class="visual-demo">
+                        <div class="login-preview modern">
+                            <div class="login-container">
+                                <h2 class="login-title">Login to Colorlib</h2>
+                                <p class="login-subtitle">Lorem ipsum dolor sit amet elit. Sapiente sit aut eos consectetur adipisicing.</p>
+                                <input type="text" placeholder="Username or Email" class="login-input">
+                                <input type="password" placeholder="Password" class="login-input">
+                                <label class="checkbox-label full-width">
+                                    <input type="checkbox"> Remember Me
+                                </label>
+                                <a href="#" class="login-link centered">Forgot Password</a>
+                                <button class="login-btn">Login</button>
+                            </div>
+                        </div>
+                        <p><em>Modern view with contemporary design and typography</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .login-preview {
+                            background: var(--color-background);
+                            border: 1px solid var(--color-border);
+                            border-radius: 12px;
+                            padding: 2rem;
+                            font-family: var(--font-family);
+                            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+                            max-width: 400px;
+                            margin: 0 auto;
+                        }
+
+                        .login-container {
+                            display: flex;
+                            flex-direction: column;
+                            align-items: center;
+                            gap: 1rem;
+                        }
+
+                        .login-title {
+                            margin: 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: var(--color-text);
+                        }
+
+                        .login-subtitle {
+                            margin: 0;
+                            font-size: 14px;
+                            color: var(--color-text-secondary);
+                            text-align: center;
+                            line-height: 1.4;
+                        }
+
+                        .login-avatar {
+                            width: 60px;
+                            height: 60px;
+                            border-radius: 50%;
+                            background: var(--color-primary-light);
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 24px;
+                            color: var(--color-primary);
+                        }
+
+                        .login-card {
+                            background: var(--color-background-secondary);
+                            border: 1px solid var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 1rem;
+                            width: 100%;
+                            box-sizing: border-box;
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1rem;
+                        }
+
+                        .login-input {
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            font-size: 14px;
+                            box-sizing: border-box;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                        }
+
+                        .login-input:focus {
+                            outline: none;
+                            border-color: var(--color-primary);
+                            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+                        }
+
+                        .login-row {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            width: 100%;
+                            font-size: 13px;
+                        }
+
+                        .checkbox-label {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            font-size: 14px;
+                            color: var(--color-text);
+                        }
+
+                        .checkbox-label.full-width {
+                            justify-content: flex-start;
+                            width: 100%;
+                        }
+
+                        .login-link {
+                            color: var(--color-primary);
+                            text-decoration: none;
+                            font-size: 13px;
+                        }
+
+                        .login-link:hover {
+                            text-decoration: underline;
+                        }
+
+                        .login-link.centered {
+                            text-align: center;
+                            width: 100%;
+                        }
+
+                        .login-btn {
+                            background: var(--color-primary);
+                            color: white;
+                            border: none;
+                            border-radius: 4px;
+                            padding: 0.75rem 1.5rem;
+                            font-size: 14px;
+                            font-weight: 500;
+                            cursor: pointer;
+                            transition: background-color 0.2s ease;
+                        }
+
+                        .login-btn:hover {
+                            background: var(--color-primary-dark);
+                        }
+
+                        .login-separator {
+                            color: var(--color-text-muted);
+                            font-size: 14px;
+                            margin: 0.5rem 0;
+                        }
+
+                        .social-btn {
+                            width: 100%;
+                            padding: 0.75rem;
+                            border: 1px solid var(--color-border);
+                            border-radius: 4px;
+                            background: var(--color-background);
+                            color: var(--color-text);
+                            font-size: 14px;
+                            cursor: pointer;
+                            transition: all 0.2s ease;
+                        }
+
+                        .social-btn:hover {
+                            background: var(--color-background-secondary);
+                            border-color: var(--color-primary);
+                        }
+
+                        .social-btn.facebook:hover {
+                            background: #1877f2;
+                            color: white;
+                        }
+
+                        .social-btn.twitter:hover {
+                            background: #1da1f2;
+                            color: white;
+                        }
+
+                        .social-btn.google:hover {
+                            background: #4285f4;
+                            color: white;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Login Control</h3>
+                        <pre><code class="language-csharp">// Create a basic login control
+var loginControl = new BeepLogin
+{
+    ViewType = LoginViewType.Simple,
+    Size = new Size(300, 300),
+    Location = new Point(50, 50),
+    LogoPath = "Resources/company-logo.svg",
+    AvatarPath = "Resources/user-avatar.svg"
+};
+
+// Handle login event
+loginControl.LoginClick += (sender, e) =>
+{
+    string username = loginControl.Username;
+    string password = loginControl.Password;
+    bool rememberMe = loginControl.RememberMe;
+    
+    if (AuthenticateUser(username, password))
+    {
+        if (rememberMe)
+        {
+            SaveCredentials(username);
+        }
+        
+        MessageBox.Show("Login successful!", "Success");
+        // Navigate to main application
+        OpenMainWindow();
+    }
+    else
+    {
+        MessageBox.Show("Invalid credentials", "Login Failed");
+    }
+};
+
+this.Controls.Add(loginControl);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Social Login Integration</h3>
+                        <pre><code class="language-csharp">// Create social login control
+var socialLogin = new BeepLogin
+{
+    ViewType = LoginViewType.Social,
+    Size = new Size(450, 500),
+    Location = new Point(50, 50)
+};
+
+// Handle different authentication methods
+socialLogin.LoginClick += OnStandardLogin;
+socialLogin.GoogleLoginClick += OnGoogleLogin;
+socialLogin.FacebookLoginClick += OnFacebookLogin;
+socialLogin.TwitterLoginClick += OnTwitterLogin;
+
+this.Controls.Add(socialLogin);
+
+private void OnStandardLogin(object sender, EventArgs e)
+{
+    var login = sender as BeepLogin;
+    // Standard username/password authentication
+    if (ValidateCredentials(login.Username, login.Password))
+    {
+        CompleteLogin(login.Username, "Standard");
+    }
+}
+
+private void OnGoogleLogin(object sender, EventArgs e)
+{
+    // Integrate with Google OAuth
+    try
+    {
+        var googleUser = GoogleAuth.Authenticate();
+        if (googleUser != null)
+        {
+            CompleteLogin(googleUser.Email, "Google");
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Google login failed: {ex.Message}", "Error");
+    }
+}
+
+private void OnFacebookLogin(object sender, EventArgs e)
+{
+    // Integrate with Facebook OAuth
+    try
+    {
+        var facebookUser = FacebookAuth.Authenticate();
+        if (facebookUser != null)
+        {
+            CompleteLogin(facebookUser.Email, "Facebook");
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Facebook login failed: {ex.Message}", "Error");
+    }
+}
+
+private void OnTwitterLogin(object sender, EventArgs e)
+{
+    // Integrate with Twitter OAuth
+    try
+    {
+        var twitterUser = TwitterAuth.Authenticate();
+        if (twitterUser != null)
+        {
+            CompleteLogin(twitterUser.ScreenName, "Twitter");
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Twitter login failed: {ex.Message}", "Error");
+    }
+}
+
+private void CompleteLogin(string userIdentifier, string authMethod)
+{
+    // Common login completion logic
+    SessionManager.Instance.StartSession(userIdentifier, authMethod);
+    this.Hide();
+    new MainApplicationForm().Show();
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Dynamic View Switching</h3>
+                        <pre><code class="language-csharp">public class LoginForm : Form
+{
+    private BeepLogin loginControl;
+    private ComboBox viewSelector;
+
+    public LoginForm()
+    {
+        InitializeLoginForm();
+    }
+
+    private void InitializeLoginForm()
+    {
+        this.Size = new Size(600, 700);
+        this.Text = "Login Demo";
+        this.StartPosition = FormStartPosition.CenterScreen;
+
+        // View selector
+        viewSelector = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Location = new Point(20, 20),
+            Width = 150
+        };
+
+        // Populate with view types
+        foreach (LoginViewType viewType in Enum.GetValues<LoginViewType>())
+        {
+            viewSelector.Items.Add(viewType);
+        }
+        viewSelector.SelectedIndex = 0;
+        viewSelector.SelectedIndexChanged += OnViewTypeChanged;
+
+        // Create login control
+        loginControl = new BeepLogin
+        {
+            ViewType = LoginViewType.Simple,
+            Location = new Point(20, 60),
+            LogoPath = "Resources/logo.svg",
+            AvatarPath = "Resources/avatar.svg"
+        };
+
+        // Set up events
+        loginControl.LoginClick += OnLogin;
+        loginControl.GoogleLoginClick += OnSocialLogin;
+        loginControl.FacebookLoginClick += OnSocialLogin;
+        loginControl.TwitterLoginClick += OnSocialLogin;
+
+        this.Controls.AddRange(new Control[] { viewSelector, loginControl });
+    }
+
+    private void OnViewTypeChanged(object sender, EventArgs e)
+    {
+        if (viewSelector.SelectedItem is LoginViewType selectedView)
+        {
+            loginControl.ViewType = selectedView;
+            
+            // Adjust form size based on view type
+            AdjustFormSize(selectedView);
+        }
+    }
+
+    private void AdjustFormSize(LoginViewType viewType)
+    {
+        Size newSize = viewType switch
+        {
+            LoginViewType.Compact => new Size(600, 400),
+            LoginViewType.Minimal => new Size(400, 450),
+            LoginViewType.Social => new Size(550, 700),
+            LoginViewType.SocialView2 => new Size(450, 600),
+            LoginViewType.Modern => new Size(500, 500),
+            LoginViewType.Avatar => new Size(400, 500),
+            LoginViewType.Extended => new Size(600, 400),
+            LoginViewType.Full => new Size(600, 550),
+            _ => new Size(400, 450) // Simple
+        };
+        
+        this.Size = newSize;
+    }
+
+    private void OnLogin(object sender, EventArgs e)
+    {
+        if (ValidateLogin(loginControl.Username, loginControl.Password))
+        {
+            this.DialogResult = DialogResult.OK;
+            this.Close();
+        }
+        else
+        {
+            MessageBox.Show("Invalid credentials", "Login Failed", 
+                          MessageBoxButtons.OK, MessageBoxIcon.Warning);
+        }
+    }
+
+    private void OnSocialLogin(object sender, EventArgs e)
+    {
+        string provider = sender == loginControl.GoogleLoginClick ? "Google" :
+                         sender == loginControl.FacebookLoginClick ? "Facebook" : "Twitter";
+        
+        MessageBox.Show($"Initiating {provider} login...", "Social Login");
+        // Implement actual social login logic here
+    }
+
+    private bool ValidateLogin(string username, string password)
+    {
+        // Implement your authentication logic
+        return !string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password);
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ViewType</code></td>
+                                <td>LoginViewType</td>
+                                <td>Simple</td>
+                                <td>The layout style for the login interface</td>
+                            </tr>
+                            <tr>
+                                <td><code>Username</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Current username/email field value</td>
+                            </tr>
+                            <tr>
+                                <td><code>Password</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Current password field value</td>
+                            </tr>
+                            <tr>
+                                <td><code>RememberMe</code></td>
+                                <td>bool</td>
+                                <td>false</td>
+                                <td>Current state of the remember me checkbox</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Visual Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>LogoPath</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Path to the company/application logo image</td>
+                            </tr>
+                            <tr>
+                                <td><code>AvatarPath</code></td>
+                                <td>string</td>
+                                <td>""</td>
+                                <td>Path to the user avatar image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>LoginViewType Enumeration</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Value</th>
+                                <th>Size (approx.)</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Simple</code></td>
+                                <td>300×300</td>
+                                <td>Basic login with avatar, remember me, and clean layout</td>
+                            </tr>
+                            <tr>
+                                <td><code>Compact</code></td>
+                                <td>500×200</td>
+                                <td>Space-efficient with side-by-side username/password</td>
+                            </tr>
+                            <tr>
+                                <td><code>Minimal</code></td>
+                                <td>300×280</td>
+                                <td>Streamlined interface with essential elements only</td>
+                            </tr>
+                            <tr>
+                                <td><code>Social</code></td>
+                                <td>450×500</td>
+                                <td>Comprehensive with social authentication buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>SocialView2</code></td>
+                                <td>350×450</td>
+                                <td>Alternative social layout with horizontal buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>Modern</code></td>
+                                <td>400×350</td>
+                                <td>Contemporary design with subtitle and typography</td>
+                            </tr>
+                            <tr>
+                                <td><code>Avatar</code></td>
+                                <td>300×330</td>
+                                <td>User-focused with prominent avatar display</td>
+                            </tr>
+                            <tr>
+                                <td><code>Extended</code></td>
+                                <td>500×250</td>
+                                <td>Advanced with social icons and comprehensive options</td>
+                            </tr>
+                            <tr>
+                                <td><code>Full</code></td>
+                                <td>500×360</td>
+                                <td>Complete experience with all available features</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Event Args</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>LoginClick</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the main login button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>GoogleLoginClick</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the Google login button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>FacebookLoginClick</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the Facebook login button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>TwitterLoginClick</code></td>
+                                <td>EventHandler</td>
+                                <td>Fired when the Twitter login button is clicked</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Complete Event Handling</h3>
+                        <pre><code class="language-csharp">var loginControl = new BeepLogin();
+
+// Standard login authentication
+loginControl.LoginClick += async (sender, e) =>
+{
+    try
+    {
+        // Show loading state
+        loginControl.Enabled = false;
+        
+        // Validate input
+        if (string.IsNullOrWhiteSpace(loginControl.Username))
+        {
+            MessageBox.Show("Please enter your username or email.", "Validation Error");
+            return;
+        }
+        
+        if (string.IsNullOrWhiteSpace(loginControl.Password))
+        {
+            MessageBox.Show("Please enter your password.", "Validation Error");
+            return;
+        }
+        
+        // Attempt authentication
+        var result = await AuthenticationService.LoginAsync(
+            loginControl.Username, 
+            loginControl.Password);
+            
+        if (result.Success)
+        {
+            // Handle remember me
+            if (loginControl.RememberMe)
+            {
+                UserPreferences.SaveUsername(loginControl.Username);
+            }
+            
+            // Login successful
+            OnLoginSuccess(result.User);
+        }
+        else
+        {
+            MessageBox.Show(result.ErrorMessage, "Login Failed");
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"Login error: {ex.Message}", "Error");
+    }
+    finally
+    {
+        loginControl.Enabled = true;
+    }
+};
+
+// Social authentication handlers
+loginControl.GoogleLoginClick += async (sender, e) =>
+{
+    await HandleSocialLogin("Google", GoogleAuthProvider.Instance);
+};
+
+loginControl.FacebookLoginClick += async (sender, e) =>
+{
+    await HandleSocialLogin("Facebook", FacebookAuthProvider.Instance);
+};
+
+loginControl.TwitterLoginClick += async (sender, e) =>
+{
+    await HandleSocialLogin("Twitter", TwitterAuthProvider.Instance);
+};
+
+private async Task HandleSocialLogin(string provider, ISocialAuthProvider authProvider)
+{
+    try
+    {
+        loginControl.Enabled = false;
+        
+        var socialUser = await authProvider.AuthenticateAsync();
+        if (socialUser != null)
+        {
+            var result = await AuthenticationService.SocialLoginAsync(provider, socialUser);
+            if (result.Success)
+            {
+                OnLoginSuccess(result.User);
+            }
+            else
+            {
+                MessageBox.Show($"{provider} login failed: {result.ErrorMessage}", "Social Login Error");
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show($"{provider} authentication failed: {ex.Message}", "Error");
+    }
+    finally
+    {
+        loginControl.Enabled = true;
+    }
+}
+
+private void OnLoginSuccess(User user)
+{
+    // Store user session
+    CurrentSession.User = user;
+    
+    // Navigate to main application
+    this.Hide();
+    var mainForm = new MainApplicationForm();
+    mainForm.Show();
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Complete Login Form with Validation</h3>
+                        <pre><code class="language-csharp">public class LoginForm : Form
+{
+    private BeepLogin loginControl;
+    private ProgressBar progressBar;
+    private Label statusLabel;
+    private AuthenticationService authService;
+
+    public User AuthenticatedUser { get; private set; }
+
+    public LoginForm()
+    {
+        InitializeComponents();
+        SetupValidation();
+        LoadSavedCredentials();
+    }
+
+    private void InitializeComponents()
+    {
+        this.Text = "Application Login";
+        this.Size = new Size(500, 600);
+        this.StartPosition = FormStartPosition.CenterScreen;
+        this.FormBorderStyle = FormBorderStyle.FixedDialog;
+        this.MaximizeBox = false;
+
+        authService = new AuthenticationService();
+
+        // Create login control
+        loginControl = new BeepLogin
+        {
+            ViewType = LoginViewType.Modern,
+            Location = new Point(50, 50),
+            Size = new Size(400, 400),
+            LogoPath = "Resources/company-logo.svg"
+        };
+
+        // Progress bar for loading state
+        progressBar = new ProgressBar
+        {
+            Location = new Point(50, 460),
+            Size = new Size(400, 10),
+            Style = ProgressBarStyle.Marquee,
+            Visible = false
+        };
+
+        // Status label
+        statusLabel = new Label
+        {
+            Location = new Point(50, 480),
+            Size = new Size(400, 30),
+            TextAlign = ContentAlignment.MiddleCenter,
+            ForeColor = Color.Red
+        };
+
+        // Setup event handlers
+        loginControl.LoginClick += OnLoginAttempt;
+        loginControl.GoogleLoginClick += OnGoogleLogin;
+        loginControl.FacebookLoginClick += OnFacebookLogin;
+
+        this.Controls.AddRange(new Control[] 
+        { 
+            loginControl, progressBar, statusLabel 
+        });
+    }
+
+    private void SetupValidation()
+    {
+        // Real-time validation
+        var usernameTextBox = GetUsernameTextBox();
+        var passwordTextBox = GetPasswordTextBox();
+
+        if (usernameTextBox != null)
+        {
+            usernameTextBox.TextChanged += ValidateInput;
+        }
+
+        if (passwordTextBox != null)
+        {
+            passwordTextBox.TextChanged += ValidateInput;
+        }
+    }
+
+    private void ValidateInput(object sender, EventArgs e)
+    {
+        statusLabel.Text = "";
+        statusLabel.ForeColor = Color.Black;
+
+        // Validate email format if it looks like an email
+        if (loginControl.Username.Contains("@"))
+        {
+            if (!IsValidEmail(loginControl.Username))
+            {
+                statusLabel.Text = "Please enter a valid email address";
+                statusLabel.ForeColor = Color.Red;
+                return;
+            }
+        }
+
+        // Password strength indicator
+        if (!string.IsNullOrEmpty(loginControl.Password))
+        {
+            var strength = GetPasswordStrength(loginControl.Password);
+            statusLabel.Text = $"Password strength: {strength}";
+            statusLabel.ForeColor = strength switch
+            {
+                "Weak" => Color.Red,
+                "Medium" => Color.Orange,
+                "Strong" => Color.Green,
+                _ => Color.Black
+            };
+        }
+    }
+
+    private async void OnLoginAttempt(object sender, EventArgs e)
+    {
+        if (!ValidateCredentials())
+            return;
+
+        SetLoadingState(true);
+
+        try
+        {
+            var result = await authService.AuthenticateAsync(
+                loginControl.Username, 
+                loginControl.Password);
+
+            if (result.IsSuccess)
+            {
+                AuthenticatedUser = result.User;
+
+                // Save credentials if remember me is checked
+                if (loginControl.RememberMe)
+                {
+                    SaveCredentials();
+                }
+
+                statusLabel.Text = "Login successful!";
+                statusLabel.ForeColor = Color.Green;
+
+                // Brief delay to show success message
+                await Task.Delay(1000);
+
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            else
+            {
+                statusLabel.Text = result.ErrorMessage;
+                statusLabel.ForeColor = Color.Red;
+
+                // Clear password on failed attempt
+                loginControl.Password = "";
+            }
+        }
+        catch (Exception ex)
+        {
+            statusLabel.Text = "Login failed. Please try again.";
+            statusLabel.ForeColor = Color.Red;
+            
+            // Log the actual error
+            Console.WriteLine($"Login error: {ex.Message}");
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    private async void OnGoogleLogin(object sender, EventArgs e)
+    {
+        SetLoadingState(true);
+        statusLabel.Text = "Connecting to Google...";
+
+        try
+        {
+            var googleResult = await GoogleAuthService.AuthenticateAsync();
+            if (googleResult.IsSuccess)
+            {
+                var result = await authService.SocialAuthenticateAsync("Google", googleResult.Token);
+                if (result.IsSuccess)
+                {
+                    AuthenticatedUser = result.User;
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    statusLabel.Text = "Google login failed";
+                    statusLabel.ForeColor = Color.Red;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            statusLabel.Text = "Google authentication error";
+            statusLabel.ForeColor = Color.Red;
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    private async void OnFacebookLogin(object sender, EventArgs e)
+    {
+        // Similar implementation to Google login
+        SetLoadingState(true);
+        statusLabel.Text = "Connecting to Facebook...";
+
+        try
+        {
+            var facebookResult = await FacebookAuthService.AuthenticateAsync();
+            if (facebookResult.IsSuccess)
+            {
+                var result = await authService.SocialAuthenticateAsync("Facebook", facebookResult.Token);
+                if (result.IsSuccess)
+                {
+                    AuthenticatedUser = result.User;
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    statusLabel.Text = "Facebook login failed";
+                    statusLabel.ForeColor = Color.Red;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            statusLabel.Text = "Facebook authentication error";
+            statusLabel.ForeColor = Color.Red;
+        }
+        finally
+        {
+            SetLoadingState(false);
+        }
+    }
+
+    private bool ValidateCredentials()
+    {
+        if (string.IsNullOrWhiteSpace(loginControl.Username))
+        {
+            statusLabel.Text = "Please enter your username or email";
+            statusLabel.ForeColor = Color.Red;
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(loginControl.Password))
+        {
+            statusLabel.Text = "Please enter your password";
+            statusLabel.ForeColor = Color.Red;
+            return false;
+        }
+
+        if (loginControl.Username.Contains("@") && !IsValidEmail(loginControl.Username))
+        {
+            statusLabel.Text = "Please enter a valid email address";
+            statusLabel.ForeColor = Color.Red;
+            return false;
+        }
+
+        return true;
+    }
+
+    private void SetLoadingState(bool isLoading)
+    {
+        loginControl.Enabled = !isLoading;
+        progressBar.Visible = isLoading;
+        
+        if (!isLoading)
+        {
+            statusLabel.Text = "";
+        }
+    }
+
+    private void LoadSavedCredentials()
+    {
+        var savedUsername = UserPreferences.GetSavedUsername();
+        if (!string.IsNullOrEmpty(savedUsername))
+        {
+            loginControl.Username = savedUsername;
+            loginControl.RememberMe = true;
+        }
+    }
+
+    private void SaveCredentials()
+    {
+        UserPreferences.SaveUsername(loginControl.Username);
+    }
+
+    // Helper methods
+    private BeepTextBox GetUsernameTextBox() { /* Find username textbox in loginControl */ return null; }
+    private BeepTextBox GetPasswordTextBox() { /* Find password textbox in loginControl */ return null; }
+    private bool IsValidEmail(string email) { /* Email validation logic */ return true; }
+    private string GetPasswordStrength(string password) { /* Password strength logic */ return "Medium"; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepLogin provides specialized theming with dedicated login-specific theme properties:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var loginControl = new BeepLogin
+{
+    Theme = "DarkTheme",
+    ViewType = LoginViewType.Modern
+};
+
+// Theme automatically applies specialized login colors:
+// - LoginPopoverBackgroundColor: Main login panel background
+// - LoginTitleColor: Title and label text
+// - LoginSubtitleColor: Subtitle and secondary text
+// - LoginLinkColor: Forgot password and register links
+// - LoginButtonBackgroundColor: Login and social buttons
+// - LoginButtonTextColor: Button text
+// - LoginLogoBackgroundColor: Logo and avatar backgrounds
+
+// Apply theme manually if needed
+loginControl.ApplyTheme();</code></pre>
+                    </div>
+
+                    <h3>Login Theme Properties</h3>
+                    <ul>
+                        <li><strong>LoginPopoverBackgroundColor</strong> - Main login panel background</li>
+                        <li><strong>LoginTitleColor</strong> - Primary text (titles, labels, input text)</li>
+                        <li><strong>LoginSubtitleColor</strong> - Secondary text (subtitles, descriptions)</li>
+                        <li><strong>LoginLinkColor</strong> - Hyperlinks (forgot password, register)</li>
+                        <li><strong>LoginButtonBackgroundColor</strong> - All button backgrounds</li>
+                        <li><strong>LoginButtonTextColor</strong> - All button text</li>
+                        <li><strong>LoginLogoBackgroundColor</strong> - Logo and avatar containers</li>
+                    </ul>
+
+                    <div class="code-example">
+                        <h3>Custom Login Theme</h3>
+                        <pre><code class="language-csharp">// Create custom theme for login
+var customTheme = new BeepTheme
+{
+    LoginPopoverBackgroundColor = Color.FromArgb(248, 250, 252),
+    LoginTitleColor = Color.FromArgb(30, 41, 59),
+    LoginSubtitleColor = Color.FromArgb(100, 116, 139),
+    LoginLinkColor = Color.FromArgb(59, 130, 246),
+    LoginButtonBackgroundColor = Color.FromArgb(59, 130, 246),
+    LoginButtonTextColor = Color.White,
+    LoginLogoBackgroundColor = Color.FromArgb(241, 245, 249)
+};
+
+// Apply to login control
+BeepThemesManager.AddTheme("CustomLogin", customTheme);
+loginControl.Theme = "CustomLogin";
+loginControl.ApplyTheme();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🔐 Security</h3>
+                    <ul>
+                        <li><strong>Password handling:</strong> Never store plain text passwords; always hash and salt</li>
+                        <li><strong>Input validation:</strong> Validate credentials both client-side and server-side</li>
+                        <li><strong>Rate limiting:</strong> Implement login attempt rate limiting to prevent brute force attacks</li>
+                        <li><strong>Secure communication:</strong> Always use HTTPS for authentication</li>
+                    </ul>
+
+                    <h3>🎨 User Experience</h3>
+                    <ul>
+                        <li><strong>View selection:</strong> Choose view types that match your application's design language</li>
+                        <li><strong>Error messaging:</strong> Provide clear, helpful error messages without revealing security details</li>
+                        <li><strong>Loading states:</strong> Show progress indicators during authentication</li>
+                        <li><strong>Remember me:</strong> Implement secure credential storage for remember me functionality</li>
+                    </ul>
+
+                    <h3>📱 Layout Guidelines</h3>
+                    <ul>
+                        <li><strong>Simple/Minimal:</strong> Best for desktop applications with simple authentication</li>
+                        <li><strong>Social views:</strong> Ideal for applications with social media integration</li>
+                        <li><strong>Modern:</strong> Perfect for contemporary business applications</li>
+                        <li><strong>Extended/Full:</strong> Suitable for complex enterprise applications</li>
+                    </ul>
+
+                    <h3>🔗 Integration</h3>
+                    <ul>
+                        <li><strong>Social authentication:</strong> Properly implement OAuth flows for social providers</li>
+                        <li><strong>Logo branding:</strong> Use high-quality SVG logos for crisp appearance</li>
+                        <li><strong>Avatar support:</strong> Allow users to customize their avatar images</li>
+                        <li><strong>Form validation:</strong> Implement real-time validation with helpful feedback</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 View Selection Tip</strong>
+                        <p>Choose Simple or Minimal for desktop apps, Social for web-style apps, and Modern for contemporary business applications. Extended and Full are best for enterprise software.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Security Best Practice</strong>
+                        <p>Always implement proper password hashing, input validation, and rate limiting. BeepLogin handles the UI - security implementation is your responsibility.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Social Login Warning</strong>
+                        <p>Social login buttons are UI elements only. You must implement actual OAuth integration with each provider's SDK or API.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-multichipgroup.html"><i class="bi bi-arrow-left"></i> BeepMultiChipGroup</a>
+                    <a href="beep-wizard.html">BeepWizard <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

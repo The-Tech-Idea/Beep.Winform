@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepDialogBox - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-dark.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="control-header">
+            <h1>BeepDialogBox</h1>
+            <p>Customizable dialog box for displaying messages, warnings, and prompts</p>
+        </header>
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-nav">
+            <a href="../index.html">Home</a>
+            <span>›</span>
+            <a href="../index.html#dialogs-popups">Dialogs & Popups</a>
+            <span>›</span>
+            <span class="current">BeepDialogBox</span>
+        </nav>
+
+        <!-- Content -->
+        <main class="content">
+            <!-- Table of Contents -->
+            <div class="toc">
+                <h3>?? Table of Contents</h3>
+                <ul>
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#features">Key Features</a></li>
+                    <li><a href="#basic-usage">Basic Usage</a></li>
+                    <li><a href="#properties">Properties</a></li>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="#theming">Theming</a></li>
+                    <li><a href="#best-practices">Best Practices</a></li>
+                </ul>
+            </div>
+
+            <!-- Overview -->
+            <section id="overview" class="section">
+                <h2>?? Overview</h2>
+                <p>
+                    <strong>BeepDialogBox</strong> is a flexible dialog control that extends BeepPanel to provide 
+                    customizable message dialogs, confirmations, warnings, and user prompts. It offers 
+                    standard dialog functionality like OK/Cancel buttons, but with enhanced styling, theming, 
+                    and customization options.
+                </p>
+                <p>
+                    As a descendent of the BeepPanel class, BeepDialogBox inherits all panel features such as 
+                    rounded corners, shadows, and theming capabilities, while adding dialog-specific functionality 
+                    like multiple button options, dialog results, and built-in close button.
+                </p>
+                
+                <div class="control-demo">
+                    <img src="../assets/images/beep-dialogbox-demo.png" alt="BeepDialogBox demonstration">
+                    <p><em>BeepDialogBox with primary and secondary buttons</em></p>
+                </div>
+            </section>
+
+            <!-- Key Features -->
+            <section id="features" class="section">
+                <h2>? Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h4>?? Multiple Button Support</h4>
+                        <p>Primary, secondary, and optional third buttons with customizable text and colors</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Dialog Results</h4>
+                        <p>Standard dialog result values returned based on user interaction</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>? Built-in Close Button</h4>
+                        <p>Configurable close button in the title bar for quick dismissal</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>??? Icon Support</h4>
+                        <p>Optional icon display for visual context (information, warning, error, etc.)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Theming Integration</h4>
+                        <p>Full support for Beep theming system with dialog-specific styling</p>
+                    </div>
+                    <div class="feature-card">
+                        <h4>?? Flexible Layout</h4>
+                        <p>Automatically arranges buttons and content based on the dialog size</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Basic Usage -->
+            <section id="basic-usage" class="section">
+                <h2>?? Basic Usage</h2>
+                
+                <div class="code-example">
+                    <h3>Simple Confirmation Dialog</h3>
+                    <pre><code class="language-csharp">// Create a basic confirmation dialog
+var confirmDialog = new BeepDialogBox
+{
+    TitleText = "Confirm Action",
+    PrimaryButtonText = "OK",
+    SecondaryButtonText = "Cancel",
+    Size = new Size(400, 200)
+};
+
+// Add content to the dialog (use the content area of the BeepPanel)
+BeepLabel messageLabel = new BeepLabel
+{
+    Text = "Are you sure you want to proceed with this action?",
+    AutoSize = true,
+    Location = new Point(20, 50)
+};
+confirmDialog.Controls.Add(messageLabel);
+
+// Handle button clicks
+confirmDialog.PrimaryButtonClicked += (sender, e) => 
+{
+    confirmDialog.DialogResult = BeepDialogResult.OK;
+    confirmDialog.Hide();
+};
+
+confirmDialog.SecondaryButtonClicked += (sender, e) => 
+{
+    confirmDialog.DialogResult = BeepDialogResult.Cancel;
+    confirmDialog.Hide();
+};
+
+// Show dialog
+confirmDialog.ShowDialog();</code></pre>
+                </div>
+
+                <div class="tip">
+                    <strong>Tip: Dialog Results</strong>
+                    <p>The BeepDialogBox uses the <code>BeepDialogResult</code> enum which provides standard dialog result values like OK, Cancel, Yes, No, etc. You can check the dialog result after it closes to determine the user's action.</p>
+                </div>
+            </section>
+
+            <!-- Properties -->
+            <section id="properties" class="section">
+                <h2>?? Properties</h2>
+
+                <h3>Button Properties</h3>
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Type</th>
+                            <th>Default</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PrimaryButtonText</td>
+                            <td>string</td>
+                            <td>"OK"</td>
+                            <td>Text displayed on the primary button</td>
+                        </tr>
+                        <tr>
+                            <td>SecondaryButtonText</td>
+                            <td>string</td>
+                            <td>"Cancel"</td>
+                            <td>Text displayed on the secondary button</td>
+                        </tr>
+                        <tr>
+                            <td>PrimaryButtonColor</td>
+                            <td>Color</td>
+                            <td>Theme-defined</td>
+                            <td>Background color of the primary button</td>
+                        </tr>
+                        <tr>
+                            <td>SecondaryButtonColor</td>
+                            <td>Color</td>
+                            <td>Theme-defined</td>
+                            <td>Background color of the secondary button</td>
+                        </tr>
+                        <tr>
+                            <td>DialogResult</td>
+                            <td>BeepDialogResult</td>
+                            <td>None</td>
+                            <td>Result value indicating which button was clicked</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Inherited Panel Properties</h3>
+                <p>As a subclass of <code>BeepPanel</code>, BeepDialogBox inherits all the standard BeepPanel properties including:</p>
+
+                <div class="property-grid">
+                    <div class="property-card">
+                        <h4>TitleText <code>string</code></h4>
+                        <p>Text displayed in the dialog's title bar</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>ShowTitle <code>bool</code></h4>
+                        <p>Whether to display the title bar</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>ShowShadow <code>bool</code></h4>
+                        <p>Whether to display a shadow effect</p>
+                    </div>
+                    <div class="property-card">
+                        <h4>BorderRadius <code>int</code></h4>
+                        <p>Radius for rounded corners of the dialog</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Events -->
+            <section id="events" class="section">
+                <h2>?? Events</h2>
+                
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>PrimaryButtonClicked</td>
+                            <td>Triggered when the primary button is clicked</td>
+                        </tr>
+                        <tr>
+                            <td>SecondaryButtonClicked</td>
+                            <td>Triggered when the secondary button is clicked</td>
+                        </tr>
+                        <tr>
+                            <td>ThirdButtonClicked</td>
+                            <td>Triggered when the third button is clicked (if visible)</td>
+                        </tr>
+                        <tr>
+                            <td>CloseButtonClicked</td>
+                            <td>Triggered when the close button in the title bar is clicked</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="code-example">
+                    <h3>Event Handling Example</h3>
+                    <pre><code class="language-csharp">// Create a dialog
+var dialog = new BeepDialogBox
+{
+    TitleText = "File Save Options",
+    PrimaryButtonText = "Save",
+    SecondaryButtonText = "Don't Save",
+};
+
+// Set up a third button
+dialog._thirdButton.Text = "Cancel";
+dialog._thirdButton.Visible = true;
+
+// Add event handlers
+dialog.PrimaryButtonClicked += (sender, e) => {
+    // Save file
+    SaveCurrentDocument();
+    dialog.DialogResult = BeepDialogResult.Yes;
+    dialog.Hide();
+};
+
+dialog.SecondaryButtonClicked += (sender, e) => {
+    // Discard changes
+    dialog.DialogResult = BeepDialogResult.No;
+    dialog.Hide();
+};
+
+dialog.ThirdButtonClicked += (sender, e) => {
+    // Cancel operation
+    dialog.DialogResult = BeepDialogResult.Cancel;
+    dialog.Hide();
+};
+
+dialog.CloseButtonClicked += (sender, e) => {
+    // Same as cancel
+    dialog.DialogResult = BeepDialogResult.Cancel;
+};</code></pre>
+                </div>
+            </section>
+
+            <!-- Examples -->
+            <section id="examples" class="section">
+                <h2>?? Examples</h2>
+
+                <div class="code-example">
+                    <h3>Information Dialog</h3>
+                    <pre><code class="language-csharp">/// <summary>
+/// Shows an information dialog with an OK button
+/// </summary>
+public BeepDialogResult ShowInformation(string title, string message)
+{
+    // Create the dialog
+    var dialog = new BeepDialogBox
+    {
+        TitleText = title,
+        PrimaryButtonText = "OK",
+        Size = new Size(400, 200),
+        StartPosition = FormStartPosition.CenterParent,
+    };
+    
+    // Hide secondary button
+    dialog._secondaryButton.Visible = false;
+    
+    // Create message label
+    BeepLabel messageLabel = new BeepLabel
+    {
+        Text = message,
+        AutoSize = true,
+        Location = new Point(20, 60),
+        MaximumSize = new Size(360, 0)
+    };
+    dialog.Controls.Add(messageLabel);
+    
+    // Add information icon
+    BeepImage iconImage = new BeepImage
+    {
+        ImagePath = "icons/information.svg",
+        Size = new Size(32, 32),
+        Location = new Point(20, 20)
+    };
+    dialog.Controls.Add(iconImage);
+    
+    // Handle button click
+    dialog.PrimaryButtonClicked += (sender, e) =>
+    {
+        dialog.DialogResult = BeepDialogResult.OK;
+        dialog.Hide();
+    };
+    
+    // Show dialog and return result
+    dialog.ShowDialog();
+    return dialog.DialogResult;
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h3>Custom User Input Dialog</h3>
+                    <pre><code class="language-csharp">/// <summary>
+/// Shows a text input dialog and returns the entered text
+/// </summary>
+public string ShowInputDialog(string title, string prompt, string defaultValue = "")
+{
+    string result = defaultValue;
+    
+    // Create the dialog
+    var dialog = new BeepDialogBox
+    {
+        TitleText = title,
+        PrimaryButtonText = "OK",
+        SecondaryButtonText = "Cancel",
+        Size = new Size(450, 200),
+        StartPosition = FormStartPosition.CenterParent
+    };
+    
+    // Create prompt label
+    BeepLabel promptLabel = new BeepLabel
+    {
+        Text = prompt,
+        AutoSize = true,
+        Location = new Point(20, 20)
+    };
+    
+    // Create text input
+    BeepTextBox inputBox = new BeepTextBox
+    {
+        Text = defaultValue,
+        Location = new Point(20, 50),
+        Width = 400,
+        Height = 30
+    };
+    
+    // Add controls to dialog
+    dialog.Controls.Add(promptLabel);
+    dialog.Controls.Add(inputBox);
+    
+    // Handle button clicks
+    dialog.PrimaryButtonClicked += (sender, e) =>
+    {
+        result = inputBox.Text;
+        dialog.DialogResult = BeepDialogResult.OK;
+        dialog.Hide();
+    };
+    
+    dialog.SecondaryButtonClicked += (sender, e) =>
+    {
+        dialog.DialogResult = BeepDialogResult.Cancel;
+        dialog.Hide();
+    };
+    
+    // Show dialog
+    var dialogResult = dialog.ShowDialog();
+    
+    // Return input if OK was clicked, otherwise return empty string
+    return dialogResult == BeepDialogResult.OK ? result : string.Empty;
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h3>Creating a Dialog Helper Class</h3>
+                    <pre><code class="language-csharp">/// <summary>
+/// Helper class for commonly used dialogs
+/// </summary>
+public class BeepDialogs
+{
+    // Show information message
+    public static BeepDialogResult Information(string message, string title = "Information")
+    {
+        return ShowDialog(title, message, "OK", null, null, "icons/information.svg");
+    }
+    
+    // Show warning message
+    public static BeepDialogResult Warning(string message, string title = "Warning")
+    {
+        return ShowDialog(title, message, "OK", null, null, "icons/warning.svg");
+    }
+    
+    // Show error message
+    public static BeepDialogResult Error(string message, string title = "Error")
+    {
+        return ShowDialog(title, message, "OK", null, null, "icons/error.svg");
+    }
+    
+    // Show confirmation dialog
+    public static BeepDialogResult Confirm(string message, string title = "Confirm")
+    {
+        return ShowDialog(title, message, "Yes", "No", null, "icons/question.svg");
+    }
+    
+    // Show Yes/No/Cancel dialog
+    public static BeepDialogResult YesNoCancel(string message, string title = "Question")
+    {
+        return ShowDialog(title, message, "Yes", "No", "Cancel", "icons/question.svg");
+    }
+    
+    // Core dialog implementation
+    private static BeepDialogResult ShowDialog(string title, string message, 
+        string primaryText, string secondaryText, string thirdText, string iconPath)
+    {
+        var dialog = new BeepDialogBox
+        {
+            TitleText = title,
+            PrimaryButtonText = primaryText,
+            Size = new Size(450, 220),
+            StartPosition = FormStartPosition.CenterScreen
+        };
+        
+        // Configure buttons
+        if (string.IsNullOrEmpty(secondaryText))
+        {
+            dialog._secondaryButton.Visible = false;
+        }
+        else
+        {
+            dialog.SecondaryButtonText = secondaryText;
+        }
+        
+        if (!string.IsNullOrEmpty(thirdText))
+        {
+            dialog._thirdButton.Text = thirdText;
+            dialog._thirdButton.Visible = true;
+        }
+        
+        // Add icon if provided
+        if (!string.IsNullOrEmpty(iconPath))
+        {
+            BeepImage iconImage = new BeepImage
+            {
+                ImagePath = iconPath,
+                Size = new Size(48, 48),
+                Location = new Point(20, 20)
+            };
+            dialog.Controls.Add(iconImage);
+        }
+        
+        // Create message label with proper positioning
+        int messageX = !string.IsNullOrEmpty(iconPath) ? 80 : 20;
+        BeepLabel messageLabel = new BeepLabel
+        {
+            Text = message,
+            AutoSize = true,
+            Location = new Point(messageX, 30),
+            MaximumSize = new Size(350, 0)
+        };
+        dialog.Controls.Add(messageLabel);
+        
+        // Set up result handling
+        dialog.PrimaryButtonClicked += (s, e) => {
+            dialog.DialogResult = primaryText == "Yes" ? 
+                BeepDialogResult.Yes : BeepDialogResult.OK;
+            dialog.Hide();
+        };
+        
+        if (!string.IsNullOrEmpty(secondaryText))
+        {
+            dialog.SecondaryButtonClicked += (s, e) => {
+                dialog.DialogResult = secondaryText == "No" ? 
+                    BeepDialogResult.No : BeepDialogResult.Cancel;
+                dialog.Hide();
+            };
+        }
+        
+        if (!string.IsNullOrEmpty(thirdText))
+        {
+            dialog.ThirdButtonClicked += (s, e) => {
+                dialog.DialogResult = BeepDialogResult.Cancel;
+                dialog.Hide();
+            };
+        }
+        
+        // Show dialog and return result
+        dialog.ShowDialog();
+        return dialog.DialogResult;
+    }
+}</code></pre>
+                </div>
+
+                <div class="code-example">
+                    <h3>Using the Dialog Helper Class</h3>
+                    <pre><code class="language-csharp">// Show information dialog
+BeepDialogs.Information("Operation completed successfully.");
+
+// Show warning dialog
+BeepDialogs.Warning("Low disk space available.");
+
+// Show error dialog
+BeepDialogs.Error("An error occurred while saving the file.");
+
+// Show confirmation dialog and check result
+if (BeepDialogs.Confirm("Are you sure you want to delete this item?") == BeepDialogResult.Yes)
+{
+    DeleteItem();
+}
+
+// Show Yes/No/Cancel dialog
+BeepDialogResult result = BeepDialogs.YesNoCancel("Save changes before closing?");
+switch (result)
+{
+    case BeepDialogResult.Yes:
+        SaveChanges();
+        CloseApplication();
+        break;
+    case BeepDialogResult.No:
+        CloseApplication();
+        break;
+    case BeepDialogResult.Cancel:
+        // Do nothing, continue editing
+        break;
+}</code></pre>
+                </div>
+            </section>
+
+            <!-- Theming -->
+            <section id="theming" class="section">
+                <h2>?? Theming</h2>
+                
+                <p>BeepDialogBox fully integrates with the Beep theming system, inheriting all panel theming capabilities while adding dialog-specific theming features.</p>
+
+                <div class="code-example">
+                    <h3>Theme Integration</h3>
+                    <pre><code class="language-csharp">// Apply a theme to the dialog
+dialog.Theme = "DarkTheme";
+dialog.ApplyTheme();
+
+// Theme properties that affect BeepDialogBox:
+// - PanelBackColor: Dialog background color
+// - PrimaryTextColor: Primary button text color
+// - SecondaryTextColor: Secondary button text color
+// - ButtonBackColor: Default button background color
+// - DialogCloseButtonForeColor: Close button color</code></pre>
+                </div>
+
+                <div class="tip">
+                    <strong>Tip: Custom Button Styling</strong>
+                    <p>You can access the button controls directly to apply custom styling beyond what the theme provides:</p>
+                    <pre><code class="language-csharp">// Apply custom styling to the primary button
+dialog._primaryButton.UIVariant = ReactUIVariant.Contained;
+dialog._primaryButton.UIColor = ReactUIColor.Success;</code></pre>
+                </div>
+            </section>
+
+            <!-- Best Practices -->
+            <section id="best-practices" class="section">
+                <h2>?? Best Practices</h2>
+
+                <h3>Dialog Content</h3>
+                <ul>
+                    <li><strong>Clear messages:</strong> Keep dialog messages concise and easy to understand</li>
+                    <li><strong>Descriptive titles:</strong> Use specific titles that indicate the dialog's purpose</li>
+                    <li><strong>Appropriate icons:</strong> Use icons that match the dialog type (information, warning, error)</li>
+                    <li><strong>Button clarity:</strong> Make button labels clear and action-oriented</li>
+                </ul>
+
+                <h3>Dialog Behavior</h3>
+                <ul>
+                    <li><strong>Modal display:</strong> Use ShowDialog() for important prompts that require user action</li>
+                    <li><strong>Close handlers:</strong> Always handle the close button event to set an appropriate dialog result</li>
+                    <li><strong>Keyboard support:</strong> Ensure Enter and Escape keys work as expected</li>
+                    <li><strong>Focus management:</strong> Set initial focus to the most likely action or input field</li>
+                </ul>
+
+                <h3>Layout Considerations</h3>
+                <ul>
+                    <li><strong>Appropriate sizing:</strong> Size dialogs appropriately for their content</li>
+                    <li><strong>Center positioning:</strong> Center dialogs relative to their parent window</li>
+                    <li><strong>Content spacing:</strong> Use consistent padding and spacing for dialog content</li>
+                </ul>
+
+                <div class="warning">
+                    <strong>Watch Out!</strong>
+                    <p>Avoid overusing dialogs for non-critical information that could be presented in-line or with less disruptive notifications. Dialog fatigue can lead to users dismissing important messages without reading them.</p>
+                </div>
+            </section>
+        </main>
+
+        <!-- Navigation -->
+        <nav class="nav-links">
+            <a href="../index.html">? Back to Controls</a>
+            <a href="beep-popup.html">BeepPopupForm ?</a>
+        </nav>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+</body>
+</html>

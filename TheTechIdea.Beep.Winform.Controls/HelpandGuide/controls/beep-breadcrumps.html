@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepBreadcrumps - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html" class="active">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>›</span>
+                    <span>BeepBreadcrumps</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepBreadcrumps</h1>
+                    <p class="page-subtitle">Enhanced navigation breadcrumb control with multiple visual styles and interactive features</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepBreadcrumps</strong> is an advanced navigation breadcrumb control that provides users with 
+                        clear visual guidance about their current location within a hierarchical structure. It offers multiple 
+                        visual styles, interactive click handling, and comprehensive theming support.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepBreadcrumps features hover effects, 
+                        customizable separators, icon support, multiple visual styles (Classic, Modern, Pill, Flat), 
+                        and complete theme integration. It's perfect for file explorers, website navigation, 
+                        application menus, and any hierarchical navigation system.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Multiple Visual Styles</h3>
+                            <p>Classic, Modern, Pill, and Flat styles to match any design aesthetic</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖱️ Interactive Navigation</h3>
+                            <p>Clickable breadcrumb items with hover effects and visual feedback</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Icon Support</h3>
+                            <p>Optional SVG icons for each breadcrumb item with theme-aware coloring</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🔗 Customizable Separators</h3>
+                            <p>Configurable separator text and spacing between breadcrumb items</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Design</h3>
+                            <p>Automatic layout adjustment and item positioning based on content</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Hit Area Testing</h3>
+                            <p>Advanced hit testing for precise click detection and hover handling</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    <div class="visual-demo">
+                        <div class="breadcrumbs-preview">
+                            
+                            <div class="style-demo">
+                                <div class="style-label">Classic Style</div>
+                                <div class="breadcrumb-style classic">
+                                    <a href="#" class="breadcrumb-item">🏠 Home</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📄 Documents</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📁 Projects</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <span class="breadcrumb-item current">📋 Current File</span>
+                                </div>
+                            </div>
+
+                            <div class="style-demo">
+                                <div class="style-label">Modern Style</div>
+                                <div class="breadcrumb-style modern">
+                                    <a href="#" class="breadcrumb-item">🏠 Home</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📄 Documents</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📁 Projects</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <span class="breadcrumb-item current">📋 Current File</span>
+                                </div>
+                            </div>
+
+                            <div class="style-demo">
+                                <div class="style-label">Pill Style</div>
+                                <div class="breadcrumb-style pill">
+                                    <a href="#" class="breadcrumb-item">🏠 Home</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📄 Documents</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📁 Projects</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <span class="breadcrumb-item current">📋 Current File</span>
+                                </div>
+                            </div>
+
+                            <div class="style-demo">
+                                <div class="style-label">Flat Style</div>
+                                <div class="breadcrumb-style flat">
+                                    <a href="#" class="breadcrumb-item">🏠 Home</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📄 Documents</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <a href="#" class="breadcrumb-item">📁 Projects</a>
+                                    <span class="breadcrumb-separator">></span>
+                                    <span class="breadcrumb-item current">📋 Current File</span>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>Examples of BeepBreadcrumps with different visual styles</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .breadcrumbs-preview {
+                            display: flex;
+                            flex-direction: column;
+                            gap: 1.5rem;
+                            align-items: center;
+                            margin: 2rem 0;
+                        }
+
+                        .style-demo {
+                            width: 100%;
+                        }
+
+                        .breadcrumb-style {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.5rem;
+                            padding: 0.5rem;
+                            border-radius: 8px;
+                            background: white;
+                            border: 1px solid var(--color-border-light);
+                            min-width: 400px;
+                            justify-content: center;
+                        }
+
+                        .breadcrumb-item {
+                            padding: 0.5rem 1rem;
+                            border-radius: 4px;
+                            text-decoration: none;
+                            color: var(--color-primary);
+                            font-size: 14px;
+                            transition: all 0.3s ease;
+                        }
+
+                        .breadcrumb-item:hover {
+                            background: var(--color-background-secondary);
+                        }
+
+                        .breadcrumb-item.current {
+                            color: var(--color-text);
+                            font-weight: bold;
+                        }
+
+                        .breadcrumb-separator {
+                            color: var(--color-text-muted);
+                            margin: 0 0.5rem;
+                        }
+
+                        /* Style variations */
+                        .classic .breadcrumb-item {
+                            border: 1px solid transparent;
+                        }
+
+                        .classic .breadcrumb-item:hover {
+                            border-color: var(--color-primary);
+                            background: var(--color-background-secondary);
+                        }
+
+                        .modern .breadcrumb-item {
+                            border-radius: 6px;
+                            transition: all 0.3s ease;
+                        }
+
+                        .modern .breadcrumb-item:hover {
+                            background: var(--color-primary);
+                            color: white;
+                            transform: translateY(-1px);
+                        }
+
+                        .pill .breadcrumb-item {
+                            border-radius: 20px;
+                            padding: 0.4rem 1.2rem;
+                        }
+
+                        .pill .breadcrumb-item.current {
+                            background: var(--color-primary);
+                            color: white;
+                        }
+
+                        .flat .breadcrumb-item {
+                            border-bottom: 2px solid transparent;
+                            padding-bottom: 0.3rem;
+                        }
+
+                        .flat .breadcrumb-item:hover {
+                            border-bottom-color: var(--color-primary);
+                            background: transparent;
+                        }
+
+                        .style-label {
+                            font-weight: bold;
+                            color: var(--color-text);
+                            margin-bottom: 0.5rem;
+                            text-align: left;
+                            width: 100%;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Breadcrumb Navigation</h3>
+                        <pre><code class="language-csharp">// Create a basic breadcrumb control
+var breadcrumbs = new BeepBreadcrumps
+{
+    Size = new Size(500, 36),
+    Location = new Point(10, 10),
+    Style = BreadcrumbStyle.Modern,
+    SeparatorText = ">",
+    ItemSpacing = 8,
+    ShowIcons = true
+};
+
+// Add navigation items
+breadcrumbs.Items.Add(new SimpleItem 
+{ 
+    Name = "Home", 
+    Text = "Home", 
+    ImagePath = "home.svg" 
+});
+
+breadcrumbs.Items.Add(new SimpleItem 
+{ 
+    Name = "Documents", 
+    Text = "Documents", 
+    ImagePath = "folder.svg" 
+});
+
+breadcrumbs.Items.Add(new SimpleItem 
+{ 
+    Name = "Projects", 
+    Text = "Projects", 
+    ImagePath = "folder.svg" 
+});
+
+breadcrumbs.Items.Add(new SimpleItem 
+{ 
+    Name = "CurrentFile", 
+    Text = "Current File", 
+    ImagePath = "file.svg" 
+});
+
+// Handle breadcrumb clicks
+breadcrumbs.CrumbClicked += (sender, e) =>
+{
+    MessageBox.Show($"Navigating to: {e.ItemText} (Index: {e.Index})");
+};
+
+this.Controls.Add(breadcrumbs);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>File Explorer Breadcrumbs</h3>
+                        <pre><code class="language-csharp">var filePathBreadcrumbs = new BeepBreadcrumps
+{
+    Size = new Size(600, 40),
+    Location = new Point(10, 10),
+    Style = BreadcrumbStyle.Classic,
+    SeparatorText = "/",
+    ItemSpacing = 12,
+    ShowIcons = true,
+    ShowHomeIcon = true
+};
+
+// Handle navigation clicks
+filePathBreadcrumbs.CrumbClicked += OnPathClicked;
+
+this.Controls.Add(filePathBreadcrumbs);
+
+private void OnPathClicked(object sender, CrumbClickedEventArgs e)
+{
+    // Navigate to the selected path level
+    NavigateToPath(e.Index);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Website Navigation Breadcrumbs</h3>
+                        <pre><code class="language-csharp">var websiteBreadcrumbs = new BeepBreadcrumps
+{
+    Size = new Size(700, 38),
+    Style = BreadcrumbStyle.Pill,
+    SeparatorText = "?",
+    ItemSpacing = 6,
+    ShowIcons = false
+};
+
+// Add website navigation structure
+websiteBreadcrumbs.AddItem("home", "Home");
+websiteBreadcrumbs.AddItem("products", "Products");
+websiteBreadcrumbs.AddItem("electronics", "Electronics");
+websiteBreadcrumbs.AddItem("laptops", "Laptops");
+websiteBreadcrumbs.AddItem("gaming", "Gaming Laptops");
+
+// Set current selection
+websiteBreadcrumbs.SelectedIndex = 4;</code></pre>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Core Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Items</code></td>
+                                <td>BindingList&lt;SimpleItem&gt;</td>
+                                <td>Empty list</td>
+                                <td>Collection of breadcrumb navigation items</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedItem</code></td>
+                                <td>SimpleItem</td>
+                                <td>null</td>
+                                <td>Currently selected breadcrumb item (read-only)</td>
+                            </tr>
+                            <tr>
+                                <td><code>SelectedIndex</code></td>
+                                <td>int</td>
+                                <td>-1</td>
+                                <td>Index of currently selected breadcrumb item (read-only)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Appearance Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Style</code></td>
+                                <td>BreadcrumbStyle</td>
+                                <td>Modern</td>
+                                <td>Visual style: Classic, Modern, Pill, or Flat</td>
+                            </tr>
+                            <tr>
+                                <td><code>TextFont</code></td>
+                                <td>Font</td>
+                                <td>Segoe UI, 9pt</td>
+                                <td>Font used for breadcrumb item text</td>
+                            </tr>
+                            <tr>
+                                <td><code>SeparatorText</code></td>
+                                <td>string</td>
+                                <td>">"</td>
+                                <td>Text displayed between breadcrumb items</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemSpacing</code></td>
+                                <td>int</td>
+                                <td>8</td>
+                                <td>Spacing in pixels between breadcrumb items</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowIcons</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether to display icons for breadcrumb items</td>
+                            </tr>
+                            <tr>
+                                <td><code>ShowHomeIcon</code></td>
+                                <td>bool</td>
+                                <td>true</td>
+                                <td>Whether to display a home icon for the first item</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Inherited Properties</h3>
+                    <p>BeepBreadcrumps inherits all properties from <strong>BeepControl</strong>, including:</p>
+                    <ul>
+                        <li><strong>Theme</strong> - Theme name for styling</li>
+                        <li><strong>IsRounded</strong> - Enable rounded corners</li>
+                        <li><strong>ShowShadow</strong> - Display drop shadow</li>
+                        <li><strong>BorderRadius</strong> - Corner radius size</li>
+                        <li><strong>UseThemeFont</strong> - Apply theme fonts automatically</li>
+                    </ul>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>CrumbClicked</code></td>
+                                <td>object sender, CrumbClickedEventArgs e</td>
+                                <td>Fired when user clicks on a breadcrumb item</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>CrumbClickedEventArgs Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Index</code></td>
+                                <td>int</td>
+                                <td>Index of the clicked breadcrumb item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemName</code></td>
+                                <td>string</td>
+                                <td>Name property of the clicked item</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemText</code></td>
+                                <td>string</td>
+                                <td>Display text of the clicked item</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Example</h3>
+                        <pre><code class="language-csharp">var breadcrumbs = new BeepBreadcrumps();
+
+// Handle breadcrumb navigation
+breadcrumbs.CrumbClicked += (sender, e) =>
+{
+    Console.WriteLine($"Clicked item: {e.ItemText}");
+    Console.WriteLine($"Index: {e.Index}");
+    Console.WriteLine($"Name: {e.ItemName}");
+    
+    // Navigate to the selected level
+    NavigateToLevel(e.Index, e.ItemName);
+};
+
+private void NavigateToLevel(int index, string itemName)
+{
+    // Remove all items after the clicked index
+    breadcrumbs.NavigateToIndex(index);
+    
+    // Perform navigation logic
+    switch (itemName)
+    {
+        case "Home":
+            ShowHomePage();
+            break;
+        case "Documents":
+            ShowDocumentsPage();
+            break;
+        case "Projects":
+            ShowProjectsPage();
+            break;
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AddItem</code></td>
+                                <td>string name, string text, string imagePath</td>
+                                <td>void</td>
+                                <td>Add a new breadcrumb item to the collection</td>
+                            </tr>
+                            <tr>
+                                <td><code>RemoveItem</code></td>
+                                <td>int index</td>
+                                <td>void</td>
+                                <td>Remove a breadcrumb item at the specified index</td>
+                            </tr>
+                            <tr>
+                                <td><code>Clear</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Remove all breadcrumb items</td>
+                            </tr>
+                            <tr>
+                                <td><code>NavigateToIndex</code></td>
+                                <td>int index</td>
+                                <td>void</td>
+                                <td>Navigate to specific index and remove all items after it</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Apply current theme colors and fonts to the breadcrumbs</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Method Usage Examples</h3>
+                        <pre><code class="language-csharp">// Add items dynamically
+breadcrumbs.AddItem("users", "Users", "users.svg");
+breadcrumbs.AddItem("profile", "Profile", "user.svg");
+
+// Navigate backwards (removes items after index 1)
+breadcrumbs.NavigateToIndex(1);
+
+// Remove specific item
+breadcrumbs.RemoveItem(2);
+
+// Clear all breadcrumbs
+breadcrumbs.Clear();
+
+// Apply theme changes
+breadcrumbs.Theme = "DarkTheme";
+breadcrumbs.ApplyTheme();</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>File System Explorer</h3>
+                        <pre><code class="language-csharp">public class FileExplorerForm : Form
+{
+    private BeepBreadcrumps pathBreadcrumbs;
+    private BeepListBox fileListBox;
+    private string currentPath;
+
+    public FileExplorerForm()
+    {
+        InitializeFileExplorer();
+        LoadInitialPath(@"C:\");
+    }
+
+    private void InitializeFileExplorer()
+    {
+        this.Text = "File Explorer";
+        this.Size = new Size(800, 600);
+
+        // Path breadcrumbs
+        pathBreadcrumbs = new BeepBreadcrumps
+        {
+            Size = new Size(780, 40),
+            Location = new Point(10, 10),
+            Style = BreadcrumbStyle.Classic,
+            SeparatorText = "\\",
+            ItemSpacing = 4,
+            ShowIcons = true
+        };
+
+        pathBreadcrumbs.CrumbClicked += OnPathBreadcrumbClicked;
+
+        // File list
+        fileListBox = new BeepListBox
+        {
+            Size = new Size(780, 520),
+            Location = new Point(10, 60)
+        };
+
+        fileListBox.ItemDoubleClicked += OnFileDoubleClicked;
+
+        this.Controls.AddRange(new Control[] { pathBreadcrumbs, fileListBox });
+    }
+
+    private void LoadInitialPath(string path)
+    {
+        currentPath = path;
+        UpdateBreadcrumbs();
+        LoadDirectoryContents();
+    }
+
+    private void UpdateBreadcrumbs()
+    {
+        pathBreadcrumbs.Clear();
+
+        if (string.IsNullOrEmpty(currentPath))
+            return;
+
+        var pathParts = currentPath.Split(new char[] { '\\', '/' }, 
+                                         StringSplitOptions.RemoveEmptyEntries);
+
+        // Add root drive
+        if (currentPath.StartsWith(@"C:\"))
+        {
+            pathBreadcrumbs.AddItem("C:", "C:", "drive.svg");
+        }
+
+        // Add each directory level
+        string buildPath = @"C:\";
+        for (int i = 0; i < pathParts.Length; i++)
+        {
+            if (pathParts[i] == "C:")
+                continue;
+
+            buildPath = Path.Combine(buildPath, pathParts[i]);
+            pathBreadcrumbs.AddItem(buildPath, pathParts[i], "folder.svg");
+        }
+
+        // Set selection to last item
+        if (pathBreadcrumbs.Items.Count > 0)
+        {
+            pathBreadcrumbs.SelectedIndex = pathBreadcrumbs.Items.Count - 1;
+        }
+    }
+
+    private void LoadDirectoryContents()
+    {
+        try
+        {
+            fileListBox.Items.Clear();
+
+            if (!Directory.Exists(currentPath))
+                return;
+
+            // Add directories
+            var directories = Directory.GetDirectories(currentPath);
+            foreach (var dir in directories)
+            {
+                var dirInfo = new DirectoryInfo(dir);
+                fileListBox.Items.Add(new SimpleItem
+                {
+                    Name = dirInfo.FullName,
+                    Text = dirInfo.Name,
+                    ImagePath = "folder.svg"
+                });
+            }
+
+            // Add files
+            var files = Directory.GetFiles(currentPath);
+            foreach (var file in files)
+            {
+                var fileInfo = new FileInfo(file);
+                fileListBox.Items.Add(new SimpleItem
+                {
+                    Name = fileInfo.FullName,
+                    Text = fileInfo.Name,
+                    ImagePath = GetFileIcon(fileInfo.Extension)
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading directory: {ex.Message}",
+                          "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    private void OnPathBreadcrumbClicked(object sender, CrumbClickedEventArgs e)
+    {
+        // Navigate to the clicked path level
+        var clickedItem = pathBreadcrumbs.Items[e.Index];
+        currentPath = clickedItem.Name;
+        
+        // Remove items after clicked index
+        pathBreadcrumbs.NavigateToIndex(e.Index);
+        
+        // Reload directory contents
+        LoadDirectoryContents();
+    }
+
+    private void OnFileDoubleClicked(object sender, SimpleItem item)
+    {
+        string fullPath = item.Name;
+
+        if (Directory.Exists(fullPath))
+        {
+            // Navigate into directory
+            currentPath = fullPath;
+            UpdateBreadcrumbs();
+            LoadDirectoryContents();
+        }
+        else if (File.Exists(fullPath))
+        {
+            // Open file
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = fullPath,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error opening file: {ex.Message}",
+                              "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+
+    private string GetFileIcon(string extension)
+    {
+        return extension.ToLower() switch
+        {
+            ".txt" => "file-text.svg",
+            ".pdf" => "file-pdf.svg",
+            ".jpg" or ".jpeg" or ".png" or ".gif" => "file-image.svg",
+            ".exe" => "file-exe.svg",
+            ".zip" or ".rar" => "file-archive.svg",
+            _ => "file.svg"
+        };
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Website Navigation Breadcrumbs</h3>
+                        <pre><code class="language-csharp">public class WebsiteNavigationControl : UserControl
+{
+    private BeepBreadcrumps navigationBreadcrumbs;
+    private Dictionary<string, PageInfo> pageHierarchy;
+    
+    public event EventHandler<string> PageNavigationRequested;
+
+    public WebsiteNavigationControl()
+    {
+        InitializeNavigation();
+        SetupPageHierarchy();
+    }
+
+    private void InitializeNavigation()
+    {
+        navigationBreadcrumbs = new BeepBreadcrumps
+        {
+            Size = new Size(700, 42),
+            Location = new Point(0, 0),
+            Style = BreadcrumbStyle.Modern,
+            SeparatorText = "❯",
+            ItemSpacing = 10,
+            ShowIcons = true,
+            Dock = DockStyle.Fill
+        };
+
+        navigationBreadcrumbs.CrumbClicked += OnNavigationClicked;
+        this.Controls.Add(navigationBreadcrumbs);
+    }
+
+    private void SetupPageHierarchy()
+    {
+        pageHierarchy = new Dictionary<string, PageInfo>
+        {
+            ["home"] = new PageInfo { Title = "Home", Icon = "home.svg", Parent = null },
+            ["products"] = new PageInfo { Title = "Products", Icon = "box.svg", Parent = "home" },
+            ["electronics"] = new PageInfo { Title = "Electronics", Icon = "chip.svg", Parent = "products" },
+            ["computers"] = new PageInfo { Title = "Computers", Icon = "monitor.svg", Parent = "electronics" },
+            ["laptops"] = new PageInfo { Title = "Laptops", Icon = "laptop.svg", Parent = "computers" },
+            ["gaming"] = new PageInfo { Title = "Gaming", Icon = "gamepad.svg", Parent = "laptops" }
+        };
+    }
+
+    public void NavigateToPage(string pageId)
+    {
+        if (!pageHierarchy.ContainsKey(pageId))
+            return;
+
+        // Build breadcrumb trail
+        var trail = BuildBreadcrumbTrail(pageId);
+        
+        // Update breadcrumbs
+        navigationBreadcrumbs.Clear();
+        
+        foreach (var page in trail)
+        {
+            navigationBreadcrumbs.AddItem(
+                page, 
+                pageHierarchy[page].Title, 
+                pageHierarchy[page].Icon
+            );
+        }
+
+        // Set current selection
+        navigationBreadcrumbs.SelectedIndex = trail.Count - 1;
+    }
+
+    private List<string> BuildBreadcrumbTrail(string pageId)
+    {
+        var trail = new List<string>();
+        string currentPage = pageId;
+
+        while (currentPage != null)
+        {
+            trail.Insert(0, currentPage);
+            currentPage = pageHierarchy[currentPage].Parent;
+        }
+
+        return trail;
+    }
+
+    private void OnNavigationClicked(object sender, CrumbClickedEventArgs e)
+    {
+        var clickedPageId = e.ItemName;
+        
+        // Navigate to clicked page
+        PageNavigationRequested?.Invoke(this, clickedPageId);
+        
+        // Update breadcrumbs to show only up to clicked level
+        NavigateToPage(clickedPageId);
+    }
+
+    public class PageInfo
+    {
+        public string Title { get; set; }
+        public string Icon { get; set; }
+        public string Parent { get; set; }
+    }
+}
+
+// Usage in main form
+var websiteNav = new WebsiteNavigationControl();
+websiteNav.PageNavigationRequested += (sender, pageId) =>
+{
+    LoadPage(pageId);
+};
+
+// Navigate to a deep page
+websiteNav.NavigateToPage("gaming"); // Will show: Home ? Products ? Electronics ? Computers ? Laptops ? Gaming</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Application Menu Breadcrumbs</h3>
+                        <pre><code class="language-csharp">public class ApplicationMenuBreadcrumbs : UserControl
+{
+    private BeepBreadcrumps menuBreadcrumbs;
+    private Stack<MenuLevel> navigationStack;
+
+    public ApplicationMenuBreadcrumbs()
+    {
+        InitializeMenuBreadcrumbs();
+        navigationStack = new Stack<MenuLevel>();
+    }
+
+    private void InitializeMenuBreadcrumbs()
+    {
+        menuBreadcrumbs = new BeepBreadcrumps
+        {
+            Size = new Size(600, 38),
+            Location = new Point(0, 0),
+            Style = BreadcrumbStyle.Pill,
+            SeparatorText = "❯",
+            ItemSpacing = 12,
+            ShowIcons = false,
+            Dock = DockStyle.Fill
+        };
+
+        menuBreadcrumbs.CrumbClicked += OnMenuBreadcrumbClicked;
+        this.Controls.Add(menuBreadcrumbs);
+
+        // Start with main menu
+        NavigateToMenu("main", "Main Menu");
+    }
+
+    public void NavigateToMenu(string menuId, string menuTitle)
+    {
+        // Add to navigation stack
+        navigationStack.Push(new MenuLevel { Id = menuId, Title = menuTitle });
+
+        // Update breadcrumbs
+        UpdateBreadcrumbsFromStack();
+    }
+
+    public void NavigateBack()
+    {
+        if (navigationStack.Count > 1)
+        {
+            navigationStack.Pop();
+            UpdateBreadcrumbsFromStack();
+        }
+    }
+
+    private void UpdateBreadcrumbsFromStack()
+    {
+        menuBreadcrumbs.Clear();
+
+        foreach (var level in navigationStack.Reverse())
+        {
+            menuBreadcrumbs.AddItem(level.Id, level.Title);
+        }
+
+        // Set selection to current level
+        if (menuBreadcrumbs.Items.Count > 0)
+        {
+            menuBreadcrumbs.SelectedIndex = menuBreadcrumbs.Items.Count - 1;
+        }
+    }
+
+    private void OnMenuBreadcrumbClicked(object sender, CrumbClickedEventArgs e)
+    {
+        // Navigate back to clicked level
+        int targetLevel = e.Index + 1; // +1 because index is 0-based
+        
+        // Remove levels above the clicked one
+        while (navigationStack.Count > targetLevel)
+        {
+            navigationStack.Pop();
+        }
+
+        UpdateBreadcrumbsFromStack();
+        
+        // Trigger menu change event
+        OnMenuLevelChanged(navigationStack.Peek().Id);
+    }
+
+    public event EventHandler<string> MenuLevelChanged;
+    
+    protected virtual void OnMenuLevelChanged(string menuId)
+    {
+        MenuLevelChanged?.Invoke(this, menuId);
+    }
+
+    private class MenuLevel
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+    }
+}
+
+// Usage in application
+var appMenuBreadcrumbs = new ApplicationMenuBreadcrumbs();
+
+// Handle menu level changes
+appMenuBreadcrumbs.MenuLevelChanged += (sender, menuId) =>
+{
+    ShowMenuLevel(menuId);
+};
+
+// Navigate through menu levels
+appMenuBreadcrumbs.NavigateToMenu("settings", "Settings");
+appMenuBreadcrumbs.NavigateToMenu("user-settings", "User Settings");
+appMenuBreadcrumbs.NavigateToMenu("profile", "Profile Settings");
+
+// User can click on any breadcrumb to go back to that level</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepBreadcrumps provides comprehensive theming with automatic application of theme colors and fonts:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var breadcrumbs = new BeepBreadcrumps
+{
+    Theme = "DarkTheme",
+    UseThemeFont = true,
+    IsRounded = true,
+    ShowShadow = true
+};
+
+// Apply theme manually if needed
+breadcrumbs.ApplyTheme();
+
+// Theme automatically applies:
+// - PanelBackColor: Main breadcrumb background
+// - LabelForeColor: Default item text color
+// - LinkColor: Clickable item text color
+// - ButtonHoverBackColor: Hover background color
+// - ButtonHoverBorderColor: Hover border color</code></pre>
+                    </div>
+
+                    <h3>Style-Specific Theming</h3>
+                    <ul>
+                        <li><strong>Classic Style</strong> - Uses border effects on hover with rectangular highlights</li>
+                        <li><strong>Modern Style</strong> - Rounded hover effects with subtle elevation</li>
+                        <li><strong>Pill Style</strong> - Rounded pill-shaped items with filled current item</li>
+                        <li><strong>Flat Style</strong> - Underline hover effects with minimal visual styling</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🧭 Navigation Design</h3>
+                    <ul>
+                        <li><strong>Clear hierarchy:</strong> Ensure breadcrumb levels represent logical navigation hierarchy</li>
+                        <li><strong>Meaningful labels:</strong> Use descriptive, concise text for each breadcrumb item</li>
+                        <li><strong>Consistent separators:</strong> Choose appropriate separators for your context (>, /, ❯, ‣)</li>
+                        <li><strong>Current indication:</strong> Make the current page/location visually distinct</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Style consistency:</strong> Choose one breadcrumb style and use it consistently</li>
+                        <li><strong>Appropriate sizing:</strong> Use adequate spacing and font sizes for readability</li>
+                        <li><strong>Icon usage:</strong> Use icons sparingly and consistently when ShowIcons is enabled</li>
+                        <li><strong>Color contrast:</strong> Ensure good contrast between text and background colors</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Efficient updates:</strong> Use AddItem/RemoveItem methods for single changes</li>
+                        <li><strong>Batch operations:</strong> Clear and rebuild for multiple simultaneous changes</li>
+                        <li><strong>Navigation optimization:</strong> Use NavigateToIndex for efficient backward navigation</li>
+                        <li><strong>Memory management:</strong> Dispose of breadcrumb instances when no longer needed</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard navigation:</strong> Ensure breadcrumbs work with keyboard navigation</li>
+                        <li><strong>Screen readers:</strong> Provide meaningful text for assistive technologies</li>
+                        <li><strong>Focus indicators:</strong> Ensure clear focus indicators for keyboard users</li>
+                        <li><strong>Alternative text:</strong> Provide alt text or descriptions for icon-only items</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use the NavigateToIndex method when users click on breadcrumb items to automatically remove all items after the clicked level, providing intuitive backward navigation.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>BeepBreadcrumps provides multiple visual styles and comprehensive hit testing, making it perfect for any hierarchical navigation scenario.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Avoid Deep Hierarchies</strong>
+                        <p>Avoid creating too many breadcrumb levels (more than 6-7) as this can overwhelm users and cause layout issues on smaller screens.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-multisplitter.html"><i class="bi bi-arrow-left"></i> BeepMultiSplitter</a>
+                    <a href="beep-stepper.html">BeepSteppperBar <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

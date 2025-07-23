@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepTestimonial - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html" class="active">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#display-controls">Display Controls</a>
+                    <span>›</span>
+                    <span>BeepTestimonial</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepTestimonial</h1>
+                    <p class="page-subtitle">Professional testimonial display control with multiple layouts and star ratings</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#view-types">View Types</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepTestimonial</strong> is a sophisticated testimonial display control designed for showcasing 
+                        customer reviews, feedback, and endorsements. It provides multiple layout options, star ratings, 
+                        and professional styling to enhance credibility and user engagement on websites and applications.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, it includes user photos, company logos, 
+                        star ratings, and flexible layouts to match different design requirements. The control supports 
+                        theme integration and automatic layout management for responsive design.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 Multiple Layouts</h3>
+                            <p>Classic, Minimal, Compact, and Social Card view types for different use cases</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>⭐ Star Ratings</h3>
+                            <p>Interactive 5-star rating system with theme-aware colors</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📸 User Photos</h3>
+                            <p>Circular profile images with BeepCircularButton integration</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🏢 Company Branding</h3>
+                            <p>Company logo display for corporate testimonials</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📝 Rich Content</h3>
+                            <p>Support for testimonial text, names, usernames, and positions</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎭 Theme Integration</h3>
+                            <p>Comprehensive theme support with specialized testimonial colors</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>❌ Close Functionality</h3>
+                            <p>Optional close button for dismissible testimonials</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Design</h3>
+                            <p>Automatic layout adjustment based on view type and content</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Testimonial</h3>
+                        <pre><code class="language-csharp">// Create a basic testimonial
+var testimonial = new BeepTestimonial
+{
+    ViewType = TestimonialViewType.Classic,
+    Testimonial = "This product exceeded my expectations!",
+    Name = "John Smith",
+    Position = "Software Developer",
+    Username = "@johnsmith",
+    Rating = "5",
+    Size = new Size(350, 200),
+    Location = new Point(10, 10)
+};
+
+// Add to form
+this.Controls.Add(testimonial);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Testimonial with Images</h3>
+                        <pre><code class="language-csharp">var testimonial = new BeepTestimonial
+{
+    ViewType = TestimonialViewType.SocialCard,
+    Testimonial = "Amazing service and support!",
+    Name = "Sarah Johnson",
+    Position = "Marketing Director",
+    Username = "@sarahj",
+    Rating = "4",
+    ImagePath = "images/sarah.jpg",
+    CompanyLogoPath = "images/company_logo.png"
+};</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Minimal Testimonial</h3>
+                        <pre><code class="language-csharp">var minimal = new BeepTestimonial
+{
+    ViewType = TestimonialViewType.Minimal,
+    Testimonial = "Clean and professional design.",
+    Name = "Alex Chen",
+    Position = "UI Designer"
+};</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>BeepTestimonial automatically adjusts layout and positioning based on the selected view type, making it easy to switch between different styles.</p>
+                    </div>
+                </section>
+
+                <!-- View Types -->
+                <section id="view-types" class="section">
+                    <h2>View Types</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>View Type</th>
+                                <th>Description</th>
+                                <th>Features</th>
+                                <th>Best Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Classic</code></td>
+                                <td>Traditional testimonial layout with ratings at top</td>
+                                <td>Star ratings, user image, all text fields</td>
+                                <td>Website testimonial sections</td>
+                            </tr>
+                            <tr>
+                                <td><code>Minimal</code></td>
+                                <td>Clean, centered layout with company logo</td>
+                                <td>Company logo, centered text, minimal UI</td>
+                                <td>Corporate presentations, landing pages</td>
+                            </tr>
+                            <tr>
+                                <td><code>Compact</code></td>
+                                <td>Space-efficient design for tight layouts</td>
+                                <td>Smaller size, essential information only</td>
+                                <td>Sidebars, small widgets</td>
+                            </tr>
+                            <tr>
+                                <td><code>SocialCard</code></td>
+                                <td>Social media style card with close button</td>
+                                <td>Close button, social-style layout</td>
+                                <td>Social media integrations, cards</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>View Configuration</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ViewType</code></td>
+                                <td>TestimonialViewType</td>
+                                <td>Classic</td>
+                                <td>Layout type for the testimonial display</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Content Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Testimonial</code></td>
+                                <td>string</td>
+                                <td>Main testimonial text content</td>
+                            </tr>
+                            <tr>
+                                <td><code>Name</code></td>
+                                <td>string</td>
+                                <td>Name of the person giving the testimonial</td>
+                            </tr>
+                            <tr>
+                                <td><code>Username</code></td>
+                                <td>string</td>
+                                <td>Social media username or handle</td>
+                            </tr>
+                            <tr>
+                                <td><code>Position</code></td>
+                                <td>string</td>
+                                <td>Job title or position of the testimonial giver</td>
+                            </tr>
+                            <tr>
+                                <td><code>Rating</code></td>
+                                <td>string</td>
+                                <td>Star rating (1-5) as a string</td>
+                            </tr>
+                            <tr>
+                                <td><code>ImagePath</code></td>
+                                <td>string</td>
+                                <td>Path to user profile image</td>
+                            </tr>
+                            <tr>
+                                <td><code>CompanyLogoPath</code></td>
+                                <td>string</td>
+                                <td>Path to company logo image</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Component Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>cardPanel <code>Panel</code></h4>
+                            <p>Main container for all testimonial content</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>image <code>BeepCircularButton</code></h4>
+                            <p>User profile picture display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>companyLogo <code>BeepCircularButton</code></h4>
+                            <p>Company logo display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>lblTestimonial <code>BeepLabel</code></h4>
+                            <p>Main testimonial text</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>lblName <code>BeepLabel</code></h4>
+                            <p>Person's name display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>lblUsername <code>BeepLabel</code></h4>
+                            <p>Username/handle display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>lblPosition <code>BeepLabel</code></h4>
+                            <p>Job position display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>btnClose <code>BeepButton</code></h4>
+                            <p>Close/dismiss button</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>ratingStars <code>FlowLayoutPanel</code></h4>
+                            <p>Container for star rating display</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyViewType</code></td>
+                                <td>none</td>
+                                <td>Apply the current view type layout and positioning</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetupClassicView</code></td>
+                                <td>none</td>
+                                <td>Configure layout for classic testimonial view</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetupMinimalView</code></td>
+                                <td>none</td>
+                                <td>Configure layout for minimal testimonial view</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetupCompactView</code></td>
+                                <td>none</td>
+                                <td>Configure layout for compact testimonial view</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetupSocialCardView</code></td>
+                                <td>none</td>
+                                <td>Configure layout for social card testimonial view</td>
+                            </tr>
+                            <tr>
+                                <td><code>UpdateRatingStars</code></td>
+                                <td>none</td>
+                                <td>Update star rating display based on Rating property</td>
+                            </tr>
+                            <tr>
+                                <td><code>SetDummyData</code></td>
+                                <td>none</td>
+                                <td>Set sample data for design time preview</td>
+                            </tr>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>none</td>
+                                <td>Apply current theme colors and fonts to all components</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Source</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Click</code></td>
+                                <td>btnClose</td>
+                                <td>Fired when close button is clicked (hides testimonial)</td>
+                            </tr>
+                            <tr>
+                                <td><code>HandleCreated</code></td>
+                                <td>BeepTestimonial</td>
+                                <td>Fired when control handle is created (sets dummy data in design mode)</td>
+                            </tr>
+                            <tr>
+                                <td><code>EndInit</code></td>
+                                <td>BeepTestimonial</td>
+                                <td>Fired when component initialization is complete</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var testimonial = new BeepTestimonial
+{
+    ViewType = TestimonialViewType.SocialCard,
+    Testimonial = "Great experience!",
+    Name = "Jane Doe"
+};
+
+// Handle close button click
+testimonial.Controls.OfType<Panel>().First()
+    .Controls.OfType<BeepButton>().FirstOrDefault(b => b.Text == "×")
+    ?.Click += (s, e) => {
+        // Custom close handling
+        testimonial.Visible = false;
+        OnTestimonialClosed(testimonial);
+    };
+
+// Handle image click for profile view
+testimonial.Controls.OfType<Panel>().First()
+    .Controls.OfType<BeepCircularButton>().FirstOrDefault()
+    ?.Click += (s, e) => {
+        ShowUserProfile(testimonial.Name);
+    };</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Customer Review Widget</h3>
+                        <pre><code class="language-csharp">public void CreateCustomerReviews()
+{
+    var reviews = new[]
+    {
+        new { Name = "Alice Johnson", Position = "Product Manager", 
+              Testimonial = "This solution transformed our workflow completely!", 
+              Rating = "5", Image = "alice.jpg" },
+        new { Name = "Bob Smith", Position = "Developer", 
+              Testimonial = "Clean code and excellent documentation.", 
+              Rating = "4", Image = "bob.jpg" },
+        new { Name = "Carol Davis", Position = "Designer", 
+              Testimonial = "Beautiful interface and intuitive design.", 
+              Rating = "5", Image = "carol.jpg" }
+    };
+
+    var panel = new FlowLayoutPanel
+    {
+        Dock = DockStyle.Fill,
+        FlowDirection = FlowDirection.TopDown,
+        AutoScroll = true,
+        Padding = new Padding(10)
+    };
+
+    foreach (var review in reviews)
+    {
+        var testimonial = new BeepTestimonial
+        {
+            ViewType = TestimonialViewType.Classic,
+            Testimonial = review.Testimonial,
+            Name = review.Name,
+            Position = review.Position,
+            Rating = review.Rating,
+            ImagePath = $"images/{review.Image}",
+            Margin = new Padding(0, 0, 0, 15)
+        };
+
+        panel.Controls.Add(testimonial);
+    }
+
+    this.Controls.Add(panel);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Rotating Testimonial Display</h3>
+                        <pre><code class="language-csharp">public class RotatingTestimonials : UserControl
+{
+    private Timer rotationTimer;
+    private List<TestimonialData> testimonials;
+    private BeepTestimonial currentTestimonial;
+    private int currentIndex = 0;
+
+    public RotatingTestimonials()
+    {
+        InitializeTestimonials();
+        SetupRotation();
+    }
+
+    private void InitializeTestimonials()
+    {
+        testimonials = new List<TestimonialData>
+        {
+            new TestimonialData
+            {
+                Name = "Emma Wilson",
+                Position = "CEO, TechCorp",
+                Testimonial = "Outstanding results and professional service.",
+                Rating = "5",
+                ImagePath = "images/emma.jpg"
+            },
+            new TestimonialData
+            {
+                Name = "Michael Brown",
+                Position = "Marketing Director",
+                Testimonial = "Exceeded our expectations in every way.",
+                Rating = "5",
+                ImagePath = "images/michael.jpg"
+            },
+            new TestimonialData
+            {
+                Name = "Lisa Chen",
+                Position = "Operations Manager",
+                Testimonial = "Reliable, efficient, and cost-effective solution.",
+                Rating = "4",
+                ImagePath = "images/lisa.jpg"
+            }
+        };
+
+        ShowCurrentTestimonial();
+    }
+
+    private void SetupRotation()
+    {
+        rotationTimer = new Timer
+        {
+            Interval = 5000 // 5 seconds
+        };
+        rotationTimer.Tick += (s, e) => RotateToNext();
+        rotationTimer.Start();
+    }
+
+    private void ShowCurrentTestimonial()
+    {
+        if (currentTestimonial != null)
+        {
+            Controls.Remove(currentTestimonial);
+            currentTestimonial.Dispose();
+        }
+
+        var data = testimonials[currentIndex];
+        currentTestimonial = new BeepTestimonial
+        {
+            ViewType = TestimonialViewType.Minimal,
+            Dock = DockStyle.Fill,
+            Testimonial = data.Testimonial,
+            Name = data.Name,
+            Position = data.Position,
+            Rating = data.Rating,
+            ImagePath = data.ImagePath
+        };
+
+        Controls.Add(currentTestimonial);
+    }
+
+    private void RotateToNext()
+    {
+        currentIndex = (currentIndex + 1) % testimonials.Count;
+        ShowCurrentTestimonial();
+    }
+
+    public void StopRotation() => rotationTimer?.Stop();
+    public void StartRotation() => rotationTimer?.Start();
+}
+
+public class TestimonialData
+{
+    public string Name { get; set; }
+    public string Position { get; set; }
+    public string Testimonial { get; set; }
+    public string Rating { get; set; }
+    public string ImagePath { get; set; }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Interactive Testimonial Gallery</h3>
+                        <pre><code class="language-csharp">public class TestimonialGallery : UserControl
+{
+    private FlowLayoutPanel testimonialsPanel;
+    private BeepButton btnLoadMore;
+    private int currentPage = 0;
+    private const int TestimonialsPerPage = 3;
+
+    public TestimonialGallery()
+    {
+        InitializeGallery();
+        LoadTestimonials();
+    }
+
+    private void InitializeGallery()
+    {
+        this.Size = new Size(800, 600);
+
+        testimonialsPanel = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 500,
+            FlowDirection = FlowDirection.LeftToRight,
+            WrapContents = true,
+            AutoScroll = true,
+            Padding = new Padding(10)
+        };
+
+        btnLoadMore = new BeepButton
+        {
+            Text = "Load More",
+            Dock = DockStyle.Bottom,
+            Height = 40
+        };
+        btnLoadMore.Click += LoadMoreTestimonials;
+
+        Controls.Add(testimonialsPanel);
+        Controls.Add(btnLoadMore);
+    }
+
+    private void LoadTestimonials()
+    {
+        var testimonialData = GetTestimonialData(currentPage, TestimonialsPerPage);
+
+        foreach (var data in testimonialData)
+        {
+            var testimonial = new BeepTestimonial
+            {
+                ViewType = TestimonialViewType.Compact,
+                Size = new Size(250, 200),
+                Testimonial = data.Text,
+                Name = data.AuthorName,
+                Position = data.AuthorPosition,
+                Rating = data.Rating.ToString(),
+                ImagePath = data.AuthorImage,
+                Margin = new Padding(5)
+            };
+
+            // Add hover effects
+            testimonial.MouseEnter += (s, e) => {
+                testimonial.BackColor = Color.LightGray;
+            };
+
+            testimonial.MouseLeave += (s, e) => {
+                testimonial.BackColor = Color.White;
+            };
+
+            // Add click to expand
+            testimonial.Click += (s, e) => {
+                ShowExpandedTestimonial(data);
+            };
+
+            testimonialsPanel.Controls.Add(testimonial);
+        }
+
+        currentPage++;
+        
+        // Hide load more button if no more data
+        if (testimonialData.Count < TestimonialsPerPage)
+        {
+            btnLoadMore.Visible = false;
+        }
+    }
+
+    private void LoadMoreTestimonials(object sender, EventArgs e)
+    {
+        LoadTestimonials();
+    }
+
+    private void ShowExpandedTestimonial(TestimonialDataModel data)
+    {
+        var expandedForm = new Form
+        {
+            Size = new Size(500, 400),
+            StartPosition = FormStartPosition.CenterParent,
+            Text = $"Testimonial - {data.AuthorName}"
+        };
+
+        var expandedTestimonial = new BeepTestimonial
+        {
+            ViewType = TestimonialViewType.Classic,
+            Dock = DockStyle.Fill,
+            Testimonial = data.FullText ?? data.Text,
+            Name = data.AuthorName,
+            Position = data.AuthorPosition,
+            Username = data.AuthorUsername,
+            Rating = data.Rating.ToString(),
+            ImagePath = data.AuthorImage,
+            CompanyLogoPath = data.CompanyLogo
+        };
+
+        expandedForm.Controls.Add(expandedTestimonial);
+        expandedForm.ShowDialog();
+    }
+
+    private List<TestimonialDataModel> GetTestimonialData(int page, int count)
+    {
+        // In a real application, this would fetch from a database or API
+        var allTestimonials = new List<TestimonialDataModel>
+        {
+            new TestimonialDataModel
+            {
+                Text = "Excellent service and support!",
+                AuthorName = "John Doe",
+                AuthorPosition = "CTO",
+                Rating = 5,
+                AuthorImage = "john.jpg"
+            },
+            // Add more testimonials...
+        };
+
+        return allTestimonials.Skip(page * count).Take(count).ToList();
+    }
+}
+
+public class TestimonialDataModel
+{
+    public string Text { get; set; }
+    public string FullText { get; set; }
+    public string AuthorName { get; set; }
+    public string AuthorPosition { get; set; }
+    public string AuthorUsername { get; set; }
+    public string AuthorImage { get; set; }
+    public string CompanyLogo { get; set; }
+    public int Rating { get; set; }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepTestimonial provides comprehensive theme integration with specialized colors for testimonial elements:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Color Properties</h3>
+                        <pre><code class="language-csharp">// Theme-specific testimonial colors
+var testimonial = new BeepTestimonial
+{
+    Theme = "DarkTheme"
+};
+
+// Automatic theme color application:
+// - TestimonialBackColor: Background for testimonial card
+// - TestimonialTextColor: Main testimonial text
+// - TestimonialNameColor: Author name styling  
+// - TestimonialDetailsColor: Username and position
+// - TestimonialRatingColor: Star rating colors</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Custom Themed Testimonials</h3>
+                        <pre><code class="language-csharp">public void CreateThemedTestimonialSection(string themeName)
+{
+    var testimonials = new[]
+    {
+        new BeepTestimonial { ViewType = TestimonialViewType.Classic, Theme = themeName },
+        new BeepTestimonial { ViewType = TestimonialViewType.Compact, Theme = themeName },
+        new BeepTestimonial { ViewType = TestimonialViewType.Minimal, Theme = themeName }
+    };
+
+    foreach (var testimonial in testimonials)
+    {
+        // Theme colors automatically applied
+        testimonial.ApplyTheme();
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>🎨 Theming Tip</strong>
+                        <p>BeepTestimonial automatically applies theme colors to all child components including star ratings, ensuring consistent visual appearance.</p>
+                    </div>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>📝 Content Guidelines</h3>
+                    <ul>
+                        <li><strong>Authentic testimonials:</strong> Use real customer feedback for credibility</li>
+                        <li><strong>Appropriate length:</strong> Keep testimonials concise while maintaining impact</li>
+                        <li><strong>Complete information:</strong> Include name, position, and company when possible</li>
+                        <li><strong>High-quality images:</strong> Use professional profile photos for better presentation</li>
+                    </ul>
+
+                    <h3>🎨 Design Guidelines</h3>
+                    <ul>
+                        <li><strong>Consistent layouts:</strong> Use the same view type across related testimonials</li>
+                        <li><strong>Appropriate sizing:</strong> Choose view types based on available space</li>
+                        <li><strong>Color consistency:</strong> Ensure testimonials match your overall design theme</li>
+                        <li><strong>Spacing:</strong> Provide adequate spacing between multiple testimonials</li>
+                    </ul>
+
+                    <h3>⚡ Performance Tips</h3>
+                    <ul>
+                        <li><strong>Image optimization:</strong> Optimize profile images for faster loading</li>
+                        <li><strong>Lazy loading:</strong> Load testimonials progressively for large collections</li>
+                        <li><strong>Memory management:</strong> Dispose of testimonials when removing from UI</li>
+                        <li><strong>Efficient updates:</strong> Update only changed properties to avoid unnecessary redraws</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Alt text:</strong> Provide meaningful descriptions for profile images</li>
+                        <li><strong>High contrast:</strong> Ensure sufficient color contrast for readability</li>
+                        <li><strong>Keyboard navigation:</strong> Support keyboard access for interactive elements</li>
+                        <li><strong>Screen readers:</strong> Structure content properly for screen reader compatibility</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Security Warning</strong>
+                        <p>Always validate and sanitize testimonial content to prevent XSS attacks when loading from external sources.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Layout Management</strong>
+                        <p>BeepTestimonial automatically handles layout adjustments when switching between view types, maintaining content integrity.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-marquee.html"><i class="bi bi-arrow-left"></i> BeepMarquee</a>
+                    <a href="beep-panel.html">BeepPanel <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

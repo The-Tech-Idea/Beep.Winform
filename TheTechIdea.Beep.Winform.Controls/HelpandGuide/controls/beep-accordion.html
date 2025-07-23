@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepAccordionMenu - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html" class="active">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#layout-controls">Layout Controls</a>
+                    <span>›</span>
+                    <span>BeepAccordionMenu</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepAccordionMenu</h1>
+                    <p class="page-subtitle">Collapsible navigation control with hierarchical menu structure and smooth animations</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#visual-preview">Visual Preview</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#methods">Methods</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepAccordionMenu</strong> is a sophisticated collapsible navigation control that provides 
+                        hierarchical menu organization with smooth expand/collapse animations. It features both expanded 
+                        and collapsed states, making it perfect for sidebar navigation, dashboard menus, and space-efficient 
+                        navigation systems.
+                    </p>
+                    <p>
+                        Built on the <strong>BeepControl</strong> foundation, BeepAccordionMenu supports nested menu items, 
+                        SVG icons, custom theming, smooth animations, and intelligent hit testing. The control can display 
+                        in both expanded mode (showing full text and hierarchy) and collapsed mode (showing only icons), 
+                        making it ideal for responsive layouts.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🔄 Expand/Collapse Animation</h3>
+                            <p>Smooth animated transitions between expanded and collapsed states with customizable speed</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌳 Hierarchical Structure</h3>
+                            <p>Support for nested menu items with parent-child relationships and visual connectors</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ Icon Support</h3>
+                            <p>SVG and bitmap icon support with theme-aware coloring and adaptive sizing</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Smart Hit Testing</h3>
+                            <p>Advanced hit testing for precise click detection on items, expand/collapse buttons</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📱 Responsive Design</h3>
+                            <p>Automatic layout adjustment for both desktop and space-constrained environments</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎨 Rich Visual States</h3>
+                            <p>Hover effects, selection indicators, and visual feedback for user interactions</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Visual Preview -->
+                <section id="visual-preview" class="section">
+                    <h2>Visual Preview</h2>
+                    <div class="visual-demo">
+                        <div class="demo-container">
+                            <!-- Expanded State -->
+                            <div class="accordion-demo expanded">
+                                <div class="accordion-header">
+                                    <span>Navigation</span>
+                                    <div class="hamburger-icon">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item expanded">
+                                    <div class="item-icon"></div>
+                                    <span>Dashboard</span>
+                                    <span class="expand-icon">▼</span>
+                                </div>
+                                <div class="accordion-child">
+                                    <span>Analytics</span>
+                                </div>
+                                <div class="accordion-child">
+                                    <span>Reports</span>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <div class="item-icon"></div>
+                                    <span>Projects</span>
+                                    <span class="expand-icon">+</span>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <div class="item-icon"></div>
+                                    <span>Settings</span>
+                                    <span class="expand-icon">+</span>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <div class="item-icon"></div>
+                                    <span>Help</span>
+                                </div>
+                            </div>
+
+                            <!-- Collapsed State -->
+                            <div class="accordion-demo collapsed">
+                                <div class="accordion-header">
+                                    <div class="hamburger-icon">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="collapsed-item">
+                                    <div class="item-icon"></div>
+                                </div>
+                                
+                                <div class="collapsed-item">
+                                    <div class="item-icon"></div>
+                                </div>
+                                
+                                <div class="collapsed-item">
+                                    <div class="item-icon"></div>
+                                </div>
+                                
+                                <div class="collapsed-item">
+                                    <div class="item-icon"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <p><em>BeepAccordionMenu in expanded (left) and collapsed (right) states</em></p>
+                    </div>
+
+                    <style>
+                        .visual-demo {
+                            border: 2px dashed var(--color-border-light);
+                            border-radius: 8px;
+                            padding: 2rem;
+                            text-align: center;
+                            margin: 1rem 0;
+                            background: var(--color-background-secondary);
+                        }
+
+                        .demo-container {
+                            display: flex;
+                            gap: 2rem;
+                            justify-content: center;
+                            align-items: flex-start;
+                            margin: 2rem 0;
+                            flex-wrap: wrap;
+                        }
+
+                        .accordion-demo {
+                            background: var(--color-dark);
+                            border-radius: 8px;
+                            padding: 0;
+                            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                            color: white;
+                            font-family: 'Inter', sans-serif;
+                            min-width: 180px;
+                        }
+
+                        .accordion-demo.expanded {
+                            width: 200px;
+                        }
+
+                        .accordion-demo.collapsed {
+                            width: 64px;
+                        }
+
+                        .accordion-header {
+                            background: var(--color-primary);
+                            padding: 10px;
+                            border-radius: 8px 8px 0 0;
+                            display: flex;
+                            align-items: center;
+                            justify-content: space-between;
+                            font-weight: bold;
+                            font-size: 14px;
+                        }
+
+                        .hamburger-icon {
+                            width: 16px;
+                            height: 12px;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: space-between;
+                        }
+
+                        .hamburger-icon div {
+                            height: 2px;
+                            background: white;
+                            border-radius: 1px;
+                        }
+
+                        .accordion-item {
+                            padding: 8px 12px;
+                            border-bottom: 1px solid rgba(255,255,255,0.1);
+                            cursor: pointer;
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            font-size: 13px;
+                        }
+
+                        .accordion-item:hover {
+                            background: rgba(255,255,255,0.1);
+                        }
+
+                        .accordion-item.expanded {
+                            background: var(--color-primary);
+                        }
+
+                        .accordion-child {
+                            padding: 6px 12px 6px 30px;
+                            border-bottom: 1px solid rgba(255,255,255,0.05);
+                            cursor: pointer;
+                            font-size: 12px;
+                            background: rgba(0,0,0,0.2);
+                        }
+
+                        .accordion-child:hover {
+                            background: rgba(255,255,255,0.1);
+                        }
+
+                        .item-icon {
+                            width: 16px;
+                            height: 16px;
+                            background: var(--color-primary-light);
+                            border-radius: 2px;
+                            flex-shrink: 0;
+                        }
+
+                        .expand-icon {
+                            font-size: 10px;
+                            margin-left: auto;
+                        }
+
+                        .collapsed-item {
+                            padding: 8px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            border-bottom: 1px solid rgba(255,255,255,0.1);
+                        }
+
+                        .collapsed-item .item-icon {
+                            width: 24px;
+                            height: 24px;
+                        }
+                    </style>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Navigation Menu</h3>
+                        <pre><code class="language-csharp">// Create the accordion menu
+var navigationMenu = new BeepAccordionMenu
+{
+    Size = new Size(200, 400),
+    Location = new Point(10, 10),
+    Title = "Navigation",
+    ExpandedWidth = 200,
+    CollapsedWidth = 64,
+    ItemHeight = 40,
+    ChildItemHeight = 30
+};
+
+// Add main menu items
+var dashboardItem = new SimpleItem
+{
+    Text = "Dashboard",
+    ImagePath = "dashboard.svg"
+};
+
+// Add child items to dashboard
+dashboardItem.Children.Add(new SimpleItem { Text = "Analytics", ImagePath = "analytics.svg" });
+dashboardItem.Children.Add(new SimpleItem { Text = "Reports", ImagePath = "reports.svg" });
+dashboardItem.Children.Add(new SimpleItem { Text = "Overview", ImagePath = "overview.svg" });
+
+navigationMenu.ListItems.Add(dashboardItem);
+
+// Add other menu items
+navigationMenu.ListItems.Add(new SimpleItem 
+{ 
+    Text = "Projects", 
+    ImagePath = "projects.svg" 
+});
+
+navigationMenu.ListItems.Add(new SimpleItem 
+{ 
+    Text = "Settings", 
+    ImagePath = "settings.svg" 
+});
+
+// Handle menu clicks
+navigationMenu.ItemClick += (sender, e) =>
+{
+    MessageBox.Show($"Clicked: {e.ItemText}");
+};
+
+// Handle toggle events
+navigationMenu.ToggleClicked += (sender, e) =>
+{
+    Console.WriteLine($"Menu toggled: {(bool)e.Item}");
+};
+
+this.Controls.Add(navigationMenu);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Multi-Level Hierarchical Menu</h3>
+                        <pre><code class="language-csharp">var hierarchicalMenu = new BeepAccordionMenu
+{
+    Size = new Size(220, 500),
+    Title = "File Explorer",
+    ItemHeight = 35,
+    ChildItemHeight = 28,
+    IndentationWidth = 25
+};
+
+// Create a complex hierarchy
+var documentsItem = new SimpleItem
+{
+    Text = "Documents",
+    ImagePath = "folder.svg"
+};
+
+// Add nested folders
+var projectsFolder = new SimpleItem { Text = "Projects", ImagePath = "folder.svg" };
+projectsFolder.Children.Add(new SimpleItem { Text = "Project A", ImagePath = "file.svg" });
+projectsFolder.Children.Add(new SimpleItem { Text = "Project B", ImagePath = "file.svg" });
+
+var reportsFolder = new SimpleItem { Text = "Reports", ImagePath = "folder.svg" };
+reportsFolder.Children.Add(new SimpleItem { Text = "Annual Report", ImagePath = "pdf.svg" });
+reportsFolder.Children.Add(new SimpleItem { Text = "Monthly Stats", ImagePath = "excel.svg" });
+
+documentsItem.Children.Add(projectsFolder);
+documentsItem.Children.Add(reportsFolder);
+documentsItem.Children.Add(new SimpleItem { Text = "README.txt", ImagePath = "text.svg" });
+
+hierarchicalMenu.ListItems.Add(documentsItem);
+
+// Add more root items
+hierarchicalMenu.ListItems.Add(new SimpleItem 
+{ 
+    Text = "Downloads", 
+    ImagePath = "download.svg" 
+});
+
+hierarchicalMenu.ListItems.Add(new SimpleItem 
+{ 
+    Text = "Pictures", 
+    ImagePath = "image.svg" 
+});
+
+this.Controls.Add(hierarchicalMenu);</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Usage Tip</strong>
+                        <p>Use SimpleItem's Children collection to create hierarchical menus that automatically support expand/collapse functionality with smooth animations.</p>
+                    </div>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>Layout Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ExpandedWidth</code></td>
+                                <td>int</td>
+                                <td>200</td>
+                                <td>Width of the accordion when fully expanded</td>
+                            </tr>
+                            <tr>
+                                <td><code>CollapsedWidth</code></td>
+                                <td>int</td>
+                                <td>64</td>
+                                <td>Width of the accordion when collapsed</td>
+                            </tr>
+                            <tr>
+                                <td><code>ItemHeight</code></td>
+                                <td>int</td>
+                                <td>40</td>
+                                <td>Height of main menu items</td>
+                            </tr>
+                            <tr>
+                                <td><code>ChildItemHeight</code></td>
+                                <td>int</td>
+                                <td>30</td>
+                                <td>Height of child/sub menu items</td>
+                            </tr>
+                            <tr>
+                                <td><code>IndentationWidth</code></td>
+                                <td>int</td>
+                                <td>20</td>
+                                <td>Indentation space for child items</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Animation Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Default</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>AnimationStep</code></td>
+                                <td>int</td>
+                                <td>20</td>
+                                <td>Number of pixels to animate per step</td>
+                            </tr>
+                            <tr>
+                                <td><code>AnimationDelay</code></td>
+                                <td>int</td>
+                                <td>15</td>
+                                <td>Delay between animation steps in milliseconds</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>Data Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>ListItems <code>BindingList&lt;SimpleItem&gt;</code></h4>
+                            <p>Collection of menu items to display</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>Title <code>string</code></h4>
+                            <p>Title displayed in the header area</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>SelectedItem <code>SimpleItem</code></h4>
+                            <p>Currently selected menu item</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>IsRounded <code>bool</code></h4>
+                            <p>Enable rounded corners for modern appearance</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Parameters</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ItemClick</code></td>
+                                <td>object sender, BeepMouseEventArgs e</td>
+                                <td>Fired when a menu item is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToggleClicked</code></td>
+                                <td>object sender, BeepMouseEventArgs e</td>
+                                <td>Fired when the expand/collapse toggle button is clicked</td>
+                            </tr>
+                            <tr>
+                                <td><code>HeaderExpandedChanged</code></td>
+                                <td>object sender, BeepMouseEventArgs e</td>
+                                <td>Fired when a header item's expanded state changes</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var accordionMenu = new BeepAccordionMenu();
+
+// Handle menu item clicks
+accordionMenu.ItemClick += (sender, e) =>
+{
+    var clickedItem = e.Item as SimpleItem;
+    Console.WriteLine($"Menu item clicked: {e.ItemText}");
+    
+    // Handle navigation based on the clicked item
+    HandleNavigation(clickedItem);
+    
+    // Update UI state
+    UpdateActiveView(clickedItem.Text);
+};
+
+// Handle toggle button clicks
+accordionMenu.ToggleClicked += (sender, e) =>
+{
+    bool isCollapsed = (bool)e.Item;
+    Console.WriteLine($"Menu toggled. Collapsed: {isCollapsed}");
+    
+    // Adjust layout for other controls
+    AdjustLayoutForMenuState(isCollapsed);
+    
+    // Save user preference
+    Settings.Default.MenuCollapsed = isCollapsed;
+    Settings.Default.Save();
+};
+
+// Handle header expansion changes
+accordionMenu.HeaderExpandedChanged += (sender, e) =>
+{
+    var headerItem = e.Item as SimpleItem;
+    Console.WriteLine($"Header '{e.ItemText}' expansion changed");
+    
+    // Save expansion state for persistence
+    SaveMenuExpansionState(headerItem);
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Methods -->
+                <section id="methods" class="section">
+                    <h2>Methods</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Method</th>
+                                <th>Parameters</th>
+                                <th>Returns</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>ApplyTheme</code></td>
+                                <td>None</td>
+                                <td>void</td>
+                                <td>Apply current theme colors and fonts to the accordion</td>
+                            </tr>
+                            <tr>
+                                <td><code>Draw</code></td>
+                                <td>Graphics graphics, Rectangle rectangle</td>
+                                <td>void</td>
+                                <td>Custom drawing method for rendering the accordion</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Method Usage Examples</h3>
+                        <pre><code class="language-csharp">// Apply theme changes
+accordionMenu.Theme = "DarkTheme";
+accordionMenu.ApplyTheme();
+
+// Custom drawing (typically handled internally)
+protected override void OnPaint(PaintEventArgs e)
+{
+    accordionMenu.Draw(e.Graphics, accordionMenu.ClientRectangle);
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Dashboard Sidebar</h3>
+                        <pre><code class="language-csharp">public class DashboardForm : Form
+{
+    private BeepAccordionMenu sidebarMenu;
+    private Panel mainContentPanel;
+
+    public DashboardForm()
+    {
+        InitializeForm();
+        SetupSidebarMenu();
+        SetupMainContent();
+    }
+
+    private void SetupSidebarMenu()
+    {
+        sidebarMenu = new BeepAccordionMenu
+        {
+            Dock = DockStyle.Left,
+            Width = 200,
+            Title = "Dashboard",
+            Theme = "DarkTheme",
+            ItemHeight = 45,
+            ChildItemHeight = 35,
+            ExpandedWidth = 200,
+            CollapsedWidth = 60
+        };
+
+        // Create dashboard section
+        var dashboardSection = new SimpleItem
+        {
+            Text = "Analytics",
+            ImagePath = "analytics.svg"
+        };
+        dashboardSection.Children.Add(new SimpleItem { Text = "Overview", ImagePath = "overview.svg" });
+        dashboardSection.Children.Add(new SimpleItem { Text = "Performance", ImagePath = "performance.svg" });
+        dashboardSection.Children.Add(new SimpleItem { Text = "Reports", ImagePath = "reports.svg" });
+
+        // Create projects section
+        var projectsSection = new SimpleItem
+        {
+            Text = "Projects",
+            ImagePath = "projects.svg"
+        };
+        projectsSection.Children.Add(new SimpleItem { Text = "Active Projects", ImagePath = "active.svg" });
+        projectsSection.Children.Add(new SimpleItem { Text = "Completed", ImagePath = "completed.svg" });
+        projectsSection.Children.Add(new SimpleItem { Text = "Archived", ImagePath = "archive.svg" });
+
+        // Add sections to menu
+        sidebarMenu.ListItems.Add(dashboardSection);
+        sidebarMenu.ListItems.Add(projectsSection);
+
+        // Handle menu events
+        sidebarMenu.ItemClick += OnMenuItemClick;
+        sidebarMenu.ToggleClicked += OnMenuToggle;
+
+        this.Controls.Add(sidebarMenu);
+    }
+
+    private void OnMenuItemClick(object sender, BeepMouseEventArgs e)
+    {
+        var clickedItem = e.Item as SimpleItem;
+        
+        // Navigate to appropriate view
+        switch (clickedItem.Text)
+        {
+            case "Overview":
+                ShowDashboardOverview();
+                break;
+            case "Performance":
+                ShowPerformanceView();
+                break;
+            case "Reports":
+                ShowReportsView();
+                break;
+            case "Active Projects":
+                ShowActiveProjects();
+                break;
+            default:
+                ShowGenericView(clickedItem.Text);
+                break;
+        }
+    }
+
+    private void OnMenuToggle(object sender, BeepMouseEventArgs e)
+    {
+        bool isCollapsed = (bool)e.Item;
+        
+        // Save user preference
+        Properties.Settings.Default.SidebarCollapsed = isCollapsed;
+        Properties.Settings.Default.Save();
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>File Explorer Menu</h3>
+                        <pre><code class="language-csharp">public class FileExplorerForm : Form
+{
+    private BeepAccordionMenu folderTreeMenu;
+    private ListView fileListView;
+
+    private void LoadFolderStructure()
+    {
+        try
+        {
+            // Get drives
+            var drives = DriveInfo.GetDrives();
+            
+            foreach (var drive in drives.Where(d => d.IsReady))
+            {
+                var driveItem = new SimpleItem
+                {
+                    Text = $"{drive.Name} ({drive.DriveType})",
+                    ImagePath = "drive.svg",
+                    Tag = drive.RootDirectory.FullName
+                };
+
+                // Load top-level folders
+                LoadSubFolders(driveItem, drive.RootDirectory, 2);
+
+                folderTreeMenu.ListItems.Add(driveItem);
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Error loading folder structure: {ex.Message}");
+        }
+    }
+
+    private void LoadSubFolders(SimpleItem parentItem, DirectoryInfo directory, int maxDepth)
+    {
+        if (maxDepth <= 0) return;
+
+        try
+        {
+            var subDirectories = directory.GetDirectories()
+                                         .Where(d => !d.Attributes.HasFlag(FileAttributes.Hidden))
+                                         .Take(20);
+
+            foreach (var subDir in subDirectories)
+            {
+                var folderItem = new SimpleItem
+                {
+                    Text = subDir.Name,
+                    ImagePath = "folder.svg",
+                    Tag = subDir.FullName
+                };
+
+                LoadSubFolders(folderItem, subDir, maxDepth - 1);
+                parentItem.Children.Add(folderItem);
+            }
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Skip folders we can't access
+        }
+    }
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepAccordionMenu provides comprehensive theming with automatic application of theme colors and fonts:</p>
+
+                    <div class="code-example">
+                        <h3>Theme Application</h3>
+                        <pre><code class="language-csharp">var accordionMenu = new BeepAccordionMenu
+{
+    Theme = "DarkTheme",
+    UseThemeFont = true,
+    IsRounded = true,
+    ShowShadow = true
+};
+
+// Apply theme manually if needed
+accordionMenu.ApplyTheme();
+
+// Theme automatically applies:
+// - SideMenuBackColor: Main accordion background
+// - SideMenuForeColor: Text and icon colors
+// - MenuMainItemHoverBackColor: Item hover background
+// - MenuMainItemHoverForeColor: Item hover text color
+// - MenuMainItemSelectedBackColor: Selected item background</code></pre>
+                    </div>
+
+                    <h3>Theme-Responsive Properties</h3>
+                    <ul>
+                        <li><strong>Background colors</strong> - Automatically use theme background colors</li>
+                        <li><strong>Text colors</strong> - Adapt to theme foreground colors</li>
+                        <li><strong>Hover states</strong> - Use theme hover colors for interactive feedback</li>
+                        <li><strong>Selection states</strong> - Apply theme selection colors</li>
+                        <li><strong>Icon coloring</strong> - SVG icons adapt to theme colors</li>
+                    </ul>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🏗️ Structure Design</h3>
+                    <ul>
+                        <li><strong>Logical grouping:</strong> Group related items under common headers for intuitive navigation</li>
+                        <li><strong>Depth limitation:</strong> Keep hierarchy shallow (2-3 levels max) to avoid complexity</li>
+                        <li><strong>Clear labeling:</strong> Use descriptive, concise names for all menu items</li>
+                        <li><strong>Consistent iconography:</strong> Use consistent icon styles and meanings throughout</li>
+                    </ul>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Appropriate sizing:</strong> Choose item heights that are touch-friendly (40px+ for main items)</li>
+                        <li><strong>Visual hierarchy:</strong> Use different sizes for parent vs child items to show relationships</li>
+                        <li><strong>Color consistency:</strong> Maintain consistent color usage for states and categories</li>
+                        <li><strong>Icon quality:</strong> Use high-quality SVG icons that scale well at different sizes</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Lazy loading:</strong> Load menu items dynamically for large hierarchies</li>
+                        <li><strong>Animation settings:</strong> Adjust animation speed based on user preferences</li>
+                        <li><strong>Memory management:</strong> Dispose of event handlers when removing items</li>
+                        <li><strong>Icon optimization:</strong> Cache frequently used icons to improve performance</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Keyboard navigation:</strong> Ensure accordion works with keyboard input</li>
+                        <li><strong>Screen readers:</strong> Provide appropriate ARIA labels and descriptions</li>
+                        <li><strong>High contrast:</strong> Ensure good contrast ratios for all theme variations</li>
+                        <li><strong>Focus indicators:</strong> Provide clear visual focus indicators</li>
+                    </ul>
+
+                    <div class="tip">
+                        <strong>💡 Design Tip</strong>
+                        <p>Use the HeaderExpandedChanged event to save user preferences for menu expansion states, providing a consistent experience across application sessions.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Success Pattern</strong>
+                        <p>BeepAccordionMenu provides smooth animations and hierarchical organization, making it perfect for navigation sidebars, file explorers, and settings panels.</p>
+                    </div>
+
+                    <div class="warning">
+                        <strong>⚠️ Avoid Deep Nesting</strong>
+                        <p>Avoid creating menus that are too deep (more than 3 levels) as this can confuse users and make navigation difficult, especially in collapsed mode.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="beep-tabcontrol.html"><i class="bi bi-arrow-left"></i> BeepTabs</a>
+                    <a href="beep-multisplitter.html">BeepMultiSplitter <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

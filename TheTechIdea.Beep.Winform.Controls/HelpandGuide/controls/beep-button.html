@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BeepButton - Beep Controls Documentation</title>
+    <link rel="stylesheet" href="../sphinx-style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+        <i class="bi bi-sun-fill" id="theme-icon"></i>
+    </button>
+
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <img src="../assets/beep-logo.svg" alt="Beep Controls Logo">
+                <div class="logo-text">
+                    <h2>Beep Controls</h2>
+                    <span class="version">v1.0.164</span>
+                </div>
+            </div>
+            
+            <!-- Search -->
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search documentation..." onkeyup="searchDocs(this.value)">
+            </div>
+            
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="../index.html"><i class="bi bi-house"></i> Home</a></li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-rocket"></i> Getting Started</a>
+                        <ul class="submenu">
+                            <li><a href="../getting-started/installation.html">Installation Guide</a></li>
+                            <li><a href="../getting-started/quick-start.html">Quick Start Tutorial</a></li>
+                            <li><a href="../getting-started/theming.html">Theming System</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu open">
+                        <a href="#"><i class="bi bi-input-cursor-text"></i> Input Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-button.html" class="active">BeepButton</a></li>
+                            <li><a href="beep-textbox.html">BeepTextBox</a></li>
+                            <li><a href="beep-combobox.html">BeepComboBox</a></li>
+                            <li><a href="beep-checkbox.html">BeepCheckBox</a></li>
+                            <li><a href="beep-radiobutton.html">BeepRadioButton</a></li>
+                            <li><a href="beep-datepicker.html">BeepDatePicker</a></li>
+                            <li><a href="beep-numericupdown.html">BeepNumericUpDown</a></li>
+                            <li><a href="beep-switch.html">BeepSwitch</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-display"></i> Display Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-label.html">BeepLabel</a></li>
+                            <li><a href="beep-image.html">BeepImage</a></li>
+                            <li><a href="beep-progressbar.html">BeepProgressBar</a></li>
+                            <li><a href="beep-shape.html">BeepShape</a></li>
+                            <li><a href="beep-starrating.html">BeepStarRating</a></li>
+                            <li><a href="beep-marquee.html">BeepMarquee</a></li>
+                            <li><a href="beep-testimonial.html">BeepTestimonial</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-layout-split"></i> Layout Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-panel.html">BeepPanel</a></li>
+                            <li><a href="beep-card.html">BeepCard</a></li>
+                            <li><a href="beep-tabcontrol.html">BeepTabs</a></li>
+                            <li><a href="beep-accordion.html">BeepAccordionMenu</a></li>
+                            <li><a href="beep-multisplitter.html">BeepMultiSplitter</a></li>
+                            <li><a href="beep-breadcrumps.html">BeepBreadcrumps</a></li>
+                            <li><a href="beep-stepper.html">BeepSteppperBar</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu">
+                        <a href="#"><i class="bi bi-bar-chart"></i> Data Controls</a>
+                        <ul class="submenu">
+                            <li><a href="beep-grid.html">BeepSimpleGrid</a></li>
+                            <li><a href="beep-chart.html">BeepChart</a></li>
+                            <li><a href="beep-statcard.html">BeepStatCard</a></li>
+                            <li><a href="beep-metrictile.html">BeepMetricTile</a></li>
+                            <li><a href="beep-tree.html">BeepTree</a></li>
+                            <li><a href="beep-listbox.html">BeepListBox</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="../api/beep-control-base.html"><i class="bi bi-code-square"></i> API Reference</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <div class="content-wrapper">
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav">
+                    <a href="../index.html">Home</a>
+                    <span>›</span>
+                    <a href="../index.html#input-controls">Input Controls</a>
+                    <span>›</span>
+                    <span>BeepButton</span>
+                </nav>
+
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1>BeepButton</h1>
+                    <p class="page-subtitle">Modern, themeable button control with React-style variants and advanced features</p>
+                </div>
+
+                <!-- Table of Contents -->
+                <div class="toc">
+                    <h3>📑 Table of Contents</h3>
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#features">Key Features</a></li>
+                        <li><a href="#basic-usage">Basic Usage</a></li>
+                        <li><a href="#variants">Button Variants</a></li>
+                        <li><a href="#properties">Properties</a></li>
+                        <li><a href="#events">Events</a></li>
+                        <li><a href="#examples">Examples</a></li>
+                        <li><a href="#theming">Theming</a></li>
+                        <li><a href="#best-practices">Best Practices</a></li>
+                    </ul>
+                </div>
+
+                <!-- Overview -->
+                <section id="overview" class="section">
+                    <h2>Overview</h2>
+                    <p>
+                        <strong>BeepButton</strong> is a modern, themeable button control that extends the standard 
+                        Windows Forms Button with React-style variants, Material Design principles, and advanced 
+                        features like SVG icon support, ripple effects, and comprehensive theming capabilities.
+                    </p>
+                    <p>
+                        Built on the <code>BeepControl</code> foundation, BeepButton provides multiple visual 
+                        variants, size options, and color schemes that automatically adapt to your application's 
+                        theme while maintaining consistent behavior and accessibility.
+                    </p>
+                </section>
+
+                <!-- Key Features -->
+                <section id="features" class="section">
+                    <h2>Key Features</h2>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h3>🎨 React-Style Variants</h3>
+                            <p>Contained, Outlined, Text, and Floating Action Button variants</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>📏 Multiple Sizes</h3>
+                            <p>Small, Medium, Large, and Extra Large size options</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🌈 Color Schemes</h3>
+                            <p>Primary, Secondary, Success, Warning, Error, and Info colors</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🖼️ SVG Icon Support</h3>
+                            <p>Native SVG rendering with theme-aware coloring</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>💫 Ripple Effects</h3>
+                            <p>Material Design ripple animations on click</p>
+                        </div>
+                        <div class="feature-card">
+                            <h3>🎯 Theme Integration</h3>
+                            <p>Seamless integration with Beep theming system</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Basic Usage -->
+                <section id="basic-usage" class="section">
+                    <h2>Basic Usage</h2>
+                    
+                    <div class="code-example">
+                        <h3>Simple Button</h3>
+                        <pre><code class="language-csharp">// Create a basic button
+var button = new BeepButton
+{
+    Text = "Click Me!",
+    Size = new Size(120, 36),
+    Location = new Point(10, 10)
+};
+
+// Add to form
+this.Controls.Add(button);</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Styled Button with Variants</h3>
+                        <pre><code class="language-csharp">// Create a primary contained button
+var primaryButton = new BeepButton
+{
+    Text = "Primary Action",
+    UIVariant = ReactUIVariant.Contained,
+    UIColor = ReactUIColor.Primary,
+    UISize = ReactUISize.Large,
+    Size = new Size(150, 48),
+    Location = new Point(10, 10)
+};
+
+// Create an outlined secondary button
+var secondaryButton = new BeepButton
+{
+    Text = "Secondary Action",
+    UIVariant = ReactUIVariant.Outlined,
+    UIColor = ReactUIColor.Secondary,
+    UISize = ReactUISize.Medium,
+    Size = new Size(140, 40),
+    Location = new Point(170, 10)
+};
+
+this.Controls.AddRange(new Control[] { primaryButton, secondaryButton });</code></pre>
+                    </div>
+
+                    <div class="tip">
+                        <strong>💡 Quick Tip</strong>
+                        <p>Use the UIVariant, UIColor, and UISize properties for consistent styling across your application. These properties automatically apply appropriate colors, borders, and sizing based on your active theme.</p>
+                    </div>
+                </section>
+
+                <!-- Button Variants -->
+                <section id="variants" class="section">
+                    <h2>Button Variants</h2>
+                    
+                    <h3>UI Variants</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Variant</th>
+                                <th>Description</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Contained</code></td>
+                                <td>Filled background with text and shadow</td>
+                                <td>Primary actions, call-to-action buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>Outlined</code></td>
+                                <td>Border with transparent background</td>
+                                <td>Secondary actions, alternative options</td>
+                            </tr>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>No background or border, text only</td>
+                                <td>Tertiary actions, inline actions</td>
+                            </tr>
+                            <tr>
+                                <td><code>Floating</code></td>
+                                <td>Circular floating action button</td>
+                                <td>Primary action in mobile-style interfaces</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>UI Colors</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Color</th>
+                                <th>Purpose</th>
+                                <th>Usage</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Primary</code></td>
+                                <td>Main brand color</td>
+                                <td>Primary actions, submit buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>Secondary</code></td>
+                                <td>Secondary brand color</td>
+                                <td>Secondary actions, alternative choices</td>
+                            </tr>
+                            <tr>
+                                <td><code>Success</code></td>
+                                <td>Success/confirmation actions</td>
+                                <td>Save, confirm, approve buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>Warning</code></td>
+                                <td>Caution/warning actions</td>
+                                <td>Warning dialogs, caution actions</td>
+                            </tr>
+                            <tr>
+                                <td><code>Error</code></td>
+                                <td>Destructive/error actions</td>
+                                <td>Delete, cancel, error actions</td>
+                            </tr>
+                            <tr>
+                                <td><code>Info</code></td>
+                                <td>Informational actions</td>
+                                <td>Information dialogs, help buttons</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h3>UI Sizes</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Dimensions</th>
+                                <th>Font Size</th>
+                                <th>Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Small</code></td>
+                                <td>Compact padding</td>
+                                <td>12px</td>
+                                <td>Toolbar buttons, compact interfaces</td>
+                            </tr>
+                            <tr>
+                                <td><code>Medium</code></td>
+                                <td>Standard padding</td>
+                                <td>14px</td>
+                                <td>Form buttons, general use</td>
+                            </tr>
+                            <tr>
+                                <td><code>Large</code></td>
+                                <td>Generous padding</td>
+                                <td>16px</td>
+                                <td>Primary actions, prominent buttons</td>
+                            </tr>
+                            <tr>
+                                <td><code>ExtraLarge</code></td>
+                                <td>Maximum padding</td>
+                                <td>18px</td>
+                                <td>Landing pages, call-to-action buttons</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Properties -->
+                <section id="properties" class="section">
+                    <h2>Properties</h2>
+
+                    <h3>React-Style Properties</h3>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <h4>UIVariant <code>ReactUIVariant</code></h4>
+                            <p>Visual style variant (Contained, Outlined, Text, Floating)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>UIColor <code>ReactUIColor</code></h4>
+                            <p>Color scheme (Primary, Secondary, Success, Warning, Error, Info)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>UISize <code>ReactUISize</code></h4>
+                            <p>Size variant (Small, Medium, Large, ExtraLarge)</p>
+                        </div>
+                        <div class="feature-card">
+                            <h4>IsLoading <code>bool</code></h4>
+                            <p>Shows loading spinner when true</p>
+                        </div>
+                    </div>
+
+                    <h3>Content Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Text</code></td>
+                                <td>string</td>
+                                <td>Button text content</td>
+                            </tr>
+                            <tr>
+                                <td><code>SVGIcon</code></td>
+                                <td>string</td>
+                                <td>SVG icon content</td>
+                            </tr>
+                            <tr>
+                                <td><code>IconPosition</code></td>
+                                <td>IconPosition</td>
+                                <td>Position of icon relative to text</td>
+                            </tr>
+                            <tr>
+                                <td><code>ToolTipText</code></td>
+                                <td>string</td>
+                                <td>Tooltip text for the button</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Events -->
+                <section id="events" class="section">
+                    <h2>Events</h2>
+                    
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Description</th>
+                                <th>When Fired</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>Click</code></td>
+                                <td>Standard button click event</td>
+                                <td>When button is clicked or activated</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseEnter</code></td>
+                                <td>Mouse enters button area</td>
+                                <td>For hover effects and states</td>
+                            </tr>
+                            <tr>
+                                <td><code>MouseLeave</code></td>
+                                <td>Mouse leaves button area</td>
+                                <td>For resetting hover states</td>
+                            </tr>
+                            <tr>
+                                <td><code>KeyDown</code></td>
+                                <td>Key pressed while focused</td>
+                                <td>For keyboard navigation support</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="code-example">
+                        <h3>Event Handling Examples</h3>
+                        <pre><code class="language-csharp">var button = new BeepButton
+{
+    Text = "Save Document",
+    UIVariant = ReactUIVariant.Contained,
+    UIColor = ReactUIColor.Success
+};
+
+// Click event handler
+button.Click += async (sender, e) => {
+    button.IsLoading = true;
+    button.Text = "Saving...";
+    
+    try
+    {
+        await SaveDocumentAsync();
+        ShowSuccessMessage("Document saved successfully!");
+    }
+    catch (Exception ex)
+    {
+        ShowErrorMessage($"Failed to save: {ex.Message}");
+    }
+    finally
+    {
+        button.IsLoading = false;
+        button.Text = "Save Document";
+    }
+};
+
+// Hover effects
+button.MouseEnter += (s, e) => {
+    button.UISize = ReactUISize.Large; // Slightly larger on hover
+};
+
+button.MouseLeave += (s, e) => {
+    button.UISize = ReactUISize.Medium; // Return to normal size
+};</code></pre>
+                    </div>
+                </section>
+
+                <!-- Examples -->
+                <section id="examples" class="section">
+                    <h2>Examples</h2>
+
+                    <div class="code-example">
+                        <h3>Button Toolbar</h3>
+                        <pre><code class="language-csharp">private void CreateButtonToolbar()
+{
+    var toolbar = new FlowLayoutPanel
+    {
+        Dock = DockStyle.Top,
+        Height = 60,
+        FlowDirection = FlowDirection.LeftToRight,
+        Padding = new Padding(10)
+    };
+
+    // Primary action buttons
+    var newButton = new BeepButton
+    {
+        Text = "New",
+        UIVariant = ReactUIVariant.Contained,
+        UIColor = ReactUIColor.Primary,
+        UISize = ReactUISize.Medium,
+        Margin = new Padding(0, 0, 10, 0)
+    };
+
+    var openButton = new BeepButton
+    {
+        Text = "Open",
+        UIVariant = ReactUIVariant.Outlined,
+        UIColor = ReactUIColor.Primary,
+        UISize = ReactUISize.Medium,
+        Margin = new Padding(0, 0, 10, 0)
+    };
+
+    var saveButton = new BeepButton
+    {
+        Text = "Save",
+        UIVariant = ReactUIVariant.Contained,
+        UIColor = ReactUIColor.Success,
+        UISize = ReactUISize.Medium,
+        Margin = new Padding(0, 0, 20, 0)
+    };
+
+    // Utility buttons
+    var settingsButton = new BeepButton
+    {
+        Text = "Settings",
+        UIVariant = ReactUIVariant.Text,
+        UIColor = ReactUIColor.Secondary,
+        UISize = ReactUISize.Medium,
+        Margin = new Padding(0, 0, 10, 0)
+    };
+
+    toolbar.Controls.AddRange(new Control[] 
+    { 
+        newButton, openButton, saveButton, settingsButton 
+    });
+
+    this.Controls.Add(toolbar);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Form Action Buttons</h3>
+                        <pre><code class="language-csharp">private void CreateFormActionButtons()
+{
+    var buttonPanel = new Panel
+    {
+        Dock = DockStyle.Bottom,
+        Height = 80,
+        Padding = new Padding(20)
+    };
+
+    var submitButton = new BeepButton
+    {
+        Text = "Submit",
+        UIVariant = ReactUIVariant.Contained,
+        UIColor = ReactUIColor.Primary,
+        UISize = ReactUISize.Large,
+        Size = new Size(120, 48),
+        Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+    };
+    submitButton.Location = new Point(buttonPanel.Width - 140 - 20, 16);
+
+    var cancelButton = new BeepButton
+    {
+        Text = "Cancel",
+        UIVariant = ReactUIVariant.Outlined,
+        UIColor = ReactUIColor.Secondary,
+        UISize = ReactUISize.Large,
+        Size = new Size(120, 48),
+        Anchor = AnchorStyles.Bottom | AnchorStyles.Right
+    };
+    cancelButton.Location = new Point(buttonPanel.Width - 270 - 20, 16);
+
+    // Event handlers
+    submitButton.Click += SubmitForm_Click;
+    cancelButton.Click += (s, e) => this.Close();
+
+    buttonPanel.Controls.AddRange(new Control[] { submitButton, cancelButton });
+    this.Controls.Add(buttonPanel);
+}</code></pre>
+                    </div>
+
+                    <div class="code-example">
+                        <h3>Icon Buttons with SVG</h3>
+                        <pre><code class="language-csharp">private void CreateIconButtons()
+{
+    // Play button with SVG icon
+    var playButton = new BeepButton
+    {
+        SVGIcon = @"<svg viewBox='0 0 24 24'><path d='M8 5v14l11-7z'/></svg>",
+        UIVariant = ReactUIVariant.Floating,
+        UIColor = ReactUIColor.Primary,
+        UISize = ReactUISize.Large,
+        Size = new Size(56, 56),
+        Location = new Point(50, 50)
+    };
+
+    // Settings button with text and icon
+    var settingsButton = new BeepButton
+    {
+        Text = "Settings",
+        SVGIcon = @"<svg viewBox='0 0 24 24'><path d='M12 8a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm9 2a9 9 0 0 1-18 0 9 9 0 0 1 18 0z'/></svg>",
+        IconPosition = IconPosition.Left,
+        UIVariant = ReactUIVariant.Outlined,
+        UIColor = ReactUIColor.Secondary,
+        UISize = ReactUISize.Medium,
+        Size = new Size(140, 40),
+        Location = new Point(50, 120)
+    };
+
+    this.Controls.AddRange(new Control[] { playButton, settingsButton });
+}</code></pre>
+                    </div>
+                </section>
+
+                <!-- Theming -->
+                <section id="theming" class="section">
+                    <h2>Theming</h2>
+                    
+                    <p>BeepButton integrates seamlessly with the Beep theming system, automatically adapting colors, fonts, and visual effects based on your application's active theme.</p>
+
+                    <div class="code-example">
+                        <h3>Applying Themes</h3>
+                        <pre><code class="language-csharp">// Apply theme to individual button
+button.Theme = "DarkTheme";
+button.ApplyTheme();
+
+// Apply theme to all buttons in a container
+private void ApplyThemeToButtons(Control container, string themeName)
+{
+    foreach (Control control in container.Controls)
+    {
+        if (control is BeepButton button)
+        {
+            button.Theme = themeName;
+            button.ApplyTheme();
+        }
+        
+        // Recursively apply to nested containers
+        if (control.HasChildren)
+        {
+            ApplyThemeToButtons(control, themeName);
+        }
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>Theme-Aware Properties</h3>
+                    <table class="property-table">
+                        <thead>
+                            <tr>
+                                <th>Property</th>
+                                <th>Theme Impact</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>UIColor</code></td>
+                                <td>Color palette</td>
+                                <td>Automatically uses theme's color definitions</td>
+                            </tr>
+                            <tr>
+                                <td><code>Font</code></td>
+                                <td>Typography</td>
+                                <td>Applies theme's font family and sizing</td>
+                            </tr>
+                            <tr>
+                                <td><code>SVGIcon</code></td>
+                                <td>Icon coloring</td>
+                                <td>SVG colors adapt to theme foreground colors</td>
+                            </tr>
+                            <tr>
+                                <td><code>BorderRadius</code></td>
+                                <td>Corner styling</td>
+                                <td>Uses theme's border radius settings</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </section>
+
+                <!-- Best Practices -->
+                <section id="best-practices" class="section">
+                    <h2>Best Practices</h2>
+
+                    <h3>🎨 Visual Design</h3>
+                    <ul>
+                        <li><strong>Use Primary for main actions:</strong> Reserve primary colored buttons for the most important action on a screen</li>
+                        <li><strong>Maintain visual hierarchy:</strong> Use Contained > Outlined > Text variants to establish importance</li>
+                        <li><strong>Consistent sizing:</strong> Use the same UISize within related button groups</li>
+                        <li><strong>Meaningful icons:</strong> When using SVG icons, ensure they clearly represent the action</li>
+                    </ul>
+
+                    <h3>⚡ Performance</h3>
+                    <ul>
+                        <li><strong>Batch theme changes:</strong> Apply themes to multiple buttons at once using container-level operations</li>
+                        <li><strong>Optimize SVG icons:</strong> Use simple, optimized SVG paths for better rendering performance</li>
+                        <li><strong>Avoid excessive animations:</strong> Limit ripple effects and hover animations for better responsiveness</li>
+                    </ul>
+
+                    <h3>♿ Accessibility</h3>
+                    <ul>
+                        <li><strong>Provide tooltips:</strong> Use ToolTipText for buttons with icons only</li>
+                        <li><strong>Keyboard navigation:</strong> Ensure buttons are accessible via Tab navigation</li>
+                        <li><strong>High contrast support:</strong> Test buttons with high contrast themes</li>
+                        <li><strong>Focus indicators:</strong> Ensure focused buttons have clear visual indicators</li>
+                    </ul>
+
+                    <div class="warning">
+                        <strong>⚠️ Avoid Common Pitfalls</strong>
+                        <p>Don't use too many primary buttons on one screen - this reduces the visual hierarchy and confuses users about the main action.</p>
+                    </div>
+
+                    <div class="success">
+                        <strong>✅ Pro Tip</strong>
+                        <p>Use the IsLoading property for async operations to provide immediate user feedback and prevent double-clicks.</p>
+                    </div>
+                </section>
+
+                <!-- Navigation -->
+                <div class="nav-links">
+                    <a href="../index.html"><i class="bi bi-arrow-left"></i> Back to Controls</a>
+                    <a href="beep-textbox.html">BeepTextBox <i class="bi bi-arrow-right"></i></a>
+                </div>
+
+                <!-- Footer -->
+                <footer class="documentation-footer">
+                    <div class="footer-content">
+                        <div class="footer-copyright">
+                            <p>&copy; 2024 TheTechIdea - Beep Controls Documentation</p>
+                            <p>Supporting .NET 6, 7, 8, and 9 | Windows Forms Applications</p>
+                        </div>
+                        <div class="footer-links">
+                            <a href="../index.html">Home</a>
+                            <a href="../getting-started/installation.html">Getting Started</a>
+                            <a href="../api/beep-control-base.html">API Reference</a>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenus = document.querySelectorAll('.has-submenu > a');
+            
+            submenus.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                });
+            });
+        });
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.className = 'bi bi-sun-fill';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.className = 'bi bi-moon-fill';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-icon').className = 'bi bi-moon-fill';
+            }
+        });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('open');
+        }
+
+        function searchDocs(query) {
+            const links = document.querySelectorAll('.nav-menu a');
+            const lowerQuery = query.toLowerCase();
+            
+            links.forEach(link => {
+                const text = link.textContent.toLowerCase();
+                const listItem = link.closest('li');
+                
+                if (text.includes(lowerQuery) || lowerQuery === '') {
+                    listItem.style.display = '';
+                } else {
+                    listItem.style.display = 'none';
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const codeBlocks = document.querySelectorAll('pre code');
+            
+            codeBlocks.forEach(block => {
+                const button = document.createElement('button');
+                button.textContent = 'Copy';
+                button.style.cssText = `
+                    position: absolute;
+                    top: 8px;
+                    right: 8px;
+                    background: var(--color-brand-primary);
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    padding: 4px 8px;
+                    font-size: 12px;
+                    cursor: pointer;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const pre = block.parentElement;
+                pre.style.position = 'relative';
+                pre.appendChild(button);
+                
+                pre.addEventListener('mouseenter', () => {
+                    button.style.opacity = '1';
+                });
+                
+                pre.addEventListener('mouseleave', () => {
+                    button.style.opacity = '0';
+                });
+                
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(block.textContent).then(() => {
+                        button.textContent = 'Copied!';
+                        setTimeout(() => {
+                            button.textContent = 'Copy';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

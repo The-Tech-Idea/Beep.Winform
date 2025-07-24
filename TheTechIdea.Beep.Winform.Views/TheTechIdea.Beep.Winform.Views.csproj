@@ -115,7 +115,7 @@
 	  <Folder Include="Sql\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="ReaLTaiizor" Version="3.8.1.1" />
+	  <PackageReference Include="ReaLTaiizor" Version="3.8.1.3" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />

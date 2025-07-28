@@ -18,7 +18,7 @@
 	  <Title>TheTechIdea.Beep.Winform.Controls.Integrated</Title>
 	  <Product>TheTechIdea.Beep.Winform.Controls.Integrated</Product>
 	  <AssemblyName>TheTechIdea.Beep.Winform.Controls.Integrated</AssemblyName>
-	  <Version>1.0.0</Version>
+	  <Version>1.0.1</Version>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <Target Name="CopyPackage" AfterTargets="Pack">

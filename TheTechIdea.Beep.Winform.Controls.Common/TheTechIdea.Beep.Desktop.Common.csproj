@@ -40,7 +40,7 @@
     <PackageReference Include="Svg" Version="3.4.7" />
     <PackageReference Include="TheTechIdea.Beep.Container" Version="1.0.0.84" />
     <PackageReference Include="TheTechIdea.Beep.Container.AutoFac" Version="1.0.1" />
-    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.46" />
+    <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.47" />
     <PackageReference Include="TheTechIdea.Beep.Container.Shared" Version="1.0.0" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.66" />
     <PackageReference Include="TheTechIdea.Beep.Shared" Version="1.0.0" />

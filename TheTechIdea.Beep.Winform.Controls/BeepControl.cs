@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         /// </summary>
         protected bool _isRounded = true;
-        protected bool _useGradientBackground = false;
+        protected bool _useGradientBackground = true;
         protected LinearGradientMode _gradientDirection = LinearGradientMode.Horizontal;
         protected Color _gradientStartColor = Color.Gray;
         protected Color _gradientEndColor = Color.Gray;
@@ -217,7 +217,64 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region "Public Properties"
+        #region "Modern Gradient Properties"
 
+
+        /// <summary>
+        /// Gets or sets the modern gradient type
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Type of modern gradient to apply")]
+        public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.Subtle;
+
+        /// <summary>
+        /// Gets or sets the gradient stop positions and colors for advanced gradients
+        /// </summary>
+        [Browsable(false)]
+        public List<GradientStop> GradientStops { get; set; } = new List<GradientStop>();
+
+        /// <summary>
+        /// Gets or sets the center point for radial gradients (0.0 to 1.0)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Center point for radial gradients (0.0 to 1.0)")]
+        public PointF RadialCenter { get; set; } = new PointF(0.5f, 0.5f);
+
+        /// <summary>
+        /// Gets or sets the gradient angle in degrees (0-360)
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Gradient angle in degrees (0-360)")]
+        public float GradientAngle { get; set; } = 0f;
+
+        /// <summary>
+        /// Gets or sets whether to use a glassmorphism effect
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Apply glassmorphism effect to the gradient")]
+        public bool UseGlassmorphism { get; set; } = false;
+
+        /// <summary>
+        /// Gets or sets the glassmorphism blur intensity
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Intensity of the glassmorphism blur effect")]
+        public float GlassmorphismBlur { get; set; } = 10f;
+
+        /// <summary>
+        /// Gets or sets the glassmorphism opacity
+        /// </summary>
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Opacity of the glassmorphism effect")]
+        public float GlassmorphismOpacity { get; set; } = 0.1f;
+
+        #endregion
         private bool _isselectedoptionon = false;
         public bool IsSelectedOptionOn
         {
@@ -1861,10 +1918,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 buffer.Render(e.Graphics);
             }
         }
+        // Fix for Error 1 - Line 1967 in DrawBackground method
         protected virtual void DrawBackground(Graphics g)
         {
             // Ensure high-quality rendering for the background
             g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
             Color backcolor = BackColor;
 
@@ -1873,75 +1933,67 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsHovered)
                 {
-                    backcolor = HoverBackColor; // Use HoverBackColor property
+                    backcolor = HoverBackColor;
                 }
                 else if (IsSelected && IsSelectedOptionOn)
                 {
-                    backcolor = SelectedBackColor; // Use SelectedBackColor property
+                    backcolor = SelectedBackColor;
                 }
 
                 // For Filled variant in Material UI, use the FilledBackgroundColor
                 if (MaterialBorderVariant == MaterialTextFieldVariant.Filled)
                 {
-                    backcolor = FilledBackgroundColor; // Use FilledBackgroundColor property
+                    backcolor = FilledBackgroundColor;
                 }
             }
             else
             {
-                backcolor = DisabledBackColor; // Use DisabledBackColor property
+                backcolor = DisabledBackColor;
             }
 
-            if (UseGradientBackground)
+            // Apply gradient based on type
+            if (UseGradientBackground && ModernGradientType != ModernGradientType.None)
             {
-                // --- Modern Gradient Logic ---
-                Color color1 = backcolor;
-                Color color2;
-
-                // Calculate a very subtle variant for a modern, soft gradient
-                // Using a small factor (e.g., 0.02 to 0.05) for subtlety
-                const float subtleFactor = 0.03f;
-
-                // Decide whether to lighten or darken based on brightness
-                // A threshold slightly below 0.5 often works well for natural light/dark perception
-                const float brightnessThreshold = 0.45f;
-
-                if (color1.GetBrightness() > brightnessThreshold)
-                {
-                    // Light color -> darken slightly for the gradient
-                    color2 = ControlPaint.Dark(color1, subtleFactor);
-                }
-                else
-                {
-                    // Dark color -> lighten slightly for the gradient
-                    color2 = ControlPaint.Light(color1, subtleFactor);
-                }
-
-                // Create the gradient brush using the calculated subtle colors
-                using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
-                    DrawingRect, color1, color2, GradientDirection)) // Use GradientDirection property
-                {
-                    // Optional: Add a Blend for an even smoother, more sophisticated transition (S-curve like)
-                    // This makes the gradient change more gradually in the middle.
-                    Blend blend = new Blend();
-                    blend.Positions = new float[] { 0.0f, 0.5f, 1.0f };
-                    // Factors: 0=start, 1=middle peak, 0=end creates a smooth S-curve effect
-                    blend.Factors = new float[] { 0.0f, 1.0f, 0.0f };
-                    gradientBrush.Blend = blend;
-
-                    // Fill the DrawingRect with the subtle gradient
-                    g.FillRectangle(gradientBrush, DrawingRect);
-                }
-                // --- End Modern Gradient Logic ---
-
-                // Return early as the background (gradient) has been drawn
+                DrawModernGradient(g, backcolor);
                 return;
             }
 
             // If not using gradient, draw a solid fill with the determined backcolor
             using (SolidBrush brush = new SolidBrush(backcolor))
             {
-                g.FillRectangle(brush, DrawingRect);
+                if (IsRounded)
+                {
+                    using (GraphicsPath path = GetRoundedRectPath(DrawingRect, BorderRadius))
+                    {
+                        g.FillPath(brush, path); // Fixed: Use the path, not DrawingRect
+                    }
+                }
+                else
+                {
+                    g.FillRectangle(brush, DrawingRect);
+                }
             }
+        }
+
+        // Fix for Errors 2 & 3 - Lines 2572 & 2601 in CreateAngledGradientBrush method
+        /// <summary>
+        /// Creates a linear gradient brush with custom angle
+        /// </summary>
+        private LinearGradientBrush CreateAngledGradientBrush(Rectangle rect, Color color1, Color color2, float angleRadians)
+        {
+            // Calculate gradient direction based on angle
+            float cos = (float)Math.Cos(angleRadians); // Fixed: Cast to float
+            float sin = (float)Math.Sin(angleRadians); // Fixed: Cast to float
+
+            PointF start = new PointF(
+                rect.X + rect.Width * (0.5f - cos * 0.5f),
+                rect.Y + rect.Height * (0.5f - sin * 0.5f));
+
+            PointF end = new PointF(
+                rect.X + rect.Width * (0.5f + cos * 0.5f),
+                rect.Y + rect.Height * (0.5f + sin * 0.5f));
+
+            return new LinearGradientBrush(start, end, color1, color2);
         }
         protected virtual void DrawContent(Graphics g)
         {
@@ -2470,6 +2522,350 @@ namespace TheTechIdea.Beep.Winform.Controls
             return path;
         }
         #endregion "Drawing Methods"
+        #region "Drawing gradiants"
+        /// <summary>
+        /// Draws modern gradient backgrounds with various professional styles
+        /// </summary>
+        protected virtual void DrawModernGradient(Graphics g, Color baseColor)
+        {
+            Rectangle drawRect = DrawingRect;
+
+            switch (ModernGradientType)
+            {
+                case ModernGradientType.Subtle:
+                    DrawSubtleGradient(g, drawRect, baseColor);
+                    break;
+
+                case ModernGradientType.Linear:
+                    DrawLinearGradient(g, drawRect, baseColor);
+                    break;
+
+                case ModernGradientType.Radial:
+                    DrawRadialGradient(g, drawRect, baseColor);
+                    break;
+
+                case ModernGradientType.Conic:
+                    DrawConicGradient(g, drawRect, baseColor);
+                    break;
+
+                case ModernGradientType.Mesh:
+                    DrawMeshGradient(g, drawRect, baseColor);
+                    break;
+            }
+
+            // Apply glassmorphism if enabled
+            if (UseGlassmorphism)
+            {
+                ApplyGlassmorphism(g, drawRect);
+            }
+        }
+
+        /// <summary>
+        /// Draws a subtle, professional gradient
+        /// </summary>
+        private void DrawSubtleGradient(Graphics g, Rectangle rect, Color baseColor)
+        {
+            // Create a very subtle gradient for modern, professional look
+            Color color1 = baseColor;
+            Color color2;
+
+            // Calculate subtle color variations based on brightness
+            float brightness = baseColor.GetBrightness();
+            const float subtleFactor = 0.05f; // Increased from 0.03f for more visibility
+
+            if (brightness > 0.5f)
+            {
+                // Light color -> create subtle shadow effect
+                color2 = Color.FromArgb(
+                    Math.Max(0, baseColor.R - (int)(255 * subtleFactor)),
+                    Math.Max(0, baseColor.G - (int)(255 * subtleFactor)),
+                    Math.Max(0, baseColor.B - (int)(255 * subtleFactor)));
+            }
+            else
+            {
+                // Dark color -> create subtle highlight effect
+                color2 = Color.FromArgb(
+                    Math.Min(255, baseColor.R + (int)(255 * subtleFactor)),
+                    Math.Min(255, baseColor.G + (int)(255 * subtleFactor)),
+                    Math.Min(255, baseColor.B + (int)(255 * subtleFactor)));
+            }
+
+            // Create gradient with custom angle
+            float angleRadians = (float)(GradientAngle * Math.PI / 180f);
+
+            using (LinearGradientBrush gradientBrush = CreateAngledGradientBrush(rect, color1, color2, angleRadians))
+            {
+                // Add sophisticated color blend for smooth transitions
+                ColorBlend blend = new ColorBlend();
+                blend.Colors = new Color[] { color1, BlendColors(color1, color2, 0.5f), color2 };
+                blend.Positions = new float[] { 0.0f, 0.3f, 1.0f };
+                gradientBrush.InterpolationColors = blend;
+
+                FillShape(g, gradientBrush, rect);
+            }
+        }
+
+        /// <summary>
+        /// Draws a linear gradient with custom angle support
+        /// </summary>
+        private void DrawLinearGradient(Graphics g, Rectangle rect, Color baseColor)
+        {
+            Color startColor = GradientStartColor;
+            Color endColor = GradientEndColor;
+
+            // Use base color if gradient colors aren't set
+            if (startColor == Color.Gray && endColor == Color.Gray)
+            {
+                startColor = baseColor;
+                endColor = ModifyColorBrightness(baseColor, 0.8f);
+            }
+
+            float angleRadians = (float)(GradientAngle * Math.PI / 180f);
+
+            using (LinearGradientBrush gradientBrush = CreateAngledGradientBrush(rect, startColor, endColor, angleRadians))
+            {
+                // Add multi-stop gradient if gradient stops are defined
+                if (GradientStops.Count > 0)
+                {
+                    ApplyGradientStops(gradientBrush);
+                }
+
+                FillShape(g, gradientBrush, rect);
+            }
+        }
+
+        /// <summary>
+        /// Draws a radial gradient from center outward
+        /// </summary>
+        private void DrawRadialGradient(Graphics g, Rectangle rect, Color baseColor)
+        {
+            Color centerColor = GradientStartColor != Color.Gray ? GradientStartColor : baseColor;
+            Color edgeColor = GradientEndColor != Color.Gray ? GradientEndColor : ModifyColorBrightness(baseColor, 0.7f);
+
+            // Calculate center point
+            PointF center = new PointF(
+                rect.X + rect.Width * RadialCenter.X,
+                rect.Y + rect.Height * RadialCenter.Y);
+
+            // Calculate radius
+            float radius = Math.Max(rect.Width, rect.Height) * 0.7f;
+
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                path.AddEllipse(center.X - radius, center.Y - radius, radius * 2, radius * 2);
+
+                using (PathGradientBrush gradientBrush = new PathGradientBrush(path))
+                {
+                    gradientBrush.CenterColor = centerColor;
+                    gradientBrush.SurroundColors = new Color[] { edgeColor };
+                    gradientBrush.CenterPoint = center;
+
+                    FillShape(g, gradientBrush, rect);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws a conic (angular) gradient - simulated with multiple linear gradients
+        /// </summary>
+        private void DrawConicGradient(Graphics g, Rectangle rect, Color baseColor)
+        {
+            // Simulate conic gradient using multiple segments
+            PointF center = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
+            int segments = 36; // 10-degree segments
+
+            for (int i = 0; i < segments; i++)
+            {
+                float startAngle = (i * 360f / segments) + GradientAngle;
+                float endAngle = ((i + 1) * 360f / segments) + GradientAngle;
+
+                // Calculate color for this segment
+                float hue = (startAngle % 360f) / 360f;
+                Color segmentColor = ColorFromHSV(hue, 0.5f, baseColor.GetBrightness());
+
+                using (SolidBrush segmentBrush = new SolidBrush(Color.FromArgb(100, segmentColor)))
+                {
+                    g.FillPie(segmentBrush, rect, startAngle, 360f / segments);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws a mesh gradient with multiple control points
+        /// </summary>
+        private void DrawMeshGradient(Graphics g, Rectangle rect, Color baseColor)
+        {
+            // Create a 3x3 mesh gradient effect
+            int gridSize = 3;
+            Color[,] colorGrid = new Color[gridSize, gridSize];
+
+            // Initialize color grid with variations of base color
+            for (int x = 0; x < gridSize; x++)
+            {
+                for (int y = 0; y < gridSize; y++)
+                {
+                    float brightness = 0.7f + (0.3f * ((x + y) / (float)(gridSize * 2)));
+                    colorGrid[x, y] = ModifyColorBrightness(baseColor, brightness);
+                }
+            }
+
+            // Draw gradient patches
+            float cellWidth = rect.Width / (float)(gridSize - 1);
+            float cellHeight = rect.Height / (float)(gridSize - 1);
+
+            for (int x = 0; x < gridSize - 1; x++)
+            {
+                for (int y = 0; y < gridSize - 1; y++)
+                {
+                    RectangleF cellRect = new RectangleF(
+                        rect.X + x * cellWidth,
+                        rect.Y + y * cellHeight,
+                        cellWidth * 1.5f, // Overlap cells
+                        cellHeight * 1.5f);
+
+                    using (LinearGradientBrush cellBrush = new LinearGradientBrush(
+                        cellRect, colorGrid[x, y], colorGrid[x + 1, y + 1], LinearGradientMode.ForwardDiagonal))
+                    {
+                        g.FillRectangle(cellBrush, cellRect);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies glassmorphism effect over the background
+        /// </summary>
+        private void ApplyGlassmorphism(Graphics g, Rectangle rect)
+        {
+            // Create translucent overlay with noise pattern
+            using (SolidBrush glassBrush = new SolidBrush(Color.FromArgb(
+                (int)(255 * GlassmorphismOpacity), Color.White)))
+            {
+                // Apply subtle noise pattern for glass effect
+                Random random = new Random(42); // Fixed seed for consistent pattern
+
+                for (int i = 0; i < rect.Width * rect.Height / 1000; i++)
+                {
+                    int x = random.Next(rect.X, rect.X + rect.Width);
+                    int y = random.Next(rect.Y, rect.Y + rect.Height);
+
+                    using (SolidBrush noiseBrush = new SolidBrush(Color.FromArgb(
+                        random.Next(5, 15), Color.White)))
+                    {
+                        g.FillRectangle(noiseBrush, x, y, 1, 1);
+                    }
+                }
+
+                // Apply overall glass overlay
+                FillShape(g, glassBrush, rect);
+            }
+        }
+
+        #region "Helper Methods"
+
+       
+
+        /// <summary>
+        /// Fills a shape (rounded or rectangular) with the specified brush
+        /// </summary>
+        private void FillShape(Graphics g, Brush brush, Rectangle rect)
+        {
+            if (IsRounded)
+            {
+                using (GraphicsPath path = GetRoundedRectPath(rect, BorderRadius))
+                {
+                    g.FillPath(brush, path);
+                }
+            }
+            else
+            {
+                g.FillRectangle(brush, rect);
+            }
+        }
+
+        /// <summary>
+        /// Modifies color brightness
+        /// </summary>
+        private Color ModifyColorBrightness(Color color, float brightness)
+        {
+            return Color.FromArgb(
+                color.A,
+                (int)(color.R * brightness),
+                (int)(color.G * brightness),
+                (int)(color.B * brightness));
+        }
+
+        /// <summary>
+        /// Blends two colors by the specified amount
+        /// </summary>
+        private Color BlendColors(Color color1, Color color2, float amount)
+        {
+            return Color.FromArgb(
+                (int)(color1.R + (color2.R - color1.R) * amount),
+                (int)(color1.G + (color2.G - color1.G) * amount),
+                (int)(color1.B + (color2.B - color1.B) * amount));
+        }
+
+        /// <summary>
+        /// Creates a color from HSV values
+        /// </summary>
+        private Color ColorFromHSV(float hue, float saturation, double brightness)
+        {
+            hue = hue * 360f;
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            double v = brightness;
+            double p = brightness * (1 - saturation);
+            double q = brightness * (1 - f * saturation);
+            double t = brightness * (1 - (1 - f) * saturation);
+
+            switch (hi)
+            {
+                case 0: return Color.FromArgb(255, (int)(v * 255), (int)(t * 255), (int)(p * 255));
+                case 1: return Color.FromArgb(255, (int)(q * 255), (int)(v * 255), (int)(p * 255));
+                case 2: return Color.FromArgb(255, (int)(p * 255), (int)(v * 255), (int)(t * 255));
+                case 3: return Color.FromArgb(255, (int)(p * 255), (int)(q * 255), (int)(v * 255));
+                case 4: return Color.FromArgb(255, (int)(t * 255), (int)(p * 255), (int)(v * 255));
+                default: return Color.FromArgb(255, (int)(v * 255), (int)(p * 255), (int)(q * 255));
+            }
+        }
+
+        /// <summary>
+        /// Applies gradient stops to a linear gradient brush
+        /// </summary>
+        private void ApplyGradientStops(LinearGradientBrush brush)
+        {
+            if (GradientStops.Count < 2) return;
+
+            // Sort gradient stops by position
+            var sortedStops = GradientStops.OrderBy(s => s.Position).ToList();
+
+            ColorBlend blend = new ColorBlend();
+            blend.Colors = sortedStops.Select(s => s.Color).ToArray();
+            blend.Positions = sortedStops.Select(s => s.Position).ToArray();
+
+            brush.InterpolationColors = blend;
+        }
+
+        /// <summary>
+        /// Convenience method to add gradient stops
+        /// </summary>
+        public void AddGradientStop(float position, Color color)
+        {
+            GradientStops.Add(new GradientStop(position, color));
+        }
+
+        /// <summary>
+        /// Clears all gradient stops
+        /// </summary>
+        public void ClearGradientStops()
+        {
+            GradientStops.Clear();
+        }
+
+        #endregion
+        #endregion "Drawing gradiants"
         #endregion "Painting"
         #region "Mouse events"
         protected override void OnMouseEnter(EventArgs e)

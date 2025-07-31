@@ -6124,7 +6124,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepCellConfig _editingCell = null;
 
         private BeepCellConfig _tempcell = null;
-        private IBeepComponentForm _editorPopupForm;
+      //  private IBeepComponentForm _editorPopupForm;
         private void MoveEditorIn()
         {
             if (_editingCell == null || _editingControl == null || !IsEditorShown)
@@ -8900,11 +8900,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _editingControl.Dispose();
                     _editingControl = null;
                 }
-                if (_editorPopupForm != null)
-                {
-                    _editorPopupForm.Dispose();
-                    _editorPopupForm = null;
-                }
+                //if (_editorPopupForm != null)
+                //{
+                //    _editorPopupForm.Dispose();
+                //    _editorPopupForm = null;
+                //}
                 if (titleLabel != null)
                 {
                     titleLabel.Dispose();

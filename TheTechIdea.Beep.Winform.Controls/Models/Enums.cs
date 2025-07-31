@@ -6,6 +6,18 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
+    /// <summary>
+    /// Enum for modern gradient types
+    /// </summary>
+    public enum ModernGradientType
+    {
+        None,
+        Linear,
+        Radial,
+        Conic,
+        Mesh,
+        Subtle
+    }
     public enum BeepShapeType
     {
         Line,

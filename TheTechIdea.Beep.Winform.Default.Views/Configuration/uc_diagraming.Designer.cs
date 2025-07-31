@@ -38,14 +38,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1 = new BeepLightTextBox();
             beepComboBox1 = new BeepComboBox();
             beepStarRating1 = new BeepStarRating();
-            beepCalendarView1 = new BeepCalendarView();
+            beepCalendarView1 = new BeepDatePickerView();
             beepCard1 = new BeepCard();
             beepComboBox2 = new BeepComboBox();
+            beepDatePicker1 = new BeepDatePicker();
             MainTemplatePanel.SuspendLayout();
             SuspendLayout();
             // 
             // MainTemplatePanel
             // 
+            MainTemplatePanel.Controls.Add(beepDatePicker1);
             MainTemplatePanel.Controls.Add(beepComboBox2);
             MainTemplatePanel.Controls.Add(beepCard1);
             MainTemplatePanel.Controls.Add(beepCalendarView1);
@@ -106,6 +108,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepAccordionMenu1.FocusForeColor = Color.Black;
             beepAccordionMenu1.FocusIndicatorColor = Color.Blue;
             beepAccordionMenu1.Form = null;
+            beepAccordionMenu1.GlassmorphismBlur = 10F;
+            beepAccordionMenu1.GlassmorphismOpacity = 0.1F;
+            beepAccordionMenu1.GradientAngle = 0F;
             beepAccordionMenu1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepAccordionMenu1.GradientEndColor = Color.Gray;
             beepAccordionMenu1.GradientStartColor = Color.Gray;
@@ -153,6 +158,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepAccordionMenu1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepAccordionMenu1.ListItems2"));
             beepAccordionMenu1.Location = new Point(381, 41);
             beepAccordionMenu1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepAccordionMenu1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepAccordionMenu1.Name = "beepAccordionMenu1";
             beepAccordionMenu1.OverrideFontSize = TypeStyleFontSize.None;
             beepAccordionMenu1.Padding = new Padding(5);
@@ -161,6 +167,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepAccordionMenu1.PressedBackColor = Color.White;
             beepAccordionMenu1.PressedBorderColor = Color.Gray;
             beepAccordionMenu1.PressedForeColor = Color.Gray;
+            beepAccordionMenu1.RadialCenter = (PointF)resources.GetObject("beepAccordionMenu1.RadialCenter");
             beepAccordionMenu1.RightoffsetForDrawingRect = 0;
             beepAccordionMenu1.SavedGuidID = null;
             beepAccordionMenu1.SavedID = null;
@@ -200,6 +207,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepAccordionMenu1.UIShape = ReactUIShape.Rounded;
             beepAccordionMenu1.UISize = ReactUISize.Medium;
             beepAccordionMenu1.UIVariant = ReactUIVariant.Default;
+            beepAccordionMenu1.UseGlassmorphism = false;
             beepAccordionMenu1.UseGradientBackground = false;
             beepAccordionMenu1.UseThemeFont = true;
             // 
@@ -251,6 +259,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.FocusIndicatorColor = Color.Blue;
             beepImage1.ForeColor = Color.FromArgb(33, 150, 243);
             beepImage1.Form = null;
+            beepImage1.GlassmorphismBlur = 10F;
+            beepImage1.GlassmorphismOpacity = 0.1F;
+            beepImage1.GradientAngle = 0F;
             beepImage1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepImage1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepImage1.GradientStartColor = Color.FromArgb(255, 255, 255);
@@ -304,6 +315,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.Location = new Point(582, 405);
             beepImage1.ManualRotationAngle = 0F;
             beepImage1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepImage1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepImage1.Name = "beepImage1";
             beepImage1.Opacity = 1F;
             beepImage1.OverrideFontSize = TypeStyleFontSize.None;
@@ -313,6 +325,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.PressedBackColor = Color.White;
             beepImage1.PressedBorderColor = Color.Gray;
             beepImage1.PressedForeColor = Color.Gray;
+            beepImage1.RadialCenter = (PointF)resources.GetObject("beepImage1.RadialCenter");
             beepImage1.RightoffsetForDrawingRect = 0;
             beepImage1.SavedGuidID = null;
             beepImage1.SavedID = null;
@@ -354,6 +367,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.UIShape = ReactUIShape.Rounded;
             beepImage1.UISize = ReactUISize.Medium;
             beepImage1.UIVariant = ReactUIVariant.Default;
+            beepImage1.UseGlassmorphism = false;
             beepImage1.UseGradientBackground = false;
             beepImage1.UseThemeFont = true;
             beepImage1.Velocity = 0F;
@@ -402,6 +416,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Font = new Font("Arial", 14F);
             beepButton1.ForeColor = Color.FromArgb(33, 150, 243);
             beepButton1.Form = null;
+            beepButton1.GlassmorphismBlur = 10F;
+            beepButton1.GlassmorphismOpacity = 0.1F;
+            beepButton1.GradientAngle = 0F;
             beepButton1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepButton1.GradientEndColor = Color.Gray;
             beepButton1.GradientStartColor = Color.Gray;
@@ -456,6 +473,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepButton1.MaxImageSize = new Size(32, 32);
+            beepButton1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
             beepButton1.ParentBackColor = Color.Empty;
@@ -466,6 +484,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.PressedBackColor = Color.FromArgb(21, 101, 192);
             beepButton1.PressedBorderColor = Color.White;
             beepButton1.PressedForeColor = Color.White;
+            beepButton1.RadialCenter = (PointF)resources.GetObject("beepButton1.RadialCenter");
             beepButton1.RightoffsetForDrawingRect = 0;
             beepButton1.SavedGuidID = null;
             beepButton1.SavedID = null;
@@ -510,6 +529,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.UIShape = ReactUIShape.Rounded;
             beepButton1.UISize = ReactUISize.Medium;
             beepButton1.UIVariant = ReactUIVariant.Default;
+            beepButton1.UseGlassmorphism = false;
             beepButton1.UseGradientBackground = false;
             beepButton1.UseScaledFont = false;
             beepButton1.UseThemeFont = true;
@@ -566,6 +586,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.Font = new Font("Arial", 10F);
             beepLightTextBox1.ForeColor = Color.Black;
             beepLightTextBox1.Form = null;
+            beepLightTextBox1.GlassmorphismBlur = 10F;
+            beepLightTextBox1.GlassmorphismOpacity = 0.1F;
+            beepLightTextBox1.GradientAngle = 0F;
             beepLightTextBox1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepLightTextBox1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepLightTextBox1.GradientStartColor = Color.FromArgb(255, 255, 255);
@@ -613,6 +636,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.MaxDropdownHeight = 200;
             beepLightTextBox1.MaxDropdownWidth = 0;
             beepLightTextBox1.MaxImageSize = new Size(16, 16);
+            beepLightTextBox1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepLightTextBox1.Multiline = false;
             beepLightTextBox1.Name = "beepLightTextBox1";
             beepLightTextBox1.OnlyCharacters = false;
@@ -627,6 +651,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.PressedBackColor = Color.White;
             beepLightTextBox1.PressedBorderColor = Color.Gray;
             beepLightTextBox1.PressedForeColor = Color.Gray;
+            beepLightTextBox1.RadialCenter = (PointF)resources.GetObject("beepLightTextBox1.RadialCenter");
             beepLightTextBox1.ReadOnly = false;
             beepLightTextBox1.RequiredErrorMessage = "This field is required.";
             beepLightTextBox1.RightoffsetForDrawingRect = 0;
@@ -674,6 +699,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.UIShape = ReactUIShape.Rounded;
             beepLightTextBox1.UISize = ReactUISize.Medium;
             beepLightTextBox1.UIVariant = ReactUIVariant.Default;
+            beepLightTextBox1.UseGlassmorphism = false;
             beepLightTextBox1.UseGradientBackground = false;
             beepLightTextBox1.UseThemeFont = true;
             beepLightTextBox1.ValidateOnLostFocus = true;
@@ -724,6 +750,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.Font = new Font("Arial", 10F);
             beepComboBox1.ForeColor = Color.FromArgb(33, 33, 33);
             beepComboBox1.Form = null;
+            beepComboBox1.GlassmorphismBlur = 10F;
+            beepComboBox1.GlassmorphismOpacity = 0.1F;
+            beepComboBox1.GradientAngle = 0F;
             beepComboBox1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepComboBox1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepComboBox1.GradientStartColor = Color.FromArgb(255, 255, 255);
@@ -767,6 +796,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.LinkedProperty = null;
             beepComboBox1.Location = new Point(131, 483);
             beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepComboBox1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = TypeStyleFontSize.None;
             beepComboBox1.ParentBackColor = Color.Empty;
@@ -775,6 +805,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.PressedBackColor = Color.White;
             beepComboBox1.PressedBorderColor = Color.Gray;
             beepComboBox1.PressedForeColor = Color.Gray;
+            beepComboBox1.RadialCenter = (PointF)resources.GetObject("beepComboBox1.RadialCenter");
             beepComboBox1.RightoffsetForDrawingRect = 0;
             beepComboBox1.SavedGuidID = null;
             beepComboBox1.SavedID = null;
@@ -815,6 +846,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.UIShape = ReactUIShape.Rounded;
             beepComboBox1.UISize = ReactUISize.Medium;
             beepComboBox1.UIVariant = ReactUIVariant.Default;
+            beepComboBox1.UseGlassmorphism = false;
             beepComboBox1.UseGradientBackground = false;
             beepComboBox1.UseThemeFont = true;
             // 
@@ -860,6 +892,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.FocusForeColor = Color.Black;
             beepStarRating1.FocusIndicatorColor = Color.Blue;
             beepStarRating1.Form = null;
+            beepStarRating1.GlassmorphismBlur = 10F;
+            beepStarRating1.GlassmorphismOpacity = 0.1F;
+            beepStarRating1.GradientAngle = 0F;
             beepStarRating1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepStarRating1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepStarRating1.GradientStartColor = Color.FromArgb(255, 255, 255);
@@ -906,6 +941,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.Location = new Point(445, 536);
             beepStarRating1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepStarRating1.MinimumSize = new Size(120, 30);
+            beepStarRating1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepStarRating1.Name = "beepStarRating1";
             beepStarRating1.OverrideFontSize = TypeStyleFontSize.None;
             beepStarRating1.ParentBackColor = Color.Empty;
@@ -913,6 +949,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.PressedBackColor = Color.White;
             beepStarRating1.PressedBorderColor = Color.Gray;
             beepStarRating1.PressedForeColor = Color.Gray;
+            beepStarRating1.RadialCenter = (PointF)resources.GetObject("beepStarRating1.RadialCenter");
             beepStarRating1.RatingLabels = new string[]
     {
     "Poor",
@@ -959,6 +996,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.UIShape = ReactUIShape.Rounded;
             beepStarRating1.UISize = ReactUISize.Medium;
             beepStarRating1.UIVariant = ReactUIVariant.Default;
+            beepStarRating1.UseGlassmorphism = false;
             beepStarRating1.UseGradientBackground = false;
             beepStarRating1.UseThemeFont = true;
             // 
@@ -992,7 +1030,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.DisabledBackColor = Color.White;
             beepCalendarView1.DisabledBorderColor = Color.Empty;
             beepCalendarView1.DisabledForeColor = Color.Black;
-            beepCalendarView1.DrawingRect = new Rectangle(0, 0, 288, 289);
+            beepCalendarView1.DrawingRect = new Rectangle(0, 0, 342, 323);
             beepCalendarView1.Easing = EasingType.Linear;
             beepCalendarView1.EnableRippleEffect = true;
             beepCalendarView1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
@@ -1003,9 +1041,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.FocusBorderColor = Color.RoyalBlue;
             beepCalendarView1.FocusForeColor = Color.Black;
             beepCalendarView1.FocusIndicatorColor = Color.Blue;
-            beepCalendarView1.FooterButtonFont = new Font("Arial", 10F, FontStyle.Italic);
+   
             beepCalendarView1.ForeColor = Color.FromArgb(33, 33, 33);
             beepCalendarView1.Form = null;
+            beepCalendarView1.GlassmorphismBlur = 10F;
+            beepCalendarView1.GlassmorphismOpacity = 0.1F;
+            beepCalendarView1.GradientAngle = 0F;
             beepCalendarView1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepCalendarView1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepCalendarView1.GradientStartColor = Color.FromArgb(255, 255, 255);
@@ -1049,6 +1090,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.LinkedProperty = null;
             beepCalendarView1.Location = new Point(33, 3);
             beepCalendarView1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepCalendarView1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepCalendarView1.Name = "beepCalendarView1";
             beepCalendarView1.OverrideFontSize = TypeStyleFontSize.None;
             beepCalendarView1.ParentBackColor = Color.Empty;
@@ -1056,6 +1098,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.PressedBackColor = Color.White;
             beepCalendarView1.PressedBorderColor = Color.Gray;
             beepCalendarView1.PressedForeColor = Color.Gray;
+            beepCalendarView1.RadialCenter = (PointF)resources.GetObject("beepCalendarView1.RadialCenter");
             beepCalendarView1.RightoffsetForDrawingRect = 0;
             beepCalendarView1.SavedGuidID = null;
             beepCalendarView1.SavedID = null;
@@ -1075,7 +1118,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.ShowRightBorder = false;
             beepCalendarView1.ShowShadow = false;
             beepCalendarView1.ShowTopBorder = false;
-            beepCalendarView1.Size = new Size(288, 289);
+            beepCalendarView1.Size = new Size(342, 323);
             beepCalendarView1.SlideFrom = SlideDirection.Left;
             beepCalendarView1.StaticNotMoving = false;
             beepCalendarView1.TabIndex = 10;
@@ -1083,7 +1126,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.TempBackColor = Color.Empty;
             beepCalendarView1.Text = "beepCalendarView1";
             beepCalendarView1.Theme = "DefaultTheme";
-            beepCalendarView1.TimeListFont = new Font("Arial", 10F);
+      
             beepCalendarView1.ToolTipText = "";
             beepCalendarView1.TopoffsetForDrawingRect = 0;
             beepCalendarView1.UIAnimation = ReactUIAnimation.None;
@@ -1096,6 +1139,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarView1.UIShape = ReactUIShape.Rounded;
             beepCalendarView1.UISize = ReactUISize.Medium;
             beepCalendarView1.UIVariant = ReactUIVariant.Default;
+            beepCalendarView1.UseGlassmorphism = false;
             beepCalendarView1.UseGradientBackground = false;
             beepCalendarView1.UseThemeFont = true;
             // 
@@ -1140,6 +1184,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.FocusForeColor = Color.Black;
             beepCard1.FocusIndicatorColor = Color.Blue;
             beepCard1.Form = null;
+            beepCard1.GlassmorphismBlur = 10F;
+            beepCard1.GlassmorphismOpacity = 0.1F;
+            beepCard1.GradientAngle = 0F;
             beepCard1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepCard1.GradientEndColor = Color.Gray;
             beepCard1.GradientStartColor = Color.Gray;
@@ -1187,6 +1234,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.Location = new Point(678, 62);
             beepCard1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepCard1.MaxImageSize = 64;
+            beepCard1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepCard1.Name = "beepCard1";
             beepCard1.OverrideFontSize = TypeStyleFontSize.None;
             beepCard1.Padding = new Padding(3);
@@ -1196,6 +1244,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.PressedBackColor = Color.White;
             beepCard1.PressedBorderColor = Color.Gray;
             beepCard1.PressedForeColor = Color.Gray;
+            beepCard1.RadialCenter = (PointF)resources.GetObject("beepCard1.RadialCenter");
             beepCard1.RightoffsetForDrawingRect = 0;
             beepCard1.SavedGuidID = null;
             beepCard1.SavedID = null;
@@ -1235,6 +1284,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.UIShape = ReactUIShape.Rounded;
             beepCard1.UISize = ReactUISize.Medium;
             beepCard1.UIVariant = ReactUIVariant.Default;
+            beepCard1.UseGlassmorphism = false;
             beepCard1.UseGradientBackground = false;
             beepCard1.UseThemeFont = true;
             beepCard1.ViewMode = CardViewMode.FullImage;
@@ -1281,6 +1331,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.Font = new Font("Arial", 10F);
             beepComboBox2.ForeColor = Color.FromArgb(33, 33, 33);
             beepComboBox2.Form = null;
+            beepComboBox2.GlassmorphismBlur = 10F;
+            beepComboBox2.GlassmorphismOpacity = 0.1F;
+            beepComboBox2.GradientAngle = 0F;
             beepComboBox2.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepComboBox2.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepComboBox2.GradientStartColor = Color.FromArgb(255, 255, 255);
@@ -1324,6 +1377,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.LinkedProperty = null;
             beepComboBox2.Location = new Point(97, 332);
             beepComboBox2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepComboBox2.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
             beepComboBox2.Name = "beepComboBox2";
             beepComboBox2.OverrideFontSize = TypeStyleFontSize.None;
             beepComboBox2.ParentBackColor = Color.Empty;
@@ -1332,6 +1386,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.PressedBackColor = Color.White;
             beepComboBox2.PressedBorderColor = Color.Gray;
             beepComboBox2.PressedForeColor = Color.Gray;
+            beepComboBox2.RadialCenter = (PointF)resources.GetObject("beepComboBox2.RadialCenter");
             beepComboBox2.RightoffsetForDrawingRect = 0;
             beepComboBox2.SavedGuidID = null;
             beepComboBox2.SavedID = null;
@@ -1372,8 +1427,147 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.UIShape = ReactUIShape.Rounded;
             beepComboBox2.UISize = ReactUISize.Medium;
             beepComboBox2.UIVariant = ReactUIVariant.Default;
+            beepComboBox2.UseGlassmorphism = false;
             beepComboBox2.UseGradientBackground = false;
             beepComboBox2.UseThemeFont = true;
+            // 
+            // beepDatePicker1
+            // 
+            beepDatePicker1.AnimationDuration = 500;
+            beepDatePicker1.AnimationType = DisplayAnimationType.None;
+            beepDatePicker1.ApplyThemeToChilds = false;
+            beepDatePicker1.BadgeBackColor = Color.Red;
+            beepDatePicker1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            beepDatePicker1.BadgeForeColor = Color.White;
+            beepDatePicker1.BadgeShape = BadgeShape.Circle;
+            beepDatePicker1.BadgeText = "";
+            beepDatePicker1.BlockID = null;
+            beepDatePicker1.BorderColor = Color.Black;
+            beepDatePicker1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepDatePicker1.BorderRadius = 3;
+            beepDatePicker1.BorderStyle = BorderStyle.FixedSingle;
+            beepDatePicker1.BorderThickness = 1;
+            beepDatePicker1.BottomoffsetForDrawingRect = 0;
+            beepDatePicker1.BoundProperty = "SelectedDate";
+            beepDatePicker1.CanBeFocused = true;
+            beepDatePicker1.CanBeHovered = false;
+            beepDatePicker1.CanBePressed = true;
+            beepDatePicker1.Category = Utilities.DbFieldCategory.String;
+            beepDatePicker1.ComponentName = "BeepControl";
+            beepDatePicker1.Culture = new System.Globalization.CultureInfo("en-AE");
+            beepDatePicker1.DataSourceProperty = null;
+            beepDatePicker1.DateFormat = "dd/MM/yyyy HH:mm";
+            beepDatePicker1.DisabledBackColor = Color.White;
+            beepDatePicker1.DisabledBorderColor = Color.Empty;
+            beepDatePicker1.DisabledForeColor = Color.Black;
+            beepDatePicker1.DrawingRect = new Rectangle(0, 0, 200, 35);
+            beepDatePicker1.Easing = EasingType.Linear;
+            beepDatePicker1.EnableRippleEffect = false;
+            beepDatePicker1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepDatePicker1.FieldID = null;
+            beepDatePicker1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepDatePicker1.FloatingLabel = true;
+            beepDatePicker1.FocusBackColor = Color.White;
+            beepDatePicker1.FocusBorderColor = Color.RoyalBlue;
+            beepDatePicker1.FocusForeColor = Color.Black;
+            beepDatePicker1.FocusIndicatorColor = Color.Blue;
+            beepDatePicker1.Form = null;
+            beepDatePicker1.GlassmorphismBlur = 10F;
+            beepDatePicker1.GlassmorphismOpacity = 0.1F;
+            beepDatePicker1.GradientAngle = 0F;
+            beepDatePicker1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepDatePicker1.GradientEndColor = Color.Gray;
+            beepDatePicker1.GradientStartColor = Color.Gray;
+            beepDatePicker1.GuidID = "acf3fffe-33df-4c71-a36e-8a204f7cdb58";
+            beepDatePicker1.HelperText = "";
+            beepDatePicker1.HitAreaEventOn = false;
+            beepDatePicker1.HitTestControl = null;
+            beepDatePicker1.HoverBackColor = Color.White;
+            beepDatePicker1.HoverBorderColor = Color.Gray;
+            beepDatePicker1.HoveredBackcolor = Color.Wheat;
+            beepDatePicker1.HoverForeColor = Color.Black;
+            beepDatePicker1.Id = -1;
+            beepDatePicker1.InactiveBorderColor = Color.Gray;
+            beepDatePicker1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepDatePicker1.Info");
+            beepDatePicker1.IsAcceptButton = false;
+            beepDatePicker1.IsBorderAffectedByTheme = true;
+            beepDatePicker1.IsCancelButton = false;
+            beepDatePicker1.IsChild = false;
+            beepDatePicker1.IsCustomeBorder = false;
+            beepDatePicker1.IsDefault = false;
+            beepDatePicker1.IsDeleted = false;
+            beepDatePicker1.IsDirty = false;
+            beepDatePicker1.IsEditable = false;
+            beepDatePicker1.IsFocused = false;
+            beepDatePicker1.IsFrameless = false;
+            beepDatePicker1.IsHovered = false;
+            beepDatePicker1.IsNew = false;
+            beepDatePicker1.IsPressed = false;
+            beepDatePicker1.IsReadOnly = false;
+            beepDatePicker1.IsRequired = false;
+            beepDatePicker1.IsRounded = true;
+            beepDatePicker1.IsRoundedAffectedByTheme = true;
+            beepDatePicker1.IsSelected = false;
+            beepDatePicker1.IsSelectedOptionOn = false;
+            beepDatePicker1.IsShadowAffectedByTheme = true;
+            beepDatePicker1.IsVisible = false;
+            beepDatePicker1.Items = (List<object>)resources.GetObject("beepDatePicker1.Items");
+            beepDatePicker1.LabelText = "";
+            beepDatePicker1.LeftoffsetForDrawingRect = 0;
+            beepDatePicker1.LinkedProperty = null;
+            beepDatePicker1.Location = new Point(735, 434);
+            beepDatePicker1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepDatePicker1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepDatePicker1.Name = "beepDatePicker1";
+            beepDatePicker1.OverrideFontSize = TypeStyleFontSize.None;
+            beepDatePicker1.ParentBackColor = Color.Empty;
+            beepDatePicker1.ParentControl = null;
+            beepDatePicker1.PressedBackColor = Color.White;
+            beepDatePicker1.PressedBorderColor = Color.Gray;
+            beepDatePicker1.PressedForeColor = Color.Gray;
+            beepDatePicker1.RadialCenter = (PointF)resources.GetObject("beepDatePicker1.RadialCenter");
+            beepDatePicker1.RightoffsetForDrawingRect = 0;
+            beepDatePicker1.SavedGuidID = null;
+            beepDatePicker1.SavedID = null;
+            beepDatePicker1.SelectedBackColor = Color.White;
+            beepDatePicker1.SelectedBorderColor = Color.Empty;
+            beepDatePicker1.SelectedDate = "30/07/2025 20:12";
+            beepDatePicker1.SelectedDateTime = new DateTime(2025, 7, 30, 20, 12, 19, 370);
+            beepDatePicker1.SelectedForeColor = Color.Black;
+            beepDatePicker1.SelectedValue = null;
+            beepDatePicker1.ShadowColor = Color.Black;
+            beepDatePicker1.ShadowOffset = 0;
+            beepDatePicker1.ShadowOpacity = 0.5F;
+            beepDatePicker1.ShowAllBorders = false;
+            beepDatePicker1.ShowBottomBorder = false;
+            beepDatePicker1.ShowFocusIndicator = false;
+            beepDatePicker1.ShowLeftBorder = false;
+            beepDatePicker1.ShowRightBorder = false;
+            beepDatePicker1.ShowShadow = false;
+            beepDatePicker1.ShowTopBorder = false;
+            beepDatePicker1.Size = new Size(200, 35);
+            beepDatePicker1.SlideFrom = SlideDirection.Left;
+            beepDatePicker1.StaticNotMoving = false;
+            beepDatePicker1.TabIndex = 13;
+            beepDatePicker1.Tag = MainTemplatePanel;
+            beepDatePicker1.TempBackColor = Color.Empty;
+            beepDatePicker1.Text = "beepDatePicker1";
+            beepDatePicker1.Theme = null;
+            beepDatePicker1.ToolTipText = "";
+            beepDatePicker1.TopoffsetForDrawingRect = 0;
+            beepDatePicker1.UIAnimation = ReactUIAnimation.None;
+            beepDatePicker1.UIColor = ReactUIColor.Primary;
+            beepDatePicker1.UICustomElevation = 0;
+            beepDatePicker1.UIDensity = ReactUIDensity.Standard;
+            beepDatePicker1.UIDisabled = false;
+            beepDatePicker1.UIElevation = ReactUIElevation.None;
+            beepDatePicker1.UIFullWidth = false;
+            beepDatePicker1.UIShape = ReactUIShape.Rounded;
+            beepDatePicker1.UISize = ReactUISize.Medium;
+            beepDatePicker1.UIVariant = ReactUIVariant.Default;
+            beepDatePicker1.UseGlassmorphism = false;
+            beepDatePicker1.UseGradientBackground = true;
+            beepDatePicker1.UseThemeFont = true;
             // 
             // uc_diagraming
             // 
@@ -1396,8 +1590,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private BeepComboBox beepComboBox1;
        
         private BeepStarRating beepStarRating1;
-        private BeepCalendarView beepCalendarView1;
+        private BeepDatePickerView beepCalendarView1;
         private BeepCard beepCard1;
         private BeepComboBox beepComboBox2;
+        private BeepDatePicker beepDatePicker1;
     }
 }

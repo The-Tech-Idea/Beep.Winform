@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _padding = 2;
         private DateTime _selectedDateTime = DateTime.Now; // Updated to include time
         private BeepPopupForm _calendarPopup;
-        private BeepCalendarView _calendarView;
+        private BeepDatePickerView _calendarView;
         #endregion
 
         #region Properties
@@ -314,13 +314,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 BorderThickness = 1,
                 BorderRadius = this.BorderRadius,
-                Size = new Size(300, 300), // Adjust size to fit BeepCalendarView
+                Size = new Size(300, 300), // Adjust size to fit BeepDatePickerView
                 Theme = Theme // Inherit theme from BeepControl
                  
             };
 
             // Create custom calendar control
-            _calendarView = new BeepCalendarView
+            _calendarView = new BeepDatePickerView
             {
                 Dock = DockStyle.Fill,
                 Theme = Theme

@@ -69,6 +69,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty = "State";
             ShowAllBorders = false;
             BorderRadius = 3;
+            
+            // Ensure the control is properly configured for user interaction
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Selectable, true);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            TabStop = true;
+            
             ApplyTheme();
         }
         protected override void InitLayout()
@@ -235,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //{
         //    base.OnResize(e);
         //    UpdateDrawingRect();
-        //    AdjustSize(); // Call directly, no need for recursion flag if we avoid recursive property sets
+        //    AdjustSize; // Call directly, no need for recursion flag if we avoid recursive property sets
         //}
         //private void AdjustSize()
         //{
@@ -587,47 +593,48 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion IBeepComponent Implementation
         #region Keyboard Event Handlers
-        //protected override void OnKeyDown(KeyEventArgs e)
-        //{
-        //    base.OnKeyDown(e);
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
 
-        //    if (e.KeyCode == Keys.Space)
-        //    {
-        //        // Toggle state when Spacebar is pressed
-        //        ToggleState();
-        //        e.Handled = true;
-        //    }
-        //    else if (e.KeyCode == Keys.Enter)
-        //    {
-        //        // Optional: Treat Enter as toggle too
-        //        ToggleState();
-        //        e.Handled = true;
-        //    }
-        //}
+            if (e.KeyCode == Keys.Space || e.KeyCode == Keys.Enter)
+            {
+                if (Enabled)
+                {
+                    // Toggle state when Spacebar or Enter is pressed
+                    _state = _state == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
+                    OnStateChanged();
+                    e.Handled = true;
+                }
+            }
+        }
 
-        //// Provide visual feedback when the control receives focus
-        //protected override void OnGotFocus(EventArgs e)
-        //{
-        //    base.OnGotFocus(e);
-        //    Invalidate(); // Redraw to show focus indication
-        //}
+        // Provide visual feedback when the control receives focus
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            Invalidate(); // Redraw to show focus indication
+        }
 
-        //protected override void OnLostFocus(EventArgs e)
-        //{
-        //    base.OnLostFocus(e);
-        //    Invalidate(); // Redraw to remove focus indication
-        //}
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            Invalidate(); // Redraw to remove focus indication
+        }
 
-        //// Optional: Handle arrow keys or other navigation if desired
-        //protected override bool IsInputKey(Keys keyData)
-        //{
-        //    // Allow arrow keys and other navigation keys to be processed
-        //    if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
-        //    {
-        //        return true;
-        //    }
-        //    return base.IsInputKey(keyData);
-        //}
+        // Make the control focusable and ensure proper tab navigation
+        protected  bool CanSelect => true;
+
+        // Optional: Handle arrow keys or other navigation if desired
+        protected override bool IsInputKey(Keys keyData)
+        {
+            // Allow arrow keys and other navigation keys to be processed
+            if (keyData == Keys.Up || keyData == Keys.Down || keyData == Keys.Left || keyData == Keys.Right)
+            {
+                return true;
+            }
+            return base.IsInputKey(keyData);
+        }
         #endregion
         #region Helper Methods
         protected override void OnMouseClick(MouseEventArgs e)
@@ -637,35 +644,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Focus();
             }
             base.OnMouseClick(e);
-            UpdateDrawingRect();
 
-            // Calculate the checkbox rectangle centered within the DrawingRect
-            int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(DrawingRect.Width - Padding.Horizontal, DrawingRect.Height - Padding.Vertical));
-            Rectangle checkBoxRect = new Rectangle(
-                DrawingRect.X + (DrawingRect.Width - checkBoxSize) / 2,
-                DrawingRect.Y + (DrawingRect.Height - checkBoxSize) / 2,
-                checkBoxSize,
-                checkBoxSize
-            );
-
-            // Toggle state only if click is inside the checkbox rectangle
-            if (checkBoxRect.Contains(e.Location))
+            // Make the entire control area clickable - this is standard checkbox behavior
+            // Users expect to be able to click anywhere on the control (text or checkbox) to toggle
+            if (Enabled)
             {
+                // Toggle between checked and unchecked states only
+                // (Don't cycle through indeterminate state unless specifically needed)
                 _state = _state == CheckBoxState.Checked ? CheckBoxState.Unchecked : CheckBoxState.Checked;
-                OnStateChanged(); // Update CurrentValue and redraw
+                
+                // Update the current value based on the new state
+                _currentValue = _state == CheckBoxState.Checked ? _checkedValue : _uncheckedValue;
+                
+                // Fire the StateChanged event
+                StateChanged?.Invoke(this, EventArgs.Empty);
+                
+                // Redraw the control
+                Invalidate();
             }
         }
+        
         private void OnStateChanged()
         {
             // Only update CurrentValue if necessary, avoid recursion
             T newValue = State == CheckBoxState.Checked ? CheckedValue : UncheckedValue;
-
-                _currentValue = newValue; // Set directly, bypass setter to avoid recursion
-
+            _currentValue = newValue; // Set directly, bypass setter to avoid recursion
             StateChanged?.Invoke(this, EventArgs.Empty);
             Invalidate();
-         //  MiscFunctions.SendLog($"OnStateChanged: CurrentValue set to {_currentValue}");
         }
+        
         public override void ApplyTheme()
         {
             if (Theme != null)
@@ -682,6 +689,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
+        
         private void ToggleState()
         {
             switch (State)

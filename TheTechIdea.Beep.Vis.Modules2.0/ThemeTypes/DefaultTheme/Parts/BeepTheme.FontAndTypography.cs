@@ -3,7 +3,7 @@ namespace TheTechIdea.Beep.Vis.Modules
     public partial class DefaultTheme
     {
         public string FontName { get; set; } = "Segoe UI";
-        public float FontSize { get; set; } = 12f;
+        public float FontSize { get; set; } = 14f; // Increased from 12f for better readability
 
         public TypographyStyle TitleStyle { get; set; } = new TypographyStyle
         {
@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle BodyStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 14, // Increased from 12 for better readability
             FontWeight = FontWeight.Normal,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.Black,
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle CaptionStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 10,
+            FontSize = 12, // Increased from 10 for better readability
             FontWeight = FontWeight.Light,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.Gray,
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle ButtonStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 14,
+            FontSize = 15, // Increased from 14 for better readability
             FontWeight = FontWeight.SemiBold,
             FontStyle = System.Drawing.FontStyle.Regular,
             TextColor = System.Drawing.Color.White,
@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public TypographyStyle LinkStyle { get; set; } = new TypographyStyle
         {
             FontFamily = "Segoe UI",
-            FontSize = 12,
+            FontSize = 13, // Increased from 12 for better readability
             FontWeight = FontWeight.Medium,
             FontStyle = System.Drawing.FontStyle.Underline,
             TextColor = System.Drawing.Color.FromArgb(0, 120, 215), // blue link color

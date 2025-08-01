@@ -266,6 +266,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsShadowAffectedByTheme = false,
                     IsBorderAffectedByTheme = false,
                     IsRoundedAffectedByTheme = false,
+                    UseGradientBackground=false,
                     IsChild = true,
                     ShowAllBorders = false,
                     IsRounded = false,

@@ -143,6 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Font for time labels")]
         public Font TimeFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
+        public Font DaysHeaderFont { get; private set; }
         #endregion
 
         #region Events
@@ -312,10 +313,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateViewButtonStates()
         {
-            _monthViewButton.BackColor = _viewMode == CalendarViewMode.Month ? Color.FromArgb(66, 133, 244) : Color.LightGray;
-            _weekViewButton.BackColor = _viewMode == CalendarViewMode.Week ? Color.FromArgb(66, 133, 244) : Color.LightGray;
-            _dayViewButton.BackColor = _viewMode == CalendarViewMode.Day ? Color.FromArgb(66, 133, 244) : Color.LightGray;
-            _listViewButton.BackColor = _viewMode == CalendarViewMode.List ? Color.FromArgb(66, 133, 244) : Color.LightGray;
+            Color selectedColor = _currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244);
+            Color normalColor = _currentTheme?.CalendarBackColor ?? Color.LightGray;
+
+            _monthViewButton.BackColor = _viewMode == CalendarViewMode.Month ? selectedColor : normalColor;
+            _weekViewButton.BackColor = _viewMode == CalendarViewMode.Week ? selectedColor : normalColor;
+            _dayViewButton.BackColor = _viewMode == CalendarViewMode.Day ? selectedColor : normalColor;
+            _listViewButton.BackColor = _viewMode == CalendarViewMode.List ? selectedColor : normalColor;
         }
 
         protected override void OnResize(EventArgs e)
@@ -380,13 +384,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void DrawViewSelector(Graphics g)
         {
             // Background
-            using (var brush = new SolidBrush(Color.FromArgb(248, 249, 250)))
+            using (var brush = new SolidBrush(_currentTheme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
             {
                 g.FillRectangle(brush, _viewSelectorRect);
             }
 
             // Border
-            using (var pen = new Pen(Color.FromArgb(218, 220, 224)))
+            using (var pen = new Pen(_currentTheme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224)))
             {
                 g.DrawLine(pen, _viewSelectorRect.X, _viewSelectorRect.Bottom - 1, 
                           _viewSelectorRect.Right, _viewSelectorRect.Bottom - 1);
@@ -470,14 +474,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawSidebar(Graphics g)
         {
-            // Background
-            using (var brush = new SolidBrush(Color.FromArgb(248, 249, 250)))
+            // Background using theme color
+            using (var brush = new SolidBrush(_currentTheme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
             {
                 g.FillRectangle(brush, _sidebarRect);
             }
 
-            // Border
-            using (var pen = new Pen(Color.FromArgb(218, 220, 224)))
+            // Border using theme color
+            using (var pen = new Pen(_currentTheme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224)))
             {
                 g.DrawLine(pen, _sidebarRect.X, _sidebarRect.Y, _sidebarRect.X, _sidebarRect.Bottom);
             }
@@ -559,25 +563,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool isToday = cellDate.Date == DateTime.Today;
             bool isSelected = cellDate.Date == _selectedDate.Date;
 
-            // Cell background
-            Color bgColor = isSelected ? Color.FromArgb(66, 133, 244) :
-                           isToday ? Color.FromArgb(230, 240, 255) :
-                           isCurrentMonth ? Color.White : Color.FromArgb(248, 249, 250);
+            // Cell background using theme colors
+            Color bgColor = isSelected ? (_currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244)) :
+                           isToday ? (_currentTheme?.CalendarHoverBackColor ?? Color.FromArgb(230, 240, 255)) :
+                           isCurrentMonth ? (_currentTheme?.CalendarBackColor ?? Color.White) : 
+                           Color.FromArgb(248, 249, 250);
 
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, cellRect);
             }
 
-            // Cell border
-            using (var pen = new Pen(Color.FromArgb(218, 220, 224)))
+            // Cell border using theme color
+            using (var pen = new Pen(_currentTheme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224)))
             {
                 g.DrawRectangle(pen, cellRect);
             }
 
-            // Day number
-            Color textColor = isSelected ? Color.White : 
-                             isCurrentMonth ? Color.Black : Color.Gray;
+            // Day number using theme colors
+            Color textColor = isSelected ? (_currentTheme?.CalendarSelectedDateForColor ?? Color.White) : 
+                             isToday ? (_currentTheme?.CalendarTodayForeColor ?? Color.FromArgb(244, 67, 54)) :
+                             isCurrentMonth ? (_currentTheme?.CalendarForeColor ?? Color.Black) : Color.Gray;
             
             using (var brush = new SolidBrush(textColor))
             {
@@ -596,7 +602,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (events.Count > 3)
             {
-                using (var brush = new SolidBrush(Color.Gray))
+                using (var brush = new SolidBrush(_currentTheme?.CalendarForeColor ?? Color.Gray))
                 {
                     g.DrawString($"+{events.Count - 3} more", new Font(EventFont.FontFamily, 8), 
                                brush, new PointF(cellRect.X + 2, eventY));
@@ -635,14 +641,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _calendarGridRect.Y,
                     cellWidth, DayHeaderHeight);
 
-                using (var brush = new SolidBrush(Color.FromArgb(248, 249, 250)))
+                // Use theme colors for day headers
+                using (var brush = new SolidBrush(_currentTheme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
                 {
                     g.FillRectangle(brush, headerRect);
                 }
 
-                using (var brush = new SolidBrush(Color.FromArgb(95, 99, 104)))
+                using (var brush = new SolidBrush(_currentTheme?.CalendarDaysHeaderForColor ?? Color.FromArgb(95, 99, 104)))
                 {
-                    g.DrawString(dayNames[i], DayFont, brush, headerRect,
+                    g.DrawString(dayNames[i], DaysHeaderFont, brush, headerRect,
                                new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
                 }
             }
@@ -1024,6 +1031,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_currentTheme == null) return;
 
+            // Apply calendar-specific theme properties
+            BackColor = _currentTheme.CalendarBackColor;
+            ForeColor = _currentTheme.CalendarForeColor;
+
+            // Apply fonts if they exist in the theme and UseThemeFont is enabled
+            if (UseThemeFont)
+            {
+                if (_currentTheme.CalendarTitleFont != null)
+                    HeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarTitleFont);
+                if (_currentTheme.DaysHeaderFont != null)
+                    DaysHeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.DaysHeaderFont);
+                if (_currentTheme.DateFont != null)
+                    DayFont = FontListHelper.CreateFontFromTypography(_currentTheme.DateFont);
+                if (_currentTheme.CalendarSelectedFont != null)
+                    EventFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarSelectedFont);
+                if (_currentTheme.CalendarUnSelectedFont != null)
+                    TimeFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarUnSelectedFont);
+            }
+
             // Apply theme to child controls
             foreach (Control control in Controls)
             {
@@ -1034,6 +1060,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
+            // Update view button states with theme colors
+            UpdateViewButtonStates();
             UpdateLayout();
             Invalidate();
         }

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -49,9 +50,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializeComponents()
         {
-            // Basic control settings
+            // Basic control settings with modern defaults
             this.Size = new Size(300, 200);
             this.Padding = new Padding(2);
+
+            // Set modern gradient defaults
+            UseGradientBackground = true;
+            ModernGradientType = ModernGradientType.Subtle;
+            IsRounded = true;
+          //  BorderRadius = 12;
+          //  ShowShadow = true;
 
             // Main panel
             loginPanel = new Panel
@@ -61,43 +69,46 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderStyle = BorderStyle.None
             };
 
-            // Create all child controls with Anchor set to None.
+            // Create all child controls with improved font sizes for better readability
             lblTitle = new BeepLabel
             {
-                TextFont = new Font("Segoe UI", 14, FontStyle.Bold),
+                Font = new Font("Segoe UI", 16, FontStyle.Bold), // Increased from 14
                 IsChild = true,
                 IsFrameless = true,
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Anchor = AnchorStyles.None
+                Anchor = AnchorStyles.None,
+                UseGradientBackground = false // Labels don't need gradients
             };
 
             lblSubtitle = new BeepLabel
             {
-                TextFont = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = new Font("Segoe UI", 12, FontStyle.Regular), // Increased from 10
                 IsChild = true,
                 IsFrameless = true,
                 AutoSize = true,
                 TextAlign = ContentAlignment.MiddleLeft,
-                Anchor = AnchorStyles.None
+                Anchor = AnchorStyles.None,
+                UseGradientBackground = false
             };
 
             txtUsername = new BeepTextBox
             {
-                TextFont = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = new Font("Segoe UI", 12, FontStyle.Regular), // Increased from 10
                 IsChild = true,
                 IsFrameless = false,
                 IsRounded = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
                 PlaceholderText = "Username or Email",
-               
+                ModernGradientType = ModernGradientType.Subtle,
+                UseGradientBackground = true,
                 Anchor = AnchorStyles.None
             };
 
             txtPassword = new BeepTextBox
             {
-                TextFont = new Font("Segoe UI", 10, FontStyle.Regular),
+                Font = new Font("Segoe UI", 12, FontStyle.Regular), // Increased from 10
                 IsChild = true,
                 IsFrameless = false,
                 IsRounded = true,
@@ -105,22 +116,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 PlaceholderText = "Password",
                 PasswordChar = '*',
-             
+                ModernGradientType = ModernGradientType.Subtle,
+                UseGradientBackground = true,
                 Anchor = AnchorStyles.None
             };
 
             btnLogin = new BeepButton
             {
                 Text = "Login",
+                Font = new Font("Segoe UI", 12, FontStyle.Bold), // Added explicit font size
+                IsRounded = true,
               
-               IsRounded=false,
-               IsBorderAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ModernGradientType = ModernGradientType.Linear,
+                UseGradientBackground = true,
+              //  ShowShadow = true,
                 Anchor = AnchorStyles.None
             };
 
             lnkForgotPassword = new LinkLabel
             {
                 Text = "Forgot Password?",
+                Font = new Font("Segoe UI", 11, FontStyle.Regular), // Added explicit font size
                 AutoSize = true,
                 Anchor = AnchorStyles.None,
                 TextAlign = ContentAlignment.MiddleLeft
@@ -129,9 +146,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             lnkRegister = new LinkLabel
             {
                 Text = "Sign up now",
+                Font = new Font("Segoe UI", 11, FontStyle.Regular), // Added explicit font size
                 AutoSize = true,
                 Anchor = AnchorStyles.None,
-
                 TextAlign = ContentAlignment.MiddleLeft
             };
 
@@ -140,6 +157,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 AutoSize = false,
                 IsFrameless = true,
                 IsChild = true,
+             //   ShowShadow = true,
+                ModernGradientType = ModernGradientType.Radial,
+                UseGradientBackground = true,
                 Anchor = AnchorStyles.None
             };
 
@@ -148,33 +168,48 @@ namespace TheTechIdea.Beep.Winform.Controls
                 AutoSize = false,
                 IsFrameless = true,
                 IsChild = true,
+            //    ShowShadow = true,
+                ModernGradientType = ModernGradientType.Radial,
+                UseGradientBackground = true,
                 Anchor = AnchorStyles.None
             };
 
             btnGoogleLogin = new BeepButton
             {
                 Text = "Google",
-                IsRounded = false,
+                Font = new Font("Segoe UI", 11, FontStyle.Regular), // Added explicit font size
+                IsRounded = true,
+             
                 IsBorderAffectedByTheme = false,
-
+                ModernGradientType = ModernGradientType.Linear,
+                UseGradientBackground = true,
+                ShowShadow = true,
                 Anchor = AnchorStyles.None
             };
 
             btnFacebookLogin = new BeepButton
             {
                 Text = "Facebook",
-                IsRounded = false,
+                Font = new Font("Segoe UI", 11, FontStyle.Regular), // Added explicit font size
+                IsRounded = true,
+             
                 IsBorderAffectedByTheme = false,
-
+                ModernGradientType = ModernGradientType.Linear,
+                UseGradientBackground = true,
+              //  ShowShadow = true,
                 Anchor = AnchorStyles.None
             };
 
             btnTwitterLogin = new BeepButton
             {
                 Text = "Twitter",
-                IsRounded = false,
+                Font = new Font("Segoe UI", 11, FontStyle.Regular), // Added explicit font size
+                IsRounded = true,
+             
                 IsBorderAffectedByTheme = false,
-
+                ModernGradientType = ModernGradientType.Linear,
+                UseGradientBackground = true,
+            //    ShowShadow = true,
                 Anchor = AnchorStyles.None
             };
 
@@ -182,7 +217,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Text = "Remember Me",
                 AutoSize = false,
-                IsChild=true,
+                IsChild = true,
+                Font = new Font("Segoe UI", 11, FontStyle.Regular), // Increased from 9
                 Anchor = AnchorStyles.None
             };
 
@@ -194,7 +230,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             this.Controls.Add(loginPanel);
             ApplyViewType();
-           
         }
 
         private void SetDummyData()
@@ -203,7 +238,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             txtPassword.Text = "password123";
             LogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cool.svg";
             AvatarPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cat.svg";
-           
         }
 
         protected override void OnHandleCreated(EventArgs e)
@@ -239,6 +273,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnFacebookLogin.Visible = false;
             btnTwitterLogin.Visible = false;
             chkRememberMe.Visible = false;
+
+            // Apply modern styling based on view type
+            ApplyModernStylingForViewType();
 
             // Use manual positioning for every view type.
             switch (_viewType)
@@ -286,6 +323,90 @@ namespace TheTechIdea.Beep.Winform.Controls
             loginPanel.Controls.Add(btnFacebookLogin);
             loginPanel.Controls.Add(btnTwitterLogin);
             loginPanel.Controls.Add(chkRememberMe);
+        }
+
+        /// <summary>
+        /// Apply modern styling based on the selected view type
+        /// </summary>
+        private void ApplyModernStylingForViewType()
+        {
+            switch (_viewType)
+            {
+                case LoginViewType.Simple:
+                case LoginViewType.Compact:
+                    // Simple, clean styling
+                    ModernGradientType = ModernGradientType.Subtle;
+                    BorderRadius = 8;
+                    break;
+
+                case LoginViewType.Modern:
+                    // More pronounced modern styling
+                    ModernGradientType = ModernGradientType.Linear;
+                    BorderRadius = 16;
+                    UseGlassmorphism = true;
+                    GlassmorphismOpacity = 0.1f;
+                    break;
+
+                case LoginViewType.Social:
+                case LoginViewType.SocialView2:
+                    // Social login gets more colorful gradients
+                    ModernGradientType = ModernGradientType.Mesh;
+                    BorderRadius = 12;
+                    break;
+
+                case LoginViewType.Avatar:
+                    // Avatar view gets radial gradients to emphasize the circular avatar
+                    ModernGradientType = ModernGradientType.Radial;
+                    BorderRadius = 20;
+                    break;
+
+                case LoginViewType.Extended:
+                case LoginViewType.Full:
+                    // Extended views get subtle conic gradients for sophistication
+                    ModernGradientType = ModernGradientType.Conic;
+                    BorderRadius = 10;
+                    break;
+
+                default:
+                    ModernGradientType = ModernGradientType.Subtle;
+                    BorderRadius = 8;
+                    break;
+            }
+
+            // Apply styling to child controls based on view type
+            ApplyChildControlStyling();
+        }
+
+        /// <summary>
+        /// Apply modern styling to child controls
+        /// </summary>
+        private void ApplyChildControlStyling()
+        {
+            // Style buttons based on their purpose
+            btnLogin.ModernGradientType = ModernGradientType.Linear;
+          //  btnLogin.BorderRadius = 8;
+           // btnLogin.ShowShadow = true;
+
+            // Social login buttons get different colors and gradients
+            btnGoogleLogin.ModernGradientType = ModernGradientType.Linear;
+         //   btnGoogleLogin.BorderRadius = 6;
+            
+            btnFacebookLogin.ModernGradientType = ModernGradientType.Linear;
+           // btnFacebookLogin.BorderRadius = 6;
+            
+            btnTwitterLogin.ModernGradientType = ModernGradientType.Linear;
+          //  btnTwitterLogin.BorderRadius = 6;
+
+            // Avatar and logo get radial gradients
+            btnAvatar.ModernGradientType = ModernGradientType.Radial;
+            btnLogo.ModernGradientType = ModernGradientType.Radial;
+
+            // Input fields get subtle gradients
+            txtUsername.ModernGradientType = ModernGradientType.Subtle;
+           // txtUsername.BorderRadius = 6;
+            
+            txtPassword.ModernGradientType = ModernGradientType.Subtle;
+          //  txtPassword.BorderRadius = 6;
         }
 
         #region Manual Positioning Layouts for Each View
@@ -1258,26 +1379,108 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-         //   base.ApplyTheme();
             if(loginPanel == null) return;
+            
+            // Apply modern theme styling to the login panel first
             loginPanel.BackColor = _currentTheme.LoginPopoverBackgroundColor;
+
+            // Apply enhanced theming with modern gradients
+            if (_currentTheme != null)
+            {
+                // Set gradient colors based on theme
+                GradientStartColor = _currentTheme.GradientStartColor;
+                GradientEndColor = _currentTheme.GradientEndColor;
+
+                // Apply theme colors to child controls
                 lblTitle.ForeColor = _currentTheme.LoginTitleColor;
                 lblSubtitle.ForeColor = _currentTheme.LoginSubtitleColor;
+                
+                // Text boxes get theme colors and modern styling
                 txtUsername.ForeColor = _currentTheme.LoginTitleColor;
+                txtUsername.BackColor = _currentTheme.TextBoxBackColor;
+                txtUsername.BorderColor = _currentTheme.TextBoxBorderColor;
+                
                 txtPassword.ForeColor = _currentTheme.LoginTitleColor;
+                txtPassword.BackColor = _currentTheme.TextBoxBackColor;
+                txtPassword.BorderColor = _currentTheme.TextBoxBorderColor;
+
+                // Links get theme colors
                 lnkForgotPassword.LinkColor = _currentTheme.LoginLinkColor;
                 lnkRegister.LinkColor = _currentTheme.LoginLinkColor;
-                btnLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
-                btnLogin.ForeColor = _currentTheme.LoginButtonTextColor;
-                btnGoogleLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
-                btnGoogleLogin.ForeColor = _currentTheme.LoginButtonTextColor;
-                btnFacebookLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
-                btnFacebookLogin.ForeColor = _currentTheme.LoginButtonTextColor;
-                btnTwitterLogin.BackColor = _currentTheme.LoginButtonBackgroundColor;
-                btnTwitterLogin.ForeColor = _currentTheme.LoginButtonTextColor;
+
+                // Buttons get enhanced styling
+                ApplyButtonTheming(btnLogin, _currentTheme.LoginButtonBackgroundColor, _currentTheme.LoginButtonTextColor);
+                ApplyButtonTheming(btnGoogleLogin, Color.FromArgb(219, 68, 55), Color.White); // Google brand colors
+                ApplyButtonTheming(btnFacebookLogin, Color.FromArgb(66, 103, 178), Color.White); // Facebook brand colors
+                ApplyButtonTheming(btnTwitterLogin, Color.FromArgb(29, 161, 242), Color.White); // Twitter brand colors
+
+                // Avatar and logo get theme-aware backgrounds
                 btnLogo.BackColor = _currentTheme.LoginLogoBackgroundColor;
                 btnAvatar.BackColor = _currentTheme.LoginLogoBackgroundColor;
-           
+
+                // Apply glassmorphism for modern themes
+                if (ModernGradientType == ModernGradientType.Linear || 
+                    ModernGradientType == ModernGradientType.Mesh ||
+                    _viewType == LoginViewType.Modern)
+                {
+                    UseGlassmorphism = true;
+                    GlassmorphismOpacity = 0.08f;
+                }
+            }
+
+            // Apply base theme functionality
+            base.ApplyTheme();
+        }
+
+        /// <summary>
+        /// Apply modern theming to buttons with gradient and styling
+        /// </summary>
+        private void ApplyButtonTheming(BeepButton button, Color backgroundColor, Color textColor)
+        {
+            if (button == null) return;
+
+            button.BackColor = backgroundColor;
+            button.ForeColor = textColor;
+            
+            // Set gradient colors based on the background color
+            button.GradientStartColor = backgroundColor;
+            button.GradientEndColor = DarkenColor(backgroundColor, 0.8f);
+            
+            // Apply modern styling
+            button.UseGradientBackground = true;
+            button.IsRounded = true;
+          //  button.ShowShadow = true;
+           // button.ShadowOpacity = 0.3f;
+            
+            // Set hover colors
+            button.HoverBackColor = LightenColor(backgroundColor, 1.1f);
+            button.HoverForeColor = textColor;
+        }
+
+        /// <summary>
+        /// Utility method to darken a color
+        /// </summary>
+        private Color DarkenColor(Color color, float factor)
+        {
+            return Color.FromArgb(
+                color.A,
+                (int)(color.R * factor),
+                (int)(color.G * factor),
+                (int)(color.B * factor)
+            );
+        }
+
+        /// <summary>
+        /// Utility method to lighten a color
+        /// </summary>
+        private Color LightenColor(Color color, float factor) 
+        {
+            return Color.FromArgb(
+                color.A,
+                Math.Min(255, (int)(color.R * factor)),
+                Math.Min(255, (int)(color.G * factor)),
+                Math.Min(255, (int)(color.B * factor))
+            );
         }
     }
 }

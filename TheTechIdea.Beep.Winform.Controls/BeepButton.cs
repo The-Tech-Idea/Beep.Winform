@@ -53,6 +53,20 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         // create a public event for beepImage.onClick
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
+
+        private ButtonType _buttonType = ButtonType.Normal;
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ButtonType ButtonType
+        {
+            get => _buttonType;
+            set
+            {
+                _buttonType = value;
+                Invalidate();  // Trigger repaint
+            }
+        }
+
         private Color tmpbackcolor;
         private Color tmpforcolor;
 
@@ -118,7 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
 
-        [Browsable(true)]
+        [Browsable(true)
+        ]
         [Localizable(true)]
         [MergableProperty(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
@@ -513,10 +528,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                 isLongPressTriggered = true;
                 LongPress?.Invoke(this, EventArgs.Empty);
             };
+
+            // Enable modern styling by default for professional appearance
             BorderRadius = 8;
             CanBeHovered = true;
             CanBePressed = true;
             CanBeFocused = true;
+            
+            // Enable modern gradient background for stylish look
+            UseGradientBackground = true;
+            ModernGradientType = ModernGradientType.Linear;
+          //  ShowShadow = true;
+            IsRounded = true;
+            
+            // CRITICAL: Set border thickness to 0 for modern flat button look
+            BorderThickness = 0;
+            ShowAllBorders = false;
+            
+            // DON'T set hardcoded gradient colors - let ApplyTheme() handle them from the theme
+            
             #region "Popup List Initialization"
             IsChild= false;
             // Initialize the popup form and beepListBox
@@ -650,11 +680,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
+            // MUST call base.ApplyTheme() first to get the modern styling features
+            base.ApplyTheme();
+
             // Store whether colors should be from theme for later restoration
             bool wasColorFromTheme = _isColorFromTheme;
             _isColorFromTheme = true;
-
-            // Don't call base.ApplyTheme() as we're implementing a custom version
 
             // Handle parent background inheritance for child controls
             if (IsChild && Parent != null)
@@ -687,6 +718,20 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply border colors
             BorderColor = _currentTheme.ButtonBorderColor;
+
+            // Apply gradient colors from theme if gradient is enabled
+            if (UseGradientBackground)
+            {
+                // Use standard gradient colors from theme
+                GradientStartColor = _currentTheme.GradientStartColor;
+                GradientEndColor = _currentTheme.GradientEndColor;
+
+                // Apply gradient direction if available
+                if (_currentTheme.GradientDirection != LinearGradientMode.Horizontal)
+                {
+                    GradientDirection = _currentTheme.GradientDirection;
+                }
+            }
 
             // Apply font from theme if configured to use theme fonts
             if (UseThemeFont)
@@ -734,7 +779,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
                 if (ApplyThemeOnImage)
                 {
-                   
          //           beepImage.ImageEmbededin = ImageEmbededin.Button;
                    beepImage.Theme = Theme;
                     beepImage.ApplyThemeToSvg();
@@ -802,227 +846,130 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void DrawContent(Graphics g)
         {
-            // First, call the base drawing code from BeepControl.
+            // Set high quality rendering for modern appearance
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+
+            // Let the base BeepControl handle modern styling (gradients, shadows, rounded corners)
+            // This draws the beautiful gradient background, shadows, and rounded corners
             base.DrawContent(g);
-          //  g.CompositingQuality = CompositingQuality.HighQuality;
-            //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-            // Add BeepAppBar-specific drawing here.
-            // For instance, if you need to draw additional borders or background
-            // elements that are unique to the app bar, add them below.
-
-            // Example: Draw a line under the app bar.
-            // Do not call base.OnPaint(e);
 
             UpdateDrawingRect();
-            // Determine the fill color based on control state
-            Color fillColor;
-            // Draw the image and text
             contentRect = DrawingRect;
 
-            // Now, if the splash effect is active, draw the ripple:
+            // Draw button content (image and text) over the styled background
+            switch (ButtonType)
+            {
+                case ButtonType.Normal:
+                    // Normal button with image and text
+                    DrawImageAndText(g);
+                    break;
+                case ButtonType.AnimatedArrow:
+                    // Image-only button
+                    DrawButtonAndImage1(g);
+                    break;
+                case ButtonType.ExpandingIcon:
+                    DrawButtonAndImage2(g);
+                    // Text-only button
+                    break;
+                    case ButtonType.SlidingArrow:
+                    DrawButtonAndImage3(g);
+                    break;
+                    case ButtonType.SlidingBackground:
+                    DrawButtonAndImage4(g);
+                    break;
+
+            }
+            
+
+            // Draw splash effect if active (Material Design ripple) - AFTER base styling
             if (splashActive)
             {
-                // Calculate the current radius based on the animation progress.
-                float currentRadius = splashProgress * MaxSplashRadius;
-                // Compute an alpha value so that the ripple fades out (adjust the 150 value for intensity):
-                int alpha = (int)((1f - splashProgress) * 150);
-                if (alpha > 255) alpha = 255;
-                if (alpha < 0) alpha = 0;
+                DrawSplashEffect(g);
+            }
 
-                // Create a brush with the calculated alpha (using a color of your choice, here we use Gray).
-                using (SolidBrush rippleBrush = new SolidBrush(SplashColor))
+            // Apply very subtle state overlays for better visual feedback (much more subtle)
+            DrawStateOverlays(g);
+        }
+
+        private void DrawSplashEffect(Graphics g)
+        {
+            if (!splashActive) return;
+
+            // Calculate the current radius based on the animation progress
+            float currentRadius = splashProgress * MaxSplashRadius;
+            // Compute an alpha value so that the ripple fades out
+            int alpha = (int)((1f - splashProgress) * 150);
+            alpha = Math.Max(0, Math.Min(255, alpha));
+
+            using (SolidBrush rippleBrush = new SolidBrush(Color.FromArgb(alpha, SplashColor)))
+            {
+                // Calculate the rectangle for the splash circle centered on splashCenter
+                Rectangle rippleRect = new Rectangle(
+                    (int)(splashCenter.X - currentRadius),
+                    (int)(splashCenter.Y - currentRadius),
+                    (int)(2 * currentRadius),
+                    (int)(2 * currentRadius));
+
+                // Clip the drawing to the button bounds for clean edges
+                if (IsRounded && BorderRadius > 0)
                 {
-                    // Calculate the rectangle for the splash circle centered on splashCenter.
-                    Rectangle rippleRect = new Rectangle(
-                        (int)(splashCenter.X - currentRadius),
-                        (int)(splashCenter.Y - currentRadius),
-                        (int)(2 * currentRadius),
-                        (int)(2 * currentRadius));
-
-                    // Optionally clip the drawing to the button bounds.
-                    g.SetClip(DrawingRect);
-                    // Draw the ripple using an ellipse.
+                    using (GraphicsPath clipPath = GetRoundedRectPath(contentRect, BorderRadius))
+                    {
+                        g.SetClip(clipPath);
+                        g.FillEllipse(rippleBrush, rippleRect);
+                        g.ResetClip();
+                    }
+                }
+                else
+                {
+                    g.SetClip(contentRect);
                     g.FillEllipse(rippleBrush, rippleRect);
                     g.ResetClip();
                 }
             }
-            // Inside BeepButton.DrawContent(Graphics g), after base.DrawContent(g);
-            if (this.Enabled && this.IsHovered)
-            {
-                // Very subtle overlay, adjust alpha (20-30) for subtlety
-                Color hoverOverlayColor = this.BackColor.GetBrightness() > 0.5 ?
-                    Color.FromArgb(20, 255, 255, 255) : // Light theme: subtle white
-                    Color.FromArgb(20, 0, 0, 0);       // Dark theme: subtle black
-
-                using (SolidBrush overlayBrush = new SolidBrush(hoverOverlayColor))
-                {
-                    g.FillRectangle(overlayBrush, this.DrawingRect); // Or contentRect if different
-                }
-            }
-            // Inside BeepButton.DrawContent(Graphics g), after hover check
-            if (this.Enabled && this.IsPressed) // Add IsPressed property if not already present and managed
-            {
-                // Slightly more pronounced than hover, but still subtle
-                Color pressedOverlayColor = this.BackColor.GetBrightness() > 0.5 ?
-                    Color.FromArgb(40, 0, 0, 0) : // Light theme: subtle black
-                    Color.FromArgb(40, 255, 255, 255); // Dark theme: subtle white
-
-                using (SolidBrush overlayBrush = new SolidBrush(pressedOverlayColor))
-                {
-                    g.FillRectangle(overlayBrush, this.DrawingRect);
-                }
-            }
-            DrawImageAndText(g);
-
-            // If additional app bar elements (icons, text) require custom drawing,
-            // they can be added here or left to be drawn by the child controls.
         }
 
-        private void DrawImageAndText(Graphics g)
+        private void DrawStateOverlays(Graphics g)
         {
-            Color color; Color backcolor;
-           
-            if (_isColorFromTheme)
+            if (!Enabled) return;
+
+            Color overlayColor = Color.Empty;
+            int alpha = 0;
+
+            // Much more subtle overlays that don't interfere with gradients
+            if (IsPressed)
             {
-                color = _originalForColor;
-                backcolor = _originalBackColor;
-            }else
+                // Very subtle pressed state overlay
+                overlayColor = Color.Black;
+                alpha = 15; // Reduced from 30 for more subtlety
+            }
+            else if (IsHovered)
             {
-                color = ForeColor;
-                backcolor = BackColor;
+                // Very subtle hover state overlay
+                overlayColor = Color.White;
+                alpha = 8; // Reduced from 15 for more subtlety
             }
 
-            // Draw back color
-            if (!splashActive)
+            // Only apply overlay if we have a valid state
+            if (alpha > 0)
+            using (SolidBrush overlayBrush = new SolidBrush(Color.FromArgb(alpha, overlayColor)))
             {
-
-                if (Enabled)
+                if (IsRounded && BorderRadius > 0)
                 {
-
-                    if (IsHovered)
+                    using (GraphicsPath path = GetRoundedRectPath(contentRect, BorderRadius))
                     {
-                        color = HoverForeColor;
-                        backcolor = HoverBackColor;
-                        g.FillRectangle(new SolidBrush(backcolor), contentRect);
+                        g.FillPath(overlayBrush, path);
                     }
-                    else if (IsSelected)
-                    {
-                        color = SelectedForeColor;
-                         backcolor = SelectedBackColor;
-                        g.FillRectangle(new SolidBrush(backcolor), contentRect);
-                    }
-
-
                 }
                 else
                 {
-                     backcolor = DisabledBackColor;
-                    color = DisabledForeColor;
-                    g.FillRectangle(new SolidBrush(backcolor), contentRect);
+                    g.FillRectangle(overlayBrush, contentRect);
                 }
-                //
             }
-           
-            //// Console.WriteLine($"User ThemeFont is {UseThemeFont}");
-            //if (!SetFont() && UseThemeFont)
-            //{
-            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            //};
-            // Measure and scale the font to fit within the control bounds
-            Font scaledFont = _textFont;// GetScaledFont(g, Text, contentRect.Value, TextFont);
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-            // update image size to fit new size of control
-            if (beepImage != null)
-            {
-                if (_maxImageSize.Height > this.Height)
-                {
-                    beepImage.Height = this.Height - 4;
-                    _maxImageSize.Height = this.Height - 4;
-                }
-                if (_maxImageSize.Width > this.Width)
-                {
-                    beepImage.Width = this.Width - 4;
-                    _maxImageSize.Width = this.Width - 4;
-                }
-
-                //  beepImage.Location = new Point(borderSize, borderSize);
-            }
-            // Limit image size to MaxImageSize
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
-            // Calculate the layout of image and text
-            Rectangle imageRect, textRect;
-            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-            //Console.WriteLine("Drawing ImagePath 1");
-            // Draw the image if available
-            if (beepImage != null && beepImage.HasImage)
-            {
-                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
-                {
-                    imageSize = this.Size;
-                }
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = imageRect.Size;
-                if (ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-     
-                    beepImage.ApplyTheme();
-                }
-                beepImage.DrawImage(g, imageRect);
-                if(beepImageHitTest == null)
-                {
-                    beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
-                    {
-                        Name = "BeepImageRect",
-                        ActionName = "ImageClicked",
-                        HitAction = () =>
-                        {
-                            // Raise your ImageClicked event
-                            var ev = new BeepEventDataArgs("ImageClicked", this);
-                            ImageClicked?.Invoke(this, ev);
-                        }
-                    };
-                  
-                }
-                else
-                {
-                    beepImageHitTest.TargetRect = imageRect;
-                }
-              
-                AddHitTest(beepImageHitTest);
-            }
-            if (!string.IsNullOrEmpty(Text) && !HideText)
-            {
-                
-           
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-                TextRenderer.DrawText(g, Text, scaledFont, textRect, color, flags);
-            }
-            //if(BadgeText != null)
-            //{
-            //    DrawBadge(g);
-            //}
-           
         }
-        public override void Draw(Graphics g, Rectangle rectangle)
-        {
-            contentRect = rectangle;
-            DrawImageAndText(g);
-        }
+    
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -1231,16 +1178,12 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             isLongPressTriggered = false;
             longPressTimer.Start();
-            //  IsSelected = false;
-          
-          if(splashActive)
-            {
-                // Start the splash effect: record the click location and reset progress
-                splashCenter = e.Location; // Use the mouse click location for the ripple's center
-                splashProgress = 0f;
-                splashTimer.Start();
-            }
-          
+            
+            // Enable splash effect by default for modern Material Design feel
+            splashActive = true;
+            splashCenter = e.Location; // Use the mouse click location for the ripple's center
+            splashProgress = 0f;
+            splashTimer.Start();
            
             if (IsSelectedOptionOn)
             {
@@ -1345,10 +1288,958 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _lastBeepParent = Parent as BeepControl;
         }
-      
+
 
         #endregion "Badge"
-    }
+        #region "Draw Image and text"
 
+        public override void Draw(Graphics g, Rectangle rectangle)
+        {
+            contentRect = rectangle;
+            DrawImageAndText(g);
+        }
+        private void DrawImageAndText(Graphics g)
+        {
+            Color textColor;
+
+            // Determine text color based on current state and theme settings
+            if (_isColorFromTheme)
+            {
+                textColor = _originalForColor;
+            }
+            else
+            {
+                textColor = ForeColor;
+            }
+
+            // Update text color based on button state for better visibility
+            if (Enabled)
+            {
+                if (IsHovered)
+                {
+                    textColor = HoverForeColor;
+                }
+                else if (IsSelected)
+                {
+                    textColor = SelectedForeColor;
+                }
+                else if (IsPressed)
+                {
+                    textColor = PressedForeColor;
+                }
+            }
+            else
+            {
+                textColor = DisabledForeColor;
+            }
+
+            // Use scaled font if configured
+            Font scaledFont = _textFont;
+            if (UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
+            }
+
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Update image size to fit new size of control
+            if (beepImage != null)
+            {
+                if (_maxImageSize.Height > this.Height)
+                {
+                    beepImage.Height = this.Height - 4;
+                    _maxImageSize.Height = this.Height - 4;
+                }
+                if (_maxImageSize.Width > this.Width)
+                {
+                    beepImage.Width = this.Width - 4;
+                    _maxImageSize.Width = this.Width - 4;
+                }
+            }
+
+            // Limit image size to MaxImageSize
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+            {
+                float scaleFactor = Math.Min(
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            Size textSize = TextRenderer.MeasureText(Text, scaledFont);
+
+            // Calculate the layout of image and text
+            Rectangle imageRect, textRect;
+            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
+
+            // Draw the image if available
+            if (beepImage != null && beepImage.HasImage)
+            {
+                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
+                {
+                    imageSize = this.Size;
+                }
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = imageRect.Size;
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.Theme = Theme;
+                    beepImage.ApplyTheme();
+                }
+                beepImage.DrawImage(g, imageRect);
+
+                if (beepImageHitTest == null)
+                {
+                    beepImageHitTest = new ControlHitTest(imageRect, Point.Empty)
+                    {
+                        Name = "BeepImageRect",
+                        ActionName = "ImageClicked",
+                        HitAction = () =>
+                        {
+                            // Raise your ImageClicked event
+                            var ev = new BeepEventDataArgs("ImageClicked", this);
+                            ImageClicked?.Invoke(this, ev);
+                        }
+                    };
+                }
+                else
+                {
+                    beepImageHitTest.TargetRect = imageRect;
+                }
+
+                AddHitTest(beepImageHitTest);
+            }
+
+            // Draw text if available and not hidden
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+
+                // Use high-quality text rendering for professional appearance
+                using (var textBrush = new SolidBrush(textColor))
+                {
+                    // For better text rendering on modern buttons
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    TextRenderer.DrawText(g, Text, scaledFont, textRect, textColor, flags);
+                }
+            }
+        }
+        #region "Draw Button From Html source"
+        // all image and svg drawing is done in the BeepImage control
+        // all functions will be similar to the orginal DrawImageAndText control but will have different style based on html .
+      
+        public void DrawButtonAndImage1(Graphics g)
+        {
+            Color textColor;
+
+            // Determine text color based on current state and theme settings (same as original)
+            if (_isColorFromTheme)
+            {
+                textColor = _originalForColor;
+            }
+            else
+            {
+                textColor = ForeColor;
+            }
+
+            // Update text color based on button state for better visibility (same as original)
+            if (Enabled)
+            {
+                if (IsHovered)
+                {
+                    textColor = HoverForeColor;
+                }
+                else if (IsSelected)
+                {
+                    textColor = SelectedForeColor;
+                }
+                else if (IsPressed)
+                {
+                    textColor = PressedForeColor;
+                }
+            }
+            else
+            {
+                textColor = DisabledForeColor;
+            }
+
+            // Use scaled font if configured (same as original)
+            Font scaledFont = _textFont;
+            if (UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
+            }
+
+            // HTML-style font override for modern look
+            Font htmlFont = new Font("Segoe UI", 12f, FontStyle.Regular);
+
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Update image size to fit new size of control (same as original)
+            if (beepImage != null)
+            {
+                if (_maxImageSize.Height > this.Height)
+                {
+                    beepImage.Height = this.Height - 4;
+                    _maxImageSize.Height = this.Height - 4;
+                }
+                if (_maxImageSize.Width > this.Width)
+                {
+                    beepImage.Width = this.Width - 4;
+                    _maxImageSize.Width = this.Width - 4;
+                }
+            }
+
+            // Limit image size to MaxImageSize (same as original)
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+            {
+                float scaleFactor = Math.Min(
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            Size textSize = TextRenderer.MeasureText(Text, htmlFont);
+
+            // Use the existing CalculateLayout function - no need to duplicate!
+            Rectangle imageRect, textRect;
+            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
+
+            // HTML-style hover animations and transformations
+            float imageTranslateX = 0f;
+            float imageRotation = 0f;
+            float imageScale = 1f;
+            float textTranslateX = 0f;
+
+            if (IsHovered)
+            {
+                // HTML CSS-like hover effects
+                imageTranslateX = 8f;
+                imageRotation = 5f;
+                imageScale = 1.1f;
+                textTranslateX = 4f;
+            }
+
+            if (IsPressed)
+            {
+                // HTML CSS-like pressed effects
+                imageScale = 0.95f;
+                textTranslateX = 0f;
+            }
+
+            // Draw the image using BeepImage with HTML-style transformations (same structure as original)
+            if (beepImage != null && beepImage.HasImage)
+            {
+                // Apply HTML-style transformations to BeepImage
+                beepImage.ManualRotationAngle = imageRotation;
+                beepImage.ScaleFactor = imageScale;
+
+                // Calculate final image rectangle with transformations
+                Rectangle finalImageRect = new Rectangle(
+                    (int)(imageRect.X + imageTranslateX),
+                    imageRect.Y,
+                    imageRect.Width,
+                    imageRect.Height
+                );
+
+                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
+                {
+                    imageSize = this.Size;
+                }
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = finalImageRect.Size;
+
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.Theme = Theme;
+                    beepImage.ApplyTheme();
+                }
+
+                // Let BeepImage handle all the drawing (same as original)
+                beepImage.DrawImage(g, finalImageRect);
+
+                // Setup hit testing (same as original)
+                if (beepImageHitTest == null)
+                {
+                    beepImageHitTest = new ControlHitTest(finalImageRect, Point.Empty)
+                    {
+                        Name = "BeepImageRect",
+                        ActionName = "ImageClicked",
+                        HitAction = () =>
+                        {
+                            var ev = new BeepEventDataArgs("ImageClicked", this);
+                            ImageClicked?.Invoke(this, ev);
+                        }
+                    };
+                }
+                else
+                {
+                    beepImageHitTest.TargetRect = finalImageRect;
+                }
+
+                AddHitTest(beepImageHitTest);
+            }
+
+            // Draw text with HTML-style effects (same structure as original)
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                // Apply text transformation for HTML-style animation
+                Rectangle transformedTextRect = new Rectangle(
+                    (int)(textRect.X + textTranslateX),
+                    textRect.Y,
+                    textRect.Width,
+                    textRect.Height
+                );
+
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+
+                // Use high-quality text rendering with HTML font
+                using (var textBrush = new SolidBrush(textColor))
+                {
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    TextRenderer.DrawText(g, Text, htmlFont, transformedTextRect, textColor, flags);
+                }
+            }
+        }
+        /// <summary>
+        /// CSS Button Style 2: Purple button with expanding white icon container
+        /// Based on .cssbuttons-io-button style with expanding icon animation
+        /// </summary>
+        public void DrawButtonAndImage2(Graphics g)
+        {
+            Color textColor;
+
+            // Determine text color based on current state and theme settings (same as original)
+            if (_isColorFromTheme)
+            {
+                textColor = _originalForColor;
+            }
+            else
+            {
+                textColor = ForeColor;
+            }
+
+            // Update text color based on button state for better visibility (same as original)
+            if (Enabled)
+            {
+                if (IsHovered)
+                {
+                    textColor = HoverForeColor;
+                }
+                else if (IsSelected)
+                {
+                    textColor = SelectedForeColor;
+                }
+                else if (IsPressed)
+                {
+                    textColor = PressedForeColor;
+                }
+            }
+            else
+            {
+                textColor = DisabledForeColor;
+            }
+
+            // Use scaled font if configured (same as original)
+            Font scaledFont = _textFont;
+            if (UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
+            }
+
+            // CSS Style 2 font: inherit font-family, 17px, font-weight: 500
+            Font cssFont = new Font("Segoe UI",11, FontStyle.Regular);
+
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Update image size to fit new size of control (same as original)
+            if (beepImage != null)
+            {
+                if (_maxImageSize.Height > this.Height)
+                {
+                    beepImage.Height = this.Height - 4;
+                    _maxImageSize.Height = this.Height - 4;
+                }
+                if (_maxImageSize.Width > this.Width)
+                {
+                    beepImage.Width = this.Width - 4;
+                    _maxImageSize.Width = this.Width - 4;
+                }
+            }
+
+            // CSS Style 2: Icon size should be 2.2em height/width (about 24px at 17px font)
+            int iconSize = Math.Min(24, Math.Min(contentRect.Height - 8, contentRect.Width - 8));
+            if (imageSize.Width > iconSize || imageSize.Height > iconSize)
+            {
+                float scaleFactor = Math.Min(
+                    (float)iconSize / imageSize.Width,
+                    (float)iconSize / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            Size textSize = TextRenderer.MeasureText(Text, cssFont);
+
+            // CSS Style 2 Layout: Text on left, expanding icon container on right
+            int iconContainerSize = Math.Min(contentRect.Height - 6, iconSize + 8); // 2.2em container
+            int iconContainerPadding = 3; // 0.3em right padding
+
+            // CSS Style 2 animations
+            float iconContainerWidth = iconContainerSize; // Default width
+            float iconTranslateX = 0f;
+            float iconScale = 1f;
+
+            if (IsHovered)
+            {
+                // CSS hover: .icon width: calc(100% - 0.6em) and translateX
+                iconContainerWidth = contentRect.Width - 12; // calc(100% - 0.6em)
+                iconTranslateX = 2f; // translateX(0.1em)
+            }
+
+            if (IsPressed)
+            {
+                // CSS active: transform: scale(0.95)
+                iconScale = 0.95f;
+            }
+
+            // Calculate CSS Style 2 layout
+            Rectangle textRect = new Rectangle(
+                contentRect.Left + 18, // padding-left: 1.2em
+                contentRect.Top,
+                contentRect.Width - (int)iconContainerWidth - 30, // Leave space for icon
+                contentRect.Height
+            );
+
+            Rectangle iconContainerRect = new Rectangle(
+                (int)(contentRect.Right - iconContainerWidth - iconContainerPadding),
+                contentRect.Top + (contentRect.Height - iconContainerSize) / 2,
+                (int)iconContainerWidth,
+                iconContainerSize
+            );
+
+            Rectangle iconRect = new Rectangle(
+                (int)(iconContainerRect.X + iconTranslateX + (iconContainerRect.Width - imageSize.Width) / 2),
+                iconContainerRect.Y + (iconContainerRect.Height - imageSize.Height) / 2,
+                imageSize.Width,
+                imageSize.Height
+            );
+
+            // Draw CSS Style 2: White icon container with shadow
+            using (SolidBrush iconContainerBrush = new SolidBrush(Color.White))
+            {
+                using (GraphicsPath iconContainerPath = GetRoundedRectPath(iconContainerRect, iconContainerSize / 3))
+                {
+                    // Apply scale transformation for pressed state
+                    if (IsPressed && iconScale != 1f)
+                    {
+                        Matrix scaleMatrix = new Matrix();
+                        PointF center = new PointF(
+                            iconContainerRect.X + iconContainerRect.Width / 2f,
+                            iconContainerRect.Y + iconContainerRect.Height / 2f
+                        );
+                        scaleMatrix.Translate(center.X, center.Y);
+                        scaleMatrix.Scale(iconScale, iconScale);
+                        scaleMatrix.Translate(-center.X, -center.Y);
+                        iconContainerPath.Transform(scaleMatrix);
+                    }
+
+                    // Draw shadow: box-shadow: 0.1em 0.1em 0.6em 0.2em #7b52b9
+                    using (SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(40, 123, 82, 185)))
+                    {
+                        using (GraphicsPath shadowPath = (GraphicsPath)iconContainerPath.Clone())
+                        {
+                            Matrix shadowMatrix = new Matrix();
+                            shadowMatrix.Translate(1.5f, 1.5f); // 0.1em offset
+                            shadowPath.Transform(shadowMatrix);
+                            g.FillPath(shadowBrush, shadowPath);
+                        }
+                    }
+
+                    // Draw white icon container
+                    g.FillPath(iconContainerBrush, iconContainerPath);
+                }
+            }
+
+            // Draw the image using BeepImage with CSS Style 2 transformations (same structure as original)
+            if (beepImage != null && beepImage.HasImage)
+            {
+                // CSS Style 2: Icon color should be #7b52b9 (purple)
+                beepImage.ForeColor = Color.FromArgb(123, 82, 185);
+                beepImage.ManualRotationAngle = 0; // No rotation in this style
+                beepImage.ScaleFactor = 1f; // Scale handled by container
+
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = imageSize;
+
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.Theme = Theme;
+                    beepImage.ApplyTheme();
+                }
+
+                // Let BeepImage handle all the drawing (same as original)
+                beepImage.DrawImage(g, iconRect);
+
+                // Setup hit testing (same as original)
+                if (beepImageHitTest == null)
+                {
+                    beepImageHitTest = new ControlHitTest(iconRect, Point.Empty)
+                    {
+                        Name = "BeepImageRect",
+                        ActionName = "ImageClicked",
+                        HitAction = () =>
+                        {
+                            var ev = new BeepEventDataArgs("ImageClicked", this);
+                            ImageClicked?.Invoke(this, ev);
+                        }
+                    };
+                }
+                else
+                {
+                    beepImageHitTest.TargetRect = iconRect;
+                }
+
+                AddHitTest(beepImageHitTest);
+            }
+
+            // Draw text with CSS Style 2 styling (same structure as original)
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+
+                // CSS Style 2: White text color, letter-spacing: 0.05em
+                using (var textBrush = new SolidBrush(Color.White))
+                {
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    TextRenderer.DrawText(g, Text, cssFont, textRect, Color.White, flags);
+                }
+            }
+        }
+        /// <summary>
+        /// CSS Button Style 3: Lime green button with animated arrow SVG
+        /// Based on lime button style with sliding arrow animation
+        /// </summary>
+        public void DrawButtonAndImage3(Graphics g)
+        {
+            Color textColor;
+
+            // Determine text color based on current state and theme settings (same as original)
+            if (_isColorFromTheme)
+            {
+                textColor = _originalForColor;
+            }
+            else
+            {
+                textColor = ForeColor;
+            }
+
+            // Update text color based on button state for better visibility (same as original)
+            if (Enabled)
+            {
+                if (IsHovered)
+                {
+                    textColor = HoverForeColor;
+                }
+                else if (IsSelected)
+                {
+                    textColor = SelectedForeColor;
+                }
+                else if (IsPressed)
+                {
+                    textColor = PressedForeColor;
+                }
+            }
+            else
+            {
+                textColor = DisabledForeColor;
+            }
+
+            // Use scaled font if configured (same as original)
+            Font scaledFont = _textFont;
+            if (UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
+            }
+
+            // CSS Style 3 font: font-weight: 700, font-size: 15px
+            Font cssFont = new Font("Segoe UI", 10f, FontStyle.Bold);
+
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Update image size to fit new size of control (same as original)
+            if (beepImage != null)
+            {
+                if (_maxImageSize.Height > this.Height)
+                {
+                    beepImage.Height = this.Height - 4;
+                    _maxImageSize.Height = this.Height - 4;
+                }
+                if (_maxImageSize.Width > this.Width)
+                {
+                    beepImage.Width = this.Width - 4;
+                    _maxImageSize.Width = this.Width - 4;
+                }
+            }
+
+            // CSS Style 3: SVG size should be 34px
+            int svgSize = Math.Min(28, Math.Min(contentRect.Height - 8, contentRect.Width - 8));
+            if (imageSize.Width > svgSize || imageSize.Height > svgSize)
+            {
+                float scaleFactor = Math.Min(
+                    (float)svgSize / imageSize.Width,
+                    (float)svgSize / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            Size textSize = TextRenderer.MeasureText(Text, cssFont);
+
+            // CSS Style 3 Layout: Text on left, SVG on right with margin-left: 10px
+            int svgMargin = 8; // margin-left: 10px equivalent
+
+            // CSS Style 3 animations
+            float svgTranslateX = 0f;
+            float buttonScale = 1f;
+
+            if (IsHovered)
+            {
+                // CSS hover: svg translateX(5px)
+                svgTranslateX = 4f;
+            }
+
+            if (IsPressed)
+            {
+                // CSS active: transform: scale(0.95)
+                buttonScale = 0.95f;
+            }
+
+            // Apply button scale transformation if pressed
+            Rectangle scaledContentRect = contentRect;
+            if (IsPressed && buttonScale != 1f)
+            {
+                int scaledWidth = (int)(contentRect.Width * buttonScale);
+                int scaledHeight = (int)(contentRect.Height * buttonScale);
+                int offsetX = (contentRect.Width - scaledWidth) / 2;
+                int offsetY = (contentRect.Height - scaledHeight) / 2;
+                scaledContentRect = new Rectangle(
+                    contentRect.X + offsetX,
+                    contentRect.Y + offsetY,
+                    scaledWidth,
+                    scaledHeight);
+            }
+
+            // Calculate CSS Style 3 layout with flex alignment
+            Rectangle textRect = new Rectangle(
+                scaledContentRect.Left + 16, // padding: 10px 20px equivalent
+                scaledContentRect.Top,
+                scaledContentRect.Width - imageSize.Width - svgMargin - 32, // Leave space for SVG and padding
+                scaledContentRect.Height
+            );
+
+            Rectangle svgRect = new Rectangle(
+                (int)(textRect.Right + svgMargin + svgTranslateX),
+                scaledContentRect.Top + (scaledContentRect.Height - imageSize.Height) / 2,
+                imageSize.Width,
+                imageSize.Height
+            );
+
+            // Draw the image using BeepImage with CSS Style 3 transformations (same structure as original)
+            if (beepImage != null && beepImage.HasImage)
+            {
+                // CSS Style 3: SVG should be black
+                beepImage.ForeColor = Color.Black;
+                beepImage.ManualRotationAngle = 0; // No rotation in this style
+                beepImage.ScaleFactor = 1f; // No additional scaling
+
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = imageSize;
+
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.Theme = Theme;
+                    beepImage.ApplyTheme();
+                }
+
+                // Let BeepImage handle all the drawing (same as original)
+                beepImage.DrawImage(g, svgRect);
+
+                // Setup hit testing (same as original)
+                if (beepImageHitTest == null)
+                {
+                    beepImageHitTest = new ControlHitTest(svgRect, Point.Empty)
+                    {
+                        Name = "BeepImageRect",
+                        ActionName = "ImageClicked",
+                        HitAction = () =>
+                        {
+                            var ev = new BeepEventDataArgs("ImageClicked", this);
+                            ImageClicked?.Invoke(this, ev);
+                        }
+                    };
+                }
+                else
+                {
+                    beepImageHitTest.TargetRect = svgRect;
+                }
+
+                AddHitTest(beepImageHitTest);
+            }
+
+            // Draw text with CSS Style 3 styling (same structure as original)
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
+
+                // CSS Style 3: Black text color, bold weight
+                using (var textBrush = new SolidBrush(Color.Black))
+                {
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    TextRenderer.DrawText(g, Text, cssFont, textRect, Color.Black, flags);
+                }
+            }
+        }
+        /// <summary>
+        /// CSS Button Style 4: Modern sliding background button with icon container
+        /// Based on button with sliding background animation and icon area
+        /// </summary>
+        public void DrawButtonAndImage4(Graphics g)
+        {
+            Color textColor;
+
+            // Determine text color based on current state and theme settings (same as original)
+            if (_isColorFromTheme)
+            {
+                textColor = _originalForColor;
+            }
+            else
+            {
+                textColor = ForeColor;
+            }
+
+            // Update text color based on button state for better visibility (same as original)
+            if (Enabled)
+            {
+                if (IsHovered)
+                {
+                    textColor = HoverForeColor;
+                }
+                else if (IsSelected)
+                {
+                    textColor = SelectedForeColor;
+                }
+                else if (IsPressed)
+                {
+                    textColor = PressedForeColor;
+                }
+            }
+            else
+            {
+                textColor = DisabledForeColor;
+            }
+
+            // Use scaled font if configured (same as original)
+            Font scaledFont = _textFont;
+            if (UseScaledFont)
+            {
+                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
+            }
+
+            // CSS Style 4 font: font-weight: 600, line-height: 1
+            Font cssFont = new Font("Segoe UI", 9f, FontStyle.Bold);
+
+            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
+
+            // Update image size to fit new size of control (same as original)
+            if (beepImage != null)
+            {
+                if (_maxImageSize.Height > this.Height)
+                {
+                    beepImage.Height = this.Height - 4;
+                    _maxImageSize.Height = this.Height - 4;
+                }
+                if (_maxImageSize.Width > this.Width)
+                {
+                    beepImage.Width = this.Width - 4;
+                    _maxImageSize.Width = this.Width - 4;
+                }
+            }
+
+            // CSS Style 4: Icon container size (48px width, 40px height from CSS)
+            int iconContainerWidth = Math.Min(32, contentRect.Height - 4);
+            int iconContainerHeight = contentRect.Height - 4;
+            int iconSize = Math.Min(20, iconContainerHeight - 8);
+
+            if (imageSize.Width > iconSize || imageSize.Height > iconSize)
+            {
+                float scaleFactor = Math.Min(
+                    (float)iconSize / imageSize.Width,
+                    (float)iconSize / imageSize.Height);
+                imageSize = new Size(
+                    (int)(imageSize.Width * scaleFactor),
+                    (int)(imageSize.Height * scaleFactor));
+            }
+
+            Size textSize = TextRenderer.MeasureText(Text, cssFont);
+
+            // CSS Style 4 Layout: Icon container on left, text on right
+            // CSS Style 4 animations
+            float decorTranslateX = -contentRect.Width; // Start completely hidden (translateX(-100%))
+            Color decorColor = Color.FromArgb(0, 173, 84); // --clr: #00ad54
+
+            if (IsHovered)
+            {
+                // CSS hover: background slides in (transform: translate(0))
+                decorTranslateX = 0f;
+                textColor = Color.White; // Text becomes white on hover
+            }
+
+            // Calculate CSS Style 4 layout
+            Rectangle iconContainerRect = new Rectangle(
+                contentRect.Left + 2,
+                contentRect.Top + 2,
+                iconContainerWidth,
+                iconContainerHeight
+            );
+
+            Rectangle textRect = new Rectangle(
+                iconContainerRect.Right + 6, // padding-left: .75rem
+                contentRect.Top,
+                contentRect.Width - iconContainerWidth - 12, // Leave space for icon and padding
+                contentRect.Height
+            );
+
+            Rectangle iconRect = new Rectangle(
+                iconContainerRect.X + (iconContainerRect.Width - imageSize.Width) / 2,
+                iconContainerRect.Y + (iconContainerRect.Height - imageSize.Height) / 2,
+                imageSize.Width,
+                imageSize.Height
+            );
+
+            // Draw CSS Style 4: Sliding background decoration (button-decor)
+            Rectangle decorRect = new Rectangle(
+                (int)(contentRect.X + decorTranslateX),
+                contentRect.Y,
+                contentRect.Width,
+                contentRect.Height
+            );
+
+            if (IsHovered)
+            {
+                using (SolidBrush decorBrush = new SolidBrush(decorColor))
+                {
+                    if (IsRounded && BorderRadius > 0)
+                    {
+                        using (GraphicsPath decorPath = GetRoundedRectPath(decorRect, BorderRadius))
+                        {
+                            g.FillPath(decorBrush, decorPath);
+                        }
+                    }
+                    else
+                    {
+                        g.FillRectangle(decorBrush, decorRect);
+                    }
+                }
+            }
+
+            // Draw CSS Style 4: Icon container background (always colored)
+            using (SolidBrush iconContainerBrush = new SolidBrush(decorColor))
+            {
+                if (IsRounded && BorderRadius > 0)
+                {
+                    using (GraphicsPath iconContainerPath = GetRoundedRectPath(iconContainerRect, BorderRadius / 2))
+                    {
+                        g.FillPath(iconContainerBrush, iconContainerPath);
+                    }
+                }
+                else
+                {
+                    g.FillRectangle(iconContainerBrush, iconContainerRect);
+                }
+            }
+
+            // Draw the image using BeepImage with CSS Style 4 transformations (same structure as original)
+            if (beepImage != null && beepImage.HasImage)
+            {
+                // CSS Style 4: Icon should be white
+                beepImage.ForeColor = Color.White;
+                beepImage.ManualRotationAngle = 0; // No rotation in this style
+                beepImage.ScaleFactor = 1f; // No additional scaling
+
+                beepImage.MaximumSize = imageSize;
+                beepImage.Size = imageSize;
+
+                if (ApplyThemeOnImage)
+                {
+                    beepImage.Theme = Theme;
+                    beepImage.ApplyTheme();
+                }
+
+                // Let BeepImage handle all the drawing (same as original)
+                beepImage.DrawImage(g, iconRect);
+
+                // Setup hit testing (same as original)
+                if (beepImageHitTest == null)
+                {
+                    beepImageHitTest = new ControlHitTest(iconRect, Point.Empty)
+                    {
+                        Name = "BeepImageRect",
+                        ActionName = "ImageClicked",
+                        HitAction = () =>
+                        {
+                            var ev = new BeepEventDataArgs("ImageClicked", this);
+                            ImageClicked?.Invoke(this, ev);
+                        }
+                    };
+                }
+                else
+                {
+                    beepImageHitTest.TargetRect = iconRect;
+                }
+
+                AddHitTest(beepImageHitTest);
+            }
+
+            // Draw text with CSS Style 4 styling (same structure as original)
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                // Constrain text width: max-width: 150px, text-overflow: ellipsis
+                int maxTextWidth = Math.Min(120, textRect.Width);
+                Rectangle constrainedTextRect = new Rectangle(
+                    textRect.X,
+                    textRect.Y,
+                    maxTextWidth,
+                    textRect.Height
+                );
+
+                TextFormatFlags flags = GetTextFormatFlags(TextAlign) | TextFormatFlags.EndEllipsis;
+
+                // CSS Style 4: Dynamic text color (dark by default, white on hover)
+                Color finalTextColor = IsHovered ? Color.White : Color.FromArgb(18, 18, 18); // #121212
+
+                using (var textBrush = new SolidBrush(finalTextColor))
+                {
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    TextRenderer.DrawText(g, Text, cssFont, constrainedTextRect, finalTextColor, flags);
+                }
+            }
+        }
+        #endregion "Draw Button From Html "
+        #endregion "Draw Image and text"
+    }
+    public enum ButtonType
+    {
+        Normal, AnimatedArrow,      // DrawButtonAndImage1 - HTML-style with rotating/scaling arrow animations
+        ExpandingIcon,      // DrawButtonAndImage2 - Purple button with expanding white icon container
+        SlidingArrow,       // DrawButtonAndImage3 - Lime green button with sliding arrow animation
+        SlidingBackground   // DrawButtonAndImage4
+
+
+    }
 
 }

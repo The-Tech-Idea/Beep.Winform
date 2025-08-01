@@ -2300,70 +2300,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected void DrawShadow(Graphics graphics, Rectangle drawingRect)
         {
-            // Check if shadow should be drawn at all
-            if (ShadowOpacity <= 0 || ShadowOpacity > 1 || !ShowShadow) // Add ShowShadow check if not done upstream
+            // Early exit if shadow shouldn't be drawn
+            if (!ShowShadow || ShadowOpacity <= 0 || ShadowOpacity > 1)
                 return;
 
-            // --- Modernization: Make parameters configurable or elevation-based ---
-            // Consider properties like:
-            // public int ShadowDepth { get; set; } = 3; // Number of layers
-            // public int ShadowSpread { get; set; } = 1; // Spacing increment per layer
-            int shadowDepth = 3; // Reduced from 5 for subtlety, or make a property
-            int shadowSpread = 1; // Reduced from 2, or make a property
-                                  // ---
-
-            // Base shadow color with overall opacity
-            Color baseShadowColor = Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor);
-
-            // Ensure high-quality rendering
+            // Ensure high-quality rendering for modern shadow effects
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.CompositingQuality = CompositingQuality.HighQuality;
 
-            // Draw multiple layers for a soft shadow effect
-            for (int i = 1; i <= shadowDepth; i++)
+            // Calculate shadow layers for soft, modern effect (based on shadowOffset)
+            int shadowDepth = Math.Max(1, shadowOffset / 2); // Fewer layers for small offsets
+            int maxLayers = Math.Min(shadowDepth, 6); // Cap at 6 layers for performance
+
+            // Calculate the base shadow rectangle - positioned behind the control
+            Rectangle shadowRect = new Rectangle(
+                drawingRect.X + shadowOffset,
+                drawingRect.Y + shadowOffset,
+                drawingRect.Width,
+                drawingRect.Height
+            );
+
+            // Draw multiple layers for soft, modern shadow effect
+            for (int i = 1; i <= maxLayers; i++)
             {
-                // --- Modernization: Smoother Opacity Falloff ---
-                // Option 1: Linear decrease per layer (your current logic, but scaled)
-                // float layerOpacityFactor = 1.0f / i;
-                // Option 2: Exponential decrease (fades out faster)
-                float layerOpacityFactor = (float)Math.Pow(0.6f, i); // Adjust 0.6 for falloff speed
-                                                                     // Option 3: Based on distance squared (more physically inspired)
-                                                                     // float distanceFactor = (float)i / shadowDepth;
-                                                                     // float layerOpacityFactor = 1.0f - (distanceFactor * distanceFactor);
+                // Calculate progressive opacity for each layer (inner layers are more opaque)
+                float layerOpacityFactor = (float)(maxLayers - i + 1) / maxLayers;
+                float finalOpacity = ShadowOpacity * layerOpacityFactor * 0.6f; // Reduce overall intensity
+                int layerAlpha = Math.Max(5, (int)(255 * finalOpacity)); // Minimum 5 for visibility
 
-                int layerAlpha = (int)(255 * ShadowOpacity * layerOpacityFactor);
-                if (layerAlpha <= 0) continue; // Skip if fully transparent
+                Color layerShadowColor = Color.FromArgb(layerAlpha, ShadowColor);
 
-                Color layerColor = Color.FromArgb(layerAlpha, baseShadowColor);
-                // ---
+                // Calculate blur spread for this layer
+                int spread = i - 1; // First layer has no spread, subsequent layers spread outward
+                Rectangle layerRect = new Rectangle(
+                    shadowRect.X - spread,
+                    shadowRect.Y - spread,
+                    shadowRect.Width + (spread * 2),
+                    shadowRect.Height + (spread * 2)
+                );
 
-                using (Pen shadowPen = new Pen(layerColor, 1)) // Pen width is 1 for each outline
+                // Draw the shadow based on control shape
+                using (SolidBrush shadowBrush = new SolidBrush(layerShadowColor))
                 {
-                    // Adjust the drawing rect to expand outward for each layer
-                    int offset = i * shadowSpread;
-                    Rectangle outerRect = new Rectangle(
-                        drawingRect.X - offset,
-                        drawingRect.Y - offset,
-                        drawingRect.Width + (2 * offset),
-                        drawingRect.Height + (2 * offset));
-
-                    // Draw the shadow outline based on the control's shape
-                    if (IsRounded)
+                    if (IsRounded && BorderRadius > 0)
                     {
-                        // Use BorderRadius + offset for the shadow's corner radius
-                        // Consider if the shadow should have a *slightly* larger radius
-                        int shadowRadius = BorderRadius + offset;
-                        using (GraphicsPath shadowPath = GetRoundedRectPath(outerRect, shadowRadius))
+                        // For rounded controls, use rounded shadow with proper radius scaling
+                        int shadowRadius = Math.Max(0, BorderRadius + spread);
+                        using (GraphicsPath shadowPath = GetRoundedRectPath(layerRect, shadowRadius))
                         {
-                            graphics.DrawPath(shadowPen, shadowPath);
+                            graphics.FillPath(shadowBrush, shadowPath);
                         }
                     }
                     else
                     {
-                        // Ensure GetControlShapePath draws the correct non-rounded shape (likely a rectangle)
-                        using (GraphicsPath shadowPath = GetControlShapePath(outerRect))
-                        {
-                            graphics.DrawPath(shadowPen, shadowPath);
-                        }
+                        // For rectangular controls, draw standard rectangle shadow
+                        graphics.FillRectangle(shadowBrush, layerRect);
                     }
                 }
             }
@@ -2381,66 +2372,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             return path;
         }
         // Helper method for custom control shape outline; adjust shape as needed (e.g., ellipse for rounded)
-      
-        protected void DrawShadowUsingRectangle(Graphics graphics)
-        {
-            // Ensure shadow is drawn only if it's enabled
-            if (ShowShadow)
-            {
-                using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor)))
-                {
-                    // Calculate an offset shadow rectangle larger than the DrawingRect and extending outside the border
-                    Rectangle shadowRect = new Rectangle(
-                        DrawingRect.Left - shadowOffset - BorderThickness,
-                        DrawingRect.Top - shadowOffset - BorderThickness,
-                        DrawingRect.Width + (2 * shadowOffset) + (2 * BorderThickness),
-                        DrawingRect.Height + (2 * shadowOffset) + (2 * BorderThickness)
-                    );
 
-                    if (IsRounded)
-                    {
-                        // If the control is rounded, draw a rounded shadow
-                        using (GraphicsPath shadowPath = GetRoundedRectPath(shadowRect, BorderRadius + shadowOffset))
-                        {
-                            graphics.FillPath(shadowBrush, shadowPath);
-                        }
-                    }
-                    else
-                    {
-                        // Draw a rectangular shadow for non-rounded controls
-                        graphics.FillRectangle(shadowBrush, shadowRect);
-                    }
-                }
-            }
-        }
         protected void DrawShadow(Graphics graphics)
         {
-            // Ensure shadow is drawn only if it's enabled and the control is not transparent
-            if (ShowShadow) // Ensure no transparency conflicts
-            {
-                using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), ShadowColor)))
-                {
-                    // Calculate an offset shadow rectangle slightly larger than the main control
-                    Rectangle shadowRect = new Rectangle(
-                        Left + BorderThickness + shadowOffset,
-                        Top + BorderThickness + shadowOffset,
-                        Width + BorderThickness + shadowOffset,
-                        Height + BorderThickness + shadowOffset
-                    );
-
-                    if (IsRounded)
-                    {
-                        using (GraphicsPath shadowPath = GetRoundedRectPath(shadowRect, BorderRadius))
-                        {
-                            graphics.FillPath(shadowBrush, shadowPath);
-                        }
-                    }
-                    else
-                    {
-                        graphics.FillRectangle(shadowBrush, shadowRect);
-                    }
-                }
-            }
+            // Use the modernized DrawShadow method with the DrawingRect
+            DrawShadow(graphics, DrawingRect);
         }
         protected virtual void DrawFocusIndicator(Graphics graphics)
         {

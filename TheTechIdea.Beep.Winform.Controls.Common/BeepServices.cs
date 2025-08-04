@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             keyhandler.UnregisterGlobalKeyHandler();
             AppManager.Dispose();
-            beepService.DMEEditor.Dispose();
+         //   beepService.DMEEditor.Dispose();
             beepService?.Dispose();
             // Add additional dispose logic as necessary
         }

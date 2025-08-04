@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
     {
         #region "Properties"
         private bool _applyBeepFormStyle = false;
-        private string _theme ="DefaultTheme";
+        private string _theme = "DefaultTheme";
         private Form _form;
         private bool _showborder = true;
         private BeepImage beepimage = new BeepImage();
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     BeepiForm.Text = _title;
 
                 }
-                if(BeepAppBar != null)
+                if (BeepAppBar != null)
                 {
                     BeepAppBar.Title = _title;
                 }
@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             set
             {
                 _displayContainer = value;
-                
+
             }
         }
         private BeepAppBar _beepappbar;
@@ -270,19 +270,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             get => _theme;
             set
             {
-               
+
                 if (_theme != value)
                 {
-                  // MiscFunctions.SendLog($"Started Theme Changed {value.ToString()} - {_theme.ToString()}");
+                    // MiscFunctions.SendLog($"Started Theme Changed {value.ToString()} - {_theme.ToString()}");
                     _theme = value;
-                   
+
                     OnThemeChanged?.Invoke(_theme);
                     ApplyThemeToAllBeepControls(_form);
-                   //MiscFunctions.SendLog($"Finished Theme Changed {value.ToString()} - {_theme.ToString()}");
+                    //MiscFunctions.SendLog($"Finished Theme Changed {value.ToString()} - {_theme.ToString()}");
                 }
             }
         }
-      
+
         #endregion "Properties"
         #region "Constructors"
         public BeepFormUIManager(IContainer container)
@@ -309,8 +309,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 Theme = BeepThemesManager.CurrentThemeName;
                 BeepiForm.ApplyTheme();
                 ApplyThemeToAllBeepControls(_form); // Apply the initial theme
-                  
-          
+
+
             }
         }
         #endregion
@@ -389,12 +389,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             BeepiForm = runtimeForm as BeepiForm;
 
             // Attach to runtime-specific events
-               //_form.Load += Form_Load;
+            //_form.Load += Form_Load;
             //    AttachControlAddedEvent(_form);
 
-            BeepiForm.Theme = BeepThemesManager.CurrentThemeName    ;
+            BeepiForm.Theme = BeepThemesManager.CurrentThemeName;
             Theme = BeepThemesManager.CurrentThemeName;
-      //     //Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
+            //     //Debug.WriteLine($"Form Load event 3 {BeepThemesManager.CurrentTheme.ToString()}");
             BeepiForm.ApplyTheme();
             ApplyThemeToForm();
             BeepThemesManager.ThemeChanged -= BeepThemesManager_ThemeChanged;
@@ -434,7 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             _form = sender as Form;
             BeepiForm = _form as BeepiForm;
-        //    ApplyBeepFormTheme();
+            //    ApplyBeepFormTheme();
         }
 
         private void BeepUIManager_ParentChanged(object sender, EventArgs e)
@@ -480,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             return null;
         }
-   
+
 
         private void Form_Load(object sender, EventArgs e)
         {
@@ -516,7 +516,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                         }
                         catch (Exception ex)
                         {
-                           // Console.WriteLine($" {child.Name} -  {ex.Message}");
+                            // Console.WriteLine($" {child.Name} -  {ex.Message}");
                         }
 
                     }
@@ -526,10 +526,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         // Event handler for when a control is added to the form or a container
         private void OnControlAdded(object sender, ControlEventArgs e)
         {
-          // // Console.WriteLine($"Control Added event 1 {e.Control.Name}");
+            // // Console.WriteLine($"Control Added event 1 {e.Control.Name}");
             ApplyThemeToControlAndChildren(e.Control); // Apply theme to the new control and its children
-         //  // Console.WriteLine("Control Added event 2");
-            // If the control is a container, recursively attach the ControlAdded event
+                                                       //  // Console.WriteLine("Control Added event 2");
+                                                       // If the control is a container, recursively attach the ControlAdded event
             if (e.Control is ContainerControl containerControl)
             {
                 AttachControlAddedEvent(containerControl);
@@ -575,8 +575,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             //BeepAppBar.ResumeDrawing();
             //BeepAppBar.ResumeLayout();
             BeepAppBar.ResumeFormLayout();
-        //    _displayContainer.ResumeDrawing();
-       //     _displayContainer.ResumeLayout();
+            //    _displayContainer.ResumeDrawing();
+            //     _displayContainer.ResumeLayout();
             _displayContainer.ResumeFormLayout();
         }
         private void _beepSideMenu_StartMenuCollapseExpand(bool obj)
@@ -586,9 +586,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             //BeepAppBar.SuspendDrawing();
 
             _displayContainer.SuspendFormLayout();
-        //    _displayContainer.SuspendLayout();
-          //  _displayContainer.SuspendDrawing();
-            
+            //    _displayContainer.SuspendLayout();
+            //  _displayContainer.SuspendDrawing();
+
         }
         private void sidemenusetup()
         {
@@ -635,7 +635,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     BeepSideMenu.Title = Title;
                 }
             }
-         
+
 
             if (GetPropertyFromControl(control, "IsBorderAffectedByTheme"))
             {
@@ -652,14 +652,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
 
 
-          //  ThemeFunctions.ApplyThemeOnImageControl(control, _applyThemeOnImage);
+            //  ThemeFunctions.ApplyThemeOnImageControl(control, _applyThemeOnImage);
         }
 
         // Recursively apply the theme to all controls on the form and child containers
         private void ApplyThemeToAllBeepControls(Control container)
         {
             if (container == null) return;
-           
+
             IBeepTheme t = BeepThemesManager.GetTheme(_theme);
             if (t == null) return;
             container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
@@ -673,7 +673,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                     // Recursively apply theme to all child controls
                     foreach (Control child in container.Controls)
                     {
-                       
+
                         ApplyThemeToAllBeepControls(child);
                     }
                 }
@@ -700,15 +700,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 return false;
             }
         }
-      
+
         // Apply the t
         // Apply the theme to a single control and all its children recursively
         private void ApplyThemeToControlAndChildren(Control control)
         {
             //Console.WriteLine("Applying theme to control");
             ApplyThemeToControl(control); // Apply to the control itself
-          // // Console.WriteLine("Applying theme to control 2");
-            // Recursively apply to child controls if the control is a container
+                                          // // Console.WriteLine("Applying theme to control 2");
+                                          // Recursively apply to child controls if the control is a container
             foreach (Control child in control.Controls)
             {
                 ApplyThemeToControlAndChildren(child);

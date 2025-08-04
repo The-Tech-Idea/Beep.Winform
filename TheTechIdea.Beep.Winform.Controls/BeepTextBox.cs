@@ -1734,7 +1734,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             //InnerTextBox.Font=_listbuttontextFont;
-            Font = _textFont;
+            SafeApplyFont(TextFont ?? _textFont);
 
             beepImage.IsChild = true;
             beepImage.ImageEmbededin = ImageEmbededin.None;

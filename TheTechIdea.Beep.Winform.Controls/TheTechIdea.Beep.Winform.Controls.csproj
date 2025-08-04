@@ -17,6 +17,7 @@
     <Title>TheTechIdea.Beep.Winform.Controls</Title>
     <Product>TheTechIdea.Beep.Winform.Controls</Product>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
+   
     <Version>1.0.165</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>

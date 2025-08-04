@@ -30,8 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Rectangles"
         #region "Properties"
         #region "Fields"
-        private int windowsicons_height = 20;
-        private int defaultHeight = 40;
+        // With DPI-aware properties:
+        private int ScaledWindowIconsHeight => ScaleValue(20);
+        private int ScaledDefaultHeight => ScaleValue(40);
+        private Size ScaledLogoSize => ScaleSize(new Size(32, 32));
 
         // Drawing components instead of actual controls
         private BeepImage _logo;
@@ -118,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _textFont = value;
-                Font = _textFont;
+                SafeApplyFont(TextFont ?? _textFont);
                 UseThemeFont = false;
                 Invalidate();
             }
@@ -291,7 +293,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private Size _logosize = new Size(32, 32);
+        private Size _logosize;
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the logo size of the form.")]
@@ -369,6 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepAppBar() : base()
         {
             // Set up basic properties
+            _logosize = ScaleSize(new Size(32, 32));
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
@@ -385,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
-                Height = defaultHeight;
+                Height = ScaledDefaultHeight;
             }
             // Enable dragging only in empty spaces (not over buttons)
             SetDraggableAreas("Empty");
@@ -450,7 +454,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextImageRelation = TextImageRelation.TextBeforeImage,
                 TextAlignment = HorizontalAlignment.Left,
                 ShowAllBorders = true,
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 Tag = "Search"
             };
             _searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
@@ -472,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize notification button
             _notificationButton = new BeepButton
             {
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.093-waving.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -492,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize profile button
             _profileButton = new BeepButton
             {
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.025-user.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -511,7 +515,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize theme button
             _themeButton = new BeepButton
             {
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -535,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize window control buttons (minimize, maximize, close)
             _minimizeButton = new BeepButton
             {
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.055-minimize.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -551,7 +555,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _maximizeButton = new BeepButton
             {
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.054-maximize.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -567,7 +571,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _closeButton = new BeepButton
             {
-                MaxImageSize = new Size(windowsicons_height - imageoffset, windowsicons_height - imageoffset),
+                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.078-remove.svg",
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -669,9 +673,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Draw Methods"
         protected override void DrawContent(Graphics g)
         {
+            UpdateDrawingRect();
             base.DrawContent(g);
 
-            UpdateDrawingRect();
+           
 
           
 
@@ -829,10 +834,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showCloseIcon)
             {
                 closeRect = new Rectangle(
-                    rightEdge - windowsicons_height,
-                    centerY - windowsicons_height / 2,
-                    windowsicons_height,
-                    windowsicons_height
+                    rightEdge - ScaledWindowIconsHeight,
+                    centerY - ScaledWindowIconsHeight / 2,
+                    ScaledWindowIconsHeight,
+                    ScaledWindowIconsHeight
                 );
                 rightEdge = closeRect.Left - spacing;
             }
@@ -840,10 +845,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showMaximizeIcon)
             {
                 maximizeRect = new Rectangle(
-                    rightEdge - windowsicons_height,
-                    centerY - windowsicons_height / 2,
-                    windowsicons_height,
-                    windowsicons_height
+                    rightEdge - ScaledWindowIconsHeight,
+                    centerY - ScaledWindowIconsHeight / 2,
+                    ScaledWindowIconsHeight,
+                    ScaledWindowIconsHeight
                 );
                 rightEdge = maximizeRect.Left - spacing;
             }
@@ -851,10 +856,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showMinimizeIcon)
             {
                 minimizeRect = new Rectangle(
-                    rightEdge - windowsicons_height,
-                    centerY - windowsicons_height / 2,
-                    windowsicons_height,
-                    windowsicons_height
+                    rightEdge - ScaledWindowIconsHeight,
+                    centerY - ScaledWindowIconsHeight / 2,
+                    ScaledWindowIconsHeight,
+                    ScaledWindowIconsHeight
                 );
                 rightEdge = minimizeRect.Left - spacing;
             }
@@ -876,10 +881,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showNotificationIcon)
             {
                 notificationRect = new Rectangle(
-                    rightEdge - windowsicons_height,
-                    centerY - windowsicons_height / 2,
-                    windowsicons_height,
-                    windowsicons_height
+                    rightEdge - ScaledWindowIconsHeight,
+                    centerY - ScaledWindowIconsHeight / 2,
+                    ScaledWindowIconsHeight,
+                    ScaledWindowIconsHeight
                 );
                 rightEdge = notificationRect.Left - spacing;
             }
@@ -888,10 +893,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showProfileIcon)
             {
                 profileRect = new Rectangle(
-                    rightEdge - windowsicons_height,
-                    centerY - windowsicons_height / 2,
-                    windowsicons_height,
-                    windowsicons_height
+                    rightEdge - ScaledWindowIconsHeight,
+                    centerY - ScaledWindowIconsHeight / 2,
+                    ScaledWindowIconsHeight,
+                    ScaledWindowIconsHeight
                 );
                 rightEdge = profileRect.Left - spacing;
             }
@@ -900,10 +905,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showThemeIcon)
             {
                 themeRect = new Rectangle(
-                    rightEdge - windowsicons_height,
-                    centerY - windowsicons_height / 2,
-                    windowsicons_height,
-                    windowsicons_height
+                    rightEdge - ScaledWindowIconsHeight,
+                    centerY - ScaledWindowIconsHeight / 2,
+                    ScaledWindowIconsHeight,
+                    ScaledWindowIconsHeight
                 );
                 rightEdge = themeRect.Left - spacing;
             }
@@ -1360,6 +1365,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme and Styling"
         public override void ApplyTheme()
         {
+            base.ApplyTheme();
             if (_currentTheme == null)
                 return;
 
@@ -1400,7 +1406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _textFont = BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
                     else if (_currentTheme.TitleMedium != null)
                         _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-                    _titleLabel.Font = _textFont;
+                    _titleLabel.TextFont = _textFont;
                 }
             }
 
@@ -1647,17 +1653,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize the menu items and prepare the popup
             menuDialog.ShowTitle = false;
 
-            // Calculate the size based on menu items
-            int popupWidth = menuDialog.GetMaxWidth(); ; // At least as wide as the button
-          //  int popupHeight = CurrentMenutems.Count * 25 + 10; // Rough height calculation
-            int neededHeight = menuDialog.GetMaxHeight();
-            menuDialog.Size = new Size(popupWidth, neededHeight);
+           
 
             // Calculate the position directly below the theme button
             Point screenLocation = this.PointToScreen(new Point(themeRect.Left, themeRect.Bottom + 2));
             menuDialog.StartPosition = FormStartPosition.Manual;
             menuDialog.Location = screenLocation;
-
+            menuDialog.SetSizeBasedonItems();
             // Use the proper ShowPopup method from BeepPopupForm that takes a Control as a trigger
             // This is crucial for the mouse event tracking to work correctly
             menuDialog.ShowPopup(this, screenLocation);

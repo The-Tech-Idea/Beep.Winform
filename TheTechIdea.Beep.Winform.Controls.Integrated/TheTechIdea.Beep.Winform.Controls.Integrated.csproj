@@ -18,6 +18,7 @@
 	  <Title>TheTechIdea.Beep.Winform.Controls.Integrated</Title>
 	  <Product>TheTechIdea.Beep.Winform.Controls.Integrated</Product>
 	  <AssemblyName>TheTechIdea.Beep.Winform.Controls.Integrated</AssemblyName>
+  
 	  <Version>1.0.1</Version>
 	  <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
@@ -40,7 +41,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.7" />
 		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.66" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.67" />
 	</ItemGroup>
 
 	<ItemGroup>

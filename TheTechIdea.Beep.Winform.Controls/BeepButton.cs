@@ -1,12 +1,14 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 using Timer = System.Windows.Forms.Timer;
 
 
@@ -551,7 +553,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsChild= false;
             // Initialize the popup form and beepListBox
             // 1) Create beepListBox
-
+           
             #endregion "Popup List Initialization"
             splashTimer = new Timer();
             splashTimer.Interval = 30; // Update every 30 ms (about 33 frames per second)
@@ -603,12 +605,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Close any existing popup before showing a new one
             ClosePopup();
-
+            Debug.WriteLine("1");
             menuDialog = new BeepPopupListForm(ListItems.ToList());
-           
+            Debug.WriteLine("1.1");
             menuDialog.Theme = Theme;
             menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
-
+            // Use a timer to call debug after form is fully rendered
+            Debug.WriteLine("1.2");
             // Use the synchronous ShowPopup method
             SimpleItem x = menuDialog.ShowPopup(Text, this, _beepPopupFormPosition);
             _isPopupOpen = true;
@@ -680,11 +683,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            // MUST call base.ApplyTheme() first to get the modern styling features
-            base.ApplyTheme();
+            // CRITICAL: Call base.ApplyTheme() first to ensure proper DPI scaling handling
+           // base.ApplyTheme();
 
             // Store whether colors should be from theme for later restoration
-            bool wasColorFromTheme = _isColorFromTheme;
             _isColorFromTheme = true;
 
             // Handle parent background inheritance for child controls
@@ -737,13 +739,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (UseThemeFont)
             {
                 // Get font from button style or fall back to default style
-                _textFont = _currentTheme.ButtonStyle != null
-                    ? BeepThemesManager.ToFont(_currentTheme.ButtonStyle)
-                    : new Font("Segoe UI", 9f);
+                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                    
 
-                Font = _textFont;
             }
-
+            SafeApplyFont(TextFont ?? _textFont);
+            
             // Apply theme to child image control
             if (beepImage != null)
             {
@@ -765,11 +766,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 menuDialog.Theme = Theme;
             }
 
-            // Restore the user's preference for color source
-            _isColorFromTheme = wasColorFromTheme;
-
-            // Force redraw with new theme
-            Invalidate();
+            // Force redraw with new theme - base.ApplyTheme() already calls Invalidate()
+            // so we don't need to call it again to avoid double invalidation
         }
         public void ApplyThemeToSvg()
         {
@@ -796,39 +794,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize the layout of the control
            
         }
-        protected override void OnLayout(LayoutEventArgs e)
-        {
-            base.OnLayout(e);
-
-            if (_autoSize)
-            {
-                // Compute what size we *should* be.
-                Size preferred = GetPreferredSize(Size.Empty);
-
-                // Update the actual Value if it differs
-                if (Size != preferred)
-                {
-                    this.Size = preferred;
-                }
-            }
-        }
-        protected override void OnSizeChanged(EventArgs e)
-        {
-            base.OnSizeChanged(e);
-            if (_autoSize)
-            {
-                // Compute what size we *should* be.
-                Size preferred = GetPreferredSize(Size.Empty);
-
-                // Update the actual Value if it differs
-                if (Size != preferred)
-                {
-                    this.Size = preferred;
-                }
-            }
-          
-            UpdateDrawingRect();
-        }
+      
+     
         protected override void OnPaintBackground(PaintEventArgs pevent)
         {
             // Prevent default background painting.
@@ -846,41 +813,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void DrawContent(Graphics g)
         {
-            // Set high quality rendering for modern appearance
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.CompositingQuality = CompositingQuality.HighQuality;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
+            base.DrawContent(g);
+            
+           
+            g.ResetTransform();
             // Let the base BeepControl handle modern styling (gradients, shadows, rounded corners)
             // This draws the beautiful gradient background, shadows, and rounded corners
-            base.DrawContent(g);
+           
 
-            UpdateDrawingRect();
+        
             contentRect = DrawingRect;
-
+            DrawImageAndText(g);
             // Draw button content (image and text) over the styled background
-            switch (ButtonType)
-            {
-                case ButtonType.Normal:
-                    // Normal button with image and text
-                    DrawImageAndText(g);
-                    break;
-                case ButtonType.AnimatedArrow:
-                    // Image-only button
-                    DrawButtonAndImage1(g);
-                    break;
-                case ButtonType.ExpandingIcon:
-                    DrawButtonAndImage2(g);
-                    // Text-only button
-                    break;
-                    case ButtonType.SlidingArrow:
-                    DrawButtonAndImage3(g);
-                    break;
-                    case ButtonType.SlidingBackground:
-                    DrawButtonAndImage4(g);
-                    break;
+            //switch (ButtonType)
+            //{
+            //    case ButtonType.Normal:
+            //        // Normal button with image and text
+            //        DrawImageAndText(g);
+            //        break;
+            //    case ButtonType.AnimatedArrow:
+            //        // Image-only button
+            //        DrawButtonAndImage1(g);
+            //        break;
+            //    case ButtonType.ExpandingIcon:
+            //        DrawButtonAndImage2(g);
+            //        // Text-only button
+            //        break;
+            //        case ButtonType.SlidingArrow:
+            //        DrawButtonAndImage3(g);
+            //        break;
+            //        case ButtonType.SlidingBackground:
+            //        DrawButtonAndImage4(g);
+            //        break;
 
-            }
+            //}
             
 
             // Draw splash effect if active (Material Design ripple) - AFTER base styling
@@ -891,6 +857,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply very subtle state overlays for better visual feedback (much more subtle)
             DrawStateOverlays(g);
+            g.ResetClip();
         }
 
         private void DrawSplashEffect(Graphics g)
@@ -1259,7 +1226,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 base.BadgeText = value;
                 UpdateRegionForBadge();
                 // tell parent to repaint
-                if (Parent is BeepControl bc) bc.Invalidate(this.Bounds);
+                //if (Parent is BeepControl bc) bc.Invalidate(this.Bounds);
             }
         }
         // 2) Whenever our handle is created or resized, recalc the hole

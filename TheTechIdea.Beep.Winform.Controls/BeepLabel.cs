@@ -543,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                                FontStyle.Regular);
                     }
                 }
-                Font = _textFont;
+                SafeApplyFont(TextFont ?? _textFont);
                 ApplyThemeToSvg();
                 //Invalidate();
                 //Refresh();

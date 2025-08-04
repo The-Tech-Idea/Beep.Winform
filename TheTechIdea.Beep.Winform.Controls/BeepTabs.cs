@@ -21,6 +21,47 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A fully custom tab control with themed headers and SVG close buttons.")]
     public class BeepTabs : TabControl
     {
+
+        #region "DPI Scaling Support"
+        protected float DpiScaleFactor { get; private set; } = 1.0f;
+
+        protected virtual void UpdateDpiScaling(Graphics g)
+        {
+            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(g);
+        }
+
+        protected int ScaleValue(int value)
+        {
+            return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
+        }
+
+        protected Size ScaleSize(Size size)
+        {
+            return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
+        }
+
+        protected Font ScaleFont(Font font)
+        {
+            return DpiScalingHelper.ScaleFont(font, DpiScaleFactor);
+        }
+
+        // Add DPI change handling
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+
+            // Update DPI scaling
+            using (Graphics g = CreateGraphics())
+            {
+                UpdateDpiScaling(g);
+            }
+
+         
+
+            // Force redraw with new DPI scaling
+            Invalidate();
+        }
+        #endregion
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
        
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
@@ -105,6 +146,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        // Replace hardcoded constants with DPI-aware properties
+        private int GetScaledCloseButtonSize() => ScaleValue(16);
+        private int GetScaledCloseButtonPadding() => ScaleValue(8);
+        private int GetScaledTextPadding() => ScaleValue(12);
+        private int GetScaledMinTabWidth() => ScaleValue(60);
+        private int GetScaledMaxTabWidth() => ScaleValue(250);
+        private int GetScaledMinTabHeight() => ScaleValue(60);
+        private int GetScaledMaxTabHeight() => ScaleValue(250);
+
+        // Keep original constants for reference
         private const int CloseButtonSize = 16;
         private const int CloseButtonPadding = 8;
         private const int TextPadding = 12;
@@ -144,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg",
                 ScaleMode = ImageScaleMode.KeepAspectRatio,
                 ApplyThemeOnImage = false,
-                Size = new Size(CloseButtonSize, CloseButtonSize)
+                Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize())
             };
 
             this.DrawItem += BeepTabs_DrawItem;
@@ -237,6 +288,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            // Update DPI scaling first
+          //  UpdateDpiScaling(e.Graphics);
+            
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             Color backgroundColor = Parent?.BackColor ?? BackColor;
@@ -270,9 +324,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-
+       
         private float[] CalculateTabSizes(Graphics g, bool vertical)
         {
+            // Update DPI scaling first
+            UpdateDpiScaling(g);
+            
             float[] sizes = new float[TabCount];
             using (Font font = new Font(this.Font, FontStyle.Regular))
             {
@@ -282,13 +339,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     SizeF textSize = g.MeasureString(text, font);
                     if (vertical)
                     {
-                        float height = textSize.Width + (TextPadding * 2);
-                        sizes[i] = Math.Max(MinTabHeight, Math.Min(MaxTabHeight, height));
+                        float height = textSize.Width + (GetScaledTextPadding() * 2);
+                        sizes[i] = Math.Max(GetScaledMinTabHeight(), Math.Min(GetScaledMaxTabHeight(), height));
                     }
                     else
                     {
-                        float width = textSize.Width + (TextPadding * 2) + CloseButtonSize + (CloseButtonPadding * 2);
-                        sizes[i] = Math.Max(MinTabWidth, Math.Min(MaxTabWidth, width));
+                        float width = textSize.Width + (GetScaledTextPadding() * 2) + GetScaledCloseButtonSize() + (GetScaledCloseButtonPadding() * 2);
+                        sizes[i] = Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), width));
                     }
                    MiscFunctions.SendLog($"Tab {i} size: {sizes[i]} (Text: {text})");
                 }
@@ -393,7 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             g.SetClip(tabRect, CombineMode.Replace);
 
-            using (GraphicsPath path = GetRoundedRect(tabRect, 4))
+            using (GraphicsPath path = GetRoundedRect(tabRect, ScaleValue(4)))
             using (SolidBrush brush = new SolidBrush(backgroundColor))
             {
                 g.FillPath(brush, path);
@@ -406,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!vertical)
                 {
                     SizeF textSize = g.MeasureString(text, font);
-                    PointF textPoint = new PointF(tabRect.X + TextPadding, tabRect.Y + (tabRect.Height - textSize.Height) / 2);
+                    PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) / 2);
                     g.DrawString(text, font, textBrush, textPoint);
                 }
                 else
@@ -475,8 +532,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Custom drawing handled in OnPaint
         }
-
-     
 
         private void BeepTabs_DragEnter(object sender, DragEventArgs e)
         {
@@ -649,6 +704,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public virtual void ApplyTheme()
         {
+          
             if (_currentTheme == null)
             {
                MiscFunctions.SendLog("Warning: _currentTheme is null, falling back to default colors.");
@@ -677,6 +733,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 if (item is IBeepUIComponent bpItem)
                                 {
                                     bpItem.Theme = Theme;
+                                    
                                 }
                             }
                         }

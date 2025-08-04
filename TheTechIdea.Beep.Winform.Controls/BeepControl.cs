@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
@@ -23,9 +24,32 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Control")]
     [Description("A control that provides a base for all Beep UI components.")]
     public class BeepControl : ContainerControl, IBeepUIComponent,IDisposable
-    {
+    {  
+        #region "DPI Scaling Support"
+        protected float DpiScaleFactor { get; private set; } = 1.0f;
+
+        protected virtual void UpdateDpiScaling(Graphics g)
+        {
+            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(g);
+        }
+
+        protected int ScaleValue(int value)
+        {
+            return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
+        }
+
+        protected Size ScaleSize(Size size)
+        {
+            return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
+        }
+
+        protected Font ScaleFont(Font font)
+        {
+            return DpiScalingHelper.ScaleFont(font, DpiScaleFactor);
+        }
+#endregion
         #region "Delegates"
-       
+
         #endregion "Delegates"
         #region "protected Properties"
         Point originalLocation;
@@ -2465,7 +2489,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected virtual void DrawModernGradient(Graphics g, Color baseColor)
         {
             Rectangle drawRect = DrawingRect;
-
+            if (DrawingRect.Width == 0 || DrawingRect.Height == 0) return;
             switch (ModernGradientType)
             {
                 case ModernGradientType.Subtle:
@@ -2528,7 +2552,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Create gradient with custom angle
             float angleRadians = (float)(GradientAngle * Math.PI / 180f);
-
+           
             using (LinearGradientBrush gradientBrush = CreateAngledGradientBrush(rect, color1, color2, angleRadians))
             {
                 // Add sophisticated color blend for smooth transitions
@@ -4618,7 +4642,62 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
+        #region FontSafty
+        // Add this method to the BeepControl class in the "Theme" region
 
+        /// <summary>
+        /// Safely applies a font without causing control positioning issues
+        /// </summary>
+        /// <param name="newFont">The new font to apply</param>
+        /// <param name="preserveLocation">Whether to preserve the control's location</param>
+        protected virtual void SafeApplyFont(Font newFont, bool preserveLocation = true)
+        {
+            if (newFont == null) return;
+
+            Point originalLocation = Point.Empty;
+            Size originalSize = Size.Empty;
+            if (preserveLocation)
+            {
+                originalLocation = this.Location;
+                originalSize = this.Size;
+            }
+
+            // Apply DPI scaling to the font if needed
+            Font scaledFont = newFont;
+            if (DpiScaleFactor != 1.0f)
+            {
+                scaledFont = ScaleFont(newFont);
+            }
+
+            // Use SuspendLayout/ResumeLayout to prevent positioning issues
+            SuspendLayout();
+            try
+            {
+                // Set the font
+                Font = scaledFont;
+
+                // Restore location immediately if requested
+                if (preserveLocation)
+                {
+                    this.Location = originalLocation;
+                    this.Size = originalSize; // Restore size as well
+                }
+            }
+            finally
+            {
+                ResumeLayout(false);
+            }
+
+            // Force final location restore for extra safety
+            if (preserveLocation)
+            {
+                this.Location = originalLocation;
+            }
+        }
+
+        /// <summary>
+        
+        #endregion 
         #region "Dispose"
         protected override void Dispose(bool disposing)
         {

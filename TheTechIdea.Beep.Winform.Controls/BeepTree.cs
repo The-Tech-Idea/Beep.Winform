@@ -56,7 +56,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepMouseEventArgs> ShowMenu;
         #endregion
         #region "Properties"
-         int boxsize = 14;
+
+        // With these:
+        // With these:
+        private int GetScaledBoxSize() => ScaleValue(boxsize);
+        private int GetScaledImageSize() => ScaleValue(imagesize);
+        private int GetScaledMinRowHeight() => ScaleValue(24);
+        private int GetScaledIndentWidth() => ScaleValue(16);
+        private int GetScaledVerticalPadding() => ScaleValue(4);
+       // private int GetScaledMinRowHeight() = 24;
+      //  private int GetScaledIndentWidth() = 16;
+      //  private int GetScaledVerticalPadding() = 4;
+        int boxsize = 14;
         int imagesize = 20;
         private SimpleItem _lastHoveredItem = null;
         private Rectangle _lastHoveredRect = Rectangle.Empty;
@@ -253,9 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _totalContentHeight = 0;
         private List<SimpleItem> _nodes = new List<SimpleItem>();
         private List<NodeInfo> _visibleNodes = new List<NodeInfo>();
-        private int _minRowHeight = 24;
-        private int _indentWidth = 16;
-        private int _verticalPadding = 4;
+      
 
         // Renderers
         private BeepButton _toggleRenderer =new BeepButton();
@@ -335,12 +344,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (var root in _nodes) Recurse(root, 0);
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-         
-           
-        }
+        
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
@@ -350,7 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Update scrollbars based on current content
             UpdateScrollBars();
-
+        //    ApplyTheme();
             int y = 0;
             foreach (var root in _nodes)
             {
@@ -368,10 +372,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Adjust for scrolling
             int adjustedY = y - _yOffset;
-            int adjustedX = level * _indentWidth - _xOffset;
+            int adjustedX = level * GetScaledIndentWidth() - _xOffset;
 
             // Skip drawing if the node is offscreen
-            int rowHeight = Math.Max(_minRowHeight, _button.GetPreferredSize(Size.Empty).Height + 2 * _verticalPadding);
+            int rowHeight = Math.Max(GetScaledMinRowHeight(), _button.GetPreferredSize(Size.Empty).Height + 2 * GetScaledVerticalPadding());
             if (adjustedY + rowHeight < 0 || adjustedY > ClientRectangle.Height)
             {
                 // Still increment y for future nodes
@@ -389,12 +393,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Measure text
-            Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
+            Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.TreeNodeUnSelectedFont) : (_useScaledfont ? Font : _textFont);
             string text = item.Text;
             _button.Text = text;
             _button.Size = _button.GetPreferredSize(Size.Empty);
             Size textSize = _button.Size;
-            rowHeight = Math.Max(_minRowHeight, Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * _verticalPadding);
+            rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * GetScaledVerticalPadding());
 
             // Use adjusted coordinates for drawing
             Rectangle rowRect = new Rectangle(0, DrawingRect.Top + adjustedY, DrawingRect.Width, rowHeight);
@@ -454,13 +458,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Text
             int textX = iconX + imagesize + 8;
-            Rectangle textRect = new Rectangle(textX, adjustedY + _verticalPadding, ClientSize.Width - textX, textSize.Height);
+            Rectangle textRect = new Rectangle(textX, adjustedY + GetScaledVerticalPadding(), ClientSize.Width - textX, textSize.Height);
             _button.Text = text;
             _button.Size = textRect.Size;
             _button.Location = textRect.Location;
             _button.TextAlign = ContentAlignment.MiddleLeft;
             _button.Size = _button.GetPreferredSize(Size.Empty);
-            textRect = new Rectangle(textX, adjustedY + _verticalPadding, _button.Size.Width, _button.Size.Height);
+            textRect = new Rectangle(textX, adjustedY + GetScaledVerticalPadding(), _button.Size.Width, _button.Size.Height);
 
             if (item == _lastHoveredItem && !item.IsSelected)
             {
@@ -490,7 +494,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Advance y position for next node
             y += rowHeight;
-
+           
             // Draw children
             if (item.IsExpanded && item.Children?.Count > 0)
             {
@@ -735,7 +739,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+           base.ApplyTheme();
             if (IsChild)
             {
                 ParentBackColor = Parent.BackColor;
@@ -750,17 +754,17 @@ namespace TheTechIdea.Beep.Winform.Controls
            
             if (UseThemeFont)
             {
-                 Font =FontListHelper.CreateFontFromTypography(_currentTheme.LabelSmall);
-                _textFont = Font;
-                _button.Font = Font;
+                _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.TreeNodeUnSelectedFont);
+                
+                _button.TextFont = _textFont;
                 _button.UseThemeFont = UseThemeFont;
             }
             else
             {
-                Font = _textFont;
+              
                 _button.TextFont = Font;
             }
-
+            SafeApplyFont(TextFont ?? _textFont);
             if (UseScaledFont)
             {
                 _button.UseScaledFont = UseScaledFont;
@@ -772,7 +776,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _iconRenderer.Theme = Theme;
             _iconRenderer.BackColor = BackColor;
              ForeColor = _currentTheme.TreeForeColor;
-  //          _button.Theme = Theme;
+  
             _button.IsColorFromTheme=false;
             _button.BackColor = BackColor;
             _button.ForeColor = _currentTheme.TreeForeColor;
@@ -781,6 +785,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _button.BorderColor = _currentTheme.TreeNodeSelectedBackColor;
             _button.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
             _button.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
+            _button.TextFont = _textFont;
             _verticalScrollBar.Theme = Theme;
             _horizontalScrollBar.Theme = Theme;
             Invalidate();
@@ -992,7 +997,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     found = true;
                     break;
                 }
-                yPos += vNode.RowHeight > 0 ? vNode.RowHeight : _minRowHeight;
+                yPos += vNode.RowHeight > 0 ? vNode.RowHeight : GetScaledMinRowHeight();
             }
 
             if (found)
@@ -1155,7 +1160,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     AutoScrollPosition = new Point(0, y);
                     break;
                 }
-                y += node.RowHeight > 0 ? node.RowHeight : _minRowHeight;
+                y += node.RowHeight > 0 ? node.RowHeight : GetScaledMinRowHeight();
             }
 
             Invalidate();
@@ -1212,7 +1217,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             menuDialog.SelectedItemChanged += button_SelectedItemChanged;
 
             // Use the synchronous ShowPopup method
-            SimpleItem x = menuDialog.ShowPopup(Text, this,new Point(10,ClickedNode.Y), BeepPopupFormPosition.Right);
+            SimpleItem x = menuDialog.ShowPopup(Text, this,new Point(10,ClickedNode.Y), BeepPopupFormPosition.Right,false,true);
             _isPopupOpen = true;
             Invalidate();
         }
@@ -1582,7 +1587,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _button.Size = _button.GetPreferredSize(Size.Empty);
                 Size textSize = _button.Size;
 
-                int rowHeight = Math.Max(_minRowHeight, Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * _verticalPadding);
+                int rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * GetScaledVerticalPadding());
                 totalHeight += rowHeight;
             }
 
@@ -1601,7 +1606,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Calculate content width for this row (similar to DrawNodeRecursive)
                 int level = node.Level;
-                int baseIndent = level * _indentWidth;
+                int baseIndent = level * GetScaledIndentWidth();
 
                 _button.Text = node.Item.Text ?? string.Empty;
                 _button.Size = _button.GetPreferredSize(Size.Empty);

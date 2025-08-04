@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected int _resizeMargin = 8; // Margin for resizing
         protected int _borderRadius = 0;
-        protected int _borderThickness =1; // Thickness of the custom border
+        protected int _borderThickness = 1; // Thickness of the custom border
         private Color _borderColor = Color.Red; // Default border color
         private const int ButtonSize = 30;
         private Point lastMousePosition;
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //private Point dragStartFormPoint;
         //private Point resizeStartCursorPoint;
         //private Size resizeStartFormSize;
-       // private readonly IBeepService beepservices;
+        // private readonly IBeepService beepservices;
         private bool ishandled = false;
         private bool _inpopupmode = false;
         private string _title = "BeepiForm";
@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //private Panel contentPanel;
 
 
-  
+
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private bool _applythemetochilds = true;
 
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<FormClosingEventArgs> PreClose;
 
         // Message filter for global mouse movements
-       // private MouseMessageFilter _mouseMessageFilter;
+        // private MouseMessageFilter _mouseMessageFilter;
         #endregion "Fields"
         #region "Properties"
         [Browsable(true)]
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int BorderThickness
         {
             get { return _borderThickness; }
-            set { _borderThickness = value;Invalidate(); }
+            set { _borderThickness = value; Invalidate(); }
         }
         [Browsable(true)]
         [Category("Appearance")]
@@ -111,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _theme = value;
                     _currentTheme = BeepThemesManager.GetTheme(value);
                     //beepuiManager1.Theme = value;
-                     ApplyTheme();
+                    ApplyTheme();
                 }
             }
         }
@@ -128,7 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate(); // Redraw the form when the color changes
             }
         }
-  
+
         #endregion "Properties"
         #region "Constructors"
         //public BeepiForm(IBeepService beepService)
@@ -151,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //  //  this.Padding = new Padding(_borderThickness);
 
         //    // Create and configure the inner content panel.
-           
+
 
         //}
         public BeepiForm()
@@ -159,16 +159,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             // //Debug.WriteLine("BeepiForm Constructor 2");
             InitializeComponent();
             ishandled = false;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor, true);
-            //   SetStyle(ControlStyles.SupportsTransparentBackColor, true); // Ensure we handle transparent backcolors
-            UpdateStyles();
-
             FormBorderStyle = FormBorderStyle.None;
+
+            // CRITICAL FIX: Re-enable these SetStyle calls for proper resizing behavior
+            SetStyle(ControlStyles.UserPaint |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.SupportsTransparentBackColor, true);
+            UpdateStyles();
 
             // Enable double buffering at the form level
             this.SetStyle(ControlStyles.DoubleBuffer, true);
         
-           
+        FormBorderStyle = FormBorderStyle.None;
+
+
+
+        }
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            base.SetBoundsCore(x, y, width, height, specified);
+
+            // Force layout update for all docked controls after bounds change
+            if ((specified & BoundsSpecified.Size) != 0)
+            {
+                PerformLayout();
+            }
         }
         protected override void OnActivated(EventArgs e)
         {
@@ -182,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnControlAdded(e);
             //  // Console.WriteLine($"1 Control Added {e.Control.Text}");
-          //  AdjustControls();
+            //  AdjustControls();
         }
         protected override void InitLayout()
         {
@@ -204,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnShown(e);
             beepuiManager1.Initialize(this); // Explicitly initialize the manager with the form
 
-           //if (InvokeRequired)
+            //if (InvokeRequired)
             //{
             //    Invoke(new Action(() => Theme = BeepThemesManager.CurrentTheme));
             //}
@@ -220,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 SetProcessDPIAware();
             }
-          //  Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
+            //  Application.AddMessageFilter(_mouseMessageFilter);  // ✅ Hook into message loop
 
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -231,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 using (Pen borderPen = new Pen(_borderColor, _borderThickness))
                 {
-                    Rectangle rect = new Rectangle(0, 0, Width - 1, Height - 1);
+                    Rectangle rect = new Rectangle(0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
                     if (_borderRadius > 0)
                     {
                         e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
@@ -249,8 +266,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            if (!_inMoveOrResize)
-                UpdateFormRegion();
+            //if (!_inMoveOrResize)
+            //    UpdateFormRegion();
         }
 
         private void UpdateFormRegion()
@@ -258,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_inMoveOrResize) return;
             if (_borderRadius > 0)
             {
-                Rectangle rect = new Rectangle(0, 0, Width, Height);
+                Rectangle rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
                 using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
                     this.Region = new Region(path);
             }
@@ -274,7 +291,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_borderThickness > 0)
             {
                 Padding = new Padding(_borderThickness);
-              //  AdjustControls();
+            }
+
+            // Ensure docked controls are properly positioned
+            foreach (Control control in Controls)
+            {
+                if (control.Dock != DockStyle.None)
+                {
+                    // Force the control to recalculate its bounds
+                    control.PerformLayout();
+                }
             }
         }
 
@@ -331,7 +357,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         #region Window Resizing
-      
+
         protected override void OnMouseLeave(EventArgs e)
         {
             base.OnMouseLeave(e);
@@ -368,11 +394,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseUp(e);
             // Remove custom handling
-     
+
             Cursor = Cursors.Default;
         }
         // Override Invalidate to respect the suppression flag
-      
+
         //private bool IsNearEdge(Point location)
         //{
         //    bool nearEdge = location.X >= ClientSize.Width - _resizeMargin || location.Y >= ClientSize.Height - _resizeMargin;
@@ -414,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    _mouseMessageFilter = null;
             //}
         }
-     
+
 
         #endregion
         #region Theme Application
@@ -422,12 +448,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
 
 
-                  beepuiManager1.Theme = Theme;
+            beepuiManager1.Theme = Theme;
             //  BeepTheme theme = BeepThemesManager.GetTheme(beepuiManager1.Theme);
             BackColor = _currentTheme.BackColor;
             //beepPanel1.Theme = beepuiManager1.Theme;
             BorderColor = _currentTheme.BorderColor;
-           
+
             Invalidate();
         }
         #endregion
@@ -442,7 +468,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region Rounded Corners and DPI Awareness
-    
+
         /// Creates a GraphicsPath representing a rounded rectangle.
         /// </summary>
         /// <param name="rect">The rectangle bounds.</param>
@@ -487,7 +513,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             path.CloseFigure();
             return path;
         }
-     
+
         public virtual void AdjustControls()
         {
             Rectangle adjustedClientArea = GetAdjustedClientRectangle();
@@ -556,8 +582,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public Rectangle GetAdjustedClientRectangle()
         {
-            int adjustedWidth = Math.Max(0, Width - (2 * _borderThickness));
-            int adjustedHeight = Math.Max(0, Height - (2 * _borderThickness));
+            int adjustedWidth = Math.Max(0, ClientSize.Width - (2 * _borderThickness));
+            int adjustedHeight = Math.Max(0, ClientSize.Height - (2 * _borderThickness));
 
             return new Rectangle(
                 0,
@@ -567,7 +593,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             );
         }
 
-     
+
         protected new Rectangle DisplayRectangle
         {
             get
@@ -742,5 +768,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
     }
-   
+
 }

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel;
-
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Vis.Modules;
+using System.Diagnostics;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -157,48 +157,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.IsBorderAffectedByTheme = false;
             _beepListBox.ShowAllBorders = false;
             _beepListBox.IsFrameless = true;
-            _beepListBox.Invalidate();
-            int _maxListHeight = Width;
-            int _maxListWidth = 50;
-
-            //    InitListbox();
-            // 2) Create a borderless popup form
-            //  _popupForm = new BeepPopupForm1();
 
             _beepListBox.ShowHilightBox = false;
-            _beepListBox.Dock = DockStyle.None;
-            //using (BeepButton btn = new BeepButton())
-            //{
-            //    if (!_beepListBox.UseThemeFont)
-            //    {
-            //        btn.TextFont = _listbuttontextFont;
-            //    }else
-            //        btn.TextFont = _beepListBox.Font;
+            _beepListBox.MenuItemHeight = Math.Max(Menuitemheight, 20); // Ensure minimum height
 
-            //    Menuitemheight = _beepListBox.GetPreferredSize(Value.Empty).Height;
-            //}
-            _beepListBox.MenuItemHeight = Menuitemheight;
-
-        
-
+            // Get the actual needed height from BeepListBox
             int neededHeight = _beepListBox.GetMaxHeight();
-            int finalHeight = Math.Min(neededHeight, _maxListHeight);
-            // possibly also compute width
-            // get max width of all items
+
+            // Calculate max width with proper scaling
+            int calculatedMaxWidth = 150; // Minimum width
             foreach (var item in items)
             {
-                _maxListWidth = Math.Max(_maxListWidth, TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width);
-
+                if (!string.IsNullOrEmpty(item.Text))
+                {
+                    int textWidth = TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width;
+                    calculatedMaxWidth = Math.Max(calculatedMaxWidth, textWidth + 40); // Add padding
+                }
             }
-            int finalWidth = Math.Min(Width, _maxListWidth + 10);
 
-            // Position popup just below the main control
+            // Ensure reasonable bounds - allow much larger height or no limit
+            calculatedMaxWidth = Math.Min(calculatedMaxWidth, 400); // Max width
+            // Remove the height cap to allow all items to be displayed
+            // neededHeight = Math.Min(neededHeight, 300); // <- REMOVED: This was preventing all items from showing
+            neededHeight = Math.Max(neededHeight, 60);  // Keep minimum height
 
-           
-            _beepListBox.ShowAllBorders = false;
-
-             Size = new Size(finalWidth, neededHeight);
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
+            // Set the form size
+            Size = new Size(calculatedMaxWidth, neededHeight);
+            _beepListBox.Dock = DockStyle.Fill;
+            _beepListBox.Invalidate();
         }
         public void Filter(string searchText)
         {
@@ -277,97 +263,86 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_beepListBox == null) return -1;
             return _beepListBox.GetMaxWidth();
         }
+        public void SetSizeBasedonItems()
+        {
+            if (_beepListBox.ListItems == null) return ;
+            if (_beepListBox.ListItems.Count == 0) return ;
+
+          
+            _beepListBox.TitleText = Title;
+
+            // Get the actual needed height
+            int neededHeight = _beepListBox.GetMaxHeight();
+
+            // Calculate max width with proper bounds
+            int calculatedMaxWidth = 150;
+            foreach (var item in _beepListBox.ListItems)
+            {
+                if (!string.IsNullOrEmpty(item.Text))
+                {
+                    int textWidth = TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width;
+                    calculatedMaxWidth = Math.Max(calculatedMaxWidth, textWidth + 40);
+                }
+            }
+
+            // Apply reasonable bounds
+            calculatedMaxWidth = Math.Min(calculatedMaxWidth, 400);
+            //calculatedMaxWidth = Math.Max(calculatedMaxWidth, triggerControl.Width);
+            // Remove the height cap to allow all items to be displayed
+            // neededHeight = Math.Min(neededHeight, 300); // <- REMOVED: This was limiting the popup height
+            neededHeight = Math.Max(neededHeight, 60); // Keep minimum height
+
+            Size = new Size(calculatedMaxWidth, neededHeight);
+            _beepListBox.Dock = DockStyle.Fill;
+            _beepListBox.Invalidate();
+        }
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)
         {
             if (_beepListBox.ListItems == null) return null;
             if (_beepListBox.ListItems.Count == 0) return null;
+
             ShowTitle = showtitle;
             _beepListBox.TitleText = Title;
-            int neededHeight = _beepListBox.GetMaxHeight();
-            int finalHeight = Math.Min(neededHeight, _maxListHeight);
-            // possibly also compute width
-            // get max width of all items
-            foreach (var item in _beepListBox.ListItems)
-            {
-                _maxListWidth = Math.Max(_maxListWidth, TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width);
 
-            }
-            int finalWidth = Math.Min(Width, _maxListWidth + 10);
-
-            if (finalWidth < triggerControl.Width)
-            {
-                finalWidth = triggerControl.Width;
-            }
-            Size = new Size(finalWidth, neededHeight);
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _beepListBox.Invalidate();
+            SetSizeBasedonItems();
             base.ShowPopup(triggerControl, position);
-            
+            Debug.WriteLine("3");
+            // _beepListBox.DebugHeightCalculation(); // Enable debug mode for height calculation
             return SelectedItem;
-
         }
-        public SimpleItem ShowPopup(string Title, Control triggerControl, Point pointAdjusment, BeepPopupFormPosition position, bool showtitle = false)
+
+        public SimpleItem ShowPopup(string Title, Control triggerControl, Point pointAdjustment, BeepPopupFormPosition position, bool showtitle = false,bool isoffset=false)
         {
+            if (_beepListBox.ListItems == null) return null;
+            if (_beepListBox.ListItems.Count == 0) return null;
+
             ShowTitle = showtitle;
             _beepListBox.TitleText = Title;
-            int neededHeight = _beepListBox.GetMaxHeight();
-            int finalHeight = Math.Min(neededHeight, _maxListHeight);
-            // possibly also compute width
-            // get max width of all items
-            foreach (var item in _beepListBox.ListItems)
+            SetSizeBasedonItems();
+            if (isoffset)
             {
-                _maxListWidth = Math.Max(_maxListWidth, TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width);
-
+                base.ShowPopup(triggerControl, position, pointAdjustment);
             }
-            int finalWidth = Math.Min(Width, _maxListWidth + 10);
-            if (finalWidth < triggerControl.Width)
+            else
             {
-                finalWidth = triggerControl.Width;
+                base.ShowPopup(triggerControl, position);
             }
-            Size = new Size(finalWidth, neededHeight);
-            _beepListBox.Dock = DockStyle.Fill; // Manually size and position
-            _beepListBox.Invalidate();
-            base.ShowPopup(triggerControl, position, pointAdjusment);
-
+           
+           
             return SelectedItem;
-
         }
-        public SimpleItem ShowPopup(string Title, Point anchorPoint,  BeepPopupFormPosition position, bool showtitle = false)
+       
+        public SimpleItem ShowPopup(string Title, Point anchorPoint, BeepPopupFormPosition position, bool showtitle = false)
         {
+            if (_beepListBox.ListItems == null) return null;
+            if (_beepListBox.ListItems.Count == 0) return null;
+
             ShowTitle = showtitle;
-            _beepListBox.TitleText = Title;
-
-            // Calculate the size of the popup
-            int neededHeight = _beepListBox.GetMaxHeight();
-            int finalHeight = Math.Min(neededHeight, _maxListHeight);
-
-            // Calculate max width of items
-            foreach (var item in _beepListBox.ListItems)
-            {
-                _maxListWidth = Math.Max(_maxListWidth, TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width);
-            }
-
-            int finalWidth = Math.Min(Width, _maxListWidth + 10);
-
-            // Ensure the popup width is at least as wide as the trigger area
-            if (finalWidth < Width)
-            {
-                finalWidth = Width;
-            }
-
-            Size = new Size(finalWidth, neededHeight);
-            _beepListBox.Dock = DockStyle.Fill; // Fill the popup
-
-            // Adjust position based on alignment and adjustment point
-            Point popupLocation =anchorPoint;
-
-            // Set the location and show the popup
-            Location = popupLocation;
-            Show(); // Config the popup (or ShowDialog if modal behavior is required)
-
+            SetSizeBasedonItems();
+            Show();
+           // _beepListBox.DebugHeightCalculation(); // Enable debug mode for height calculation
             return SelectedItem;
         }
-
         public override void ApplyTheme()
         {
             if(Theme == null)

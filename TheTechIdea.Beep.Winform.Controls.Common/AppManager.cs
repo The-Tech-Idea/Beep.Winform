@@ -773,9 +773,37 @@ namespace TheTechIdea.Beep.Desktop.Common
                 ApplyTheme();
                 CloseWaitForm();
                 RoutingManager.DisplayContainer= Container;
-                ShowPopup(MainDisplay);
-                 
-                
+               // ShowPopup(MainDisplay);
+                // !! CRITICAL FIX: Don't use BeepServices.ShowHome() - create main form properly
+                try
+                {
+                    // Get the main form from the routing manager
+                    var mainForm = RoutingManager.GetAddin("MainFrm") as Form;
+
+                    if (mainForm != null)
+                    {
+                        // Apply theme before showing
+                        MiscFunctions.SetThemePropertyinControlifexist(mainForm, BeepServices.AppManager.Theme);
+
+                        // Use proper Application.Run with the main form
+                        Application.Run(mainForm);
+                    }
+                    else
+                    {
+                        // Fallback - create a simple form if MainFrm is not found
+                        MessageBox.Show("Could not load main form. Please check your configuration.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error starting application: {ex.Message}", "Startup Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    // Dispose services
+                    BeepServices.DisposeServices();
+                }
+
             }
             catch (Exception ex)
             {

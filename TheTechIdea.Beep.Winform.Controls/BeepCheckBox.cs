@@ -2,6 +2,7 @@
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -96,6 +97,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _hideText = false;
         // Declare the StateChanged event
         public event EventHandler? StateChanged;
+        private Font _textFont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font displayed in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TextFont
+        {
+            get => _textFont;
+            set
+            {
+
+                _textFont = value;
+
+                Font = _textFont;
+                UseThemeFont = false;
+                Invalidate();
+
+
+            }
+        }
         public override string Text { get => base.Text; set { base.Text = value; } }
 
         [Category("Appearance")]
@@ -365,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int checkBoxSize = Math.Min(CheckBoxSize, Math.Min(rectangle.Width - Padding.Horizontal, rectangle.Height - Padding.Vertical));
             Rectangle checkBoxRect;
             Rectangle textRect = Rectangle.Empty;
-            Size textSize = HideText || string.IsNullOrEmpty(Text) ? Size.Empty : TextRenderer.MeasureText(Text, Font);
+            Size textSize = HideText || string.IsNullOrEmpty(Text) ? Size.Empty : TextRenderer.MeasureText(Text, TextFont);
 
             if (HideText)
             {
@@ -449,21 +471,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (!HideText && !string.IsNullOrEmpty(Text))
             {
-                DrawAlignedText(graphics, Text, Font, ForeColor, textRect);
+                DrawAlignedText(graphics, Text, TextFont, ForeColor, textRect);
             }
         }
 
 
-        protected override void OnPaint(PaintEventArgs pe)
-        {
-            base.OnPaint(pe);
-            pe.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        }
+       
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
-
             UpdateDrawingRect();
+            base.DrawContent(g);
             Draw(g, DrawingRect);
         }
         private Rectangle GetCheckBoxRectangle(Rectangle rectangle)
@@ -686,6 +703,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 ForeColor = _currentTheme.CheckBoxForeColor;
                 BackColor = _currentTheme.CheckBoxBackColor;
+                // Apply font from theme if configured to use theme fonts
+                if (UseThemeFont)
+                {
+                    // Get font from button style or fall back to default style
+                    _textFont = _currentTheme.ButtonStyle != null
+                        ? BeepThemesManager.ToFont(_currentTheme.ButtonStyle)
+                        : new Font("Segoe UI", 9f);
+
+                    
+                }
+                SafeApplyFont(TextFont ?? _textFont);
                 Invalidate();
             }
         }

@@ -26,10 +26,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<SimpleItem> ItemClicked;
         private int _selectedIndex = -1;
         private SimpleItem _selectedItem;
+        
+        // DPI-aware properties - use scaled values throughout
+        private Size ScaledButtonSize => ScaleSize(ButtonSize);
+        private int ScaledMenuItemHeight => ScaleValue(_menuItemHeight);
+        private int ScaledImageSize => ScaleValue(_imagesize);
+        private int ScaledCheckboxSize => ScaleValue(checkboxSize);
+        private int ScaledCheckboxPadding => ScaleValue(checkboxPadding);
+        private int ScaledSpacing => ScaleValue(spacing);
+        private int ScaledHighlightPanelSize => ScaleValue(_highlightPanelSize);
+        private int ScaledSearchAreaHeight => ScaleValue(_searchAreaHeight);
+        
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
         private int _menuItemHeight = 20;
         protected int spacing = 1;
+        int checkboxSize = 16;
+        int checkboxPadding = 2;
         protected int drawRectX;
         protected int drawRectY;
         protected int drawRectWidth;
@@ -257,6 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         public BeepButton CurrenItemButton { get; private set; }
+        private int ScaledCalculatedHeight = 0;
         #endregion "Properties"
         #region "Constructor"
         public BeepListBox()
@@ -273,10 +287,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
-                Width = 200;
-                Height = 250;
+                Width = ScaleValue(200);  // Use scaled width
+                Height = ScaleValue(250); // Use scaled height
             }
-            BorderRadius = 3;
+            BorderRadius = ScaleValue(3); // Scale border radius
             items.ListChanged += Items_ListChanged;
             ApplyThemeToChilds = false;
             InitLayout();
@@ -296,24 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Menu Creation"
         private void Items_ListChanged(object sender, ListChangedEventArgs e) => Invalidate(); //InitializeMenu();
    
-        private void UpdateSelectedItems(SimpleItem item, BeepCheckBoxBool checkBox)
-        {
-            if (checkBox.State == CheckBoxState.Checked)
-            {
-                if (!_itemCheckBoxes.ContainsKey(item))
-                {
-                    _itemCheckBoxes[item] = checkBox;
-                }
-            }
-            else
-            {
-                if (_itemCheckBoxes.ContainsKey(item))
-                {
-                    _itemCheckBoxes.Remove(item);
-                }
-            }
-        }
-
+       
         #endregion "Menu Creation"
         #region "Menu events Handling"
        
@@ -387,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // If there are no items, return a default width or current width
             if (items == null || items.Count == 0)
-                return DrawingRect.Width > 0 ? DrawingRect.Width : 100;
+                return DrawingRect.Width > 0 ? DrawingRect.Width : ScaleValue(100);
 
             // Get dimensions to ensure accuracy
             GetDimensions();
@@ -402,22 +399,22 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Start with some base padding
                     int itemWidth = 0;
 
-                    // Account for highlight box width if enabled
+                    // Account for highlight box width if enabled - use scaled values
                     if (_showHilightBox)
                     {
-                        itemWidth += 7 + 1; // highlightWidth + spacingWidth
+                        itemWidth += ScaleValue(7) + ScaleValue(1); // highlightWidth + spacingWidth
                     }
 
-                    // Add checkbox width if enabled
+                    // Add checkbox width if enabled - use scaled values
                     if (ShowCheckBox)
                     {
-                        itemWidth += 16 + 4; // checkboxSize + padding
+                        itemWidth += ScaledCheckboxSize + ScaleValue(4); // checkboxSize + padding
                     }
 
-                    // Add image width if enabled and available
+                    // Add image width if enabled and available - use scaled values
                     if (ShowImage && !string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
                     {
-                        itemWidth += _imagesize + 4; // imageSize + padding
+                        itemWidth += ScaledImageSize + ScaleValue(4); // imageSize + padding
                     }
 
                     // Use the appropriate font based on theme settings
@@ -428,8 +425,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Measure text width
                     SizeF textSize = g.MeasureString(item.Text, textFont);
 
-                    // Add text width plus padding
-                    itemWidth += (int)Math.Ceiling(textSize.Width) + 8; // text width + padding
+                    // Add text width plus padding - use scaled padding
+                    itemWidth += (int)Math.Ceiling(textSize.Width) + ScaleValue(8); // text width + padding
 
                     // Update max width if this item is wider
                     maxWidth = Math.Max(maxWidth, itemWidth);
@@ -438,8 +435,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Add left and right border thickness
                 maxWidth += BorderThickness * 2;
 
-                // Ensure minimum reasonable width
-                maxWidth = Math.Max(maxWidth, 50);
+                // Ensure minimum reasonable width - use scaled minimum
+                maxWidth = Math.Max(maxWidth, ScaleValue(50));
 
                 return maxWidth;
             }
@@ -450,50 +447,76 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // If there are no items, just return minimal height
             if (items == null || items.Count == 0)
-                return TitleBottomY > 0 ? TitleBottomY + 5 : 0;
+            {
+                int minHeight = ScaleValue(30); // Minimum scaled height
+                if (ShowTitle && TitleBottomY > 0)
+                    minHeight = TitleBottomY + ScaleValue(10);
+                return minHeight;
+            }
 
-            // Get dimensions to ensure we have the latest values
+            // Ensure dimensions are up to date
             GetDimensions();
 
-            // Calculate Y offset correctly based on whether title is shown
-            int startOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
+            // Calculate starting Y position properly
+            int startOffset = ScaleValue(5); // Base padding
+
+            // Add title height if shown
+            if (ShowTitle && TitleBottomY > 0)
+            {
+                startOffset += TitleBottomY;
+            }
+
+            // Add border thickness
+            startOffset += BorderThickness;
 
             // Add search box height if visible
             if (_showSearch)
-                startOffset += _searchAreaHeight+5;
+            {
+                startOffset += ScaledSearchAreaHeight + ScaleValue(5);
+            }
 
-            // Calculate total items height
+            // Calculate total items height using scaled values
             int totalItemsHeight = 0;
-            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
-            {
-                // Use consistent item height
-                int itemHeight = _menuItemHeight;
+            int visibleItemCount = 0;
 
-                // Add this item's height plus spacing
-                totalItemsHeight += itemHeight + spacing;
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
+            {
+                totalItemsHeight += ScaledMenuItemHeight + ScaledSpacing;
+                visibleItemCount++;
             }
 
-            // Remove the last spacing (after the final item)
-            if (items.Count > 0)
+            // Remove the last spacing (after the final item) if we have items
+            if (visibleItemCount > 0)
             {
-                totalItemsHeight -= spacing;
+                totalItemsHeight -= ScaledSpacing;
             }
 
-            // Calculate total height: starting offset + items height + bottom padding
-            int totalHeight = startOffset + totalItemsHeight + BorderThickness;
+            // Calculate total height
+            int totalHeight = startOffset + totalItemsHeight + ScaleValue(10); // Bottom padding
 
-            // Use LastItemBottomY if it's valid, otherwise use calculated height
-            if (LastItemBottomY > 0 && LastItemBottomY > totalHeight)
-            {
-                totalHeight = LastItemBottomY;
-            }
-
-            // Add a small padding at the bottom for aesthetics
-            totalHeight += 6;
+            // Ensure minimum height
+            totalHeight = Math.Max(totalHeight, ScaleValue(50));
 
             return totalHeight;
         }
-
+        public void DebugHeightCalculation()
+        {
+            System.Diagnostics.Debug.WriteLine($"=== BeepListBox Height Debug ===");
+            System.Diagnostics.Debug.WriteLine($"Items Count: {items?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"Visible Items Count: {items?.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)).Count() ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"ShowTitle: {ShowTitle}, TitleBottomY: {TitleBottomY}");
+            System.Diagnostics.Debug.WriteLine($"ShowSearch: {_showSearch}, SearchAreaHeight: {ScaledSearchAreaHeight}");
+            System.Diagnostics.Debug.WriteLine($"MenuItemHeight: {ScaledMenuItemHeight}");
+            System.Diagnostics.Debug.WriteLine($"Spacing: {ScaledSpacing}");
+            System.Diagnostics.Debug.WriteLine($"BorderThickness: {BorderThickness}");
+            System.Diagnostics.Debug.WriteLine($"DpiScaleFactor: {DpiScaleFactor:F2}");
+            System.Diagnostics.Debug.WriteLine($"Font: {_textFont.Name}, Size: {_textFont.Size}");
+            System.Diagnostics.Debug.WriteLine($"--- Calculated vs Actual ---");
+            System.Diagnostics.Debug.WriteLine($"GetMaxHeight Result: {GetMaxHeight()}");
+            System.Diagnostics.Debug.WriteLine($"ScaledCalculatedHeight (Actual Drawn): {ScaledCalculatedHeight}");
+            System.Diagnostics.Debug.WriteLine($"Difference: {Math.Abs(GetMaxHeight() - ScaledCalculatedHeight)}");
+            System.Diagnostics.Debug.WriteLine($"==============================");
+        }
         #endregion "Getting and Setting Items"
         #region "Layout and Theme"
 
@@ -506,10 +529,26 @@ namespace TheTechIdea.Beep.Winform.Controls
             // TitleBottomY is set in the panel's OnPaint
             if (TitleBottomY > 0)
             {
-                // just shrink
-                this.Height = TitleBottomY + extraMargin;
+                // Use scaled extra margin
+                this.Height = TitleBottomY + ScaleValue(extraMargin);
             }
         }
+        
+        // Override OnDpiChangedAfterParent to handle DPI changes
+        //protected override void OnDpiChangedAfterParent(EventArgs e)
+        //{
+        //    base.OnDpiChangedAfterParent(e);
+            
+        //    // Update search area height with new DPI scaling
+        //    if (_showSearch && _searchTextBox != null)
+        //    {
+        //        UpdateContentLayout();
+        //    }
+            
+        //    // Force redraw with new DPI scaling
+        //    Invalidate();
+        //}
+        
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
@@ -561,20 +600,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_currentTheme.ListUnSelectedFont != null)
                 {
                     _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.ListUnSelectedFont);
-                    Font = _textFont;
+                   
                 }
                 else if (_currentTheme.LabelMedium != null)
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
-                    Font = _textFont;
+                  
                 }
                 else
                 {
                     _textFont = new Font("Segoe UI", 9);
-                    Font = _textFont;
+                  
                 }
             }
-
+            SafeApplyFont(_textFont);
             // Apply theme to search box if it exists
             if (_searchTextBox != null)
             {
@@ -721,15 +760,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Calculate starting Y position - account for no title
             int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
 
-            // Account for search box if visible
+            // Account for search box if visible - use scaled height
             if (_showSearch)
-                yOffset += _searchAreaHeight;
+                yOffset += ScaledSearchAreaHeight;
 
             // Check each item to see if the mouse is over it
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
             {
-                // Always use the consistent item height
-                int itemHeight = _menuItemHeight;
+                // Always use the consistent scaled item height
+                int itemHeight = ScaledMenuItemHeight;
 
                 // Create hit test rectangle
                 Rectangle itemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
@@ -741,8 +780,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break; // Found the item under the mouse
                 }
 
-                // Move to next item
-                yOffset += itemHeight + spacing;
+                // Move to next item using scaled spacing
+                yOffset += itemHeight + ScaledSpacing;
             }
 
             // If hovered item changed, redraw
@@ -781,17 +820,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (items == null || items.Count == 0)
                 return;
 
-            // Update OnMouseClick to match Draw method's offset calculation:
+            // Update OnMouseClick to match Draw method's offset calculation using scaled values:
             int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
             if (_showSearch)
-                yOffset += _searchAreaHeight + 5;  // Add the same +5 as in Draw method
-
+                yOffset += ScaledSearchAreaHeight + ScaleValue(5);  // Add the same +5 as in Draw method
 
             // Check each item to see if it was clicked
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
             {
-                // Use consistent item height
-                int itemHeight = _menuItemHeight;
+                // Use consistent scaled item height
+                int itemHeight = ScaledMenuItemHeight;
 
                 // Create hit test rectangle
                 Rectangle itemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
@@ -809,8 +847,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
                 }
 
-                // Move to next item
-                yOffset += itemHeight + spacing;
+                // Move to next item using scaled spacing
+                yOffset += itemHeight + ScaledSpacing;
             }
         }
 
@@ -856,15 +894,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Enable anti-aliasing for smoother rendering
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            
+          
 
             // Fill the background
-            using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
-            {
-                graphics.FillRectangle(backgroundBrush, rectangle);
-            }
 
             if (items == null || items.Count == 0)
+            {
+                // Even with no items, calculate the base height
+                ScaledCalculatedHeight = ScaleValue(5) + (ShowTitle && TitleBottomY > 0 ? TitleBottomY : 0) +
+                                       BorderThickness + (_showSearch ? ScaledSearchAreaHeight + ScaleValue(5) : 0) +
+                                       ScaleValue(10);
                 return;
+            }
 
             // Initialize the GDI drawing components if null
             if (_image == null) _image = new BeepImage();
@@ -876,6 +918,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Calculate y offset correctly based on whether title is shown
             int yOffset = drawRectY + (ShowTitle ? TitleBottomY : 0);
+            
+            // Track the starting position for height calculation
+            int startingYOffset = yOffset;
 
             // Draw the search area background if search is enabled
             if (_showSearch)
@@ -886,22 +931,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                         drawRectX,
                         yOffset,
                         drawRectWidth,
-                        _searchAreaHeight
+                        ScaledSearchAreaHeight  // Use scaled search area height
                     );
                     graphics.FillRectangle(searchAreaBrush, searchRect);
                 }
 
-                yOffset += _searchAreaHeight+5;
+                yOffset += ScaledSearchAreaHeight + ScaleValue(5);  // Use scaled values
             }
 
             // Clear hit list before adding new areas
             ClearHitList();
 
+            // Track how many items we actually draw
+            int drawnItemCount = 0;
+
             // Iterate through all items
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
             {
-                // Use a consistent height
-                int itemHeight = _menuItemHeight;
+                // Use a consistent scaled height
+                int itemHeight = ScaledMenuItemHeight;
 
                 // Create the overall item rectangle
                 Rectangle menuItemRect = new Rectangle(drawRectX, yOffset, drawRectWidth, itemHeight);
@@ -913,10 +961,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Track the X position as we add components horizontally
                 int currentX = menuItemRect.Left;
 
-                // Draw highlight panel if enabled
+                // Draw highlight panel if enabled - use scaled values
                 if (_showHilightBox)
                 {
-                    int highlightWidth = 7;
+                    int highlightWidth = ScaledHighlightPanelSize;
                     Rectangle highlightRect = new Rectangle(currentX, yOffset, highlightWidth, itemHeight);
 
                     // Choose highlight color based on item state
@@ -937,8 +985,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     currentX += highlightWidth;
 
-                    // Draw the spacing panel
-                    int spacingWidth = 1;
+                    // Draw the spacing panel - use scaled spacing
+                    int spacingWidth = ScaleValue(1);
                     Rectangle spacingRect = new Rectangle(currentX, yOffset, spacingWidth, itemHeight);
 
                     using (SolidBrush spacingBrush = new SolidBrush(BackColor))
@@ -978,16 +1026,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     graphics.FillRectangle(buttonBrush, contentRect);
                 }
 
-                // Draw checkbox if enabled
+                // Draw checkbox if enabled - use scaled values
                 if (ShowCheckBox)
                 {
-                    int checkboxSize = 16;
-                    int checkboxPadding = 2;
                     Rectangle checkboxRect = new Rectangle(
-                        currentX + checkboxPadding,
-                        yOffset + (itemHeight - checkboxSize) / 2,
-                        checkboxSize,
-                        checkboxSize
+                        currentX + ScaledCheckboxPadding,
+                        yOffset + (itemHeight - ScaledCheckboxSize) / 2,
+                        ScaledCheckboxSize,
+                        ScaledCheckboxSize
                     );
 
                     // Determine checkbox state
@@ -998,14 +1044,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
 
                     ControlPaint.DrawCheckBox(graphics, checkboxRect, checkState);
-                    currentX += checkboxSize + (checkboxPadding * 2);
+                    currentX += ScaledCheckboxSize + (ScaledCheckboxPadding * 2);
                 }
 
-                // Draw image if available (using the BeepImage instance)
-                if (ShowImage || !string.IsNullOrEmpty(item.ImagePath) )
+                // Draw image if available (using the BeepImage instance) - use scaled values
+                if (ShowImage || !string.IsNullOrEmpty(item.ImagePath))
                 {
-                    int imgSize = _imagesize;
-                    int imgPadding = 2;
+                    int imgSize = ScaledImageSize;
+                    int imgPadding = ScaleValue(2);
 
                     Rectangle imgRect = new Rectangle(
                         currentX + imgPadding,
@@ -1017,20 +1063,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Configure the BeepImage instance and draw it
                     _image.ImagePath = item.ImagePath;
                     _image.Theme = Theme;
-                    _image.ApplyThemeOnImage =ApplyThemeOnImage;
+                    _image.ApplyThemeOnImage = ApplyThemeOnImage;
                     _image.Size = new Size(imgSize, imgSize);
-                    //_image.Location = imgRect.Location;
                     _image.Draw(graphics, imgRect);
 
                     // Advance the X position for text
                     currentX += imgSize + (imgPadding * 2);
                 }
 
-                // Calculate the text rectangle
+                // Calculate the text rectangle - use scaled padding
                 Rectangle textRect = new Rectangle(
-                    currentX + 2, // Small text padding
+                    currentX + ScaleValue(2), // Small scaled text padding
                     yOffset,
-                    menuItemRect.Right - currentX - 4, // Some right padding
+                    menuItemRect.Right - currentX - ScaleValue(4), // Some scaled right padding
                     itemHeight
                 );
 
@@ -1066,17 +1111,59 @@ namespace TheTechIdea.Beep.Winform.Controls
                 item.Width = menuItemRect.Width;
                 item.Height = menuItemRect.Height;
 
-                // Update yOffset for the next item
-                yOffset += itemHeight + spacing;
+                // Update yOffset for the next item - use scaled spacing
+                yOffset += itemHeight + ScaledSpacing;
+                drawnItemCount++;
             }
 
             // Store the last position
             LastItemBottomY = yOffset;
+
+            // Calculate the actual drawn height including all components
+            // This should match exactly how GetMaxHeight calculates it
+            int actualDrawnHeight = 0;
+
+            // Add base padding (same as GetMaxHeight)
+            actualDrawnHeight += ScaleValue(5); // Base padding
+
+            // Add title height if shown (same as GetMaxHeight)
+            if (ShowTitle && TitleBottomY > 0)
+            {
+                actualDrawnHeight += TitleBottomY;
+            }
+
+            // Add border thickness (same as GetMaxHeight)
+            actualDrawnHeight += BorderThickness;
+
+            // Add search box height if visible (same as GetMaxHeight)
+            if (_showSearch)
+            {
+                actualDrawnHeight += ScaledSearchAreaHeight + ScaleValue(5);
+            }
+
+            // Add the actual items height drawn
+            actualDrawnHeight += (yOffset - startingYOffset);
+
+            // Add bottom padding (same as GetMaxHeight)
+            actualDrawnHeight += ScaleValue(10);
+
+            ScaledCalculatedHeight = actualDrawnHeight;
         }
+        /// <summary>
+        /// Forces a complete height recalculation and comparison for debugging
+        /// </summary>
+        public void TestHeightCalculation()
+        {
+            // Force a complete redraw to get the latest ScaledCalculatedHeight
+            using (Graphics g = CreateGraphics())
+            {
+                Draw(g, DrawingRect);
+            }
 
+            // Now call the debug function with fresh data
+            DebugHeightCalculation();
+        }
         #endregion "Painting"
-
-
         #region "Search"
         private bool _showSearch = false;
         private TextBox _searchTextBox;
@@ -1132,7 +1219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _searchAreaHeight;
             set
             {
-                if (value >= 20)
+                if (value >= ScaleValue(20))  // Use scaled minimum height
                 {
                     _searchAreaHeight = value;
                     UpdateContentLayout();
@@ -1190,19 +1277,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Get dimensions to ensure accurate positioning
             GetDimensions();
 
-            // Calculate y-offset for search box placement
-            int searchY = drawRectY + (ShowTitle ? TitleBottomY + 2 : 2);
+            // Calculate y-offset for search box placement - use scaled values
+            int searchY = drawRectY + (ShowTitle ? TitleBottomY + ScaleValue(2) : ScaleValue(2));
 
-            // Position the search box with proper size and margins
+            // Position the search box with proper scaled size and margins
             if (_searchTextBox != null && _showSearch)
             {
-                _searchTextBox.Location = new Point(drawRectX + 4, searchY);
-                _searchTextBox.Size = new Size(drawRectWidth - 8, _searchAreaHeight - 4);
+                _searchTextBox.Location = new Point(drawRectX + ScaleValue(4), searchY);
+                _searchTextBox.Size = new Size(drawRectWidth - ScaleValue(8), ScaledSearchAreaHeight - ScaleValue(4));
                 _searchTextBox.Visible = true;
                 _searchTextBox.BringToFront();
             }
-
-          
 
             Invalidate();
         }
@@ -1318,7 +1403,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SearchText = searchText;
         }
         #endregion
-
         public override void SetValue(object value)
         {
             if (value is SimpleItem item)

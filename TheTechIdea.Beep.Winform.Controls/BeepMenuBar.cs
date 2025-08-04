@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
@@ -20,12 +19,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton _lastbuttonclicked;
       //  private Panel container;
         public BeepButton CurrenItemButton { get; private set; }
+        
+        // DPI-aware properties - use scaled values throughout
+        private int ScaledMenuItemHeight => ScaleValue(MenuItemHeight);
+        private int ScaledImageSize => ScaleValue(_imagesize);
+        private int ScaledMenuItemWidth => ScaleValue(_menuItemWidth);
+        private Size ScaledButtonSize => ScaleSize(ButtonSize);
+
 
         private int _selectedIndex = -1;
 
+        // Use DPI-aware default values that will be scaled
         private int _menuItemWidth = 60;
         private int _imagesize = 20;
-        private int _menuItemHeight = 35;
+        private int _menuItemHeight = 20; // Reduced from 35 to 28
         private Size ButtonSize = new Size(60, 20);
         // private BeepPopupForm _popupForm;
         private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
@@ -85,9 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
-        private BeepListBox maindropdownmenu = new BeepListBox();
-        private Dictionary<string, BeepButton> menumainbar = new Dictionary<string, BeepButton>();
-        private bool _isPopupOpen;
+      
+      //  private Dictionary<string, BeepButton> menumainbar = new Dictionary<string, BeepButton>();
+      //  private bool _isPopupOpen;
         private SimpleItem _selectedItem;
         public SimpleItem SelectedItem
         {
@@ -132,8 +139,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        [Browsable(true)]
-        [Localizable(true)]
+        [Browsable(true)
+        , Localizable(true)]
         [MergableProperty(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int MenuItemWidth
@@ -177,11 +184,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
         public BeepMenuBar() : base()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw, true); // Enable ResizeRedraw
-            this.UpdateStyles();
+         
+
             if (items == null)
             {
                 items = new BindingList<SimpleItem>();
@@ -189,21 +193,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 200;
-                Height = _menuItemHeight;
+                Height = ScaledMenuItemHeight + ScaleValue(2); // Reduced padding from 6 to 2
 
             }
-            UpdateDrawingRect();
+         
             ApplyThemeToChilds = true;
-            //container = new Panel()
-            //{
-            //    Left = DrawingRect.Left,
-            //    Top = DrawingRect.Top,
-            //    Width = DrawingRect.Width,
-            //    Height = DrawingRect.Height,
-            //    Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right | AnchorStyles.Bottom,
-            //};
-            ////    items.ListChanged += Items_ListChanged;
-
+            
             _lastbuttonclicked = null;
             BoundProperty = "SelectedMenuItem";
             IsFrameless = true;
@@ -216,29 +211,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             ListForms = new LinkedList<MenuitemTracking>();
             InitMenu();
         }
-        protected override Size DefaultSize => new Size(200, _menuItemHeight);
-        //protected override void InitLayout()
-        //{
-        //    base.InitLayout();
-        //    Dock = DockStyle.Top;
-        //    UpdateDrawingRect();
-        //    container.Left = DrawingRect.Left;
-        //    container.Top = DrawingRect.Top;
-        //    container.Width = DrawingRect.Width;
-        //    container.Height = DrawingRect.Height;
-        //    InitMenu();
-        //    ApplyTheme();
-        //}
+
+        // Update DefaultSize to use scaled value
+
+        protected override Size DefaultSize => new Size(200, ScaledMenuItemHeight + ScaleValue(2));
+
         public void InitMenu()
         {
             //// Console.WriteLine("InitMenu");
             Controls.Clear();
             if (items == null || items.Count == 0) return;
-
-            // Step 1: Create all buttons with an initial "guess" size
-            //         For now, we’ll just do something like the text measurement or a fixed guess.
-            //         We'll refine it later using GetPreferredSize.
-            int initialWidthGuess = 80;  // you can tweak this
+            UpdateDrawingRect();
+            // Step 1: Get the correct available area for positioning
+            // Check if parent form is BeepiForm and use its DisplayRectangle
+            Rectangle availableArea = DrawingRect;
+           
+            // Step 2: Create all buttons with an initial "guess" size
+            int initialWidthGuess = ScaleValue(80);  // Use scaled guess
             List<BeepButton> createdButtons = new List<BeepButton>();
             foreach (SimpleItem item in items)
             {
@@ -247,17 +236,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     continue;
                 }
 
-                // Create the button
+                // Create the button with scaled values
                 BeepButton btn = new BeepButton
                 {
                     Text = item.Text,
                     Tag = item,
                     Info = item,
                     ImagePath = item.ImagePath,
-                    Width = initialWidthGuess,        // temporary guess
-                    Height = MenuItemHeight,           // your known item height
+                    Width = initialWidthGuess,        // scaled guess
+                    Height = ScaledMenuItemHeight,    // scaled height
                     UseScaledFont = false,
-                    MaxImageSize = new Size(_imagesize, _imagesize),
+                    MaxImageSize = new Size(ScaledImageSize, ScaledImageSize), // scaled image size
                     ImageAlign = ContentAlignment.MiddleLeft,
                     TextAlign = ContentAlignment.MiddleCenter,
                     IsFrameless = true,
@@ -272,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     IsRounded = false,
                     Anchor = AnchorStyles.None,
                     TextFont = _textFont,
-                    UseThemeFont = true,
+                    UseThemeFont = false,
                     PopupMode = true,
                     ListItems = item.Children,
                     GuidID = item != null ? item.GuidId : Guid.NewGuid().ToString()
@@ -285,60 +274,66 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btn.SelectedItemChanged += Menu_SelectedItemChanged;
                 // Add to Controls
                 Controls.Add(btn);
-                //  menumainbar.Add(item.Text, btn);
                 createdButtons.Add(btn);
             }
-            // Now we have all the buttons in the Controls, each with a guessed width.
-            // Next step: measure them properly.
 
-            // Step 2: Use GetPreferredSize to see how big each button actually wants to be
+            // Step 3: Use GetPreferredSize to see how big each button actually wants to be
             List<Size> preferredSizes = new List<Size>();
-            int prefHeight = 0;
+            int maxButtonHeight = ScaledMenuItemHeight; // Start with our target height
             foreach (var btn in createdButtons)
             {
-                if (!UseThemeFont)
-                {
                     btn.TextFont = _textFont;
-                }
+               
                 // Pass in Value.Empty or a constraint—depending on your usage
                 Size pref = btn.GetPreferredSize(Size.Empty);
-                pref.Width += 20; // add some padding
-                pref.Height = pref.Height; // or keep MenuItemHeight if that’s what you want
+                pref.Width += ScaleValue(2); // add scaled padding
+                
+                // Ensure button height matches our menu bar height
+                pref.Height = ScaledMenuItemHeight;
+                
                 preferredSizes.Add(pref);
-                prefHeight = pref.Height;
+                maxButtonHeight = Math.Max(maxButtonHeight, pref.Height);
             }
 
-            // Step 3: Sum up final widths to compute total
+            // Step 4: Don't auto-update height - use constructor settings
+            // Height is already set correctly in constructor/DefaultSize
+
+            // Step 5: Sum up final widths to compute total
             int totalButtonWidth = 0;
             foreach (var size in preferredSizes)
             {
                 totalButtonWidth += size.Width;
             }
 
-            // Optionally add small horizontal gaps if you want
-            int gapBetweenButtons = 5; // or 2, 5, etc.
+            // Optionally add small horizontal gaps if you want - use scaled gap
+            int gapBetweenButtons = ScaleValue(5); // scaled gap
             totalButtonWidth += gapBetweenButtons * (createdButtons.Count - 1);
 
-            // Step 4: Calculate startX (for centering horizontally in DrawingRect)
-            int startX = DrawingRect.Left + (DrawingRect.Width - totalButtonWidth) / 2;
+            // Step 6: LEFT-ALIGN the menu items from absolute left, CENTERED vertically
+            int startX = ScaleValue(5); // Always start from absolute left with small padding
             if (startX < 0) startX = 0; // clamp if negative
-            int centerY = DrawingRect.Top + (DrawingRect.Height - prefHeight) / 2;
 
-            // Step 5: Realign the buttons with the new sizes
+            // CENTER buttons vertically - PROPER centering using actual control height
+            int buttonTop = (Height - ScaledMenuItemHeight) / 2;
+            if (buttonTop < 0) buttonTop = ScaleValue(1); // Minimal top padding if needed
+
+            // Step 7: Position all buttons with proper alignment
             int currentX = startX;
             for (int i = 0; i < createdButtons.Count; i++)
             {
                 BeepButton btn = createdButtons[i];
                 Size prefSize = preferredSizes[i];
+                
+                // Set final button dimensions and position
                 btn.Width = prefSize.Width;
-                btn.Height = prefHeight;// prefSize.Height; // or keep MenuItemHeight if that’s what you want
-                                        //    btn.MaxImageSize = new Value(_imagesize, _imagesize);
+                btn.Height = ScaledMenuItemHeight;  // Use consistent scaled height;
                 btn.Left = currentX;
-                btn.Top = centerY;
+                btn.Top = buttonTop;  // Use calculated vertical center
+                
                 currentX += prefSize.Width + gapBetweenButtons;
                 btn.ShowAllBorders = false;
             }
-
+            ApplyTheme();
             //   // Console.WriteLine("InitMenu done.");
         }
 
@@ -400,6 +395,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _activeMenuButton = btn;
             ActivePopupForm = btn.PopupListForm;
         }
+
         public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
         {
             ErrorsInfo errorsInfo = new ErrorsInfo();
@@ -428,15 +424,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
+        
+       
+        
         public override void ApplyTheme()
         {
+            base.ApplyTheme();
             if (_currentTheme == null)
                 return;
 
            
                 BackColor = _currentTheme.MenuBackColor;
-            
 
+
+            // Handle parent background inheritance for child controls
+            if (IsChild && Parent != null)
+            {
+                BackColor = Parent.BackColor;
+                ParentBackColor = Parent.BackColor;
+            }
+            else
+            {
+                // Apply default button background color
+                BackColor = _currentTheme.MenuBackColor;
+            }
             // Apply colors
             ForeColor = _currentTheme.MenuForeColor;
             BorderColor = _currentTheme.MenuBorderColor;
@@ -464,13 +475,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme.MenuTitleFont != null)
                 {
-                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuTitleFont);
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                 }
                 else
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
-                Font = _textFont;
+                SafeApplyFont(TextFont ?? _textFont);
             }
 
             // Apply theme to all buttons
@@ -481,7 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Set button-specific properties
                     button.IsChild = true;
                     button.ParentBackColor = BackColor;
-                   
+                  
                     // Apply colors from specialized menu theme settings
                     button.BackColor = _currentTheme.MenuBackColor;
                     button.ForeColor = _currentTheme.MenuItemForeColor;
@@ -500,9 +511,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Apply font settings
                     if (UseThemeFont)
                     {
-                       
-                            button.Font =FontListHelper.CreateFontFromTypography(_currentTheme.LabelSmall);
-                        
+                        button.Font =FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                     }
                     else
                     {
@@ -526,7 +535,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
     }
-        public class MenuitemTracking
+    
+    public class MenuitemTracking
     {
         public SimpleItem ParentItem { get; set; }
         public BeepPopupListForm Menu { get; set; }

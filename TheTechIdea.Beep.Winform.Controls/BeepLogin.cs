@@ -1379,7 +1379,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            if(loginPanel == null) return;
+            base.ApplyTheme();
+            if (loginPanel == null) return;
             
             // Apply modern theme styling to the login panel first
             loginPanel.BackColor = _currentTheme.LoginPopoverBackgroundColor;

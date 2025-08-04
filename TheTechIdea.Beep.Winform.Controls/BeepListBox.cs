@@ -39,8 +39,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
-        private int _menuItemHeight = 20;
-        protected int spacing = 1;
+        private int _menuItemHeight = 40;
+        protected int spacing = 10;
         int checkboxSize = 16;
         int checkboxPadding = 2;
         protected int drawRectX;
@@ -418,9 +418,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
 
                     // Use the appropriate font based on theme settings
-                    Font textFont = UseThemeFont ?
-                        BeepThemesManager.ToFont(_currentTheme.LabelMedium) :
-                        _textFont;
+                    Font textFont =
+                        BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont);
+                        
 
                     // Measure text width
                     SizeF textSize = g.MeasureString(item.Text, textFont);

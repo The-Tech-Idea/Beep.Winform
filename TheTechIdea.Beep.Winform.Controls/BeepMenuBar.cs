@@ -14,27 +14,32 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A menu bar control that displays a list of items.")]
     public class BeepMenuBar : BeepControl
     {
+        #region "Fields and Properties"
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
-        private BeepButton _lastbuttonclicked;
-      //  private Panel container;
+
+        // Drawing components instead of actual controls
+        private BeepButton _menuButton;  // Single reusable button for drawing
+        private BeepImage _menuImage;    // Single reusable image for drawing
+        private BeepLabel _menuLabel;    // Single reusable label for drawing
+
         public BeepButton CurrenItemButton { get; private set; }
-        
+        private string _hoveredMenuItemName; // Track currently hovered menu item
+
         // DPI-aware properties - use scaled values throughout
         private int ScaledMenuItemHeight => ScaleValue(MenuItemHeight);
         private int ScaledImageSize => ScaleValue(_imagesize);
         private int ScaledMenuItemWidth => ScaleValue(_menuItemWidth);
         private Size ScaledButtonSize => ScaleSize(ButtonSize);
 
-
         private int _selectedIndex = -1;
 
         // Use DPI-aware default values that will be scaled
         private int _menuItemWidth = 60;
         private int _imagesize = 20;
-        private int _menuItemHeight = 20; // Reduced from 35 to 28
+        private int _menuItemHeight = 20;
         private Size ButtonSize = new Size(60, 20);
-        // private BeepPopupForm _popupForm;
+
         private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
         private bool childmenusisopen = false;
 
@@ -52,7 +57,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
         #region "Properties"
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
@@ -65,14 +69,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
                 _textFont = value;
                 UseThemeFont = false;
+                SafeApplyFont(_textFont);
+                InitializeDrawingComponents();
                 Invalidate();
-                InitMenu();
-
             }
         }
+
         [Browsable(true)]
         [Localizable(true)]
         [MergableProperty(false)]
@@ -83,7 +87,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 items = value;
-                InitMenu();
+                InitializeDrawingComponents();
+                RefreshHitAreas();
+                Invalidate();
             }
         }
 
@@ -92,9 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
-      
-      //  private Dictionary<string, BeepButton> menumainbar = new Dictionary<string, BeepButton>();
-      //  private bool _isPopupOpen;
+
         private SimpleItem _selectedItem;
         public SimpleItem SelectedItem
         {
@@ -104,10 +108,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_selectedItem != value)
                 {
                     _selectedItem = value;
-                    OnSelectedItemChanged(_selectedItem); //
+                    OnSelectedItemChanged(_selectedItem);
                 }
             }
         }
+
         [Browsable(false)]
         public int SelectedIndex
         {
@@ -117,12 +122,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value >= 0)
                 {
                     _selectedIndex = value;
-                    //  HighlightSelectedButton();
                     if (currentMenu.Count > 0)
                     {
                         SelectedItem = currentMenu[value];
                     }
-
                 }
             }
         }
@@ -133,14 +136,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _menuItemHeight = value;
-                //  _buttonSize = new Value(_buttonSize.Width, _menuItemHeight);
-                //_imagesize = MenuItemHeight - 2;
+                RefreshHitAreas();
                 Invalidate();
             }
         }
 
-        [Browsable(true)
-        , Localizable(true)]
+        [Browsable(true), Localizable(true)]
         [MergableProperty(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public int MenuItemWidth
@@ -151,11 +152,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (value > 0)
                 {
                     _menuItemWidth = value;
+                    RefreshHitAreas();
                     Invalidate();
                 }
             }
         }
-
 
         [Browsable(true)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -174,270 +175,491 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         _imagesize = value;
                     }
-                    _imagesize = value;
+                    InitializeDrawingComponents();
                     Invalidate();
                 }
-
             }
         }
+
         public BeepPopupListForm CurrentMenuForm { get; private set; }
         #endregion "Properties"
+        #endregion "Fields and Properties"
+
+        #region "Constructor and Initialization"
         public BeepMenuBar() : base()
         {
-         
-
             if (items == null)
             {
                 items = new BindingList<SimpleItem>();
             }
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+
+            if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
-                Height = ScaledMenuItemHeight + ScaleValue(2); // Reduced padding from 6 to 2
-
+                Height = ScaledMenuItemHeight + ScaleValue(2);
             }
-         
+
             ApplyThemeToChilds = true;
-            
-            _lastbuttonclicked = null;
             BoundProperty = "SelectedMenuItem";
             IsFrameless = true;
             IsRounded = false;
             IsChild = false;
-            IsRounded = false;
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             ListForms = new LinkedList<MenuitemTracking>();
-            InitMenu();
-        }
 
-        // Update DefaultSize to use scaled value
+            InitializeDrawingComponents();
+            RefreshHitAreas();
+        }
 
         protected override Size DefaultSize => new Size(200, ScaledMenuItemHeight + ScaleValue(2));
 
-        public void InitMenu()
+        private void InitializeDrawingComponents()
         {
-            //// Console.WriteLine("InitMenu");
-            Controls.Clear();
-            if (items == null || items.Count == 0) return;
+            // Initialize single reusable drawing components
+            _menuButton = new BeepButton
+            {
+                IsFrameless = true,
+                ApplyThemeOnImage = false,
+                ApplyThemeToChilds = false,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                IsRoundedAffectedByTheme = false,
+                UseGradientBackground = false,
+                IsChild = true,
+                ShowAllBorders = false,
+                IsRounded = false,
+                TextFont = _textFont,
+                UseThemeFont = false,
+                ImageAlign = ContentAlignment.MiddleLeft,
+                TextAlign = ContentAlignment.MiddleCenter,
+                MaxImageSize = new Size(ScaledImageSize, ScaledImageSize)
+            };
+
+            _menuImage = new BeepImage
+            {
+                IsChild = true,
+                ApplyThemeOnImage = false,
+                IsFrameless = true,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                ShowAllBorders = false,
+                ShowShadow = false,
+                ImageEmbededin = ImageEmbededin.MenuBar,
+                Size = new Size(ScaledImageSize, ScaledImageSize)
+            };
+
+            _menuLabel = new BeepLabel
+            {
+                TextAlign = ContentAlignment.MiddleLeft,
+                TextImageRelation = TextImageRelation.ImageBeforeText,
+                IsBorderAffectedByTheme = false,
+                IsShadowAffectedByTheme = false,
+                IsFrameless = true,
+                ShowAllBorders = false,
+                IsChild = true,
+                ApplyThemeOnImage = false,
+                UseScaledFont = true,
+                TextFont = _textFont
+            };
+        }
+        #endregion "Constructor and Initialization"
+
+        #region "Hit Area Management"
+        private void RefreshHitAreas()
+        {
+            if (items == null || items.Count == 0)
+            {
+                ClearHitList();
+                return;
+            }
+
             UpdateDrawingRect();
-            // Step 1: Get the correct available area for positioning
-            // Check if parent form is BeepiForm and use its DisplayRectangle
-            Rectangle availableArea = DrawingRect;
-           
-            // Step 2: Create all buttons with an initial "guess" size
-            int initialWidthGuess = ScaleValue(80);  // Use scaled guess
-            List<BeepButton> createdButtons = new List<BeepButton>();
-            foreach (SimpleItem item in items)
+            ClearHitList();
+
+            // Calculate layout positions
+            var menuRects = CalculateMenuItemRects();
+
+            // Add hit areas for each menu item
+            for (int i = 0; i < items.Count && i < menuRects.Count; i++)
             {
-                if (item == null)
-                {
-                    continue;
-                }
+                var item = items[i];
+                var rect = menuRects[i];
+                int itemIndex = i; // Capture for lambda
 
-                // Create the button with scaled values
-                BeepButton btn = new BeepButton
-                {
-                    Text = item.Text,
-                    Tag = item,
-                    Info = item,
-                    ImagePath = item.ImagePath,
-                    Width = initialWidthGuess,        // scaled guess
-                    Height = ScaledMenuItemHeight,    // scaled height
-                    UseScaledFont = false,
-                    MaxImageSize = new Size(ScaledImageSize, ScaledImageSize), // scaled image size
-                    ImageAlign = ContentAlignment.MiddleLeft,
-                    TextAlign = ContentAlignment.MiddleCenter,
-                    IsFrameless = true,
-                    ApplyThemeOnImage = false,
-                    ApplyThemeToChilds = false,
-                    IsShadowAffectedByTheme = false,
-                    IsBorderAffectedByTheme = false,
-                    IsRoundedAffectedByTheme = false,
-                    UseGradientBackground=false,
-                    IsChild = true,
-                    ShowAllBorders = false,
-                    IsRounded = false,
-                    Anchor = AnchorStyles.None,
-                    TextFont = _textFont,
-                    UseThemeFont = false,
-                    PopupMode = true,
-                    ListItems = item.Children,
-                    GuidID = item != null ? item.GuidId : Guid.NewGuid().ToString()
-                };
-
-
-                // Attach your click handler
-                btn.Click -= Btn_Click; // ensure no duplicates
-                btn.Click += Btn_Click;
-                btn.SelectedItemChanged += Menu_SelectedItemChanged;
-                // Add to Controls
-                Controls.Add(btn);
-                createdButtons.Add(btn);
+                AddHitArea(
+                    $"MenuItem_{itemIndex}",
+                    rect,
+                    null, // No component needed since we're drawing manually
+                    () => HandleMenuItemClick(item, itemIndex)
+                );
             }
+        }
 
-            // Step 3: Use GetPreferredSize to see how big each button actually wants to be
-            List<Size> preferredSizes = new List<Size>();
-            int maxButtonHeight = ScaledMenuItemHeight; // Start with our target height
-            foreach (var btn in createdButtons)
-            {
-                    btn.TextFont = _textFont;
-               
-                // Pass in Value.Empty or a constraint—depending on your usage
-                Size pref = btn.GetPreferredSize(Size.Empty);
-                pref.Width += ScaleValue(2); // add scaled padding
-                
-                // Ensure button height matches our menu bar height
-                pref.Height = ScaledMenuItemHeight;
-                
-                preferredSizes.Add(pref);
-                maxButtonHeight = Math.Max(maxButtonHeight, pref.Height);
-            }
+        private List<Rectangle> CalculateMenuItemRects()
+        {
+            var rects = new List<Rectangle>();
+            if (items == null || items.Count == 0) return rects;
 
-            // Step 4: Don't auto-update height - use constructor settings
-            // Height is already set correctly in constructor/DefaultSize
-
-            // Step 5: Sum up final widths to compute total
-            int totalButtonWidth = 0;
-            foreach (var size in preferredSizes)
-            {
-                totalButtonWidth += size.Width;
-            }
-
-            // Optionally add small horizontal gaps if you want - use scaled gap
-            int gapBetweenButtons = ScaleValue(5); // scaled gap
-            totalButtonWidth += gapBetweenButtons * (createdButtons.Count - 1);
-
-            // Step 6: LEFT-ALIGN the menu items from absolute left, CENTERED vertically
-            int startX = ScaleValue(5); // Always start from absolute left with small padding
-            if (startX < 0) startX = 0; // clamp if negative
-
-            // CENTER buttons vertically - PROPER centering using actual control height
+            int gapBetweenButtons = ScaleValue(5);
+            int startX = ScaleValue(5);
             int buttonTop = (Height - ScaledMenuItemHeight) / 2;
-            if (buttonTop < 0) buttonTop = ScaleValue(1); // Minimal top padding if needed
+            if (buttonTop < 0) buttonTop = ScaleValue(1);
 
-            // Step 7: Position all buttons with proper alignment
             int currentX = startX;
-            for (int i = 0; i < createdButtons.Count; i++)
+
+            foreach (var item in items)
             {
-                BeepButton btn = createdButtons[i];
-                Size prefSize = preferredSizes[i];
-                
-                // Set final button dimensions and position
-                btn.Width = prefSize.Width;
-                btn.Height = ScaledMenuItemHeight;  // Use consistent scaled height;
-                btn.Left = currentX;
-                btn.Top = buttonTop;  // Use calculated vertical center
-                
-                currentX += prefSize.Width + gapBetweenButtons;
-                btn.ShowAllBorders = false;
+                if (item == null) continue;
+
+                // Calculate preferred width for this menu item
+                int preferredWidth = CalculateMenuItemWidth(item);
+
+                var rect = new Rectangle(
+                    currentX,
+                    buttonTop,
+                    preferredWidth,
+                    ScaledMenuItemHeight
+                );
+
+                rects.Add(rect);
+                currentX += preferredWidth + gapBetweenButtons;
             }
-            ApplyTheme();
-            //   // Console.WriteLine("InitMenu done.");
+
+            return rects;
         }
 
-        private void Menu_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        private int CalculateMenuItemWidth(SimpleItem item)
         {
-            SimpleItem x = (SimpleItem)e.SelectedItem;
+            if (item == null) return ScaleValue(80);
 
-            if (x != null)
+            // Measure text width
+            int textWidth = 0;
+            if (!string.IsNullOrEmpty(item.Text))
             {
-                //if (ActivePopupForm != null)
-                //{
-                //    ActivePopupForm.Close();
-                //}
-                SelectedItem = x;
-                if (SelectedItem.MethodName != null)
+                using (Graphics g = CreateGraphics())
                 {
-                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+                    var textSize = TextRenderer.MeasureText(g, item.Text, _textFont);
+                    textWidth = textSize.Width;
                 }
             }
+
+            // Add space for image if present
+            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + ScaleValue(4) : 0;
+
+            // Add padding
+            int totalWidth = textWidth + imageWidth + ScaleValue(10); // 10 pixels padding
+
+            return Math.Max(totalWidth, ScaleValue(60)); // Minimum width
         }
 
-        private void Btn_Click(object? sender, EventArgs e)
+        private void HandleMenuItemClick(SimpleItem item, int index)
         {
+            Debug.WriteLine($"HandleMenuItemClick: Item: {item?.Text}, Index: {index}");
+            if (item == null) return;
 
-            BeepButton btn = (BeepButton)sender;
-
-            // UnpressAllButtons();
-
-            SimpleItem item = (SimpleItem)btn.Info;
-            //if (_lastbuttonclicked != null)
-            //{
-            //    _lastbuttonclicked.IsSelected = false;
-            //    _lastbuttonclicked.ClosePopup();
-            //}
-            //_lastbuttonclicked = btn;
-            //_lastbuttonclicked.IsSelected = true;
-            //if (ActivePopupForm != null)
-            //{
-            //    ActivePopupForm.Close();
-            //}
             if (item.Children.Count > 0)
             {
-
-                // ShowMainMenuBarList(item, btn);
+                Debug.WriteLine($"items.childs {item.Children.Count}");
+                ShowMenuItemPopup(item, index);
             }
             else
             {
                 currentMenu = items;
                 SelectedItem = item;
 
-                //SelectedIndex = items.IndexOf(item);
-
+                if (SelectedItem.MethodName != null)
+                {
+                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+                }
             }
-            if (ActiveMenuButton != null && ActiveMenuButton != btn)
+
+            if (ActiveMenuButton != null)
             {
                 ActiveMenuButton.IsSelected = false;
                 ActiveMenuButton.ClosePopup();
             }
-            _activeMenuButton = btn;
-            ActivePopupForm = btn.PopupListForm;
         }
 
-        public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
+        private void ShowMenuItemPopup(SimpleItem item, int index)
         {
-            ErrorsInfo errorsInfo = new ErrorsInfo();
-            try
-            {
-                HandlersFactory.RunFunctionWithTreeHandler(item, MethodName);
+            // Close any existing popup
+            CloseAllPopups();
 
-            }
-            catch (Exception ex)
+            // Calculate popup position
+            var menuRects = CalculateMenuItemRects();
+            if (index < menuRects.Count)
             {
-                errorsInfo.Flag = Errors.Failed;
-                errorsInfo.Message = ex.Message;
-                errorsInfo.Ex = ex;
-            }
-            return errorsInfo;
+                var buttonRect = menuRects[index];
+                var screenLocation = this.PointToScreen(new Point(buttonRect.Left, buttonRect.Bottom + 2));
 
+                // Create and show popup
+                CurrentMenuForm = new BeepPopupListForm(item.Children.ToList())
+                {
+                    Theme = Theme
+                };
+                CurrentMenuForm.SelectedItemChanged += MenuPopup_SelectedItemChanged;
+                CurrentMenuForm.StartPosition = FormStartPosition.Manual;
+                CurrentMenuForm.Location = screenLocation;
+                CurrentMenuForm.SetSizeBasedonItems();
+                
+                // Use the correct ShowPopup method signature - pass the trigger control and location
+                CurrentMenuForm.ShowPopup(this, screenLocation);
+            }
         }
-        protected override void OnFontChanged(EventArgs e)
+
+        private void MenuPopup_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
         {
-            base.OnFontChanged(e);
-            _textFont = Font;
-            // // Console.WriteLine("Font Changed");
-            if (AutoSize)
+            if (e.SelectedItem != null)
             {
-                Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+                SelectedItem = e.SelectedItem;
+                if (SelectedItem.MethodName != null)
+                {
+                    RunMethodFromGlobalFunctions(SelectedItem, SelectedItem.Text);
+                }
+            }
+            CloseAllPopups();
+        }
+
+        private void CloseAllPopups()
+        {
+            if (CurrentMenuForm != null)
+            {
+                CurrentMenuForm.SelectedItemChanged -= MenuPopup_SelectedItemChanged;
+                CurrentMenuForm.Close();
+                CurrentMenuForm.Dispose();
+                CurrentMenuForm = null;
             }
         }
-        
-       
-        
+        #endregion "Hit Area Management"
+
+        #region "Drawing"
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+
+            if (items == null || items.Count == 0) return;
+
+            UpdateDrawingRect();
+
+            // Calculate layout positions
+            var menuRects = CalculateMenuItemRects();
+
+            // Draw each menu item
+            for (int i = 0; i < items.Count && i < menuRects.Count; i++)
+            {
+                var item = items[i];
+                var rect = menuRects[i];
+                string itemName = $"MenuItem_{i}";
+                bool isHovered = _hoveredMenuItemName == itemName;
+
+                DrawMenuItem(g, item, rect, isHovered);
+            }
+        }
+
+        private void DrawMenuItem(Graphics g, SimpleItem item, Rectangle rect, bool isHovered)
+        {
+            if (item == null) return;
+
+            // Configure the drawing button for this item
+            _menuButton.Text = item.Text ?? "";
+            _menuButton.ImagePath = item.ImagePath ?? "";
+            _menuButton.ToolTipText = item.DisplayField ?? "";
+            _menuButton.IsHovered = isHovered;
+            _menuButton.Theme = this.Theme;
+
+            // Draw the menu item using the drawing button
+            _menuButton.Draw(g, rect);
+        }
+        #endregion "Drawing"
+
+        #region "Mouse Events"
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            // Let the base class handle its own click logic 
+            base.OnMouseClick(e);
+
+            // Skip if in design mode
+            if (DesignMode)
+                return;
+
+            Debug.WriteLine($"BeepMenuBar OnMouseClick at {e.Location}");
+
+            // Get current mouse position to check for hits
+            Point mousePoint = e.Location;
+
+            // Calculate layout positions for hit testing
+            var menuRects = CalculateMenuItemRects();
+
+            // Check each menu item to see if it was clicked
+            for (int i = 0; i < items.Count && i < menuRects.Count; i++)
+            {
+                var item = items[i];
+                var rect = menuRects[i];
+
+                if (rect.Contains(mousePoint))
+                {
+                    Debug.WriteLine($"Menu item {i} clicked: {item.Text}");
+                    HandleMenuItemClick(item, i);
+                    return;
+                }
+            }
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            if (DesignMode) return;
+
+            // Remember previous hover state
+            string previousHovered = _hoveredMenuItemName;
+            _hoveredMenuItemName = null;
+
+            // Check which menu item is being hovered
+            var menuRects = CalculateMenuItemRects();
+            for (int i = 0; i < menuRects.Count; i++)
+            {
+                if (menuRects[i].Contains(e.Location))
+                {
+                    _hoveredMenuItemName = $"MenuItem_{i}";
+                    Cursor = Cursors.Hand;
+                    break;
+                }
+            }
+
+            if (_hoveredMenuItemName == null)
+            {
+                Cursor = Cursors.Default;
+            }
+
+            // Only redraw if hover state changed
+            if (previousHovered != _hoveredMenuItemName)
+            {
+                Invalidate();
+            }
+        }
+
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+
+            if (_hoveredMenuItemName != null)
+            {
+                _hoveredMenuItemName = null;
+                Cursor = Cursors.Default;
+                Invalidate();
+            }
+        }
+        #endregion "Mouse Events"
+
+        #region "DPI and Resize Handling"
+        protected override void OnResize(EventArgs e)
+        {
+            // Update DPI scaling when control is resized
+            if (IsHandleCreated)
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    UpdateDpiScaling(g);
+                }
+            }
+
+            base.OnResize(e);
+
+            // Reinitialize components with new DPI scaling
+            InitializeDrawingComponents();
+            RefreshHitAreas();
+            Invalidate();
+        }
+
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+
+            // Update DPI scaling
+            if (IsHandleCreated)
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    UpdateDpiScaling(g);
+                }
+            }
+
+            // Reinitialize with new DPI scaling
+            InitializeDrawingComponents();
+            RefreshHitAreas();
+            Invalidate();
+        }
+
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+
+            // Subscribe to parent resize events if parent is a form
+            if (Parent is Form parentForm)
+            {
+                parentForm.Resize -= ParentForm_Resize;
+                parentForm.Resize += ParentForm_Resize;
+            }
+        }
+
+        private void ParentForm_Resize(object sender, EventArgs e)
+        {
+            // Update DPI scaling when parent form is resized
+            if (IsHandleCreated)
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    UpdateDpiScaling(g);
+                }
+            }
+            
+            // Refresh layout safely
+            SafeInvoke(() => {
+                InitializeDrawingComponents();
+                RefreshHitAreas();
+            });
+        }
+
+        /// <summary>
+        /// Safely invokes an action on the UI thread, ensuring the handle is created first
+        /// </summary>
+        private void SafeInvoke(Action action)
+        {
+            if (IsDisposed)
+            {
+                return;
+            }
+
+            // Force handle creation if it doesn't exist
+            if (!IsHandleCreated)
+            {
+                var forceHandle = this.Handle; // Force handle creation
+            }
+
+            if (InvokeRequired)
+            {
+                this.Invoke(action);
+            }
+            else
+            {
+                action();
+            }
+        }
+        #endregion "DPI and Resize Handling"
+
+        #region "Theme Application"
         public override void ApplyTheme()
         {
+            // CRITICAL: Call base.ApplyTheme() first for safe font handling and DPI scaling
             base.ApplyTheme();
+            
             if (_currentTheme == null)
                 return;
 
-           
-                BackColor = _currentTheme.MenuBackColor;
-
-
-            // Handle parent background inheritance for child controls
+            // Apply MenuBar-specific colors
             if (IsChild && Parent != null)
             {
                 BackColor = Parent.BackColor;
@@ -445,29 +667,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-                // Apply default button background color
                 BackColor = _currentTheme.MenuBackColor;
             }
-            // Apply colors
+            
             ForeColor = _currentTheme.MenuForeColor;
             BorderColor = _currentTheme.MenuBorderColor;
-
-            //// Apply to container
-            //if (container != null)
-            //{
-            //    container.BackColor = _currentTheme.MenuBackColor;
-            //}
 
             // Apply gradient if configured
             if (_currentTheme.MenuGradiantStartColor != Color.Empty &&
                 _currentTheme.MenuGradiantEndColor != Color.Empty && UseGradientBackground)
             {
-               
                 GradientStartColor = _currentTheme.MenuGradiantStartColor;
                 GradientEndColor = _currentTheme.MenuGradiantEndColor;
-
                 GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
-                
             }
 
             // Apply font from theme
@@ -481,64 +693,95 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
-                SafeApplyFont(TextFont ?? _textFont);
+                SafeApplyFont(_textFont);
             }
 
-            // Apply theme to all buttons
-            foreach (Control control in Controls)
+            // Apply theme to drawing components
+            if (_menuButton != null)
             {
-                if (control is BeepButton button)
-                {
-                    // Set button-specific properties
-                    button.IsChild = true;
-                    button.ParentBackColor = BackColor;
-                  
-                    // Apply colors from specialized menu theme settings
-                    button.BackColor = _currentTheme.MenuBackColor;
-                    button.ForeColor = _currentTheme.MenuItemForeColor;
-                    button.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
-                    button.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
-                    button.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
-                    button.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
-                    button.PressedBackColor = _currentTheme.ButtonPressedBackColor;
-                    button.PressedForeColor = _currentTheme.ButtonPressedForeColor;
-                    button.DisabledBackColor = _currentTheme.DisabledBackColor;
-                    button.DisabledForeColor = _currentTheme.DisabledForeColor;
-                    button.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
-                    button.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
-                    button.IsColorFromTheme = false;
+                _menuButton.Theme = Theme;
+                _menuButton.IsChild = true;
+                _menuButton.ParentBackColor = BackColor;
+                _menuButton.BackColor = _currentTheme.MenuBackColor;
+                _menuButton.ForeColor = _currentTheme.MenuItemForeColor;
+                _menuButton.HoverBackColor = _currentTheme.MenuItemHoverBackColor;
+                _menuButton.HoverForeColor = _currentTheme.MenuItemHoverForeColor;
+                _menuButton.SelectedBackColor = _currentTheme.MenuItemSelectedBackColor;
+                _menuButton.SelectedForeColor = _currentTheme.MenuItemSelectedForeColor;
+                _menuButton.PressedBackColor = _currentTheme.ButtonPressedBackColor;
+                _menuButton.PressedForeColor = _currentTheme.ButtonPressedForeColor;
+                _menuButton.DisabledBackColor = _currentTheme.DisabledBackColor;
+                _menuButton.DisabledForeColor = _currentTheme.DisabledForeColor;
+                _menuButton.FocusBackColor = _currentTheme.MenuItemSelectedBackColor;
+                _menuButton.FocusForeColor = _currentTheme.MenuItemSelectedForeColor;
+                _menuButton.IsColorFromTheme = false;
+                _menuButton.TextFont = _textFont;
+                _menuButton.UseScaledFont = true;
+            }
 
-                    // Apply font settings
-                    if (UseThemeFont)
-                    {
-                        button.Font =FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
-                    }
-                    else
-                    {
-                        button.TextFont = _textFont;
-                    }
+            if (_menuImage != null)
+            {
+                _menuImage.Theme = Theme;
+                _menuImage.BackColor = BackColor;
+                _menuImage.ParentBackColor = BackColor;
+            }
 
-                    button.UseScaledFont = true;
-
-                    // Apply popup-related settings
-                    if (button.PopupMode)
-                    {
-                        // If child popups exist, apply theme
-                        if (button.PopupListForm != null && !button.PopupListForm.IsDisposed)
-                        {
-                            button.PopupListForm.Theme = Theme;
-                        }
-                    }
-                }
+            if (_menuLabel != null)
+            {
+                _menuLabel.Theme = Theme;
+                _menuLabel.BackColor = BackColor;
+                _menuLabel.ForeColor = ForeColor;
+                _menuLabel.ParentBackColor = BackColor;
+                _menuLabel.TextFont = _textFont;
             }
 
             Invalidate();
         }
+        #endregion "Theme Application"
+
+        #region "Utility Methods"
+        public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
+        {
+            ErrorsInfo errorsInfo = new ErrorsInfo();
+            try
+            {
+                HandlersFactory.RunFunctionWithTreeHandler(item, MethodName);
+            }
+            catch (Exception ex)
+            {
+                errorsInfo.Flag = Errors.Failed;
+                errorsInfo.Message = ex.Message;
+                errorsInfo.Ex = ex;
+            }
+            return errorsInfo;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // Clean up parent form event subscriptions
+                if (Parent is Form parentForm)
+                {
+                    parentForm.Resize -= ParentForm_Resize;
+                }
+                
+                // Close any open popups
+                CloseAllPopups();
+                
+                // Dispose drawing components
+                _menuButton?.Dispose();
+                _menuImage?.Dispose();
+                _menuLabel?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        #endregion "Utility Methods"
     }
     
     public class MenuitemTracking
     {
         public SimpleItem ParentItem { get; set; }
         public BeepPopupListForm Menu { get; set; }
-    }
+    }    
 }

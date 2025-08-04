@@ -47,8 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
                 {
                     MenuItems.Add(item);
                 }
-                InitMenu();
-
+                //InitMenu();
+                this.Invalidate();
                 return errors;
             }
             catch (Exception ex)

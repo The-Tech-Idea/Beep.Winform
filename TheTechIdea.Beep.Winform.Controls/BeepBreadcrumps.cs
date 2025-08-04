@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 InitializeItems();
             }
         }
-
+        private Font _textFont = new Font("Segoe UI", 9);
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Text font for breadcrumb items")]
@@ -61,7 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => Font;
             set
             {
-                Font = value;
+                _textFont = value ?? new Font("Segoe UI", 9);
+                SafeApplyFont(_textFont);
                 UseThemeFont = false;
                 Invalidate();
             }

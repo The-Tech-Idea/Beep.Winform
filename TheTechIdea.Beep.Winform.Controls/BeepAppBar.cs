@@ -356,6 +356,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "SearchBox Properties"
+        private Font _titlefont = new Font("Arial", 10);
+        [Browsable(true)]
+        [MergableProperty(true)]
+        [Category("Appearance")]
+        [Description("Text Font For Title in the control.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Font TitleFont
+        {
+            get => _titlefont;
+            set
+            {
+                _titlefont = value;
+               
+                Invalidate();
+            }
+        }
         #endregion "Properties"
         #region "p?Invkos"
         [DllImport("user32.dll")]
@@ -432,7 +448,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = Title,
                 IsChild = true,
                 ApplyThemeOnImage = false,
-                UseScaledFont = true
+                UseScaledFont = false
+                
             };
 
             // Initialize search box as an actual control now
@@ -1402,11 +1419,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (UseThemeFont)
                 {
                     _titleLabel.UseThemeFont = true;
-                    if (_currentTheme.AppBarTitleStyle != null)
-                        _textFont = BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
-                    else if (_currentTheme.TitleMedium != null)
-                        _textFont = BeepThemesManager.ToFont(_currentTheme.TitleMedium);
-                    _titleLabel.TextFont = _textFont;
+                    _titlefont= BeepThemesManager.ToFont(_currentTheme.AppBarTitleStyle);
+                    _titleLabel.TextFont = _titlefont; 
                 }
             }
 

@@ -15,6 +15,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         // EVENTS
         public event EventHandler Scroll;
         public event EventHandler ValueChanged;
+        // DPI-aware property helpers
+        private int GetScaledScrollbarWidth() => ScaleValue(10);
+        private int GetScaledScrollbarHeight() => ScaleValue(100);
+        private int GetScaledMinThumbSize() => ScaleValue(10);
+
+        // FIXED: DPI-aware DefaultSize
+        protected override Size DefaultSize => new Size(GetScaledScrollbarWidth(), GetScaledScrollbarHeight());
 
         // FIELDS
         private int _value = 0;
@@ -45,13 +52,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _scrollOrientation = value;
                 if (_scrollOrientation == Orientation.Vertical)
                 {
-                    Width = 10;
-                    if (Height < DefaultSize.Height) Height = DefaultSize.Height;
+                    Width = GetScaledScrollbarWidth();
+                    if (Height < GetScaledScrollbarHeight())
+                        Height = GetScaledScrollbarHeight();
                 }
                 else
                 {
-                    Height = 10;
-                    if (Width < DefaultSize.Width) Width = DefaultSize.Width;
+                    Height = GetScaledScrollbarWidth();
+                    if (Width < GetScaledScrollbarHeight())
+                        Width = GetScaledScrollbarHeight();
                 }
                 Refresh();
             }
@@ -167,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { _thumbColorActive = value; Refresh(); }
         }
 
-        protected override Size DefaultSize => new Size(10, 100);
+       
 
         // CONSTRUCTOR
         public BeepScrollBar()
@@ -179,10 +188,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                          ControlStyles.ResizeRedraw |
                          ControlStyles.UserPaint, true);
             }
+            // FIXED: Use DPI-scaled sizes
             if (_scrollOrientation == Orientation.Vertical)
-                Size = new Size(10, 100);
+                Size = new Size(GetScaledScrollbarWidth(), GetScaledScrollbarHeight());
             else
-                Size = new Size(100, 10);
+                Size = new Size(GetScaledScrollbarHeight(), GetScaledScrollbarWidth());
         }
 
         // THEMING
@@ -219,7 +229,46 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (var thumbBrush = new SolidBrush(thumbCol))
                 g.FillRectangle(thumbBrush, thumbRect);
         }
+        // ADD: Override DPI change handling
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
 
+            // Recalculate size with new DPI
+            if (_scrollOrientation == Orientation.Vertical)
+            {
+                Width = GetScaledScrollbarWidth();
+                // Keep current height but ensure minimum
+                if (Height < GetScaledScrollbarHeight())
+                    Height = GetScaledScrollbarHeight();
+            }
+            else
+            {
+                Height = GetScaledScrollbarWidth();
+                // Keep current width but ensure minimum
+                if (Width < GetScaledScrollbarHeight())
+                    Width = GetScaledScrollbarHeight();
+            }
+
+            Invalidate();
+        }
+        // ADD: Override font change handling (even though scrollbar doesn't use text)
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+
+            // Scrollbar size might need adjustment based on font scaling
+            if (_scrollOrientation == Orientation.Vertical)
+            {
+                Width = GetScaledScrollbarWidth();
+            }
+            else
+            {
+                Height = GetScaledScrollbarWidth();
+            }
+
+            Invalidate();
+        }
         private Rectangle GetThumbRectangle()
         {
             var r = DrawingRect;
@@ -227,16 +276,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (range <= _largeChange)
                 return r;
 
+            int minThumbSize = GetScaledMinThumbSize(); // Use scaled minimum
+
             if (_scrollOrientation == Orientation.Vertical)
             {
-                int thumbH = Math.Max(10, r.Height * _largeChange / range);
+                int thumbH = Math.Max(minThumbSize, r.Height * _largeChange / range);
                 int trackLen = r.Height - thumbH;
                 int pos = r.Y + trackLen * (_value - _minimum) / (range - _largeChange);
                 return new Rectangle(r.X, pos, r.Width, thumbH);
             }
             else
             {
-                int thumbW = Math.Max(10, r.Width * _largeChange / range);
+                int thumbW = Math.Max(minThumbSize, r.Width * _largeChange / range);
                 int trackLen = r.Width - thumbW;
                 int pos = r.X + trackLen * (_value - _minimum) / (range - _largeChange);
                 return new Rectangle(pos, r.Y, thumbW, r.Height);

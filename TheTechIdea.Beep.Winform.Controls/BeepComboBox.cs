@@ -27,10 +27,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SimpleItem _selectedItem;
         private int _selectedItemIndex = -1;
         private int _collapsedHeight = 0;
-        private int _buttonWidth = 25;
-        private int _maxListHeight = 200;
-        private int _padding = 2;
-        private int _minWidth = 80;
+        //private int _buttonWidth = 25;
+        //private int _maxListHeight = 200;
+        //private int _padding = 2;
+        //private int _minWidth = 80;
+
+        // Convert hardcoded values to DPI-aware properties
+        private int _buttonWidth => ScaleValue(25);
+        private int _padding => ScaleValue(2);
+        private int _minWidth => ScaleValue(80);
+        private int _maxListHeight => ScaleValue(200);
+ 
         private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
     
         private Color tmpfillcolor;
@@ -330,17 +337,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_currentTheme.ComboBoxItemFont != null)
                 {
                     _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxItemFont);
-                    Font = _textFont;
+                   
                 }
                 else
                 {
                     _textFont = _currentTheme.LabelSmall != null ?
                         BeepThemesManager.ToFont(_currentTheme.LabelSmall) :
                         new Font("Segoe UI", 9);
-                    Font = _textFont;
+                   
                 }
             }
-
+            SafeApplyFont(_textFont);
             // Apply theme to the text box component
             if (_comboTextBox != null)
             {
@@ -355,7 +362,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply additional text box properties if needed
                 if (UseThemeFont && _currentTheme.ComboBoxItemFont != null)
                 {
-                    _comboTextBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxItemFont);
+                    _comboTextBox.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxItemFont);
                 }
             }
 
@@ -379,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply font to list items if theme fonts are enabled
                 if (UseThemeFont && _currentTheme.ComboBoxListFont != null)
                 {
-                    _beepListBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxListFont);
+                    _beepListBox.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxListFont);
                 }
             }
 

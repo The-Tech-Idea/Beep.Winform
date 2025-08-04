@@ -59,16 +59,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // With these:
         // With these:
-        private int GetScaledBoxSize() => ScaleValue(boxsize);
-        private int GetScaledImageSize() => ScaleValue(imagesize);
+        private int GetScaledBoxSize() => ScaleValue(14);
+        private int GetScaledImageSize() => ScaleValue(20);
         private int GetScaledMinRowHeight() => ScaleValue(24);
         private int GetScaledIndentWidth() => ScaleValue(16);
         private int GetScaledVerticalPadding() => ScaleValue(4);
        // private int GetScaledMinRowHeight() = 24;
       //  private int GetScaledIndentWidth() = 16;
       //  private int GetScaledVerticalPadding() = 4;
-        int boxsize = 14;
-        int imagesize = 20;
+      //  int GetScaledBoxSize() = 14;
+       //int GetScaledImageSize() = 20;
         private SimpleItem _lastHoveredItem = null;
         private Rectangle _lastHoveredRect = Rectangle.Empty;
 
@@ -213,8 +213,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _textFont = value;
                 UseThemeFont = false;
-                Font = value;
-           
+              SafeApplyFont(_textFont);
+
                 Invalidate();
             }
         }
@@ -303,10 +303,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    ControlStyles.ResizeRedraw,
             //    true);
             //this.UpdateStyles();
-            BeepButton _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(boxsize-2,boxsize-2), Size = new Size(boxsize, boxsize) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
-            BeepCheckBoxBool _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = boxsize };
+            BeepButton _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(GetScaledBoxSize()-2,GetScaledBoxSize()-2), Size = new Size(GetScaledBoxSize(), GetScaledBoxSize()) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
+            BeepCheckBoxBool _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = GetScaledBoxSize() };
             BeepImage _iconRenderer = new BeepImage { IsChild = true, ScaleMode = ImageScaleMode.KeepAspectRatio };
-            BeepButton _button = new BeepButton {IsSelectedOptionOn=true, IsChild = true, MaxImageSize = new Size(boxsize, boxsize) };
+            BeepButton _button = new BeepButton {IsSelectedOptionOn=true, IsChild = true, MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize()) };
            MouseDown += OnMouseDownHandler;
             MouseUp += OnMouseUpHandler;
             MouseMove += OnMouseMoveHandler;
@@ -347,8 +347,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         protected override void DrawContent(Graphics g)
         {
-            base.DrawContent(g);
             UpdateDrawingRect();
+            //   base.DrawContent(g);
+            // Draw ONLY our custom background, skip base drawing
+           
             HitList.Clear();
             RebuildVisible();
 
@@ -393,12 +395,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Measure text
-            Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.TreeNodeUnSelectedFont) : (_useScaledfont ? Font : _textFont);
+            Font drawFont = _textFont;
             string text = item.Text;
             _button.Text = text;
+            _button.TextFont = drawFont;
             _button.Size = _button.GetPreferredSize(Size.Empty);
             Size textSize = _button.Size;
-            rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * GetScaledVerticalPadding());
+            rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(GetScaledBoxSize(), GetScaledImageSize())) + 2 * GetScaledVerticalPadding());
 
             // Use adjusted coordinates for drawing
             Rectangle rowRect = new Rectangle(0, DrawingRect.Top + adjustedY, DrawingRect.Width, rowHeight);
@@ -414,35 +417,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _toggleRenderer.ImagePath = MinusIcon;
             }
 
-            Rectangle toggleRect = new Rectangle(adjustedX, adjustedY + (rowHeight - boxsize) / 2, boxsize, boxsize);
-            _toggleRenderer.Size = new Size(imagesize, imagesize);
-            _toggleRenderer.MaxImageSize = new Size(imagesize - 2, imagesize - 2);
+            Rectangle toggleRect = new Rectangle(adjustedX, adjustedY + (rowHeight - GetScaledBoxSize()) / 2, GetScaledBoxSize(), GetScaledBoxSize());
+            _toggleRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+            _toggleRenderer.MaxImageSize = new Size(GetScaledImageSize() - 2, GetScaledImageSize() - 2);
             _toggleRenderer.Draw(g, toggleRect);
             AddHitArea($"toggle_{item.GuidId}", toggleRect);
 
             // Checkbox
             if (_showCheckBox)
             {
-                Rectangle checkRect = new Rectangle(adjustedX + boxsize + 4, adjustedY + (rowHeight - boxsize) / 2, boxsize, boxsize);
+                Rectangle checkRect = new Rectangle(adjustedX + GetScaledBoxSize() + 4, adjustedY + (rowHeight - GetScaledBoxSize()) / 2, GetScaledBoxSize(), GetScaledBoxSize());
                 _checkRenderer.CurrentValue = item.IsChecked;
                 _checkRenderer.Draw(g, checkRect);
                 AddHitArea($"check_{item.GuidId}", checkRect);
-                checkboxWidth = boxsize + 4; // Width plus spacing
+                checkboxWidth = GetScaledBoxSize() + 4; // Width plus spacing
             }
 
             // Icon
-            int iconX = adjustedX + boxsize + checkboxWidth + 4;
+            int iconX = adjustedX + GetScaledBoxSize() + checkboxWidth + 4;
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 BeepImage iconRenderer = new BeepImage
                 {
                     ImagePath = item.ImagePath,
-                    Size = new Size(imagesize, imagesize),
+                    Size = new Size(GetScaledImageSize(), GetScaledImageSize()),
                     ScaleMode = ImageScaleMode.KeepAspectRatio
                 };
 
-                int iconY = adjustedY + (rowHeight - imagesize) / 2;
-                Rectangle iconRect = new Rectangle(iconX, iconY, imagesize, imagesize);
+                int iconY = adjustedY + (rowHeight - GetScaledImageSize()) / 2;
+                Rectangle iconRect = new Rectangle(iconX, iconY, GetScaledImageSize(), GetScaledImageSize());
 
                 GraphicsState state = g.Save();
                 try
@@ -457,8 +460,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Text
-            int textX = iconX + imagesize + 8;
-            Rectangle textRect = new Rectangle(textX, adjustedY + GetScaledVerticalPadding(), ClientSize.Width - textX, textSize.Height);
+            int textX = iconX + GetScaledImageSize() + 8;
+            Rectangle textRect = new Rectangle(textX, adjustedY + GetScaledVerticalPadding(), DrawingRect.Width - textX, textSize.Height);
             _button.Text = text;
             _button.Size = textRect.Size;
             _button.Location = textRect.Location;
@@ -726,42 +729,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Mouse Handling"
 
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-            _textFont = Font;
-            // // Console.WriteLine("Font Changed");
-            if (AutoSize)
-            {
-                Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
-            }
-        }
+     
         public override void ApplyTheme()
-        {
-           base.ApplyTheme();
+        { // Store original size
+            Size originalSize = this.Size;
+            base.ApplyTheme();
             if (IsChild)
             {
                 ParentBackColor = Parent.BackColor;
                 BackColor = ParentBackColor;
-
             }
             else
             {
                 BackColor = _currentTheme.TreeBackColor;
             }
-          
-           
+
             if (UseThemeFont)
             {
                 _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.TreeNodeUnSelectedFont);
-                
+
                 _button.TextFont = _textFont;
                 _button.UseThemeFont = UseThemeFont;
             }
             else
             {
-              
                 _button.TextFont = Font;
             }
             SafeApplyFont(TextFont ?? _textFont);
@@ -769,15 +760,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _button.UseScaledFont = UseScaledFont;
             }
-            _toggleRenderer.Theme = Theme;
-            _toggleRenderer.BackColor= BackColor;
-            _checkRenderer.Theme = Theme;
-            _checkRenderer.BackColor = BackColor;
-            _iconRenderer.Theme = Theme;
-            _iconRenderer.BackColor = BackColor;
-             ForeColor = _currentTheme.TreeForeColor;
-  
-            _button.IsColorFromTheme=false;
+
+            // CRITICAL DPI FIX: Update all rendering components with new DPI scaling after theme change
+            if (IsHandleCreated)
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    UpdateDpiScaling(g);
+                }
+            }
+
+            // Update DPI-scaled sizes for all rendering components
+            if (_toggleRenderer != null)
+            {
+                _toggleRenderer.Theme = Theme;
+                _toggleRenderer.BackColor = BackColor;
+                _toggleRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+                _toggleRenderer.MaxImageSize = new Size(GetScaledImageSize() - 2, GetScaledImageSize() - 2);
+            }
+
+            if (_checkRenderer != null)
+            {
+                _checkRenderer.Theme = Theme;
+                _checkRenderer.BackColor = BackColor;
+                _checkRenderer.CheckBoxSize = GetScaledBoxSize();
+            }
+
+            if (_iconRenderer != null)
+            {
+                _iconRenderer.Theme = Theme;
+                _iconRenderer.BackColor = BackColor;
+                _iconRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+            }
+
+            ForeColor = _currentTheme.TreeForeColor;
+
+            _button.IsColorFromTheme = false;
             _button.BackColor = BackColor;
             _button.ForeColor = _currentTheme.TreeForeColor;
             _button.SelectedForeColor = _currentTheme.TreeNodeSelectedForeColor;
@@ -785,12 +803,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             _button.BorderColor = _currentTheme.TreeNodeSelectedBackColor;
             _button.HoverBackColor = _currentTheme.TreeNodeHoverBackColor;
             _button.HoverForeColor = _currentTheme.TreeNodeHoverForeColor;
-            _button.TextFont = _textFont;
-            _verticalScrollBar.Theme = Theme;
-            _horizontalScrollBar.Theme = Theme;
-            Invalidate();
-            Refresh();
+           // _button.TextFont = _textFont;
+            _button.MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize());
 
+            if (_verticalScrollBar != null)
+                _verticalScrollBar.Theme = Theme;
+            if (_horizontalScrollBar != null)
+                _horizontalScrollBar.Theme = Theme;
+
+         
+            Invalidate();
+            // Rebuild with new theme and DPI scaling
+            if (this.Size != originalSize)
+            {
+                System.Diagnostics.Debug.WriteLine($"Theme changed size from {originalSize} to {Size} - restoring!");
+                this.Size = originalSize;
+            }
+           
         }
         #region "Find and Filter"
         #region "Find Tree Node"
@@ -1436,22 +1465,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.VerticalScroll.Visible = false;
             this.HorizontalScroll.Visible = false;
 
-            // Create vertical scrollbar
+            // Create vertical scrollbar with DPI-scaled width
             _verticalScrollBar = new BeepScrollBar
             {
                 ScrollOrientation = Orientation.Vertical,
                 Visible = false,
-                Width = 10
+                Width = ScaleValue(10)  // ✅ Use DPI-scaled width
             };
             _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
             Controls.Add(_verticalScrollBar);
 
-            // Create horizontal scrollbar
+            // Create horizontal scrollbar with DPI-scaled height
             _horizontalScrollBar = new BeepScrollBar
             {
                 ScrollOrientation = Orientation.Horizontal,
                 Visible = false,
-                Height = 10
+                Height = ScaleValue(10)  // ✅ Use DPI-scaled height
             };
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);
@@ -1509,7 +1538,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int visibleWidth = ClientRectangle.Width;
 
             // Debug info
-           // System.Diagnostics.Debug.WriteLine($"Content: {contentWidth}x{contentHeight}, Visible: {visibleWidth}x{visibleHeight}");
+            // System.Diagnostics.Debug.WriteLine($"Content: {contentWidth}x{contentHeight}, Visible: {visibleWidth}x{visibleHeight}");
 
             // Determine if scrollbars are needed
             bool needsVertical = _showVerticalScrollBar && contentHeight > visibleHeight;
@@ -1527,8 +1556,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Position scrollbar
                 _verticalScrollBar.Location = new Point(
-                    ClientRectangle.Right - _verticalScrollBar.Width,
-                    ClientRectangle.Top);
+                    DrawingRect.Right - _verticalScrollBar.Width,
+                    DrawingRect.Top);
                 _verticalScrollBar.Height = needsHorizontal ?
                     visibleHeight - _horizontalScrollBar.Height :
                     visibleHeight;
@@ -1537,7 +1566,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _verticalScrollBar.Visible = true;
                 _verticalScrollBar.BringToFront();
 
-            //    System.Diagnostics.Debug.WriteLine($"Vertical scrollbar visible: H={_verticalScrollBar.Height}, Max={_verticalScrollBar.Maximum}");
+                //    System.Diagnostics.Debug.WriteLine($"Vertical scrollbar visible: H={_verticalScrollBar.Height}, Max={_verticalScrollBar.Maximum}");
             }
             else
             {
@@ -1557,8 +1586,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Position scrollbar
                 _horizontalScrollBar.Location = new Point(
-                    ClientRectangle.Left,
-                    ClientRectangle.Bottom - _horizontalScrollBar.Height);
+                    DrawingRect.Left,
+                    DrawingRect.Bottom - _horizontalScrollBar.Height);
                 _horizontalScrollBar.Width = needsVertical ?
                     visibleWidth - _verticalScrollBar.Width :
                     visibleWidth;
@@ -1587,7 +1616,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _button.Size = _button.GetPreferredSize(Size.Empty);
                 Size textSize = _button.Size;
 
-                int rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(boxsize, imagesize)) + 2 * GetScaledVerticalPadding());
+                int rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(GetScaledBoxSize(), GetScaledImageSize())) + 2 * GetScaledVerticalPadding());
                 totalHeight += rowHeight;
             }
 
@@ -1612,7 +1641,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _button.Size = _button.GetPreferredSize(Size.Empty);
                 Size textSize = _button.Size;
 
-                int rowWidth = baseIndent + boxsize + (_showCheckBox ? boxsize + 4 : 0) + imagesize + 8 + textSize.Width + 40;
+                int rowWidth = baseIndent + GetScaledBoxSize() + (_showCheckBox ? GetScaledBoxSize() + 4 : 0) + GetScaledImageSize() + 8 + textSize.Width + 40;
 
                 maxWidth = Math.Max(maxWidth, rowWidth);
             }
@@ -1623,10 +1652,75 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateScrollBars();
+            Invalidate();
         }
 
-        #endregion 
+        #endregion
+        #region DPI Methods
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+
+
+            // CRITICAL DPI FIX: Recalculate all DPI-dependent values when font changes
+            if (IsHandleCreated)
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    UpdateDpiScaling(g);
+                }
+            }
+
+            // Update button font and recalculate preferred size
+            if (_button != null)
+            {
+                _button.TextFont = _textFont;
+                _button.UseScaledFont = UseScaledFont;
+            }
+
+           
+
+            Invalidate();
+
+            //if (AutoSize)
+            //{
+            //    Size textSize = TextRenderer.MeasureText(Text, _textFont);
+            //    this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+            //}
+        }
+        // Override OnDpiChangedAfterParent to handle DPI changes
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+
+            // Update all DPI-dependent rendering components
+            if (_toggleRenderer != null)
+            {
+                _toggleRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+                _toggleRenderer.MaxImageSize = new Size(GetScaledImageSize() - 2, GetScaledImageSize() - 2);
+            }
+
+            if (_checkRenderer != null)
+            {
+                _checkRenderer.CheckBoxSize = GetScaledBoxSize();
+            }
+
+            if (_iconRenderer != null)
+            {
+                _iconRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+            }
+
+            if (_button != null)
+            {
+                _button.MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize());
+                _button.UseScaledFont = UseScaledFont;
+            }
+
+          
+            // Force complete redraw
+            Invalidate();
+        }
+        #endregion
 
     }
 }

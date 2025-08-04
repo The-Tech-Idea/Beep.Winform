@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
@@ -31,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
+            beepSimpleTextBox1.ImagePath = BeepSvgPaths.Add;
             //   this.beepCircularButton1.Click += BeepCircularButton1_Click;
             //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
         }

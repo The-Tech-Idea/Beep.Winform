@@ -1,4 +1,4 @@
-﻿using Autofac;
+﻿
 using Microsoft.Extensions.DependencyInjection;
 using System.Web;
 using TheTechIdea.Beep.Addin;
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         private bool _isCustomCreatorSet = false;
         private bool _useCustomCreator = false;
         private readonly IServiceProvider _serviceProvider; // Microsoft DI
-        private readonly IComponentContext _autofacContext; // Autofac container
+      
         private readonly SemaphoreSlim _navigationLock = new SemaphoreSlim(1, 1);
         // For example, hold a list of route definitions:
         private readonly List<RouteDefinition> _routeDefinitions = new()
@@ -81,13 +81,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             Beepservices = (IBeepService)service.GetService(typeof(IBeepService));
             DMEEditor = Beepservices.DMEEditor;
         }
-        public RoutingManager(IComponentContext autofacContext)
-        {
-            _autofacContext = autofacContext; // Autofac container
-
-            Beepservices = _autofacContext.Resolve<IBeepService>();
-            DMEEditor = Beepservices.DMEEditor;
-        }
+      
         #endregion "Constructors"
         #region Navigation
         public async Task<IErrorsInfo> NavigateUriAsync(string uri, bool popup = false)
@@ -781,12 +775,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
         private IDM_Addin ResolveAddin(Type viewType)
         {
-            if (_autofacContext != null)
-            {
-                // Use Autofac to resolve the view
-                return _autofacContext.ResolveKeyed<IDM_Addin>(viewType.Name); // Resolve by type name
-            }
-            else if (_serviceProvider != null)
+            if (_serviceProvider != null)
             {
                 // Use Microsoft DI to resolve the view
                 return CreateUsingServiceLocator(viewType);
@@ -795,30 +784,7 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
         public Type FindAddinTypeFromServices(string moduleOrAddinName)
         {
-            if (_autofacContext != null)
-            {
-                try
-                {
-                    // Resolve the IDM_Addin by key (type name)
-                    var addin = _autofacContext.ResolveKeyed<IDM_Addin>(moduleOrAddinName);
-
-                    if (addin != null)
-                    {
-                        return addin.GetType();
-                    }
-                }
-                catch (Autofac.Core.Registration.ComponentNotRegisteredException)
-                {
-                    // Handle the case where the key is not registered
-                    Console.WriteLine($"Addin with key '{moduleOrAddinName}' is not registered.");
-                }
-                catch (Exception ex)
-                {
-                    // Handle other exceptions
-                    Console.WriteLine($"Error resolving addin: {ex.Message}");
-                }
-            }
-            else if (_serviceProvider != null)
+         if (_serviceProvider != null)
             {
                 // Retrieve all registered services
                 foreach (var service in _serviceProvider.GetServices(typeof(IDM_Addin)))

@@ -1,4 +1,4 @@
-﻿using Autofac;
+﻿
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Desktop.Common
     public class AppManager : IAppManager
     {
         #region "Variables"
-        private readonly IComponentContext _autofacContext; // Autofac container
+       
         private readonly IServiceProvider servicelocator;
         private readonly IBeepService beepservices;
 
@@ -37,20 +37,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             init();
 
         }
-        // Constructor for Autofac
-        public AppManager(IComponentContext autofacContext)
-        {
-            _autofacContext = autofacContext; // Autofac container
-
-            // Resolve dependencies using Autofac
-            beepservices = _autofacContext.Resolve<IBeepService>();
-            RoutingManager = _autofacContext.Resolve<IRoutingManager>();
-            DialogManager = _autofacContext.Resolve<IDialogManager>();
-         
-           
-            DMEEditor = beepservices.DMEEditor;
-            init();
-        }
+        
         public void init()
         {
             ErrorsandMesseges = new ErrorsInfo();

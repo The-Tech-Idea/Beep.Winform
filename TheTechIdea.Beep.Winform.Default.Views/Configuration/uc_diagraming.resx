@@ -117,6 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="beepSimpleTextBox1.AutoCompleteList" mimetype="application/x-microsoft.net.object.binary.base64">
+    <value>
+        AAEAAAD/////AQAAAAAAAAAEAQAAAH9TeXN0ZW0uQ29sbGVjdGlvbnMuR2VuZXJpYy5MaXN0YDFbW1N5
+        c3RlbS5TdHJpbmcsIG1zY29ybGliLCBWZXJzaW9uPTQuMC4wLjAsIEN1bHR1cmU9bmV1dHJhbCwgUHVi
+        bGljS2V5VG9rZW49Yjc3YTVjNTYxOTM0ZTA4OV1dAwAAAAZfaXRlbXMFX3NpemUIX3ZlcnNpb24GAAAI
+        CAkCAAAAAAAAAAAAAAARAgAAAAAAAAAL
+</value>
+  </data>
   <data name="beepSimpleTextBox1.Info" mimetype="application/x-microsoft.net.object.binary.base64">
     <value>
         AAEAAAD/////AQAAAAAAAAAMAgAAAEdUaGVUZWNoSWRlYS5CZWVwLldpbmZvcm0uQ29udHJvbHMsIEN1
@@ -156,8 +164,8 @@
         IFB1YmxpY0tleVRva2VuPW51bGxdXQMAAAAIIlRoZVRlY2hJZGVhLkJlZXAuVmlzLkVudW1Qb2ludFR5
         cGUEAAAAIlRoZVRlY2hJZGVhLkJlZXAuVmlzLkVudW1Qb2ludFR5cGUEAAAAKVRoZVRlY2hJZGVhLkJl
         ZXAuVmlzLk1vZHVsZXMuTWVudUl0ZW1UeXBlBQAAAC1UaGVUZWNoSWRlYS5CZWVwLlV0aWxpdGllcy5E
-        YXRhc291cmNlQ2F0ZWdvcnkEAAAAAQEBAQEBAQgICAgICwgBCAECAAAAAAAAAAYGAAAAJGM2ZTRmZmRk
-        LWM1MjQtNGNjOC04ZjZjLWQ1OGZmNTBkYWQxMwoKCgoKCgoKCgoKCQcAAAAKCgoAAAAACgoF+P///yJU
+        YXRhc291cmNlQ2F0ZWdvcnkEAAAAAQEBAQEBAQgICAgICwgBCAECAAAAAAAAAAYGAAAAJGJiZjNkY2Nj
+        LTdmNmMtNGY2YS04NDA1LWFhYWNhNGFmOWVmNAoKCgoKCgoKCgoKCQcAAAAKCgoAAAAACgoF+P///yJU
         aGVUZWNoSWRlYS5CZWVwLlZpcy5FbnVtUG9pbnRUeXBlAQAAAAd2YWx1ZV9fAAgEAAAAAAAAAAoKCgH3
         ////+P///wAAAAAKBfb///8pVGhlVGVjaElkZWEuQmVlcC5WaXMuTW9kdWxlcy5NZW51SXRlbVR5cGUB
         AAAAB3ZhbHVlX18ACAUAAAAAAAAABfX///8tVGhlVGVjaElkZWEuQmVlcC5VdGlsaXRpZXMuRGF0YXNv

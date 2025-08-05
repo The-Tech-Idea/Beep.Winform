@@ -17,7 +17,7 @@
 		<Title>TheTechIdea.Beep.Desktop.Common</Title>
 		<Product>TheTechIdea.Beep.Desktop.Common</Product>
 		<AssemblyName>TheTechIdea.Beep.Desktop.Common</AssemblyName>
-		<Version>1.0.0</Version>
+		<Version>1.0.1</Version>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>
 	<Target Name="CopyPackage" AfterTargets="Pack">
@@ -33,13 +33,11 @@
 		</None>
 	</ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="8.3.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.7" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Container" Version="1.0.0.85" />
-    <PackageReference Include="TheTechIdea.Beep.Container.AutoFac" Version="1.0.2" />
+    <PackageReference Include="TheTechIdea.Beep.Container" Version="1.0.0.87" />
     <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.48" />
     <PackageReference Include="TheTechIdea.Beep.Container.Shared" Version="1.0.0" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.67" />

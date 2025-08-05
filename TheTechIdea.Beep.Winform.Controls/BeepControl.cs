@@ -337,8 +337,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _text;
             set
             {
+                if (_isInitializing) return;
+                // Check if the value looks like a default control name
+                if (value != null && (value == "BeepControl"))
+                {
+                    value = ""; // Set to empty instead
+                }
+
                 _text = value;
-                OnTextChanged(EventArgs.Empty);
+                 OnTextChanged(EventArgs.Empty);
                 _isControlinvalidated = true;
                 Invalidate();  // Trigger repaint when the text changes
             }
@@ -1010,8 +1017,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Public Properties"
         #region "Constructors"
+        bool _isInitializing = true; // Flag to track initialization state
         public BeepControl()
         {
+            _isInitializing = true; // ✅ FIX: Set initialization flag
+
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
            
@@ -1033,7 +1043,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Padding = new Padding(0);
             UpdateDrawingRect();
             ComponentName = "BeepControl";
-
+            _isInitializing = false; // 
 
         }
     
@@ -3635,7 +3645,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _theme = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
                 //      this.ApplyTheme();
-                ApplyTheme();
+              ApplyTheme();
             }
         }
 

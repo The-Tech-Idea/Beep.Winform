@@ -1,4 +1,4 @@
-﻿using Autofac;
+﻿
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.Extensions.Hosting;
@@ -23,8 +23,7 @@ namespace TheTechIdea.Beep.Desktop.Common
     {
         public static IServiceProvider Provider;
         private static IServiceCollection Services;
-        public static IContainer AutoFacContainer { get; private set; }
-        private static ContainerBuilder Builder;
+      
       
         public static IBeepService beepService { get; private set; }
         public static IAppManager AppManager { get; private set; }
@@ -57,167 +56,167 @@ namespace TheTechIdea.Beep.Desktop.Common
 
 
 
-        #region "AutoFac"
+    //    #region "AutoFac"
 
-        public static ContainerBuilder RegisterRouter(this ContainerBuilder builder)
-        {
-            Builder = builder;
-            Builder.RegisterType<RoutingManager>().As<IRoutingManager>().SingleInstance();
-            return Builder;
-        }
-        public static ContainerBuilder RegisterKeyHandler(this ContainerBuilder builder)
-        {
-            Builder = builder;
-            Builder.RegisterType<KeyHandlingManager>().As<IKeyHandlingManager>().SingleInstance();
+    //    public static ContainerBuilder RegisterRouter(this ContainerBuilder builder)
+    //    {
+    //        Builder = builder;
+    //        Builder.RegisterType<RoutingManager>().As<IRoutingManager>().SingleInstance();
+    //        return Builder;
+    //    }
+    //    public static ContainerBuilder RegisterKeyHandler(this ContainerBuilder builder)
+    //    {
+    //        Builder = builder;
+    //        Builder.RegisterType<KeyHandlingManager>().As<IKeyHandlingManager>().SingleInstance();
 
-            return Builder;
-        }
-        public static ContainerBuilder RegisterAppManager(this ContainerBuilder builder)
-        {
-            Builder = builder;
-            Builder.RegisterType<AppManager>().As<IAppManager>().SingleInstance();
-            return Builder;
-        }
-        public static IContainer ConfigureAppManager(this IContainer container, Action<AppManager> configure)
-        {
+    //        return Builder;
+    //    }
+    //    public static ContainerBuilder RegisterAppManager(this ContainerBuilder builder)
+    //    {
+    //        Builder = builder;
+    //        Builder.RegisterType<AppManager>().As<IAppManager>().SingleInstance();
+    //        return Builder;
+    //    }
+    //    public static IContainer ConfigureAppManager(this IContainer container, Action<AppManager> configure)
+    //    {
 
-            var appManager = container.Resolve<IAppManager>() as AppManager;
-            AppManager = appManager;
-            if (AppManager != null)
-            {
-                configure(appManager); // Configure the AppManager instance
-            }
+    //        var appManager = container.Resolve<IAppManager>() as AppManager;
+    //        AppManager = appManager;
+    //        if (AppManager != null)
+    //        {
+    //            configure(appManager); // Configure the AppManager instance
+    //        }
 
-            return container;
-        }
+    //        return container;
+    //    }
 
-        public static IContainer ShowHome(this IContainer container)
-        {
-            var appManager = container.Resolve<IAppManager>() as AppManager;
-            appManager.ShowHome();
-            return container;
-        }
-        public static ContainerBuilder RegisterViewModels(this ContainerBuilder builder)
-        {
-            Builder = builder;
+    //    public static IContainer ShowHome(this IContainer container)
+    //    {
+    //        var appManager = container.Resolve<IAppManager>() as AppManager;
+    //        appManager.ShowHome();
+    //        return container;
+    //    }
+    //    public static ContainerBuilder RegisterViewModels(this ContainerBuilder builder)
+    //    {
+    //        Builder = builder;
 
-            // Collect assemblies
-            var assemblies = new List<Assembly>
-    {
-        Assembly.GetExecutingAssembly(),
-        Assembly.GetCallingAssembly(),
-        Assembly.GetEntryAssembly()!
-    };
+    //        // Collect assemblies
+    //        var assemblies = new List<Assembly>
+    //{
+    //    Assembly.GetExecutingAssembly(),
+    //    Assembly.GetCallingAssembly(),
+    //    Assembly.GetEntryAssembly()!
+    //};
 
-            var loadedFromContext = DependencyContext.Default.RuntimeLibraries
-                .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
-                .Select(Assembly.Load)
-                .ToList();
-            assemblies.AddRange(loadedFromContext);
+    //        var loadedFromContext = DependencyContext.Default.RuntimeLibraries
+    //            .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
+    //            .Select(Assembly.Load)
+    //            .ToList();
+    //        assemblies.AddRange(loadedFromContext);
 
-            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => !a.FullName.StartsWith("System", StringComparison.OrdinalIgnoreCase)
-                         && !a.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)));
+    //        assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
+    //            .Where(a => !a.FullName.StartsWith("System", StringComparison.OrdinalIgnoreCase)
+    //                     && !a.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)));
 
-            // Register types implementing IBeepViewModel
-            var viewModelTypes = assemblies.SelectMany(a => a.GetTypes())
-                .Where(t => typeof(IBeepViewModel).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
+    //        // Register types implementing IBeepViewModel
+    //        var viewModelTypes = assemblies.SelectMany(a => a.GetTypes())
+    //            .Where(t => typeof(IBeepViewModel).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
-            foreach (var viewModelType in viewModelTypes)
-            {
-                // Register with the type name as the key
-                Builder.RegisterType(viewModelType)
-                       .Keyed<IBeepViewModel>(viewModelType.Name) // Use the type name as the key
-                       .InstancePerDependency();
-            }
+    //        foreach (var viewModelType in viewModelTypes)
+    //        {
+    //            // Register with the type name as the key
+    //            Builder.RegisterType(viewModelType)
+    //                   .Keyed<IBeepViewModel>(viewModelType.Name) // Use the type name as the key
+    //                   .InstancePerDependency();
+    //        }
 
-            return Builder;
-        }
+    //        return Builder;
+    //    }
 
-        public static ContainerBuilder RegisterViews(this ContainerBuilder builder)
-        {
-            Builder = builder;
+    //    public static ContainerBuilder RegisterViews(this ContainerBuilder builder)
+    //    {
+    //        Builder = builder;
 
-            // Collect assemblies (reuse same logic as above)
-            var assemblies = new List<Assembly>
-    {
-        Assembly.GetExecutingAssembly(),
-        Assembly.GetCallingAssembly(),
-        Assembly.GetEntryAssembly()!
-    };
+    //        // Collect assemblies (reuse same logic as above)
+    //        var assemblies = new List<Assembly>
+    //{
+    //    Assembly.GetExecutingAssembly(),
+    //    Assembly.GetCallingAssembly(),
+    //    Assembly.GetEntryAssembly()!
+    //};
 
-            var loadedFromContext = DependencyContext.Default.RuntimeLibraries
-                .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
-                .Select(Assembly.Load)
-                .ToList();
-            assemblies.AddRange(loadedFromContext);
+    //        var loadedFromContext = DependencyContext.Default.RuntimeLibraries
+    //            .SelectMany(lib => lib.GetDefaultAssemblyNames(DependencyContext.Default))
+    //            .Select(Assembly.Load)
+    //            .ToList();
+    //        assemblies.AddRange(loadedFromContext);
 
-            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => !a.FullName.StartsWith("System", StringComparison.OrdinalIgnoreCase)
-                         && !a.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)));
+    //        assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies()
+    //            .Where(a => !a.FullName.StartsWith("System", StringComparison.OrdinalIgnoreCase)
+    //                     && !a.FullName.StartsWith("Microsoft", StringComparison.OrdinalIgnoreCase)));
 
-            // Register types implementing IDM_Addin
-            var viewTypes = assemblies.SelectMany(a => a.GetTypes())
-                .Where(t => typeof(IDM_Addin).IsAssignableFrom(t) && !t.IsInterface);
+    //        // Register types implementing IDM_Addin
+    //        var viewTypes = assemblies.SelectMany(a => a.GetTypes())
+    //            .Where(t => typeof(IDM_Addin).IsAssignableFrom(t) && !t.IsInterface);
 
-            foreach (var viewType in viewTypes)
-            {
-                // Use the type name as the key
-                var addinName = viewType.Name;
+    //        foreach (var viewType in viewTypes)
+    //        {
+    //            // Use the type name as the key
+    //            var addinName = viewType.Name;
 
-                // Register with the type name as the key
-                Builder.RegisterType(viewType)
-                       .Keyed<IDM_Addin>(addinName) // Use the type name as the key
-                       .InstancePerDependency();
-            }
+    //            // Register with the type name as the key
+    //            Builder.RegisterType(viewType)
+    //                   .Keyed<IDM_Addin>(addinName) // Use the type name as the key
+    //                   .InstancePerDependency();
+    //        }
 
-            return Builder;
-        }
+    //        return Builder;
+    //    }
 
-        public static void RegisterServices(this ContainerBuilder builder)
-        {
-            // Register services
+    //    public static void RegisterServices(this ContainerBuilder builder)
+    //    {
+    //        // Register services
 
-            builder.Register(AppContext.BaseDirectory, null, BeepConfigType.Application, true)
-                   .RegisterRouter()
-                   .RegisterAppManager()
-                   .RegisterKeyHandler()
-                   .RegisterViewModels() // Register view models with type names as keys
-                   .RegisterViews();     // Register views with type names as keys
+    //        builder.Register(AppContext.BaseDirectory, null, BeepConfigType.Application, true)
+    //               .RegisterRouter()
+    //               .RegisterAppManager()
+    //               .RegisterKeyHandler()
+    //               .RegisterViewModels() // Register view models with type names as keys
+    //               .RegisterViews();     // Register views with type names as keys
 
 
-            // Add additional service registrations here
-        }
-        public static void LinkStaticServices()
-        {
-            DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
-            DynamicFunctionCallingManager.Vismanager = beepService.vis;
+    //        // Add additional service registrations here
+    //    }
+    //    public static void LinkStaticServices()
+    //    {
+    //        DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
+    //        DynamicFunctionCallingManager.Vismanager = beepService.vis;
 
-        }
-        public static void ConfigureServices(IContainer autofacContainer)
-        {
-            if (autofacContainer == null)
-            {
-                return;
-            }
-            AutoFacContainer = autofacContainer;
-            // Extracted service retrieval and initial configuration into a separate method
-            beepService = AutoFacContainer.Resolve<IBeepService>()!;
-            AppManager = AutoFacContainer.Resolve<IAppManager>()!;
-            beepService.vis = AppManager;
-            keyhandler = AutoFacContainer.Resolve<IKeyHandlingManager>()!;
-            DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
-            DynamicFunctionCallingManager.Vismanager = beepService.vis;
+    //    }
+    //    public static void ConfigureServices(IContainer autofacContainer)
+    //    {
+    //        if (autofacContainer == null)
+    //        {
+    //            return;
+    //        }
+    //        AutoFacContainer = autofacContainer;
+    //        // Extracted service retrieval and initial configuration into a separate method
+    //        beepService = AutoFacContainer.Resolve<IBeepService>()!;
+    //        AppManager = AutoFacContainer.Resolve<IAppManager>()!;
+    //        beepService.vis = AppManager;
+    //        keyhandler = AutoFacContainer.Resolve<IKeyHandlingManager>()!;
+    //        DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
+    //        DynamicFunctionCallingManager.Vismanager = beepService.vis;
 
-            // Resolve a specific view model by key (type name)
+    //        // Resolve a specific view model by key (type name)
 
-            // Assuming these method calls setup and configure the services as necessary
-            //Connect Winform Visula Manager to My Beep Service
-            //if Web or other UI use the appropriate VisManager
+    //        // Assuming these method calls setup and configure the services as necessary
+    //        //Connect Winform Visula Manager to My Beep Service
+    //        //if Web or other UI use the appropriate VisManager
 
-            // SetupVisManager();
-        }
-        #endregion
+    //        // SetupVisManager();
+    //    }
+    //    #endregion
 
 
         public static void ShowHome()
@@ -404,6 +403,10 @@ namespace TheTechIdea.Beep.Desktop.Common
             // Extracted service retrieval and initial configuration into a separate method
             beepService = host.Services.GetService<IBeepService>()!;
             AppManager = host.Services.GetService<IAppManager>()!;
+            beepService.vis = AppManager;
+
+            DynamicFunctionCallingManager.DMEEditor = beepService.DMEEditor;
+            DynamicFunctionCallingManager.Vismanager = beepService.vis;
             keyhandler = host.Services.GetService<IKeyHandlingManager>()!;
             // Assuming these method calls setup and configure the services as necessary
             //Connect Winform Visula Manager to My Beep Service

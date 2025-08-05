@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.CanBePressed = true;
             beepDisplayContainer1.Category = Utilities.DbFieldCategory.String;
             beepDisplayContainer1.ComponentName = "BeepDisplayContainer";
-            beepDisplayContainer1.ContainerType = ContainerTypeEnum.TabbedPanel;
+            beepDisplayContainer1.ContainerType = ContainerTypeEnum.SinglePanel;
             beepDisplayContainer1.DataSourceProperty = null;
             beepDisplayContainer1.DisabledBackColor = Color.Gray;
             beepDisplayContainer1.DisabledBorderColor = Color.Empty;
@@ -613,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 30;
+            beepAppTree1.SeqID = 1;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 0;
             beepAppTree1.ShadowOpacity = 0.5F;

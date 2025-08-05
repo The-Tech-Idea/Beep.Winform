@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     [AddinAttribute(Caption = "Map Entity Fields to Another", Name = "uc_Import_MapFields", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
     public partial class uc_Import_MapFields : TemplateUserControl
     {
-        public uc_Import_MapFields(IBeepService service) : base(service)
+        public uc_Import_MapFields(IServiceProvider services): base(services)
         {
             InitializeComponent();
         }

@@ -1,14 +1,15 @@
 ﻿
+using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel;
+using System.Reflection;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using System.Reflection;
-using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Container.Services;
-using System.ComponentModel;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.DataBase;
+using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
@@ -18,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
      
         public IAppManager appManager;
         public IDMEEditor Editor { get; }
+        protected readonly IBeepService? beepService;
         public TemplateUserControl()
         {
             InitializeComponent();
@@ -25,18 +27,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Dependencies = new Dependencies();
             Details.ObjectType = "UserControl";
         }
-        public TemplateUserControl(IBeepService service) : base()
+        public TemplateUserControl(IServiceProvider services) : base()
         {
             InitializeComponent();
             this.DoubleBuffered = true;
             Details = new AddinDetails();
             Dependencies = new Dependencies();
             Details.ObjectType = "UserControl";
-            Dependencies.DMEEditor = service.DMEEditor;
-            Dependencies.Logger = service.lg;
-            Editor = service.DMEEditor;
-            appManager = service.vis;
-            beepService = service;
+            beepService = services.GetService<IBeepService>();
+            Dependencies.DMEEditor = beepService.DMEEditor;
+            Dependencies.Logger = beepService.lg;
+            Editor = beepService.DMEEditor;
+            appManager = beepService.vis;
+          
             Dependencies.DMEEditor = beepService.DMEEditor;
             BeepThemesManager.ThemeChanged += BeepThemesManager_v2_ThemeChanged;
             Theme = BeepThemesManager.CurrentThemeName;
@@ -51,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             ApplyTheme();
         }
         #region "IDM_Addin Implementation"
-        protected  IBeepService? beepService;
+     
 
         private string _theme;
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();

@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_RDBMSConnections : TemplateUserControl, IAddinVisSchema
     {
-        public uc_RDBMSConnections(IBeepService service):base(service)
+        public uc_RDBMSConnections(IServiceProvider services): base(services)
         {
             InitializeComponent();
            

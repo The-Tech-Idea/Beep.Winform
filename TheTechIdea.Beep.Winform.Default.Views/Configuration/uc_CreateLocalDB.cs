@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_CreateLocalDB : TemplateUserControl, IAddinVisSchema
     {
-        public uc_CreateLocalDB(IBeepService service):base(service)
+        public uc_CreateLocalDB(IServiceProvider services) : base(services)
         {
             InitializeComponent();
 

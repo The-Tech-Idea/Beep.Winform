@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         IDataSource dataSource;
         List<EntityStructure> Entities = new List<EntityStructure>();
         public List<ETLScriptDet> SyncEntities { get; set; }
-        public uc_CopyEntities(IBeepService service):base(service)
+        public uc_CopyEntities(IServiceProvider services): base(services)
         {
             InitializeComponent();
             Details.AddinName = "Paste Entities";

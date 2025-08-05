@@ -28,6 +28,13 @@ namespace TheTechIdea.Beep.Desktop.Common
         public static IBeepService beepService { get; private set; }
         public static IAppManager AppManager { get; private set; }
         public static IKeyHandlingManager keyhandler { get; private set; }
+        public static IServiceCollection RegisterControlServices(this IServiceCollection services)
+        {
+            // Register services
+           services.AddSingleton<IUserControlService, UserControlService>();
+            return services;
+
+        }
         public static IServiceCollection RegisterRouter(this IServiceCollection services)
         {
             Services = services;
@@ -51,9 +58,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             return serviceProvider;
         }
 
-        private static bool _mappingCreated;
-        private static string _beepDataPath;
-
+     
 
 
     //    #region "AutoFac"
@@ -324,7 +329,11 @@ namespace TheTechIdea.Beep.Desktop.Common
 
             foreach (var viewModelType in viewModelTypes)
             {
-                Services.AddTransient(typeof(IBeepViewModel), viewModelType);
+                // ✅ Register with keyed service using factory function
+                Services.AddKeyedTransient<IBeepViewModel>(viewModelType.Name, (serviceProvider, key) =>
+                {
+                    return (IBeepViewModel)ActivatorUtilities.CreateInstance(serviceProvider, viewModelType);
+                });
             }
 
             return Services;
@@ -361,13 +370,30 @@ namespace TheTechIdea.Beep.Desktop.Common
                 var addinAttribute = viewType.GetCustomAttribute<AddinAttribute>();
                 if (addinAttribute != null)
                 {
+
+
+                    //            // Register with the type name as the key
+                    //            Builder.RegisterType(viewType)
+                    //                   .Keyed<IDM_Addin>(addinName) // Use the type name as the key
+                    //                   .InstancePerDependency();
+                    // Do the below like AutoFac commented
+                    // ✅ Register with the type name as the key using .NET 8 keyed services
+                    // Use the type name as the key (same as Autofac)
+                    var addinName = viewType.Name;
+                    // ✅ First register the concrete type
                     if (addinAttribute.ScopeCreateType == AddinScopeCreateType.Single)
                     {
-                        Services.AddSingleton(typeof(IDM_Addin), viewType);
+                        Services.AddSingleton(viewType);
+                        // Then register keyed service that resolves the concrete type
+                        Services.AddKeyedSingleton<IDM_Addin>(addinName, (serviceProvider, key) =>
+                            (IDM_Addin)serviceProvider.GetRequiredService(viewType));
                     }
                     else
                     {
-                        Services.AddTransient(typeof(IDM_Addin), viewType);
+                        Services.AddTransient(viewType);
+                        // Then register keyed service that resolves the concrete type
+                        Services.AddKeyedTransient<IDM_Addin>(addinName, (serviceProvider, key) =>
+                            (IDM_Addin)serviceProvider.GetRequiredService(viewType));
                     }
                 }
               
@@ -388,6 +414,7 @@ namespace TheTechIdea.Beep.Desktop.Common
             builder.Services.RegisterViewModels();
             builder.Services.RegisterViews();
             builder.Services.RegisterAppManager();
+            builder.Services.RegisterControlServices();
             // Add additional service registrations here
         }
         /// <summary>

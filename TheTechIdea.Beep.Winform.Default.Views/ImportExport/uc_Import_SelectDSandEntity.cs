@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
     [AddinAttribute(Caption = "Select Datasource and Entity", Name = "uc_Import_SelectDSandEntity", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
     public partial class uc_Import_SelectDSandEntity : TemplateUserControl
     {
-        public uc_Import_SelectDSandEntity(IBeepService service):base(service)
+        public uc_Import_SelectDSandEntity(IServiceProvider services): base(services)
         {
             InitializeComponent();
         }

@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_DataEdit : TemplateUserControl
     {
-        public uc_DataEdit(IBeepService service) : base(service)
+        public uc_DataEdit(IServiceProvider services): base(services)
         {
             InitializeComponent();
             

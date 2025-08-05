@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
     [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "Data Connections", BranchType = EnumPointType.Function, IconImageName = "rdbmsconnections.svg", BranchClass = "ADDIN", BranchDescription = "Data Connections Setup Screen")]
     public partial class uc_DataConnections :  TemplateUserControl, IAddinVisSchema
     {
-        public uc_DataConnections(IBeepService service) : base(service)
+        public uc_DataConnections(IServiceProvider services): base(services)
         {
             InitializeComponent();
 

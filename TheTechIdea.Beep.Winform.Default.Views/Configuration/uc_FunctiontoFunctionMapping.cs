@@ -15,10 +15,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_FunctiontoFunctionMapping : TemplateUserControl, IAddinVisSchema
     {
-        public uc_FunctiontoFunctionMapping(IBeepService service):base(service)
+        public uc_FunctiontoFunctionMapping(IServiceProvider services): base(services)
         {
             InitializeComponent();
-            beepservice = service;
+          
             Details.AddinName = "Function to Function Mapping";
         }
        

@@ -46,6 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Add DPI change handling
+        // ✅ Update the close icon size when DPI changes
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
             base.OnDpiChangedAfterParent(e);
@@ -56,7 +57,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateDpiScaling(g);
             }
 
-         
+            // ✅ Update close icon size for new DPI
+            if (closeIcon != null)
+            {
+                closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
+            }
 
             // Force redraw with new DPI scaling
             Invalidate();
@@ -289,7 +294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             // Update DPI scaling first
-          //  UpdateDpiScaling(e.Graphics);
+            UpdateDpiScaling(e.Graphics);
             
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
             e.Graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
@@ -324,12 +329,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-       
+
         private float[] CalculateTabSizes(Graphics g, bool vertical)
         {
-            // Update DPI scaling first
-            UpdateDpiScaling(g);
-            
+            // ✅ Don't call UpdateDpiScaling here since it's already called in OnPaint
+            // UpdateDpiScaling(g); // Remove this line
+
             float[] sizes = new float[TabCount];
             using (Font font = new Font(this.Font, FontStyle.Regular))
             {
@@ -347,12 +352,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                         float width = textSize.Width + (GetScaledTextPadding() * 2) + GetScaledCloseButtonSize() + (GetScaledCloseButtonPadding() * 2);
                         sizes[i] = Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), width));
                     }
-                   MiscFunctions.SendLog($"Tab {i} size: {sizes[i]} (Text: {text})");
+                    MiscFunctions.SendLog($"Tab {i} size: {sizes[i]} (Text: {text})");
                 }
             }
             return sizes;
         }
-
         private void DrawTabHeaders(Graphics g)
         {
             if (TabCount == 0)
@@ -495,20 +499,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private RectangleF GetCloseButtonRect(RectangleF tabRect, bool vertical)
         {
+            // ✅ Use scaled values consistently
+            int scaledCloseButtonSize = GetScaledCloseButtonSize();
+            int scaledCloseButtonPadding = GetScaledCloseButtonPadding();
+
             if (vertical)
             {
                 return new RectangleF(
-                    tabRect.X + (tabRect.Width - CloseButtonSize) / 2,
-                    tabRect.Bottom - CloseButtonSize - CloseButtonPadding,
-                    CloseButtonSize,
-                    CloseButtonSize
+                    tabRect.X + (tabRect.Width - scaledCloseButtonSize) / 2,
+                    tabRect.Bottom - scaledCloseButtonSize - scaledCloseButtonPadding,
+                    scaledCloseButtonSize,
+                    scaledCloseButtonSize
                 );
             }
             return new RectangleF(
-                tabRect.Right - CloseButtonSize - CloseButtonPadding,
-                tabRect.Top + (tabRect.Height - CloseButtonSize) / 2,
-                CloseButtonSize,
-                CloseButtonSize
+                tabRect.Right - scaledCloseButtonSize - scaledCloseButtonPadding,
+                tabRect.Top + (tabRect.Height - scaledCloseButtonSize) / 2,
+                scaledCloseButtonSize,
+                scaledCloseButtonSize
             );
         }
 

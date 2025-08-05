@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             InitializeComponent();
 
         }
-        public MainFrm_Tree(IBeepService service) : base(service)
+        public MainFrm_Tree(IServiceProvider services) : base(services)
         {
             InitializeComponent();
             beepService.vis.Container = beepDisplayContainer1;

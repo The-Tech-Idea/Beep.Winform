@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
     public partial class uc_Import_Run : TemplateUserControl
     {
-        public uc_Import_Run(IBeepService service) : base(service)
+        public uc_Import_Run(IServiceProvider services): base(services)
         {
             InitializeComponent();
         }

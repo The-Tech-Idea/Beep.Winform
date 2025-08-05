@@ -24,7 +24,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_diagraming : TemplateUserControl, IAddinVisSchema
     {
-        public uc_diagraming(IBeepService service) : base(service)
+        public uc_diagraming(IServiceProvider services): base(services)
         {
             base.Initialize();
             InitializeComponent();

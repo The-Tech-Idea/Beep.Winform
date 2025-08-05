@@ -14,10 +14,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_FilterForm: TemplateUserControl, IAddinVisSchema
     {
-        public uc_FilterForm(IBeepService service):base(service)
+        public uc_FilterForm(IServiceProvider services): base(services)
         {
             InitializeComponent();
-            beepservice = service;
+         
           
 
             Details.AddinName = "Filter";

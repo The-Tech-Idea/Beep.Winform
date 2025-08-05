@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 using System.Web;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
@@ -7,6 +8,7 @@ using TheTechIdea.Beep.Container.Services;
 
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Shared;
+using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
@@ -676,6 +678,15 @@ namespace TheTechIdea.Beep.Desktop.Common
             }
         }
         #endregion
+        public void ClearCache()
+        {
+            _viewCache.Clear();
+        }
+
+        public void ClearCacheForRoute(string routeName)
+        {
+            _viewCache.Remove(routeName, out _);
+        }
         #region Breadcrumb and History
         public string BreadCrumb
         {
@@ -719,8 +730,9 @@ namespace TheTechIdea.Beep.Desktop.Common
             if (!_routes.ContainsKey(routeName))
             {
                 _routes[routeName] = viewType;
-                _viewCache[routeName] = new Lazy<IDM_Addin>(() => GetAddin(routeName));
-            }
+            // ✅ Create Lazy that directly creates the addin without calling GetAddin
+        _viewCache[routeName] = new Lazy<IDM_Addin>(() => CreateAddinInstance(viewType));
+    }
 
             if (guard != null)
             {
@@ -766,11 +778,27 @@ namespace TheTechIdea.Beep.Desktop.Common
         #region View Creation
         public IDM_Addin GetAddin(string routeName)
         {
-            // Create or retrieve the new view
-            IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
-                ? CreateControlUsingCustomCreator(_routes[routeName])
-                : ResolveAddin(_routes[routeName]);
-        
+            // Check if we have a cached view first
+            if (_viewCache.TryGetValue(routeName, out var cachedView))
+            {
+                return cachedView.Value;
+            }
+
+            // Get the type for this route
+            if (!_routes.TryGetValue(routeName, out var viewType))
+            {
+                return null;
+            }
+
+            // Create the view and cache it
+            IDM_Addin view = CreateAddinInstance(viewType);
+
+            // Cache the view if creation was successful
+            if (view != null)
+            {
+                _viewCache[routeName] = new Lazy<IDM_Addin>(() => view);
+            }
+
             return view;
         }
         private IDM_Addin ResolveAddin(Type viewType)
@@ -784,39 +812,120 @@ namespace TheTechIdea.Beep.Desktop.Common
         }
         public Type FindAddinTypeFromServices(string moduleOrAddinName)
         {
-         if (_serviceProvider != null)
+            // Method 1: Try direct keyed service lookup
+            var keyedAddin = _serviceProvider.GetKeyedService<IDM_Addin>(moduleOrAddinName);
+            if (keyedAddin != null)
             {
-                // Retrieve all registered services
-                foreach (var service in _serviceProvider.GetServices(typeof(IDM_Addin)))
+                return keyedAddin.GetType();
+            }
+
+            // Method 2: Get all registered keyed services and search through them
+            // Note: This requires reflection since there's no direct way to enumerate keyed services
+            try
+            {
+                // Get all services and check their registrations
+                var allAddins = _serviceProvider.GetServices<IDM_Addin>();
+
+                foreach (var addin in allAddins)
                 {
-                    Control addin = (Control)service;
-                    if (addin.Name.Contains(moduleOrAddinName, StringComparison.OrdinalIgnoreCase))
+                    var addinType = addin.GetType();
+
+                    // Check various name matching strategies
+                    if (IsNameMatch(addinType, moduleOrAddinName, addin))
                     {
-                        return service.GetType();
+                        return addinType;
                     }
                 }
             }
-           
+            catch (Exception ex)
+            {
+                // Log the error
+                DMEEditor?.AddLogMessage("Beep", $"Error in FindAddinTypeFromServices: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+            }
 
             return null;
         }
+        private IDM_Addin CreateAddinInstance(Type viewType)
+        {
+            try
+            {
+                // Create or retrieve the new view
+                IDM_Addin view = _useCustomCreator && _isCustomCreatorSet
+                    ? CreateControlUsingCustomCreator(viewType)
+                    : ResolveAddin(viewType);
+
+                // Set up dependencies if the view was created successfully
+                if (view != null)
+                {
+                    view.Dependencies = new Dependencies
+                    {
+                        DMEEditor = Beepservices.DMEEditor,
+                        ErrorObject = Beepservices.DMEEditor.ErrorObject,
+                        Logger = Beepservices.lg
+                    };
+                }
+
+                return view;
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                DMEEditor?.AddLogMessage("Beep", $"Error creating addin instance for type {viewType.Name}: {ex.Message}", DateTime.Now, -1, null, Errors.Failed);
+                return null;
+            }
+        }
+        private bool IsNameMatch(Type addinType, string searchName, IDM_Addin addin)
+        {
+            // Check type name
+            if (addinType.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // Check control name if it's a control
+            if (addin is Control control &&
+                !string.IsNullOrEmpty(control.Name) &&
+                control.Name.Contains(searchName, StringComparison.OrdinalIgnoreCase))
+                return true;
+
+            // Check AddinAttribute name
+            var addinAttribute = addinType.GetCustomAttribute<AddinAttribute>();
+            if (addinAttribute?.Name?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true)
+                return true;
+
+            // Check Details property if available
+            if (addin.Details?.AddinName?.Contains(searchName, StringComparison.OrdinalIgnoreCase) == true)
+                return true;
+
+            return false;
+        }
         private IDM_Addin CreateUsingServiceLocator(Type viewType)
         {
-            // Retrieve all registered services of type IDM_Addin
-            var services = _serviceProvider.GetServices(typeof(IDM_Addin));
-            if (services == null)
-                throw new InvalidOperationException("No add-ins are registered in the service locator.");
+            // Get the addin name (type name) to use as the key
+            string addinName = viewType.Name;
 
-            // Find the matching add-in instance by type
+            // Try to get the keyed service first
+            var keyedAddin = _serviceProvider.GetKeyedService<IDM_Addin>(addinName);
+            if (keyedAddin != null)
+            {
+                return keyedAddin;
+            }
+
+            // Fallback: try to get by type directly
+            var addin = _serviceProvider.GetService(viewType) as IDM_Addin;
+            if (addin != null)
+            {
+                return addin;
+            }
+
+            // Last resort: try to find by iterating through all services (for backward compatibility)
+            var services = _serviceProvider.GetServices<IDM_Addin>();
             foreach (var service in services)
             {
-                if (service.GetType() == viewType && service is IDM_Addin addin)
+                if (service.GetType() == viewType)
                 {
-                    return addin;
+                    return service;
                 }
             }
 
-            // If no matching instance is found, return null or throw an exception
             throw new InvalidOperationException($"No add-in found for type: {viewType.FullName}");
         }
 
@@ -824,7 +933,27 @@ namespace TheTechIdea.Beep.Desktop.Common
         {
             return (IDM_Addin)Activator.CreateInstance(viewType);
         }
+        /// <summary>
+        /// Gets an addin by its exact registered key name
+        /// </summary>
+        /// <param name="addinName">Exact name used during registration</param>
+        /// <returns>The addin instance or null if not found</returns>
+        public IDM_Addin GetAddinByKey(string addinName)
+        {
+            return _serviceProvider.GetKeyedService<IDM_Addin>(addinName);
+        }
 
+        /// <summary>
+        /// Gets all available addin names (keys)
+        /// </summary>
+        /// <returns>Collection of all registered addin names</returns>
+        public IEnumerable<string> GetAllAddinNames()
+        {
+            // This would require maintaining a list of registered keys
+            // or using reflection to enumerate keyed services
+            var allAddins = _serviceProvider.GetServices<IDM_Addin>();
+            return allAddins.Select(a => a.GetType().Name).Distinct();
+        }
         private IDM_Addin CreateControlUsingCustomCreator(Type viewType)
         {
             if (_isCustomCreatorSet && _customControlCreator != null)

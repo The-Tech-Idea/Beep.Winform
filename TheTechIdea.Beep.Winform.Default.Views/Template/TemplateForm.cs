@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -30,10 +31,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             InitializeComponent();
         }
 
-        public TemplateForm(IBeepService service) : base()
+        public TemplateForm(IServiceProvider services) : base()
         {
             InitializeComponent();
-            beepService = service; // serviceProvider.GetService<IBeepService>();
+            beepService = services.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;
          
             beepuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;

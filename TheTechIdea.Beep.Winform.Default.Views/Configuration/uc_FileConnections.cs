@@ -26,10 +26,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_FileConnections : TemplateUserControl, IAddinVisSchema
     {
-        public uc_FileConnections(IBeepService service) : base(service)
+        public uc_FileConnections(IServiceProvider services): base(services)
         {
             InitializeComponent();
-            beepservice = service;
+           
             Details.AddinName = "File Connections";
 
         }

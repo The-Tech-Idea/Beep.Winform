@@ -56,13 +56,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 return null;
             }
         }
-        private static bool isLogOn = false;
+        private static bool isLogOn = true;
         public static  void SendLog(string message)
         {
             if(isLogOn)
             {
                 Console.WriteLine(message);
-               MiscFunctions.SendLog(message);
+                Debug.WriteLine(message);
+                //  MiscFunctions.SendLog(message);
             }
           
         }

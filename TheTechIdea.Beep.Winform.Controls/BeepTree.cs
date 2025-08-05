@@ -1303,7 +1303,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (newItem == null)
             {
-                MiscFunctions.SendLog("Cannot add null SimpleItem.");
+                //MiscFunctions.SendLog("Cannot add null SimpleItem.");
                 return null;
             }
 
@@ -1340,7 +1340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         
                         if (parentItem == null)
                         {
-                            MiscFunctions.SendLog($"Parent node {parentGuidId} has no associated SimpleItem.");
+                            //MiscFunctions.SendLog($"Parent node {parentGuidId} has no associated SimpleItem.");
                             return null;
                         }
 
@@ -1356,7 +1356,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Error adding node with branch: {ex.Message}");
+                //MiscFunctions.SendLog($"Error adding node with branch: {ex.Message}");
                 return null;
             }
         }
@@ -1370,7 +1370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (simpleItem == null)
             {
-                MiscFunctions.SendLog("Cannot remove null SimpleItem.");
+                //MiscFunctions.SendLog("Cannot remove null SimpleItem.");
                 return;
             }
 
@@ -1388,7 +1388,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Error removing node: {ex.Message}");
+                //MiscFunctions.SendLog($"Error removing node: {ex.Message}");
             }
         }
         private SimpleItem FindParentNode(IEnumerable<SimpleItem> items, SimpleItem target)

@@ -46,7 +46,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.TabStop = true;
             this.Enabled = true;
             //this.Click += (s, e) =>MiscFunctions.SendLog("BeepDisplayContainer clicked!");
-
+            
+            
             // Set initial layout based on ContainerType
             UpdateContainerLayout();
         }
@@ -203,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     winControl.Height = ContainerPanel.Height;
                     winControl.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
                     // Ensure the test button is still present
-                    //ContainerPanel.Controls.Add(_testButton);
+                    ContainerPanel.Controls.Add(_testButton);
                 }
 
                 _controls[TitleText] = (control, null);
@@ -253,10 +254,43 @@ namespace TheTechIdea.Beep.Winform.Controls
             TabContainerPanel.TabPages.Clear();
             ContainerPanel.Controls.Clear();
             // Re-add the test button to ContainerPanel
-            ContainerPanel.Controls.Add(_testButton);
+           // ContainerPanel.Controls.Add(_testButton);
             _singlePanelAddin = null;
         }
+        public void AddTestTab()
+        {
+            try
+            {
+                MiscFunctions.SendLog("Adding test tab manually...");
 
+                var testControl = new BeepButton
+                {
+                    Text = "Test Control",
+                    Dock = DockStyle.Fill,
+                    BackColor = Color.LightBlue
+                };
+
+                var testPage = new TabPage
+                {
+                    Text = "Test Tab",
+                    BackColor = Color.LightGreen
+                };
+
+                testPage.Controls.Add(testControl);
+                TabContainerPanel.TabPages.Add(testPage);
+
+            
+                TabContainerPanel.Invalidate();
+                TabContainerPanel.Update();
+
+                // Also check if the BeepTabs is receiving paint events
+              //  MiscFunctions.SendLog($"TabContainerPanel HeaderHeight: {TabContainerPanel.HeaderHeight}");
+            }
+            catch (Exception ex)
+            {
+                MiscFunctions.SendLog($"Error adding test tab: {ex.Message}");
+            }
+        }
         public bool IsControlExit(IDM_Addin control)
         {
             return control != null && _controls.Values.Any(x => x.Addin == control);

@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure the container can receive focus and events
             this.TabStop = true;
             this.Enabled = true;
-            //this.Click += (s, e) =>MiscFunctions.SendLog("BeepDisplayContainer clicked!");
+            //this.Click += (s, e) =>////MiscFunctions.SendLog("BeepDisplayContainer clicked!");
             
             
             // Set initial layout based on ContainerType
@@ -84,11 +84,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void TabContainerPanel_TabRemoved(object sender, TabRemovedEventArgs e)
         {
-        //   MiscFunctions.SendLog($"Tab removed: {e.TabText}");
+        //   ////MiscFunctions.SendLog($"Tab removed: {e.TabText}");
             if (_controls.ContainsKey(e.TabText))
             {
                 _controls.Remove(e.TabText);
-            //   MiscFunctions.SendLog($"Removed {e.TabText} from _controls, remaining count: {_controls.Count}");
+            //   ////MiscFunctions.SendLog($"Removed {e.TabText} from _controls, remaining count: {_controls.Count}");
             }
         }
         private void UpdateContainerLayout()
@@ -219,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     winControl.Padding = new Padding(5);
                     winControl.Visible = true;
                     tabPage.Controls.Add(winControl);
-                 //  MiscFunctions.SendLog($"Added control to tab {TitleText}, Bounds: {winControl.Bounds}, Visible: {winControl.Visible}");
+                 //  ////MiscFunctions.SendLog($"Added control to tab {TitleText}, Bounds: {winControl.Bounds}, Visible: {winControl.Visible}");
                 }
 
                 TabContainerPanel.TabPages.Add(tabPage);
@@ -229,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabContainerPanel.Invalidate();
                 TabContainerPanel.PerformLayout();
                 TabContainerPanel.Update(); // Force immediate update
-             //  MiscFunctions.SendLog($"DisplayRectangle for tab {TitleText}: {TabContainerPanel.DisplayRectangle}");
+             //  ////MiscFunctions.SendLog($"DisplayRectangle for tab {TitleText}: {TabContainerPanel.DisplayRectangle}");
             }
 
             // Trigger AddinAdded event with the interface's ContainerTypeEnum
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                MiscFunctions.SendLog("Adding test tab manually...");
+                ////MiscFunctions.SendLog("Adding test tab manually...");
 
                 var testControl = new BeepButton
                 {
@@ -284,11 +284,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabContainerPanel.Update();
 
                 // Also check if the BeepTabs is receiving paint events
-              //  MiscFunctions.SendLog($"TabContainerPanel HeaderHeight: {TabContainerPanel.HeaderHeight}");
+              //  ////MiscFunctions.SendLog($"TabContainerPanel HeaderHeight: {TabContainerPanel.HeaderHeight}");
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Error adding test tab: {ex.Message}");
+                ////MiscFunctions.SendLog($"Error adding test tab: {ex.Message}");
             }
         }
         public bool IsControlExit(IDM_Addin control)
@@ -434,10 +434,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-         //  MiscFunctions.SendLog("Applying theme to BeepDisplayContainer")
+         //  ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer")
         //    Console.WriteLine("Applying theme to BeepDisplayContainer");
          //   base.ApplyTheme();
-         //  MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 1");
+         //  ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 1");
           //  Console.WriteLine("Applying theme to BeepDisplayContainer 1");
 
             // Apply theme to single panel addin if present
@@ -450,11 +450,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 catch (Exception ex)
                 {
-                   MiscFunctions.SendLog($"Error applying theme to _singlePanelAddin: {ex.Message}");
+                   ////MiscFunctions.SendLog($"Error applying theme to _singlePanelAddin: {ex.Message}");
                 }
             }
 
-       //    MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 2");
+       //    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 2");
        //     Console.WriteLine("Applying theme to BeepDisplayContainer 2");
             // Apply theme to all addins in _controls
             foreach (var entry in _controls)
@@ -467,12 +467,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     catch (Exception ex)
                     {
-                        MiscFunctions.SendLog($"Error applying theme to addin {entry.Key}: {ex.Message}");
+                        ////MiscFunctions.SendLog($"Error applying theme to addin {entry.Key}: {ex.Message}");
                     }
                 }
             }
 
-       //    MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 3");
+       //    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 3");
        //     Console.WriteLine("Applying theme to BeepDisplayContainer 3");
             // Set background color for the container
             ContainerPanel.BackColor = _currentTheme.BackgroundColor;
@@ -490,7 +490,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-       //    MiscFunctions.SendLog($"MouseDown in BeepDisplayContainer at {e.Location}");
+       //    ////MiscFunctions.SendLog($"MouseDown in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
                 TabContainerPanel.Focus();
@@ -500,7 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            //  MiscFunctions.SendLog($"MouseUp in BeepDisplayContainer at {e.Location}");
+            //  ////MiscFunctions.SendLog($"MouseUp in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
                 TabContainerPanel.Focus();
@@ -571,7 +571,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseClick(MouseEventArgs e)
         {
             base.OnMouseClick(e);
-         //  MiscFunctions.SendLog($"MouseClick in BeepDisplayContainer at {e.Location}");
+         //  ////MiscFunctions.SendLog($"MouseClick in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
               //  TabContainerPanel.Focus();
@@ -584,24 +584,24 @@ namespace TheTechIdea.Beep.Winform.Controls
                     string tabText = TabContainerPanel.TabPages[tabIndex].Text;
                     if (_controls.ContainsKey(tabText))
                     {
-              //         MiscFunctions.SendLog($"Processing click for existing tab: {tabText}");
+              //         ////MiscFunctions.SendLog($"Processing click for existing tab: {tabText}");
                         // Add any additional click processing here if needed
                     }
                     else
                     {
-                       MiscFunctions.SendLog($"Click ignored: Tab {tabText} no longer exists in _controls");
+                       ////MiscFunctions.SendLog($"Click ignored: Tab {tabText} no longer exists in _controls");
                     }
                 }
                 else
                 {
-                   MiscFunctions.SendLog($"Click ignored: No valid tab selected or tab count is 0");
+                   ////MiscFunctions.SendLog($"Click ignored: No valid tab selected or tab count is 0");
                 }
             }
         }
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            //   MiscFunctions.SendLog($"MouseMove in BeepDisplayContainer at {e.Location}");
+            //   ////MiscFunctions.SendLog($"MouseMove in BeepDisplayContainer at {e.Location}");
             if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
               //  TabContainerPanel.Focus();
@@ -614,7 +614,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnMouseLeave(EventArgs e)
         //{
         //    base.OnMouseLeave(e);
-        //    //   MiscFunctions.SendLog($"MouseLeave in BeepDisplayContainer");
+        //    //   ////MiscFunctions.SendLog($"MouseLeave in BeepDisplayContainer");
         //    if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
         //    {
         //        TabContainerPanel.Focus();
@@ -625,7 +625,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnMouseDoubleClick(MouseEventArgs e)
         //{
         //    base.OnMouseDoubleClick(e);
-        //    //   MiscFunctions.SendLog($"MouseDoubleClick in BeepDisplayContainer at {e.Location}");
+        //    //   ////MiscFunctions.SendLog($"MouseDoubleClick in BeepDisplayContainer at {e.Location}");
         //    if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
         //    {
         //        TabContainerPanel.Focus();
@@ -635,7 +635,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnMouseEnter(EventArgs e)
         //{
         //    base.OnMouseEnter(e);
-        //    //   MiscFunctions.SendLog($"MouseEnter in BeepDisplayContainer");
+        //    //   ////MiscFunctions.SendLog($"MouseEnter in BeepDisplayContainer");
         //    if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
         //    {
         //        TabContainerPanel.Focus();

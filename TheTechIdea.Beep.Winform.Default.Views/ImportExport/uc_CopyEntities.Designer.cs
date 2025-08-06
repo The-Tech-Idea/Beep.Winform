@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
     partial class uc_CopyEntities
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Controls.Models.BeepRowConfig beepRowConfig1 = new Controls.Models.BeepRowConfig();
+            BeepRowConfig beepRowConfig1 = new BeepRowConfig();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_CopyEntities));
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
             progressBar1 = new TheTechIdea.Beep.Winform.Controls.BeepProgressBar();
@@ -45,7 +47,7 @@
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
             beepRowConfig1.Id = "66256cfe-b129-4d05-bc55-090d07bfd29e";
-            beepRowConfig1.Index = 1;
+           
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
             beepRowConfig1.IsDeleted = false;
@@ -85,7 +87,7 @@
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
-            beepSimpleGrid1.Columns = (List<Controls.Models.BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
+            beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataNavigator = null;
             beepSimpleGrid1.DataSource = null;

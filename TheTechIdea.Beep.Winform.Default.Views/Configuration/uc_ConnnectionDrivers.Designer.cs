@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
             beepRowConfig1.Id = "f40e523d-f1df-4c47-ba03-db03ed71ffba";
-            beepRowConfig1.Index = 1;
+         
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
             beepRowConfig1.IsDeleted = false;

@@ -74,6 +74,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _isUnique;
             set { _isUnique = value; OnPropertyChanged(nameof(IsUnique)); }
         }
+        private bool _isrequird;
+        [Category("Data")]
+        [Description("Indicates whether the column is unique.")]
+        public bool IsRequired
+        {
+            get => _isrequird;
+            set
+            {
+                _isrequird = value;
+                OnPropertyChanged(nameof(IsRequired));
+            }
+        }
         private bool _isNullable;
         [Category("Data")]
         [Description("Indicates whether the column allows null values.")]
@@ -386,11 +398,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
                     {
                         Items.Add(new SimpleItem { DisplayField = item.ToString(), Value = item });
                     }
-                   MiscFunctions.SendLog($"Filled items from enum: {EnumSourceType}, Count: {Items.Count}");
+                   ////MiscFunctions.SendLog($"Filled items from enum: {EnumSourceType}, Count: {Items.Count}");
                 }
                 else
                 {
-                   MiscFunctions.SendLog($"Invalid or non-enum type: {EnumSourceType}");
+                   ////MiscFunctions.SendLog($"Invalid or non-enum type: {EnumSourceType}");
                 }
             }
         }
@@ -496,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             }
             catch (Exception ex)
             {
-               MiscFunctions.SendLog($"OnPropertyChanged Error: {ex.Message}");
+               ////MiscFunctions.SendLog($"OnPropertyChanged Error: {ex.Message}");
             }
         }
         #endregion

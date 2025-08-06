@@ -295,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Error in BeepDatePicker.Draw: {ex.Message}");
+                ////MiscFunctions.SendLog($"Error in BeepDatePicker.Draw: {ex.Message}");
             }
         }
         #endregion

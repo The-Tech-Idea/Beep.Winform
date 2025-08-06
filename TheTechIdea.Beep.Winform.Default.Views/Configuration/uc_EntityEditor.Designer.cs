@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_EntityEditor
     {
@@ -28,7 +30,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            Controls.Models.BeepRowConfig beepRowConfig2 = new Controls.Models.BeepRowConfig();
+            BeepRowConfig beepRowConfig2 = new BeepRowConfig();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_EntityEditor));
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
             beepPanel1 = new TheTechIdea.Beep.Winform.Controls.BeepPanel();
@@ -45,7 +47,7 @@
             beepRowConfig2.DisplayIndex = -1;
             beepRowConfig2.Height = 25;
             beepRowConfig2.Id = "4fddc71d-fd29-40a8-b7b5-c129121190c3";
-            beepRowConfig2.Index = 1;
+           
             beepRowConfig2.IsAggregation = true;
             beepRowConfig2.IsDataLoaded = false;
             beepRowConfig2.IsDeleted = false;
@@ -84,7 +86,7 @@
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
-            beepSimpleGrid1.Columns = (List<Controls.Models.BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
+            beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataNavigator = null;
             beepSimpleGrid1.DataSource = null;

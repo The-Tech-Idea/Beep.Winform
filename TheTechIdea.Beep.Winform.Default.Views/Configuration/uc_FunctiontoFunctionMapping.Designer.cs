@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_FunctiontoFunctionMapping
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
-            Controls.Models.BeepRowConfig beepRowConfig1 = new Controls.Models.BeepRowConfig();
+            BeepRowConfig beepRowConfig1 = new BeepRowConfig();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_FunctiontoFunctionMapping));
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
             functionToFunctionMappingViewModelBindingSource = new BindingSource(components);
@@ -41,7 +43,7 @@
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
             beepRowConfig1.Id = "b3dba79d-a86e-45ee-8ec7-ba3edfaa4e62";
-            beepRowConfig1.Index = 1;
+           
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
             beepRowConfig1.IsDeleted = false;
@@ -80,7 +82,7 @@
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
-            beepSimpleGrid1.Columns = (List<Controls.Models.BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
+            beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataNavigator = null;
             beepSimpleGrid1.DataSource = functionToFunctionMappingViewModelBindingSource;

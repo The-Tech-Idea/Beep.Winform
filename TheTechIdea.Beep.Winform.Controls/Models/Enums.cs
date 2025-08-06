@@ -6,6 +6,22 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
+    public enum SortDirection
+    {
+        None,
+        Ascending,
+        Descending
+    }
+
+    // Add enum for grid styles
+    public enum BeepGridStyle
+    {
+        Classic,
+        Modern,
+        Flat,
+        Material,
+        Dark
+    }
     /// <summary>
     /// Enum for modern gradient types
     /// </summary>

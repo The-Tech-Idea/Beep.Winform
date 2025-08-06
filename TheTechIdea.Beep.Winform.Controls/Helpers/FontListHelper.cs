@@ -375,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Gets a font by index with specified size and style
         /// </summary>
-        /// <param name="index">Index of the font in FontConfigurations</param>
+        /// <param name="index">RowIndex of the font in FontConfigurations</param>
         /// <param name="size">Size of the font</param>
         /// <param name="style">Style of the font</param>
         /// <returns>A Font object, or null if not found</returns>
@@ -392,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// Gets the index of a font by name
         /// </summary>
         /// <param name="fontName">Name of the font to find</param>
-        /// <returns>Index of the font in FontConfigurations, or -1 if not found</returns>
+        /// <returns>RowIndex of the font in FontConfigurations, or -1 if not found</returns>
         public static int GetFontIndex(string fontName)
         {
             if (string.IsNullOrEmpty(fontName))

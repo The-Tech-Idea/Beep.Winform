@@ -547,7 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Error in BeepComboBox.Draw: {ex.Message}");
+                ////MiscFunctions.SendLog($"Error in BeepComboBox.Draw: {ex.Message}");
             }
         }
         public override void SetValue(object value)

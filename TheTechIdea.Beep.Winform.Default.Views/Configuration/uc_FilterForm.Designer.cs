@@ -2,6 +2,7 @@
 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -34,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_FilterForm));
-            Controls.Models.BeepRowConfig beepRowConfig1 = new Controls.Models.BeepRowConfig();
+            BeepRowConfig beepRowConfig1 = new BeepRowConfig();
             beepLabel1 = new BeepLabel();
             beepNumericUpDown1 = new BeepNumericUpDown();
             beepTextBox1 = new BeepTextBox();
@@ -429,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
             beepRowConfig1.Id = "93ade503-07ac-481d-8db4-63214a3dc7ab";
-            beepRowConfig1.Index = 1;
+
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
             beepRowConfig1.IsDeleted = false;
@@ -468,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Category = Utilities.DbFieldCategory.String;
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
-            beepSimpleGrid1.Columns = (List<Controls.Models.BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
+            beepSimpleGrid1.Columns = (List<BeepColumnConfig>)resources.GetObject("beepSimpleGrid1.Columns");
             beepSimpleGrid1.ComponentName = "beepSimpleGrid1";
             beepSimpleGrid1.DataNavigator = null;
             beepSimpleGrid1.DataSource = null;

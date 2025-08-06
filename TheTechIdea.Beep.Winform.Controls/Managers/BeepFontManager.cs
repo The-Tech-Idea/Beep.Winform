@@ -246,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog("Error in Getting Font Resources");
+                ////MiscFunctions.SendLog("Error in Getting Font Resources");
             }
         }
 

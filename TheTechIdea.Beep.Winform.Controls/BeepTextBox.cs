@@ -661,7 +661,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _text = _innerTextBox.Text;
                 TextChanged?.Invoke(this, EventArgs.Empty);
-                MiscFunctions.SendLog($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
+                ////MiscFunctions.SendLog($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
             };
             // Inside BeepTextBox constructor or initialization
             _innerTextBox.GotFocus += (s, e) => {
@@ -679,7 +679,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _innerTextBox.AutoSize = false; // Prevent auto-resize
             //_innerTextBox.GotFocus += (s, e) =>
             //{
-            //   MiscFunctions.SendLog($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
+            //   ////MiscFunctions.SendLog($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
             //};
         }
 
@@ -771,7 +771,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void BeepTextBox_TextChanged(object sender, EventArgs e)
         {
-         //  MiscFunctions.SendLog($"✅ BeepLabel TextChanged: {base.Text}");
+         //  ////MiscFunctions.SendLog($"✅ BeepLabel TextChanged: {base.Text}");
           
             _innerTextBox.Text = Text;
             if (_isApplyingMask)
@@ -1687,7 +1687,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
             Refresh();
 
-            //  MiscFunctions.SendLog($"AfterThemeApplied: {this.Text}");
+            //  ////MiscFunctions.SendLog($"AfterThemeApplied: {this.Text}");
         }
         public override void ApplyTheme()
         {

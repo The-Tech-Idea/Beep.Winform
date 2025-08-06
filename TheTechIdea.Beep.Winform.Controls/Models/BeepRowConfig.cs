@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis.Modules;
 
 
@@ -17,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         }
 
         public string Id { get; set; }
-        public int Index { get; set; }
+        public int RowIndex { get; set; }
         public int DisplayIndex { get; set; }
         public int OldDisplayIndex { get; set; }
         public bool IsDataLoaded { get; set; } = false;
@@ -35,6 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public int UpperY { get; set; } // Updated dynamically
         public int Width { get; set; } = 100; // Default cell width
         public int Height { get; set; } = 30; // Default cell height
+        public EntityStructure EntityStructure { get; internal set; }
 
         // Row Events
         public event EventHandler<BeepRowEventArgs> OnRowSelected;

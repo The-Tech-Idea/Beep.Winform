@@ -402,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //private bool IsNearEdge(Point location)
         //{
         //    bool nearEdge = location.X >= ClientSize.Width - _resizeMargin || location.Y >= ClientSize.Height - _resizeMargin;
-        //    MiscFunctions.SendLog($"IsNearEdge: Location = {location}, ClientSize = {ClientSize}, _resizeMargin = {_resizeMargin}, NearEdge = {nearEdge}");
+        //    ////MiscFunctions.SendLog($"IsNearEdge: Location = {location}, ClientSize = {ClientSize}, _resizeMargin = {_resizeMargin}, NearEdge = {nearEdge}");
         //    return nearEdge;
         //}
         //private void HandleResizing()
@@ -705,7 +705,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //            {
         //                // If the mouse is outside the form, reset the cursor
         //                _form.Cursor = Cursors.Default;
-        //               MiscFunctions.SendLog($"MouseMessageFilter: Mouse outside form, set cursor to Default, ScreenPos = {screenPos}");
+        //               ////MiscFunctions.SendLog($"MouseMessageFilter: Mouse outside form, set cursor to Default, ScreenPos = {screenPos}");
         //            }
         //        }
         //        return false; // Allow the message to continue to the next filter or control
@@ -723,12 +723,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        if (IsNearEdge(clientPos))
         //        {
         //            Cursor = Cursors.SizeNWSE;
-        //           MiscFunctions.SendLog($"UpdateCursor: Set cursor to SizeNWSE, ClientPos = {clientPos}");
+        //           ////MiscFunctions.SendLog($"UpdateCursor: Set cursor to SizeNWSE, ClientPos = {clientPos}");
         //        }
         //        else
         //        {
         //            Cursor = Cursors.Default;
-        //           MiscFunctions.SendLog($"UpdateCursor: Set cursor to Default, ClientPos = {clientPos}");
+        //           ////MiscFunctions.SendLog($"UpdateCursor: Set cursor to Default, ClientPos = {clientPos}");
         //        }
         //    }
         //}

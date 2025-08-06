@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Add a property to get the center point of this connection
         public Point CenterPoint => new Point(Width / 2, Height / 2);
         public Control OwnerControl { get; set; } // BeepPanel or child control
-        public int PointIndex { get; set; } // Index in connection points (0: Top, 1: Bottom, 2: Left, 3: Right)
+        public int PointIndex { get; set; } // RowIndex in connection points (0: Top, 1: Bottom, 2: Left, 3: Right)
         private bool _isDragging;
 
         public event EventHandler<ConnectionPointDragEventArgs> DragStarted;

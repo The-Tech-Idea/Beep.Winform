@@ -4,12 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Desktop.Common
+namespace TheTechIdea.Beep.Winform.Controls.Models
 {
-    public class TreeCommands
+    internal class BeepShortID
     {
-        public TreeCommands()
-        {
-        }
     }
 }

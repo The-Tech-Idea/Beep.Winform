@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             // Validate inputs
             if (items == null || !items.Any())
             {
-                MiscFunctions.SendLog("InputComboBox called with empty or null items collection");
+                ////MiscFunctions.SendLog("InputComboBox called with empty or null items collection");
                 return (BeepDialogResult.Cancel, null);
             }
 
@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"Error showing dialog: {ex.Message}");
+                ////MiscFunctions.SendLog($"Error showing dialog: {ex.Message}");
             }
 
             return result;

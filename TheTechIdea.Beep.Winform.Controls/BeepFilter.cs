@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
@@ -98,13 +99,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (dataSource == null)
             {
-             //  MiscFunctions.SendLog("DataSource is null, no fields extracted");
+             //  ////MiscFunctions.SendLog("DataSource is null, no fields extracted");
                 return;
             }
 
             if (dataSource is DataTable dataTable)
             {
-             //  MiscFunctions.SendLog("Extracting fields from DataTable");
+             //  ////MiscFunctions.SendLog("Extracting fields from DataTable");
                 foreach (DataColumn column in dataTable.Columns)
                 {
                     fieldNames.Add(column.ColumnName);
@@ -113,19 +114,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (dataSource is BindingSource bindingSrc)
             {
-             //  MiscFunctions.SendLog($"Extracting fields from BindingSource: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
+             //  ////MiscFunctions.SendLog($"Extracting fields from BindingSource: DataSource = {bindingSrc.DataSource?.GetType()}, DataMember = {bindingSrc.DataMember}");
                 var data = bindingSrc.DataSource ?? bindingSrc.List;
 
                 if (!string.IsNullOrEmpty(bindingSrc.DataMember))
                 {
-                //   MiscFunctions.SendLog($"Processing DataMember: {bindingSrc.DataMember}");
+                //   ////MiscFunctions.SendLog($"Processing DataMember: {bindingSrc.DataMember}");
                     if (data != null)
                     {
                         PropertyInfo prop = data.GetType().GetProperty(bindingSrc.DataMember, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
                         if (prop != null)
                         {
                             var memberData = prop.GetValue(data);
-                      //     MiscFunctions.SendLog($"Resolved DataMember to type: {memberData?.GetType()}");
+                      //     ////MiscFunctions.SendLog($"Resolved DataMember to type: {memberData?.GetType()}");
 
                             if (memberData is DataTable dt)
                             {
@@ -179,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-               //    MiscFunctions.SendLog("No DataMember specified, using BindingSource.List or DataSource");
+               //    ////MiscFunctions.SendLog("No DataMember specified, using BindingSource.List or DataSource");
                     if (data is DataTable dt)
                     {
                         foreach (DataColumn column in dt.Columns)
@@ -201,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (dataSource is IList list && list.Count > 0)
             {
-             //  MiscFunctions.SendLog("Extracting fields from IList");
+             //  ////MiscFunctions.SendLog("Extracting fields from IList");
                 var itemType = list[0].GetType();
                 foreach (var prop in itemType.GetProperties())
                 {
@@ -211,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else
             {
-           //    MiscFunctions.SendLog($"Unrecognized DataSource type: {dataSource.GetType()}, attempting to extract properties");
+           //    ////MiscFunctions.SendLog($"Unrecognized DataSource type: {dataSource.GetType()}, attempting to extract properties");
                 foreach (var prop in dataSource.GetType().GetProperties())
                 {
                     fieldNames.Add(prop.Name);
@@ -219,12 +220,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-          // MiscFunctions.SendLog($"Extracted fields: {string.Join(", ", fieldNames)}");
+          // ////MiscFunctions.SendLog($"Extracted fields: {string.Join(", ", fieldNames)}");
         }
 
         private void AddNewCondition(FilterLogicalOperator logicalOperator = FilterLogicalOperator.And)
         {
-         //  MiscFunctions.SendLog($"Adding new condition with logical operator: {logicalOperator}");
+         //  ////MiscFunctions.SendLog($"Adding new condition with logical operator: {logicalOperator}");
             var newItem = new BeepFilterItem(fieldNames, fieldTypes)
             {
                 UseMenuForOperandsAndOperators = UseMenuForOperandsAndOperators,
@@ -245,7 +246,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             filterPanel.Controls.Add(newItem);
             filterItems.Add(newItem);
             UpdateConditions();
-         //  MiscFunctions.SendLog($"Added new condition, total items: {filterItems.Count}");
+         //  ////MiscFunctions.SendLog($"Added new condition, total items: {filterItems.Count}");
         }
 
         private void UpdateFilterItems()
@@ -262,7 +263,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateConditions()
         {
             FilterChanged?.Invoke(this, new FilterChangedEventArgs(Conditions));
-        //   MiscFunctions.SendLog($"Filter conditions updated: {string.Join(" ", Conditions)}");
+        //   ////MiscFunctions.SendLog($"Filter conditions updated: {string.Join(" ", Conditions)}");
         }
 
         public void ApplyFilter()
@@ -273,11 +274,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try
                 {
                     dataTable.DefaultView.RowFilter = filterExpression;
-           //        MiscFunctions.SendLog($"Applied filter to DataTable: {filterExpression}");
+           //        ////MiscFunctions.SendLog($"Applied filter to DataTable: {filterExpression}");
                 }
                 catch (Exception ex)
                 {
-                  MiscFunctions.SendLog($"Error applying filter: {ex.Message}");
+                  ////MiscFunctions.SendLog($"Error applying filter: {ex.Message}");
                 }
             }
             else if (dataSource is BindingSource bindingSrc && bindingSrc.DataSource is DataTable dt)
@@ -286,16 +287,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 try
                 {
                     dt.DefaultView.RowFilter = filterExpression;
-             //      MiscFunctions.SendLog($"Applied filter to BindingSource DataTable: {filterExpression}");
+             //      ////MiscFunctions.SendLog($"Applied filter to BindingSource DataTable: {filterExpression}");
                 }
                 catch (Exception ex)
                 {
-                   MiscFunctions.SendLog($"Error applying filter: {ex.Message}");
+                   ////MiscFunctions.SendLog($"Error applying filter: {ex.Message}");
                 }
             }
             else
             {
-               MiscFunctions.SendLog("DataSource does not support filtering or is not set.");
+               ////MiscFunctions.SendLog("DataSource does not support filtering or is not set.");
             }
         }
 
@@ -307,12 +308,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (dataSource is DataTable dataTable)
             {
                 dataTable.DefaultView.RowFilter = "";
-           //    MiscFunctions.SendLog("Cleared filter on DataTable");
+           //    ////MiscFunctions.SendLog("Cleared filter on DataTable");
             }
             else if (dataSource is BindingSource bindingSrc && bindingSrc.DataSource is DataTable dt)
             {
                 dt.DefaultView.RowFilter = "";
-           //    MiscFunctions.SendLog("Cleared filter on BindingSource DataTable");
+           //    ////MiscFunctions.SendLog("Cleared filter on BindingSource DataTable");
             }
             FilterChanged?.Invoke(this, new FilterChangedEventArgs(Conditions));
         }
@@ -339,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 };
 
                 appFilters.Add(appFilter);
-          //     MiscFunctions.SendLog($"Generated AppFilter: FieldName={appFilter.FieldName}, Operator={appFilter.Operator}, FilterValue={appFilter.FilterValue}, FilterValue1={appFilter.FilterValue1}, valueType={appFilter.valueType}");
+          //     ////MiscFunctions.SendLog($"Generated AppFilter: FieldName={appFilter.FieldName}, Operator={appFilter.Operator}, FilterValue={appFilter.FilterValue}, FilterValue1={appFilter.FilterValue1}, valueType={appFilter.valueType}");
             }
 
             return appFilters;

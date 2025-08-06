@@ -56,6 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public event EventHandler<BeepCellEventArgs> OnCellValueChanged;
 
         public IBeepUIComponent UIComponent { get; set; }
+        public string ColumnName { get; internal set; }
+        public BeepColumnType CellEditor { get; internal set; }
+
         // Method to trigger OnCellSelected event
         public void SelectCell()
         {

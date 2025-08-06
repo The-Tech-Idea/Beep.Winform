@@ -518,7 +518,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (svgDocument == null)
             {
-                MiscFunctions.SendLog("ApplyThemeToSvg: svgDocument is null");
+                ////MiscFunctions.SendLog("ApplyThemeToSvg: svgDocument is null");
                 return;
             }
 
@@ -599,7 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
-        //    MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={actualFillColor}, strokeColor={actualStrokeColor}");
+        //    ////MiscFunctions.SendLog($"ApplyThemeToSvg: Applying fillColor={actualFillColor}, strokeColor={actualStrokeColor}");
 
             // Create SvgColourServer instances for fill and stroke
             var fillServer = new SvgColourServer(actualFillColor);
@@ -639,7 +639,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             svgDocument.FlushStyles();
             // Optional: Log out the updated SVG XML for debugging.
             string modifiedXml = svgDocument.GetXML();
-           // MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
+           // ////MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
 
             // Trigger a redraw.
             try
@@ -647,11 +647,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //     svgDocument.FlushStyles();
                 Invalidate();
                 Refresh();
-            //    MiscFunctions.SendLog("ApplyThemeToSvg: Redraw triggered");
+            //    ////MiscFunctions.SendLog("ApplyThemeToSvg: Redraw triggered");
             }
             catch (Exception ex)
             {
-                MiscFunctions.SendLog($"ApplyThemeToSvg: Redraw failed - {ex.Message}");
+                ////MiscFunctions.SendLog($"ApplyThemeToSvg: Redraw failed - {ex.Message}");
             }
         }
 

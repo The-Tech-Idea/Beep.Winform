@@ -2969,6 +2969,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SendMouseEvent(HitTestControl.uIComponent, MouseEventType.Click, PointToScreen(location));
 
                 // Safely invoke the action if it exists
+                
                 HitTestControl.HitAction?.Invoke();
             }
             catch (ObjectDisposedException)
@@ -3926,7 +3927,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     clientPoint = control.PointToClient(screenLocation);
                 }
                 HitTestEventArgs hitTestEventArgs = new HitTestEventArgs(eventType, clientPoint);
-                //MiscFunctions.SendLog($"Sending {eventType} to {targetControl.GetType().Name} at client coordinates: {clientPoint}");
+                //////MiscFunctions.SendLog($"Sending {eventType} to {targetControl.GetType().Name} at client coordinates: {clientPoint}");
                 targetControl.ReceiveMouseEvent(hitTestEventArgs);
             }
         }
@@ -3948,9 +3949,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 HitList.Add(hitTest);
             }
         }
-        // New AddHitArea calculating TargetRect from component
-        // New AddHitArea calculating TargetRect and handling coordinate conversion
-        // New AddHitArea calculating TargetRect
         public virtual void AddHitArea(string name, IBeepUIComponent component = null, Action hitAction = null)
         {
             Rectangle targetRect = Rectangle.Empty;
@@ -4090,7 +4088,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     hitDetected = true;
                     HitAreaEventOn = true; // Flag hit event
                     HitTestControl = hitTest; // Set current hit
+
+                    // Safely invoke events using null-conditional operator
                     OnControlHitTest?.Invoke(this, new ControlHitTestArgs(hitTest));
+                    HitDetected?.Invoke(this, new ControlHitTestArgs(hitTest)); // Fixed: Added null check
+
                     break; // First hit only, per your original
                 }
             }

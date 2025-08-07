@@ -30,6 +30,10 @@
   </Target>
   <ItemGroup>
     <Compile Remove="Helpers\AssemblyClassDefinitionManager.cs" />
+    <Compile Remove="Helpers\DynamicFunctionCallingManager.cs" />
+    <Compile Remove="Helpers\DynamicMenuManager.cs" />
+    <Compile Remove="Helpers\LoadEnvironmentServices.cs" />
+    <Compile Remove="Helpers\MenuGenerators.cs" />
   </ItemGroup>
   <ItemGroup>
 	  <None Include="..\..\InstallationScripts\LogoGFx\128\SimpleODM.png">
@@ -46,6 +50,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
+	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	</ItemGroup>
 

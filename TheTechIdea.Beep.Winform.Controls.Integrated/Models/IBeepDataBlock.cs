@@ -5,11 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Modules
 {
-    public enum DataBlockMode
-    {
-        Query,
-        CRUD
-    }
+
     public interface IBeepDataBlock
     {
         string Name { get; set; }

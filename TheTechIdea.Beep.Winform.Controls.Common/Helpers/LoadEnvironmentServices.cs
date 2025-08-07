@@ -8,20 +8,20 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Integrated
+namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {
     public static partial class LoadEnvironmentServices
     {
-        public static void LoadServices(this IBeepService service)
+        public static void ConfigureControlExtendedServices(this IBeepService service)
         {
             // Load the services you need here
             // For example:
             AssemblyClassDefinitionManager.TreeStructures=service.Config_editor.AddinTreeStructure;
             AssemblyClassDefinitionManager.BranchesClasses = service.Config_editor.BranchesClasses;
             AssemblyClassDefinitionManager.GlobalFunctions=service.Config_editor.GlobalFunctions;
-
+            LoadHandlers(service);
         }
-        public static void LoadHandlers(this IBeepService service)
+        private static void LoadHandlers(this IBeepService service)
         {
             // Inject shared references
             DynamicFunctionCallingManager.DMEEditor = service.DMEEditor;

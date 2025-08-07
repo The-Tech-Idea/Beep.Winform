@@ -331,8 +331,8 @@ public static partial class ControlExtensions
                 return typeof(BeepTextBox);
         }
     }
-  
-   
+
+
     private static Control GetControlCorrectPositiononForm(Control control)
     {
         if (control == null)
@@ -438,7 +438,7 @@ public static partial class ControlExtensions
 
         return DbFieldCategory.Complex;
     }
-    private static  Point GetControlCorrectPointPositiononForm(Control control)
+    private static Point GetControlCorrectPointPositiononForm(Control control)
     {
         if (control == null)
             throw new ArgumentNullException(nameof(control));

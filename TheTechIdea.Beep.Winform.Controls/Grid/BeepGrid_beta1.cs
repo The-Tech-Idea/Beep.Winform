@@ -123,7 +123,7 @@
 //        private List<HitTestArea> _hitAreas = new List<HitTestArea>();
         
 //        // Cell rendering controls - similar to BeepSimpleGrid
-//        private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
+//        private Dictionary<string, IBeepUIComponent> _columnDrawers = new Dictionary<string, IBeepUIComponent>();
         
 //        // Add new fields for modern styling
 //        private Dictionary<int, SortDirection> _columnSortStates = new Dictionary<int, SortDirection>();
@@ -1491,10 +1491,10 @@
 //            }
 
 //            // Get or create the appropriate BeepControl for this column
-//            if (!_columnEditors.TryGetValue(column.ColumnName, out IBeepUIComponent columnEditor))
+//            if (!_columnDrawers.TryGetValue(column.ColumnName, out IBeepUIComponent columnEditor))
 //            {
 //                columnEditor = CreateCellControlForRendering(column);
-//                _columnEditors[column.ColumnName] = columnEditor;
+//                _columnDrawers[column.ColumnName] = columnEditor;
 //            }
 
 //            if (columnEditor != null)
@@ -2620,7 +2620,7 @@
 //            }
             
 //            // Apply theme to column editors
-//            foreach (var editor in _columnEditors.Values)
+//            foreach (var editor in _columnDrawers.Values)
 //            {
 //                editor?.ApplyTheme(_currentTheme);
 //            }
@@ -3038,14 +3038,14 @@
 //                _hitAreas?.Clear();
                 
 //                // Dispose column editors
-//                foreach (var editor in _columnEditors.Values)
+//                foreach (var editor in _columnDrawers.Values)
 //                {
 //                    if (editor is IDisposable disposable)
 //                    {
 //                        disposable.Dispose();
 //                    }
 //                }
-//                _columnEditors?.Clear();
+//                _columnDrawers?.Clear();
 //            }
             
 //            base.Dispose(disposing);

@@ -23,6 +23,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepTextBox _comboTextBox;
         private BeepButton _dropDownButton;
         private BeepPopupListForm _beepListBox;
+
+        // Add these fields for caching and state tracking
+        private Dictionary<Color, SolidBrush> _brushCache = new Dictionary<Color, SolidBrush>();
+        private Dictionary<Color, Pen> _penCache = new Dictionary<Color, Pen>();
+        private string _lastDrawnText = "";
+        private Color _lastBackColor = Color.Empty;
+        private Color _lastForeColor = Color.Empty;
+        private bool _lastIsEditing = false;
+        private bool _lastIsPopupOpen = false;
+        private bool _lastIsFocused = false;
+        private bool _lastIsHovered = false;
+        // Optimized dropdown button image setting with caching
+        private string _lastImagePath = "";
+
         private bool _isEditing;
         private SimpleItem _selectedItem;
         private int _selectedItemIndex = -1;
@@ -286,28 +300,41 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Rectangle clientRect = DrawingRect;
 
-            // Position the combo textbox
+            // Only reposition if size actually changed
             if (_comboTextBox != null)
             {
-                _comboTextBox.Location = new Point(
+                var newLocation = new Point(
                     clientRect.X + _padding,
-                    (clientRect.Height - _comboTextBox.SingleLineHeight) / 2); // Vertically center
-                _comboTextBox.Size = new Size(
+                    (clientRect.Height - _comboTextBox.SingleLineHeight) / 2);
+
+                var newSize = new Size(
                     clientRect.Width - _buttonWidth - (2 * _padding),
                     _comboTextBox.SingleLineHeight);
+
+                // Only update if different
+                if (_comboTextBox.Location != newLocation || _comboTextBox.Size != newSize)
+                {
+                    _comboTextBox.Location = newLocation;
+                    _comboTextBox.Size = newSize;
+                }
             }
 
-            // Position the dropdown button
             if (_dropDownButton != null)
             {
-                int buttonHeight = clientRect.Height - (2 * _padding); // Use control height minus padding
-                _dropDownButton.Location = new Point(
+                int buttonHeight = clientRect.Height - (2 * _padding);
+                var newLocation = new Point(
                     clientRect.Right - _buttonWidth - _padding,
-                   _comboTextBox.Top); // Center vertically within clientRect
-                _dropDownButton.Size = new Size(
-                    _buttonWidth,
-                    buttonHeight);
-                SetDropDownButtonImage();
+                    _comboTextBox?.Top ?? _padding);
+
+                var newSize = new Size(_buttonWidth, buttonHeight);
+
+                // Only update if different
+                if (_dropDownButton.Location != newLocation || _dropDownButton.Size != newSize)
+                {
+                    _dropDownButton.Location = newLocation;
+                    _dropDownButton.Size = newSize;
+                    SetDropDownButtonImage();
+                }
             }
         }
         public override void ApplyTheme()
@@ -399,10 +426,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            base.OnPaint(e);
-        }
+       
 
         protected override void DrawContent(Graphics g)
         {
@@ -411,17 +435,102 @@ namespace TheTechIdea.Beep.Winform.Controls
             rectangle.Inflate(-1, -1);
             Draw(g, rectangle);
         }
+        private void DrawForGrid(Graphics graphics, Rectangle rectangle)
+        {
+            // Get state colors
+            Color backColor, foreColor, borderColor;
+            GetStateColors(out backColor, out foreColor, out borderColor);
 
+            // Simple background fill
+            using (var brush = new SolidBrush(backColor))
+            {
+                graphics.FillRectangle(brush, rectangle);
+            }
+
+            // Text only - no dividers, no borders for maximum speed
+            string textToDraw = SelectedItem?.Text ?? PlaceholderText ?? "";
+            if (!string.IsNullOrEmpty(textToDraw))
+            {
+                var textColor = string.IsNullOrEmpty(SelectedItem?.Text) ?
+                    Color.FromArgb(150, foreColor) : foreColor;
+
+                var textRect = new Rectangle(
+                    rectangle.X + 4,
+                    rectangle.Y,
+                    rectangle.Width - _buttonWidth - 8,
+                    rectangle.Height);
+
+                TextRenderer.DrawText(graphics, textToDraw, _textFont, textRect, textColor,
+                    TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            // Simple dropdown arrow using ControlPaint for speed
+            var arrowRect = new Rectangle(
+                rectangle.Right - _buttonWidth + 2,
+                rectangle.Y + 2,
+                _buttonWidth - 4,
+                rectangle.Height - 4);
+
+            ControlPaint.DrawComboButton(graphics, arrowRect, ButtonState.Normal);
+        }
+        // Optimized state color determination with caching
+        private void GetStateColors(out Color backColor, out Color foreColor, out Color borderColor)
+        {
+            if (Focused || _isEditing || _isPopupOpen)
+            {
+                // Selected/Focused state
+                backColor = _currentTheme.ComboBoxSelectedBackColor != Color.Empty
+                    ? _currentTheme.ComboBoxSelectedBackColor
+                    : _currentTheme.ComboBoxBackColor;
+
+                foreColor = _currentTheme.ComboBoxSelectedForeColor != Color.Empty
+                    ? _currentTheme.ComboBoxSelectedForeColor
+                    : _currentTheme.ComboBoxForeColor;
+
+                borderColor = _currentTheme.ComboBoxSelectedBorderColor != Color.Empty
+                    ? _currentTheme.ComboBoxSelectedBorderColor
+                    : _currentTheme.ComboBoxBorderColor;
+            }
+            else if (IsHovered)
+            {
+                // Hover state
+                backColor = _currentTheme.ComboBoxHoverBackColor != Color.Empty
+                    ? _currentTheme.ComboBoxHoverBackColor
+                    : _currentTheme.ComboBoxBackColor;
+
+                foreColor = _currentTheme.ComboBoxHoverForeColor != Color.Empty
+                    ? _currentTheme.ComboBoxHoverForeColor
+                    : _currentTheme.ComboBoxForeColor;
+
+                borderColor = _currentTheme.ComboBoxHoverBorderColor != Color.Empty
+                    ? _currentTheme.ComboBoxHoverBorderColor
+                    : _currentTheme.ComboBoxBorderColor;
+            }
+            else
+            {
+                // Normal state
+                backColor = _currentTheme.ComboBoxBackColor;
+                foreColor = _currentTheme.ComboBoxForeColor;
+                borderColor = _currentTheme.ComboBoxBorderColor;
+            }
+        }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             try
             {
                 if (_currentTheme == null)
                     return;
+                // Use simplified drawing for grid mode
+                if (GridMode)
+                {
+                    DrawForGrid(graphics, rectangle);
+                    return;
+                }
 
-                graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                // Remove expensive graphics settings for better performance
+                // graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                // graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+                // graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
                 // Create a working rectangle that respects border thickness
                 Rectangle workingRect = rectangle;
@@ -583,9 +692,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void SetDropDownButtonImage()
         {
-            _dropDownButton.ImagePath = _isPopupOpen
+            string newImagePath = _isPopupOpen
                 ? "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-up.svg"
                 : "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-down.svg";
+
+            // Only update if image path changed
+            if (_lastImagePath != newImagePath)
+            {
+                _dropDownButton.ImagePath = newImagePath;
+                _lastImagePath = newImagePath;
+            }
         }
 
         private void Expand()
@@ -613,18 +729,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_isPopupOpen || ListItems.Count == 0)
                 return;
 
-            menuDialog = new BeepPopupListForm(ListItems.ToList())
+            // Only create popup when actually needed
+            if (menuDialog == null)
             {
-                Theme = Theme
-            };
-            menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
+                menuDialog = new BeepPopupListForm(ListItems.ToList())
+                {
+                    Theme = Theme
+                };
+                menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
+            }
+            else
+            {
+                // Reuse existing popup but update items if needed
+                menuDialog.ListItems = new BindingList<SimpleItem>(ListItems.ToList());
+            }
+
             menuDialog.ShowPopup(Text, this, BeepPopupFormPosition.Bottom);
             _isPopupOpen = true;
             _isExpanded = true;
             PopupOpened?.Invoke(this, EventArgs.Empty);
             SetDropDownButtonImage();
         }
-
+       
         public void ClosePopup()
         {
             if (!_isPopupOpen)
@@ -710,6 +836,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
+                // Clean up cached brushes and pens
+                foreach (var brush in _brushCache.Values)
+                    brush?.Dispose();
+                _brushCache.Clear();
+
+                foreach (var pen in _penCache.Values)
+                    pen?.Dispose();
+                _penCache.Clear();
+
                 ClosePopup();
                 _comboTextBox?.Dispose();
                 _dropDownButton?.Dispose();

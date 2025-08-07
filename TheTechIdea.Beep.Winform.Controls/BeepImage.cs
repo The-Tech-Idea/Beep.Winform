@@ -36,7 +36,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ImageClipShape _clipShape = ImageClipShape.None;
         private GraphicsPath _customClipPath = null;
         private float _cornerRadius = 10f; // For rounded rectangle
-
+        #region "State Tracking Fields"
+        // Add these fields to track image state
+        private string _lastImagePath;
+        private Rectangle _lastImageRect;
+        private float _lastRotation;
+        private float _lastScale;
+        private float _lastAlpha;
+        private int _lastShakeOffset;
+        private ImageClipShape _lastClipShape;
+        private bool _lastFlipX;
+        private bool _lastFlipY;
+        private bool _stateChanged = true;
+        private Bitmap _cachedRenderedImage;
+        private Rectangle _cachedImageRect;
+        #endregion
         #endregion "Fields"
         #region "Properties"
         private bool _preserveSvgBackgrounds = false;
@@ -65,8 +79,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _clipShape;
             set
             {
-                _clipShape = value;               
-               Invalidate();
+                if (_clipShape != value)
+                {
+                    _clipShape = value;
+                    _stateChanged = true;
+                    Invalidate();
+                }
             }
         }
 
@@ -187,20 +205,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _manualRotationAngle;
             set
             {
-                if (IsSpinning)
+                if (Math.Abs(_manualRotationAngle - value) > 0.1f)
                 {
-                    // Console.WriteLine("Warning: Spinner is active. Manual rotation may combine with spinning.");
-                    // Option 1: Combine rotation
-                    _manualRotationAngle = value; // Allows combining angles
-                                                  // Option 2: Block manual rotation
-                                                  // return; // Ignore the new value
+                    if (IsSpinning)
+                    {
+                        _manualRotationAngle = value;
+                    }
+                    else
+                    {
+                        _manualRotationAngle = value;
+                    }
+                    _stateChanged = true;
+                    Invalidate();
                 }
-                else
-                {
-                    _manualRotationAngle = value;
-                }
-
-                Invalidate(); // Trigger redraw
             }
         }
 
@@ -262,28 +279,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
-        public string ImagePath
+        public  string ImagePath
         {
             get => _imagepath;
             set
             {
-                _imagepath = value;
-                // Console.WriteLine("Loading ImagePath ...");
-                if (!string.IsNullOrEmpty(_imagepath))
+                if (_imagepath != value)
                 {
-                    // Console.WriteLine($"Loading ImagePath ....."+ _imagepath);
-                    LoadImage(_imagepath);  // Use the final processed path for the image
-                                            // Console.WriteLine("Finished  Image Path ......." + _imagepath);
-                    ApplyTheme();
-                    Invalidate();
-                }
-                else
-                {
-                    ClearImage();
-                    Invalidate();
+                    _imagepath = value;
+                    _stateChanged = true;
+
+                    if (!string.IsNullOrEmpty(_imagepath))
+                    {
+                        LoadImage(_imagepath);
+                        ApplyTheme();
+                        Invalidate();
+                    }
+                    else
+                    {
+                        ClearImage();
+                        Invalidate();
+                    }
                 }
             }
         }
+
         private float _scaleFactor = 1.0f;
         [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
@@ -884,148 +904,341 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        //public void DrawImage(Graphics g, Rectangle imageRect)
+        //{
+        //    g.SmoothingMode = SmoothingMode.AntiAlias;
+        //    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        //    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        //    g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+        //    // Store original graphics state to restore later
+        //    var originalTransform = g.Transform;
+        //    var originalCompositingMode = g.CompositingMode;
+        //    var originalClip = g.Clip;
+
+        //    try
+        //    {
+        //        // --- Animation Setup ---
+        //        float rotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
+        //        float scale = (_isPulsing || _isBouncing) ? _pulseScale : 1.0f;
+        //        float alpha = _isFading ? _fadeAlpha : 1.0f;
+        //        int shakeOffset = _isShaking ? _shakeOffset : 0;
+
+        //        // The center point calculation is crucial - we need to use the exact coordinates from imageRect
+        //        PointF center = new PointF(
+        //            imageRect.X + imageRect.Width / 2f,
+        //            imageRect.Y + imageRect.Height / 2f  // This ensures we're centered at the right Y position
+        //        );
+
+        //        // --- Create clipping path if shape clipping is enabled ---
+        //        if (ClipShape != ImageClipShape.None)
+        //        {
+        //            using (GraphicsPath clipPath = CreateClipPath(imageRect))
+        //            {
+        //                // Apply clip directly using the exact imageRect coordinates
+        //                g.SetClip(clipPath);
+        //            }
+        //        }
+
+        //        // --- Apply transformations relative to the exact center point ---
+        //        g.TranslateTransform(center.X, center.Y);
+
+        //        // Apply flip if needed
+        //        if (_flipX || _flipY)
+        //        {
+        //            g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
+        //        }
+
+        //        // Apply scale and rotation
+        //        g.ScaleTransform(scale, scale);
+        //        g.RotateTransform(rotation);
+
+        //        // Move back to original position
+        //        g.TranslateTransform(-center.X, -center.Y);
+
+        //        // Add shake offset if needed
+        //        if (shakeOffset != 0)
+        //        {
+        //            g.TranslateTransform(shakeOffset, 0);
+        //        }
+
+        //        // --- Draw the image based on type ---
+        //        if (isSvg && svgDocument != null)
+        //        {
+        //            // For SVG images
+        //            SizeF imageSize = svgDocument.GetDimensions();
+        //            RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
+
+        //            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+        //            {
+        //                // Important: Use the scaled bounds that respects the Y position
+        //                g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
+        //                g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
+
+        //                // Set compositing mode if needed for transparency
+        //                if (alpha < 1.0f)
+        //                    g.CompositingMode = CompositingMode.SourceOver;
+
+        //                // Draw the SVG
+        //                svgDocument.Draw(g);
+        //            }
+        //        }
+        //        else if (regularImage != null)
+        //        {
+        //            // For regular bitmap images
+        //            SizeF imageSize = regularImage.Size;
+        //            RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
+
+        //            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
+        //            {
+        //                if (alpha < 1.0f || _grayscale)
+        //                {
+        //                    // Apply special effects with ImageAttributes
+        //                    ColorMatrix matrix = new ColorMatrix();
+
+        //                    if (_grayscale)
+        //                    {
+        //                        // Grayscale conversion matrix
+        //                        matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = 0.299f;
+        //                        matrix.Matrix01 = matrix.Matrix12 = 0.587f;
+        //                        matrix.Matrix02 = matrix.Matrix21 = 0.114f;
+        //                        matrix.Matrix10 = matrix.Matrix20 = 0;
+        //                    }
+
+        //                    // Apply opacity
+        //                    matrix.Matrix33 = alpha * _opacity;
+
+        //                    using (ImageAttributes attr = new ImageAttributes())
+        //                    {
+        //                        attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+        //                        // Draw the image with exact position
+        //                        g.DrawImage(
+        //                            regularImage,
+        //                            new Rectangle(
+        //                                (int)scaledBounds.X,
+        //                                (int)scaledBounds.Y,  // Respect the Y position
+        //                                (int)scaledBounds.Width,
+        //                                (int)scaledBounds.Height
+        //                            ),
+        //                            0, 0, regularImage.Width, regularImage.Height,
+        //                            GraphicsUnit.Pixel,
+        //                            attr
+        //                        );
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    // Draw the image normally with exact position
+        //                    g.DrawImage(
+        //                        regularImage,
+        //                        new RectangleF(
+        //                            scaledBounds.X,
+        //                            scaledBounds.Y,  // Respect the Y position
+        //                            scaledBounds.Width,
+        //                            scaledBounds.Height
+        //                        )
+        //                    );
+        //                }
+        //            }
+        //        }
+        //    }
+        //    finally
+        //    {
+        //        // Restore original graphics state
+        //        g.Clip = originalClip;
+        //        g.Transform = originalTransform;
+        //        g.CompositingMode = originalCompositingMode;
+        //    }
+        //}
+
         public void DrawImage(Graphics g, Rectangle imageRect)
         {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            // Check if we need to regenerate the cached image
+            bool needsRegeneration = CheckIfStateChanged(imageRect);
 
-            // Store original graphics state to restore later
+            // If nothing changed and we have a cached image, just draw it
+            if (!needsRegeneration && _cachedRenderedImage != null && _cachedImageRect == imageRect)
+            {
+                g.DrawImage(_cachedRenderedImage, imageRect);
+                return;
+            }
+
+            // Only perform expensive operations if state changed
+            if (needsRegeneration)
+            {
+                RegenerateImage(imageRect);
+            }
+
+            // Draw the cached image
+            if (_cachedRenderedImage != null)
+            {
+                g.DrawImage(_cachedRenderedImage, imageRect);
+            }
+        }
+
+        private bool CheckIfStateChanged(Rectangle imageRect)
+        {
+            // Calculate current state
+            float currentRotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
+            float currentScale = (_isPulsing || _isBouncing) ? _pulseScale : 1.0f;
+            float currentAlpha = _isFading ? _fadeAlpha : 1.0f;
+            int currentShakeOffset = _isShaking ? _shakeOffset : 0;
+
+            // Check if any state has changed
+            bool changed = _stateChanged ||
+                           _lastImagePath != _imagepath ||
+                           _lastImageRect != imageRect ||
+                           Math.Abs(_lastRotation - currentRotation) > 0.1f ||
+                           Math.Abs(_lastScale - currentScale) > 0.01f ||
+                           Math.Abs(_lastAlpha - currentAlpha) > 0.01f ||
+                           _lastShakeOffset != currentShakeOffset ||
+                           _lastClipShape != _clipShape ||
+                           _lastFlipX != _flipX ||
+                           _lastFlipY != _flipY;
+
+            if (changed)
+            {
+                // Update last known state
+                _lastImagePath = _imagepath;
+                _lastImageRect = imageRect;
+                _lastRotation = currentRotation;
+                _lastScale = currentScale;
+                _lastAlpha = currentAlpha;
+                _lastShakeOffset = currentShakeOffset;
+                _lastClipShape = _clipShape;
+                _lastFlipX = _flipX;
+                _lastFlipY = _flipY;
+                _stateChanged = false;
+            }
+
+            return changed;
+        }
+
+        private void RegenerateImage(Rectangle imageRect)
+        {
+            // Dispose old cached image
+            _cachedRenderedImage?.Dispose();
+
+            // Create new bitmap for caching
+            _cachedRenderedImage = new Bitmap(imageRect.Width, imageRect.Height, PixelFormat.Format32bppArgb);
+            _cachedImageRect = imageRect;
+
+            using (Graphics cacheGraphics = Graphics.FromImage(_cachedRenderedImage))
+            {
+                // Set high quality settings only when regenerating
+                cacheGraphics.SmoothingMode = SmoothingMode.AntiAlias;
+                cacheGraphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                cacheGraphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                cacheGraphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+                // Create a local rectangle for drawing to the cache
+                Rectangle localRect = new Rectangle(0, 0, imageRect.Width, imageRect.Height);
+
+                // Perform all the expensive transformations on the cache
+                DrawToCache(cacheGraphics, localRect);
+            }
+        }
+
+        private void DrawToCache(Graphics g, Rectangle rect)
+        {
+            // Store original graphics state
             var originalTransform = g.Transform;
             var originalCompositingMode = g.CompositingMode;
             var originalClip = g.Clip;
 
             try
             {
-                // --- Animation Setup ---
-                float rotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
-                float scale = (_isPulsing || _isBouncing) ? _pulseScale : 1.0f;
-                float alpha = _isFading ? _fadeAlpha : 1.0f;
-                int shakeOffset = _isShaking ? _shakeOffset : 0;
+                // Calculate current animation values
+                float rotation = _lastRotation;
+                float scale = _lastScale;
+                float alpha = _lastAlpha;
+                int shakeOffset = _lastShakeOffset;
 
-                // The center point calculation is crucial - we need to use the exact coordinates from imageRect
-                PointF center = new PointF(
-                    imageRect.X + imageRect.Width / 2f,
-                    imageRect.Y + imageRect.Height / 2f  // This ensures we're centered at the right Y position
-                );
+                // Center point for transformations
+                PointF center = new PointF(rect.Width / 2f, rect.Height / 2f);
 
-                // --- Create clipping path if shape clipping is enabled ---
-                if (ClipShape != ImageClipShape.None)
+                // Apply clipping if needed
+                if (_clipShape != ImageClipShape.None)
                 {
-                    using (GraphicsPath clipPath = CreateClipPath(imageRect))
+                    using (GraphicsPath clipPath = CreateClipPath(rect))
                     {
-                        // Apply clip directly using the exact imageRect coordinates
                         g.SetClip(clipPath);
                     }
                 }
 
-                // --- Apply transformations relative to the exact center point ---
+                // Apply transformations
                 g.TranslateTransform(center.X, center.Y);
 
-                // Apply flip if needed
                 if (_flipX || _flipY)
                 {
                     g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
                 }
 
-                // Apply scale and rotation
                 g.ScaleTransform(scale, scale);
                 g.RotateTransform(rotation);
-
-                // Move back to original position
                 g.TranslateTransform(-center.X, -center.Y);
 
-                // Add shake offset if needed
                 if (shakeOffset != 0)
                 {
                     g.TranslateTransform(shakeOffset, 0);
                 }
 
-                // --- Draw the image based on type ---
+                // Draw the actual image
                 if (isSvg && svgDocument != null)
                 {
-                    // For SVG images
                     SizeF imageSize = svgDocument.GetDimensions();
-                    RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
+                    RectangleF scaledBounds = GetScaledBounds(imageSize, rect);
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
-                        // Important: Use the scaled bounds that respects the Y position
                         g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
                         g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
 
-                        // Set compositing mode if needed for transparency
                         if (alpha < 1.0f)
                             g.CompositingMode = CompositingMode.SourceOver;
 
-                        // Draw the SVG
                         svgDocument.Draw(g);
                     }
                 }
                 else if (regularImage != null)
                 {
-                    // For regular bitmap images
                     SizeF imageSize = regularImage.Size;
-                    RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
+                    RectangleF scaledBounds = GetScaledBounds(imageSize, rect);
 
                     if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
                     {
                         if (alpha < 1.0f || _grayscale)
                         {
-                            // Apply special effects with ImageAttributes
                             ColorMatrix matrix = new ColorMatrix();
 
                             if (_grayscale)
                             {
-                                // Grayscale conversion matrix
                                 matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = 0.299f;
                                 matrix.Matrix01 = matrix.Matrix12 = 0.587f;
                                 matrix.Matrix02 = matrix.Matrix21 = 0.114f;
                                 matrix.Matrix10 = matrix.Matrix20 = 0;
                             }
 
-                            // Apply opacity
                             matrix.Matrix33 = alpha * _opacity;
 
                             using (ImageAttributes attr = new ImageAttributes())
                             {
                                 attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-
-                                // Draw the image with exact position
-                                g.DrawImage(
-                                    regularImage,
-                                    new Rectangle(
-                                        (int)scaledBounds.X,
-                                        (int)scaledBounds.Y,  // Respect the Y position
-                                        (int)scaledBounds.Width,
-                                        (int)scaledBounds.Height
-                                    ),
-                                    0, 0, regularImage.Width, regularImage.Height,
-                                    GraphicsUnit.Pixel,
-                                    attr
-                                );
+                                g.DrawImage(regularImage, Rectangle.Round(scaledBounds), 0, 0,
+                                          regularImage.Width, regularImage.Height, GraphicsUnit.Pixel, attr);
                             }
                         }
                         else
                         {
-                            // Draw the image normally with exact position
-                            g.DrawImage(
-                                regularImage,
-                                new RectangleF(
-                                    scaledBounds.X,
-                                    scaledBounds.Y,  // Respect the Y position
-                                    scaledBounds.Width,
-                                    scaledBounds.Height
-                                )
-                            );
+                            g.DrawImage(regularImage, scaledBounds);
                         }
                     }
                 }
             }
             finally
             {
-                // Restore original graphics state
+                // Restore graphics state
                 g.Clip = originalClip;
                 g.Transform = originalTransform;
                 g.CompositingMode = originalCompositingMode;
@@ -1033,7 +1246,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
 
-    
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
@@ -1556,31 +1768,35 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
-      
+
         #endregion
         #region "Spin and Animations"
         private void StartSpin()
         {
-            // Check if the spinner is already running
             if (_spinTimer != null && _spinTimer.Enabled)
-                return; // Do nothing if the spinner is already active
-                        // Optionally reset manual rotation when spinning starts
-            _manualRotationAngle = 0; // Reset if needed
-            // Initialize the timer if it doesn't exist
+                return;
+
+            _manualRotationAngle = 0;
+
             if (_spinTimer == null)
             {
-                _spinTimer = new Timer { Interval = 30 }; // Adjust interval for desired speed
+                _spinTimer = new Timer { Interval = 30 };
                 _spinTimer.Tick += (s, e) =>
                 {
-                    // Increment the rotation angle and keep it within 0-360 degrees
+                    bool needsRedraw = false;
+
                     if (IsSpinning)
+                    {
                         _rotationAngle = (_rotationAngle + SpinSpeed) % 360;
+                        needsRedraw = true;
+                    }
 
                     if (_isPulsing)
                     {
                         _pulseScale += 0.01f * _pulseDirection;
                         if (_pulseScale > 1.1f || _pulseScale < 0.9f)
                             _pulseDirection *= -1;
+                        needsRedraw = true;
                     }
 
                     if (_isBouncing)
@@ -1588,6 +1804,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _pulseScale += 0.04f * _pulseDirection;
                         if (_pulseScale > 1.2f || _pulseScale < 0.8f)
                             _pulseDirection *= -1;
+                        needsRedraw = true;
                     }
 
                     if (_isFading)
@@ -1595,6 +1812,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _fadeAlpha += 0.05f * _fadeDirection;
                         if (_fadeAlpha <= 0.4f || _fadeAlpha >= 1.0f)
                             _fadeDirection *= -1;
+                        needsRedraw = true;
                     }
 
                     if (_isShaking)
@@ -1602,15 +1820,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _shakeOffset += 1 * _shakeDirection;
                         if (Math.Abs(_shakeOffset) > 3)
                             _shakeDirection *= -1;
+                        needsRedraw = true;
                     }
-                    Invalidate(); // Redraw the control to reflect the new angle
+
+                    // Only invalidate if something actually changed
+                    if (needsRedraw)
+                    {
+                        Invalidate();
+                    }
                 };
             }
 
-            // Start the timer
             _spinTimer.Start();
         }
-
 
         private void StopSpin()
         {
@@ -1659,11 +1881,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Use the provided rectangle in DrawingRect for our drawing area
             DrawingRect = rectangle;
 
-            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
+        
             // Draw the image at the specified rectangle coordinates
             DrawImage(graphics, rectangle);
         }
@@ -1764,6 +1982,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
+                _cachedRenderedImage?.Dispose();
                 DisposeImages();
                 _spinTimer?.Dispose();
             }

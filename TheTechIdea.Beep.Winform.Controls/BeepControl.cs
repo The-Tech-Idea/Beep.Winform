@@ -299,6 +299,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public float GlassmorphismOpacity { get; set; } = 0.1f;
 
         #endregion
+        public bool GridMode { get; set; } = false;
+
         private bool _isselectedoptionon = false;
         public bool IsSelectedOptionOn
         {

@@ -159,20 +159,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // //Debug.WriteLine("BeepiForm Constructor 2");
             InitializeComponent();
             ishandled = false;
-            FormBorderStyle = FormBorderStyle.None;
-
-            // CRITICAL FIX: Re-enable these SetStyle calls for proper resizing behavior
-            SetStyle(ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.SupportsTransparentBackColor, true);
+            
+            // Set styles for custom painting and performance
+            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 
             // Enable double buffering at the form level
-            this.SetStyle(ControlStyles.DoubleBuffer, true);
-        
-        FormBorderStyle = FormBorderStyle.None;
+            this.DoubleBuffered = true;
+
+            FormBorderStyle = FormBorderStyle.None;
+
 
 
 
@@ -242,6 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnPaint(PaintEventArgs e)
         {
+            base.OnPaint(e);
             if (_inMoveOrResize) return; // Don't paint during move/resize
 
             if (_borderThickness > 0 && _borderColor != Color.Transparent)
@@ -265,9 +262,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnResize(EventArgs e)
         {
+            SuspendLayout();
             base.OnResize(e);
-            //if (!_inMoveOrResize)
-            //    UpdateFormRegion();
+            // The Invalidate call is deferred to WM_EXITSIZEMOVE to avoid costly repaints.
+            ResumeLayout(true);
+        }
+
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            base.OnResizeEnd(e);
+            // Force a full invalidation of the form and its children after resizing is complete.
+            // This is more reliable than WM_EXITSIZEMOVE for all resize scenarios, including maximization.
+            Invalidate(true);
         }
 
         private void UpdateFormRegion()
@@ -337,9 +343,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case WM_EXITSIZEMOVE:
                     _inMoveOrResize = false;
                     UpdateFormRegion(); // Only update region after move/resize is done
-                    Invalidate();
+                    Invalidate(); // Redraw the final state
                     break;
                 case WM_NCHITTEST when !_inpopupmode:
+                    if (_inMoveOrResize)
+                    {
+                        base.WndProc(ref m);
+                        return;
+                    }
                     Point pos = PointToClient(new Point(m.LParam.ToInt32()));
                     int margin = _resizeMargin;
                     if (pos.X <= margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPLEFT; return; }

@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
     [Serializable]
+    [TypeConverter(typeof(BeepColumnConfigConverter))]
     public class BeepColumnConfig : INotifyPropertyChanged
     {
         public BeepColumnConfig()
@@ -26,6 +27,90 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         }
 
         #region Properties
+        #region Column Color Properties
+        private Color _columnBackColor = Color.Empty;
+        [Category("Appearance")]
+        [Description("The background color for this column's cells.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Color ColumnBackColor
+        {
+            get => _columnBackColor;
+            set { _columnBackColor = value; OnPropertyChanged(nameof(ColumnBackColor)); }
+        }
+
+        private Color _columnForeColor = Color.Empty;
+        [Category("Appearance")]
+        [Description("The text color for this column's cells.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Color ColumnForeColor
+        {
+            get => _columnForeColor;
+            set { _columnForeColor = value; OnPropertyChanged(nameof(ColumnForeColor)); }
+        }
+
+        private Color _columnBorderColor = Color.Empty;
+        [Category("Appearance")]
+        [Description("The border color for this column's cells.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Color ColumnBorderColor
+        {
+            get => _columnBorderColor;
+            set { _columnBorderColor = value; OnPropertyChanged(nameof(ColumnBorderColor)); }
+        }
+
+        private Color _columnHeaderBackColor = Color.Empty;
+        [Category("Appearance")]
+        [Description("The background color for this column's header.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Color ColumnHeaderBackColor
+        {
+            get => _columnHeaderBackColor;
+            set { _columnHeaderBackColor = value; OnPropertyChanged(nameof(ColumnHeaderBackColor)); }
+        }
+
+        private Color _columnHeaderForeColor = Color.Empty;
+        [Category("Appearance")]
+        [Description("The text color for this column's header.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public Color ColumnHeaderForeColor
+        {
+            get => _columnHeaderForeColor;
+            set { _columnHeaderForeColor = value; OnPropertyChanged(nameof(ColumnHeaderForeColor)); }
+        }
+
+        private bool _useCustomColors = false;
+        [Category("Appearance")]
+        [Description("Enables custom colors for this column instead of theme colors.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool UseCustomColors
+        {
+            get => _useCustomColors;
+            set { _useCustomColors = value; OnPropertyChanged(nameof(UseCustomColors)); }
+        }
+
+        // Add ShouldSerialize methods for proper designer serialization
+        public bool ShouldSerializeColumnBackColor() => _columnBackColor != Color.Empty;
+        public bool ShouldSerializeColumnForeColor() => _columnForeColor != Color.Empty;
+        public bool ShouldSerializeColumnBorderColor() => _columnBorderColor != Color.Empty;
+        public bool ShouldSerializeColumnHeaderBackColor() => _columnHeaderBackColor != Color.Empty;
+        public bool ShouldSerializeColumnHeaderForeColor() => _columnHeaderForeColor != Color.Empty;
+        public bool ShouldSerializeUseCustomColors() => _useCustomColors != false;
+
+        // Add Reset methods for designer support
+        public void ResetColumnBackColor() => _columnBackColor = Color.Empty;
+        public void ResetColumnForeColor() => _columnForeColor = Color.Empty;
+        public void ResetColumnBorderColor() => _columnBorderColor = Color.Empty;
+        public void ResetColumnHeaderBackColor() => _columnHeaderBackColor = Color.Empty;
+        public void ResetColumnHeaderForeColor() => _columnHeaderForeColor = Color.Empty;
+        public void ResetUseCustomColors() => _useCustomColors = false;
+
+        // Update helper methods to use proper properties
+        public bool HasCustomBackColor => _columnBackColor != Color.Empty && _useCustomColors;
+        public bool HasCustomForeColor => _columnForeColor != Color.Empty && _useCustomColors;
+        public bool HasCustomBorderColor => _columnBorderColor != Color.Empty && _useCustomColors;
+        public bool HasCustomHeaderBackColor => _columnHeaderBackColor != Color.Empty && _useCustomColors;
+        public bool HasCustomHeaderForeColor => _columnHeaderForeColor != Color.Empty && _useCustomColors;
+        #endregion
         private bool _isRowID;
         [Category("Data")]
         [Description("Indicates whether the column is a RowID.")]
@@ -494,7 +579,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _imagepath;
             set { _imagepath = value; OnPropertyChanged(nameof(ImagePath)); }
         }
+        private bool _showSortIcon = true;
+        [Category("Appearance")]
 
+        public bool ShowSortIcon
+        {
+            get => _showSortIcon;
+            set { _showSortIcon = value; OnPropertyChanged(nameof(ShowSortIcon)); }
+        }
+        private bool _showFilterIcon = true;
+        [Category("Appearance")]
+        [Description("Indicates whether to show the filter icon in the column header.")]
+        public bool ShowFilterIcon
+        {
+            get => _showFilterIcon;
+            set { _showFilterIcon = value; OnPropertyChanged(nameof(ShowFilterIcon)); }
+        }
+        private SortDirection _sortDirection = SortDirection.Ascending;
+        [Category("Sorting")]
+        [Description("The sort direction for the column.")]
+        public SortDirection SortDirection
+        {
+            get => _sortDirection;
+            set { _sortDirection = value; OnPropertyChanged(nameof(SortDirection)); }
+        }
 
         #endregion
 

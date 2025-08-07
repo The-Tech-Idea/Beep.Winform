@@ -385,10 +385,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region "Constructor and Initialization"
+        // ✅ Add DPI change handling
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+
+            // Update DPI-dependent sizes
+            _logosize = ScaledLogoSize;
+
+            // Update component sizes
+            UpdateComponentSizes();
+
+            // Recalculate layout
+            Invalidate();
+        }
         public BeepAppBar() : base()
         {
             // Set up basic properties
-            _logosize = ScaleSize(new Size(32, 32));
+            
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
@@ -401,16 +415,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize drawing components
             InitializeDrawingComponents();
 
+            // Defer DPI-dependent initialization
+            this.HandleCreated += BeepAppBar_HandleCreated;
+
+            EnableFormDragging = true;
+            SetDraggableAreas("Empty");
+        }
+        // ✅ Initialize DPI-dependent components when handle is created
+        private void BeepAppBar_HandleCreated(object sender, EventArgs e)
+        {
+            // Now DPI scaling is available
+            _logosize = ScaledLogoSize;
+
+            // Initialize drawing components with proper DPI scaling
+            InitializeDrawingComponents();
+
             // Set default size if not already defined
             if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
                 Height = ScaledDefaultHeight;
             }
-            // Enable dragging only in empty spaces (not over buttons)
-            SetDraggableAreas("Empty");
         }
-
         protected override void InitLayout()
         {
             base.InitLayout();
@@ -693,19 +719,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
             base.DrawContent(g);
 
-           
-
-          
-
-            //// Enable anti-aliasing for smoother rendering
-            //g.SmoothingMode = SmoothingMode.AntiAlias;
-            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
-            // Calculate layout positions
+            // Always recalculate layout before drawing
             CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
                 out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
                 out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
-            // assign the rectangles to the fields for later use
+
+            // Store rectangles for hit testing
             this.logoRect = logoRect;
             this.titleRect = titleRect;
             this.searchRect = searchRect;
@@ -715,98 +734,71 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.minimizeRect = minimizeRect;
             this.maximizeRect = maximizeRect;
             this.closeRect = closeRect;
-            // set  button locations
-            _notificationButton.Location = notificationRect.Location;
-            _profileButton.Location = profileRect.Location;
-            _themeButton.Location = themeRect.Location;
-            _minimizeButton.Location = minimizeRect.Location;
-            _maximizeButton.Location = maximizeRect.Location;
-            _closeButton.Location = closeRect.Location;
-            // Set the size of the buttons
 
-            // Refresh hit areas based on the current layout
-            // RefreshHitAreas();
-            // Draw each component in the calculated rectangles with appropriate hover effects
+            // Rest of drawing code...
+            DrawComponents(g, logoRect, titleRect, searchRect, notificationRect,
+                          profileRect, themeRect, minimizeRect, maximizeRect, closeRect);
+        }
+
+        // ✅ Extract component drawing to separate method
+        private void DrawComponents(Graphics g, Rectangle logoRect, Rectangle titleRect, Rectangle searchRect,
+            Rectangle notificationRect, Rectangle profileRect, Rectangle themeRect,
+            Rectangle minimizeRect, Rectangle maximizeRect, Rectangle closeRect)
+        {
+            // Draw each component with proper hover states
             if (_showLogo && !string.IsNullOrEmpty(_logoImage))
             {
-                bool isLogoHovered = _hoveredComponentName == "Logo";
-                _logo.IsHovered = isLogoHovered;
-                if (string.IsNullOrEmpty(_logo.ImagePath) || !_logo.ImagePath.Equals(_logoImage, StringComparison.OrdinalIgnoreCase))
-                {
-                    _logo.ImagePath = _logoImage;
-                }
+                _logo.IsHovered = _hoveredComponentName == "Logo";
                 _logo.Draw(g, logoRect);
             }
 
             if (_showTitle)
             {
-                bool isTitleHovered = _hoveredComponentName == "Title";
-                _titleLabel.IsHovered = isTitleHovered;
-                if (string.IsNullOrEmpty(Title) || !_titleLabel.Text.Equals(Title, StringComparison.OrdinalIgnoreCase))
-                {
-                    _titleLabel.Text = _logoImage;
-                }
+                _titleLabel.IsHovered = _hoveredComponentName == "Title";
+                _titleLabel.Text = Title; // Ensure text is current
                 _titleLabel.Draw(g, titleRect);
             }
 
-            if (_showSearchBox)
+            // Continue with other components...
+            if (_showSearchBox && !_searchBoxAddedToControls)
             {
-                // Update the search box position if it's visible
-                if (_searchBoxAddedToControls)
-                {
-                    _searchBox.Location = searchRect.Location;
-                    _searchBox.Size = searchRect.Size;
-                }
-                else
-                {
-                    // Only draw if we're not displaying the actual control
-                    bool isSearchHovered = _hoveredComponentName == "Search";
-                    _searchBox.IsHovered = isSearchHovered;
-                    _searchBox.Draw(g, searchRect);
-                }
+                _searchBox.IsHovered = _hoveredComponentName == "Search";
+                _searchBox.Draw(g, searchRect);
             }
 
-            // Draw remaining components with similar hover state checks
             if (_showNotificationIcon)
             {
-                bool isNotificationHovered = _hoveredComponentName == "Notification";
-                _notificationButton.IsHovered = isNotificationHovered;
-               
+                _notificationButton.IsHovered = _hoveredComponentName == "Notification";
                 _notificationButton.Draw(g, notificationRect);
             }
 
             if (_showProfileIcon)
             {
-                bool isProfileHovered = _hoveredComponentName == "Profile";
-                _profileButton.IsHovered = isProfileHovered;
+                _profileButton.IsHovered = _hoveredComponentName == "Profile";
                 _profileButton.Draw(g, profileRect);
             }
 
             if (_showThemeIcon)
             {
-                bool isThemeHovered = _hoveredComponentName == "Theme";
-                _themeButton.IsHovered = isThemeHovered;
+                _themeButton.IsHovered = _hoveredComponentName == "Theme";
                 _themeButton.Draw(g, themeRect);
             }
 
             if (_showMinimizeIcon)
             {
-                bool isMinimizeHovered = _hoveredComponentName == "Minimize";
-                _minimizeButton.IsHovered = isMinimizeHovered;
+                _minimizeButton.IsHovered = _hoveredComponentName == "Minimize";
                 _minimizeButton.Draw(g, minimizeRect);
             }
 
             if (_showMaximizeIcon)
             {
-                bool isMaximizeHovered = _hoveredComponentName == "Maximize";
-                _maximizeButton.IsHovered = isMaximizeHovered;
+                _maximizeButton.IsHovered = _hoveredComponentName == "Maximize";
                 _maximizeButton.Draw(g, maximizeRect);
             }
 
             if (_showCloseIcon)
             {
-                bool isCloseHovered = _hoveredComponentName == "Close";
-                _closeButton.IsHovered = isCloseHovered;
+                _closeButton.IsHovered = _hoveredComponentName == "Close";
                 _closeButton.Draw(g, closeRect);
             }
         }
@@ -822,16 +814,68 @@ namespace TheTechIdea.Beep.Winform.Controls
             return hitArea?.IsHovered ?? false;
         }
 
-
-        private void CalculateLayout(
-            out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
-            out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
-            out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect)
+        private void UpdateComponentLayout()
         {
-            int padding = 5;
-            int spacing = 10;
+            // Recalculate layout with current size
+            CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+                out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+                out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
 
-            // Initialize rectangles with empty values
+            // Update component positions
+            if (_notificationButton != null)
+            {
+                _notificationButton.Location = notificationRect.Location;
+                _notificationButton.Size = notificationRect.Size;
+            }
+
+            if (_profileButton != null)
+            {
+                _profileButton.Location = profileRect.Location;
+                _profileButton.Size = profileRect.Size;
+            }
+
+            if (_themeButton != null)
+            {
+                _themeButton.Location = themeRect.Location;
+                _themeButton.Size = themeRect.Size;
+            }
+
+            if (_minimizeButton != null)
+            {
+                _minimizeButton.Location = minimizeRect.Location;
+                _minimizeButton.Size = minimizeRect.Size;
+            }
+
+            if (_maximizeButton != null)
+            {
+                _maximizeButton.Location = maximizeRect.Location;
+                _maximizeButton.Size = maximizeRect.Size;
+            }
+
+            if (_closeButton != null)
+            {
+                _closeButton.Location = closeRect.Location;
+                _closeButton.Size = closeRect.Size;
+            }
+
+            // Update search box if it's added to controls
+            if (_searchBoxAddedToControls && _searchBox != null)
+            {
+                _searchBox.Location = searchRect.Location;
+                _searchBox.Size = searchRect.Size;
+            }
+        }
+        private void CalculateLayout(
+         out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+         out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+         out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect)
+        {
+            // Use DPI-scaled values consistently
+            int padding = ScaleValue(5);
+            int spacing = ScaleValue(10);
+            int searchHeight = ScaleValue(24);
+
+            // Initialize rectangles
             logoRect = Rectangle.Empty;
             titleRect = Rectangle.Empty;
             searchRect = Rectangle.Empty;
@@ -847,7 +891,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int rightEdge = DrawingRect.Right - padding;
             int centerY = DrawingRect.Top + DrawingRect.Height / 2;
 
-            // Position closeButton, maximizeButton, minimizeButton (right-aligned)
+            // Position window control buttons (right-aligned)
             if (_showCloseIcon)
             {
                 closeRect = new Rectangle(
@@ -881,20 +925,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rightEdge = minimizeRect.Left - spacing;
             }
 
-            // Position searchBox
+            // Position search box with DPI-scaled width
             if (_showSearchBox)
             {
-                int searchHeight = 24;
+                int scaledSearchWidth = ScaleValue(SearchBoxWidth);
                 searchRect = new Rectangle(
-                    rightEdge - SearchBoxWidth,
+                    rightEdge - scaledSearchWidth,
                     centerY - searchHeight / 2,
-                    SearchBoxWidth,
+                    scaledSearchWidth,
                     searchHeight
                 );
                 rightEdge = searchRect.Left - spacing;
             }
 
-            // Position notificationIcon
+            // Position notification, profile, and theme icons
             if (_showNotificationIcon)
             {
                 notificationRect = new Rectangle(
@@ -906,7 +950,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rightEdge = notificationRect.Left - spacing;
             }
 
-            // Position profileIcon
             if (_showProfileIcon)
             {
                 profileRect = new Rectangle(
@@ -918,7 +961,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rightEdge = profileRect.Left - spacing;
             }
 
-            // Position themeIcon
             if (_showThemeIcon)
             {
                 themeRect = new Rectangle(
@@ -930,14 +972,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 rightEdge = themeRect.Left - spacing;
             }
 
-            // Position logo
+            // Position logo with DPI-scaled size
             if (_showLogo && !string.IsNullOrEmpty(_logoImage))
             {
+                Size logoSize = ScaledLogoSize;
                 logoRect = new Rectangle(
                     leftEdge,
-                    centerY - _logosize.Height / 2,
-                    _logosize.Width,
-                    _logosize.Height
+                    centerY - logoSize.Height / 2,
+                    logoSize.Width,
+                    logoSize.Height
                 );
                 leftEdge = logoRect.Right + spacing;
             }
@@ -945,17 +988,74 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Position title (fill remaining space)
             if (_showTitle)
             {
+                int titleHeight = ScaleValue(24);
                 titleRect = new Rectangle(
                     leftEdge,
-                    centerY - 12, // Half of typical text height
-                    rightEdge - leftEdge - spacing,
-                    24 // Typical text height
+                    centerY - titleHeight / 2,
+                    Math.Max(0, rightEdge - leftEdge - spacing),
+                    titleHeight
                 );
             }
-           
-            AddChildExternalDrawing(_notificationButton, _notificationButton.DrawBadgeExternally, DrawingLayer.AfterAll);
-
         }
+
+        // ✅ Add method to update component sizes on DPI change
+        private void UpdateComponentSizes()
+        {
+            int scaledIconSize = ScaledWindowIconsHeight;
+            Size iconSize = new Size(scaledIconSize, scaledIconSize);
+            Size imageSize = new Size(scaledIconSize - imageoffset, scaledIconSize - imageoffset);
+
+            // Update all button sizes
+            if (_notificationButton != null)
+            {
+                _notificationButton.MaxImageSize = imageSize;
+                _notificationButton.Size = iconSize;
+            }
+
+            if (_profileButton != null)
+            {
+                _profileButton.MaxImageSize = imageSize;
+                _profileButton.Size = iconSize;
+            }
+
+            if (_themeButton != null)
+            {
+                _themeButton.MaxImageSize = imageSize;
+                _themeButton.Size = iconSize;
+            }
+
+            if (_minimizeButton != null)
+            {
+                _minimizeButton.MaxImageSize = imageSize;
+                _minimizeButton.Size = iconSize;
+            }
+
+            if (_maximizeButton != null)
+            {
+                _maximizeButton.MaxImageSize = imageSize;
+                _maximizeButton.Size = iconSize;
+            }
+
+            if (_closeButton != null)
+            {
+                _closeButton.MaxImageSize = imageSize;
+                _closeButton.Size = iconSize;
+            }
+
+            // Update logo size
+            if (_logo != null)
+            {
+                _logo.Size = ScaledLogoSize;
+            }
+
+            // Update search box size
+            if (_searchBox != null)
+            {
+                _searchBox.Height = ScaleValue(30);
+                _searchBox.Width = ScaleValue(200);
+            }
+        }
+
         #endregion "Draw Methods"
 
         #region "Event Handling"
@@ -1253,10 +1353,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (_searchBoxAddedToControls)
             {
+                SuspendLayout();
                 Controls.Remove(_searchBox);
                 _searchBoxAddedToControls = false;
                 _searchBox.Visible = false;
-                Invalidate(); // Redraw to show the drawn version
+                ResumeLayout(false); // Redraw to show the drawn version
             }
         }
 
@@ -1561,10 +1662,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
 
-            // Make sure search box isn't visible while resizing
+            // Remove search box control during resize to avoid layout conflicts.
             RemoveSearchBoxControl();
 
-            // Redraw to update control positions
+            // The layout of components is recalculated in the DrawContent method,
+            // so we just need to trigger a repaint.
             Invalidate();
         }
         #endregion "Overrides"

@@ -293,16 +293,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepTree() : base()
         { // but the SetStyle gives you full control:
-            //this.DoubleBuffered = true;
-
-            //// these styles ensure all drawing happens offscreen
-            //this.SetStyle(
-            //    ControlStyles.UserPaint |
-            //    ControlStyles.AllPaintingInWmPaint |
-            //    ControlStyles.OptimizedDoubleBuffer |
-            //    ControlStyles.ResizeRedraw,
-            //    true);
-            //this.UpdateStyles();
+            this.SetStyle(
+                ControlStyles.UserPaint |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.OptimizedDoubleBuffer,
+                true);
+            this.UpdateStyles();
             BeepButton _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(GetScaledBoxSize()-2,GetScaledBoxSize()-2), Size = new Size(GetScaledBoxSize(), GetScaledBoxSize()) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
             BeepCheckBoxBool _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = GetScaledBoxSize() };
             BeepImage _iconRenderer = new BeepImage { IsChild = true, ScaleMode = ImageScaleMode.KeepAspectRatio };
@@ -352,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw ONLY our custom background, skip base drawing
            
             HitList.Clear();
-            RebuildVisible();
+           // RebuildVisible();
 
             // Update scrollbars based on current content
             UpdateScrollBars();

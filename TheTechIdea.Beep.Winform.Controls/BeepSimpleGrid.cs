@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private DateTime _lastFillTime = DateTime.MinValue;
         private const int FILL_DEBOUNCE_MS = 50; // Minimum time between fills
         private Timer _fillRowsTimer;
-        int filtercontrolsheight = 5;
+        int filtercontrolsheight = 3;
         int filterPanelHeight = 60;
         bool _layoutDirty = false;
         private string _titleimagestring = "simpleinfoapps.svg";
@@ -93,12 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _selectedRowHeaderIndex = -1;
         private int _hoveredSortIconIndex = -1;
         private int _hoveredFilterIconIndex = -1;
-        private int _selectedSortIconIndex = -1;
-        private int _selectedFilterIconIndex = -1;
-        private List<Rectangle> columnHeaderBounds = new List<Rectangle>();
-        private List<Rectangle> rowHeaderBounds = new List<Rectangle>();
-        private List<Rectangle> sortIconBounds = new List<Rectangle>();
-        private List<Rectangle> filterIconBounds = new List<Rectangle>();
+     
         private int _defaultcolumnheaderheight = 40;
         private int _defaultcolumnheaderwidth = 50;
         private TextImageRelation textImageRelation = TextImageRelation.ImageAboveText;
@@ -106,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Dictionary<BeepColumnType, List<IBeepUIComponent>> _controlPool =
             new Dictionary<BeepColumnType, List<IBeepUIComponent>>();
         // Cache layout information to reduce recalculation
-        private Dictionary<string, Size> _columnTextSizes = new Dictionary<string, Size>();
+      
         private Dictionary<int, Rectangle> _cellBounds = new Dictionary<int, Rectangle>();
         private int _startviewrow = 0;
         private int _endviewrow = 0;
@@ -326,9 +321,45 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-     
+
         #endregion "Data Source Properties"
         #region "Appearance Properties"
+        #region "Column Properties"
+        public bool ShowSortIcon { get; set; } = false;
+        public bool ShowFilterIcon { get; set; } = false;
+        public SortDirection SortDirection { get; set; } = SortDirection.None;
+        public bool IsFiltered { get; set; } = false;
+
+        private int _selectedSortIconIndex = -1;
+        private int _selectedFilterIconIndex = -1;
+        private List<Rectangle> columnHeaderBounds = new List<Rectangle>();
+        private List<Rectangle> rowHeaderBounds = new List<Rectangle>();
+        private List<Rectangle> sortIconBounds = new List<Rectangle>();
+        private List<Rectangle> filterIconBounds = new List<Rectangle>();
+        private Dictionary<string, Size> _columnTextSizes = new Dictionary<string, Size>();
+        private bool _fitColumntoContent = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool FitColumnToContent
+        {
+            get => _fitColumntoContent;
+            set
+            {
+                _fitColumntoContent = value;
+                if (_fitColumntoContent)
+                {
+                    // Resize columns to fit content
+                    foreach (var column in Columns)
+                    {
+                        column.Width = GetColumnWidth(column);
+                    }
+                }
+                Invalidate();
+            }
+        }
+        #endregion "Column Properties"
+
         public BindingList<BeepRowConfig> Rows { get; set; } = new BindingList<BeepRowConfig>();
         public BeepRowConfig aggregationRow { get; set; }
         private List<BeepColumnConfig> _columns = new List<BeepColumnConfig>();
@@ -342,33 +373,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         [Browsable(true)]
         [Category("Data")]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)] // Changed from Visible to Content
+        [Editor("System.ComponentModel.Design.CollectionEditor, System.Design", typeof(System.Drawing.Design.UITypeEditor))]
         public List<BeepColumnConfig> Columns
         {
             get
             {
-                //   //MiscFunctions.SendLog($"Columns Getter: Count = {_columns.Count}, DesignMode = {DesignMode}");
                 return _columns;
             }
             set
             {
-                  //MiscFunctions.SendLog($"Columns Setter: Count = {value?.Count}, DesignMode = {DesignMode}");
+                //MiscFunctions.SendLog($"Columns Setter: Count = {value?.Count}, DesignMode = {DesignMode}");
 
-                    //MiscFunctions.SendLog("Columns set via property, marking as designer-configured");
-                    _columns = value;
+                //MiscFunctions.SendLog("Columns set via property, marking as designer-configured");
+                _columns = value;
                 if (_columns != null)
                 {
                     // reindex columns based on sequence in list
-                   for (int i = 0; i < _columns.Count-1; i++)
+                    for (int i = 0; i < _columns.Count; i++)
                     {
                         _columns[i].Index = i;
                     }
                     if (_columns.Any())
                     {
                         columnssetupusingeditordontchange = true;
-
                     }
-
                 }
 
                 UpdateScrollBars();
@@ -420,9 +449,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showFilterpanel = value;
-
-                    _filterpaneldrawn = false;
-
+                _filterpaneldrawn = false;
+                //   filterButton.Visible= value;
+                _layoutDirty = true; // Mark the layo
+                filterTextBox.Visible = value;
+                filterColumnComboBox.Visible = value;
+            
                 Invalidate();
             }
         }
@@ -879,6 +911,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowAllBorders = false,
                 ShowShadow = false,
                 IsChild = true,
+                Visible=false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false
             };
@@ -893,6 +926,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsChild = true,
                 Width = 150,
                 Height = 20,
+                Visible=false,
                 PlaceholderText = "Filter ......"
             };
             filterTextBox.TextChanged += FilterTextBox_TextChanged;
@@ -903,6 +937,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 IsChild = true,
                 Width = 120,
+                Visible = false,
                 Height = 20,
                
             };
@@ -949,6 +984,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme,
                 IsChild = true,
                 AutoSize = true,
+                Visible=false,
                 TextAlign = ContentAlignment.MiddleCenter,
                 ForeColor = Color.Black
             };
@@ -3806,6 +3842,43 @@ namespace TheTechIdea.Beep.Winform.Controls
        
         #endregion
         #region Control Creation and Updating
+        private BeepControl CreateCellControlForDrawing(BeepCellConfig cell)
+        {
+            // Get the column definition based on cell.ColumnIndex.
+            var column = Columns[cell.ColumnIndex];
+
+            switch (column.CellEditor)
+            {
+                case BeepColumnType.Text:
+                    return new BeepTextBox { Theme = Theme, IsChild = true ,GridMode=true};
+                case BeepColumnType.CheckBoxBool:
+                    return new BeepCheckBoxBool { Theme = Theme,HideText=true,Text=string.Empty, IsChild = true, GridMode = true };
+                case BeepColumnType.CheckBoxString:
+                    return new BeepCheckBoxString { Theme = Theme , HideText = true, Text = string.Empty, IsChild = true, GridMode = true };
+                case BeepColumnType.CheckBoxChar:
+                    return new BeepCheckBoxChar { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true, GridMode = true };
+                case BeepColumnType.ComboBox:
+                    return new BeepComboBox { Theme = Theme, IsChild = true, ListItems = new BindingList<SimpleItem>(column.Items), GridMode = true };
+                case BeepColumnType.DateTime:
+                    return new BeepDatePicker { Theme = Theme, IsChild = true, GridMode = true };
+                case BeepColumnType.Image:
+                    return new BeepImage { Theme = Theme, IsChild = true, GridMode = true        };
+                case BeepColumnType.Button:
+                    return new BeepButton { Theme = Theme, IsChild = true, GridMode = true };
+                case BeepColumnType.ProgressBar:
+                    return new BeepProgressBar { Theme = Theme, IsChild = true, GridMode = true };
+                case BeepColumnType.NumericUpDown:
+                    return new BeepNumericUpDown { Theme = Theme, IsChild = true, GridMode = true };
+                case BeepColumnType.Radio:
+                    return new BeepRadioButton { Theme = Theme, IsChild = true, GridMode = true };
+                case BeepColumnType.ListBox:
+                    return new BeepListBox { Theme = Theme, IsChild = true, GridMode = true };
+                case BeepColumnType.ListOfValue:
+                    return new BeepListofValuesBox { Theme = Theme, IsChild = true, GridMode = true };
+                default:
+                    return new BeepTextBox { Theme = Theme, IsChild = true, GridMode = true };
+            }
+        }
         private BeepControl CreateCellControlForEditing(BeepCellConfig cell)
         {
             // Get the column definition based on cell.ColumnIndex.
@@ -3814,11 +3887,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (column.CellEditor)
             {
                 case BeepColumnType.Text:
-                    return new BeepTextBox { Theme = Theme, IsChild = true };
+                    return new BeepSimpleTextBox { Theme = Theme, IsChild = true };
                 case BeepColumnType.CheckBoxBool:
-                    return new BeepCheckBoxBool { Theme = Theme,HideText=true,Text=string.Empty, IsChild = true };
+                    return new BeepCheckBoxBool { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
                 case BeepColumnType.CheckBoxString:
-                    return new BeepCheckBoxString { Theme = Theme , HideText = true, Text = string.Empty, IsChild = true };
+                    return new BeepCheckBoxString { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
                 case BeepColumnType.CheckBoxChar:
                     return new BeepCheckBoxChar { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
                 case BeepColumnType.ComboBox:
@@ -3834,7 +3907,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case BeepColumnType.NumericUpDown:
                     return new BeepNumericUpDown { Theme = Theme, IsChild = true };
                 case BeepColumnType.Radio:
-                    return new BeepRadioButton { Theme = Theme, IsChild = true };
+                    return new BeepRadioButton { Theme = Theme, IsChild = true};
                 case BeepColumnType.ListBox:
                     return new BeepListBox { Theme = Theme, IsChild = true };
                 case BeepColumnType.ListOfValue:
@@ -3843,6 +3916,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return new BeepTextBox { Theme = Theme, IsChild = true };
             }
         }
+
         private void UpdateCellControl(IBeepUIComponent control, BeepColumnConfig column,BeepCellConfig cell, object value)
         {
             if (control == null) return;
@@ -4387,19 +4461,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         //protected override void OnPaint(PaintEventArgs e)
         //{
         //    base.OnPaint(e);
-         
+
         //}
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
         {
-            int filterX = 10; // Left padding
-            // Position Filter controls on filterpanelrect
-            if (filterColumnComboBox != null)
+            int padding = 10; // Consistent padding from the edge
+            int spacing = 5;  // Spacing between controls
+            int controlHeight = filterPanelRect.Height - (2 * filtercontrolsheight);
+
+            // Position controls from the right edge of the filter panel
+            if (filterColumnComboBox != null && filterTextBox != null)
             {
-                filterColumnComboBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y+ filtercontrolsheight);
-                filterColumnComboBox.Size = new Size(200, filterPanelRect.Height - (2 * filtercontrolsheight));
-                filterX += filterColumnComboBox.Width + 10; // Add padding
-                filterTextBox.Location = new Point(filterPanelRect.X + filterX, filterPanelRect.Y + filtercontrolsheight);
-                filterTextBox.Size = new Size(200, filterPanelRect.Height-(2*filtercontrolsheight));
+                // Position the ComboBox first, aligned to the far right
+                int comboBoxWidth = 200;
+                int comboBoxX = filterPanelRect.Right - comboBoxWidth - padding;
+                int controlY = filterPanelRect.Y + filtercontrolsheight;
+
+                filterColumnComboBox.Location = new Point(comboBoxX, controlY);
+                filterColumnComboBox.Size = new Size(comboBoxWidth, controlHeight);
+
+                // Position the TextBox to the left of the ComboBox
+                int textBoxWidth = 200;
+                int textBoxX = comboBoxX - textBoxWidth - spacing;
+
+                filterTextBox.Location = new Point(textBoxX, controlY);
+                filterTextBox.Size = new Size(textBoxWidth, controlHeight);
             }
         }
         private void DrawBottomAggregationRow(Graphics g, Rectangle rect)
@@ -4551,16 +4637,198 @@ namespace TheTechIdea.Beep.Winform.Controls
 
           //  //MiscFunctions.SendLog($"PaintColumnHeaders: StickyWidth={stickyWidth}, HeaderRect={headerRect}, _xOffset={_xOffset}");
         }
+        // Update the PaintHeaderCell method to use custom header colors
         private void PaintHeaderCell(Graphics g, BeepColumnConfig col, Rectangle cellRect, StringFormat format)
         {
-            using (Brush bgBrush = new SolidBrush(_currentTheme.GridHeaderBackColor))
-            using (Brush textBrush = new SolidBrush(_currentTheme.GridHeaderForeColor)) // Your preferred color
+            // Determine header colors
+            Color headerBackColor = _currentTheme.GridHeaderBackColor;
+            Color headerForeColor = _currentTheme.GridHeaderForeColor;
+
+            if (col.UseCustomColors)
+            {
+                if (col.HasCustomHeaderBackColor)
+                    headerBackColor = col.ColumnHeaderBackColor;
+                if (col.HasCustomHeaderForeColor)
+                    headerForeColor = col.ColumnHeaderForeColor;
+            }
+
+            using (Brush bgBrush = new SolidBrush(headerBackColor))
+            using (Brush textBrush = new SolidBrush(headerForeColor))
             {
                 g.FillRectangle(bgBrush, cellRect);
-                if (!col.IsSelectionCheckBox) // Skip drawing text for selection column
+
+                if (!col.IsSelectionCheckBox)
                 {
+                    // Calculate text area (reserve space for icons in corners)
+                    Rectangle textRect = cellRect;
+                    int iconSpace = 0;
+                    int iconSize = 14; // Smaller icon size
+                    int iconPadding = 2;
+
+                    if (col.ShowSortIcon) iconSpace += iconSize + iconPadding;
+                    if (col.ShowFilterIcon) iconSpace += iconSize + iconPadding;
+
+                    if (iconSpace > 0)
+                    {
+                        textRect.Width -= iconSpace + 4; // Reserve space for icons
+                        textRect.Height -= iconSize + iconPadding; // Reserve vertical space too
+                    }
+
+                    // Draw column text (centered in the available space)
                     string caption = col.ColumnCaption ?? col.ColumnName ?? "";
-                    g.DrawString(caption, _columnHeadertextFont ?? Font, textBrush, cellRect, format);
+                    var centeredFormat = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center
+                    };
+                    g.DrawString(caption, _columnHeadertextFont ?? Font, textBrush, textRect, centeredFormat);
+
+                    // Position icons in corners
+                    if (col.ShowSortIcon && col.ShowFilterIcon)
+                    {
+                        // Sort icon in UPPER RIGHT corner
+                        Rectangle sortIconRect = new Rectangle(
+                            cellRect.Right - iconSize - iconPadding,
+                            cellRect.Top + iconPadding,
+                            iconSize,
+                            iconSize
+                        );
+                        DrawSortIcon(g, sortIconRect, col.SortDirection, headerForeColor);
+                        AddHitArea($"SortIcon_{col.Index}", sortIconRect);
+
+                        // Filter icon in BOTTOM RIGHT corner
+                        Rectangle filterIconRect = new Rectangle(
+                            cellRect.Right - iconSize - iconPadding,
+                            cellRect.Bottom - iconSize - iconPadding,
+                            iconSize,
+                            iconSize
+                        );
+                        DrawFilterIcon(g, filterIconRect, col.IsFiltered, headerForeColor);
+                        AddHitArea($"FilterIcon_{col.Index}", filterIconRect);
+                    }
+                    else if (col.ShowSortIcon)
+                    {
+                        // Only sort icon - place in upper right
+                        Rectangle sortIconRect = new Rectangle(
+                            cellRect.Right - iconSize - iconPadding,
+                            cellRect.Top + iconPadding,
+                            iconSize,
+                            iconSize
+                        );
+                        DrawSortIcon(g, sortIconRect, col.SortDirection, headerForeColor);
+                        AddHitArea($"SortIcon_{col.Index}", sortIconRect);
+                    }
+                    else if (col.ShowFilterIcon)
+                    {
+                        // Only filter icon - place in upper right  
+                        Rectangle filterIconRect = new Rectangle(
+                            cellRect.Right - iconSize - iconPadding,
+                            cellRect.Top + iconPadding,
+                            iconSize,
+                            iconSize
+                        );
+                        DrawFilterIcon(g, filterIconRect, col.IsFiltered, headerForeColor);
+                        AddHitArea($"FilterIcon_{col.Index}", filterIconRect);
+                    }
+                }
+            }
+
+            // Draw border
+            Color borderColor = col.HasCustomBorderColor ? col.ColumnBorderColor : _currentTheme.GridLineColor;
+            using (Pen borderPen = new Pen(borderColor, 1))
+            {
+                g.DrawRectangle(borderPen, cellRect);
+            }
+        }
+
+        private void DrawSortIcon(Graphics g, Rectangle iconRect, SortDirection direction, Color color)
+        {
+            using (Pen pen = new Pen(color, 1.5f))
+            using (Brush brush = new SolidBrush(color))
+            {
+                int centerX = iconRect.X + iconRect.Width / 2;
+                int centerY = iconRect.Y + iconRect.Height / 2;
+                int arrowSize = Math.Min(iconRect.Width, iconRect.Height) / 3; // Smaller arrows
+
+                switch (direction)
+                {
+                    case SortDirection.Ascending:
+                        // Draw up arrow (smaller and more refined)
+                        Point[] upArrowAsc = {
+                    new Point(centerX, iconRect.Y + 2),
+                    new Point(centerX - arrowSize, centerY + 1),
+                    new Point(centerX + arrowSize, centerY + 1)
+                };
+                        g.FillPolygon(brush, upArrowAsc);
+                        break;
+
+                    case SortDirection.Descending:
+                        // Draw down arrow (smaller and more refined)
+                        Point[] downArrowDesc = {
+                    new Point(centerX, iconRect.Bottom - 2),
+                    new Point(centerX - arrowSize, centerY - 1),
+                    new Point(centerX + arrowSize, centerY - 1)
+                };
+                        g.FillPolygon(brush, downArrowDesc);
+                        break;
+
+                    case SortDirection.None:
+                        // Draw both arrows (inactive, lighter)
+                        using (Pen lightPen = new Pen(Color.FromArgb(100, color), 1))
+                        {
+                            Point[] upArrowNone = {
+                        new Point(centerX, iconRect.Y + 2),
+                        new Point(centerX - arrowSize + 1, centerY),
+                        new Point(centerX + arrowSize - 1, centerY)
+                    };
+                            Point[] downArrowNone = {
+                        new Point(centerX, iconRect.Bottom - 2),
+                        new Point(centerX - arrowSize + 1, centerY),
+                        new Point(centerX + arrowSize - 1, centerY)
+                    };
+                            g.DrawPolygon(lightPen, upArrowNone);
+                            g.DrawPolygon(lightPen, downArrowNone);
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void DrawFilterIcon(Graphics g, Rectangle iconRect, bool isActive, Color color)
+        {
+            using (Pen pen = new Pen(isActive ? color : Color.FromArgb(100, color), isActive ? 1.5f : 1f))
+            using (Brush brush = new SolidBrush(isActive ? color : Color.FromArgb(100, color)))
+            {
+                // Draw a more compact filter funnel shape
+                int padding = 1;
+                int funnelWidth = iconRect.Width - (padding * 2);
+                int funnelHeight = iconRect.Height - (padding * 2);
+
+                Point[] funnel = {
+            new Point(iconRect.X + padding, iconRect.Y + padding),
+            new Point(iconRect.Right - padding, iconRect.Y + padding),
+            new Point(iconRect.X + iconRect.Width / 2 + 2, iconRect.Y + funnelHeight / 2),
+            new Point(iconRect.X + iconRect.Width / 2 + 2, iconRect.Bottom - padding),
+            new Point(iconRect.X + iconRect.Width / 2 - 2, iconRect.Bottom - padding),
+            new Point(iconRect.X + iconRect.Width / 2 - 2, iconRect.Y + funnelHeight / 2)
+        };
+
+                if (isActive)
+                    g.FillPolygon(brush, funnel);
+                else
+                    g.DrawPolygon(pen, funnel);
+
+                // Add a small circle or dot to indicate active filter
+                if (isActive)
+                {
+                    using (Brush dotBrush = new SolidBrush(Color.FromArgb(200, Color.White)))
+                    {
+                        int dotSize = 2;
+                        g.FillEllipse(dotBrush,
+                            iconRect.X + iconRect.Width / 2 - dotSize / 2,
+                            iconRect.Y + iconRect.Height / 2 - dotSize / 2,
+                            dotSize, dotSize);
+                    }
                 }
             }
         }
@@ -4780,87 +5048,113 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // If this cell is being edited, skip drawing so that
             // the editor control remains visible.
-            //  if (_selectedCell == cell && !_columns[_selectedCell.ColumnIndex].ReadOnly) return;
             Rectangle TargetRect = cellRect;
-            BeepColumnConfig column ;
-            // Use cached brushes instead of creating new ones
-          
-                    cell.Rect = TargetRect;
+            BeepColumnConfig column;
+            cell.Rect = TargetRect;
+
             if (cell.IsAggregation)
             {
                 column = Columns[cell.ColumnIndex];
-                
             }
             else
             {
-                 column = Columns[cell.ColumnIndex];
-                 
+                column = Columns[cell.ColumnIndex];
             }
 
-            // Use cached brushes instead of creating new ones
-            var brush = (_selectedCell == cell) ? _selectedCellBrush : _cellBrush;
+            // Determine colors to use - check for custom column colors first
+            Color cellBackColor = backcolor;
+            Color cellForeColor = _currentTheme.GridForeColor;
+            Color cellBorderColor = _currentTheme.GridLineColor;
 
-            if (brush.Color != backcolor)
+            // Apply custom column colors if enabled
+            if (column.UseCustomColors)
             {
-                brush.Color = backcolor;
+                if (column.HasCustomBackColor)
+                {
+                    cellBackColor = column.ColumnBackColor;
+                }
+                if (column.HasCustomForeColor)
+                {
+                    cellForeColor = column.ColumnForeColor;
+                }
+                if (column.HasCustomBorderColor)
+                {
+                    cellBorderColor = column.ColumnBorderColor;
+                }
             }
-            // Use faster fill for high DPI
-            if (DpiScaleFactor > 1.5f)
-            {
-                // Use simpler rendering for high DPI
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
-            }
-            g.FillRectangle(brush, cellRect);
 
+            // Use cached brushes with custom colors
+            using (var brush = new SolidBrush(cellBackColor))
+            {
+                // Use faster fill for high DPI
+                if (DpiScaleFactor > 1.5f)
+                {
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
+                }
+
+                g.FillRectangle(brush, cellRect);
+            }
+
+            // Draw selection border if this is the selected cell
             if (_selectedCell == cell)
             {
-                g.DrawRectangle(_selectedBorderPen, cellRect);
-            }
-            // Get the column editor if available
-            if (!_columnEditors.TryGetValue(Columns[cell.ColumnIndex].ColumnName, out IBeepUIComponent columnEditor))
-
-            {
-
-                // Create a new control if it doesn't exist (failsafe)
-                columnEditor = CreateCellControlForEditing(cell);
-                _columnEditors[Columns[cell.ColumnIndex].ColumnName] = columnEditor;
-            }
-
-            if (columnEditor != null)
-            {
-                var editor = (Control)columnEditor;
-                editor.Bounds = new Rectangle(TargetRect.X, TargetRect.Y, TargetRect.Width, TargetRect.Height);
-                 var checkValueupdate=new BeepCellEventArgs(cell);
-                CellPreUpdateCellValue?.Invoke(this, checkValueupdate);
-                if(!checkValueupdate.Cancel)
+                using (var pen = new Pen(_currentTheme.PrimaryTextColor, 2))
                 {
-                    UpdateCellControl(columnEditor, Columns[cell.ColumnIndex], cell, cell.CellValue);
+                    g.DrawRectangle(pen, cellRect);
+                }
+            }
+            else
+            {
+                // Draw normal border with custom color if specified
+                using (var pen = new Pen(cellBorderColor, 1))
+                {
+                    g.DrawRectangle(pen, cellRect);
+                }
+            }
 
+            // Get the column editor if available
+            if (!_columnDrawers.TryGetValue(Columns[cell.ColumnIndex].ColumnName, out IBeepUIComponent columnDrawer))
+            {
+                // Create a new control if it doesn't exist (failsafe)
+                columnDrawer = CreateCellControlForDrawing(cell);
+                _columnDrawers[Columns[cell.ColumnIndex].ColumnName] = columnDrawer;
+            }
+
+            if (columnDrawer != null)
+            {
+                var editor = (Control)columnDrawer;
+                editor.Bounds = new Rectangle(TargetRect.X, TargetRect.Y, TargetRect.Width, TargetRect.Height);
+
+                var checkValueupdate = new BeepCellEventArgs(cell);
+                CellPreUpdateCellValue?.Invoke(this, checkValueupdate);
+
+                if (!checkValueupdate.Cancel)
+                {
+                    UpdateCellControl(columnDrawer, Columns[cell.ColumnIndex], cell, cell.CellValue);
                 }
 
                 // Force BeepTextBox for aggregation cells
                 if (cell.IsAggregation)
                 {
-                    BeepTextBox textBox = columnEditor as BeepTextBox ?? new BeepTextBox
+                    BeepTextBox textBox = columnDrawer as BeepTextBox ?? new BeepTextBox
                     {
                         Theme = Theme,
-                        IsReadOnly = true, // Aggregation cells are read-only
+                        IsReadOnly = true,
                         Text = cell.CellValue?.ToString() ?? ""
                     };
-                    textBox.ForeColor = _currentTheme.GridForeColor;
-                    textBox.BackColor = _currentTheme.GridBackColor;
+                    textBox.ForeColor = cellForeColor;
+                    textBox.BackColor = cellBackColor;
                     textBox.Draw(g, TargetRect);
                 }
                 else
                 {
-                   
                     var checkCustomDraw = new BeepCellEventArgs(cell);
-                    checkCustomDraw.Graphics= g;
+                    checkCustomDraw.Graphics = g;
                     CellCustomCellDraw?.Invoke(this, checkCustomDraw);
-                    if(checkCustomDraw.Cancel)
+
+                    if (checkCustomDraw.Cancel)
                     {
-                        // Reset quality settings
                         if (DpiScaleFactor > 1.5f)
                         {
                             g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
@@ -4868,83 +5162,90 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                         return;
                     }
-                    columnEditor.IsFrameless = true;
-                   
+
+                    columnDrawer.IsFrameless = true;
+
+                    // Apply custom colors to the editor controls
+                    if (columnDrawer is Control editorControl)
+                    {
+                        editorControl.ForeColor = cellForeColor;
+                        editorControl.BackColor = cellBackColor;
+                    }
+
                     // Draw the editor based on column type for non-aggregation cells
-                    switch (columnEditor)
+                    switch (columnDrawer)
                     {
                         case BeepTextBox textBox:
-                            textBox.ForeColor = _currentTheme.GridForeColor;
-                            textBox.BackColor = _currentTheme.GridBackColor;
+                            textBox.ForeColor = cellForeColor;
+                            textBox.BackColor = cellBackColor;
                             textBox.Draw(g, TargetRect);
                             break;
                         case BeepCheckBoxBool checkBox1:
-                            checkBox1.ForeColor = _currentTheme.GridForeColor;
-                            checkBox1.BackColor = _currentTheme.GridBackColor;
+                            checkBox1.ForeColor = cellForeColor;
+                            checkBox1.BackColor = cellBackColor;
                             checkBox1.Draw(g, TargetRect);
                             break;
                         case BeepCheckBoxChar checkBox2:
-                            checkBox2.ForeColor = _currentTheme.GridForeColor;
-                            checkBox2.BackColor = _currentTheme.GridBackColor;
+                            checkBox2.ForeColor = cellForeColor;
+                            checkBox2.BackColor = cellBackColor;
                             checkBox2.Draw(g, TargetRect);
                             break;
                         case BeepCheckBoxString checkBox3:
-                            checkBox3.ForeColor = _currentTheme.GridForeColor;
-                            checkBox3.BackColor = _currentTheme.GridBackColor;
+                            checkBox3.ForeColor = cellForeColor;
+                            checkBox3.BackColor = cellBackColor;
                             checkBox3.Draw(g, TargetRect);
                             break;
                         case BeepComboBox comboBox:
-                            comboBox.ForeColor = _currentTheme.GridForeColor;
-                            comboBox.BackColor = _currentTheme.GridBackColor;
-                           
+                            comboBox.ForeColor = cellForeColor;
+                            comboBox.BackColor = cellBackColor;
                             comboBox.Draw(g, TargetRect);
                             break;
                         case BeepDatePicker datePicker:
-                            datePicker.ForeColor = _currentTheme.GridForeColor;
-                            datePicker.BackColor = _currentTheme.GridBackColor;
+                            datePicker.ForeColor = cellForeColor;
+                            datePicker.BackColor = cellBackColor;
                             datePicker.Draw(g, TargetRect);
                             break;
                         case BeepImage image:
-                            image.Size=new Size(column.MaxImageWidth, column.MaxImageHeight);
+                            image.Size = new Size(column.MaxImageWidth, column.MaxImageHeight);
                             image.DrawImage(g, TargetRect);
                             break;
                         case BeepButton button:
-                            button.ForeColor = _currentTheme.GridForeColor;
-                            button.BackColor = _currentTheme.GridBackColor;
+                            button.ForeColor = cellForeColor;
+                            button.BackColor = cellBackColor;
                             button.Draw(g, TargetRect);
                             break;
                         case BeepProgressBar progressBar:
-                            progressBar.ForeColor = _currentTheme.GridForeColor;
-                            progressBar.BackColor = _currentTheme.GridBackColor;
+                            progressBar.ForeColor = cellForeColor;
+                            progressBar.BackColor = cellBackColor;
                             progressBar.Draw(g, TargetRect);
                             break;
                         case BeepStarRating starRating:
-                            starRating.ForeColor = _currentTheme.GridForeColor;
-                            starRating.BackColor = _currentTheme.GridBackColor;
+                            starRating.ForeColor = cellForeColor;
+                            starRating.BackColor = cellBackColor;
                             starRating.Draw(g, TargetRect);
                             break;
                         case BeepNumericUpDown numericUpDown:
-                            numericUpDown.ForeColor = _currentTheme.GridForeColor;
-                            numericUpDown.BackColor = _currentTheme.GridBackColor;
+                            numericUpDown.ForeColor = cellForeColor;
+                            numericUpDown.BackColor = cellBackColor;
                             numericUpDown.Draw(g, TargetRect);
                             break;
                         case BeepSwitch switchControl:
-                            switchControl.ForeColor = _currentTheme.GridForeColor;
-                            switchControl.BackColor = _currentTheme.GridBackColor;
+                            switchControl.ForeColor = cellForeColor;
+                            switchControl.BackColor = cellBackColor;
                             switchControl.Draw(g, TargetRect);
                             break;
                         case BeepListofValuesBox listBox:
-                            listBox.ForeColor = _currentTheme.GridForeColor;
-                            listBox.BackColor = _currentTheme.GridBackColor;
+                            listBox.ForeColor = cellForeColor;
+                            listBox.BackColor = cellBackColor;
                             listBox.Draw(g, TargetRect);
                             break;
                         case BeepLabel label:
-                            label.ForeColor = _currentTheme.GridForeColor;
-                            label.BackColor = _currentTheme.GridBackColor;
+                            label.ForeColor = cellForeColor;
+                            label.BackColor = cellBackColor;
                             label.Draw(g, TargetRect);
                             break;
                         default:
-                            using (var textBrush = new SolidBrush(_currentTheme.GridForeColor))
+                            using (var textBrush = new SolidBrush(cellForeColor))
                             {
                                 g.DrawString(cell.CellValue?.ToString() ?? "", Font, textBrush, TargetRect,
                                     new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
@@ -4953,6 +5254,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
             }
+
             // Reset quality settings
             if (DpiScaleFactor > 1.5f)
             {
@@ -5460,6 +5762,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 InitializeRows();
                 FillVisibleRows();
                 UpdateScrollBars();
+                Invalidate();
+                OnFilterChanged();
+            }
+            var sortColumn = Columns.FirstOrDefault(c => c.SortDirection != SortDirection.None);
+            if (sortColumn != null)
+            {
+                ApplySortAndFilter(); // Use combined method
+            }
+            else
+            {
+                // Your existing filter-only logic
                 Invalidate();
                 OnFilterChanged();
             }
@@ -6492,11 +6805,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #region Editor
         // One editor control per column (keyed by column index)
+        private Dictionary<string, IBeepUIComponent> _columnDrawers = new Dictionary<string, IBeepUIComponent>();
         private Dictionary<string, IBeepUIComponent> _columnEditors = new Dictionary<string, IBeepUIComponent>();
         // The currently active editor and cell being edited
         private BeepControl _editingControl = null;
         private BeepCellConfig _editingCell = null;
-
+        private bool _isEndingEdit = false;
         private BeepCellConfig _tempcell = null;
       //  private IBeepComponentForm _editorPopupForm;
         private void MoveEditorIn()
@@ -6554,61 +6868,82 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ShowCellEditor(BeepCellConfig cell, Point location)
         {
-            if (!cell.IsEditable)
+            if (cell == null || !cell.IsEditable)
                 return;
 
             int colIndex = cell.ColumnIndex;
-            string columnName = Columns[colIndex].ColumnName;
+            if (colIndex < 0 || colIndex >= Columns.Count) return;
 
-            // Close any existing editor
-            CloseCurrentEditor();
+            var column = Columns[colIndex];
+
+            // Close any existing editor, committing changes.
+            EndEdit(true);
 
             _editingCell = cell;
             _tempcell = cell;
-            Size cellSize = new Size(Columns[colIndex].Width, cell.Height);
+            Size cellSize = new Size(column.Width, cell.Height);
 
-            // Create or reuse editor control
-            _editingControl = CreateCellControlForEditing(cell);
-            _editingControl.Size = cellSize;
-            _editingControl.Location = new Point(cell.X, cell.Y);
-            _editingControl.Theme = Theme;
-            _editingControl.Leave += (s, e) => EndEdit();
-            _editingControl.KeyDown += (s, e) =>
+            // Create or reuse editor control from a pool
+            if (!_columnEditors.TryGetValue(column.ColumnName, out IBeepUIComponent columnEditor))
             {
-                if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Tab)
-                {
-                    EndEdit();
-                    e.Handled = true;
-                }
-                else if (e.KeyCode == Keys.Escape)
-                {
-                    CancelEdit();
-                    e.Handled = true;
-                }
-            };
-            _editingControl.LostFocus += LostFocusHandler;
-            UpdateCellControl(_editingControl, Columns[colIndex],cell, cell.CellValue);
+                columnEditor = CreateCellControlForEditing(cell);
+                _columnEditors[column.ColumnName] = columnEditor;
+            }
+            _editingControl = (BeepControl)columnEditor;
+            _editingControl.SetValue(cell.CellValue); // Set initial value for the editor
+         
+            if (_editingControl == null) return;
 
-            // Attach event handlers
+            _editingControl.Size = cellSize;
+            _editingControl.Location = cell.Rect.Location; // Use the cell's rectangle location directly
+            _editingControl.Theme = Theme;
+
+            // Ensure event handlers are attached
+            _editingControl.KeyDown -= OnEditorKeyDown;
+            _editingControl.KeyDown += OnEditorKeyDown;
+            _editingControl.LostFocus -= LostFocusHandler;
+            _editingControl.LostFocus += LostFocusHandler;
             _editingControl.TabKeyPressed -= Tabhandler;
             _editingControl.TabKeyPressed += Tabhandler;
             _editingControl.EscapeKeyPressed -= Cancelhandler;
             _editingControl.EscapeKeyPressed += Cancelhandler;
 
-            // Add to grid’s Controls collection
-            if (_editingControl.Parent != this)
+            UpdateCellControl(_editingControl, column, cell, cell.CellValue);
+
+            // Add to grid’s Controls collection if not already present
+            if (!this.Controls.Contains(_editingControl))
             {
                 this.Controls.Add(_editingControl);
             }
-            _editingControl.BringToFront();
-            _editingControl.Focus();
-            IsEditorShown = true;
 
-          //   //MiscFunctions.SendLog($"ShowCellEditor: Cell={cell.X},{cell.Y}, Value={cellSize}");
+            _editingControl.Visible = true;
+            _editingControl.BringToFront();
+            this.ActiveControl = _editingControl;
+            IsEditorShown = true;
+        }
+        private void OnEditorKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                EndEdit(true);
+                MoveNextCell();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Tab)
+            {
+                EndEdit(true);
+                MoveNextCell();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                CancelEdit();
+                e.Handled = true;
+            }
         }
         private void LostFocusHandler(object? sender, EventArgs e)
         {
-            CloseCurrentEditor  ();
+            EndEdit(true);
         }
         private void Cancelhandler(object? sender, EventArgs e)
         {
@@ -6618,29 +6953,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
            MoveNextCell();
         }
+       
         private BeepCellConfig CloseCurrentEditor()
         {
-            BeepCellConfig x = null;
-            if (_editingControl != null && IsEditorShown)
-            {
-                x = _editingCell;
-                x.CellValue = _editingControl.GetValue();
-                x.IsDirty = true;
-                if (_editingControl.Parent == this)
-                {
-                    this.Controls.Remove(_editingControl);
-                }
-                _editingControl?.Dispose();
-                
-            }
-
-            _editingCell = null;
-            IsEditorShown = false;
-            //MiscFunctions.SendLog("Editor closed successfully.");
-            EditorClosed?.Invoke(this, EventArgs.Empty);
-            return x;
+            var previouslyEditingCell = _editingCell;
+            EndEdit(true); // Commit changes
+            return previouslyEditingCell;
         }
-    
         private void SaveEditedValue()
         {
             if (_tempcell == null )
@@ -6700,29 +7019,65 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Optionally, revert the editor's value if needed.
             CloseCurrentEditor();
         }
-     
 
-    
-        private void EndEdit()
+
+
+        private void EndEdit(bool acceptChanges)
         {
-            if (_selectedCell != null && _editingControl != null)
+            if (_isEndingEdit || _editingControl == null || !IsEditorShown || _editingCell == null)
             {
-                SaveEditedValue();
-                Task.Delay(1000);
-                CloseCurrentEditor();
-                InvalidateCell(_selectedCell);
+                return;
+            }
+
+            _isEndingEdit = true;
+            try
+            {
+                BeepCellConfig editedCell = _editingCell;
+
+                if (acceptChanges)
+                {
+                    object newValue = _editingControl.GetValue();
+
+                    BeepColumnConfig columnConfig = Columns[editedCell.ColumnIndex];
+                    Type propertyType = Type.GetType(columnConfig.PropertyTypeName, throwOnError: false) ?? typeof(string);
+
+                    object convertedNewValue = MiscFunctions.ConvertValueToPropertyType(propertyType, newValue);
+                    object convertedOldValue = MiscFunctions.ConvertValueToPropertyType(propertyType, editedCell.CellData);
+
+                    if (!Equals(convertedNewValue, convertedOldValue))
+                    {
+                        editedCell.CellValue = convertedNewValue;
+                        editedCell.IsDirty = true;
+                        if (editedCell.RowIndex < Rows.Count)
+                        {
+                            Rows[editedCell.RowIndex].IsDirty = true;
+                        }
+                        UpdateDataRecordFromRow(editedCell);
+                    }
+                }
+
+                if (this.Controls.Contains(_editingControl))
+                {
+                    this.Controls.Remove(_editingControl);
+                }
+
+                _editingCell = null;
+                IsEditorShown = false;
+                EditorClosed?.Invoke(this, EventArgs.Empty);
+
+                InvalidateCell(editedCell);
+            }
+            finally
+            {
+                _isEndingEdit = false;
             }
         }
 
         private void CancelEdit()
         {
-            if (_editingControl != null)
-            {
-                CloseCurrentEditor();
-
-                Invalidate();
-            }
+            EndEdit(false);
         }
+       
 
         #endregion Editor
         #region "Validation"
@@ -8711,7 +9066,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                       : _currentTheme.GridBackColor;
 
                         // if it’s a simple text cell, draw it directly
-                        if (_columnEditors.TryGetValue(col.ColumnName, out var editor)
+                        if (_columnDrawers.TryGetValue(col.ColumnName, out var editor)
                             && (editor is BeepLabel || editor is BeepTextBox))
                         {
                             using var txtFmt = new StringFormat
@@ -8831,6 +9186,62 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion Print
         #region Helper Methods
+        private int GetColumnWidth(BeepColumnConfig column)
+        {
+            if (column == null) return _defaultcolumnheaderwidth;
+
+            int maxWidth = 50; // Minimum width
+            int padding = 8; // Padding for text
+
+            using (Graphics g = CreateGraphics())
+            {
+                // Measure header text
+                string headerText = column.ColumnCaption ?? column.ColumnName ?? "";
+                if (!string.IsNullOrEmpty(headerText))
+                {
+                    SizeF headerSize = g.MeasureString(headerText, _columnHeadertextFont ?? Font);
+                    maxWidth = Math.Max(maxWidth, (int)headerSize.Width + padding);
+                }
+
+                // Add space for sort/filter icons if enabled
+                if (column.ShowSortIcon || column.ShowFilterIcon)
+                {
+                    int iconSpace = 0;
+                    if (column.ShowSortIcon) iconSpace += 20; // Sort icon width
+                    if (column.ShowFilterIcon) iconSpace += 20; // Filter icon width
+                    maxWidth += iconSpace + 4; // Extra padding for icons
+                }
+
+                // Measure cell content if we have data
+                if (_fullData != null && _fullData.Any())
+                {
+                    int sampleSize = Math.Min(100, _fullData.Count); // Sample first 100 rows for performance
+
+                    for (int i = 0; i < sampleSize; i++)
+                    {
+                        var wrapper = _fullData[i] as DataRowWrapper;
+                        if (wrapper?.OriginalData != null)
+                        {
+                            var prop = wrapper.OriginalData.GetType().GetProperty(column.ColumnName ?? column.ColumnCaption);
+                            if (prop != null)
+                            {
+                                var value = prop.GetValue(wrapper.OriginalData);
+                                string cellText = value?.ToString() ?? "";
+
+                                if (!string.IsNullOrEmpty(cellText))
+                                {
+                                    SizeF cellSize = g.MeasureString(cellText, Font);
+                                    maxWidth = Math.Max(maxWidth, (int)cellSize.Width + padding);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Cap the maximum width to prevent extremely wide columns
+            return Math.Min(maxWidth, 300);
+        }
         public override void SuspendFormLayout()
         {
             
@@ -9090,169 +9501,102 @@ namespace TheTechIdea.Beep.Winform.Controls
         // New method to handle navigation button clicks via hit testing
         protected override void OnMouseClick(MouseEventArgs e)
         {
+            // If the editor is shown and the click is within its bounds,
+            // let the editor handle the click and do nothing in the grid.
+            if (IsEditorShown && _editingControl != null && _editingControl.Bounds.Contains(e.Location))
+            {
+                return;
+            }
             base.OnMouseClick(e);
 
-            // First check if we clicked on a navigation button in the navigation area
+            // Handle hit-testing for navigation, sorting, and filtering icons first
             if (HitTest(e.Location, out var hitTest))
             {
-                // Handle navigation buttons based on hit area name
+                if (hitTest.Name.StartsWith("SortIcon_"))
+                {
+                    int columnIndex = int.Parse(hitTest.Name.Substring("SortIcon_".Length));
+                    HandleSortIconClick(columnIndex);
+                    return;
+                }
+                if (hitTest.Name.StartsWith("FilterIcon_"))
+                {
+                    int columnIndex = int.Parse(hitTest.Name.Substring("FilterIcon_".Length));
+                    HandleFilterIconClick(columnIndex);
+                    return;
+                }
+                // Handle navigation button clicks
                 switch (hitTest.Name)
                 {
-                    case "FirstRecordButton":
-                        // Navigate to first record
-                        if (_fullData != null && _fullData.Any())
-                        {
-                            _dataOffset = 0;
-                            SelectCell(0, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
-                            FillVisibleRows();
-                            UpdateScrollBars();
-                            Invalidate();
-                        }
-                        return; // Early return after handling button
-
-                    case "PreviousRecordButton":
-                        // Navigate to previous record
-                        PreviouspictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "NextRecordButton":
-                        // Navigate to next record
-                        NextpictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "LastRecordButton":
-                        // Navigate to last record
-                        if (_fullData != null && _fullData.Any())
-                        {
-                            int visibleRowCount = GetVisibleRowCount();
-                            _dataOffset = Math.Max(0, _fullData.Count - visibleRowCount);
-                            int lastRowIndex = Math.Min(visibleRowCount - 1, _fullData.Count - _dataOffset - 1);
-                            SelectCell(lastRowIndex, _selectedColumnIndex >= 0 ? _selectedColumnIndex : 0);
-                            FillVisibleRows();
-                            UpdateScrollBars();
-                           
-                        }
-                        return; // Early return after handling button
-
-                    case "FindButton":
-                        FindpictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "EditButton":
-                        EditpictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "PrinterButton":
-                        PrinterpictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "MessageButton":
-                        MessagepictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "SaveButton":
-                        SavepictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "NewButton":
-                        NewButton_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "RemoveButton":
-                        RemovepictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "RollbackButton":
-                        RollbackpictureBox_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "FirstPageButton":
-                        FirstPageButton_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "PrevPageButton":
-                        PrevPageButton_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "NextPageButton":
-                        NextPageButton_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
-
-                    case "LastPageButton":
-                        LastPageButton_Click(this, EventArgs.Empty);
-                        return; // Early return after handling button
+                    case "FirstRecordButton": FirstPageButton_Click(this, EventArgs.Empty); return;
+                    case "PreviousRecordButton": PreviouspictureBox_Click(this, EventArgs.Empty); return;
+                    case "NextRecordButton": NextpictureBox_Click(this, EventArgs.Empty); return;
+                    case "LastRecordButton": LastPageButton_Click(this, EventArgs.Empty); return;
+                    case "FindButton": FindpictureBox_Click(this, EventArgs.Empty); return;
+                    case "EditButton": EditpictureBox_Click(this, EventArgs.Empty); return;
+                    case "PrinterButton": PrinterpictureBox_Click(this, EventArgs.Empty); return;
+                    case "MessageButton": MessagepictureBox_Click(this, EventArgs.Empty); return;
+                    case "SaveButton": SavepictureBox_Click(this, EventArgs.Empty); return;
+                    case "NewButton": NewButton_Click(this, EventArgs.Empty); return;
+                    case "RemoveButton": RemovepictureBox_Click(this, EventArgs.Empty); return;
+                    case "RollbackButton": RollbackpictureBox_Click(this, EventArgs.Empty); return;
+                    case "FirstPageButton": FirstPageButton_Click(this, EventArgs.Empty); return;
+                    case "PrevPageButton": PrevPageButton_Click(this, EventArgs.Empty); return;
+                    case "NextPageButton": NextPageButton_Click(this, EventArgs.Empty); return;
+                    case "LastPageButton": LastPageButton_Click(this, EventArgs.Empty); return;
                 }
             }
 
-            // Now handle clicks within the actual grid area for cell selection and editing
+            // Handle clicks within the grid area for cell selection and editing
             var clickedCell = GetCellAtLocation(e.Location);
-            if (clickedCell != null)
+            if (clickedCell == null)
             {
-                int colIndex = clickedCell.ColumnIndex;
-                // Handle clicks on checkbox column specially
-                if (Columns[colIndex].IsSelectionCheckBox && (_showCheckboxes))
-                {
-                    int rowIndex = clickedCell.RowIndex;
-                    if (rowIndex >= 0 && rowIndex < Rows.Count)
-                    {
-                        int dataIndex = _dataOffset + rowIndex;
-                        if (dataIndex < _fullData.Count)
-                        {
-                            var dataItem = _fullData[dataIndex] as DataRowWrapper;
-                            if (dataItem != null)
-                            {
-                                int rowID = dataItem.RowID;
-                                bool isSelected = (bool)(clickedCell.CellValue ?? false);
-                                _persistentSelectedRows[rowID] = !isSelected;
-                                clickedCell.CellValue = !isSelected;
-                                clickedCell.CellData = !isSelected;
-
-                                RaiseSelectedRowsChanged();
-                                InvalidateCell(clickedCell);
-
-
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                // Handle regular cell clicks for selection and editing
-                if (_editingCell != null && clickedCell != null && _editingCell.Id == clickedCell.Id)
-                {
-                    SaveEditedValue();
-                    return;
-                }
-
-                _tempcell = CloseCurrentEditor();
-                if (_tempcell != null) SaveEditedValue();
-
-                _selectedCell = clickedCell;
-                if (_selectedCell != null && _columns != null)
-                {
-                    _editingCell = _selectedCell;
-                    SelectCell(_selectedCell);
-
-                    // Update binding source position if connected
-                    if (DataNavigator != null && _currentRow != null && _currentRow.DisplayIndex >= 0)
-                    {
-                        DataNavigator.BindingSource.Position = _currentRow.DisplayIndex;
-                    }
-
-                    // Show editor for editable cells
-                    if (_columns[_selectedCell.ColumnIndex] != null &&
-                        !_columns[_selectedCell.ColumnIndex].ReadOnly &&
-                        _columns[_selectedCell.ColumnIndex].CellEditor != BeepColumnType.Image)
-                    {
-                        ShowCellEditor(_selectedCell, e.Location);
-                    }
-
-                    // Raise the cell click event for custom handling
-                    CellClick?.Invoke(this, new BeepCellEventArgs(_selectedCell));
-                }
+                CloseCurrentEditor();
+                return;
             }
-        }
 
+            // If the clicked cell is already being edited, do nothing.
+            if (_editingCell != null && _editingCell.Id == clickedCell.Id)
+            {
+                return;
+            }
+
+            // If another cell is being edited, close the editor first.
+            if (_editingCell != null)
+            {
+                CloseCurrentEditor();
+            }
+
+            // Select the new cell.
+            SelectCell(clickedCell);
+
+            // Handle checkbox clicks immediately.
+            var column = Columns[clickedCell.ColumnIndex];
+            if (column.IsSelectionCheckBox)
+            {
+                int dataIndex = _dataOffset + clickedCell.RowIndex;
+                if (dataIndex < _fullData.Count)
+                {
+                    var dataItem = _fullData[dataIndex] as DataRowWrapper;
+                    if (dataItem != null)
+                    {
+                        bool isSelected = !(bool)(clickedCell.CellValue ?? false);
+                        _persistentSelectedRows[dataItem.RowID] = isSelected;
+                        clickedCell.CellValue = isSelected;
+                        RaiseSelectedRowsChanged();
+                        InvalidateCell(clickedCell);
+                    }
+                }
+                return; // No editor needed for checkbox.
+            }
+
+            // Show editor for editable cells.
+            if (!column.ReadOnly)
+            {
+                ShowCellEditor(clickedCell, e.Location);
+            }
+
+            CellClick?.Invoke(this, new BeepCellEventArgs(clickedCell));
+        }
         private void BeepGrid_MouseDown(object sender, MouseEventArgs e)
         {
             if (IsNearColumnBorder(e.Location, out _resizingIndex))
@@ -9278,6 +9622,330 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
         #endregion "Mouse Events"
+        #region "Sorting"
+        private void HandleSortIconClick(int columnIndex)
+        {
+            var column = Columns.FirstOrDefault(c => c.Index == columnIndex);
+            if (column == null) return;
+
+            // Cycle through sort directions
+            switch (column.SortDirection)
+            {
+                case SortDirection.None:
+                    column.SortDirection = SortDirection.Ascending;
+                    break;
+                case SortDirection.Ascending:
+                    column.SortDirection = SortDirection.Descending;
+                    break;
+                case SortDirection.Descending:
+                    column.SortDirection = SortDirection.None;
+                    break;
+            }
+
+            // Clear other column sort directions (single column sort)
+            foreach (var col in Columns)
+            {
+                if (col.Index != columnIndex)
+                    col.SortDirection = SortDirection.None;
+            }
+
+            // Apply sorting using the same efficient methodology as your filter
+            ApplySorting(column);
+            Invalidate();
+        }
+        public void ClearSort()
+        {
+            // Reset all column sort directions
+            foreach (var col in Columns)
+            {
+                col.SortDirection = SortDirection.None;
+            }
+
+            // Reset to original data (same pattern as your filter reset)
+            if (originalList != null && originalList.Any())
+            {
+                _fullData.Clear();
+                _fullData.AddRange(originalList);
+
+                // Update RowIDs
+                for (int i = 0; i < _fullData.Count; i++)
+                {
+                    if (_fullData[i] is DataRowWrapper dataRow)
+                    {
+                        dataRow.RowID = i;
+                    }
+                }
+
+                _dataOffset = 0;
+                UpdateTrackingIndices();
+                FillVisibleRows();
+                UpdateScrollBars();
+                Invalidate();
+            }
+        }
+        private void ApplySortAndFilter()
+        {
+            // **EXACT SAME STARTING PATTERN AS YOUR FILTER**
+            // Start with original data
+            List<object> workingData = new List<object>(originalList);
+
+            // **SAME FILTER APPLICATION AS YOUR EXISTING METHOD**
+            // Apply filter first if active (same as your filter logic)
+            if (_filteredData != null && _filteredData.Any())
+            {
+                workingData = new List<object>(_filteredData);
+            }
+
+            // **THEN APPLY SORT USING SAME METHODOLOGY**
+            var sortColumn = Columns.FirstOrDefault(c => c.SortDirection != SortDirection.None);
+            if (sortColumn != null)
+            {
+                var propertyName = sortColumn.ColumnName;
+                if (!string.IsNullOrEmpty(propertyName))
+                {
+                    // **SAME PRE-EXTRACTION PATTERN AS BOTH FILTER AND SORT**
+                    var sortData = new List<(object wrapper, object sortValue)>();
+
+                    foreach (var item in workingData)
+                    {
+                        var wrapper = item as DataRowWrapper;
+                        if (wrapper?.OriginalData != null)
+                        {
+                            object sortValue = null;
+                            try
+                            {
+                                var prop = wrapper.OriginalData.GetType().GetProperty(propertyName);
+                                sortValue = prop?.GetValue(wrapper.OriginalData);
+                            }
+                            catch (Exception ex)
+                            {
+                                //MiscFunctions.SendLog($"ApplySortAndFilter: Error accessing property {propertyName} on item {wrapper.OriginalData}: {ex.Message}");
+                                sortValue = null;
+                            }
+                            sortData.Add((wrapper, sortValue));
+                        }
+                    }
+
+                    // **SAME SORTING LOGIC**
+                    IEnumerable<(object wrapper, object sortValue)> sortedData;
+                    if (sortColumn.SortDirection == SortDirection.Ascending)
+                    {
+                        sortedData = sortData.OrderBy(item => item.sortValue, new SafeComparer());
+                    }
+                    else
+                    {
+                        sortedData = sortData.OrderByDescending(item => item.sortValue, new SafeComparer());
+                    }
+
+                    workingData = sortedData.Select(item => item.wrapper).ToList();
+                }
+            }
+
+            // **SAME FINAL UPDATE PATTERN AS YOUR FILTER**
+            _fullData.Clear();
+            _fullData.AddRange(workingData);
+
+            // **SAME STATE MANAGEMENT AS YOUR FILTER**
+            for (int i = 0; i < _fullData.Count; i++)
+            {
+                if (_fullData[i] is DataRowWrapper dataRow)
+                {
+                    dataRow.RowID = i;
+                }
+            }
+
+            _dataOffset = 0;
+            UpdateTrackingIndices();
+            FillVisibleRows();
+            UpdateScrollBars();
+        }
+        private void ApplySorting(BeepColumnConfig sortColumn)
+        {
+            // **EXACT SAME NULL/EMPTY CHECKS AS YOUR FILTER**
+            if (_fullData == null || !_fullData.Any())
+            {
+                return;
+            }
+
+            // If sort direction is None, reset to the currently filtered or original list
+            if (sortColumn.SortDirection == SortDirection.None)
+            {
+                _fullData.Clear();
+                // If there's filtered data, the "unsorted" state is the filtered data. Otherwise, it's the original list.
+                if (_filteredData != null && _filteredData.Any())
+                {
+                    _fullData.AddRange(_filteredData);
+                }
+                else
+                {
+                    _fullData.AddRange(originalList);
+                }
+            }
+            else
+            {
+                // **USE DIRECT LINQ - EXACT SAME PATTERN AS YOUR FILTER**
+                try
+                {
+                    var propertyName = sortColumn.ColumnName;
+                    if (string.IsNullOrEmpty(propertyName)) return;
+
+                    IEnumerable<object> sortedData;
+
+                    // The lambda function to extract the sort key, mirroring your filter's property access logic
+                    Func<object, object> keySelector = wrapper =>
+                    {
+                        var dataItem = wrapper as DataRowWrapper;
+                        if (dataItem == null || dataItem.OriginalData == null) return null;
+
+                        var item = dataItem.OriginalData;
+                        try
+                        {
+                            var prop = item.GetType().GetProperty(propertyName);
+                            if (prop == null) return null;
+                            return prop.GetValue(item);
+                        }
+                        catch (Exception)
+                        {
+                            // Same graceful failure as your filter's lambda
+                            return null;
+                        }
+                    };
+
+                    // Apply OrderBy or OrderByDescending directly on _fullData
+                    if (sortColumn.SortDirection == SortDirection.Ascending)
+                    {
+                        sortedData = _fullData.OrderBy(keySelector, new SafeComparer()).ToList();
+                    }
+                    else
+                    {
+                        sortedData = _fullData.OrderByDescending(keySelector, new SafeComparer()).ToList();
+                    }
+
+                    // **EXACT SAME UPDATE PATTERN AS YOUR FILTER**
+                    _fullData.Clear();
+                    _fullData.AddRange(sortedData);
+                }
+                catch (Exception ex)
+                {
+                    // **EXACT SAME ERROR HANDLING AS YOUR FILTER**
+                    MessageBox.Show($"Error during sort: {ex.Message}", "Sort Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // On failure, revert to the original list to maintain a stable state
+                    _fullData.Clear();
+                    _fullData.AddRange(originalList);
+                }
+            }
+
+            // **EXACT SAME STATE REFRESH AS YOUR FILTER**
+            _dataOffset = 0;
+            InitializeRows();
+            FillVisibleRows();
+            UpdateScrollBars();
+            Invalidate();
+            OnSortChanged(); // Notify that the sort has changed
+        }
+        // Add this custom comparer class (similar to your filter's type handling)
+        private class SafeComparer : IComparer<object>
+        {
+            public int Compare(object x, object y)
+            {
+                // Handle null values (same null handling as your filter)
+                if (x == null && y == null) return 0;
+                if (x == null) return -1;
+                if (y == null) return 1;
+
+                // Handle same type comparison
+                if (x.GetType() == y.GetType() && x is IComparable comparableX)
+                {
+                    return comparableX.CompareTo(y);
+                }
+
+                // Handle different types or non-comparable types (same fallback as your filter)
+                try
+                {
+                    // Convert to strings for comparison as fallback
+                    string strX = x.ToString();
+                    string strY = y.ToString();
+
+                    // Try numeric comparison first (same logic as your filter's type detection)
+                    if (double.TryParse(strX, out double numX) && double.TryParse(strY, out double numY))
+                    {
+                        return numX.CompareTo(numY);
+                    }
+
+                    // Try date comparison (same logic as your filter)
+                    if (DateTime.TryParse(strX, out DateTime dateX) && DateTime.TryParse(strY, out DateTime dateY))
+                    {
+                        return dateX.CompareTo(dateY);
+                    }
+
+                    // Default to string comparison (same fallback as your filter)
+                    return string.Compare(strX, strY, StringComparison.OrdinalIgnoreCase);
+                }
+                catch
+                {
+                    return 0; // Equal if comparison fails
+                }
+            }
+        }
+
+        private void HandleFilterIconClick(int columnIndex)
+        {
+            var column = Columns.FirstOrDefault(c => c.Index == columnIndex);
+            if (column == null) return;
+
+            // Toggle filter state or show filter dialog
+            column.IsFiltered = !column.IsFiltered;
+
+            // You can implement a filter dialog here or use the existing filter functionality
+            // For now, let's just toggle the visual state
+            Invalidate();
+
+            // Raise an event for custom filter handling
+            OnColumnFilterClicked(new ColumnFilterEventArgs(column, columnIndex));
+        }
+        public event EventHandler<ColumnFilterEventArgs> ColumnFilterClicked;
+        public event EventHandler<ColumnSortEventArgs> ColumnSortClicked;
+        public event EventHandler SortChanged;
+        protected virtual void OnSortChanged()
+        {
+            SortChanged?.Invoke(this, EventArgs.Empty);
+        }
+        protected virtual void OnColumnFilterClicked(ColumnFilterEventArgs e)
+        {
+            ColumnFilterClicked?.Invoke(this, e);
+        }
+
+        protected virtual void OnColumnSortClicked(ColumnSortEventArgs e)
+        {
+            ColumnSortClicked?.Invoke(this, e);
+        }
+
+        public class ColumnFilterEventArgs : EventArgs
+        {
+            public BeepColumnConfig Column { get; }
+            public int ColumnIndex { get; }
+
+            public ColumnFilterEventArgs(BeepColumnConfig column, int columnIndex)
+            {
+                Column = column;
+                ColumnIndex = columnIndex;
+            }
+        }
+
+        public class ColumnSortEventArgs : EventArgs
+        {
+            public BeepColumnConfig Column { get; }
+            public int ColumnIndex { get; }
+            public SortDirection Direction { get; }
+
+            public ColumnSortEventArgs(BeepColumnConfig column, int columnIndex, SortDirection direction)
+            {
+                Column = column;
+                ColumnIndex = columnIndex;
+                Direction = direction;
+            }
+        }
+        #endregion "Sorting"
         #region "High DPI Support"
         // Add these fields to cache DPI-scaled values
         private float _cachedDpiScale = 1.0f;
@@ -9318,6 +9986,93 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
         #endregion "High DPI Support"
+        #region Column Color Management
+
+        /// <summary>
+        /// Sets custom colors for a specific column
+        /// </summary>
+        /// <param name="columnName">Name of the column</param>
+        /// <param name="backColor">Background color for cells</param>
+        /// <param name="foreColor">Text color for cells</param>
+        /// <param name="headerBackColor">Background color for header (optional)</param>
+        /// <param name="headerForeColor">Text color for header (optional)</param>
+        public void SetColumnColors(string columnName, Color backColor, Color foreColor,
+            Color? headerBackColor = null, Color? headerForeColor = null)
+        {
+            var column = GetColumnByName(columnName);
+            if (column != null)
+            {
+                column.UseCustomColors = true;
+                column.ColumnBackColor = backColor;
+                column.ColumnForeColor = foreColor;
+
+                if (headerBackColor.HasValue)
+                    column.ColumnHeaderBackColor = headerBackColor.Value;
+                if (headerForeColor.HasValue)
+                    column.ColumnHeaderForeColor = headerForeColor.Value;
+
+                Invalidate(); // Redraw grid with new colors
+            }
+        }
+
+        /// <summary>
+        /// Sets custom colors for a column by index
+        /// </summary>
+        public void SetColumnColors(int columnIndex, Color backColor, Color foreColor,
+            Color? headerBackColor = null, Color? headerForeColor = null)
+        {
+            var column = GetColumnByIndex(columnIndex);
+            if (column != null)
+            {
+                column.UseCustomColors = true;
+                column.ColumnBackColor = backColor;
+                column.ColumnForeColor = foreColor;
+
+                if (headerBackColor.HasValue)
+                    column.ColumnHeaderBackColor = headerBackColor.Value;
+                if (headerForeColor.HasValue)
+                    column.ColumnHeaderForeColor = headerForeColor.Value;
+
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Removes custom colors from a column (reverts to theme colors)
+        /// </summary>
+        public void ClearColumnColors(string columnName)
+        {
+            var column = GetColumnByName(columnName);
+            if (column != null)
+            {
+                column.UseCustomColors = false;
+                column.ColumnBackColor = Color.Empty;
+                column.ColumnForeColor = Color.Empty;
+                column.ColumnHeaderBackColor = Color.Empty;
+                column.ColumnHeaderForeColor = Color.Empty;
+                column.ColumnBorderColor = Color.Empty;
+
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Gets the effective background color for a column
+        /// </summary>
+        public Color GetColumnBackColor(BeepColumnConfig column)
+        {
+            return column.HasCustomBackColor ? column.ColumnBackColor : _currentTheme.GridBackColor;
+        }
+
+        /// <summary>
+        /// Gets the effective foreground color for a column
+        /// </summary>
+        public Color GetColumnForeColor(BeepColumnConfig column)
+        {
+            return column.HasCustomForeColor ? column.ColumnForeColor : _currentTheme.GridForeColor;
+        }
+
+        #endregion
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

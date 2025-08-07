@@ -802,8 +802,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Paint and Invalidate"
         #region "Size and Position"
         // protected override Value DefaultSize => GetDefaultSize();
+        private bool _issingleLineMeasurementTaken = false;
+        private int _singleLineHeight = 0;
         private int GetSingleLineHeight()
         {
+            if(_issingleLineMeasurementTaken)
+            {
+                return _singleLineHeight;
+            }
             // Don't add additional padding here as it's already accounted for elsewhere
             using (TextBox tempTextBox = new TextBox())
             {
@@ -813,7 +819,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 tempTextBox.Font = TextFont;
                 tempTextBox.Refresh();
                 // Return raw height without adding extra padding
-                return tempTextBox.PreferredHeight;
+                _issingleLineMeasurementTaken = true;
+                _singleLineHeight = tempTextBox.PreferredHeight;
+                return _singleLineHeight;
             }
         }
 
@@ -1496,8 +1504,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             Text = "";
 
         }
+        private void DrawForGrid(Graphics graphics, Rectangle rectangle)
+        {
+            // Background
+            using (var brush = new SolidBrush(BackColor))
+            {
+                graphics.FillRectangle(brush, rectangle);
+            }
+
+            // Text only - no images, no borders for maximum speed
+            if (!string.IsNullOrEmpty(Text))
+            {
+                var textColor = ForeColor;
+                var flags = TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
+
+                var textRect = new Rectangle(rectangle.X + 2, rectangle.Y, rectangle.Width - 4, rectangle.Height);
+                TextRenderer.DrawText(graphics, Text, TextFont, textRect, textColor, flags);
+            }
+        }
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
+            if (GridMode)
+            {
+                // Ultra-fast grid rendering
+                DrawForGrid(graphics, rectangle);
+                return;
+            }
             // Enable high-quality rendering
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.CompositingQuality = CompositingQuality.HighQuality;

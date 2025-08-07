@@ -47,23 +47,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         // Add DPI change handling
         // ✅ Update the close icon size when DPI changes
+        // ✅ Update OnDpiChangedAfterParent to refresh layout
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
             base.OnDpiChangedAfterParent(e);
 
-            // Update DPI scaling
             using (Graphics g = CreateGraphics())
             {
                 UpdateDpiScaling(g);
             }
 
-            // ✅ Update close icon size for new DPI
             if (closeIcon != null)
             {
                 closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
             }
 
-            // Force redraw with new DPI scaling
+            // Force layout update with new DPI scaling
+            UpdateLayoutWithDpi();
             Invalidate();
         }
         #endregion
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _headerHeight = Math.Max(10, value);
-                UpdateLayout();
+                UpdateLayoutWithDpi();
                 Invalidate();
             }
         }
@@ -152,7 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         // Replace hardcoded constants with DPI-aware properties
-        private int GetScaledCloseButtonSize() => ScaleValue(16);
+        private int GetScaledCloseButtonSize() => ScaleValue(24);
         private int GetScaledCloseButtonPadding() => ScaleValue(8);
         private int GetScaledTextPadding() => ScaleValue(12);
         private int GetScaledMinTabWidth() => ScaleValue(60);
@@ -185,15 +185,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Alignment = TabAlignment.Top;
             Appearance = TabAppearance.FlatButtons;
-            ItemSize = new Size(0, 1);
+           
             SizeMode = TabSizeMode.Fixed;
             DrawMode = TabDrawMode.OwnerDrawFixed;
-            Padding = new Point(0, 0);
+            
             SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();
 
             // Enable drag-and-drop
             AllowDrop = true;
+            // Initialize with default values - DPI scaling will be applied later
+            ItemSize = new Size(0, 1);
+            Padding = new Point(5, 5);
 
             closeIcon = new BeepImage
             {
@@ -202,6 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ApplyThemeOnImage = false,
                 Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize())
             };
+            // Defer DPI scaling until handle is created
+            this.HandleCreated += BeepTabs_HandleCreated;
 
             this.DrawItem += BeepTabs_DrawItem;
             this.MouseClick += BeepTabs_MouseClick;
@@ -217,21 +222,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.AccessibleRole = AccessibleRole.PageTabList;
             this.AccessibleName = "Beep Tabs";
         }
+        // ✅ Initialize DPI scaling when handle is created
+        private void BeepTabs_HandleCreated(object sender, EventArgs e)
+        {
+            using (Graphics g = CreateGraphics())
+            {
+                UpdateDpiScaling(g);
+            }
+
+            // Now set DPI-scaled values
+            closeIcon.Size = new Size(GetScaledCloseButtonSize(), GetScaledCloseButtonSize());
+            UpdateLayout();
+        }
 
         public override Rectangle DisplayRectangle
         {
             get
             {
+                int scaledHeaderHeight = ScaleValue(_headerHeight);
                 switch (_headerPosition)
                 {
                     case TabHeaderPosition.Top:
-                        return new Rectangle(0, HeaderHeight, Width, ClientSize.Height - HeaderHeight);
+                        return new Rectangle(0, scaledHeaderHeight, Width, ClientSize.Height - scaledHeaderHeight);
                     case TabHeaderPosition.Bottom:
-                        return new Rectangle(0, 0, ClientSize.Width, ClientSize.Height - HeaderHeight);
+                        return new Rectangle(0, 0, ClientSize.Width, ClientSize.Height - scaledHeaderHeight);
                     case TabHeaderPosition.Left:
-                        return new Rectangle(HeaderHeight, 0, ClientSize.Width - HeaderHeight, ClientSize.Height);
+                        return new Rectangle(scaledHeaderHeight, 0, ClientSize.Width - scaledHeaderHeight, ClientSize.Height);
                     case TabHeaderPosition.Right:
-                        return new Rectangle(0, 0, ClientSize.Width - HeaderHeight, ClientSize.Height);
+                        return new Rectangle(0, 0, ClientSize.Width - scaledHeaderHeight, ClientSize.Height);
                     default:
                         return base.DisplayRectangle;
                 }
@@ -365,11 +383,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             Color panelColor = Parent?.BackColor ?? BackColor;
             float[] tabSizes = CalculateTabSizes(g, _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
 
+            // Use scaled header height consistently
+            int scaledHeaderHeight = ScaleValue(_headerHeight);
+
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
                     {
-                        Rectangle headerRegion = new Rectangle(0, 0, Width, HeaderHeight);
+                        Rectangle headerRegion = new Rectangle(0, 0, Width, scaledHeaderHeight);
                         using (SolidBrush brush = new SolidBrush(panelColor))
                         {
                             g.FillRectangle(brush, headerRegion);
@@ -378,17 +399,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                         float currentX = 0;
                         for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(currentX, 0, tabSizes[i], HeaderHeight);
+                            RectangleF tabRect = new RectangleF(currentX, 0, tabSizes[i], scaledHeaderHeight);
                             DrawHeaderForTab(g, tabRect, i, false);
-                           ////MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
-                            g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect)); // Debug border
                             currentX += tabSizes[i];
                         }
                         break;
                     }
                 case TabHeaderPosition.Bottom:
                     {
-                        Rectangle headerRegion = new Rectangle(0, ClientSize.Height - HeaderHeight, Width, HeaderHeight);
+                        Rectangle headerRegion = new Rectangle(0, ClientSize.Height - scaledHeaderHeight, Width, scaledHeaderHeight);
                         using (SolidBrush brush = new SolidBrush(panelColor))
                         {
                             g.FillRectangle(brush, headerRegion);
@@ -397,10 +416,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         float currentX = 0;
                         for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(currentX, ClientSize.Height - HeaderHeight, tabSizes[i], HeaderHeight);
+                            RectangleF tabRect = new RectangleF(currentX, ClientSize.Height - scaledHeaderHeight, tabSizes[i], scaledHeaderHeight);
                             DrawHeaderForTab(g, tabRect, i, false);
-                           ////MiscFunctions.SendLog($"Drawing Tab {i} at {tabRect}");
-                            g.DrawRectangle(Pens.Cyan, Rectangle.Truncate(tabRect));
                             currentX += tabSizes[i];
                         }
                         break;
@@ -763,46 +780,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             int tabCount = TabCount;
-            Point clientPoint = e.Location;
+   
             if (tabCount == 0)
             {
                ////MiscFunctions.SendLog("MouseClick: No tabs present, ignoring click.");
                 return;
             }
 
+
+            Point clientPoint = e.Location;
             float[] tabSizes = CalculateTabSizes(CreateGraphics(), _headerPosition == TabHeaderPosition.Left || _headerPosition == TabHeaderPosition.Right);
+            int scaledHeaderHeight = ScaleValue(_headerHeight);
+
             switch (_headerPosition)
             {
                 case TabHeaderPosition.Top:
                 case TabHeaderPosition.Bottom:
                     {
                         float currentX = 0;
-                        int yPos = _headerPosition == TabHeaderPosition.Top ? 0 : ClientSize.Height - HeaderHeight;
-                        for (int i = 0; i < tabCount; i++)
+                        int yPos = _headerPosition == TabHeaderPosition.Top ? 0 : ClientSize.Height - scaledHeaderHeight;
+
+                        for (int i = 0; i < TabCount; i++)
                         {
-                            RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], HeaderHeight);
+                            RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], scaledHeaderHeight);
                             RectangleF closeRect = GetCloseButtonRect(tabRect, false);
-                            string tabText = TabPages[i].Text;
-                           ////MiscFunctions.SendLog($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+
                             if (closeRect.Contains(clientPoint))
                             {
-                               ////MiscFunctions.SendLog($"MouseClick: Close button clicked for tab {i}");
-                                try
-                                {
-                                    TabPages.RemoveAt(i);
-                                    TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
-                                }
-                                catch (Exception ex)
-                                {
-                                   ////MiscFunctions.SendLog($"MouseClick: Error removing tab: {ex.Message}");
-                                }
+                                string tabText = TabPages[i].Text;
+                                TabPages.RemoveAt(i);
+                                TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
                                 return;
                             }
                             if (tabRect.Contains(clientPoint))
                             {
                                 SelectedIndex = i;
                                 LastTabSelected = i;
-                               ////MiscFunctions.SendLog($"MouseClick: Tab {i} selected");
                                 return;
                             }
                             currentX += tabSizes[i];
@@ -1020,6 +1033,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedTab.Invalidate();
             Invalidate();
         }
+        // ✅ Add DPI-aware layout update method
+        private void UpdateLayoutWithDpi()
+        {
+            Rectangle rect = DisplayRectangle; // Now DPI-aware
+            foreach (TabPage page in TabPages)
+            {
+                page.Bounds = rect;
+
+                // Ensure child controls respect the new bounds
+                foreach (Control control in page.Controls)
+                {
+                    if (control.Dock == DockStyle.Fill)
+                    {
+                        control.Size = rect.Size;
+                    }
+                }
+            }
+        }
+
+      
+
     }
 
     public class TabRemovedEventArgs : EventArgs

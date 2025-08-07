@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepDisplayContainer()
         {
             InitializeComponent();
-
+            this.DoubleBuffered = true;
             // Ensure the container can receive focus and events
             this.TabStop = true;
             this.Enabled = true;
@@ -50,6 +50,55 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Set initial layout based on ContainerType
             UpdateContainerLayout();
+        }
+        // Override DPI scaling methods
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+
+            // Update container layout with new DPI
+            UpdateContainerLayoutForDpi();
+
+            // Update all child controls
+            foreach (var entry in _controls)
+            {
+                if (entry.Value.Addin is Control control)
+                {
+                    UpdateControlForDpi(control);
+                }
+            }
+
+            // Update tab container
+            if (TabContainerPanel != null)
+            {
+                // TabContainerPanel should handle its own DPI scaling
+                TabContainerPanel.Invalidate();
+            }
+        }
+        private void UpdateContainerLayoutForDpi()
+        {
+            // Update paddings and sizes based on current DPI
+            this.Padding = new Padding(ScaleValue(2));
+
+            // Update any other hard-coded sizes
+            if (ContainerPanel != null)
+            {
+                ContainerPanel.Invalidate();
+            }
+        }
+
+        private void UpdateControlForDpi(Control control)
+        {
+            // Update margins and paddings for DPI
+            control.Margin = new Padding(ScaleValue(5));
+            control.Padding = new Padding(ScaleValue(5));
+
+            // If control implements DPI scaling, call it
+            if (control is BeepControl beepControl)
+            {
+                // BeepControl should handle its own DPI scaling
+                beepControl.Invalidate();
+            }
         }
 
         private void InitializeComponent()
@@ -77,9 +126,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.Controls.Add(TabContainerPanel);
 
             TabContainerPanel.TabRemoved += TabContainerPanel_TabRemoved;
-            this.Padding= new Padding(2);
+            // Use DPI-scaled padding and size
+            this.Padding = new Padding(ScaleValue(2));
             this.Name = "BeepDisplayContainer";
-            this.Size = new Size(400, 300);
+            this.Size = ScaleSize(new Size(400, 300));
+
             this.ResumeLayout(false);
         }
         private void TabContainerPanel_TabRemoved(object sender, TabRemovedEventArgs e)
@@ -214,7 +265,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var tabPage = new TabPage { Text = TitleText, Tag = control };
 
                 if (control is Control winControl)
-                {
+                { // Use DPI-scaled values
+                    winControl.Margin = new Padding(ScaleValue(5));
+                    winControl.Padding = new Padding(ScaleValue(5));
+
                     winControl.Dock = DockStyle.Fill;
                     winControl.Padding = new Padding(5);
                     winControl.Visible = true;
@@ -484,8 +538,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabContainerPanel.Theme = Theme;
                 TabContainerPanel.ApplyTheme();
             }
+            // Ensure DPI scaling is applied after theme changes
+            UpdateContainerLayoutForDpi();
 
-           
         }
         protected override void OnMouseDown(MouseEventArgs e)
         {
@@ -540,8 +595,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnResize(EventArgs e)
         {
+            this.SuspendLayout();
             base.OnResize(e);
-            PerformLayout();
+            this.ResumeLayout(true);
         }
 
         //protected override void OnPaint(PaintEventArgs e)

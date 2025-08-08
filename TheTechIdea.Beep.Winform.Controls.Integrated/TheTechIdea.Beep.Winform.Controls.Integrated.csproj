@@ -29,6 +29,11 @@
 	  <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
   </Target>
   <ItemGroup>
+    <Compile Remove="Designer\**" />
+    <EmbeddedResource Remove="Designer\**" />
+    <None Remove="Designer\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Remove="Helpers\AssemblyClassDefinitionManager.cs" />
     <Compile Remove="Helpers\DynamicFunctionCallingManager.cs" />
     <Compile Remove="Helpers\DynamicMenuManager.cs" />
@@ -45,11 +50,12 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
 		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.67" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.68" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
+	  <ProjectReference Include="..\..\Beep.Nugget\Beep.Nugget.Logic\Beep.Nugget.Engine.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	</ItemGroup>
@@ -61,18 +67,6 @@
 	  <Compile Update="BeepDataConnection.cs">
 	    <SubType>Component</SubType>
 	  </Compile>
-	  <Compile Update="Grid\BeepDataGridView.cs">
-	    <SubType>Component</SubType>
-	  </Compile>
-	  <Compile Update="Grid\BeepGrid.cs">
-	    <SubType>Component</SubType>
-	  </Compile>
-	  <Compile Update="Grid\BeepGridFooter.cs">
-	    <SubType>Component</SubType>
-	  </Compile>
-	  <Compile Update="Grid\BeepGridHeader.cs">
-	    <SubType>Component</SubType>
-	  </Compile>
 	  <Compile Update="ITrees\BeepTreeView\BeepAppTree.cs">
 	    <SubType>Component</SubType>
 	  </Compile>
@@ -82,6 +76,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Designer\" />
+	  <Folder Include="docs\" />
 	</ItemGroup>
 </Project>

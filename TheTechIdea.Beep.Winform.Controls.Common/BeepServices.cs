@@ -141,7 +141,24 @@ namespace TheTechIdea.Beep.Desktop.Common
         #endregion
 
         #region Service Registration Methods
+        /// <summary>
+        /// Registers all desktop services with modern configuration options.
+        /// This is the primary registration method supporting fluent configuration.
+        /// </summary>
+        /// <param name="builder">The host application builder.</param>
+        /// <param name="configure">Configuration action for desktop services.</param>
+        public static void RegisterDesktopServices(this IServiceCollection services,
+            Action<DesktopServiceOptions> configure = null)
+        {
+            if (services == null)
+                throw new ArgumentNullException(nameof(services));
 
+            var options = new DesktopServiceOptions();
+            configure?.Invoke(options);
+            options.Validate();
+
+            RegisterServicesInternal(services, options);
+        }
         /// <summary>
         /// Registers all desktop services with modern configuration options.
         /// This is the primary registration method supporting fluent configuration.

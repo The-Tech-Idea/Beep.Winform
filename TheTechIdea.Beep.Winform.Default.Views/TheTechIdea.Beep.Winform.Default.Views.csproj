@@ -30,11 +30,6 @@
 		<Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
 	</Target>
 	<ItemGroup>
-	  <Compile Remove="NewFolder\**" />
-	  <EmbeddedResource Remove="NewFolder\**" />
-	  <None Remove="NewFolder\**" />
-	</ItemGroup>
-	<ItemGroup>
 	  <None Remove="GFX\SVG\cancel.svg" />
 	  <None Remove="GFX\SVG\createlocaldb.svg" />
 	  <None Remove="GFX\SVG\createlocaldbbutton.svg" />
@@ -80,6 +75,7 @@
     <Folder Include="CRUD\" />
     <Folder Include="ETL\" />
     <Folder Include="DDL\" />
+    <Folder Include="docs\" />
   </ItemGroup>
 
   <ItemGroup>

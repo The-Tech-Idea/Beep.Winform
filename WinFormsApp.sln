@@ -1,9 +1,33 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35506.116 d17.12
+VisualStudioVersion = 17.12.35506.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinFormsApp", "WinFormsApp\WinFormsApp.csproj", "{66939BB5-9BE9-4D71-9467-B0777D4CA34F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinformSampleApp", "WinformSampleApp\WinformSampleApp.csproj", "{DF853175-B0BF-42F7-916A-6C0351EFCF42}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Vis.Modules", "TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj", "{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Controls", "TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj", "{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Desktop.Common", "TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj", "{F2FC7F75-10A4-C1F8-292E-23B37626C510}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Default.Views", "TheTechIdea.Beep.Winform.Default.Views\TheTechIdea.Beep.Winform.Default.Views.csproj", "{F52C1168-5279-2947-222C-0192616532FC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.Controls.Integrated", "TheTechIdea.Beep.Winform.Controls.Integrated\TheTechIdea.Beep.Winform.Controls.Integrated.csproj", "{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beep.Nugget.Engine", "..\Beep.Nugget\Beep.Nugget.Logic\Beep.Nugget.Engine.csproj", "{1CB7BC5E-B037-69FB-CD4E-665109AE5EB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Vis.Loader", "..\Beep.Branchs\TheTechIdea.Beep.Vis.Loader\TheTechIdea.Beep.Vis.Loader.csproj", "{48A13373-EE93-15DC-042E-737D6CEB8F5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.TreeNodes", "..\Beep.Branchs\TheTechIdea.Beep.TreeNodes\TheTechIdea.Beep.TreeNodes.csproj", "{CEB71BD8-0B41-114E-EB90-D0DFD18F27BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagementModels", "..\BeepDM\DataManagementModelsStandard\DataManagementModels.csproj", "{17D40D63-AE6E-3903-77E5-98E53ECCA25F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataManagementEngine", "..\BeepDM\DataManagementEngineStandard\DataManagementEngine.csproj", "{8DA73FCC-5A46-36EB-7AAE-158BDED10367}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly_helpers", "..\BeepDM\Assembly_helpersStandard\Assembly_helpers.csproj", "{B5AE3E34-3E33-75FC-9868-874310255F79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheTechIdea.Beep.Winform.IDE.Extensions", "TheTechIdea.Beep.Winform.IDE.Extensions\TheTechIdea.Beep.Winform.IDE.Extensions.csproj", "{49461B98-F767-4CA3-8986-ED63DC73FB4E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,12 +35,63 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{66939BB5-9BE9-4D71-9467-B0777D4CA34F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{66939BB5-9BE9-4D71-9467-B0777D4CA34F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{66939BB5-9BE9-4D71-9467-B0777D4CA34F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{66939BB5-9BE9-4D71-9467-B0777D4CA34F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF853175-B0BF-42F7-916A-6C0351EFCF42}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E95E69A8-DEAF-4915-2CD9-1DE5E8F3CA72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3BA3C31A-AB8C-5E0B-3C65-ACF8392A0723}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2FC7F75-10A4-C1F8-292E-23B37626C510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2FC7F75-10A4-C1F8-292E-23B37626C510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2FC7F75-10A4-C1F8-292E-23B37626C510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2FC7F75-10A4-C1F8-292E-23B37626C510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F52C1168-5279-2947-222C-0192616532FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F52C1168-5279-2947-222C-0192616532FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F52C1168-5279-2947-222C-0192616532FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F52C1168-5279-2947-222C-0192616532FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5EE7BA0-05D4-B4D2-4DD0-366A32072DD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1CB7BC5E-B037-69FB-CD4E-665109AE5EB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1CB7BC5E-B037-69FB-CD4E-665109AE5EB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1CB7BC5E-B037-69FB-CD4E-665109AE5EB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1CB7BC5E-B037-69FB-CD4E-665109AE5EB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48A13373-EE93-15DC-042E-737D6CEB8F5B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEB71BD8-0B41-114E-EB90-D0DFD18F27BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEB71BD8-0B41-114E-EB90-D0DFD18F27BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEB71BD8-0B41-114E-EB90-D0DFD18F27BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEB71BD8-0B41-114E-EB90-D0DFD18F27BF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{17D40D63-AE6E-3903-77E5-98E53ECCA25F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17D40D63-AE6E-3903-77E5-98E53ECCA25F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17D40D63-AE6E-3903-77E5-98E53ECCA25F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17D40D63-AE6E-3903-77E5-98E53ECCA25F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DA73FCC-5A46-36EB-7AAE-158BDED10367}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5AE3E34-3E33-75FC-9868-874310255F79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5AE3E34-3E33-75FC-9868-874310255F79}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5AE3E34-3E33-75FC-9868-874310255F79}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5AE3E34-3E33-75FC-9868-874310255F79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49461B98-F767-4CA3-8986-ED63DC73FB4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49461B98-F767-4CA3-8986-ED63DC73FB4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49461B98-F767-4CA3-8986-ED63DC73FB4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49461B98-F767-4CA3-8986-ED63DC73FB4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EF15FE3B-01EB-41B2-A58A-C00021F352D3}
 	EndGlobalSection
 EndGlobal

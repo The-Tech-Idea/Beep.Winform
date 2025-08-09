@@ -16,7 +16,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Extensibility.Sdk" Version="17.14.40254" PrivateAssets="all" />
     <PackageReference Include="Microsoft.VisualStudio.Extensibility.Build" Version="17.14.40254" PrivateAssets="all" />
-    <PackageReference Include="TheTechIdea.Beep.AssemblyLoader" Version="2.0.8" />
+    <PackageReference Include="TheTechIdea.Beep.AssemblyLoader" Version="2.0.9" />
     <PackageReference Include="TheTechIdea.Beep.Container.Model" Version="1.0.0.48" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementEngine" Version="2.0.35" />
     <PackageReference Include="TheTechIdea.Beep.DMLogger" Version="2.0.2" />

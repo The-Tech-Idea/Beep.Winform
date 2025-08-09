@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value;
                 UseThemeFont = false;
-                Font = value;
+               // Font = value;
                 Invalidate();
             }
         }
@@ -383,8 +383,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawImageAndText(Graphics g)
         {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.CompositingQuality = CompositingQuality.HighQuality;
+            
             g.ResetTransform();
             if (!SetFont() && UseThemeFont)
             {
@@ -543,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                                FontStyle.Regular);
                     }
                 }
-                SafeApplyFont(TextFont ?? _textFont);
+               // SafeApplyFont(TextFont ?? _textFont);
                 ApplyThemeToSvg();
                 //Invalidate();
                 //Refresh();

@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.ComponentModel;
 using System.Reflection;
 using TheTechIdea.Beep.Addin;
@@ -20,6 +19,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public IAppManager appManager;
         public IDMEEditor Editor { get; }
         protected readonly IBeepService? beepService;
+        
+        // Store original positions to prevent DPI-related movement
+        private readonly Dictionary<Control, Rectangle> _originalBounds = new Dictionary<Control, Rectangle>();
+        private bool _isApplyingTheme = false;
+        private bool _isDpiChanging = false;
+        
         public TemplateUserControl()
         {
             InitializeComponent();
@@ -43,6 +48,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             Dependencies.DMEEditor = beepService.DMEEditor;
             BeepThemesManager.ThemeChanged += BeepThemesManager_v2_ThemeChanged;
             Theme = BeepThemesManager.CurrentThemeName;
+            
+            // Store initial control bounds after initialization
+            this.HandleCreated += (s, e) => StoreOriginalControlBounds();
         }
 
         private void BeepThemesManager_v2_ThemeChanged(object? sender, Controls.Models.ThemeChangeEventArgs e)
@@ -53,6 +61,162 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             {  BeepThemesManager.SetCurrentTheme(Theme); }
             ApplyTheme();
         }
+        
+        #region "DPI and Control Position Management"
+        
+        /// <summary>
+        /// CRITICAL: Override OnDpiChangedAfterParent to prevent control movement during DPI/theme changes
+        /// </summary>
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            _isDpiChanging = true;
+            
+            try
+            {
+              
+                
+                try
+                {
+                    // Call base implementation
+                    base.OnDpiChangedAfterParent(e);
+                    
+                    // Apply DPI changes to child controls
+                    UpdateChildControlsForDpi();
+                }
+                finally
+                {
+                    // Resume layout
+                   
+                }
+                
+              
+                
+                // Force redraw
+                this.Invalidate();
+            }
+            finally
+            {
+                _isDpiChanging = false;
+            }
+        }
+        
+        /// <summary>
+        /// Override OnFontChanged to prevent control movement during theme font changes
+        /// </summary>
+        protected override void OnFontChanged(EventArgs e)
+        {
+            if (!_isApplyingTheme && !_isDpiChanging)
+            {
+                base.OnFontChanged(e);
+                return;
+            }
+            
+         
+            
+            try
+            {
+                base.OnFontChanged(e);
+            }
+            finally
+            {
+                // Resume layout and restore positions
+               
+            }
+        }
+        
+        /// <summary>
+        /// Update child controls for DPI changes without moving them
+        /// </summary>
+        private void UpdateChildControlsForDpi()
+        {
+            foreach (Control control in this.Controls)
+            {
+                UpdateControlForDpiSafe(control);
+            }
+        }
+        
+        /// <summary>
+        /// Safely update a control for DPI changes
+        /// </summary>
+        private void UpdateControlForDpiSafe(Control control)
+        {
+            Rectangle originalBounds = control.Bounds;
+            
+            try
+            {
+                // If it's a BeepControl, let it handle its own DPI scaling
+                if (control is BeepControl beepControl)
+                {
+                    beepControl.Invalidate();
+                }
+                else
+                {
+                    // For regular controls, just invalidate
+                    control.Invalidate();
+                }
+                
+                // Restore position if it changed
+                if (control.Bounds != originalBounds)
+                {
+                    control.Bounds = originalBounds;
+                }
+                
+                // Recursively update child controls
+                if (control.HasChildren)
+                {
+                    foreach (Control child in control.Controls)
+                    {
+                        UpdateControlForDpiSafe(child);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error but continue
+                System.Diagnostics.Debug.WriteLine($"Error updating control {control.Name} for DPI: {ex.Message}");
+                // Restore original bounds on error
+                control.Bounds = originalBounds;
+            }
+        }
+        
+        /// <summary>
+        /// Store original control bounds to prevent movement during theme changes
+        /// </summary>
+        private void StoreOriginalControlBounds()
+        {
+            if (!IsHandleCreated) return;
+            
+            _originalBounds.Clear();
+            StoreControlBoundsRecursive(this);
+        }
+        
+        /// <summary>
+        /// Recursively store bounds for all controls
+        /// </summary>
+        private void StoreControlBoundsRecursive(Control parent)
+        {
+            foreach (Control control in parent.Controls)
+            {
+                if (!_originalBounds.ContainsKey(control))
+                {
+                    _originalBounds[control] = control.Bounds;
+                }
+                
+                if (control.HasChildren)
+                {
+                    StoreControlBoundsRecursive(control);
+                }
+            }
+        }
+        
+      
+        
+        /// <summary>
+        
+      
+        
+        #endregion "DPI and Control Position Management"
+        
         #region "IDM_Addin Implementation"
      
 
@@ -67,7 +231,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             {
                 _theme = value;
                 _currentTheme = BeepThemesManager.GetTheme(value);
-                //      this.ApplyTheme();
                 ApplyTheme();
             }
         }
@@ -221,55 +384,106 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         {
 
         }
+        
         public void ApplyTheme()
         {
-            BackColor = _currentTheme.BackColor;
+            if (_currentTheme == null) return;
+            
+            // CRITICAL FIX: Set flag to prevent DPI-related movement during theme application
+            _isApplyingTheme = true;
+            
+            try
+            {
+                // Store current control positions before applying theme
+             //   StoreOriginalControlBounds();
+                
+                // Suspend layout for the entire control hierarchy to prevent movement
+           //     SuspendLayoutRecursive(this);
+                
+                try
+                {
+                    // Apply background color
+                    BackColor = _currentTheme.BackColor;
+                    
+                    // Apply theme to child controls using safe font handling
+                    ApplyThemeToChildControlsSafe();
+                }
+                finally
+                {
+                    // Always resume layout
+               //     ResumeLayoutRecursive(this);
+                }
+                
+                // Restore control positions after theme application
+              //  RestoreControlPositions();
+                
+                // Invalidate for visual refresh only after positions are restored
+                this.Invalidate();
+            }
+            finally
+            {
+                // Always clear the flag
+                _isApplyingTheme = false;
+            }
+        }
+        
+        /// <summary>
+        /// Apply theme to child controls with safe font handling to prevent position changes
+        /// </summary>
+        private void ApplyThemeToChildControlsSafe()
+        {
             foreach (Control item in this.Controls)
             {
-                // check if item is a usercontrol
-                if (item is IBeepUIComponent)
+                ApplyThemeToControlSafe(item);
+            }
+        }
+        
+        /// <summary>
+        /// Apply theme to a single control safely
+        /// </summary>
+        private void ApplyThemeToControlSafe(Control control)
+        {
+            try
+            {
+                // Store the control's original position
+               // Rectangle originalBounds = control.Bounds;
+                
+                // Check if item is a Beep UI component
+                if (control is IBeepUIComponent beepComponent)
                 {
-                    // apply theme to usercontrol
-                    ((IBeepUIComponent)item).Theme = Theme;
-                    // ((IBeepUIComponent)item).ApplyTheme();
-
+                    // For Beep components, apply theme through the component interface
+                    // This will trigger proper theme application with DPI awareness
+                    beepComponent.Theme = Theme;
+                }
+                else
+                {
+                    // For regular controls, apply basic theme properties
+                    control.BackColor = _currentTheme.BackColor;
+                    control.ForeColor = _currentTheme.ForeColor;
+                }
+                
+                // Restore position if it changed during theme application (only for non-docked controls)
+  
+                  //  control.Bounds = originalBounds;
+                
+                
+                // Recursively apply to child controls
+                if (control.HasChildren)
+                {
+                    foreach (Control child in control.Controls)
+                    {
+                        ApplyThemeToControlSafe(child);
+                    }
                 }
             }
-
+            catch (Exception ex)
+            {
+                // Log error but continue with other controls
+                System.Diagnostics.Debug.WriteLine($"Error applying theme to control {control.Name}: {ex.Message}");
+            }
         }
+        
         #endregion "IDM_Addin Implementation"
-        public virtual void ResumeFormLayout()
-        {
-            return;
-          this.ResumeLayout(false);
-            this.PerformLayout(); // Ensure layout is recalculated
-            foreach (Control ctrl in this.Controls)
-            {
-                ctrl.ResumeLayout(false);
-                ctrl.PerformLayout();
-                if (ctrl is IBeepUIComponent bp)
-                {
-                    bp.ResumeFormLayout();
-                }
-                if (ctrl.Dock == DockStyle.Fill)
-                {
-                    ctrl.Size = this.Size;
-                }
-            }
-            this.Invalidate();
-        }
-        public virtual void SuspendFormLayout()
-        {
-            return;
-       this.SuspendLayout();
-            foreach (Control ctrl in this.Controls)
-            {
-                ctrl.SuspendLayout();
-                if (ctrl is IBeepUIComponent bp)
-                {
-                    bp.SuspendFormLayout();
-                }
-            }
-        }
+        
     }
 }

@@ -176,17 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ContainerPanel.Visible = false;
                 TabContainerPanel.Visible = true;
 
-                //// Ensure the test button is in a tab
-                //if (!TabContainerPanel.TabPages.ContainsKey("TestTab"))
-                //{
-                //    var testTab = new TabPage
-                //    {
-                //        Text = "Test Tab",
-                //        Name = "TestTab"
-                //    };
-                //    testTab.Controls.Add(_testButton);
-                //    TabContainerPanel.TabPages.Add(testTab);
-                //}
+               
 
                 // Move single panel control to tabs
                 if (_singlePanelAddin != null)
@@ -311,40 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            // ContainerPanel.Controls.Add(_testButton);
             _singlePanelAddin = null;
         }
-        public void AddTestTab()
-        {
-            try
-            {
-                ////MiscFunctions.SendLog("Adding test tab manually...");
-
-                var testControl = new BeepButton
-                {
-                    Text = "Test Control",
-                    Dock = DockStyle.Fill,
-                    BackColor = Color.LightBlue
-                };
-
-                var testPage = new TabPage
-                {
-                    Text = "Test Tab",
-                    BackColor = Color.LightGreen
-                };
-
-                testPage.Controls.Add(testControl);
-                TabContainerPanel.TabPages.Add(testPage);
-
-            
-                TabContainerPanel.Invalidate();
-                TabContainerPanel.Update();
-
-                // Also check if the BeepTabs is receiving paint events
-              //  ////MiscFunctions.SendLog($"TabContainerPanel HeaderHeight: {TabContainerPanel.HeaderHeight}");
-            }
-            catch (Exception ex)
-            {
-                ////MiscFunctions.SendLog($"Error adding test tab: {ex.Message}");
-            }
-        }
+      
         public bool IsControlExit(IDM_Addin control)
         {
             return control != null && _controls.Values.Any(x => x.Addin == control);

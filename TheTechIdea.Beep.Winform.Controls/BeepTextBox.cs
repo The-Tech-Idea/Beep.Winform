@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _textFont = value;
                 UseThemeFont = false;
-                Font = _textFont;
+              //  Font = _textFont;
                 _innerTextBox.Font = _textFont;
                 Invalidate();
 
@@ -1765,9 +1765,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _innerTextBox.Font = _textFont;
             }
 
-            //InnerTextBox.Font=_listbuttontextFont;
-            SafeApplyFont(TextFont ?? _textFont);
-
+            
             beepImage.IsChild = true;
             beepImage.ImageEmbededin = ImageEmbededin.None;
             beepImage.ParentBackColor = BackColor; 

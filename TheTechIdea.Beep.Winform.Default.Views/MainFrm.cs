@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
            
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
-            beepDisplayContainer1.AddTestTab();
+           
 
         }
 

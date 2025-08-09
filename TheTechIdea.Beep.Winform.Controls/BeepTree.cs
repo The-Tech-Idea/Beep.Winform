@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _textFont = value;
                 UseThemeFont = false;
-              SafeApplyFont(_textFont);
+              //SafeApplyFont(_textFont);
 
                 Invalidate();
             }
@@ -751,7 +751,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _button.TextFont = Font;
             }
-            SafeApplyFont(TextFont ?? _textFont);
+          //  SafeApplyFont(TextFont ?? _textFont);
             if (UseScaledFont)
             {
                 _button.UseScaledFont = UseScaledFont;
@@ -882,6 +882,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             return null;
         }
 
+        // Traverse all SimpleItems recursively and find a node by GUID
         // Traverse all SimpleItems recursively and find a node by GUID
         public SimpleItem GetNodeByGuidID(string guidID)
         {
@@ -1140,7 +1141,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             NodeExpandedAll?.Invoke(this, new BeepMouseEventArgs("ExpandAll", null));
         }
-
         /// <summary>
         /// Collapses all nodes in the tree.
         /// </summary>
@@ -1456,17 +1456,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Call this from your constructor
         private void InitializeScrollbars()
         {
-            // Disable built-in scrollbars
+            // CRITICAL FIX: Completely disable Windows Form scrollbars
             this.AutoScroll = false;
             this.VerticalScroll.Visible = false;
             this.HorizontalScroll.Visible = false;
+            this.VerticalScroll.Enabled = false;
+            this.HorizontalScroll.Enabled = false;
 
             // Create vertical scrollbar with DPI-scaled width
             _verticalScrollBar = new BeepScrollBar
             {
                 ScrollOrientation = Orientation.Vertical,
                 Visible = false,
-                Width = ScaleValue(10)  // ✅ Use DPI-scaled width
+                Width = ScaleValue(15)  // Slightly wider for better usability
             };
             _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
             Controls.Add(_verticalScrollBar);
@@ -1476,7 +1478,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ScrollOrientation = Orientation.Horizontal,
                 Visible = false,
-                Height = ScaleValue(10)  // ✅ Use DPI-scaled height
+                Height = ScaleValue(15)  // Slightly taller for better usability
             };
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);

@@ -20,8 +20,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color _titleLineColor = Color.Gray;
         private int _titleLineThickness = 2;
 
-   
-
         private int _titleBottomY = startyoffset;
         private ContentAlignment _titleAlignment = ContentAlignment.TopLeft;
 
@@ -50,14 +48,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
                 _textFont = value;
                 UseThemeFont = false;
-                Font = _textFont;
-             
+               // SafeApplyFont( _textFont);
                 Invalidate();
-
-
             }
         }
       
@@ -178,32 +172,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPanel()
         {
             ApplyTheme();
-           
             this.Size = new Size(400, 300);
-           
         }
         #endregion
-        private int GetSingleLineHeight()
-        {
-            // Ensure DrawingRect is updated
-            UpdateDrawingRect();
-            int textBoxHeight;
-            //  padding = BorderThickness + offset;
-            //spacing = 1;
-            using (TextBox tempTextBox = new TextBox())
-            {
-                tempTextBox.Multiline = false;
-                tempTextBox.BorderStyle = BorderStyle.None;
-                tempTextBox.Font = Font;
-                tempTextBox.Refresh();
-                textBoxHeight = tempTextBox.PreferredHeight + (padding * 2);
-
-                // Calculate the total height, including borders and padding
-            }
-            //   // Console.WriteLine($" GetSingleLineHeight : {textBoxHeight}");
-
-            return textBoxHeight;
-        }
+        
+      
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
@@ -215,120 +188,105 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    this.Value = new Value(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
+        
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
-
-            if (_currentTheme == null)
-                return;
-
-            // Apply panel-specific theme properties
-            BackColor = _currentTheme.PanelBackColor;
-            ForeColor = _currentTheme.PrimaryTextColor;
-            BorderColor = _currentTheme.BorderColor;
-
-            // Apply gradient properties if enabled
-            if (_useGradientBackground)
+            // CRITICAL FIX: Suspend/Resume layout to prevent control movement during theme changes
+            this.SuspendLayout();
+            
+            try
             {
-                _gradientStartColor = _currentTheme.PanelGradiantStartColor != Color.Empty ?
-                    _currentTheme.PanelGradiantStartColor : _currentTheme.GradientStartColor;
+                base.ApplyTheme();
 
-                _gradientEndColor = _currentTheme.PanelGradiantEndColor != Color.Empty ?
-                    _currentTheme.PanelGradiantEndColor : _currentTheme.GradientEndColor;
+                if (_currentTheme == null)
+                    return;
 
-                _gradientDirection = _currentTheme.GradientDirection;
-            }
+                // Apply panel-specific theme properties
+                BackColor = _currentTheme.PanelBackColor;
+                ForeColor = _currentTheme.PrimaryTextColor;
+                BorderColor = _currentTheme.BorderColor;
 
-            // Apply title-specific properties
-            if (!string.IsNullOrEmpty(_titleText) && _showTitle)
-            {
-                // Title line color
-                _titleLineColor = _currentTheme.CardTitleForeColor != Color.Empty ?
-                    _currentTheme.CardTitleForeColor : _currentTheme.PrimaryTextColor;
-            }
-
-            // Apply font settings based on theme
-            if (UseThemeFont)
-            {
-                // Use title font for panel titles
-                if (_currentTheme.TitleSmall != null)
+                // Apply gradient properties if enabled
+                if (_useGradientBackground)
                 {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.TitleSmall);
-                }
-                else if (_currentTheme.CardHeaderStyle != null)
-                {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
-                }
-                else
-                {
-                    _textFont = new Font(_currentTheme.FontFamily, _currentTheme.FontSizeBlockHeader, FontStyle.Regular);
+                    _gradientStartColor = _currentTheme.PanelGradiantStartColor != Color.Empty ?
+                        _currentTheme.PanelGradiantStartColor : _currentTheme.GradientStartColor;
+
+                    _gradientEndColor = _currentTheme.PanelGradiantEndColor != Color.Empty ?
+                        _currentTheme.PanelGradiantEndColor : _currentTheme.GradientEndColor;
+
+                    _gradientDirection = _currentTheme.GradientDirection;
                 }
 
-                Font = _textFont;
-            }
-
-            // Apply theme to child controls if enabled
-            if (ApplyThemeToChilds)
-            {
-                foreach (Control control in Controls)
+                // Apply title-specific properties
+                if (!string.IsNullOrEmpty(_titleText) && _showTitle)
                 {
-                    if (control is BeepControl beepControl)
+                    // Title line color
+                    _titleLineColor = _currentTheme.CardTitleForeColor != Color.Empty ?
+                        _currentTheme.CardTitleForeColor : _currentTheme.PrimaryTextColor;
+                }
+
+                // Apply font settings based on theme - SIMPLIFIED!
+                if (UseThemeFont)
+                {
+                    try
                     {
-                        beepControl.Theme = Theme;
-                        beepControl.ApplyTheme();
-                    }
-                    else if (control is TextBox textBox)
-                    {
-                        textBox.BackColor = _currentTheme.TextBoxBackColor;
-                        textBox.ForeColor = _currentTheme.TextBoxForeColor;
-                        if (UseThemeFont)
+                        if (_currentTheme.TitleSmall != null)
                         {
-                            textBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.TextBoxFont);
+                            _textFont = BeepThemesManager.ToFont(_currentTheme.TitleSmall);
                         }
-                    }
-                    else if (control is Label label)
-                    {
-                        label.BackColor = BackColor;
-                        label.ForeColor = _currentTheme.LabelForeColor;
-                        if (UseThemeFont)
+                        else if (_currentTheme.CardHeaderStyle != null)
                         {
-                            label.Font = FontListHelper.CreateFontFromTypography(_currentTheme.LabelFont );
+                            _textFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
                         }
+                        else
+                        {
+                            _textFont = new Font(_currentTheme.FontFamily, _currentTheme.FontSizeBlockHeader, FontStyle.Regular);
+                        }
+                  //  SafeApplyFont( _textFont);
                     }
-                    // Handle other common control types if needed
+                    catch (Exception)
+                    {
+                        // Fallback to default font
+                        _textFont = new Font("Arial", 10);
+                    //SafeApplyFont (_textFont);
+                    }
+                }
+
+                // Child controls will manage their own themes - don't interfere!
+                // ApplyThemeToChilds is set to false to prevent automatic theme application
+
+                // Apply rounded corners from theme if available
+                if (_currentTheme.BorderRadius > 0)
+                {
+                    IsRounded = true;
+                    BorderRadius = _currentTheme.BorderRadius;
+                }
+
+                // Set border thickness from theme if available
+                if (_currentTheme.BorderSize > 0)
+                {
+                    BorderThickness = _currentTheme.BorderSize;
+                }
+
+                // Apply shadow properties if enabled
+                if (_showShadow)
+                {
+                    _shadowColor = _currentTheme.ShadowColor;
+                    _shadowOpacity = _currentTheme.ShadowOpacity;
                 }
             }
-
-            // Apply rounded corners from theme if available
-            if (_currentTheme.BorderRadius > 0)
+            finally
             {
-                IsRounded = true;
-                BorderRadius = _currentTheme.BorderRadius;
-            }
-
-            // Set border thickness from theme if available
-            if (_currentTheme.BorderSize > 0)
-            {
-                BorderThickness = _currentTheme.BorderSize;
-            }
-
-            // Apply shadow properties if enabled
-            if (_showShadow)
-            {
-                _shadowColor = _currentTheme.ShadowColor;
-                _shadowOpacity = _currentTheme.ShadowOpacity;
+                // CRITICAL: Always resume layout in finally block
+                this.ResumeLayout(false);
             }
 
             // Invalidate to ensure the panel is redrawn with the new theme
             Invalidate();
         }
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // base draws the beepcontrol background/border if any
-            base.OnPaint(e);
-
-          
-        }
+        
+      
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
@@ -341,11 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DrawTitle(g, DrawingRect);
             }
         }
-        protected override void OnControlAdded(ControlEventArgs e)
-        {
-            base.OnControlAdded(e);
-            // If you need to re-layout child controls, do so
-        }
+       
         private void DrawTitle(Graphics g,Rectangle rectangle)
         {
             // Use a title font from your theme, or fallback

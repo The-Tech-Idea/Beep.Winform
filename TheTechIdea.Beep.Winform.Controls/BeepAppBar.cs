@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Properties"
         #region "Fields"
         // With DPI-aware properties:
-        private int ScaledWindowIconsHeight => ScaleValue(20);
+        private int ScaledWindowIconsHeight => ScaleValue(40);
         private int ScaledDefaultHeight => ScaleValue(40);
         private Size ScaledLogoSize => ScaleSize(new Size(32, 32));
 
@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _textFont = value;
-                SafeApplyFont(TextFont ?? _textFont);
+              //  SafeApplyFont(TextFont ?? _textFont);
                 UseThemeFont = false;
                 Invalidate();
             }
@@ -293,7 +293,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private Size _logosize;
+        private Size _logosize=new Size(48,48);
 
         [Browsable(true)]
         [Category("Appearance")]

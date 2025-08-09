@@ -338,6 +338,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
             foreach (var root in _nodes) Recurse(root, 0);
+            
+            // CRITICAL FIX: Update scrollbars whenever visible nodes are rebuilt
+            if (!DesignMode && IsHandleCreated)
+            {
+                UpdateScrollBars();
+            }
         }
 
         
@@ -551,9 +557,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         case "toggle":
                             item.IsExpanded = !item.IsExpanded;
-                            (item.IsExpanded ? NodeExpanded : NodeCollapsed)?.Invoke(this, args);
-                            // Update scrollbars based on current content
+                            
+                            // CRITICAL FIX: Rebuild visible nodes and update scrollbars when expanding/collapsing
+                            RebuildVisible();
                             UpdateScrollBars();
+                            
+                            (item.IsExpanded ? NodeExpanded : NodeCollapsed)?.Invoke(this, args);
                             break;
                         case "check":
                             item.IsChecked = !item.IsChecked;
@@ -1010,6 +1019,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Rebuild visible nodes with expanded ancestors
             RebuildVisible();
+            UpdateScrollBars(); // CRITICAL FIX: Update scrollbars after highlighting
 
             // Find the node's position to scroll to it
             int yPos = 0;
@@ -1028,8 +1038,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (found)
             {
-                // Scroll to the node
-                AutoScrollPosition = new Point(AutoScrollPosition.X, yPos);
+                // Scroll to the node using our BeepScrollBar instead of AutoScrollPosition
+                if (_verticalScrollBar.Visible)
+                {
+                    _verticalScrollBar.Value = Math.Min(yPos, _verticalScrollBar.Maximum);
+                    _yOffset = _verticalScrollBar.Value;
+                }
             }
 
             // Redraw to reflect changes
@@ -1137,10 +1151,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             RebuildVisible();
+            UpdateScrollBars(); // CRITICAL FIX: Update scrollbars after expanding all
             Invalidate();
 
             NodeExpandedAll?.Invoke(this, new BeepMouseEventArgs("ExpandAll", null));
         }
+        
         /// <summary>
         /// Collapses all nodes in the tree.
         /// </summary>
@@ -1152,6 +1168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             RebuildVisible();
+            UpdateScrollBars(); // CRITICAL FIX: Update scrollbars after collapsing all
             Invalidate();
 
             NodeCollapsedAll?.Invoke(this, new BeepMouseEventArgs("CollapseAll", null));
@@ -1175,6 +1192,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             RebuildVisible();
+            UpdateScrollBars(); // CRITICAL FIX: Update scrollbars after ensuring visibility
 
             // Find and scroll to the node's position
             int y = 0;
@@ -1182,7 +1200,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (node.Item == item)
                 {
-                    AutoScrollPosition = new Point(0, y);
+                    // Scroll to the node using our BeepScrollBar instead of AutoScrollPosition
+                    if (_verticalScrollBar.Visible)
+                    {
+                        _verticalScrollBar.Value = Math.Min(y, _verticalScrollBar.Maximum);
+                        _yOffset = _verticalScrollBar.Value;
+                    }
                     break;
                 }
                 y += node.RowHeight > 0 ? node.RowHeight : GetScaledMinRowHeight();
@@ -1347,6 +1370,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
+                // CRITICAL FIX: Update visible nodes and scrollbars after adding node
+                RebuildVisible();
+                UpdateScrollBars();
+                Invalidate();
                
                 return newItem;
             }

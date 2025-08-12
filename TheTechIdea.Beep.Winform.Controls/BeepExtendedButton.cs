@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 
 
 

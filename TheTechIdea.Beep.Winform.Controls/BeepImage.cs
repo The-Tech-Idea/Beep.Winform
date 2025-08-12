@@ -1997,36 +1997,5 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
     }
-    public enum ImageClipShape
-    {
-        None,       // No clipping (default rectangle)
-        Circle,     // Perfect circle
-        RoundedRect, // Rounded rectangle (uses BorderRadius)
-        Ellipse,    // Oval/ellipse
-        Diamond,    // Diamond shape
-        Triangle,   // Triangle shape
-        Hexagon,    // Hexagon shape
-        Custom
-    }
-    public enum ImageEmbededin
-    {
-        Button,
-        Form,
-        Label,
-        TextBox,
-        ComboBox,
-        ListBox,
-        DataGridView,
-        TreeView,
-        ListView,
-        Panel,
-        GroupBox,
-        TabControl,
-        TabPage,
-        AppBar,
-        SideBar,
-        Menu,
-        MenuBar,
-        None
-    }
+
 }

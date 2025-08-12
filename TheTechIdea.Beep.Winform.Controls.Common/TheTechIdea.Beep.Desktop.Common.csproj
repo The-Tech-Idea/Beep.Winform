@@ -42,7 +42,7 @@
     <PackageReference Include="TheTechIdea.Beep.Container.Shared" Version="1.0.0" />
     <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.69" />
     <PackageReference Include="TheTechIdea.Beep.Shared" Version="1.0.1" />
-    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.7" />
+    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.9" />
     <PackageReference Include="TheTechIdea.Beep.Winform.Controls" Version="1.0.165" />
   </ItemGroup>
 

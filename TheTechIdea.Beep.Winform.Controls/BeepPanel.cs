@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

@@ -640,6 +640,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.7" />
+    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.9" />
   </ItemGroup>
 </Project>

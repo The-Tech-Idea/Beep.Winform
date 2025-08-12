@@ -4,11 +4,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TheTechIdea.Beep.Editor;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 
-namespace TheTechIdea.Beep.Winform.Controls.Managers
+
+namespace TheTechIdea.Beep.Vis.Modules.Managers
 {
     /// <summary>
     /// Static manager class for application fonts and typography

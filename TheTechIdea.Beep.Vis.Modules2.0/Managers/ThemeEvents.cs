@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Models
+namespace TheTechIdea.Beep.Vis.Modules.Managers
 {
     // New event args class that doesn't depend on EnumBeepThemes
     public class ThemeChangeEventArgs : EventArgs

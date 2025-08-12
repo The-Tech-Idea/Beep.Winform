@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 
-namespace TheTechIdea.Beep.Winform.Controls.Helpers
+namespace TheTechIdea.Beep.Vis.Modules.Managers
 {
     public static class FontListHelper
     {

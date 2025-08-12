@@ -1,5 +1,6 @@
 ﻿using System.Drawing.Text;
 using System.Reflection;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
 {

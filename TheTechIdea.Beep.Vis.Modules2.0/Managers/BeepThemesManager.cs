@@ -6,10 +6,9 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
-using TheTechIdea.Beep.Winform.Controls.Managers;
-using TheTechIdea.Beep.Winform.Controls.Models;
 
-namespace TheTechIdea.Beep.Vis.Modules
+
+namespace TheTechIdea.Beep.Vis.Modules.Managers
 {
     public static class BeepThemesManager
     {

@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms.Design;
 using System.Xml;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls

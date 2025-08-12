@@ -6,6 +6,115 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+    public enum ImageClipShape
+    {
+        None,       // No clipping (default rectangle)
+        Circle,     // Perfect circle
+        RoundedRect, // Rounded rectangle (uses BorderRadius)
+        Ellipse,    // Oval/ellipse
+        Diamond,    // Diamond shape
+        Triangle,   // Triangle shape
+        Hexagon,    // Hexagon shape
+        Custom
+    }
+    public enum ImageEmbededin
+    {
+        Button,
+        Form,
+        Label,
+        TextBox,
+        ComboBox,
+        ListBox,
+        DataGridView,
+        TreeView,
+        ListView,
+        Panel,
+        GroupBox,
+        TabControl,
+        TabPage,
+        AppBar,
+        SideBar,
+        Menu,
+        MenuBar,
+        None,
+        CheckBox
+    }
+    public enum SortDirection
+    {
+        None,
+        Ascending,
+        Descending
+    }
+
+    // Add enum for grid styles
+    public enum BeepGridStyle
+    {
+        Classic,
+        Modern,
+        Flat,
+        Material,
+        Dark
+    }
+    /// <summary>
+    /// Enum for modern gradient types
+    /// </summary>
+    public enum ModernGradientType
+    {
+        None,
+        Linear,
+        Radial,
+        Conic,
+        Mesh,
+        Subtle
+    }
+    public enum BeepShapeType
+    {
+        Line,
+        Rectangle,
+        Ellipse,
+        Triangle,
+        Star,
+        Diamond,
+        Pentagon,
+        Hexagon,
+        Octagon
+    }
+    #region Supporting Enums and Classes
+    public enum ShapeFillStyle
+    {
+        None,
+        Solid,
+        Gradient,
+        Hatch
+    }
+
+    public enum ResizeHandle
+    {
+        None = -1,
+        TopLeft = 0,
+        TopRight = 1,
+        BottomLeft = 2,
+        BottomRight = 3
+    }
+    #endregion
+    #region Supporting Classes and Enums
+    
+
+    public enum DockPosition
+    {
+        Top,
+        Bottom,
+        Left,
+        Right,
+        Center
+    }
+
+    public enum DockOrientation
+    {
+        Horizontal,
+        Vertical
+    }
+    #endregion
     /// <summary>
     /// Defines the color schemes for Material components
     /// </summary>

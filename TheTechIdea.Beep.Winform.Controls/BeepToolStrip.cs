@@ -3,6 +3,7 @@ using System.Drawing.Design;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

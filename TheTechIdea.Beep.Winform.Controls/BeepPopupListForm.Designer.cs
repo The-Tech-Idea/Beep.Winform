@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.HoverForeColor = Color.Black;
             _beepListBox.Id = -1;
             _beepListBox.ImageSize = 18;
-            _beepListBox.Info = (Models.SimpleItem)resources.GetObject("_beepListBox.Info");
+            _beepListBox.Info = (SimpleItem)resources.GetObject("_beepListBox.Info");
             _beepListBox.IsAcceptButton = false;
             _beepListBox.IsBorderAffectedByTheme = true;
             _beepListBox.IsCancelButton = false;

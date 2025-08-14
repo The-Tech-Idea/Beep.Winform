@@ -1,10 +1,11 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 
 
-namespace TheTechIdea.Beep.Winform.Controls.Models
+namespace TheTechIdea.Beep.Vis.Modules
 
 {
     [Serializable]
@@ -45,8 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string Name { get; set; }
         public string MenuName { get; set; }
         public string Text { get; set; }
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
-        [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
+       [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
         public string ImagePath { get; set; }

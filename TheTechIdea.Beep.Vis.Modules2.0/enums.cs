@@ -6,6 +6,47 @@ using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
+    public class DockItemState
+    {
+        public SimpleItem Item { get; set; }
+        public float CurrentScale { get; set; } = 1.0f;
+        public float TargetScale { get; set; } = 1.0f;
+        public bool IsHovered { get; set; }
+        public bool IsSelected { get; set; }
+    }
+
+    // Add missing enums for WPF/WinForms compatibility
+    public enum TextImageRelation
+    {
+        ImageBeforeText,
+        TextBeforeImage,
+        ImageAboveText,
+        TextAboveImage,
+        Overlay
+    }
+
+    public enum ContentAlignment
+    {
+        TopLeft,
+        TopCenter,
+        TopRight,
+        MiddleLeft,
+        MiddleCenter,
+        MiddleRight,
+        BottomLeft,
+        BottomCenter,
+        BottomRight
+    }
+
+    public enum ButtonType
+    {
+        Normal,
+        AnimatedArrow,
+        ExpandingIcon,
+        SlidingArrow,
+        SlidingBackground
+    }
+
     public enum ImageClipShape
     {
         None,       // No clipping (default rectangle)

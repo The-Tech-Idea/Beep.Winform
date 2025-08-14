@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
@@ -53,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             this.HandleCreated += (s, e) => StoreOriginalControlBounds();
         }
 
-        private void BeepThemesManager_v2_ThemeChanged(object? sender, Controls.Models.ThemeChangeEventArgs e)
+        private void BeepThemesManager_v2_ThemeChanged(object? sender, ThemeChangeEventArgs e)
         {
             Theme = e.NewThemeName;
 

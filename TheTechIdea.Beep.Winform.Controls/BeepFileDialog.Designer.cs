@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _specialFoldersComboBox.HoverForeColor = Color.Black;
             _specialFoldersComboBox.Id = -1;
            
-            _specialFoldersComboBox.Info = (Models.SimpleItem)resources.GetObject("_specialFoldersComboBox.Info");
+            _specialFoldersComboBox.Info = (SimpleItem)resources.GetObject("_specialFoldersComboBox.Info");
             _specialFoldersComboBox.IsAcceptButton = false;
             _specialFoldersComboBox.IsBorderAffectedByTheme = true;
             _specialFoldersComboBox.IsCancelButton = false;
@@ -310,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _searchBox.ImageAlign = ContentAlignment.MiddleLeft;
             _searchBox.ImagePath = null;
          
-            _searchBox.Info = (Models.SimpleItem)resources.GetObject("_searchBox.Info");
+            _searchBox.Info = (SimpleItem)resources.GetObject("_searchBox.Info");
             _searchBox.IsAcceptButton = false;
             _searchBox.IsBorderAffectedByTheme = true;
             _searchBox.IsCancelButton = false;
@@ -467,7 +467,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _okButton.ImageEmbededin = ImageEmbededin.Button;
             _okButton.ImagePath = null;
            
-            _okButton.Info = (Models.SimpleItem)resources.GetObject("_okButton.Info");
+            _okButton.Info = (SimpleItem)resources.GetObject("_okButton.Info");
             _okButton.IsAcceptButton = false;
             _okButton.IsBorderAffectedByTheme = true;
             _okButton.IsCancelButton = false;
@@ -597,7 +597,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.ImageEmbededin = ImageEmbededin.Button;
             _cancelButton.ImagePath = null;
           
-            _cancelButton.Info = (Models.SimpleItem)resources.GetObject("_cancelButton.Info");
+            _cancelButton.Info = (SimpleItem)resources.GetObject("_cancelButton.Info");
             _cancelButton.IsAcceptButton = false;
             _cancelButton.IsBorderAffectedByTheme = true;
             _cancelButton.IsCancelButton = false;
@@ -729,7 +729,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _fileNameTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             _fileNameTextBox.ImagePath = null;
            
-            _fileNameTextBox.Info = (Models.SimpleItem)resources.GetObject("_fileNameTextBox.Info");
+            _fileNameTextBox.Info = (SimpleItem)resources.GetObject("_fileNameTextBox.Info");
             _fileNameTextBox.IsAcceptButton = false;
             _fileNameTextBox.IsBorderAffectedByTheme = true;
             _fileNameTextBox.IsCancelButton = false;

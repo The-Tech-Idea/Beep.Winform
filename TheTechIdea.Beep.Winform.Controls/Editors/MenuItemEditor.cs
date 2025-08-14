@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.Design;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 

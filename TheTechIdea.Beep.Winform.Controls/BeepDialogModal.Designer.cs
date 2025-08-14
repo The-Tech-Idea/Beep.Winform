@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.HoverForeColor = Color.Black;
             panel1.Id = -1;
             panel1.InactiveBorderColor = Color.Gray;
-            panel1.Info = (Models.SimpleItem)resources.GetObject("panel1.Info");
+            panel1.Info = (SimpleItem)resources.GetObject("panel1.Info");
             panel1.IsAcceptButton = false;
             panel1.IsBorderAffectedByTheme = true;
             panel1.IsCancelButton = false;
@@ -259,7 +259,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.ImageEmbededin = ImageEmbededin.Button;
             DialogImage.ImagePath = null;
             DialogImage.InactiveBorderColor = Color.Gray;
-            DialogImage.Info = (Models.SimpleItem)resources.GetObject("DialogImage.Info");
+            DialogImage.Info = (SimpleItem)resources.GetObject("DialogImage.Info");
             DialogImage.IsAcceptButton = false;
             DialogImage.IsBorderAffectedByTheme = true;
             DialogImage.IsBouncing = false;
@@ -413,7 +413,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.ImageEmbededin = ImageEmbededin.Button;
             CloseButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.closesquare.svg";
             CloseButton.InactiveBorderColor = Color.Gray;
-            CloseButton.Info = (Models.SimpleItem)resources.GetObject("CloseButton.Info");
+            CloseButton.Info = (SimpleItem)resources.GetObject("CloseButton.Info");
             CloseButton.IsAcceptButton = false;
             CloseButton.IsBorderAffectedByTheme = true;
             CloseButton.IsCancelButton = false;
@@ -480,7 +480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.Size = new Size(40, 40);
             CloseButton.SlideFrom = SlideDirection.Left;
             CloseButton.SplashColor = Color.Gray;
-            CloseButton.StandardImages = (List<Models.SimpleItem>)resources.GetObject("CloseButton.StandardImages");
+            CloseButton.StandardImages = (List<SimpleItem>)resources.GetObject("CloseButton.StandardImages");
             CloseButton.StaticNotMoving = false;
             CloseButton.TabIndex = 1;
             CloseButton.Tag = panel1;
@@ -567,7 +567,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.ImageAlign = ContentAlignment.MiddleLeft;
             TitleLabel.ImagePath = null;
             TitleLabel.InactiveBorderColor = Color.Gray;
-            TitleLabel.Info = (Models.SimpleItem)resources.GetObject("TitleLabel.Info");
+            TitleLabel.Info = (SimpleItem)resources.GetObject("TitleLabel.Info");
             TitleLabel.IsAcceptButton = false;
             TitleLabel.IsBorderAffectedByTheme = false;
             TitleLabel.IsCancelButton = false;
@@ -717,7 +717,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.HoverForeColor = Color.Black;
             panel3.Id = -1;
             panel3.InactiveBorderColor = Color.Gray;
-            panel3.Info = (Models.SimpleItem)resources.GetObject("panel3.Info");
+            panel3.Info = (SimpleItem)resources.GetObject("panel3.Info");
             panel3.IsAcceptButton = false;
             panel3.IsBorderAffectedByTheme = true;
             panel3.IsCancelButton = false;
@@ -865,7 +865,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.ImageEmbededin = ImageEmbededin.Button;
             MiddleButton.ImagePath = null;
             MiddleButton.InactiveBorderColor = Color.Gray;
-            MiddleButton.Info = (Models.SimpleItem)resources.GetObject("MiddleButton.Info");
+            MiddleButton.Info = (SimpleItem)resources.GetObject("MiddleButton.Info");
             MiddleButton.IsAcceptButton = false;
             MiddleButton.IsBorderAffectedByTheme = true;
             MiddleButton.IsCancelButton = false;
@@ -932,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.Size = new Size(129, 32);
             MiddleButton.SlideFrom = SlideDirection.Left;
             MiddleButton.SplashColor = Color.Gray;
-            MiddleButton.StandardImages = (List<Models.SimpleItem>)resources.GetObject("MiddleButton.StandardImages");
+            MiddleButton.StandardImages = (List<SimpleItem>)resources.GetObject("MiddleButton.StandardImages");
             MiddleButton.StaticNotMoving = false;
             MiddleButton.TabIndex = 9;
             MiddleButton.Tag = panel3;
@@ -1021,7 +1021,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.ImageEmbededin = ImageEmbededin.Button;
             RightButton.ImagePath = null;
             RightButton.InactiveBorderColor = Color.Gray;
-            RightButton.Info = (Models.SimpleItem)resources.GetObject("RightButton.Info");
+            RightButton.Info = (SimpleItem)resources.GetObject("RightButton.Info");
             RightButton.IsAcceptButton = false;
             RightButton.IsBorderAffectedByTheme = true;
             RightButton.IsCancelButton = false;
@@ -1088,7 +1088,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.Size = new Size(129, 32);
             RightButton.SlideFrom = SlideDirection.Left;
             RightButton.SplashColor = Color.Gray;
-            RightButton.StandardImages = (List<Models.SimpleItem>)resources.GetObject("RightButton.StandardImages");
+            RightButton.StandardImages = (List<SimpleItem>)resources.GetObject("RightButton.StandardImages");
             RightButton.StaticNotMoving = false;
             RightButton.TabIndex = 8;
             RightButton.Tag = panel3;
@@ -1177,7 +1177,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.ImageEmbededin = ImageEmbededin.Button;
             LeftButton.ImagePath = null;
             LeftButton.InactiveBorderColor = Color.Gray;
-            LeftButton.Info = (Models.SimpleItem)resources.GetObject("LeftButton.Info");
+            LeftButton.Info = (SimpleItem)resources.GetObject("LeftButton.Info");
             LeftButton.IsAcceptButton = false;
             LeftButton.IsBorderAffectedByTheme = true;
             LeftButton.IsCancelButton = false;
@@ -1244,7 +1244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.Size = new Size(129, 32);
             LeftButton.SlideFrom = SlideDirection.Left;
             LeftButton.SplashColor = Color.Gray;
-            LeftButton.StandardImages = (List<Models.SimpleItem>)resources.GetObject("LeftButton.StandardImages");
+            LeftButton.StandardImages = (List<SimpleItem>)resources.GetObject("LeftButton.StandardImages");
             LeftButton.StaticNotMoving = false;
             LeftButton.TabIndex = 7;
             LeftButton.Tag = panel3;
@@ -1336,7 +1336,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             CaptionTextBox.ImagePath = null;
             CaptionTextBox.InactiveBorderColor = Color.Gray;
-            CaptionTextBox.Info = (Models.SimpleItem)resources.GetObject("CaptionTextBox.Info");
+            CaptionTextBox.Info = (SimpleItem)resources.GetObject("CaptionTextBox.Info");
             CaptionTextBox.IsAcceptButton = false;
             CaptionTextBox.IsBorderAffectedByTheme = false;
             CaptionTextBox.IsCancelButton = false;
@@ -1487,7 +1487,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.HoverForeColor = Color.FromArgb(33, 33, 33);
             SelectFromListComboBox.Id = -1;
             SelectFromListComboBox.InactiveBorderColor = Color.Gray;
-            SelectFromListComboBox.Info = (Models.SimpleItem)resources.GetObject("SelectFromListComboBox.Info");
+            SelectFromListComboBox.Info = (SimpleItem)resources.GetObject("SelectFromListComboBox.Info");
             SelectFromListComboBox.IsAcceptButton = false;
             SelectFromListComboBox.IsBorderAffectedByTheme = true;
             SelectFromListComboBox.IsCancelButton = false;
@@ -1635,7 +1635,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             InputTextBox.ImagePath = null;
             InputTextBox.InactiveBorderColor = Color.Gray;
-            InputTextBox.Info = (Models.SimpleItem)resources.GetObject("InputTextBox.Info");
+            InputTextBox.Info = (SimpleItem)resources.GetObject("InputTextBox.Info");
             InputTextBox.IsAcceptButton = false;
             InputTextBox.IsBorderAffectedByTheme = false;
             InputTextBox.IsCancelButton = false;

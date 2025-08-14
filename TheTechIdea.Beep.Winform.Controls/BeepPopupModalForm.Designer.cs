@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepPanel1.HoverForeColor = Color.Black;
             beepPanel1.Id = -1;
           
-            beepPanel1.Info = (Models.SimpleItem)resources.GetObject("beepPanel1.Info");
+            beepPanel1.Info = (SimpleItem)resources.GetObject("beepPanel1.Info");
             beepPanel1.IsAcceptButton = false;
             beepPanel1.IsBorderAffectedByTheme = true;
             beepPanel1.IsCancelButton = false;

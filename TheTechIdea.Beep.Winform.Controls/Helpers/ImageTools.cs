@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 

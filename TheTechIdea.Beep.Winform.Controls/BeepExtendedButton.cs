@@ -6,6 +6,11 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 
+using System.Windows.Forms;
+using ContentAlignment = System.Drawing.ContentAlignment;
+using TextImageRelation = System.Windows.Forms.TextImageRelation;
+
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -321,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 MaxImageSize = new Size(RightButtonSize-2, RightButtonSize-2),
                 Text = this.Text,
-                TextImageRelation = TextImageRelation.ImageBeforeText,
+                TextImageRelation =  System.Windows.Forms.TextImageRelation.ImageAboveText,
                 TextAlign = ContentAlignment.MiddleCenter,
                 ImageAlign = ContentAlignment.MiddleLeft,
                 IsBorderAffectedByTheme = false,
@@ -352,7 +357,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Location = new Point(DrawingRect.Width-RightButtonSize , starty),
                
                 MaxImageSize = new Size(RightButtonSize - 2, RightButtonSize-2),
-                TextImageRelation = TextImageRelation.Overlay,
+                TextImageRelation = System.Windows.Forms.TextImageRelation.Overlay,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 IsFrameless = true,
                 Theme = Theme,

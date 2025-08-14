@@ -15,28 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         public bool IsSelected { get; set; }
     }
 
-    // Add missing enums for WPF/WinForms compatibility
-    public enum TextImageRelation
-    {
-        ImageBeforeText,
-        TextBeforeImage,
-        ImageAboveText,
-        TextAboveImage,
-        Overlay
-    }
-
-    public enum ContentAlignment
-    {
-        TopLeft,
-        TopCenter,
-        TopRight,
-        MiddleLeft,
-        MiddleCenter,
-        MiddleRight,
-        BottomLeft,
-        BottomCenter,
-        BottomRight
-    }
+   
 
     public enum ButtonType
     {

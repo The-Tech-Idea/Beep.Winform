@@ -18,7 +18,7 @@
     <Product>TheTechIdea.Beep.Winform.Controls</Product>
     <AssemblyName>TheTechIdea.Beep.Winform.Controls</AssemblyName>
    
-    <Version>1.0.167</Version>
+    <Version>1.0.168</Version>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
   <Target Name="CopyPackage" AfterTargets="Pack">
@@ -640,6 +640,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.12" />
+    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.13" />
   </ItemGroup>
 </Project>

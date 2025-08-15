@@ -402,7 +402,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepAppBar() : base()
         {
             // Set up basic properties
-            
+            SetStyle(ControlStyles.AllPaintingInWmPaint
+            | ControlStyles.UserPaint
+            | ControlStyles.OptimizedDoubleBuffer, true);
+            UpdateStyles();
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
@@ -1069,14 +1072,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Skip if in design mode
             if (DesignMode)
                 return;
+            CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
+                   out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
+                   out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
 
-            // Get current mouse position to check for hits
             Point mousePoint = e.Location;
-
-            //// Calculate layout positions
-            //CalculateLayout(out Rectangle logoRect, out Rectangle titleRect, out Rectangle searchRect,
-            //    out Rectangle notificationRect, out Rectangle profileRect, out Rectangle themeRect,
-            //    out Rectangle minimizeRect, out Rectangle maximizeRect, out Rectangle closeRect);
 
             // Check each component to see if it was clicked
             // Logo click
@@ -1413,7 +1413,17 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void HandleCloseClick()
         {
-            Application.Exit();
+            var form = FindForm();
+            if (form == null) return;
+
+            var args = new FormClosingEventArgs(CloseReason.UserClosing, false);
+          //  form.OnFormClosing(args); // allows any handlers to cancel
+
+            if (!args.Cancel)
+            {
+                form.Close();
+            }
+          
         }
 
         private void ShowProfileMenu()

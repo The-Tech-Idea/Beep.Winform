@@ -104,7 +104,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.ImageAlign = ContentAlignment.MiddleLeft;
             Title.ImagePath = null;
             Title.InactiveBorderColor = Color.Gray;
-            Title.Info = (SimpleItem)resources.GetObject("Title.Info");
             Title.IsAcceptButton = false;
             Title.IsBorderAffectedByTheme = true;
             Title.IsCancelButton = false;
@@ -240,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.ImageEmbededin = ImageEmbededin.Button;
             LogopictureBox.ImagePath = null;
             LogopictureBox.InactiveBorderColor = Color.Gray;
-            LogopictureBox.Info = (SimpleItem)resources.GetObject("LogopictureBox.Info");
+   
             LogopictureBox.IsAcceptButton = false;
             LogopictureBox.IsBorderAffectedByTheme = true;
             LogopictureBox.IsBouncing = false;
@@ -374,7 +373,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = null;
             beepLabel1.InactiveBorderColor = Color.Gray;
-            beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
+
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -506,7 +505,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel2.ImagePath = null;
             beepLabel2.InactiveBorderColor = Color.Gray;
-            beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
             beepLabel2.IsCancelButton = false;
@@ -644,7 +642,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ImageAlign = ContentAlignment.MiddleLeft;
             messege.ImagePath = null;
             messege.InactiveBorderColor = Color.Gray;
-            messege.Info = (SimpleItem)resources.GetObject("messege.Info");
+
             messege.IsAcceptButton = false;
             messege.IsBorderAffectedByTheme = false;
             messege.IsCancelButton = false;
@@ -788,7 +786,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.ImageEmbededin = ImageEmbededin.Button;
             _spinnerImage.ImagePath = null;
             _spinnerImage.InactiveBorderColor = Color.Gray;
-            _spinnerImage.Info = (SimpleItem)resources.GetObject("_spinnerImage.Info");
+
             _spinnerImage.IsAcceptButton = false;
             _spinnerImage.IsBorderAffectedByTheme = false;
             _spinnerImage.IsBouncing = false;

@@ -3,7 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 
 
 namespace TheTechIdea.Beep.Winform.Controls

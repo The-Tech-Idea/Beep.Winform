@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -35,7 +36,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         Diamond,    // Diamond shape
         Triangle,   // Triangle shape
         Hexagon,    // Hexagon shape
-        Custom
+        Custom,
+        RoundedRectangle
     }
     public enum ImageEmbededin
     {
@@ -581,6 +583,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         KeepAspectRatioByWidth,
         KeepAspectRatioByHeight
     }
-
+   
 
 }

@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = "C:\\Users\\f_ald\\OneDrive\\docs_pic\\IMG_1074.jpg";
             beepLabel1.InactiveBorderColor = Color.Gray;
-            beepLabel1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel1.Info");
+           // beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepNumericUpDown1.Id = -1;
             beepNumericUpDown1.InactiveBorderColor = Color.Gray;
             beepNumericUpDown1.IncrementValue = new decimal(new int[] { 1, 0, 0, 0 });
-            beepNumericUpDown1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepNumericUpDown1.Info");
+         //   beepNumericUpDown1.Info = (SimpleItem)resources.GetObject("beepNumericUpDown1.Info");
             beepNumericUpDown1.IsAcceptButton = false;
             beepNumericUpDown1.IsBorderAffectedByTheme = true;
             beepNumericUpDown1.IsCancelButton = false;
@@ -344,7 +344,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.ImageAlign = ContentAlignment.MiddleLeft;
             beepTextBox1.ImagePath = null;
             beepTextBox1.InactiveBorderColor = Color.Gray;
-            beepTextBox1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepTextBox1.Info");
+         //   beepTextBox1.Info = (SimpleItem)resources.GetObject("beepTextBox1.Info");
             beepTextBox1.IsAcceptButton = false;
             beepTextBox1.IsBorderAffectedByTheme = false;
             beepTextBox1.IsCancelButton = false;
@@ -500,7 +500,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.HoverForeColor = Color.FromArgb(33, 37, 41);
             beepSimpleGrid1.Id = -1;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
-            beepSimpleGrid1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
+           // beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;
             beepSimpleGrid1.IsCancelButton = false;

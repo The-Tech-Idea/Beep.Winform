@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Template
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
     partial class TemplateUserControl
     {
@@ -83,7 +86,7 @@
             MainTemplatePanel.HoverForeColor = Color.Black;
             MainTemplatePanel.Id = -1;
             MainTemplatePanel.InactiveBorderColor = Color.Gray;
-            MainTemplatePanel.Info = (Controls.Models.SimpleItem)resources.GetObject("MainTemplatePanel.Info");
+        //   MainTemplatePanel.Info = (SimpleItem)resources.GetObject("MainTemplatePanel.Info");
             MainTemplatePanel.IsAcceptButton = false;
             MainTemplatePanel.IsBorderAffectedByTheme = true;
             MainTemplatePanel.IsCancelButton = false;

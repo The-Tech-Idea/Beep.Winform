@@ -50,12 +50,13 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
 		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.69" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.70" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Beep.Containers\Beep.Containers.Models\TheTechIdea.Beep.Container.Model.csproj" />
-	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
+	  <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common.Util\TheTechIdea.Beep.Desktop.Common.Util.csproj" />
+	  <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common\TheTechIdea.Beep.Desktop.Common.csproj" />
 	  <ProjectReference Include="..\TheTechIdea.Beep.Winform.Controls\TheTechIdea.Beep.Winform.Controls.csproj" />
 	</ItemGroup>
 

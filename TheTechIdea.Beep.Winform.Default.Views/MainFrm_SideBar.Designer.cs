@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class MainFrm_SideBar
     {
@@ -72,7 +75,7 @@
             beepAppBar1.CanBePressed = true;
             beepAppBar1.Category = Utilities.DbFieldCategory.String;
             beepAppBar1.ComponentName = "BeepControl";
-            beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<Controls.Models.SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
+          //  beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
             beepAppBar1.DataSourceProperty = null;
             beepAppBar1.DisabledBackColor = Color.White;
             beepAppBar1.DisabledBorderColor = Color.Empty;
@@ -105,7 +108,7 @@
             beepAppBar1.HoverForeColor = Color.Black;
             beepAppBar1.Id = -1;
             beepAppBar1.InactiveBorderColor = Color.Gray;
-            beepAppBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepAppBar1.Info");
+        //    beepAppBar1.Info = (SimpleItem)resources.GetObject("beepAppBar1.Info");
             beepAppBar1.IsAcceptButton = false;
             beepAppBar1.IsBorderAffectedByTheme = false;
             beepAppBar1.IsCancelButton = false;
@@ -259,7 +262,7 @@
             beepSideMenu1.HoverForeColor = Color.Black;
             beepSideMenu1.Id = -1;
             beepSideMenu1.InactiveBorderColor = Color.Gray;
-            beepSideMenu1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepSideMenu1.Info");
+       //     beepSideMenu1.Info = (SimpleItem)resources.GetObject("beepSideMenu1.Info");
             beepSideMenu1.IsAcceptButton = false;
             beepSideMenu1.IsBorderAffectedByTheme = false;
             beepSideMenu1.IsCancelButton = false;
@@ -396,7 +399,7 @@
             beepDisplayContainer1.HoverForeColor = Color.Black;
             beepDisplayContainer1.Id = -1;
             beepDisplayContainer1.InactiveBorderColor = Color.Gray;
-            beepDisplayContainer1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
+          //  beepDisplayContainer1.Info = (SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
             beepDisplayContainer1.IsAcceptButton = false;
             beepDisplayContainer1.IsBorderAffectedByTheme = true;
             beepDisplayContainer1.IsCancelButton = false;
@@ -531,7 +534,7 @@
             beepMenuBar1.Id = -1;
             beepMenuBar1.ImageSize = 20;
             beepMenuBar1.InactiveBorderColor = Color.Gray;
-            beepMenuBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepMenuBar1.Info");
+         //   beepMenuBar1.Info = (SimpleItem)resources.GetObject("beepMenuBar1.Info");
             beepMenuBar1.IsAcceptButton = false;
             beepMenuBar1.IsBorderAffectedByTheme = false;
             beepMenuBar1.IsCancelButton = false;

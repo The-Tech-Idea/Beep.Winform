@@ -17,7 +17,7 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.Container.Services;
 
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;

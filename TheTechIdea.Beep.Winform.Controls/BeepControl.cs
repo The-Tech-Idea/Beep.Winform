@@ -3,6 +3,7 @@ using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.IO;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -10,7 +11,6 @@ using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.ToolTip;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
 using Timer = System.Windows.Forms.Timer;
 
@@ -354,8 +354,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         private SimpleItem _info = new SimpleItem();
-        [Browsable(true)]
+      
         [Category("Appearance")]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public SimpleItem Info
         {
             get => _info;

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

@@ -6,7 +6,7 @@ using System.Drawing.Text;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Vis.Modules;
 using System.Diagnostics;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 

@@ -1,4 +1,5 @@
-﻿using TheTechIdea.Beep.Winform.Controls.Models;
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -329,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.HoverForeColor = Color.FromArgb(40, 40, 40);
             beepSimpleGrid1.Id = -1;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
-            beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
+        //    beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;
             beepSimpleGrid1.IsCancelButton = false;
@@ -505,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.HoverForeColor = Color.Black;
             beepPanel1.Id = -1;
             beepPanel1.InactiveBorderColor = Color.Gray;
-            beepPanel1.Info = (SimpleItem)resources.GetObject("beepPanel1.Info");
+      //      beepPanel1.Info = (SimpleItem)resources.GetObject("beepPanel1.Info");
             beepPanel1.IsAcceptButton = false;
             beepPanel1.IsBorderAffectedByTheme = true;
             beepPanel1.IsCancelButton = false;
@@ -615,7 +616,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.BorderThickness = 1;
             beepButton1.BottomoffsetForDrawingRect = 0;
             beepButton1.BoundProperty = null;
-            beepButton1.ButtonType = Winform.Controls.ButtonType.Normal;
+            beepButton1.ButtonType = ButtonType.Normal;
             beepButton1.CanBeFocused = true;
             beepButton1.CanBeHovered = true;
             beepButton1.CanBePressed = true;
@@ -659,10 +660,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Image = null;
             beepButton1.ImageAlign = ContentAlignment.MiddleCenter;
             beepButton1.ImageClicked = null;
-            beepButton1.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            beepButton1.ImageEmbededin = ImageEmbededin.Button;
             beepButton1.ImagePath = "databaseadd.svg";
             beepButton1.InactiveBorderColor = Color.Gray;
-            beepButton1.Info = (SimpleItem)resources.GetObject("beepButton1.Info");
+      //      beepButton1.Info = (SimpleItem)resources.GetObject("beepButton1.Info");
             beepButton1.IsAcceptButton = false;
             beepButton1.IsBorderAffectedByTheme = true;
             beepButton1.IsCancelButton = false;
@@ -731,7 +732,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Size = new Size(24, 24);
             beepButton1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
-            beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
+         //   beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
             beepButton1.TabIndex = 3;
             beepButton1.Tag = beepPanel1;
@@ -821,7 +822,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel2.ImagePath = null;
             beepLabel2.InactiveBorderColor = Color.Gray;
-            beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
+     //       beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
             beepLabel2.IsCancelButton = false;
@@ -971,7 +972,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.HoverForeColor = Color.FromArgb(33, 33, 33);
             EntitiesbeepComboBox.Id = -1;
             EntitiesbeepComboBox.InactiveBorderColor = Color.Gray;
-            EntitiesbeepComboBox.Info = (SimpleItem)resources.GetObject("EntitiesbeepComboBox.Info");
+      //      EntitiesbeepComboBox.Info = (SimpleItem)resources.GetObject("EntitiesbeepComboBox.Info");
             EntitiesbeepComboBox.IsAcceptButton = false;
             EntitiesbeepComboBox.IsBorderAffectedByTheme = true;
             EntitiesbeepComboBox.IsCancelButton = false;
@@ -1119,7 +1120,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = null;
             beepLabel1.InactiveBorderColor = Color.Gray;
-            beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
+      //      beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -1269,7 +1270,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.HoverForeColor = Color.FromArgb(33, 33, 33);
             DatasourcebeepComboBox.Id = -1;
             DatasourcebeepComboBox.InactiveBorderColor = Color.Gray;
-            DatasourcebeepComboBox.Info = (SimpleItem)resources.GetObject("DatasourcebeepComboBox.Info");
+      //      DatasourcebeepComboBox.Info = (SimpleItem)resources.GetObject("DatasourcebeepComboBox.Info");
             DatasourcebeepComboBox.IsAcceptButton = false;
             DatasourcebeepComboBox.IsBorderAffectedByTheme = true;
             DatasourcebeepComboBox.IsCancelButton = false;

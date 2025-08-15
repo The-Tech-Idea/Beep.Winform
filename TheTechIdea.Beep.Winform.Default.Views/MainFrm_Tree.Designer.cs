@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class MainFrm_Tree
     {
@@ -71,7 +74,7 @@
             beepAppBar1.CanBePressed = true;
             beepAppBar1.Category = Utilities.DbFieldCategory.String;
             beepAppBar1.ComponentName = "BeepControl";
-            beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<Controls.Models.SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
+           // beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
             beepAppBar1.DataSourceProperty = null;
             beepAppBar1.DisabledBackColor = Color.White;
             beepAppBar1.DisabledBorderColor = Color.Empty;
@@ -103,7 +106,7 @@
             beepAppBar1.HoverForeColor = Color.Black;
             beepAppBar1.Id = -1;
             beepAppBar1.InactiveBorderColor = Color.Gray;
-            beepAppBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepAppBar1.Info");
+         //   beepAppBar1.Info = (SimpleItem)resources.GetObject("beepAppBar1.Info");
             beepAppBar1.IsAcceptButton = false;
             beepAppBar1.IsBorderAffectedByTheme = false;
             beepAppBar1.IsCancelButton = false;
@@ -222,7 +225,7 @@
             beepAppTree1.CategoryIcon = "Category.svg";
             beepAppTree1.ComponentName = "BeepControl";
             beepAppTree1.CurrentBranch = null;
-            beepAppTree1.CurrentMenutems = (System.ComponentModel.BindingList<Controls.Models.SimpleItem>)resources.GetObject("beepAppTree1.CurrentMenutems");
+         //   beepAppTree1.CurrentMenutems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepAppTree1.CurrentMenutems");
             beepAppTree1.DataSourceProperty = null;
             beepAppTree1.DisabledBackColor = Color.White;
             beepAppTree1.DisabledBorderColor = Color.Empty;
@@ -259,7 +262,7 @@
             beepAppTree1.HoverForeColor = Color.Black;
             beepAppTree1.Id = -1;
             beepAppTree1.InactiveBorderColor = Color.Gray;
-            beepAppTree1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepAppTree1.Info");
+          //  beepAppTree1.Info = (SimpleItem)resources.GetObject("beepAppTree1.Info");
             beepAppTree1.IsAcceptButton = false;
             beepAppTree1.IsBorderAffectedByTheme = true;
             beepAppTree1.IsCancelButton = false;
@@ -290,7 +293,7 @@
             beepAppTree1.Location = new Point(1, 76);
             beepAppTree1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepAppTree1.Name = "beepAppTree1";
-            beepAppTree1.Nodes = (IList<Controls.Models.SimpleItem>)resources.GetObject("beepAppTree1.Nodes");
+         //   beepAppTree1.Nodes = (IList<SimpleItem>)resources.GetObject("beepAppTree1.Nodes");
             beepAppTree1.ObjectType = "Beep";
             beepAppTree1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepAppTree1.ParentBackColor = Color.Empty;
@@ -408,7 +411,7 @@
             beepDisplayContainer1.HoverForeColor = Color.Black;
             beepDisplayContainer1.Id = -1;
             beepDisplayContainer1.InactiveBorderColor = Color.Gray;
-            beepDisplayContainer1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
+          //  beepDisplayContainer1.Info = (SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
             beepDisplayContainer1.IsAcceptButton = false;
             beepDisplayContainer1.IsBorderAffectedByTheme = true;
             beepDisplayContainer1.IsCancelButton = false;
@@ -544,7 +547,7 @@
             beepMenuAppBar1.Id = -1;
             beepMenuAppBar1.ImageSize = 20;
             beepMenuAppBar1.InactiveBorderColor = Color.Gray;
-            beepMenuAppBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepMenuAppBar1.Info");
+          //  beepMenuAppBar1.Info = (SimpleItem)resources.GetObject("beepMenuAppBar1.Info");
             beepMenuAppBar1.IsAcceptButton = false;
             beepMenuAppBar1.IsBorderAffectedByTheme = false;
             beepMenuAppBar1.IsCancelButton = false;

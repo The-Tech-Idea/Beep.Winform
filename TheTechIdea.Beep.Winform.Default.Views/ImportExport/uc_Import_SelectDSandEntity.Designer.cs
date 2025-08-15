@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
     partial class uc_Import_SelectDSandEntity
     {
@@ -86,7 +89,7 @@
             SourcebeepComboBox.HoverForeColor = Color.Black;
             SourcebeepComboBox.Id = -1;
             SourcebeepComboBox.InactiveBorderColor = Color.Gray;
-            SourcebeepComboBox.Info = (Controls.Models.SimpleItem)resources.GetObject("SourcebeepComboBox.Info");
+     //       SourcebeepComboBox.Info = (SimpleItem)resources.GetObject("SourcebeepComboBox.Info");
             SourcebeepComboBox.IsAcceptButton = false;
             SourcebeepComboBox.IsBorderAffectedByTheme = true;
             SourcebeepComboBox.IsCancelButton = false;
@@ -206,7 +209,7 @@
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = null;
             beepLabel1.InactiveBorderColor = Color.Gray;
-            beepLabel1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel1.Info");
+   //         beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -326,7 +329,7 @@
             beepComboBox1.HoverForeColor = Color.Black;
             beepComboBox1.Id = -1;
             beepComboBox1.InactiveBorderColor = Color.Gray;
-            beepComboBox1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepComboBox1.Info");
+    //        beepComboBox1.Info = (SimpleItem)resources.GetObject("beepComboBox1.Info");
             beepComboBox1.IsAcceptButton = false;
             beepComboBox1.IsBorderAffectedByTheme = true;
             beepComboBox1.IsCancelButton = false;
@@ -446,7 +449,7 @@
             beepLabel2.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel2.ImagePath = null;
             beepLabel2.InactiveBorderColor = Color.Gray;
-            beepLabel2.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel2.Info");
+  //          beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
             beepLabel2.IsCancelButton = false;
@@ -572,10 +575,10 @@
             AddSourcebeepButton.Image = null;
             AddSourcebeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             AddSourcebeepButton.ImageClicked = null;
-            AddSourcebeepButton.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            AddSourcebeepButton.ImageEmbededin = ImageEmbededin.Button;
             AddSourcebeepButton.ImagePath = null;
             AddSourcebeepButton.InactiveBorderColor = Color.Gray;
-            AddSourcebeepButton.Info = (Controls.Models.SimpleItem)resources.GetObject("AddSourcebeepButton.Info");
+    //        AddSourcebeepButton.Info = (SimpleItem)resources.GetObject("AddSourcebeepButton.Info");
             AddSourcebeepButton.IsAcceptButton = false;
             AddSourcebeepButton.IsBorderAffectedByTheme = true;
             AddSourcebeepButton.IsCancelButton = false;
@@ -639,7 +642,7 @@
             AddSourcebeepButton.Size = new Size(30, 23);
             AddSourcebeepButton.SlideFrom = Vis.Modules.SlideDirection.Left;
             AddSourcebeepButton.SplashColor = Color.Gray;
-            AddSourcebeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("AddSourcebeepButton.StandardImages");
+          //  AddSourcebeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("AddSourcebeepButton.StandardImages");
             AddSourcebeepButton.StaticNotMoving = false;
             AddSourcebeepButton.TabIndex = 3;
             AddSourcebeepButton.TempBackColor = Color.Empty;
@@ -705,7 +708,7 @@
             beepCheckBoxBool1.Id = -1;
             beepCheckBoxBool1.ImagePath = null;
             beepCheckBoxBool1.InactiveBorderColor = Color.Gray;
-            beepCheckBoxBool1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepCheckBoxBool1.Info");
+    //        beepCheckBoxBool1.Info = (SimpleItem)resources.GetObject("beepCheckBoxBool1.Info");
             beepCheckBoxBool1.IsAcceptButton = false;
             beepCheckBoxBool1.IsBorderAffectedByTheme = true;
             beepCheckBoxBool1.IsCancelButton = false;

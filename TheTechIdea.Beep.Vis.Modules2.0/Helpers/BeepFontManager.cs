@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Vis.Modules.Managers
     /// <summary>
     /// Static manager class for application fonts and typography
     /// </summary>
-    public static class BeepFontManager
+    static class BeepFontManager
     {
      
 

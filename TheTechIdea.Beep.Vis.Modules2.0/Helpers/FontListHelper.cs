@@ -13,7 +13,7 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Vis.Modules.Managers
 {
-    public static class FontListHelper
+      static class FontListHelper
     {
         // Static references
       

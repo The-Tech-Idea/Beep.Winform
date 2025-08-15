@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_CreateLocalDB
     {
@@ -108,7 +111,7 @@
             beepPanel1.HoverForeColor = Color.Black;
             beepPanel1.Id = -1;
             beepPanel1.InactiveBorderColor = Color.Gray;
-            beepPanel1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepPanel1.Info");
+        //    beepPanel1.Info = (SimpleItem)resources.GetObject("beepPanel1.Info");
             beepPanel1.IsAcceptButton = false;
             beepPanel1.IsBorderAffectedByTheme = true;
             beepPanel1.IsCancelButton = false;
@@ -237,7 +240,7 @@
             beepLabel3.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel3.ImagePath = null;
             beepLabel3.InactiveBorderColor = Color.Gray;
-            beepLabel3.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel3.Info");
+         //   beepLabel3.Info = (SimpleItem)resources.GetObject("beepLabel3.Info");
             beepLabel3.IsAcceptButton = false;
             beepLabel3.IsBorderAffectedByTheme = true;
             beepLabel3.IsCancelButton = false;
@@ -374,7 +377,7 @@
             databaseTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             databaseTextBox.ImagePath = null;
             databaseTextBox.InactiveBorderColor = Color.Gray;
-            databaseTextBox.Info = (Controls.Models.SimpleItem)resources.GetObject("databaseTextBox.Info");
+          //  databaseTextBox.Info = (SimpleItem)resources.GetObject("databaseTextBox.Info");
             databaseTextBox.IsAcceptButton = false;
             databaseTextBox.IsBorderAffectedByTheme = false;
             databaseTextBox.IsCancelButton = false;
@@ -512,10 +515,10 @@
             SavebeepButton.Image = null;
             SavebeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             SavebeepButton.ImageClicked = null;
-            SavebeepButton.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            SavebeepButton.ImageEmbededin = ImageEmbededin.Button;
             SavebeepButton.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.createlocaldbbutton.svg";
             SavebeepButton.InactiveBorderColor = Color.Gray;
-            SavebeepButton.Info = (Controls.Models.SimpleItem)resources.GetObject("SavebeepButton.Info");
+          //  SavebeepButton.Info = (SimpleItem)resources.GetObject("SavebeepButton.Info");
             SavebeepButton.IsAcceptButton = false;
             SavebeepButton.IsBorderAffectedByTheme = true;
             SavebeepButton.IsCancelButton = false;
@@ -579,7 +582,7 @@
             SavebeepButton.Size = new Size(77, 36);
             SavebeepButton.SlideFrom = Vis.Modules.SlideDirection.Left;
             SavebeepButton.SplashColor = Color.Gray;
-            SavebeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("SavebeepButton.StandardImages");
+           // SavebeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("SavebeepButton.StandardImages");
             SavebeepButton.StaticNotMoving = false;
             SavebeepButton.TabIndex = 11;
             SavebeepButton.Tag = beepPanel1;
@@ -650,10 +653,10 @@
             CancelbeepButton.Image = null;
             CancelbeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             CancelbeepButton.ImageClicked = null;
-            CancelbeepButton.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            CancelbeepButton.ImageEmbededin =ImageEmbededin.Button;
             CancelbeepButton.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.cancel.svg";
             CancelbeepButton.InactiveBorderColor = Color.Gray;
-            CancelbeepButton.Info = (Controls.Models.SimpleItem)resources.GetObject("CancelbeepButton.Info");
+       //     CancelbeepButton.Info = (SimpleItem)resources.GetObject("CancelbeepButton.Info");
             CancelbeepButton.IsAcceptButton = false;
             CancelbeepButton.IsBorderAffectedByTheme = true;
             CancelbeepButton.IsCancelButton = false;
@@ -717,7 +720,7 @@
             CancelbeepButton.Size = new Size(77, 36);
             CancelbeepButton.SlideFrom = Vis.Modules.SlideDirection.Left;
             CancelbeepButton.SplashColor = Color.Gray;
-            CancelbeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("CancelbeepButton.StandardImages");
+        //    CancelbeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("CancelbeepButton.StandardImages");
             CancelbeepButton.StaticNotMoving = false;
             CancelbeepButton.TabIndex = 10;
             CancelbeepButton.Tag = beepPanel1;
@@ -788,7 +791,7 @@
             beepLabel5.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel5.ImagePath = null;
             beepLabel5.InactiveBorderColor = Color.Gray;
-            beepLabel5.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel5.Info");
+       //     beepLabel5.Info = (SimpleItem)resources.GetObject("beepLabel5.Info");
             beepLabel5.IsAcceptButton = false;
             beepLabel5.IsBorderAffectedByTheme = true;
             beepLabel5.IsCancelButton = false;
@@ -925,7 +928,7 @@
             PasswordbeepTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             PasswordbeepTextBox.ImagePath = null;
             PasswordbeepTextBox.InactiveBorderColor = Color.Gray;
-            PasswordbeepTextBox.Info = (Controls.Models.SimpleItem)resources.GetObject("PasswordbeepTextBox.Info");
+      //      PasswordbeepTextBox.Info = (SimpleItem)resources.GetObject("PasswordbeepTextBox.Info");
             PasswordbeepTextBox.IsAcceptButton = false;
             PasswordbeepTextBox.IsBorderAffectedByTheme = false;
             PasswordbeepTextBox.IsCancelButton = false;
@@ -1069,7 +1072,7 @@
             OtherFolderbeepTextBox.ImageAlign = ContentAlignment.MiddleLeft;
             OtherFolderbeepTextBox.ImagePath = null;
             OtherFolderbeepTextBox.InactiveBorderColor = Color.Gray;
-            OtherFolderbeepTextBox.Info = (Controls.Models.SimpleItem)resources.GetObject("OtherFolderbeepTextBox.Info");
+       //     OtherFolderbeepTextBox.Info = (SimpleItem)resources.GetObject("OtherFolderbeepTextBox.Info");
             OtherFolderbeepTextBox.IsAcceptButton = false;
             OtherFolderbeepTextBox.IsBorderAffectedByTheme = false;
             OtherFolderbeepTextBox.IsCancelButton = false;
@@ -1207,10 +1210,10 @@
             beepButton1.Image = null;
             beepButton1.ImageAlign = ContentAlignment.MiddleLeft;
             beepButton1.ImageClicked = null;
-            beepButton1.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            beepButton1.ImageEmbededin = ImageEmbededin.Button;
             beepButton1.ImagePath = null;
             beepButton1.InactiveBorderColor = Color.Gray;
-            beepButton1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepButton1.Info");
+      //      beepButton1.Info = (SimpleItem)resources.GetObject("beepButton1.Info");
             beepButton1.IsAcceptButton = false;
             beepButton1.IsBorderAffectedByTheme = true;
             beepButton1.IsCancelButton = false;
@@ -1274,7 +1277,7 @@
             beepButton1.Size = new Size(23, 23);
             beepButton1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
-            beepButton1.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton1.StandardImages");
+         //   beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
             beepButton1.TabIndex = 6;
             beepButton1.Tag = beepPanel1;
@@ -1346,7 +1349,7 @@
             beepLabel2.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel2.ImagePath = null;
             beepLabel2.InactiveBorderColor = Color.Gray;
-            beepLabel2.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel2.Info");
+     //       beepLabel2.Info = (SimpleItem)resources.GetObject("beepLabel2.Info");
             beepLabel2.IsAcceptButton = false;
             beepLabel2.IsBorderAffectedByTheme = true;
             beepLabel2.IsCancelButton = false;
@@ -1477,7 +1480,7 @@
             beepLabel1.ImageAlign = ContentAlignment.MiddleLeft;
             beepLabel1.ImagePath = null;
             beepLabel1.InactiveBorderColor = Color.Gray;
-            beepLabel1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLabel1.Info");
+     //       beepLabel1.Info = (SimpleItem)resources.GetObject("beepLabel1.Info");
             beepLabel1.IsAcceptButton = false;
             beepLabel1.IsBorderAffectedByTheme = true;
             beepLabel1.IsCancelButton = false;
@@ -1602,7 +1605,7 @@
             SystemFolderbeepComboBox.HoverForeColor = Color.Black;
             SystemFolderbeepComboBox.Id = -1;
             SystemFolderbeepComboBox.InactiveBorderColor = Color.Gray;
-            SystemFolderbeepComboBox.Info = (Controls.Models.SimpleItem)resources.GetObject("SystemFolderbeepComboBox.Info");
+      //      SystemFolderbeepComboBox.Info = (SimpleItem)resources.GetObject("SystemFolderbeepComboBox.Info");
             SystemFolderbeepComboBox.IsAcceptButton = false;
             SystemFolderbeepComboBox.IsBorderAffectedByTheme = true;
             SystemFolderbeepComboBox.IsCancelButton = false;
@@ -1719,7 +1722,7 @@
             LocalDbTypebeepComboBox.HoverForeColor = Color.Black;
             LocalDbTypebeepComboBox.Id = -1;
             LocalDbTypebeepComboBox.InactiveBorderColor = Color.Gray;
-            LocalDbTypebeepComboBox.Info = (Controls.Models.SimpleItem)resources.GetObject("LocalDbTypebeepComboBox.Info");
+      //      LocalDbTypebeepComboBox.Info = (SimpleItem)resources.GetObject("LocalDbTypebeepComboBox.Info");
             LocalDbTypebeepComboBox.IsAcceptButton = false;
             LocalDbTypebeepComboBox.IsBorderAffectedByTheme = true;
             LocalDbTypebeepComboBox.IsCancelButton = false;

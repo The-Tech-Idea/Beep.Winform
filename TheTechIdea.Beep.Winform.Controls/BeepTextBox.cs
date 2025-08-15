@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 

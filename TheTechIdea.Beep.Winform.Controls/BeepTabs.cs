@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

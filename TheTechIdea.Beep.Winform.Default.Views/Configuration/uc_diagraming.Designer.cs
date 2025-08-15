@@ -1,5 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -132,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.ImageEmbededin = ImageEmbededin.Button;
             beepImage1.ImagePath = "H:\\dev\\iconPacks\\DataSources_SVG_icons\\check.svg";
             beepImage1.InactiveBorderColor = Color.Gray;
-            beepImage1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepImage1.Info");
+      //      beepImage1.Info = (SimpleItem)resources.GetObject("beepImage1.Info");
             beepImage1.IsAcceptButton = false;
             beepImage1.IsBorderAffectedByTheme = true;
             beepImage1.IsBouncing = false;
@@ -168,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepImage1.Location = new Point(292, 457);
             beepImage1.ManualRotationAngle = 0F;
             beepImage1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepImage1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepImage1.ModernGradientType = ModernGradientType.Subtle;
             beepImage1.Name = "beepImage1";
             beepImage1.Opacity = 1F;
             beepImage1.OverrideFontSize = TypeStyleFontSize.None;
@@ -294,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.Id = -1;
             beepLightTextBox1.ImagePath = "dropdown_arrow.svg";
             beepLightTextBox1.InactiveBorderColor = Color.DodgerBlue;
-            beepLightTextBox1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepLightTextBox1.Info");
+      //      beepLightTextBox1.Info = (SimpleItem)resources.GetObject("beepLightTextBox1.Info");
             beepLightTextBox1.IsAcceptButton = false;
             beepLightTextBox1.IsBorderAffectedByTheme = false;
             beepLightTextBox1.IsCancelButton = false;
@@ -327,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLightTextBox1.MaxDropdownHeight = 200;
             beepLightTextBox1.MaxDropdownWidth = 0;
             beepLightTextBox1.MaxImageSize = new Size(16, 16);
-            beepLightTextBox1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepLightTextBox1.ModernGradientType =ModernGradientType.Subtle;
             beepLightTextBox1.Multiline = false;
             beepLightTextBox1.Name = "beepLightTextBox1";
             beepLightTextBox1.OnlyCharacters = false;
@@ -457,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.HoverForeColor = Color.FromArgb(33, 33, 33);
             beepComboBox1.Id = -1;
             beepComboBox1.InactiveBorderColor = Color.Gray;
-            beepComboBox1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepComboBox1.Info");
+     //       beepComboBox1.Info = (SimpleItem)resources.GetObject("beepComboBox1.Info");
             beepComboBox1.IsAcceptButton = false;
             beepComboBox1.IsBorderAffectedByTheme = true;
             beepComboBox1.IsCancelButton = false;
@@ -487,7 +488,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.LinkedProperty = null;
             beepComboBox1.Location = new Point(147, 255);
             beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepComboBox1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepComboBox1.ModernGradientType =ModernGradientType.Subtle;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = TypeStyleFontSize.None;
             beepComboBox1.ParentBackColor = Color.Empty;
@@ -600,7 +601,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.HoverStarColor = Color.Orange;
             beepStarRating1.Id = -1;
             beepStarRating1.InactiveBorderColor = Color.Gray;
-            beepStarRating1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepStarRating1.Info");
+        //    beepStarRating1.Info = (SimpleItem)resources.GetObject("beepStarRating1.Info");
             beepStarRating1.IsAcceptButton = false;
             beepStarRating1.IsBorderAffectedByTheme = true;
             beepStarRating1.IsCancelButton = false;
@@ -632,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepStarRating1.Location = new Point(45, 313);
             beepStarRating1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepStarRating1.MinimumSize = new Size(120, 30);
-            beepStarRating1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepStarRating1.ModernGradientType =ModernGradientType.Subtle;
             beepStarRating1.Name = "beepStarRating1";
             beepStarRating1.OverrideFontSize = TypeStyleFontSize.None;
             beepStarRating1.ParentBackColor = Color.Empty;
@@ -749,7 +750,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.HoverForeColor = Color.FromArgb(33, 33, 33);
             beepComboBox2.Id = -1;
             beepComboBox2.InactiveBorderColor = Color.Gray;
-            beepComboBox2.Info = (Controls.Models.SimpleItem)resources.GetObject("beepComboBox2.Info");
+      //      beepComboBox2.Info = (SimpleItem)resources.GetObject("beepComboBox2.Info");
             beepComboBox2.IsAcceptButton = false;
             beepComboBox2.IsBorderAffectedByTheme = true;
             beepComboBox2.IsCancelButton = false;
@@ -779,7 +780,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.LinkedProperty = null;
             beepComboBox2.Location = new Point(77, 457);
             beepComboBox2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepComboBox2.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepComboBox2.ModernGradientType =ModernGradientType.Subtle;
             beepComboBox2.Name = "beepComboBox2";
             beepComboBox2.OverrideFontSize = TypeStyleFontSize.None;
             beepComboBox2.ParentBackColor = Color.Empty;
@@ -890,7 +891,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDatePicker1.HoverForeColor = Color.Black;
             beepDatePicker1.Id = -1;
             beepDatePicker1.InactiveBorderColor = Color.Gray;
-            beepDatePicker1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepDatePicker1.Info");
+      //      beepDatePicker1.Info = (SimpleItem)resources.GetObject("beepDatePicker1.Info");
             beepDatePicker1.IsAcceptButton = false;
             beepDatePicker1.IsBorderAffectedByTheme = true;
             beepDatePicker1.IsCancelButton = false;
@@ -919,7 +920,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDatePicker1.LinkedProperty = null;
             beepDatePicker1.Location = new Point(27, 375);
             beepDatePicker1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDatePicker1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepDatePicker1.ModernGradientType =ModernGradientType.Subtle;
             beepDatePicker1.Name = "beepDatePicker1";
             beepDatePicker1.OverrideFontSize = TypeStyleFontSize.None;
             beepDatePicker1.ParentBackColor = Color.Empty;
@@ -1038,7 +1039,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.ImageEmbededin = ImageEmbededin.Button;
             beepButton2.ImagePath = null;
             beepButton2.InactiveBorderColor = Color.Gray;
-            beepButton2.Info = (Controls.Models.SimpleItem)resources.GetObject("beepButton2.Info");
+     //       beepButton2.Info = (SimpleItem)resources.GetObject("beepButton2.Info");
             beepButton2.IsAcceptButton = false;
             beepButton2.IsBorderAffectedByTheme = true;
             beepButton2.IsCancelButton = false;
@@ -1073,7 +1074,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.Margin = new Padding(0);
             beepButton2.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepButton2.MaxImageSize = new Size(32, 32);
-            beepButton2.ModernGradientType = Winform.Controls.Models.ModernGradientType.Linear;
+            beepButton2.ModernGradientType =ModernGradientType.Linear;
             beepButton2.Name = "beepButton2";
             beepButton2.OverrideFontSize = TypeStyleFontSize.None;
             beepButton2.ParentBackColor = Color.Empty;
@@ -1107,7 +1108,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.Size = new Size(267, 36);
             beepButton2.SlideFrom = SlideDirection.Left;
             beepButton2.SplashColor = Color.Gray;
-            beepButton2.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton2.StandardImages");
+         //   beepButton2.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton2.StandardImages");
             beepButton2.StaticNotMoving = false;
             beepButton2.TabIndex = 18;
             beepButton2.Tag = MainTemplatePanel;
@@ -1201,7 +1202,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ImageEmbededin = ImageEmbededin.Button;
             beepButton1.ImagePath = null;
             beepButton1.InactiveBorderColor = Color.Gray;
-            beepButton1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepButton1.Info");
+       //     beepButton1.Info = (SimpleItem)resources.GetObject("beepButton1.Info");
             beepButton1.IsAcceptButton = false;
             beepButton1.IsBorderAffectedByTheme = true;
             beepButton1.IsCancelButton = false;
@@ -1236,7 +1237,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepButton1.MaxImageSize = new Size(32, 32);
-            beepButton1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Linear;
+            beepButton1.ModernGradientType =ModernGradientType.Linear;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
             beepButton1.ParentBackColor = Color.Empty;
@@ -1270,7 +1271,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Size = new Size(211, 36);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
-            beepButton1.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton1.StandardImages");
+         //   beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
             beepButton1.TabIndex = 19;
             beepButton1.Tag = MainTemplatePanel;
@@ -1366,7 +1367,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.ImageAlign = ContentAlignment.MiddleLeft;
             beepTextBox1.ImagePath = null;
             beepTextBox1.InactiveBorderColor = Color.Gray;
-            beepTextBox1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepTextBox1.Info");
+    //        beepTextBox1.Info = (SimpleItem)resources.GetObject("beepTextBox1.Info");
             beepTextBox1.IsAcceptButton = false;
             beepTextBox1.IsBorderAffectedByTheme = false;
             beepTextBox1.IsCancelButton = false;
@@ -1397,7 +1398,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.MaskFormat = TextBoxMaskFormat.None;
             beepTextBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepTextBox1.MaxImageSize = new Size(16, 16);
-            beepTextBox1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepTextBox1.ModernGradientType =ModernGradientType.Subtle;
             beepTextBox1.Modified = false;
             beepTextBox1.Multiline = false;
             beepTextBox1.Name = "beepTextBox1";
@@ -1537,7 +1538,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleTextBox1.ImageAlign = ContentAlignment.MiddleLeft;
             beepSimpleTextBox1.ImagePath = "";
             beepSimpleTextBox1.InactiveBorderColor = Color.Gray;
-            beepSimpleTextBox1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepSimpleTextBox1.Info");
+     //       beepSimpleTextBox1.Info = (SimpleItem)resources.GetObject("beepSimpleTextBox1.Info");
             beepSimpleTextBox1.IsAcceptButton = false;
             beepSimpleTextBox1.IsApplyingMask = false;
             beepSimpleTextBox1.IsBorderAffectedByTheme = false;
@@ -1572,7 +1573,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleTextBox1.Location = new Point(458, 114);
             beepSimpleTextBox1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepSimpleTextBox1.MaxImageSize = new Size(32, 32);
-            beepSimpleTextBox1.ModernGradientType = Winform.Controls.Models.ModernGradientType.Subtle;
+            beepSimpleTextBox1.ModernGradientType =ModernGradientType.Subtle;
             beepSimpleTextBox1.Multiline = true;
             beepSimpleTextBox1.Name = "beepSimpleTextBox1";
             beepSimpleTextBox1.OnlyCharacters = false;

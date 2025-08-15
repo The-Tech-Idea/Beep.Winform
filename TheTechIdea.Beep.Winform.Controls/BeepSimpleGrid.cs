@@ -12,7 +12,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using Timer = System.Windows.Forms.Timer;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using System.Drawing.Printing;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 

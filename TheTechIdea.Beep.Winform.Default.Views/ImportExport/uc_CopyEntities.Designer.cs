@@ -1,4 +1,5 @@
-﻿using TheTechIdea.Beep.Winform.Controls.Models;
+﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
@@ -119,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepSimpleGrid1.HoverForeColor = Color.FromArgb(33, 37, 41);
             beepSimpleGrid1.Id = -1;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
-            beepSimpleGrid1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
+         //   beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;
             beepSimpleGrid1.IsCancelButton = false;
@@ -257,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             progressBar1.HoverForeColor = Color.Black;
             progressBar1.Id = -1;
             progressBar1.InactiveBorderColor = Color.Gray;
-            progressBar1.Info = (Controls.Models.SimpleItem)resources.GetObject("progressBar1.Info");
+          //  progressBar1.Info = (SimpleItem)resources.GetObject("progressBar1.Info");
             progressBar1.IsAcceptButton = false;
             progressBar1.IsBorderAffectedByTheme = true;
             progressBar1.IsCancelButton = false;
@@ -388,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             LogtextBox.ImageAlign = ContentAlignment.MiddleLeft;
             LogtextBox.ImagePath = null;
             LogtextBox.InactiveBorderColor = Color.Gray;
-            LogtextBox.Info = (Controls.Models.SimpleItem)resources.GetObject("LogtextBox.Info");
+         //   LogtextBox.Info = (SimpleItem)resources.GetObject("LogtextBox.Info");
             LogtextBox.IsAcceptButton = false;
             LogtextBox.IsBorderAffectedByTheme = false;
             LogtextBox.IsCancelButton = false;
@@ -523,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepPanel1.HoverForeColor = Color.Black;
             beepPanel1.Id = -1;
             beepPanel1.InactiveBorderColor = Color.Gray;
-            beepPanel1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepPanel1.Info");
+         //   beepPanel1.Info = (SimpleItem)resources.GetObject("beepPanel1.Info");
             beepPanel1.IsAcceptButton = false;
             beepPanel1.IsBorderAffectedByTheme = true;
             beepPanel1.IsCancelButton = false;
@@ -643,7 +644,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepNumericUpDown1.Id = -1;
             beepNumericUpDown1.InactiveBorderColor = Color.Gray;
             beepNumericUpDown1.IncrementValue = new decimal(new int[] { 1, 0, 0, 0 });
-            beepNumericUpDown1.Info = (Controls.Models.SimpleItem)resources.GetObject("beepNumericUpDown1.Info");
+          //  beepNumericUpDown1.Info = (SimpleItem)resources.GetObject("beepNumericUpDown1.Info");
             beepNumericUpDown1.IsAcceptButton = false;
             beepNumericUpDown1.IsBorderAffectedByTheme = true;
             beepNumericUpDown1.IsCancelButton = false;
@@ -763,10 +764,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             RunScriptsbeepButton.Image = null;
             RunScriptsbeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             RunScriptsbeepButton.ImageClicked = null;
-            RunScriptsbeepButton.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            RunScriptsbeepButton.ImageEmbededin = ImageEmbededin.Button;
             RunScriptsbeepButton.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.databasesave.svg";
             RunScriptsbeepButton.InactiveBorderColor = Color.Gray;
-            RunScriptsbeepButton.Info = (Controls.Models.SimpleItem)resources.GetObject("RunScriptsbeepButton.Info");
+         //   RunScriptsbeepButton.Info = (SimpleItem)resources.GetObject("RunScriptsbeepButton.Info");
             RunScriptsbeepButton.IsAcceptButton = false;
             RunScriptsbeepButton.IsBorderAffectedByTheme = true;
             RunScriptsbeepButton.IsCancelButton = false;
@@ -830,7 +831,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             RunScriptsbeepButton.Size = new Size(77, 44);
             RunScriptsbeepButton.SlideFrom = Vis.Modules.SlideDirection.Left;
             RunScriptsbeepButton.SplashColor = Color.Gray;
-            RunScriptsbeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("RunScriptsbeepButton.StandardImages");
+       //     RunScriptsbeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("RunScriptsbeepButton.StandardImages");
             RunScriptsbeepButton.StaticNotMoving = false;
             RunScriptsbeepButton.TabIndex = 1;
             RunScriptsbeepButton.TempBackColor = Color.Empty;
@@ -900,10 +901,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             StopbeepButton.Image = null;
             StopbeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             StopbeepButton.ImageClicked = null;
-            StopbeepButton.ImageEmbededin = Winform.Controls.ImageEmbededin.Button;
+            StopbeepButton.ImageEmbededin = ImageEmbededin.Button;
             StopbeepButton.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.databasesave.svg";
             StopbeepButton.InactiveBorderColor = Color.Gray;
-            StopbeepButton.Info = (Controls.Models.SimpleItem)resources.GetObject("StopbeepButton.Info");
+          //  StopbeepButton.Info = (SimpleItem)resources.GetObject("StopbeepButton.Info");
             StopbeepButton.IsAcceptButton = false;
             StopbeepButton.IsBorderAffectedByTheme = true;
             StopbeepButton.IsCancelButton = false;
@@ -967,7 +968,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             StopbeepButton.Size = new Size(77, 44);
             StopbeepButton.SlideFrom = Vis.Modules.SlideDirection.Left;
             StopbeepButton.SplashColor = Color.Gray;
-            StopbeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("StopbeepButton.StandardImages");
+          //  StopbeepButton.StandardImages = (List<SimpleItem>)resources.GetObject("StopbeepButton.StandardImages");
             StopbeepButton.StaticNotMoving = false;
             StopbeepButton.TabIndex = 2;
             StopbeepButton.TempBackColor = Color.Empty;

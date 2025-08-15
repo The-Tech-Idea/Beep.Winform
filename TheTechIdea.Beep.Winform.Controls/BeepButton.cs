@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;
@@ -2203,14 +2203,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Draw Button From Html "
         #endregion "Draw Image and text"
     }
-    public enum ButtonType
-    {
-        Normal, AnimatedArrow,      // DrawButtonAndImage1 - HTML-style with rotating/scaling arrow animations
-        ExpandingIcon,      // DrawButtonAndImage2 - Purple button with expanding white icon container
-        SlidingArrow,       // DrawButtonAndImage3 - Lime green button with sliding arrow animation
-        SlidingBackground   // DrawButtonAndImage4
-
-
-    }
+  
 
 }

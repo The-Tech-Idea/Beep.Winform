@@ -7,7 +7,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// Static class providing easy access to all embedded SVG image paths in the Beep.Winform.Controls assembly.
     /// All paths are formatted as embedded resource names for use with Assembly.GetManifestResourceStream().
     /// </summary>
-    public static class BeepSvgPaths
+    public  static class BeepSvgPaths
     {
         private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.GFX.SVG";
 

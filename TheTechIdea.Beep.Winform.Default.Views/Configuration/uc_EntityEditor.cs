@@ -13,6 +13,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Logger;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.MVVM.ViewModels;
+using TheTechIdea.Beep.Vis.Modules;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration

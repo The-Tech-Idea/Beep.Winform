@@ -344,30 +344,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         }
         public void FindBeepSideMenu()
         {
-            if (_form != null)
-            {
-                foreach (Control control in _form.Controls)
-                {
-                    if (control is BeepSideMenu)
-                    {
+            if (_form == null) return;
 
-                        _beepSideMenu.Title = Title;
+            foreach (Control control in _form.Controls)
+            {
+                if (control is BeepSideMenu sideMenu)
+                {
+                    _beepSideMenu = sideMenu;
+                    if (BeepiForm != null)
                         _beepSideMenu.BeepForm = BeepiForm;
-                        _beepSideMenu.LogoImage = LogoImage;
-                        _beepSideMenu = control as BeepSideMenu;
-                        _beepSideMenu.BeepForm = BeepiForm;
-                        sidemenusetup();
-                    }
-                    if (control is BeepFunctionsPanel)
+
+                    _beepSideMenu.Title = Title;
+                    _beepSideMenu.LogoImage = LogoImage;
+                    sidemenusetup();
+                }
+                else if (control is BeepFunctionsPanel fnPanel)
+                {
+                    beepFunctionsPanel1 = fnPanel;
+                }
+                else if (control is BeepiForm beepi)
+                {
+                    BeepiForm = beepi;
+
+                    if (BeepAppBar != null)
                     {
-                        beepFunctionsPanel1 = control as BeepFunctionsPanel;
-                    }
-                    if (control is BeepiForm)
-                    {
-                        BeepiForm = control as BeepiForm;
                         BeepAppBar.LogoImage = LogoImage;
                         BeepAppBar.Title = Title;
                     }
+                }
+                else if (control is BeepAppBar appBar)
+                {
+                    _beepappbar = appBar;
+                    _beepappbar.Title = Title;
                 }
             }
         }
@@ -527,10 +535,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         // Event handler for when a control is added to the form or a container
         private void OnControlAdded(object sender, ControlEventArgs e)
         {
-            // // Console.WriteLine($"Control Added event 1 {e.Control.Name}");
-            ApplyThemeToControlAndChildren(e.Control); // Apply theme to the new control and its children
-                                                       //  // Console.WriteLine("Control Added event 2");
-                                                       // If the control is a container, recursively attach the ControlAdded event
+            ApplyThemeToControlAndChildren(e.Control);
+
             if (e.Control is ContainerControl containerControl)
             {
                 AttachControlAddedEvent(containerControl);
@@ -538,58 +544,69 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 ThemeFunctions.ApplyShadowToControl(containerControl, _showShadow);
                 ThemeFunctions.ApplyRoundedToControl(containerControl, _isrounded);
             }
+
             if (e.Control is BeepSideMenu beepSideMenu)
             {
                 _beepSideMenu = beepSideMenu;
-                BeepSideMenu.BeepForm = BeepiForm;
-                BeepAppBar.Title = Title;
-                BeepSideMenu.Title = Title;
+                if (BeepiForm != null)
+                    _beepSideMenu.BeepForm = BeepiForm;
+
+                if (BeepAppBar != null)
+                    BeepAppBar.Title = Title;
+
+                _beepSideMenu.Title = Title;
                 sidemenusetup();
             }
+
             if (e.Control is BeepAppBar beepappbar)
             {
                 _beepappbar = beepappbar;
-                BeepAppBar.Title = Title;
+                _beepappbar.Title = Title;
             }
+
             if (e.Control is BeepFunctionsPanel beepFunctionsPanel)
             {
                 beepFunctionsPanel1 = beepFunctionsPanel;
             }
+
             if (e.Control is BeepiForm beepiForm)
             {
                 _beepiForm = beepiForm;
-                BeepSideMenu.BeepForm = BeepiForm;
-                BeepAppBar.Title = Title;
-                BeepSideMenu.Title = Title;
+
+                if (BeepSideMenu != null)
+                    BeepSideMenu.BeepForm = BeepiForm;
+
+                if (BeepAppBar != null)
+                    BeepAppBar.Title = Title;
+
+                if (BeepSideMenu != null)
+                    BeepSideMenu.Title = Title;
             }
-            //Console.WriteLine("Control Added event 3");
         }
+
         private void _beepSideMenu_OnMenuCollapseExpand(bool obj)
         {
             if (BeepAppBar != null)
             {
                 BeepAppBar.Title = Title;
-                BeepSideMenu.Title = Title;
+                if (BeepSideMenu != null)
+                    BeepSideMenu.Title = Title;
                 BeepAppBar.ShowTitle = obj;
                 BeepAppBar.ShowLogo = false;
+                BeepAppBar.ResumeFormLayout();
             }
-            //BeepAppBar.ResumeDrawing();
-            //BeepAppBar.ResumeLayout();
-            BeepAppBar.ResumeFormLayout();
-            //    _displayContainer.ResumeDrawing();
-            //     _displayContainer.ResumeLayout();
-            _displayContainer.ResumeFormLayout();
+
+            if (_displayContainer != null)
+                _displayContainer.ResumeFormLayout();
         }
+
         private void _beepSideMenu_StartMenuCollapseExpand(bool obj)
         {
-            BeepAppBar.SuspendFormLayout();
-            //BeepAppBar.SuspendLayout();
-            //BeepAppBar.SuspendDrawing();
+            if (BeepAppBar != null)
+                BeepAppBar.SuspendFormLayout();
 
-            _displayContainer.SuspendFormLayout();
-            //    _displayContainer.SuspendLayout();
-            //  _displayContainer.SuspendDrawing();
-
+            if (_displayContainer != null)
+                _displayContainer.SuspendFormLayout();
         }
         private void sidemenusetup()
         {

@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
         }
-        public override void AddControl(Control control, string addiname)
+        public  void AddControl(Control control, string addiname)
         {
             if (control == null || control == this)
                 return;
@@ -57,30 +57,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             control.BringToFront();
             ControlToDisplay= control;
         }
-        protected override void OnShown(EventArgs e)
-        {
-            base.OnShown(e);
-            AdjustFormToFitControl(ControlToDisplay);
-        }
-        private void AdjustFormToFitControl(Control control)
-        {
-            // Get the current content rectangle (based on border thickness)
-            Rectangle contentRect = GetAdjustedClientRectangle();
-
-            // Determine required width/height based on the control's MinimumSize
-            int requiredWidth = Math.Max(contentRect.Width, control.Width);
-            int requiredHeight = Math.Max(contentRect.Height, control.Height);
-
-            // Calculate overall form size needed (content area plus borders)
-            int overallWidth = requiredWidth + 2 * _borderThickness;
-            int overallHeight = requiredHeight + 2 * _borderThickness;
-
-            // Resize the form if necessary
-            this.Size = new Size(overallWidth, overallHeight);
-
-            // Recalculate the adjusted client rectangle after resizing
-            contentRect = GetAdjustedClientRectangle();
-            control.Bounds = contentRect;
-        }
+      
     }
 }

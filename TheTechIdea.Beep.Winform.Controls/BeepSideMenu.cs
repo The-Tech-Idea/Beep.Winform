@@ -348,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (this.Parent is BeepiForm parentForm)
                 {
                     // Temporarily disable window updates to reduce flickering
-                    parentForm.BeginUpdate();
+                  //  parentForm.BeginUpdate();
                 }
             }
             else
@@ -357,7 +357,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (this.Parent is BeepiForm parentForm)
                 {
                     // Re-enable window updates
-                    parentForm.EndUpdate();
+                  //  parentForm.EndUpdate();
                 }
             }
         }

@@ -386,6 +386,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #region "Constructor and Initialization"
         // ✅ Add DPI change handling
+        // Add helper:
+        private static bool IsDesignTime => LicenseManager.UsageMode == LicenseUsageMode.Designtime;
+
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
             base.OnDpiChangedAfterParent(e);
@@ -420,7 +423,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Defer DPI-dependent initialization
             this.HandleCreated += BeepAppBar_HandleCreated;
-
+            // Populate theme menu safely
+            if (!IsDesignTime)
+            {
+                try
+                {
+                    foreach (string themeName in BeepThemesManager.GetThemeNames())
+                    {
+                        _themeButton.ListItems.Add(new SimpleItem { Text = themeName });
+                    }
+                }
+                catch
+                {
+                    // Ignore in designer
+                }
+            }
             EnableFormDragging = true;
             SetDraggableAreas("Empty");
         }

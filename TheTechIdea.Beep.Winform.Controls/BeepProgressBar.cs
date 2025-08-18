@@ -14,7 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         CurrProgress,
         CustomText,
         TextAndPercentage,
-        TextAndCurrProgress
+        TextAndCurrProgress,
+        TaskProgress // New: Shows "5/12 tasks" format
     }
 
     public enum ProgressBarStyle
@@ -22,12 +23,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         Flat,        // Traditional flat style
         Gradient,    // Gradient fill
         Striped,     // Striped pattern
-        Animated     // Moving stripes/pulse
+        Animated,    // Moving stripes/pulse
+        Segmented    // New: For task completion visualization
+    }
+
+    public enum ProgressBarSize
+    {
+        Thin,        // 4px height - for compact displays
+        Small,       // 8px height - for cards
+        Medium,      // 12px height - standard
+        Large,       // 20px height - for detailed views
+        ExtraLarge   // 30px height - for main displays
     }
 
     [ToolboxItem(true)]
     [Category("Beep Controls")]
-    [Description("Modern ProgressBar with customizable appearance")]
+    [Description("Modern ProgressBar with customizable appearance, optimized for task management")]
     [DisplayName("Beep ProgressBar")]
     public class BeepProgressBar : BeepControl
     {
@@ -42,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Pen _borderPen;
 
         private ProgressBarStyle _style = ProgressBarStyle.Gradient;
+        private ProgressBarSize _barSize = ProgressBarSize.Medium;
         private Timer _animationTimer;
         private float _animationOffset = 0;
         private const float AnimationSpeed = 2.0f;
@@ -53,6 +65,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Timer _pulsateTimer;
         private bool _isPulsating = false;
         private bool _showGlowEffect = true;
+
+        // Enhanced properties for task management
+        private string _taskText = "";
+        private int _completedTasks = 0;
+        private int _totalTasks = 0;
+        private bool _showTaskCount = false;
+        private Color _successColor = Color.FromArgb(34, 197, 94);
+        private Color _warningColor = Color.FromArgb(245, 158, 11);
+        private Color _errorColor = Color.FromArgb(239, 68, 68);
+        private bool _autoColorByProgress = false;
+        private int _segments = 10; // For segmented style
         #endregion
 
         #region Properties
@@ -96,6 +119,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     else
                     {
                         Invalidate();
+                    }
+
+                    // Fire value changed event
+                    ValueChanged?.Invoke(this, EventArgs.Empty);
+
+                    // Check for completion
+                    if (_value >= _maximum && _oldValue < _maximum)
+                    {
+                        ProgressCompleted?.Invoke(this, EventArgs.Empty);
                     }
                 }
             }
@@ -179,6 +211,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                     StopAnimation();
                 }
 
+                // Auto-adjust height for segmented style
+                if (_style == ProgressBarStyle.Segmented)
+                {
+                    UpdateSizeForStyle();
+                }
+
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [DefaultValue(ProgressBarSize.Medium)]
+        public ProgressBarSize BarSize
+        {
+            get => _barSize;
+            set
+            {
+                _barSize = value;
+                UpdateSizeForStyle();
                 Invalidate();
             }
         }
@@ -230,6 +281,122 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        // Enhanced properties for task management
+        [Category("Task Management")]
+        [Description("Number of completed tasks")]
+        public int CompletedTasks
+        {
+            get => _completedTasks;
+            set
+            {
+                _completedTasks = value;
+                if (_showTaskCount)
+                {
+                    UpdateTaskProgress();
+                }
+                Invalidate();
+            }
+        }
+
+        [Category("Task Management")]
+        [Description("Total number of tasks")]
+        public int TotalTasks
+        {
+            get => _totalTasks;
+            set
+            {
+                _totalTasks = value;
+                if (_showTaskCount)
+                {
+                    UpdateTaskProgress();
+                }
+                Invalidate();
+            }
+        }
+
+        [Category("Task Management")]
+        [Description("Text description for current task")]
+        public string TaskText
+        {
+            get => _taskText;
+            set
+            {
+                _taskText = value;
+                Invalidate();
+            }
+        }
+
+        [Category("Task Management")]
+        [DefaultValue(false)]
+        [Description("Show task count instead of percentage")]
+        public bool ShowTaskCount
+        {
+            get => _showTaskCount;
+            set
+            {
+                _showTaskCount = value;
+                if (_showTaskCount)
+                {
+                    UpdateTaskProgress();
+                }
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description("Automatically change color based on progress (green=complete, yellow=medium, red=low)")]
+        public bool AutoColorByProgress
+        {
+            get => _autoColorByProgress;
+            set
+            {
+                _autoColorByProgress = value;
+                if (_autoColorByProgress)
+                {
+                    UpdateColorByProgress();
+                }
+                Invalidate();
+            }
+        }
+
+        [Category("Appearance")]
+        [Description("Color for success/completion state")]
+        public Color SuccessColor
+        {
+            get => _successColor;
+            set { _successColor = value; UpdateColorByProgress(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Color for warning/medium progress state")]
+        public Color WarningColor
+        {
+            get => _warningColor;
+            set { _warningColor = value; UpdateColorByProgress(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Color for error/low progress state")]
+        public Color ErrorColor
+        {
+            get => _errorColor;
+            set { _errorColor = value; UpdateColorByProgress(); }
+        }
+
+        [Category("Appearance")]
+        [DefaultValue(10)]
+        [Description("Number of segments for segmented style")]
+        public int Segments
+        {
+            get => _segments;
+            set
+            {
+                _segments = Math.Max(2, value);
+                Invalidate();
+            }
+        }
+
         // Secondary progress for background tasks or to show a target
         private int _secondaryProgress = 0;
         [Category("Behavior")]
@@ -272,9 +439,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
 
+        #region Events
+        public event EventHandler ValueChanged;
+        public event EventHandler ProgressCompleted;
+        public event EventHandler TaskProgressChanged;
+        #endregion
+
         #region Computed Properties
-        private string PercentageText => $"{(int)((float)(_value - _minimum) / (_maximum - _minimum) * 100)} %";
+        private string PercentageText => $"{(int)((float)(_value - _minimum) / (_maximum - _minimum) * 100)}%";
         private string ProgressText => $"{_value}/{_maximum}";
+        private string TaskProgressText => $"{_completedTasks}/{_totalTasks} tasks";
 
         private string TextToDraw
         {
@@ -284,8 +458,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     ProgressBarDisplayMode.Percentage => PercentageText,
                     ProgressBarDisplayMode.CurrProgress => ProgressText,
+                    ProgressBarDisplayMode.TaskProgress => TaskProgressText,
                     ProgressBarDisplayMode.TextAndPercentage => $"{CustomText}: {PercentageText}",
                     ProgressBarDisplayMode.TextAndCurrProgress => $"{CustomText}: {ProgressText}",
+                    ProgressBarDisplayMode.CustomText => !string.IsNullOrEmpty(_taskText) ? _taskText : CustomText,
                     _ => CustomText
                 };
             }
@@ -391,7 +567,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 400;
-                Height = 30;
+                Height = GetHeightForSize(_barSize);
             }
 
             DoubleBuffered = true;
@@ -404,6 +580,100 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             TextFont = new Font("Segoe UI", 10, FontStyle.Regular);
             ApplyTheme();
+        }
+
+        private int GetHeightForSize(ProgressBarSize size)
+        {
+            return size switch
+            {
+                ProgressBarSize.Thin => 4,
+                ProgressBarSize.Small => 8,
+                ProgressBarSize.Medium => 12,
+                ProgressBarSize.Large => 20,
+                ProgressBarSize.ExtraLarge => 30,
+                _ => 12
+            };
+        }
+
+        private void UpdateSizeForStyle()
+        {
+            if (_barSize != ProgressBarSize.Medium || _style == ProgressBarStyle.Segmented)
+            {
+                int newHeight = GetHeightForSize(_barSize);
+                if (_style == ProgressBarStyle.Segmented)
+                {
+                    newHeight = Math.Max(newHeight, 16); // Minimum height for segments
+                }
+                
+                if (Height != newHeight)
+                {
+                    Height = newHeight;
+                }
+            }
+        }
+        #endregion
+
+        #region Task Management Methods
+        private void UpdateTaskProgress()
+        {
+            if (_totalTasks > 0)
+            {
+                Value = (int)((float)_completedTasks / _totalTasks * (_maximum - _minimum)) + _minimum;
+                TaskProgressChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private void UpdateColorByProgress()
+        {
+            if (!_autoColorByProgress) return;
+
+            float percentage = ProgressPercentage;
+            Color newColor;
+
+            if (percentage >= 0.8f)
+                newColor = _successColor;
+            else if (percentage >= 0.4f)
+                newColor = _warningColor;
+            else
+                newColor = _errorColor;
+
+            ProgressColor = newColor;
+        }
+
+        /// <summary>
+        /// Set task progress directly
+        /// </summary>
+        public void SetTaskProgress(int completed, int total, string taskDescription = "")
+        {
+            _completedTasks = completed;
+            _totalTasks = total;
+            _taskText = taskDescription;
+            _showTaskCount = true;
+            VisualMode = ProgressBarDisplayMode.TaskProgress;
+            UpdateTaskProgress();
+        }
+
+        /// <summary>
+        /// Increment completed tasks
+        /// </summary>
+        public void CompleteTask(string taskDescription = "")
+        {
+            if (_completedTasks < _totalTasks)
+            {
+                _completedTasks++;
+                if (!string.IsNullOrEmpty(taskDescription))
+                    _taskText = taskDescription;
+                UpdateTaskProgress();
+            }
+        }
+
+        /// <summary>
+        /// Set progress with custom message
+        /// </summary>
+        public void SetProgressWithMessage(int value, string message)
+        {
+            _taskText = message;
+            Value = value;
         }
         #endregion
 
@@ -441,15 +711,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply font if using theme fonts
             if (UseThemeFont)
             {
-                if (_currentTheme.ButtonStyle != null)
+                if (_currentTheme.ProgressBarFont != null)
                 {
-                    TextFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
+                    TextFont = BeepThemesManager.ToFont(_currentTheme.ProgressBarFont);
                 }
                 else
                 {
                     TextFont = new Font(_currentTheme.FontFamily, _currentTheme.FontSizeCaption, FontStyle.Regular);
                 }
-                Font= TextFont;
+                Font = TextFont;
             }
 
             // Update secondary progress color
@@ -458,6 +728,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _currentTheme.SecondaryColor.R,
                 _currentTheme.SecondaryColor.G,
                 _currentTheme.SecondaryColor.B);
+
+            // Apply success/warning/error colors from theme
+            if (_currentTheme.ProgressBarSuccessColor != Color.Empty)
+                _successColor = _currentTheme.ProgressBarSuccessColor;
+            if (_currentTheme.ProgressBarErrorColor != Color.Empty)
+                _errorColor = _currentTheme.ProgressBarErrorColor;
 
             Invalidate();
         }
@@ -486,11 +762,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             Rectangle rect = rectangle;
             rect.Inflate(-BorderThickness, -BorderThickness);
 
+            // Auto-update color by progress if enabled
+            if (_autoColorByProgress)
+            {
+                UpdateColorByProgress();
+            }
+
             // Draw progress
             DrawProgressBar(graphics, rect);
 
-            // Draw text if needed
-            DrawText(graphics, rect);
+            // Draw text if needed and there's enough space
+            if (VisualMode != ProgressBarDisplayMode.NoText && rect.Height >= 12)
+            {
+                DrawText(graphics, rect);
+            }
         }
 
         private void DrawProgressBar(Graphics g, Rectangle rect)
@@ -569,6 +854,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             case ProgressBarStyle.Animated:
                                 DrawAnimatedFill(g, progressRect);
+                                break;
+
+                            case ProgressBarStyle.Segmented:
+                                DrawSegmentedFill(g, progressRect);
                                 break;
                         }
 
@@ -660,6 +949,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         case ProgressBarStyle.Animated:
                             DrawAnimatedFill(g, progressRect);
                             break;
+
+                        case ProgressBarStyle.Segmented:
+                            DrawSegmentedFill(g, progressRect);
+                            break;
                     }
 
                     // Draw glow effect if enabled
@@ -730,12 +1023,52 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        private void DrawSegmentedFill(Graphics g, Rectangle rect)
+        {
+            float segmentWidth = (float)rect.Width / _segments;
+            int filledSegments = (int)(DisplayProgressPercentage * _segments);
+            
+            for (int i = 0; i < _segments; i++)
+            {
+                var segmentRect = new Rectangle(
+                    (int)(rect.X + i * segmentWidth + 1),
+                    rect.Y + 1,
+                    (int)(segmentWidth - 2),
+                    rect.Height - 2);
+
+                if (i < filledSegments)
+                {
+                    // Filled segment
+                    g.FillRectangle(_progressBrush, segmentRect);
+                }
+                else if (i == filledSegments && DisplayProgressPercentage * _segments % 1 > 0)
+                {
+                    // Partially filled segment
+                    var partialWidth = (int)((DisplayProgressPercentage * _segments % 1) * segmentRect.Width);
+                    var partialRect = new Rectangle(segmentRect.X, segmentRect.Y, partialWidth, segmentRect.Height);
+                    g.FillRectangle(_progressBrush, partialRect);
+                }
+
+                // Draw segment border
+                using (var segmentPen = new Pen(BackColor, 1))
+                {
+                    g.DrawRectangle(segmentPen, segmentRect);
+                }
+            }
+        }
+
         private void DrawText(Graphics g, Rectangle rect)
         {
             if (VisualMode != ProgressBarDisplayMode.NoText)
             {
                 string text = TextToDraw;
+                if (string.IsNullOrEmpty(text)) return;
+
                 SizeF textSize = g.MeasureString(text, TextFont);
+                
+                // Only draw text if it fits
+                if (textSize.Width > rect.Width - 4 || textSize.Height > rect.Height - 2) return;
+
                 PointF location = new PointF(
                     rect.Left + (rect.Width - textSize.Width) / 2,
                     rect.Top + (rect.Height - textSize.Height) / 2
@@ -781,6 +1114,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void ResetProgress()
         {
             Value = Minimum;
+            _completedTasks = 0;
+            _taskText = "";
         }
 
         // Start indeterminate animation

@@ -37,10 +37,7 @@
 		<MakeDir Directories="$(_Dest)" Condition="!Exists('$(_Dest)')" />
 
 		<!-- Copy only if the package exists -->
-		<Copy SourceFiles="$(_PkgPath)"
-			  DestinationFolder="$(_Dest)"
-			  SkipUnchangedFiles="true"
-			  Condition="Exists('$(_PkgPath)')" />
+		<Copy SourceFiles="$(_PkgPath)" DestinationFolder="$(_Dest)" SkipUnchangedFiles="true" Condition="Exists('$(_PkgPath)')" />
 	</Target>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
@@ -167,6 +164,7 @@
     <None Remove="GFX\SVG\cancel.svg" />
     <None Remove="GFX\SVG\cassandra.svg" />
     <None Remove="GFX\SVG\cat.svg" />
+    <None Remove="GFX\SVG\check-circle.svg" />
     <None Remove="GFX\SVG\check.svg" />
     <None Remove="GFX\SVG\checkround.svg" />
     <None Remove="GFX\SVG\checksquare.svg" />
@@ -325,6 +323,7 @@
     <None Remove="GFX\SVG\trash.svg" />
     <None Remove="GFX\SVG\trenddown.svg" />
     <None Remove="GFX\SVG\trendup.svg" />
+    <None Remove="GFX\SVG\triangle-warning.svg" />
     <None Remove="GFX\SVG\tryagain.svg" />
     <None Remove="GFX\SVG\undo.svg" />
     <None Remove="GFX\SVG\user.svg" />
@@ -408,6 +407,7 @@
     <EmbeddedResource Include="GFX\PNG\042-dot.png" />
     <EmbeddedResource Include="GFX\SVG\bullet.svg" />
     <EmbeddedResource Include="GFX\SVG\calendar.svg" />
+    <EmbeddedResource Include="GFX\SVG\check-circle.svg" />
     <EmbeddedResource Include="GFX\SVG\diagramming.svg" />
     <EmbeddedResource Include="GFX\SVG\fastbackword.svg" />
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
@@ -595,6 +595,7 @@
     <EmbeddedResource Include="GFX\SVG\trash.svg" />
     <EmbeddedResource Include="GFX\SVG\trenddown.svg" />
     <EmbeddedResource Include="GFX\SVG\trendup.svg" />
+    <EmbeddedResource Include="GFX\SVG\triangle-warning.svg" />
     <EmbeddedResource Include="GFX\SVG\tryagain.svg" />
     <EmbeddedResource Include="GFX\SVG\undo.svg" />
     <EmbeddedResource Include="GFX\SVG\user.svg" />
@@ -658,7 +659,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.20" />
+    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.22" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common.Util\TheTechIdea.Beep.Desktop.Common.Util.csproj" />

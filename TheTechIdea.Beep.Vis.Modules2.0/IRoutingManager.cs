@@ -30,13 +30,18 @@ namespace TheTechIdea.Beep.Vis.Modules
         Task<IErrorsInfo> NavigateForwardAsync();
         Task<IErrorsInfo> NavigateToAsync(string routeName, Dictionary<string, object> parameters = null,bool popup = false);
         (string RouteName, Dictionary<string, object> Parameters) ParseRoute(string routeWithParams);
-        void RegisterAlias(string alias, string routeName);
-        void RegisterRoute(string routeName, Type viewType, RouteGuard guard = null);
-        void RegisterRouteByName(string routeName, string moduleOrAddinName, RouteGuard guard = null);
+        
+        // Updated to return IErrorsInfo for better error handling
+        IErrorsInfo RegisterAlias(string alias, string routeName);
+        IErrorsInfo RegisterRoute(string routeName, Type viewType, RouteGuard guard = null);
+        IErrorsInfo RegisterRouteByName(string routeName, string moduleOrAddinName, RouteGuard guard = null);
+        IErrorsInfo SetDefaultRoute(string routeName);
+        IErrorsInfo SetErrorView(Type errorViewType);
+        
         bool SetControlCreator(Func<Type, IDM_Addin> customCreator);
-        void SetDefaultRoute(string routeName);
-        void SetErrorView(Type errorViewType);
-        Type FindAddinTypeFromServices(string moduleOrAddinName);
+        
+        // Updated to return tuple with error info for better error handling
+        (Type Type, IErrorsInfo Result) FindAddinTypeFromServices(string moduleOrAddinName);
         IDM_Addin GetAddin(string moduleOrAddinName);
     }
     public interface IRouteArgs

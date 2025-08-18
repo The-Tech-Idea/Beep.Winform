@@ -542,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeFocused = true;
             
             // Enable modern gradient background for stylish look
-            UseGradientBackground = true;
+            UseGradientBackground = false;
             ModernGradientType = ModernGradientType.Linear;
           //  ShowShadow = true;
             IsRounded = true;

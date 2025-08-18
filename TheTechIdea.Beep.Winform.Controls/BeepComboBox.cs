@@ -60,10 +60,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isPopupOpen = false;
         private bool _isExpanded;
         private BeepPopupListForm menuDialog;
+        public event EventHandler<SelectedItemChangedEventArgs> SelectedIndexChanged;
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+            SelectedIndexChanged?.DynamicInvoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
 
         private Font _textFont = new Font("Arial", 10);

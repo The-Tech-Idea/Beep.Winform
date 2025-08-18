@@ -38,10 +38,7 @@
 		<MakeDir Directories="$(_Dest)" Condition="!Exists('$(_Dest)')" />
 
 		<!-- Copy only if the package exists -->
-		<Copy SourceFiles="$(_PkgPath)"
-			  DestinationFolder="$(_Dest)"
-			  SkipUnchangedFiles="true"
-			  Condition="Exists('$(_PkgPath)')" />
+		<Copy SourceFiles="$(_PkgPath)" DestinationFolder="$(_Dest)" SkipUnchangedFiles="true" Condition="Exists('$(_PkgPath)')" />
 	</Target>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	  <Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />
@@ -68,7 +65,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
 		<PackageReference Include="Svg" Version="3.4.7" />
-		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.70" />
+		<PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.76" />
 	</ItemGroup>
 
 	<ItemGroup>

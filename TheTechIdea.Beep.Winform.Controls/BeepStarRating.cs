@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Star Rating")]
     [Category("Beep Controls")]
-    [Description("A modern star rating control with animations and hover effects.")]
+    [Description("A modern star rating control with animations, hover effects, and business application features.")]
     public class BeepStarRating : BeepControl
     {
         #region Fields and Properties
@@ -42,6 +42,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string[] _ratingLabels = { "Poor", "Fair", "Good", "Very Good", "Excellent" };
         private Font _labelFont;
         private Color _labelColor = Color.Black;
+
+        // Business application features
+        private bool _readOnly = false;
+        private bool _showTooltip = true;
+        private string _ratingContext = "Overall Rating";
+        private bool _autoSubmit = false;
+        private bool _showRatingCount = false;
+        private int _ratingCount = 0;
+        private decimal _averageRating = 0m;
+        private bool _showAverage = false;
+        private string _customTooltipText = "";
+        private bool _allowHalfStars = false;
+        private float _preciseRating = 0f;
 
         [Browsable(true)]
         [Category("Appearance")]
@@ -74,6 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     int oldRating = _selectedRating;
                     _selectedRating = value;
+                    _preciseRating = value;
 
                     if (_enableAnimations && IsHandleCreated)
                     {
@@ -97,8 +111,24 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     Invalidate();
                     RatingChanged?.Invoke(this, EventArgs.Empty);
+                    
+                    // Auto submit if enabled
+                    if (_autoSubmit && value > 0)
+                    {
+                        RatingSubmitted?.Invoke(this, new RatingSubmittedEventArgs(_selectedRating, _ratingContext));
+                    }
                 }
             }
+        }
+
+        /// <summary>
+        /// Alias for SelectedRating to maintain compatibility with ProductsView
+        /// </summary>
+        [Browsable(false)]
+        public int Rating
+        {
+            get => SelectedRating;
+            set => SelectedRating = value;
         }
 
         [Browsable(true)]
@@ -315,7 +345,175 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        // Business Features
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Makes the rating control read-only (display only).")]
+        [DefaultValue(false)]
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                if (_readOnly != value)
+                {
+                    _readOnly = value;
+                    Cursor = _readOnly ? Cursors.Default : Cursors.Hand;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Context description for this rating (e.g., 'Product Quality', 'Service Rating').")]
+        public string RatingContext
+        {
+            get => _ratingContext;
+            set => _ratingContext = value ?? "Overall Rating";
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Automatically submit rating when user selects a star.")]
+        [DefaultValue(false)]
+        public bool AutoSubmit
+        {
+            get => _autoSubmit;
+            set => _autoSubmit = value;
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Show tooltip with rating information.")]
+        [DefaultValue(true)]
+        public bool ShowTooltip
+        {
+            get => _showTooltip;
+            set => _showTooltip = value;
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Custom tooltip text. If empty, automatic tooltip is generated.")]
+        public string CustomTooltipText
+        {
+            get => _customTooltipText;
+            set => _customTooltipText = value ?? "";
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Show the total number of ratings.")]
+        [DefaultValue(false)]
+        public bool ShowRatingCount
+        {
+            get => _showRatingCount;
+            set
+            {
+                if (_showRatingCount != value)
+                {
+                    _showRatingCount = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Total number of ratings (for display).")]
+        [DefaultValue(0)]
+        public int RatingCount
+        {
+            get => _ratingCount;
+            set
+            {
+                if (_ratingCount != value)
+                {
+                    _ratingCount = value;
+                    if (_showRatingCount)
+                    {
+                        Invalidate();
+                    }
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Show average rating alongside stars.")]
+        [DefaultValue(false)]
+        public bool ShowAverage
+        {
+            get => _showAverage;
+            set
+            {
+                if (_showAverage != value)
+                {
+                    _showAverage = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Business")]
+        [Description("Average rating value to display.")]
+        public decimal AverageRating
+        {
+            get => _averageRating;
+            set
+            {
+                if (_averageRating != value)
+                {
+                    _averageRating = value;
+                    if (_showAverage)
+                    {
+                        Invalidate();
+                    }
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow half-star ratings for more precise feedback.")]
+        [DefaultValue(false)]
+        public bool AllowHalfStars
+        {
+            get => _allowHalfStars;
+            set
+            {
+                if (_allowHalfStars != value)
+                {
+                    _allowHalfStars = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Precise rating value (supports half stars when AllowHalfStars is true).")]
+        public float PreciseRating
+        {
+            get => _preciseRating;
+            set
+            {
+                if (value >= 0 && value <= _starCount && _preciseRating != value)
+                {
+                    _preciseRating = value;
+                    _selectedRating = (int)Math.Round(value);
+                    Invalidate();
+                    RatingChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+        }
+
+        // Events
         public event EventHandler RatingChanged;
+        public event EventHandler<RatingSubmittedEventArgs> RatingSubmitted;
+        public event EventHandler<RatingHoverEventArgs> RatingHover;
         #endregion
 
         #region Constructor and Initialization
@@ -399,6 +597,121 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
 
+        #region Business Methods
+        /// <summary>
+        /// Set rating with context information for business applications
+        /// </summary>
+        public void SetBusinessRating(int rating, string context, int totalRatings = 0, decimal averageRating = 0m)
+        {
+            RatingContext = context;
+            RatingCount = totalRatings;
+            AverageRating = averageRating;
+            SelectedRating = rating;
+            
+            UpdateTooltip();
+        }
+
+        /// <summary>
+        /// Configure for product review scenario
+        /// </summary>
+        public void ConfigureForProductReview()
+        {
+            StarCount = 5;
+            ShowLabels = false;
+            ShowRatingCount = true;
+            ShowAverage = true;
+            ShowTooltip = true;
+            RatingContext = "Product Rating";
+            EnableAnimations = true;
+            UseGlowEffect = true;
+        }
+
+        /// <summary>
+        /// Configure for service quality rating
+        /// </summary>
+        public void ConfigureForServiceRating()
+        {
+            StarCount = 5;
+            ShowLabels = true;
+            RatingLabels = new[] { "Poor", "Fair", "Good", "Very Good", "Excellent" };
+            RatingContext = "Service Quality";
+            AutoSubmit = true;
+            EnableAnimations = true;
+        }
+
+        /// <summary>
+        /// Configure for compact display in lists/grids
+        /// </summary>
+        public void ConfigureForCompactDisplay()
+        {
+            StarSize = 16;
+            Spacing = 2;
+            ShowLabels = false;
+            ShowRatingCount = false;
+            ShowAverage = false;
+            EnableAnimations = false;
+            UseGlowEffect = false;
+            ReadOnly = true;
+        }
+
+        /// <summary>
+        /// Configure for feedback collection
+        /// </summary>
+        public void ConfigureForFeedback(string feedbackContext)
+        {
+            RatingContext = feedbackContext;
+            StarCount = 5;
+            ShowLabels = true;
+            ShowTooltip = true;
+            AutoSubmit = false;
+            EnableAnimations = true;
+            UseGlowEffect = true;
+        }
+
+        /// <summary>
+        /// Reset rating to unrated state
+        /// </summary>
+        public void ClearRating()
+        {
+            SelectedRating = 0;
+            _preciseRating = 0f;
+        }
+
+        /// <summary>
+        /// Update tooltip based on current state
+        /// </summary>
+        private void UpdateTooltip()
+        {
+            if (!_showTooltip) return;
+
+            string tooltip = _customTooltipText;
+            
+            if (string.IsNullOrEmpty(tooltip))
+            {
+                if (_selectedRating == 0)
+                {
+                    tooltip = $"{_ratingContext}: Not rated";
+                }
+                else
+                {
+                    tooltip = $"{_ratingContext}: {_selectedRating}/{_starCount} stars";
+                    
+                    if (_showRatingCount && _ratingCount > 0)
+                    {
+                        tooltip += $" ({_ratingCount} {(_ratingCount == 1 ? "rating" : "ratings")})";
+                    }
+                    
+                    if (_showAverage && _averageRating > 0)
+                    {
+                        tooltip += $"\nAverage: {_averageRating:F1} stars";
+                    }
+                }
+            }
+            
+            this.ToolTipText = tooltip;
+        }
+        #endregion
+
         #region Painting
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -424,14 +737,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
 
+            // Calculate space for additional text
+            int additionalTextHeight = 0;
+            if (_showLabels) additionalTextHeight += 20;
+            if (_showRatingCount || _showAverage) additionalTextHeight += 15;
+
             // Calculate dynamic star size based on rectangle size
             int availableWidth = rectangle.Width - (Spacing * (_starCount - 1));
-            int dynamicStarSize = Math.Min(availableWidth / _starCount, rectangle.Height - (_showLabels ? 25 : 10));
+            int availableHeight = rectangle.Height - additionalTextHeight;
+            int dynamicStarSize = Math.Min(availableWidth / _starCount, availableHeight);
             int starSize = Math.Min(_starSize, dynamicStarSize);
 
             // Center stars within rectangle
             int startX = rectangle.Left + (rectangle.Width - (starSize * _starCount + Spacing * (_starCount - 1))) / 2;
-            int startY = rectangle.Top + (rectangle.Height - (_showLabels ? starSize + 20 : starSize)) / 2;
+            int startY = rectangle.Top + (rectangle.Height - (starSize + additionalTextHeight)) / 2;
 
             // Draw stars
             for (int i = 0; i < _starCount; i++)
@@ -439,13 +758,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Determine star state and color
                 Color fillColor;
                 float scale = _enableAnimations ? _starScale[i] : 1.0f;
+                bool isPartiallyFilled = _allowHalfStars && _preciseRating > i && _preciseRating < i + 1;
+                bool isFilled = _selectedRating > i || (_allowHalfStars && _preciseRating > i);
 
-                if (i < _selectedRating)
+                if (isFilled)
                 {
                     // Filled star
                     fillColor = _filledStarColor;
                 }
-                else if (i == _hoveredStar)
+                else if (i == _hoveredStar && !_readOnly)
                 {
                     // Hovered star
                     fillColor = _hoverStarColor;
@@ -468,7 +789,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     startY + offsetY,
                     scaledSize,
                     fillColor,
-                    i < _selectedRating || i == _hoveredStar
+                    isFilled || i == _hoveredStar,
+                    isPartiallyFilled ? (_preciseRating - i) : 1.0f
                 );
             }
 
@@ -476,7 +798,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_showLabels && _selectedRating > 0 && _selectedRating <= _ratingLabels.Length)
             {
                 string label = _ratingLabels[_selectedRating - 1];
-
                 using (SolidBrush brush = new SolidBrush(_labelColor))
                 {
                     SizeF textSize = graphics.MeasureString(label, _labelFont);
@@ -487,15 +808,46 @@ namespace TheTechIdea.Beep.Winform.Controls
                     graphics.DrawString(label, _labelFont, brush, textPos);
                 }
             }
+
+            // Draw rating count and average
+            if (_showRatingCount || _showAverage)
+            {
+                string info = "";
+                if (_showRatingCount && _ratingCount > 0)
+                {
+                    info = $"({_ratingCount} {(_ratingCount == 1 ? "rating" : "ratings")})";
+                }
+                
+                if (_showAverage && _averageRating > 0)
+                {
+                    if (!string.IsNullOrEmpty(info)) info += " ";
+                    info += $"Avg: {_averageRating:F1}";
+                }
+
+                if (!string.IsNullOrEmpty(info))
+                {
+                    using (SolidBrush brush = new SolidBrush(Color.FromArgb(128, _labelColor)))
+                    {
+                        Font infoFont = new Font(_labelFont.FontFamily, 7, FontStyle.Regular);
+                        SizeF textSize = graphics.MeasureString(info, infoFont);
+                        PointF textPos = new PointF(
+                            rectangle.Left + (rectangle.Width - textSize.Width) / 2,
+                            rectangle.Bottom - textSize.Height - 2);
+
+                        graphics.DrawString(info, infoFont, brush, textPos);
+                        infoFont.Dispose();
+                    }
+                }
+            }
         }
 
-        private void DrawModernStar(Graphics graphics, int x, int y, int size, Color fillColor, bool isActive)
+        private void DrawModernStar(Graphics graphics, int x, int y, int size, Color fillColor, bool isActive, float fillRatio = 1.0f)
         {
             // Calculate star points
             PointF[] starPoints = CalculateStarPoints(x + size / 2, y + size / 2, size / 2, size / 4, 5);
 
             // Draw glow effect if enabled and star is active
-            if (_useGlowEffect && isActive)
+            if (_useGlowEffect && isActive && !_readOnly)
             {
                 // Create a slightly larger path for the glow
                 PointF[] glowPoints = CalculateStarPoints(
@@ -527,22 +879,60 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Draw the star fill with gradient for more depth
+            // Draw the star fill
             using (GraphicsPath path = new GraphicsPath())
             {
                 path.AddPolygon(starPoints);
 
-                // Create a gradient brush for more depth
-                using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
-                    new Rectangle(x, y, size, size),
-                    Color.FromArgb(255, fillColor),
-                    Color.FromArgb(200,
-                        Math.Max(0, fillColor.R - 30),
-                        Math.Max(0, fillColor.G - 30),
-                        Math.Max(0, fillColor.B - 30)),
-                    LinearGradientMode.ForwardDiagonal))
+                // Handle partial filling for half-stars
+                if (fillRatio < 1.0f && fillRatio > 0f)
                 {
-                    graphics.FillPath(gradientBrush, path);
+                    // Create clipping region for partial fill
+                    int clipWidth = (int)(size * fillRatio);
+                    Rectangle clipRect = new Rectangle(x, y, clipWidth, size);
+                    
+                    graphics.SetClip(clipRect);
+                    
+                    // Draw filled portion
+                    using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
+                        new Rectangle(x, y, size, size),
+                        Color.FromArgb(255, fillColor),
+                        Color.FromArgb(200,
+                            Math.Max(0, fillColor.R - 30),
+                            Math.Max(0, fillColor.G - 30),
+                            Math.Max(0, fillColor.B - 30)),
+                        LinearGradientMode.ForwardDiagonal))
+                    {
+                        graphics.FillPath(gradientBrush, path);
+                    }
+                    
+                    graphics.ResetClip();
+                    
+                    // Draw empty portion
+                    Rectangle emptyClipRect = new Rectangle(x + clipWidth, y, size - clipWidth, size);
+                    graphics.SetClip(emptyClipRect);
+                    
+                    using (SolidBrush emptyBrush = new SolidBrush(_emptyStarColor))
+                    {
+                        graphics.FillPath(emptyBrush, path);
+                    }
+                    
+                    graphics.ResetClip();
+                }
+                else
+                {
+                    // Draw full star
+                    using (LinearGradientBrush gradientBrush = new LinearGradientBrush(
+                        new Rectangle(x, y, size, size),
+                        Color.FromArgb(255, fillColor),
+                        Color.FromArgb(200,
+                            Math.Max(0, fillColor.R - 30),
+                            Math.Max(0, fillColor.G - 30),
+                            Math.Max(0, fillColor.B - 30)),
+                        LinearGradientMode.ForwardDiagonal))
+                    {
+                        graphics.FillPath(gradientBrush, path);
+                    }
                 }
 
                 // Draw border with smoother pen
@@ -554,7 +944,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Add a highlight spot for more dimension
-            if (isActive)
+            if (isActive && !_readOnly)
             {
                 int spotSize = size / 6;
                 int spotX = x + size / 4;
@@ -599,14 +989,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
 
+            if (_readOnly) return;
+
             // Calculate dynamic star size
+            int additionalTextHeight = 0;
+            if (_showLabels) additionalTextHeight += 20;
+            if (_showRatingCount || _showAverage) additionalTextHeight += 15;
+
             int availableWidth = DrawingRect.Width - (Spacing * (_starCount - 1));
-            int dynamicStarSize = Math.Min(availableWidth / _starCount, DrawingRect.Height - (_showLabels ? 25 : 10));
+            int availableHeight = DrawingRect.Height - additionalTextHeight;
+            int dynamicStarSize = Math.Min(availableWidth / _starCount, availableHeight);
             int starSize = Math.Min(_starSize, dynamicStarSize);
 
             // Calculate starting X position (same as in Draw)
             int startX = DrawingRect.Left + (DrawingRect.Width - (starSize * _starCount + Spacing * (_starCount - 1))) / 2;
-            int startY = DrawingRect.Top + (DrawingRect.Height - (_showLabels ? starSize + 20 : starSize)) / 2;
+            int startY = DrawingRect.Top + (DrawingRect.Height - (starSize + additionalTextHeight)) / 2;
 
             // Determine which star is being hovered
             int newHoveredStar = -1;
@@ -637,6 +1034,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     EnsureAnimationTimerRunning();
                 }
 
+                // Fire hover event
+                if (_hoveredStar >= 0)
+                {
+                    RatingHover?.Invoke(this, new RatingHoverEventArgs(_hoveredStar + 1, _ratingContext));
+                }
+
                 Invalidate();
             }
         }
@@ -661,13 +1064,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseClick(e);
 
+            if (_readOnly) return;
+
             // Calculate star dimensions same as in Draw method
+            int additionalTextHeight = 0;
+            if (_showLabels) additionalTextHeight += 20;
+            if (_showRatingCount || _showAverage) additionalTextHeight += 15;
+
             int availableWidth = DrawingRect.Width - (Spacing * (_starCount - 1));
-            int dynamicStarSize = Math.Min(availableWidth / _starCount, DrawingRect.Height - (_showLabels ? 25 : 10));
+            int availableHeight = DrawingRect.Height - additionalTextHeight;
+            int dynamicStarSize = Math.Min(availableWidth / _starCount, availableHeight);
             int starSize = Math.Min(_starSize, dynamicStarSize);
 
             int startX = DrawingRect.Left + (DrawingRect.Width - (starSize * _starCount + Spacing * (_starCount - 1))) / 2;
-            int startY = DrawingRect.Top + (DrawingRect.Height - (_showLabels ? starSize + 20 : starSize)) / 2;
+            int startY = DrawingRect.Top + (DrawingRect.Height - (starSize + additionalTextHeight)) / 2;
 
             // Determine which star was clicked
             for (int i = 0; i < _starCount; i++)
@@ -680,12 +1090,32 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (starRect.Contains(e.Location))
                 {
-                    // Toggle behavior: if clicking the currently selected star, clear rating
-                    if (i + 1 == _selectedRating)
-                        SelectedRating = 0;
+                    int newRating = i + 1;
+                    
+                    // Handle half-star logic
+                    if (_allowHalfStars)
+                    {
+                        float relativeX = (e.X - starRect.X) / (float)starRect.Width;
+                        if (relativeX < 0.5f)
+                        {
+                            _preciseRating = i + 0.5f;
+                        }
+                        else
+                        {
+                            _preciseRating = newRating;
+                        }
+                        _selectedRating = (int)Math.Ceiling(_preciseRating);
+                    }
                     else
-                        SelectedRating = i + 1;
+                    {
+                        // Toggle behavior: if clicking the currently selected star, clear rating
+                        if (newRating == _selectedRating)
+                            SelectedRating = 0;
+                        else
+                            SelectedRating = newRating;
+                    }
 
+                    UpdateTooltip();
                     break;
                 }
             }
@@ -743,6 +1173,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 SelectedRating = intValue;
             }
+            else if (value is float floatValue)
+            {
+                PreciseRating = floatValue;
+            }
+            else if (value is decimal decimalValue)
+            {
+                PreciseRating = (float)decimalValue;
+            }
             else if (value is string strValue && int.TryParse(strValue, out int parsedValue))
             {
                 SelectedRating = parsedValue;
@@ -763,7 +1201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override object GetValue()
         {
-            return SelectedRating;
+            return _allowHalfStars ? (object)_preciseRating : _selectedRating;
         }
         #endregion
 
@@ -780,4 +1218,30 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
     }
+
+    #region Event Args
+    public class RatingSubmittedEventArgs : EventArgs
+    {
+        public int Rating { get; }
+        public string Context { get; }
+
+        public RatingSubmittedEventArgs(int rating, string context)
+        {
+            Rating = rating;
+            Context = context;
+        }
+    }
+
+    public class RatingHoverEventArgs : EventArgs
+    {
+        public int HoveredRating { get; }
+        public string Context { get; }
+
+        public RatingHoverEventArgs(int hoveredRating, string context)
+        {
+            HoveredRating = hoveredRating;
+            Context = context;
+        }
+    }
+    #endregion
 }

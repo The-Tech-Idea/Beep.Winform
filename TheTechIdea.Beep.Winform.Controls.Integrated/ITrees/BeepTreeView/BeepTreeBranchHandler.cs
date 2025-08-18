@@ -251,20 +251,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         NewFolder.items.Add(CurrentBranch.BranchText);
                     }
                 }
-                if (CategoryBranch.BranchType == EnumPointType.Entity && CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && CategoryBranch.DataSourceName == CurrentBranch.DataSourceName)
-                {
-                    IDataViewDataSource vds = (IDataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
-                    if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
-                    {
+                //if (CategoryBranch.BranchType == EnumPointType.Entity && CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && CategoryBranch.DataSourceName == CurrentBranch.DataSourceName)
+                //{
+                //    IDataSource vds = DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
+                //    if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
+                //    {
 
-                    }
-                    else
-                    {
-                        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id;
-                    }
+                //    }
+                //    else
+                //    {
+                //        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id;
+                //    }
 
 
-                }
+                //}
                 SimpleItem simpleItem = ControlExtensions.CreateNode(Tree, CurrentBranch.ID, CurrentBranch);
                 SimpleItem parentnode = beepTreeControl.GetNodeByGuidID(CategoryBranch.GuidID);
                 parentnode.Children.Add(simpleItem);
@@ -319,20 +319,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         NewFolder.items.Add(CurrentBranch.BranchText);
                     }
                 }
-                if (ParentBranch.BranchType == EnumPointType.Entity && ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && ParentBranch.DataSourceName == CurrentBranch.DataSourceName)
-                {
-                    IDataViewDataSource vds = (IDataViewDataSource)DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
-                    if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
-                    {
+                //if (ParentBranch.BranchType == EnumPointType.Entity && ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && ParentBranch.DataSourceName == CurrentBranch.DataSourceName)
+                //{
+                //    IDataSource vds = DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
+                //    if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
+                //    {
 
-                    }
-                    else
-                    {
-                        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id;
-                    }
+                //    }
+                //    else
+                //    {
+                //        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id;
+                //    }
 
 
-                }
+                //}
                 SimpleItem simpleItem = ControlExtensions.CreateNode(Tree, CurrentBranch.ID, CurrentBranch);
               
                 parentitem.Children.Add(simpleItem);

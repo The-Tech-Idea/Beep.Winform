@@ -18,7 +18,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// </summary>
         public static Assembly ResourceAssembly => Assembly.GetExecutingAssembly();
 
+
         #region "General Actions & UI"
+        public static readonly string CheckCircle = $"{BaseNamespace}.check-circle.svg";
+        public static readonly string ExclamationTriangle = $"{BaseNamespace}.triangle-warning.svg";
         public static readonly string About = $"{BaseNamespace}.about.svg";
         public static readonly string Add = $"{BaseNamespace}.add.svg";
         public static readonly string Abort = $"{BaseNamespace}.abort.svg";

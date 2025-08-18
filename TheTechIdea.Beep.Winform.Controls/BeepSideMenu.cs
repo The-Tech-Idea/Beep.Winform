@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event PropertyChangedEventHandler PropertyChanged;
         public event Action<bool> EndMenuCollapseExpand;
         public event Action<bool> StartOnMenuCollapseExpand;
+        public event Action<SimpleItem> MenuItemClicked;
 
 
         private Size _buttonSize = new Size(100, 20);
@@ -44,6 +45,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         bool isAnimating = false;
         bool _isExpanedWidthSet = false;
         int  _tWidth;
+        // New: time-based animation fields
+        private int _animationDurationMs = 180; // total animation duration
+        private DateTime _animationStartTime;
+        private int _animStartWidth;
+        private int _animTargetWidth;
+        // New: cache icons used in menu for faster redraw
+        private readonly Dictionary<string, BeepImage> _iconCache = new();
+        // New: per-header expand/collapse state
+        private readonly Dictionary<SimpleItem, bool> _expandedState = new();
+        // New: control whether clicking a menu item collapses the side menu
+        private bool _collapseOnItemClick = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If true, the side menu collapses when a menu item is clicked.")]
+        public bool CollapseOnItemClick
+        {
+            get => _collapseOnItemClick;
+            set => _collapseOnItemClick = value;
+        }
         #region "Properties"
         private Size _logosize = new Size(100, 100);
         [Browsable(true)]
@@ -180,7 +200,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 menuItems = value; Invalidate();
-                // InitializeMenu();
+                // Initialize expanded state for new items
+                InitializeExpandedState();
+                // Refresh icon cache for new items
+                RefreshIconCache();
+                menuItems.ListChanged -= MenuItems_ListChanged;
+                menuItems.ListChanged += MenuItems_ListChanged;
             }
         }
         [Browsable(true)]
@@ -257,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _buttonSize = new Size(DrawingRect.Width, menuItemHeight);
             _isControlinvalidated = true;
 
-            animationTimer = new Timer { Interval = 10 };
+            animationTimer = new Timer { Interval = 16 }; // ~60 FPS
             animationTimer.Tick += AnimationTimer_Tick;
 
             IsRounded = false;
@@ -277,6 +302,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsBorderAffectedByTheme = false,
                 ShowAllBorders = false,
                 ShowShadow = false
+            };
+            // Reuse a single BeepButton for toggle drawing to avoid allocations per frame
+            toggleButton = new BeepButton
+            {
+                ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg",
+                MaxImageSize = new Size(24, 24),
+                ImageAlign = ContentAlignment.MiddleCenter,
+                IsFrameless = true,
+                ApplyThemeOnImage = true,
+                ImageEmbededin = ImageEmbededin.SideBar
             };
         }
 
@@ -300,6 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyTheme();
             if(!isCollapsed) EndMenuCollapseExpand?.Invoke(false);
             menuItems.ListChanged += MenuItems_ListChanged;
+            InitializeExpandedState();
         }
         private void Init()
         {
@@ -329,11 +365,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             isAnimating = true;
             _isExpanedWidthSet = false;
 
-            // Use smaller animation step for smoother animation
-            animationStep = Math.Max(4, (expandedWidth - collapsedWidth) / 20);
-
-            // Use faster timer interval
-            animationTimer.Interval = 5; // ~200 FPS target (will likely run slower)
+            // Time-based animation setup
+            _animStartWidth = Width;
+            _animTargetWidth = isCollapsed ? collapsedWidth : expandedWidth;
+            _animationStartTime = DateTime.UtcNow;
 
             // Optimize before starting animation
             OptimizeForAnimation(true);
@@ -361,63 +396,42 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        private static float EaseOutCubic(float t)
+        {
+            // cubic ease-out for smooth finish
+            t = Math.Min(1f, Math.Max(0f, t));
+            return 1f - (float)Math.Pow(1f - t, 3);
+        }
         private void AnimationTimer_Tick(object sender, EventArgs e)
         {
-            // Suspend layout during animation to prevent unnecessary redraws
-            this.SuspendLayout();
-
-            int targetWidth = isCollapsed ? collapsedWidth : expandedWidth;
-            int currentWidth = Width;
-
-            // Calculate smoother step size - adaptive based on distance to target
-            int distance = Math.Abs(targetWidth - currentWidth);
-            int adaptiveStep = Math.Max(1, Math.Min(animationStep, distance / 4));
-
-            // Use easing for smoother animation
-            if (isCollapsed)
-            {
-                currentWidth -= adaptiveStep;
-                if (currentWidth <= targetWidth) // Stop collapsing when target is reached
-                {
-                    currentWidth = targetWidth;
-                    animationTimer.Stop();
-                    isAnimating = false;
-                }
-            }
-            else
-            {
-                currentWidth += adaptiveStep;
-                if (currentWidth >= targetWidth) // Stop expanding when target is reached
-                {
-                    currentWidth = targetWidth;
-                    animationTimer.Stop();
-                    EndMenuCollapseExpand?.Invoke(isCollapsed);
-                    isAnimating = false;
-                }
-            }
-
-            // Update the control width dynamically
-            Width = currentWidth;
-
-            // Only adjust child control layout when really necessary
-            // This is the specific line you selected - reduced frequency improves performance
-            if (isAnimating && currentWidth % 5 == 0)
-            {
-                AdjustControlWidths(currentWidth);
-            }
-
-            // Resume layout
-            this.ResumeLayout(false); // false means don't force immediate layout
-
-            // Process window messages to prevent UI freeze
-            Application.DoEvents();
-
-            // Cleanup after animation (if animation has completed)
             if (!isAnimating)
             {
+                animationTimer.Stop();
+                return;
+            }
+
+            // Compute progress based on elapsed time
+            var elapsed = (float)(DateTime.UtcNow - _animationStartTime).TotalMilliseconds;
+            var progress = EaseOutCubic(elapsed / _animationDurationMs);
+
+            int newWidth = (int)(_animStartWidth + ((_animTargetWidth - _animStartWidth) * progress));
+            if (newWidth != Width)
+            {
+                Width = newWidth;
+            }
+
+            // Repaint only once per tick
+            Invalidate();
+
+            // Finish
+            if (elapsed >= _animationDurationMs)
+            {
+                isAnimating = false;
+                animationTimer.Stop();
+                Width = _animTargetWidth;
                 OptimizeForAnimation(false); // Restore normal rendering
-                AdjustControlWidths(currentWidth); // Final adjustment
                 Invalidate();
+                EndMenuCollapseExpand?.Invoke(isCollapsed);
             }
         }
 
@@ -476,48 +490,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void MenuItems_ListChanged(object sender, ListChangedEventArgs e)
         {
             InitializeMenu();
+            InitializeExpandedState();
+            RefreshIconCache();
         }
         private void InitializeMenu()
         {
             Invalidate();
             return;
-            UpdateDrawingRect();
-
-            // Clear existing menu item panels
-            foreach (var control in Controls.OfType<Panel>().Where(c => c.Tag is SimpleItem).ToList())
-            {
-                Controls.Remove(control);
-                control.Dispose();
-            }
-
-            if (menuItems == null || menuItems.Count == 0)
-                return;
-
-            int padding = 5;
-            int yOffset = toggleButton.Bottom + padding;
-
+            // ... original panel-based initialization skipped in drawing mode
+        }
+        private void InitializeExpandedState()
+        {
+            if (menuItems == null) return;
             foreach (var item in menuItems)
             {
-                var menuItemPanel = CreateMenuItemPanel(item, false);
-                menuItemPanel.Width = DrawingRect.Width - (2 * padding);
-                menuItemPanel.Location = new Point(DrawingRect.X + padding, yOffset);
-                Controls.Add(menuItemPanel);
-                menuItemPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                yOffset += menuItemPanel.Height + padding;
-
-                // Add child menu items (if any)
-                if (item.Children != null && item.Children.Count > 0)
+                if (!_expandedState.ContainsKey(item))
                 {
-                    foreach (var childItem in item.Children)
-                    {
-                        var childPanel = CreateMenuItemPanel(childItem, true);
-                        childPanel.Width = DrawingRect.Width - (2 * padding);
-                        childPanel.Location = new Point(DrawingRect.X + (padding * 2), yOffset);
-                        childPanel.Visible = false; // Initially hidden
-                        Controls.Add(childPanel);
-
-                        yOffset += childPanel.Height + padding;
-                    }
+                    // Default to expanded so children show initially
+                    _expandedState[item] = true;
                 }
             }
         }
@@ -594,8 +584,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void OnMenuItemClick(SimpleItem item)
         {
-            MessageBox.Show($"Selected item: {item.Text}");
-            CollapseMenu();
+            MenuItemClicked?.Invoke(item);
+            if (CollapseOnItemClick)
+            {
+                CollapseMenu();
+            }
         }
         private void CollapseMenu()
         {
@@ -620,6 +613,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Update theme-related colors
             BackColor = _currentTheme.SideMenuBackColor;
+            // Ensure toggle button uses current theme
+            if (toggleButton != null)
+            {
+                toggleButton.BackColor = BackColor;
+                toggleButton.ForeColor = _currentTheme.SideMenuForeColor;
+                toggleButton.Theme = Theme;
+                toggleButton.ApplyTheme();
+            }
+            // Clear icon cache on theme change to refresh themed images
+            ClearIconCache();
 
             // Force redraw with new theme
             Invalidate();
@@ -713,12 +716,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            //// Fill background
-            //using (SolidBrush backgroundBrush = new SolidBrush(BackColor))
-            //{
-            //    graphics.FillRectangle(backgroundBrush, rectangle);
-            //}
-
             // Calculate layout regions
             int padding = 5;
             int yOffset = drawRectY + padding;
@@ -750,7 +747,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!string.IsNullOrEmpty(Title))
                 {
                     // Use the theme font if available, or fallback to a default
-                    Font titleFont = BeepThemesManager.ToFont( _currentTheme?.SideMenuTitleFont);
+                    Font titleFont = BeepThemesManager.ToFont(_currentTheme?.SideMenuTitleFont);
                     if (titleFont == null)
                     {
                         titleFont = new Font("Segoe UI", 12, FontStyle.Bold);
@@ -809,19 +806,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 contentWidth,
                 menuItemHeight);
 
-            using (BeepButton toggleBtn = new BeepButton())
-            {
-                toggleBtn.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.hamburger.svg";
-                toggleBtn.MaxImageSize = new Size(24, 24);
-                toggleBtn.ImageAlign = ContentAlignment.MiddleCenter;
-                toggleBtn.BackColor = BackColor;
-                toggleBtn.ForeColor = _currentTheme.SideMenuForeColor;
-                toggleBtn.IsFrameless = true;
-                toggleBtn.ApplyThemeOnImage = true;
-                toggleBtn.ImageEmbededin = ImageEmbededin.SideBar;
-                toggleBtn.ApplyTheme();
-                toggleBtn.Draw(graphics, toggleRect);
-            }
+            // Reuse the cached toggleButton instance to avoid allocations
+            toggleButton.BackColor = BackColor;
+            toggleButton.ForeColor = _currentTheme.SideMenuForeColor;
+            toggleButton.Theme = Theme;
+            toggleButton.ApplyTheme();
+            toggleButton.Draw(graphics, toggleRect);
 
             yOffset += menuItemHeight + padding;
 
@@ -891,12 +881,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                             imageSize,
                             imageSize);
 
-                        using (BeepImage img = new BeepImage())
-                        {
-                            img.ImagePath = item.ImagePath;
-                            img.ApplyThemeOnImage = ApplyThemeOnImages;
-                            img.Draw(graphics, imageRect);
-                        }
+                        var img = GetCachedIcon(item.ImagePath);
+                        img.ApplyThemeOnImage = ApplyThemeOnImages;
+                        img.Draw(graphics, imageRect);
                     }
 
                     // Draw item text (if not collapsed)
@@ -938,114 +925,112 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Draw child items if this item has children and we're not collapsed
                     if (!isCollapsed && item.Children != null && item.Children.Count > 0)
                     {
-                        foreach (var childItem in item.Children)
+                        bool isExpanded = _expandedState.TryGetValue(item, out var ex) ? ex : false;
+                        if (isExpanded)
                         {
-                            // Create child item rectangle with indent
-                            Rectangle childRect = new Rectangle(
-                                drawRectX + (padding * 2),
-                                yOffset,
-                                contentWidth - padding,
-                                menuItemHeight);
-
-                            // Check if mouse is hovering over this child item
-                            bool isChildHovered = childRect.Contains(mousePosition);
-
-                            // Draw child highlight panel
-                            Rectangle childHighlightRect = new Rectangle(
-                                childRect.X,
-                                childRect.Y,
-                                HilightPanelSize,
-                                childRect.Height);
-
-                            using (SolidBrush highlightBrush = new SolidBrush(
-                                isChildHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
+                            foreach (var childItem in item.Children)
                             {
-                                graphics.FillRectangle(highlightBrush, childHighlightRect);
-                            }
+                                // Create child item rectangle with indent
+                                Rectangle childRect = new Rectangle(
+                                    drawRectX + (padding * 2),
+                                    yOffset,
+                                    contentWidth - padding,
+                                    menuItemHeight);
 
-                            // Draw child spacing
-                            Rectangle childSpacingRect = new Rectangle(
-                                childHighlightRect.Right,
-                                childRect.Y,
-                                2,
-                                childRect.Height);
+                                // Check if mouse is hovering over this child item
+                                bool isChildHovered = childRect.Contains(mousePosition);
 
-                            using (SolidBrush spacingBrush = new SolidBrush(BackColor))
-                            {
-                                graphics.FillRectangle(spacingBrush, childSpacingRect);
-                            }
+                                // Draw child highlight panel
+                                Rectangle childHighlightRect = new Rectangle(
+                                    childRect.X,
+                                    childRect.Y,
+                                    HilightPanelSize,
+                                    childRect.Height);
 
-                            // Draw child button area
-                            Rectangle childButtonRect = new Rectangle(
-                                childSpacingRect.Right,
-                                childRect.Y,
-                                childRect.Width - childHighlightRect.Width - childSpacingRect.Width,
-                                childRect.Height);
-
-                            using (SolidBrush buttonBrush = new SolidBrush(
-                                isChildHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
-                            {
-                                graphics.FillRectangle(buttonBrush, childButtonRect);
-                            }
-
-                            // Draw child icon
-                            if (!string.IsNullOrEmpty(childItem.ImagePath))
-                            {
-                                int imageSize = ListImageSize.Width;
-                                Rectangle imageRect = new Rectangle(
-                                    childButtonRect.X + padding,
-                                    childButtonRect.Y + (childButtonRect.Height - imageSize) / 2,
-                                    imageSize,
-                                    imageSize);
-
-                                using (BeepImage img = new BeepImage())
+                                using (SolidBrush highlightBrush = new SolidBrush(
+                                    isChildHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
                                 {
-                                    img.ImagePath = childItem.ImagePath;
+                                    graphics.FillRectangle(highlightBrush, childHighlightRect);
+                                }
+
+                                // Draw child spacing
+                                Rectangle childSpacingRect = new Rectangle(
+                                    childHighlightRect.Right,
+                                    childRect.Y,
+                                    2,
+                                    childRect.Height);
+
+                                using (SolidBrush spacingBrush = new SolidBrush(BackColor))
+                                {
+                                    graphics.FillRectangle(spacingBrush, childSpacingRect);
+                                }
+
+                                // Draw child button area
+                                Rectangle childButtonRect = new Rectangle(
+                                    childSpacingRect.Right,
+                                    childRect.Y,
+                                    childRect.Width - childHighlightRect.Width - childSpacingRect.Width,
+                                    childRect.Height);
+
+                                using (SolidBrush buttonBrush = new SolidBrush(
+                                    isChildHovered ? _currentTheme.SideMenuHoverBackColor : BackColor))
+                                {
+                                    graphics.FillRectangle(buttonBrush, childButtonRect);
+                                }
+
+                                // Draw child icon
+                                if (!string.IsNullOrEmpty(childItem.ImagePath))
+                                {
+                                    int imageSize = ListImageSize.Width;
+                                    Rectangle imageRect = new Rectangle(
+                                        childButtonRect.X + padding,
+                                        childButtonRect.Y + (childButtonRect.Height - imageSize) / 2,
+                                        imageSize,
+                                        imageSize);
+
+                                    var img = GetCachedIcon(childItem.ImagePath);
                                     img.ApplyThemeOnImage = ApplyThemeOnImages;
                                     img.Draw(graphics, imageRect);
                                 }
-                            }
 
-                            // Draw child text
-                            int childImageOffset = !string.IsNullOrEmpty(childItem.ImagePath) ?
-                                ListImageSize.Width + (padding * 2) : padding;
+                                // Draw child text
+                                int childImageOffset = !string.IsNullOrEmpty(childItem.ImagePath) ?
+                                    ListImageSize.Width + (padding * 2) : padding;
 
-                            Rectangle childTextRect = new Rectangle(
-                                childButtonRect.X + childImageOffset,
-                                childButtonRect.Y,
-                                childButtonRect.Width - childImageOffset,
-                                childButtonRect.Height);
+                                Rectangle childTextRect = new Rectangle(
+                                    childButtonRect.X + childImageOffset,
+                                    childButtonRect.Y,
+                                    childButtonRect.Width - childImageOffset,
+                                    childButtonRect.Height);
 
-                            using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
-                            using (Font itemFont = UseThemeFont ?
-                               FontListHelper.CreateFontFromTypography(_currentTheme.SideMenuTextFont) :
-                                ListButtonFont)
-                            {
-                                StringFormat textFormat = new StringFormat
+                                using (SolidBrush textBrush = new SolidBrush(_currentTheme.SideMenuForeColor))
+                                using (Font itemFont = UseThemeFont ?
+                                   FontListHelper.CreateFontFromTypography(_currentTheme.SideMenuTextFont) :
+                                    ListButtonFont)
                                 {
-                                    Alignment = StringAlignment.Near,
-                                    LineAlignment = StringAlignment.Center,
-                                    Trimming = StringTrimming.EllipsisCharacter
-                                };
+                                    StringFormat textFormat = new StringFormat
+                                    {
+                                        Alignment = StringAlignment.Near,
+                                        LineAlignment = StringAlignment.Center,
+                                        Trimming = StringTrimming.EllipsisCharacter
+                                    };
 
-                                graphics.DrawString(childItem.Text, itemFont, textBrush, childTextRect, textFormat);
+                                    graphics.DrawString(childItem.Text, itemFont, textBrush, childTextRect, textFormat);
+                                }
+
+                                // Store child item's position for hit testing
+                                childItem.X = childRect.X;
+                                childItem.Y = childRect.Y;
+                                childItem.Width = childRect.Width;
+                                childItem.Height = childRect.Height;
+
+                                yOffset += menuItemHeight + padding;
                             }
-
-                            // Store child item's position for hit testing
-                            childItem.X = childRect.X;
-                            childItem.Y = childRect.Y;
-                            childItem.Width = childRect.Width;
-                            childItem.Height = childRect.Height;
-
-                            yOffset += menuItemHeight + padding;
                         }
                     }
                 }
             }
         }
-        /// <summary>
-        /// Handles mouse click events for direct drawing implementation
-        /// </summary>
         /// <summary>
         /// Handles mouse click events for direct drawing implementation
         /// </summary>
@@ -1110,9 +1095,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Rectangle itemRect = new Rectangle(item.X, item.Y, item.Width, item.Height);
                     if (itemRect.Contains(e.Location))
                     {
-                        OnMenuItemClick(item);
-                        Invalidate();
-                        return;
+                        // If header has children, toggle expansion instead of firing click
+                        if (item.Children != null && item.Children.Count > 0)
+                        {
+                            bool current = _expandedState.TryGetValue(item, out var ex) ? ex : true;
+                            _expandedState[item] = !current;
+                            Invalidate();
+                            return;
+                        }
+                        else
+                        {
+                            OnMenuItemClick(item);
+                            Invalidate();
+                            return;
+                        }
                     }
 
                     // Check child items if parent has children and menu is expanded
@@ -1145,5 +1141,61 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
+        // Cache helpers
+        private BeepImage GetCachedIcon(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return new BeepImage();
+            }
+            if (_iconCache.TryGetValue(path, out var cached) && cached != null)
+            {
+                return cached;
+            }
+            var img = new BeepImage { ImagePath = path, ApplyThemeOnImage = ApplyThemeOnImages };
+            _iconCache[path] = img;
+            return img;
+        }
+        private void RefreshIconCache()
+        {
+            ClearIconCache();
+            if (menuItems == null) return;
+            foreach (var item in menuItems)
+            {
+                if (!string.IsNullOrEmpty(item.ImagePath))
+                {
+                    _iconCache[item.ImagePath] = new BeepImage { ImagePath = item.ImagePath, ApplyThemeOnImage = ApplyThemeOnImages };
+                }
+                if (item.Children != null)
+                {
+                    foreach (var child in item.Children)
+                    {
+                        if (!string.IsNullOrEmpty(child.ImagePath))
+                        {
+                            _iconCache[child.ImagePath] = new BeepImage { ImagePath = child.ImagePath, ApplyThemeOnImage = ApplyThemeOnImages };
+                        }
+                    }
+                }
+            }
+        }
+        private void ClearIconCache()
+        {
+            foreach (var kv in _iconCache)
+            {
+                kv.Value?.Dispose();
+            }
+            _iconCache.Clear();
+        }
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                animationTimer?.Stop();
+                animationTimer?.Dispose();
+                toggleButton?.Dispose();
+                ClearIconCache();
+            }
+            base.Dispose(disposing);
+        }
     }
 }

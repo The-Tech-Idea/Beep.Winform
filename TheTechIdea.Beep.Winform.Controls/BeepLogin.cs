@@ -1483,5 +1483,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Math.Min(255, (int)(color.B * factor))
             );
         }
+
+        public void ClearPassword()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void FocusPassword()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

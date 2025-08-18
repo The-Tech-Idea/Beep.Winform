@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common.Helpers;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 //
@@ -19,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
 
         IBeepService _beepServices;
         IDMEEditor DMEEditor;
+        string currentMenuName = "Beep";
         public IBeepService beepServices { 
             get { return _beepServices; }
             set { _beepServices = value; }
@@ -37,13 +39,18 @@ namespace TheTechIdea.Beep.Winform.Controls.MenuBar
         {
             
         }
+        public IErrorsInfo CreateMenuItems(string menuname)
+        {
+            currentMenuName= menuname;
+            return CreateMenuItems();
+        }
         public IErrorsInfo CreateMenuItems()
         {
             ErrorsInfo errors = new ErrorsInfo();
             errors.Flag = Errors.Ok;
             try
             {
-                foreach (var item in DynamicMenuManager.CreateCombinedMenuItems( "Beep"))
+                foreach (var item in DynamicMenuManager.CreateCombinedMenuItems(currentMenuName))
                 {
                     MenuItems.Add(item);
                 }

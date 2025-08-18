@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         IErrorsInfo LoadSetting();
         IErrorsInfo SaveSetting();
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
-        IDM_Addin ShowUserControlPopUp(string usercontrolname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e);
+        IErrorsInfo ShowUserControlPopUp(string usercontrolname, IDMEEditor pDMEEditor, string[] args, IPassedArgs e);
         IErrorsInfo ShowPage(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false);
         Task<IErrorsInfo> ShowPageAsync(string pagename, PassedArgs Passedarguments, DisplayType displayType = DisplayType.InControl, bool Singleton = false);
         IErrorsInfo ShowWaitForm(PassedArgs Passedarguments);

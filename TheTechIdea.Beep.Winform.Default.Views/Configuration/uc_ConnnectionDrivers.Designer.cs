@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             beepRowConfig1.DisplayIndex = -1;
             beepRowConfig1.Height = 25;
-            beepRowConfig1.Id = "4f7a3c82-10d2-4e7f-b10f-2e703ada47e6";
+            beepRowConfig1.Id = "6954e6ce-3153-46ee-9a6e-da6dceacc74a";
             beepRowConfig1.IsAggregation = true;
             beepRowConfig1.IsDataLoaded = false;
             beepRowConfig1.IsDeleted = false;
@@ -100,9 +100,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.UpperY = 0;
             beepRowConfig1.Width = 100;
             beepSimpleGrid1.aggregationRow = beepRowConfig1;
+            beepSimpleGrid1.AllowUserToAddRows = false;
+            beepSimpleGrid1.AllowUserToDeleteRows = false;
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
+            beepSimpleGrid1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             beepSimpleGrid1.BackColor = Color.White;
             beepSimpleGrid1.BadgeBackColor = Color.Red;
             beepSimpleGrid1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -1377,7 +1380,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.HoverForeColor = Color.FromArgb(40, 40, 40);
             beepSimpleGrid1.Id = -1;
             beepSimpleGrid1.InactiveBorderColor = Color.Gray;
-          //  beepSimpleGrid1.Info = (SimpleItem)resources.GetObject("beepSimpleGrid1.Info");
             beepSimpleGrid1.IsAcceptButton = false;
             beepSimpleGrid1.IsBorderAffectedByTheme = true;
             beepSimpleGrid1.IsCancelButton = false;
@@ -1420,6 +1422,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.QueryFunction = null;
             beepSimpleGrid1.QueryFunctionName = null;
             beepSimpleGrid1.RadialCenter = (PointF)resources.GetObject("beepSimpleGrid1.RadialCenter");
+            beepSimpleGrid1.ReadOnly = true;
             beepSimpleGrid1.RightoffsetForDrawingRect = 0;
             beepSimpleGrid1.RowHeight = 25;
             beepSimpleGrid1.SavedGuidID = null;
@@ -1429,6 +1432,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.SelectedForeColor = Color.FromArgb(40, 40, 40);
             beepSimpleGrid1.SelectedValue = null;
             beepSimpleGrid1.SelectionColumnWidth = 30;
+            beepSimpleGrid1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             beepSimpleGrid1.ShadowColor = Color.FromArgb(100, 0, 0, 0);
             beepSimpleGrid1.ShadowOffset = 0;
             beepSimpleGrid1.ShadowOpacity = 0.5F;

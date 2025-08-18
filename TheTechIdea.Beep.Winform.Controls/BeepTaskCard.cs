@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -14,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Task Card")]
     [Description("A task or project card displaying avatars, title, subtitle, metric, and progress.")]
     public class BeepTaskCard : BeepControl
-    {// Controls Used for Drawing and theming
+    {
         private BeepButton button;
         private BeepLabel label;
         private BeepImage image;
@@ -24,8 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _subtitleText = "Cryptocurrency";
         private string _metricText = "110 hours / 45%";
         private float _progressValue = 45f; // Progress percentage (0-100)
-        private string _moreIconPath;
-        private Image _moreIcon;
+        private string _moreIconPath = BeepSvgPaths.Cat;
+        private Image _moreIcon = null;
 
         [Category("Appearance")]
         [Description("List of avatar image names or paths displayed at the top-left.")]
@@ -170,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             label.Text = _titleText;
             label.ForeColor = _currentTheme.TaskCardTitleForeColor;
             label.Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardTitleFont);
-            label.BackColor = Color.Transparent;
+            label.BackColor =_currentTheme.BackColor;
             label.IsChild = true;
             var titleRect = new Rectangle(clientRect.Left + 10, avatarY + avatarSize + 10, clientRect.Width - 20, 24);
             label.Draw(g, titleRect);
@@ -181,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = _subtitleText,
                 ForeColor = _currentTheme.TaskCardSubTitleForeColor,
                 Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardSubStyleStyle),
-                BackColor = Color.Transparent,
+                BackColor = _currentTheme.BackColor,
                 IsChild = true
             };
             var subRect = new Rectangle(clientRect.Left + 10, avatarY + avatarSize + 34, clientRect.Width - 20, 20);
@@ -193,7 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = _metricText,
                 ForeColor = _currentTheme.TaskCardMetricTextForeColor,
                 Font = FontListHelper.CreateFontFromTypography(_currentTheme.TaskCardMetricTextStyle),
-                BackColor = Color.Transparent,
+                BackColor = _currentTheme.BackColor,
                 IsChild = true
             };
             Size metricSize = TextRenderer.MeasureText(_metricText, metricLabel.Font);

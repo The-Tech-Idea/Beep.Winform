@@ -28,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     {
         #region Properties
         #region Fields
+
         // Add these fields to track state
         private bool _fillVisibleRowsPending = false;
         private bool _isUpdatingRows = false;
@@ -688,6 +689,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showCheckboxes = value;
+                if (Columns is null) return;
+                if (Columns.Count == 0) return;
                 var selColumn = Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
                 if (_showCheckboxes)
                 {
@@ -766,30 +769,78 @@ namespace TheTechIdea.Beep.Winform.Controls
             OnSelectedRowsChanged();
         }
         #endregion "Checkboxes and Selections"
-        //private string _badgeText =string.Empty;
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public string BadgeText
-        //{
-        //    get => _badgeText;
-        //    set
-        //    {
-        //        _badgeText = value;
-        //        if (titleLabel != null)
-        //        {
-        //            if(string.IsNullOrEmpty(value))
-        //            {
-        //                titleLabel.BadgeText = string.Empty;
-        //            }
-        //            else
-        //            {
-        //                titleLabel.BadgeText = value;
-        //            }
 
-        //        }
-        //        Invalidate();
-        //    }
-        //}
+        private bool _allowUserToAddRows = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool AllowUserToAddRows
+        {
+            get => _allowUserToAddRows;
+            set
+            {
+                _allowUserToAddRows = value;
+                Invalidate();
+            }
+        }
+
+        private bool _allowUserToDeleteRows = false;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool AllowUserToDeleteRows
+        {
+            get => _allowUserToDeleteRows;
+            set
+            {
+                _allowUserToDeleteRows = value;
+                Invalidate();
+            }
+        }
+        private DataGridViewSelectionMode _selectionMode = DataGridViewSelectionMode.FullRowSelect;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public DataGridViewSelectionMode SelectionMode
+        {
+            get => _selectionMode;
+            set
+            {
+                _selectionMode = value;
+                Invalidate();
+            }
+        }
+        private DataGridViewAutoSizeColumnsMode _autoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+        [Browsable(true)]
+        [Category("Layout")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public DataGridViewAutoSizeColumnsMode AutoSizeColumnsMode
+        {
+            get => _autoSizeColumnsMode;
+            set
+            {
+                _autoSizeColumnsMode = value;
+                Invalidate();
+            }
+        }
+        private bool _readOnly = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                _readOnly = value;
+                foreach (var column in Columns)
+                {
+                    column.ReadOnly = value;
+                }
+                Invalidate();
+            }
+        }
+
         [Browsable(true)]
         [Category("Appearance")]
         [Description("If true, grid will be drawn in black and white (monochrome) instead of color.")]
@@ -2498,8 +2549,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion Column Setup
-        // Add this method to ensure the grid initializes safely when dragged from toolbox
-        // Add this method to ensure the grid initializes safely when dragged from toolbox
         protected override void OnHandleCreated(EventArgs e)
         {
             base.OnHandleCreated(e);
@@ -3122,6 +3171,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    if (DataNavigator != null) DataNavigator.DataSource = _fullData;
         //}
         #endregion
+        #region Size and Layout Management
+        private void AutoResizeColumnsToFitContent()
+        { 
+            // want to resize all  columns its content
+            if (Columns == null || Columns.Count == 0)
+                return;
+            // Calculate total width of all visible columns
+            int totalWidth = Columns.Where(c => c.Visible).Sum(c => c.Width);
+            int availableWidth = gridRect.Width - (ShowCheckboxes ? _selectionColumnWidth : 0) - (ShowRowNumbers ? 30 : 0);
+            // If total width exceeds available width, resize columns proportionally
+            if (totalWidth > availableWidth)
+            {
+                float scaleFactor = (float)availableWidth / totalWidth;
+                foreach (var col in Columns.Where(c => c.Visible))
+                {
+                    col.Width = (int)(col.Width * scaleFactor);
+                }
+            }
+
+           
+        }
+        #endregion
         #region Data Filling and Navigation
         public void RefreshGrid()
         {
@@ -3131,8 +3202,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateScrollBars();
             Invalidate();
         }
-       
-
         private void InvalidateCell(BeepCellConfig cell)
         {
             if (cell?.Rect != Rectangle.Empty)
@@ -3147,7 +3216,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Update(); // Force immediate update for better responsiveness
             }
         }
-
         private void InvalidateRow(int rowIndex)
         {
             if (rowIndex >= 0 && rowIndex < Rows.Count)
@@ -3162,148 +3230,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Update(); // Force immediate update
             }
         }
-        //private void FillVisibleRows()
-        //{
-        //    if (_fullData == null || !_fullData.Any())
-        //    {
-        //        //MiscFunctions.SendLog("FillVisibleRows: No data available");
-        //        Rows.Clear();
-        //        return;
-        //    }
-
-        //    int visibleRowCount = GetVisibleRowCount() == 1 ? _fullData.Count : GetVisibleRowCount();
-        //    int startRow = Math.Max(0, _dataOffset);
-        //    int endRow = Math.Min(_dataOffset + visibleRowCount, _fullData.Count);
-        //    int requiredRows = endRow - startRow;
-        //    SuspendLayout();
-        //    try
-        //    {
-        //        // Clear and recreate rows (keeping existing logic for now)
-        //        Rows.Clear();
-
-        //        for (int i = startRow; i < endRow; i++)
-        //        {
-        //            int dataIndex = i;
-        //            var row = new BeepRowConfig
-        //            {
-        //                RowIndex = i - _dataOffset,
-        //                DisplayIndex = dataIndex,
-        //                IsAggregation = false,
-        //                Height = _rowHeights.ContainsKey(dataIndex) ? _rowHeights[dataIndex] : _rowHeight,
-        //                OldDisplayIndex = dataIndex
-        //            };
-
-        //            var dataItem = _fullData[dataIndex] as DataRowWrapper;
-        //            if (dataItem != null)
-        //            {
-        //                EnsureTrackingForItem(dataItem);
-        //                row.IsDataLoaded = true;
-
-        //                for (int j = 0; j < Columns.Count; j++)
-        //                {
-        //                    var col = Columns[j];
-        //                    var cell = new BeepCellConfig
-        //                    {
-        //                        RowIndex = i - _dataOffset,
-        //                        ColumnIndex = col.Index,
-        //                        IsVisible = col.Visible,
-        //                        IsEditable = true,
-        //                        IsAggregation = false,
-        //                        Height = row.Height
-        //                    };
-
-        //                    if (col.IsSelectionCheckBox)
-        //                    {
-        //                        int rowID = dataItem.RowID;
-        //                        bool isSelected = _persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID];
-        //                        cell.CellValue = isSelected;
-        //                        cell.CellData = isSelected;
-        //                    }
-        //                    else if (col.IsRowNumColumn)
-        //                    {
-        //                        cell.CellValue = dataIndex + 1;
-        //                        cell.CellData = dataIndex + 1;
-        //                    }
-        //                    else if (col.IsRowID)
-        //                    {
-        //                        cell.CellValue = dataItem.RowID;
-        //                        cell.CellData = dataItem.RowID;
-        //                    }
-        //                    else
-        //                    {
-        //                        var prop = dataItem.OriginalData.GetType().GetProperty(col.ColumnName ?? col.ColumnCaption);
-        //                        var value = prop?.GetValue(dataItem.OriginalData) ?? string.Empty;
-        //                        cell.CellValue = value;
-        //                        cell.CellData = value;
-        //                    }
-        //                    row.Cells.Add(cell);
-        //                }
-        //            }
-        //            Rows.Add(row);
-        //        }
-
-        //        // Update aggregationRow separately
-        //        if (_showaggregationRow && aggregationRow != null)
-        //        {
-        //            for (int j = 0; j < aggregationRow.Cells.Count && j < Columns.Count; j++)
-        //            {
-        //                var col = Columns[j];
-        //                var cell = aggregationRow.Cells[j];
-        //                if (cell.IsAggregation)
-        //                {
-        //                    object aggregatedValue = ComputeAggregation(col, _fullData);
-        //                    cell.CellValue = aggregatedValue?.ToString() ?? "";
-        //                    cell.CellData = aggregatedValue;
-        //                }
-        //            }
-        //        }
-
-        //        // Update _selectedRows and _selectedgridrows
-        //        var newSelectedRows = new List<int>();
-        //        var newSelectedGridRows = new List<BeepRowConfig>();
-        //        for (int i = 0; i < Rows.Count; i++)
-        //        {
-        //            int dataIndex = _dataOffset + i;
-        //            var dataItem = _fullData[dataIndex] as DataRowWrapper;
-        //            if (dataItem != null)
-        //            {
-        //                int rowID = dataItem.RowID;
-        //                if (_persistentSelectedRows.ContainsKey(rowID) && _persistentSelectedRows[rowID])
-        //                {
-        //                    newSelectedRows.Add(i);
-        //                    newSelectedGridRows.Add(Rows[i]);
-        //                }
-        //            }
-        //        }
-        //        _selectedRows = newSelectedRows;
-        //        _selectedgridrows = newSelectedGridRows;
-
-        //        UpdateTrackingIndices();
-        //        SyncSelectedRowIndexAndEditor();
-        //        UpdateCellPositions();
-        //        UpdateScrollBars();
-        //        UpdateRecordNumber();
-        //        UpdateSelectionState();
-        //        UpdateNavigationButtonState();
-        //        // Position scrollbars
-        //        PositionScrollBars();
-        //        // Only invalidate the grid area
-        //        //if (gridRect != Rectangle.Empty)
-        //        //{
-        //        //    Invalidate(gridRect);
-        //        //}
-
-
-        //    }
-        //    finally
-        //    {
-        //        ResumeLayout(false);
-        //    }
-
-
-        //    //MiscFunctions.SendLog($"FillVisibleRows: Updated {Rows.Count} visible rows, _fullData.Count={_fullData.Count}");
-        //}
-        // Replace FillVisibleRows with this optimized version
         private void FillVisibleRows()
         {
             // Prevent recursive calls
@@ -3332,7 +3258,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         // Add a scheduler for deferred updates
-       
         private void ScheduleFillVisibleRows()
         {
             if (_fillVisibleRowsPending)
@@ -3391,7 +3316,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Clear and recreate rows
                 Rows.Clear();
-
+                int maxrowheight = 32;
+                int maxcolumnwidth = 32;
                 for (int i = startRow; i < endRow; i++)
                 {
                     int dataIndex = i;
@@ -3448,11 +3374,35 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 cell.CellData = value;
                             }
                             row.Cells.Add(cell);
-                        }
+                            if (AutoSizeColumnsMode == DataGridViewAutoSizeColumnsMode.AllCells)
+                            {
+
+                                if (cell.CellValue != null)
+                                {
+                                    SizeF textSize = TextRenderer.MeasureText(cell.CellValue.ToString(), this.Font);
+                                    maxrowheight = Math.Max(maxrowheight, (int)textSize.Height + 4); // Add padding
+                                    maxcolumnwidth = Math.Max(maxcolumnwidth, (int)textSize.Width + 4); // Add padding
+                                                                                                        // set row height and column width
+                                    row.Height = Math.Max(maxrowheight, _rowHeight);
+
+                                    if (cell.IsVisible && !col.IsSelectionCheckBox && !col.IsRowNumColumn && !col.IsRowID)
+                                    {
+                                        
+                                        Columns[cell.ColumnIndex].Width = Math.Max(Columns[cell.ColumnIndex].Width, maxcolumnwidth);
+                                    }
+                                }
+                            }
+                          
+
+                        
+                    }
                     }
                     Rows.Add(row);
-                }
 
+                      
+                    
+                }
+                
                 //// Update aggregationRow separately
                 //if (_showaggregationRow && aggregationRow != null)
                 //{
@@ -4459,11 +4409,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-
-        //}
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
         {
             int padding = 10; // Consistent padding from the edge
@@ -4922,61 +4867,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void PaintScrollingRow(Graphics g, BeepRowConfig row, Rectangle rowRect)
         {
-            //int xOffset = rowRect.Left; // Starts at scrollingRegion.Left - _xOffset from PaintRows
-            //int rightBoundary = gridRect.Right; // rowRect’s right edge
-            //int totalScrollableWidth = Columns.Where(c => !c.Sticked && c.Visible).Sum(c => c.Width) +
-            //                          (Columns.Count(c => !c.Sticked && c.Visible) - 1) * 1; // Include border width
-            //int leftBoundary = gridRect.Left; // Left edge of the scrolling region (already includes _stickyWidth)
-
-            //// Adjust initial xOffset to prevent drawing beyond leftBoundary
-            //if (xOffset < leftBoundary)
-            //{
-            //    int overflow = leftBoundary - xOffset;
-            //    xOffset = leftBoundary;
-            //}
-
-            //for (int i = 0; i < row.Cells.Count && i < Columns.Count; i++)
-            //{
-            //    if (!Columns[i].Visible || Columns[i].Sticked) continue;
-
-            //    var cell = row.Cells[i];
-            //    cell.X = xOffset;
-            //    cell.Y = rowRect.Top;
-            //    cell.Width = Columns[i].Width;
-            //    cell.Height = rowRect.Height;
-
-            //    // Skip or adjust if cell starts outside leftBoundary
-            //    if (xOffset < leftBoundary)
-            //    {
-            //        int overflow = leftBoundary - xOffset;
-            //        cell.Width = Math.Max(0, cell.Width - overflow);
-            //        cell.X = leftBoundary;
-            //        if (cell.Width <= 0) continue; // Skip if fully outside
-            //    }
-
-            //    // Stop if cell would exceed rowRect.Right
-            //    if (xOffset + cell.Width > rightBoundary)
-            //    {
-            //        cell.Width = Math.Max(0, rightBoundary - xOffset); // Truncate last cell if needed
-            //        if (cell.Width <= 0) break; // No room left
-            //    }
-
-            //    var cellRect = new Rectangle(cell.X, cell.Y, cell.Width, cell.Height);
-            //    Color backcolor = cell.RowIndex == _currentRowIndex ? _currentTheme.SelectedRowBackColor : _currentTheme.GridBackColor;
-            //    PaintCell(g, cell, cellRect, backcolor);
-            //    // set cell coordinates and size in cell
-            //    cell.X = cellRect.X;
-            //    cell.Y = cellRect.Y;
-            //    cell.Width = cellRect.Width;
-            //    cell.Height = cellRect.Height;
-            //    xOffset += Columns[i].Width;
-            //    if (xOffset >= rightBoundary && xOffset < rowRect.Left + totalScrollableWidth)
-            //        rightBoundary = Math.Min(rowRect.Left + totalScrollableWidth, rowRect.Right); // Extend boundary if within scrollable range
-            //    if (xOffset >= rightBoundary) break; // Exit if past boundary
-
-            //    // Debug output for scrolling cells
-            // //   //MiscFunctions.SendLog($"PaintScrollingRow: Row={cell.RowIndex}, Col={Columns[i].ColumnName}, X={cell.X}, Width={cell.Width}, LeftBoundary={leftBoundary}, RightBoundary={rightBoundary}");
-            //}
+      
             // Calculate effective right boundary by subtracting the vertical scrollbar width if it's visible.
             // Compute boundaries for the scrolling area:
             // Assume gridRect represents the entire grid, and sticky columns occupy the left part.
@@ -6869,6 +6760,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void ShowCellEditor(BeepCellConfig cell, Point location)
         {
+            if (ReadOnly) return;
             if (cell == null || !cell.IsEditable)
                 return;
 

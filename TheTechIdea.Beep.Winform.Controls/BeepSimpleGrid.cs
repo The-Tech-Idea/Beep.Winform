@@ -2730,7 +2730,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (Rows == null) Rows = new BindingList<BeepRowConfig>();
             Rows.Clear();
-
+            if(_fullData == null || !_fullData.Any())
+            {
+                //MiscFunctions.SendLog("InitializeRows: _fullData is null or empty, skipping row initialization");
+                return;
+            }
             //// Ensure we have valid columns
             //if (_columns == null || !_columns.Any())
             //{
@@ -3840,7 +3844,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (column.CellEditor)
             {
                 case BeepColumnType.Text:
-                    return new BeepSimpleTextBox { Theme = Theme, IsChild = true };
+                    return new BeepTextBox { Theme = Theme, IsChild = true };
                 case BeepColumnType.CheckBoxBool:
                     return new BeepCheckBoxBool { Theme = Theme, HideText = true, Text = string.Empty, IsChild = true };
                 case BeepColumnType.CheckBoxString:

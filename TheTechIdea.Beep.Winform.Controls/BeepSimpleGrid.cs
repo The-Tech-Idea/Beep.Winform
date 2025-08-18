@@ -3316,10 +3316,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Clear and recreate rows
                 Rows.Clear();
-                int maxrowheight = 32;
-                int maxcolumnwidth = 32;
+               
                 for (int i = startRow; i < endRow; i++)
                 {
+                    int maxrowheight = 32;
+                    
                     int dataIndex = i;
                     var row = new BeepRowConfig
                     {
@@ -3338,6 +3339,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         for (int j = 0; j < Columns.Count; j++)
                         {
+                            int maxcolumnwidth = 32;
                             var col = Columns[j];
                             var cell = new BeepCellConfig
                             {

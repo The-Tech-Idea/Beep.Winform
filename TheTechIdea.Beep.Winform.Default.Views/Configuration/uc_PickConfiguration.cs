@@ -7,12 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Default.Views.Template;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
-    public partial class Form2 : BeepiForm
+    public partial class uc_PickConfiguration : TemplateUserControl
     {
-        public Form2()
+        public uc_PickConfiguration()
         {
             InitializeComponent();
         }

@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.IsFrameless = true;
 
             _beepListBox.ShowHilightBox = false;
-            _beepListBox.MenuItemHeight = Math.Max(Menuitemheight, 20); // Ensure minimum height
+           // _beepListBox.MenuItemHeight = Math.Max(Menuitemheight, 20); // Ensure minimum height
 
             // Get the actual needed height from BeepListBox
             int neededHeight = _beepListBox.GetMaxHeight();
@@ -179,10 +179,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             calculatedMaxWidth = Math.Min(calculatedMaxWidth, 400); // Max width
             // Remove the height cap to allow all items to be displayed
             // neededHeight = Math.Min(neededHeight, 300); // <- REMOVED: This was preventing all items from showing
-            neededHeight = Math.Max(neededHeight, 60);  // Keep minimum height
-
+            neededHeight = neededHeight;// Math.Max(neededHeight, 60);  // Keep minimum height
+            Debug.WriteLine($"output hieght {neededHeight}");
             // Set the form size
             Size = new Size(calculatedMaxWidth, neededHeight);
+            _beepListBox.Padding = new Padding(5);
             _beepListBox.Dock = DockStyle.Fill;
             _beepListBox.Invalidate();
         }

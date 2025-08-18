@@ -1318,11 +1318,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             TwitterLoginClick?.Invoke(this, EventArgs.Empty);
         }
+        protected virtual void OnRegisterClick()
+        {
+            RegisterClick?.Invoke(this, EventArgs.Empty);
+        }
+        protected virtual void OnForgotPasswordClick()
+        {
+            ForgotPasswordClick?.Invoke(this, EventArgs.Empty);
+        }
+        protected virtual void OnAvatarClick()
+        {
+            AvatarClick?.Invoke(this, EventArgs.Empty);
+        }
+        protected virtual void OnLogoClick()
+        {
+            LogoClick?.Invoke(this, EventArgs.Empty);
+        }
+        protected virtual void OnViewTypeChanged()
+        {
+            ViewTypeChanged?.Invoke(this, EventArgs.Empty);
+        }
 
         public event EventHandler LoginClick;
         public event EventHandler GoogleLoginClick;
         public event EventHandler FacebookLoginClick;
         public event EventHandler TwitterLoginClick;
+        public event EventHandler RegisterClick;
+        public event EventHandler ForgotPasswordClick;
+        public event EventHandler AvatarClick;
+        public event EventHandler LogoClick;
+        public event EventHandler ViewTypeChanged;
 
         [Browsable(true)]
         [Category("Layout")]

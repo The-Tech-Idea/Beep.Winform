@@ -256,7 +256,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         bool _applyThemeOnImage = false;
-        [Browsable(true)]
+        [Browsable(true)
+        ]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
         public bool ApplyThemeOnImage
@@ -390,110 +391,95 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Get dimensions to ensure accuracy
             GetDimensions();
 
-            // Use Graphics object for proper text measurement
-            using (Graphics g = this.CreateGraphics())
+            int maxWidth = 0;
+
+            foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
             {
-                int maxWidth = 0;
-                // Calculate width for each item
-                foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main))
+                int itemWidth = 0;
+
+                // Highlight bar + spacing if enabled (matches Draw)
+                if (_showHilightBox)
                 {
-                    // Start with some base padding
-                    int itemWidth = 0;
-
-                    // Account for highlight box width if enabled - use scaled values
-                    if (_showHilightBox)
-                    {
-                        itemWidth += ScaleValue(7) + ScaleValue(1); // highlightWidth + spacingWidth
-                    }
-
-                    // Add checkbox width if enabled - use scaled values
-                    if (ShowCheckBox)
-                    {
-                        itemWidth += ScaledCheckboxSize + ScaleValue(4); // checkboxSize + padding
-                    }
-
-                    // Add image width if enabled and available - use scaled values
-                    if (ShowImage && !string.IsNullOrEmpty(item.ImagePath) && File.Exists(item.ImagePath))
-                    {
-                        itemWidth += ScaledImageSize + ScaleValue(4); // imageSize + padding
-                    }
-
-                    // Use the appropriate font based on theme settings
-                    Font textFont =
-                        BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont);
-                        
-
-                    // Measure text width
-                    SizeF textSize = g.MeasureString(item.Text, textFont);
-
-                    // Add text width plus padding - use scaled padding
-                    itemWidth += (int)Math.Ceiling(textSize.Width) + ScaleValue(8); // text width + padding
-
-                    // Update max width if this item is wider
-                    maxWidth = Math.Max(maxWidth, itemWidth);
+                    itemWidth += ScaledHighlightPanelSize;   // highlight width
+                    itemWidth += ScaleValue(1);              // spacing panel width
                 }
 
-                // Add left and right border thickness
-                maxWidth += BorderThickness * 2;
+                // Checkbox width if enabled (matches Draw)
+                if (ShowCheckBox)
+                {
+                    itemWidth += ScaledCheckboxSize + (ScaledCheckboxPadding * 2); // checkbox + left/right padding
+                }
 
-                // Ensure minimum reasonable width - use scaled minimum
-                maxWidth = Math.Max(maxWidth, ScaleValue(50));
+                // Image width if shown or item has an image (matches Draw)
+                if (ShowImage || !string.IsNullOrEmpty(item.ImagePath))
+                {
+                    int imgPadding = ScaleValue(2);
+                    itemWidth += ScaledImageSize + (imgPadding * 2); // image + left/right padding
+                }
 
-                return maxWidth;
+                // Text width (matches font choice used in Draw)
+                Font textFont = UseThemeFont
+                    ? FontListHelper.CreateFontFromTypography(_currentTheme.LabelMedium)
+                    : _textFont;
+
+                int textPaddingLeft = ScaleValue(2);
+                int textPaddingRight = ScaleValue(4);
+                int textWidth = TextRenderer.MeasureText(item.Text ?? string.Empty, textFont).Width;
+                itemWidth += textPaddingLeft + textWidth + textPaddingRight;
+
+                maxWidth = Math.Max(maxWidth, itemWidth);
             }
+
+            // Add left and right border thickness (matches layout)
+            maxWidth += BorderThickness * 2;
+
+            // Ensure minimum reasonable width
+            maxWidth = Math.Max(maxWidth, ScaleValue(50));
+
+            return maxWidth;
         }
 
         // 6. Fix or update the GetMaxHeight method - remove _buttons references
         public int GetMaxHeight()
         {
-            // If there are no items, just return minimal height
-            if (items == null || items.Count == 0)
-            {
-                int minHeight = ScaleValue(30); // Minimum scaled height
-                if (ShowTitle && TitleBottomY > 0)
-                    minHeight = TitleBottomY + ScaleValue(10);
-                return minHeight;
-            }
-
             // Ensure dimensions are up to date
             GetDimensions();
 
-            // Calculate starting Y position properly
-            int startOffset = ScaleValue(5); // Base padding
+            // Base padding at the top (matches Draw)
+            int totalHeight = ScaleValue(5);
 
-            // Add title height if shown
+            // Title height if shown (matches Draw)
             if (ShowTitle && TitleBottomY > 0)
             {
-                startOffset += TitleBottomY;
+                totalHeight += TitleBottomY;
             }
 
-            // Add border thickness
-            startOffset += BorderThickness;
+            // Border thickness (matches Draw)
+            totalHeight += BorderThickness;
 
-            // Add search box height if visible
+            // Search area if visible (matches Draw)
             if (_showSearch)
             {
-                startOffset += ScaledSearchAreaHeight + ScaleValue(5);
+                totalHeight += ScaledSearchAreaHeight + ScaleValue(5);
             }
 
-            // Calculate total items height using scaled values
-            int totalItemsHeight = 0;
-            int visibleItemCount = 0;
+            // If there are no items, return minimal height consistent with Draw
+            if (items == null || items.Count == 0)
+            {
+                totalHeight += ScaleValue(10); // bottom padding (matches Draw)
+                return Math.Max(totalHeight, ScaleValue(50));
+            }
 
+            // Calculate items height exactly as in Draw: sum of (itemHeight + spacing) for each visible item
+            int visibleCount = 0;
             foreach (var item in items.Where(p => p.ItemType == Vis.Modules.MenuItemType.Main && !_filteredOutItems.Contains(p)))
             {
-                totalItemsHeight += ScaledMenuItemHeight + ScaledSpacing;
-                visibleItemCount++;
+                totalHeight += ScaledMenuItemHeight + ScaledSpacing;
+                visibleCount++;
             }
 
-            // Remove the last spacing (after the final item) if we have items
-            if (visibleItemCount > 0)
-            {
-                totalItemsHeight -= ScaledSpacing;
-            }
-
-            // Calculate total height
-            int totalHeight = startOffset + totalItemsHeight + ScaleValue(10); // Bottom padding
+            // Bottom padding (matches Draw)
+            totalHeight += ScaleValue(10);
 
             // Ensure minimum height
             totalHeight = Math.Max(totalHeight, ScaleValue(50));

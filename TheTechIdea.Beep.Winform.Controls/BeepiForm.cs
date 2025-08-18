@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int BorderRadius
         {
             get { return _borderRadius; }
-            set { _borderRadius = value; UpdateFormRegion(); Invalidate(); }
+            set { _borderRadius = Math.Max(0, value); if (IsHandleCreated && ClientSize.Width > 0 && ClientSize.Height > 0) UpdateFormRegion(); Invalidate(); }
         }
         [Browsable(true)]
         [Category("Appearance")]
@@ -172,19 +172,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e);
 
-            if (_borderThickness > 0 && _borderColor != Color.Transparent)
+            if (_borderThickness > 0 && _borderColor != Color.Transparent && ClientSize.Width > 0 && ClientSize.Height > 0)
             {
                 using var borderPen = new Pen(_borderColor, _borderThickness);
                 var rect = new Rectangle(0, 0, ClientSize.Width - 1, ClientSize.Height - 1);
-                if (_borderRadius > 0)
+                
+                if (rect.Width > 0 && rect.Height > 0)
                 {
-                    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                    using var path = GetRoundedRectanglePath(rect, _borderRadius);
-                    e.Graphics.DrawPath(borderPen, path);
-                }
-                else
-                {
-                    e.Graphics.DrawRectangle(borderPen, rect);
+                    if (_borderRadius > 0)
+                    {
+                        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                        using var path = GetRoundedRectanglePath(rect, _borderRadius);
+                        if (path.PointCount > 0)
+                        {
+                            e.Graphics.DrawPath(borderPen, path);
+                        }
+                    }
+                    else
+                    {
+                        e.Graphics.DrawRectangle(borderPen, rect);
+                    }
                 }
             }
         }
@@ -193,8 +200,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SuspendLayout();
             base.OnResize(e);
-            UpdateFormRegion(); // keep Region in sync while resizing (prevents “transparent” corners)
-            Invalidate();       // repaint current frame
+            // Only update form region if valid size
+            if (ClientSize.Width > 0 && ClientSize.Height > 0)
+            {
+                UpdateFormRegion();
+                Invalidate();
+            }
             ResumeLayout(true);
         }
 
@@ -206,11 +217,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateFormRegion()
         {
-            if (_borderRadius > 0)
+            if (_borderRadius > 0 && ClientSize.Width > 0 && ClientSize.Height > 0)
             {
                 Rectangle rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
                 using (GraphicsPath path = GetRoundedRectanglePath(rect, _borderRadius))
-                    this.Region = new Region(path);
+                {
+                    if (path.PointCount > 0)
+                        this.Region = new Region(path);
+                    else
+                        this.Region = null;
+                }
             }
             else
             {
@@ -363,33 +379,43 @@ namespace TheTechIdea.Beep.Winform.Controls
         private GraphicsPath GetRoundedRectanglePath(Rectangle rect, int radius)
         {
             GraphicsPath path = new GraphicsPath();
-            int diameter = radius * 2;
+            if (radius <= 0 || rect.Width <= 0 || rect.Height <= 0)
+            {
+                if (rect.Width > 0 && rect.Height > 0)
+                    path.AddRectangle(rect);
+                return path;
+            }
 
-            if (radius <= 0)
+            int diameter = Math.Min(rect.Width, rect.Height);
+            diameter = Math.Min(diameter, radius * 2);
+            if (diameter <= 0)
             {
                 path.AddRectangle(rect);
                 return path;
             }
 
-            if (diameter > rect.Width)
-                diameter = rect.Width;
-            if (diameter > rect.Height)
-                diameter = rect.Height;
+            try
+            {
+                Rectangle arcRect = new Rectangle(rect.X, rect.Y, diameter, diameter);
+                path.AddArc(arcRect, 180, 90);
 
-            Rectangle arcRect = new Rectangle(rect.Location, new Size(diameter, diameter));
+                arcRect.X = rect.Right - diameter;
+                path.AddArc(arcRect, 270, 90);
 
-            path.AddArc(arcRect, 180, 90);
+                arcRect.Y = rect.Bottom - diameter;
+                path.AddArc(arcRect, 0, 90);
 
-            arcRect.X = rect.Right - diameter;
-            path.AddArc(arcRect, 270, 90);
+                arcRect.X = rect.Left;
+                path.AddArc(arcRect, 90, 90);
 
-            arcRect.Y = rect.Bottom - diameter;
-            path.AddArc(arcRect, 0, 90);
-
-            arcRect.X = rect.Left;
-            path.AddArc(arcRect, 90, 90);
-
-            path.CloseFigure();
+                path.CloseFigure();
+            }
+            catch (ArgumentException)
+            {
+                path.Reset();
+                if (rect.Width > 0 && rect.Height > 0)
+                    path.AddRectangle(rect);
+            }
             return path;
         }
 

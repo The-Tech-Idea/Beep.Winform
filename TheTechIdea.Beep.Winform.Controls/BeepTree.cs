@@ -297,9 +297,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(
                 ControlStyles.UserPaint |
                 ControlStyles.AllPaintingInWmPaint |
-                ControlStyles.OptimizedDoubleBuffer,
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.ResizeRedraw |
+                ControlStyles.Opaque,
                 true);
             this.UpdateStyles();
+            this.DoubleBuffered = true;
             BeepButton _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(GetScaledBoxSize()-2,GetScaledBoxSize()-2), Size = new Size(GetScaledBoxSize(), GetScaledBoxSize()) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
             BeepCheckBoxBool _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = GetScaledBoxSize() };
             BeepImage _iconRenderer = new BeepImage { IsChild = true, ScaleMode = ImageScaleMode.KeepAspectRatio };
@@ -320,7 +323,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeScrollbars();
         }
 
-     
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            // Suppress default background painting to avoid flicker.
+            // We clear the background once in DrawContent.
+        }
 
         protected override void InitLayout()
         {
@@ -350,16 +357,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         protected override void DrawContent(Graphics g)
         {
+            // Clear background once per frame
+            g.Clear(BackColor);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.InterpolationMode = InterpolationMode.HighQualityBilinear;
+
             UpdateDrawingRect();
-            //   base.DrawContent(g);
-            // Draw ONLY our custom background, skip base drawing
-           
             HitList.Clear();
-           // RebuildVisible();
 
             // Update scrollbars based on current content
             UpdateScrollBars();
-        //    ApplyTheme();
+
             int y = 0;
             foreach (var root in _nodes)
             {

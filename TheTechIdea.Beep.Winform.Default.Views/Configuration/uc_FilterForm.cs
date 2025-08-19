@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         #endregion "IAddinVisSchema"
 
        
-        private IBeepService beepservice;
+        
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
            
             base.OnNavigatedTo(parameters);
-            beepSimpleGrid1.DataSource = beepservice.Config_editor.DataSourcesClasses;
+            beepSimpleGrid1.DataSource =  beepService.Config_editor.DataSourcesClasses;
             //beepFilter1.DataSource = beepservice.Editor.ConfigEditor.DataSourcesClasses;
 
         }

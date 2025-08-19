@@ -33,9 +33,22 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepNumericUpDown : BeepControl
     {
         #region Private Fields
-        private BeepButton _decrementButton;
-        private BeepButton _incrementButton;
-        private BeepTextBox _valueTextBox;
+        // Text box is only shown when editing
+        private TextBox _textBox;
+        private bool _isEditing = false;
+        
+        // Button areas and states
+        private Rectangle _upButtonRect;
+        private Rectangle _downButtonRect;
+        private bool _upButtonPressed;
+        private bool _downButtonPressed;
+        private bool _upButtonHovered;
+        private bool _downButtonHovered;
+        private System.Windows.Forms.Timer _repeatTimer;
+        private int _repeatCount;
+        private const int INITIAL_DELAY = 500;
+        private const int REPEAT_DELAY = 50;
+        private const int MAX_REPEAT_SPEED = 10;
 
         private decimal _minimumValue = 0m;
         private decimal _maximumValue = 100m;
@@ -72,6 +85,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<ValueValidatingEventArgs> ValueValidating;
         public event EventHandler MinimumReached;
         public event EventHandler MaximumReached;
+        public event EventHandler UpButtonClicked;
+        public event EventHandler DownButtonClicked;
         public event EventHandler ValueValidationFailed;
         #endregion
 
@@ -87,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _minimumValue = value;
                 if (_value < _minimumValue)
                     Value = _minimumValue;
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -102,7 +117,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _maximumValue = value;
                 if (_value > _maximumValue)
                     Value = _maximumValue;
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -139,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
 
                     _value = newValue;
-                    UpdateTextBox();
+                    UpdateDisplayText();
                     
                     // Fire change events
                     ValueChanged?.Invoke(this, EventArgs.Empty);
@@ -165,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _decimalPlaces = Math.Max(0, Math.Min(value, 15));
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -180,7 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _displayMode = value;
                 ConfigureForDisplayMode();
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -194,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _prefix = value ?? "";
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -208,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _suffix = value ?? "";
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -224,7 +239,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _unit = value ?? "";
                 if (!string.IsNullOrEmpty(_unit))
                     _suffix = $" {_unit}";
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -238,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _thousandsSeparator = value;
-                UpdateTextBox();
+                UpdateDisplayText();
             }
         }
 
@@ -252,8 +267,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _readOnly = value;
-                if (_valueTextBox != null)
-                    _valueTextBox.ReadOnly = value;
+                if (_textBox != null)
+                    _textBox.ReadOnly = value;
             }
         }
 
@@ -312,7 +327,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _buttonSize = value;
-                UpdateLayout(DrawingRect);
+                UpdateLayout();
+                Invalidate();
             }
         }
 
@@ -326,11 +342,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showSpinButtons = value;
-                if (_decrementButton != null)
-                    _decrementButton.Visible = value;
-                if (_incrementButton != null)
-                    _incrementButton.Visible = value;
-                UpdateLayout(DrawingRect);
+                UpdateLayout();
+                Invalidate();
             }
         }
 
@@ -373,19 +386,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _totalValue;
             set => _totalValue = value;
         }
-
-        // Child control access
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BeepTextBox TextBox => _valueTextBox;
-
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BeepButton UpButton => _incrementButton;
-
-        [Browsable(false)]
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BeepButton DownButton => _decrementButton;
         #endregion
 
         #region Constructor
@@ -396,12 +396,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.DoubleBuffer, true);
+            this.SetStyle(ControlStyles.Selectable, true);
             
             this.Size = DefaultSize;
             Margin = new Padding(0);
+            
+            // Set default visual properties
+            BorderRadius = 4;
+            ShowAllBorders = true;
+            IsBorderAffectedByTheme = true;
+            CanBeHovered = true;
+            CanBeFocused = true;
         
-            // Initialize child controls
-            InitializeControls();
+            // Initialize the TextBox but don't add it to Controls yet
+            InitializeTextBox();
+            
+            // Initialize button repeat timer
+            _repeatTimer = new System.Windows.Forms.Timer();
+            _repeatTimer.Tick += RepeatTimer_Tick;
+            
+            // Set initial layout
+            UpdateLayout();
         }
 
         protected override Size DefaultSize => new Size(120, GetHeightForButtonSize(_buttonSize));
@@ -417,61 +432,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => 30
             };
         }
+        
+        private int GetButtonWidth()
+        {
+            return _buttonSize switch
+            {
+                NumericSpinButtonSize.Small => 20,
+                NumericSpinButtonSize.Standard => 24,
+                NumericSpinButtonSize.Large => 28,
+                NumericSpinButtonSize.ExtraLarge => 32,
+                _ => 24
+            };
+        }
         #endregion
 
         #region Initialization
-        private void InitializeControls()
+        private void InitializeTextBox()
         {
-            // Decrement Button (Left)
-            _decrementButton = new BeepButton
+            // Create text box for direct input
+            _textBox = new TextBox
             {
-                Text = "−",  // Using minus sign instead of hyphen
-                IsFrameless = true,
-                AutoSize = false,
-                IsChild = true,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
+                BorderStyle = BorderStyle.None,
+                TextAlign = HorizontalAlignment.Center,
+                BackColor = Color.White,
+                Visible = false  // Initially hidden
             };
-            _decrementButton.Click += DecrementButton_Click;
-            _decrementButton.MouseDown += SpinButton_MouseDown;
-            _decrementButton.MouseUp += SpinButton_MouseUp;
-
-            // Increment Button (Right)
-            _incrementButton = new BeepButton
-            {
-                Text = "+",
-                IsFrameless = true,
-                AutoSize = false,
-                IsChild = true,
-                Font = new Font("Segoe UI", 10, FontStyle.Bold)
-            };
-            _incrementButton.Click += IncrementButton_Click;
-            _incrementButton.MouseDown += SpinButton_MouseDown;
-            _incrementButton.MouseUp += SpinButton_MouseUp;
-
-            // Value TextBox (Center)
-            _valueTextBox = new BeepTextBox
-            {
-                TextAlignment = HorizontalAlignment.Center,
-                IsFrameless = true,
-                OnlyDigits = false, // We'll handle validation ourselves
-                IsChild = true,
-                BorderStyle = BorderStyle.None
-            };
-            _valueTextBox.TextChanged += ValueTextBox_TextChanged;
-            _valueTextBox.KeyDown += ValueTextBox_KeyDown;
-            _valueTextBox.Enter += ValueTextBox_Enter;
-            _valueTextBox.Leave += ValueTextBox_Leave;
-
-            // Add controls to the parent
-            Controls.Add(_decrementButton);
-            Controls.Add(_valueTextBox);
-            Controls.Add(_incrementButton);
             
-            UpdateDrawingRect();
-            UpdateLayout(DrawingRect);
+            _textBox.TextChanged += TextBox_TextChanged;
+            _textBox.KeyDown += TextBox_KeyDown;
+            _textBox.LostFocus += TextBox_LostFocus;
             
-            // Set initial display
-            UpdateTextBox();
+            // Don't add to Controls yet - will be added when editing starts
         }
 
         private void ConfigureForDisplayMode()
@@ -512,87 +503,215 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Layout
-        private void UpdateLayout(Rectangle rect)
+        private void UpdateLayout()
         {
-            if (_valueTextBox == null) return;
-            
-            _valueTextBox.AutoSize = false;
+            if (Width <= 0 || Height <= 0) return;
             
             int padding = 2;
             int buttonWidth = _showSpinButtons ? GetButtonWidth() : 0;
             
-            // Calculate available dimensions
-            int availableWidth = rect.Width - 2 * padding;
-            int availableHeight = rect.Height - 2 * padding;
-            int elementHeight = availableHeight;
-            int elementY = rect.Top + padding;
-
+            // Calculate dimensions
+            int clientWidth = Width - 2 * padding;
+            int clientHeight = Height - 2 * padding;
+            int textBoxWidth = clientWidth;
+            
+            // Calculate button areas for drawing and hit testing
             if (_showSpinButtons)
             {
-                // TextBox width = total width - 2 buttons - paddings
-                int textBoxWidth = Math.Max(40, availableWidth - (2 * buttonWidth) - (2 * padding));
+                textBoxWidth = clientWidth - (2 * buttonWidth);
                 
-                // Layout Decrement Button (left)
-                _decrementButton.Location = new Point(rect.Left + padding, elementY);
-                _decrementButton.Size = new Size(buttonWidth, elementHeight);
-                _decrementButton.Visible = true;
-
-                // Layout TextBox (center)
-                _valueTextBox.Location = new Point(rect.Left + padding + buttonWidth + padding, elementY);
-                _valueTextBox.Size = new Size(textBoxWidth, elementHeight);
-
-                // Layout Increment Button (right)
-                _incrementButton.Location = new Point(_valueTextBox.Right + padding, elementY);
-                _incrementButton.Size = new Size(buttonWidth, elementHeight);
-                _incrementButton.Visible = true;
+                // Button rectangles (used for painting and hit testing)
+                _downButtonRect = new Rectangle(
+                    padding, 
+                    padding, 
+                    buttonWidth, 
+                    clientHeight);
+                
+                _upButtonRect = new Rectangle(
+                    Width - padding - buttonWidth,
+                    padding,
+                    buttonWidth,
+                    clientHeight);
             }
             else
             {
-                // Full width for text box
-                _decrementButton.Visible = false;
-                _incrementButton.Visible = false;
-                
-                _valueTextBox.Location = new Point(rect.Left + padding, elementY);
-                _valueTextBox.Size = new Size(availableWidth, elementHeight);
+                // Clear button rectangles when buttons are hidden
+                _downButtonRect = Rectangle.Empty;
+                _upButtonRect = Rectangle.Empty;
             }
-        }
-
-        private int GetButtonWidth()
-        {
-            return _buttonSize switch
+            
+            // Update text box dimensions for when it becomes visible
+            if (_textBox != null)
             {
-                NumericSpinButtonSize.Small => 20,
-                NumericSpinButtonSize.Standard => 24,
-                NumericSpinButtonSize.Large => 28,
-                NumericSpinButtonSize.ExtraLarge => 32,
-                _ => 24
-            };
+                int textBoxLeft = _showSpinButtons ? padding + buttonWidth : padding;
+                _textBox.Bounds = new Rectangle(
+                    textBoxLeft, 
+                    padding, 
+                    textBoxWidth, 
+                    clientHeight);
+            }
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateDrawingRect();
-            UpdateLayout(DrawingRect);
+            UpdateLayout();
             Invalidate();
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            UpdateLayout();
         }
         #endregion
 
         #region Drawing
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+            DrawControl(e.Graphics);
+        }
+        
+        private void DrawControl(Graphics g)
+        {
+            // Set up for high quality rendering
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+
+            // Get theme colors
+            Color backColor = _currentTheme?.TextBoxBackColor ?? SystemColors.Window;
+            Color foreColor = _currentTheme?.TextBoxForeColor ?? SystemColors.ControlText;
+            Color borderColor = _currentTheme?.TextBoxBorderColor ?? SystemColors.ControlDark;
+            Color buttonBackColor = _currentTheme?.ButtonBackColor ?? SystemColors.Control;
+            Color buttonForeColor = _currentTheme?.ButtonForeColor ?? SystemColors.ControlText;
+            Color buttonHoverBackColor = _currentTheme?.ButtonHoverBackColor ?? SystemColors.ControlLight;
+            Color buttonPressedBackColor = _currentTheme?.ButtonPressedBackColor ?? SystemColors.ControlDark;
+            
+            // Apply hover/focus state
+            if (IsHovered)
+                borderColor = _currentTheme?.TextBoxHoverBorderColor ?? SystemColors.Highlight;
+            else if (IsFocused)
+                borderColor = _currentTheme?.TextBoxBorderColor ?? SystemColors.Highlight;
+            
+            // Draw the background with rounded corners if specified
+            using (var bgBrush = new SolidBrush(backColor))
+            {
+                var clientRect = new Rectangle(0, 0, Width, Height);
+                
+                if (IsRounded)
+                {
+                    using (var path = GetRoundedRectPath(clientRect, BorderRadius))
+                    {
+                        g.FillPath(bgBrush, path);
+                        
+                        // Draw border
+                        using (var borderPen = new Pen(borderColor, 1))
+                        {
+                            g.DrawPath(borderPen, path);
+                        }
+                    }
+                }
+                else
+                {
+                    // Draw rectangle background and border
+                    g.FillRectangle(bgBrush, clientRect);
+                    using (var borderPen = new Pen(borderColor, 1))
+                    {
+                        g.DrawRectangle(borderPen, new Rectangle(0, 0, Width - 1, Height - 1));
+                    }
+                }
+            }
+            
+            // Only draw the value text if we're not in edit mode (textbox visible)
+            if (!_isEditing)
+            {
+                // Calculate text area
+                int padding = 2;
+                int buttonWidth = _showSpinButtons ? GetButtonWidth() : 0;
+                int textBoxLeft = _showSpinButtons ? padding + buttonWidth : padding;
+                int textWidth = Width - (2 * padding);
+                
+                if (_showSpinButtons)
+                {
+                    textWidth -= (2 * buttonWidth);
+                }
+                
+                Rectangle textRect = new Rectangle(
+                    textBoxLeft,
+                    padding,
+                    textWidth,
+                    Height - (2 * padding));
+                
+                // Draw formatted value
+                using (var textBrush = new SolidBrush(foreColor))
+                using (var font = SystemFonts.DefaultFont)
+                {
+                    StringFormat format = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisCharacter
+                    };
+                    
+                    string formattedText = FormatValue(_value);
+                    g.DrawString(formattedText, font, textBrush, textRect, format);
+                }
+            }
+            
+            // Draw buttons if enabled
+            if (_showSpinButtons)
+            {
+                // Draw down button
+                DrawButton(g, _downButtonRect, "−", 
+                    _downButtonPressed, _downButtonHovered, 
+                    buttonBackColor, buttonForeColor,
+                    buttonHoverBackColor, buttonPressedBackColor);
+                
+                // Draw up button
+                DrawButton(g, _upButtonRect, "+", 
+                    _upButtonPressed, _upButtonHovered,
+                    buttonBackColor, buttonForeColor,
+                    buttonHoverBackColor, buttonPressedBackColor);
+            }
+        }
+        
+        private void DrawButton(Graphics g, Rectangle rect, string text, 
+            bool pressed, bool hovered, 
+            Color backColor, Color foreColor, 
+            Color hoverBackColor, Color pressedBackColor)
+        {
+            // Select background color based on state
+            Color bgColor = backColor;
+            if (pressed)
+                bgColor = pressedBackColor;
+            else if (hovered)
+                bgColor = hoverBackColor;
+            
+            // Draw button background
+            using (var bgBrush = new SolidBrush(bgColor))
+            {
+                g.FillRectangle(bgBrush, rect);
+            }
+            
+            // Draw button text
+            using (var textBrush = new SolidBrush(foreColor))
+            using (var font = new Font("Segoe UI", 10f))
+            {
+                var stringFormat = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                
+                g.DrawString(text, font, textBrush, rect, stringFormat);
+            }
+        }
+        
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            UpdateLayout(rectangle);
-            
-            // Enable anti-aliasing for smooth rendering
-            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
-            // Draw the text box
-            if (_valueTextBox?.Visible == true && _valueTextBox.Width > 0 && _valueTextBox.Height > 0)
-            {
-                var valueTextBoxRect = new Rectangle(_valueTextBox.Left, _valueTextBox.Top, _valueTextBox.Width, _valueTextBox.Height);
-                _valueTextBox.Draw(graphics, valueTextBoxRect);
-            }
+            // Main control drawing implementation
+            DrawControl(graphics);
         }
         #endregion
 
@@ -611,17 +730,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             return Math.Max(_minimumValue, Math.Min(value, _maximumValue));
         }
 
-        private void UpdateTextBox()
+        private void UpdateDisplayText()
         {
-            if (_valueTextBox == null) return;
-
-            string newText = FormatValue(_value);
-            if (_valueTextBox.Text != newText)
+            // If currently editing, update the textbox text
+            if (_isEditing && _textBox != null)
             {
-                _valueTextBox.TextChanged -= ValueTextBox_TextChanged;
-                _valueTextBox.Text = newText;
-                _valueTextBox.TextChanged += ValueTextBox_TextChanged;
+                string newText = FormatValue(_value);
+                if (_textBox.Text != newText)
+                {
+                    _textBox.TextChanged -= TextBox_TextChanged;
+                    _textBox.Text = newText;
+                    _textBox.TextChanged += TextBox_TextChanged;
+                }
             }
+            
+            // Always invalidate to redraw
+            Invalidate();
         }
 
         private string FormatValue(decimal value)
@@ -644,11 +768,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Remove prefix and suffix
             string cleanText = text.Trim();
             
-            if (!string.IsNullOrEmpty(_prefix))
-                cleanText = cleanText.StartsWith(_prefix) ? cleanText.Substring(_prefix.Length) : cleanText;
+            if (!string.IsNullOrEmpty(_prefix) && cleanText.StartsWith(_prefix))
+                cleanText = cleanText.Substring(_prefix.Length);
                 
-            if (!string.IsNullOrEmpty(_suffix))
-                cleanText = cleanText.EndsWith(_suffix) ? cleanText.Substring(0, cleanText.Length - _suffix.Length) : cleanText;
+            if (!string.IsNullOrEmpty(_suffix) && cleanText.EndsWith(_suffix))
+                cleanText = cleanText.Substring(0, cleanText.Length - _suffix.Length);
 
             // Remove thousands separators
             cleanText = cleanText.Replace(",", "").Replace(" ", "");
@@ -662,32 +786,68 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
 
+        #region Editing Mode
+        private void StartEditing()
+        {
+            if (_readOnly || _isEditing)
+                return;
+            
+            _isEditing = true;
+            
+            // Set up the text box
+            _textBox.Text = FormatValue(_value);
+            
+            // Add it to the control now that we need it
+            if (!Controls.Contains(_textBox))
+            {
+                Controls.Add(_textBox);
+            }
+            
+            _textBox.Visible = true;
+            _textBox.BringToFront();
+            _textBox.Focus();
+            
+            if (_selectAllOnFocus)
+            {
+                _textBox.SelectAll();
+            }
+            
+            Invalidate();
+        }
+        
+        private void StopEditing(bool applyChanges)
+        {
+            if (!_isEditing)
+                return;
+            
+            _isEditing = false;
+            
+            if (applyChanges)
+            {
+                // Apply the change if valid
+                decimal newValue = ParseDisplayValue(_textBox.Text);
+                if (newValue >= _minimumValue && newValue <= _maximumValue)
+                {
+                    Value = newValue;
+                }
+            }
+            
+            // Hide the text box
+            _textBox.Visible = false;
+            
+            // Focus back to the control
+            this.Focus();
+            
+            Invalidate();
+        }
+        #endregion
+
         #region Event Handlers
-        private void IncrementButton_Click(object sender, EventArgs e)
+        private void TextBox_TextChanged(object sender, EventArgs e)
         {
-            PerformIncrement();
-        }
+            if (_textBox.ReadOnly) return;
 
-        private void DecrementButton_Click(object sender, EventArgs e)
-        {
-            PerformDecrement();
-        }
-
-        private void SpinButton_MouseDown(object sender, MouseEventArgs e)
-        {
-            // Could implement auto-repeat functionality here
-        }
-
-        private void SpinButton_MouseUp(object sender, MouseEventArgs e)
-        {
-            // Stop auto-repeat if implemented
-        }
-
-        private void ValueTextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (_valueTextBox.ReadOnly) return;
-
-            decimal newValue = ParseDisplayValue(_valueTextBox.Text);
+            decimal newValue = ParseDisplayValue(_textBox.Text);
             
             // Validate range
             if (newValue >= _minimumValue && newValue <= _maximumValue)
@@ -696,79 +856,312 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 // Remove any error highlighting
                 if (_highlightInvalidInput)
-                    _valueTextBox.BackColor = _currentTheme?.TextBoxBackColor ?? SystemColors.Window;
+                    _textBox.BackColor = _currentTheme?.TextBoxBackColor ?? SystemColors.Window;
                     
                 ValueChanged?.Invoke(this, EventArgs.Empty);
             }
             else if (_highlightInvalidInput)
             {
                 // Highlight invalid input
-                _valueTextBox.BackColor = _invalidInputColor;
+                _textBox.BackColor = _invalidInputColor;
             }
         }
 
-        private void ValueTextBox_KeyDown(object sender, KeyEventArgs e)
+        private void TextBox_KeyDown(object sender, KeyEventArgs e)
         {
-            if (!_interceptArrowKeys) return;
-
             switch (e.KeyCode)
             {
-                case Keys.Up:
-                    PerformIncrement();
+                case Keys.Enter:
+                    StopEditing(true);
                     e.Handled = true;
+                    e.SuppressKeyPress = true; // Prevents the beep
+                    break;
+                    
+                case Keys.Escape:
+                    StopEditing(false);
+                    e.Handled = true;
+                    break;
+                    
+                case Keys.Up:
+                    if (_interceptArrowKeys)
+                    {
+                        PerformIncrement();
+                        e.Handled = true;
+                    }
                     break;
                     
                 case Keys.Down:
-                    PerformDecrement();
-                    e.Handled = true;
+                    if (_interceptArrowKeys)
+                    {
+                        PerformDecrement();
+                        e.Handled = true;
+                    }
                     break;
                     
                 case Keys.PageUp:
-                    PerformIncrement(_incrementValue * 10);
-                    e.Handled = true;
+                    if (_interceptArrowKeys)
+                    {
+                        PerformIncrement(_incrementValue * 10);
+                        e.Handled = true;
+                    }
                     break;
                     
                 case Keys.PageDown:
-                    PerformDecrement(_incrementValue * 10);
-                    e.Handled = true;
+                    if (_interceptArrowKeys)
+                    {
+                        PerformDecrement(_incrementValue * 10);
+                        e.Handled = true;
+                    }
                     break;
                     
                 case Keys.Home:
-                    Value = _minimumValue;
-                    e.Handled = true;
+                    if (_interceptArrowKeys)
+                    {
+                        Value = _minimumValue;
+                        e.Handled = true;
+                    }
                     break;
                     
                 case Keys.End:
-                    Value = _maximumValue;
-                    e.Handled = true;
+                    if (_interceptArrowKeys)
+                    {
+                        Value = _maximumValue;
+                        e.Handled = true;
+                    }
                     break;
             }
         }
 
-        private void ValueTextBox_Enter(object sender, EventArgs e)
+        private void TextBox_LostFocus(object sender, EventArgs e)
         {
-            if (_selectAllOnFocus)
+            // When the textbox loses focus, stop editing and apply changes
+            StopEditing(true);
+        }
+        
+        // Mouse handling for buttons and clicks
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            
+            // Handle button clicks
+            if (_showSpinButtons)
             {
-                _valueTextBox.SelectAll();
+                if (_upButtonRect.Contains(e.Location))
+                {
+                    _upButtonPressed = true;
+                    PerformIncrement();
+                    
+                    // Start repeat timer for continuous press
+                    _repeatCount = 0;
+                    _repeatTimer.Interval = INITIAL_DELAY;
+                    _repeatTimer.Start();
+                    
+                    Invalidate(_upButtonRect);
+                    return; // Don't start editing if button was clicked
+                }
+                else if (_downButtonRect.Contains(e.Location))
+                {
+                    _downButtonPressed = true;
+                    PerformDecrement();
+                    
+                    // Start repeat timer for continuous press
+                    _repeatCount = 0;
+                    _repeatTimer.Interval = INITIAL_DELAY;
+                    _repeatTimer.Start();
+                    
+                    Invalidate(_downButtonRect);
+                    return; // Don't start editing if button was clicked
+                }
+            }
+            
+            // If click wasn't on a button, start editing
+            if (!_readOnly && !_isEditing)
+            {
+                StartEditing();
             }
         }
-
-        private void ValueTextBox_Leave(object sender, EventArgs e)
+        
+        protected override void OnMouseUp(MouseEventArgs e)
         {
-            // Ensure the display is properly formatted when focus is lost
-            UpdateTextBox();
+            base.OnMouseUp(e);
+            
+            // Stop the repeat timer
+            _repeatTimer.Stop();
+            
+            // Reset button states
+            bool invalidateNeeded = _upButtonPressed || _downButtonPressed;
+            _upButtonPressed = false;
+            _downButtonPressed = false;
+            
+            if (invalidateNeeded)
+            {
+                Invalidate();
+            }
+        }
+        
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+            
+            if (_showSpinButtons)
+            {
+                bool oldUpHovered = _upButtonHovered;
+                bool oldDownHovered = _downButtonHovered;
+                
+                _upButtonHovered = _upButtonRect.Contains(e.Location);
+                _downButtonHovered = _downButtonRect.Contains(e.Location);
+                
+                if (oldUpHovered != _upButtonHovered || oldDownHovered != _downButtonHovered)
+                {
+                    Invalidate();
+                }
+            }
+        }
+        
+        protected override void OnMouseLeave(EventArgs e)
+        {
+            base.OnMouseLeave(e);
+            
+            bool invalidateNeeded = _upButtonHovered || _downButtonHovered;
+            _upButtonHovered = false;
+            _downButtonHovered = false;
+            
+            if (invalidateNeeded)
+            {
+                Invalidate();
+            }
+        }
+        
+        protected override void OnMouseDoubleClick(MouseEventArgs e)
+        {
+            base.OnMouseDoubleClick(e);
+            
+            // If not already editing and not read-only, start editing on double-click
+            if (!_readOnly && !_isEditing && !_showSpinButtons)
+            {
+                StartEditing();
+            }
+        }
+        
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            IsFocused = true;
+            Invalidate();
+        }
+        
+        protected override void OnLostFocus(EventArgs e)
+        {
+            base.OnLostFocus(e);
+            
+            // Only set IsFocused to false if the textbox doesn't have focus
+            if (!(_textBox?.Focused ?? false))
+            {
+                IsFocused = false;
+                
+                // If we're losing focus and not to the textbox, stop editing
+                if (_isEditing && !(_textBox?.Focused ?? false))
+                {
+                    StopEditing(true);
+                }
+            }
+            
+            Invalidate();
+        }
+        
+        // Timer for button repeat
+        private void RepeatTimer_Tick(object sender, EventArgs e)
+        {
+            _repeatCount++;
+            
+            // Gradually speed up the repeat rate
+            if (_repeatCount > 10 && _repeatTimer.Interval > REPEAT_DELAY)
+            {
+                _repeatTimer.Interval = Math.Max(REPEAT_DELAY, _repeatTimer.Interval - 50);
+            }
+            
+            // Determine speed factor based on how long button has been pressed
+            int speedFactor = Math.Min(MAX_REPEAT_SPEED, _repeatCount / 20 + 1);
+            
+            // Perform the appropriate action
+            if (_upButtonPressed)
+            {
+                PerformIncrement(_incrementValue * speedFactor);
+            }
+            else if (_downButtonPressed)
+            {
+                PerformDecrement(_incrementValue * speedFactor);
+            }
+            else
+            {
+                _repeatTimer.Stop();
+            }
         }
 
         private void PerformIncrement(decimal? customIncrement = null)
         {
             decimal increment = customIncrement ?? _incrementValue;
             Value = _value + increment;
+            UpButtonClicked?.Invoke(this, EventArgs.Empty);
         }
 
         private void PerformDecrement(decimal? customDecrement = null)
         {
             decimal decrement = customDecrement ?? _incrementValue;
             Value = _value - decrement;
+            DownButtonClicked?.Invoke(this, EventArgs.Empty);
+        }
+        
+        // Handle key events directly on the control
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+            
+            if (!_isEditing && _interceptArrowKeys)
+            {
+                switch (e.KeyCode)
+                {
+                    case Keys.Up:
+                        PerformIncrement();
+                        e.Handled = true;
+                        break;
+                        
+                    case Keys.Down:
+                        PerformDecrement();
+                        e.Handled = true;
+                        break;
+                        
+                    case Keys.PageUp:
+                        PerformIncrement(_incrementValue * 10);
+                        e.Handled = true;
+                        break;
+                        
+                    case Keys.PageDown:
+                        PerformDecrement(_incrementValue * 10);
+                        e.Handled = true;
+                        break;
+                        
+                    case Keys.Home:
+                        Value = _minimumValue;
+                        e.Handled = true;
+                        break;
+                        
+                    case Keys.End:
+                        Value = _maximumValue;
+                        e.Handled = true;
+                        break;
+                        
+                    case Keys.Enter:
+                    case Keys.Space:
+                    case Keys.F2:
+                        if (!_readOnly)
+                        {
+                            StartEditing();
+                            e.Handled = true;
+                        }
+                        break;
+                }
+            }
         }
         #endregion
 
@@ -838,6 +1231,44 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             return _value;
         }
+        
+        /// <summary>
+        /// Begins editing the value with the text box.
+        /// </summary>
+        public void BeginEdit()
+        {
+            if (!_readOnly && !_isEditing)
+            {
+                StartEditing();
+            }
+        }
+        
+        /// <summary>
+        /// Ends editing and optionally applies the changes.
+        /// </summary>
+        public void EndEdit(bool applyChanges = true)
+        {
+            if (_isEditing)
+            {
+                StopEditing(applyChanges);
+            }
+        }
+        
+        /// <summary>
+        /// Select all text in the control.
+        /// </summary>
+        public void SelectAll()
+        {
+            if (_isEditing && _textBox != null)
+            {
+                _textBox.SelectAll();
+            }
+            else if (!_readOnly)
+            {
+                StartEditing();
+                _textBox?.SelectAll();
+            }
+        }
         #endregion
 
         #region Theme Integration
@@ -847,27 +1278,53 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_currentTheme == null) return;
 
-            // Apply theme to child controls
-            _valueTextBox?.ApplyTheme();
-            _decrementButton?.ApplyTheme();
-            _incrementButton?.ApplyTheme();
-
-            // Customize button appearance
-            if (_decrementButton != null)
+            // Set control background and border colors
+            BackColor = _currentTheme.TextBoxBackColor;
+            ForeColor = _currentTheme.TextBoxForeColor;
+            BorderColor = _currentTheme.TextBoxBorderColor;
+            
+            // Set hover and focus states
+            HoverBackColor = _currentTheme.TextBoxHoverBackColor;
+            HoverForeColor = _currentTheme.TextBoxHoverForeColor;
+            HoverBorderColor = _currentTheme.TextBoxHoverBorderColor;
+            
+            // Apply theme to text box
+            if (_textBox != null)
             {
-                _decrementButton.BackColor = _currentTheme.ButtonBackColor;
-                _decrementButton.ForeColor = _currentTheme.ButtonForeColor;
-                _decrementButton.BorderColor = _currentTheme.BorderColor;
+                _textBox.BackColor = _currentTheme.TextBoxBackColor;
+                _textBox.ForeColor = _currentTheme.TextBoxForeColor;
+                // Use system font instead of theme font
+                _textBox.Font = SystemFonts.DefaultFont;
             }
-
-            if (_incrementButton != null)
-            {
-                _incrementButton.BackColor = _currentTheme.ButtonBackColor;
-                _incrementButton.ForeColor = _currentTheme.ButtonForeColor;
-                _incrementButton.BorderColor = _currentTheme.BorderColor;
-            }
+            
+            // Set the invalid input color based on theme
+            _invalidInputColor = _currentTheme.ErrorColor;
+            
+            // Apply display mode specific styling
+            ApplyDisplayModeTheming();
 
             Invalidate();
+        }
+        
+        private void ApplyDisplayModeTheming()
+        {
+            // Apply specific theming for different display modes
+            if (_textBox != null)
+            {
+                switch (_displayMode)
+                {
+                    case NumericUpDownDisplayMode.Currency:
+                        // Add slightly different styling for currency display
+                        _textBox.ForeColor = _currentTheme.TextBoxForeColor;
+                        break;
+                        
+                    case NumericUpDownDisplayMode.Percentage:
+                    case NumericUpDownDisplayMode.ProgressValue:
+                        // Add slightly more accent-colored styling for percentage display
+                        _textBox.TextAlign = HorizontalAlignment.Center;
+                        break;
+                }
+            }
         }
         #endregion
 
@@ -905,27 +1362,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
-                // Clean up event handlers
-                if (_valueTextBox != null)
+                // Clean up event handlers and resources
+                if (_textBox != null)
                 {
-                    _valueTextBox.TextChanged -= ValueTextBox_TextChanged;
-                    _valueTextBox.KeyDown -= ValueTextBox_KeyDown;
-                    _valueTextBox.Enter -= ValueTextBox_Enter;
-                    _valueTextBox.Leave -= ValueTextBox_Leave;
+                    _textBox.TextChanged -= TextBox_TextChanged;
+                    _textBox.KeyDown -= TextBox_KeyDown;
+                    _textBox.LostFocus -= TextBox_LostFocus;
+                    _textBox.Dispose();
+                    _textBox = null;
                 }
-
-                if (_decrementButton != null)
+                
+                if (_repeatTimer != null)
                 {
-                    _decrementButton.Click -= DecrementButton_Click;
-                    _decrementButton.MouseDown -= SpinButton_MouseDown;
-                    _decrementButton.MouseUp -= SpinButton_MouseUp;
-                }
-
-                if (_incrementButton != null)
-                {
-                    _incrementButton.Click -= IncrementButton_Click;
-                    _incrementButton.MouseDown -= SpinButton_MouseDown;
-                    _incrementButton.MouseUp -= SpinButton_MouseUp;
+                    _repeatTimer.Tick -= RepeatTimer_Tick;
+                    _repeatTimer.Stop();
+                    _repeatTimer.Dispose();
+                    _repeatTimer = null;
                 }
             }
             base.Dispose(disposing);

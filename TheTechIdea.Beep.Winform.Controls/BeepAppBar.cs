@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -324,6 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
+        // Modify the search box properties to ensure they update both the control and the stored values
         [Browsable(true)]
         [Category("Appearance")]
         public string SearchBoxPlaceholder
@@ -506,8 +506,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = this.Theme,
                 Text = string.Empty,
                 ApplyThemeOnImage = true,
-                IsChild = false,
-                PlaceholderText = " Search...",
+                IsChild = true, // Mark as child to handle properly in drawing
+                PlaceholderText = "Search...",
                 Anchor = AnchorStyles.Right,
                 ApplyThemeToChilds = true,
                 IsFrameless = false,
@@ -518,11 +518,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TextAlignment = HorizontalAlignment.Left,
                 ShowAllBorders = true,
                 MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
-                Tag = "Search"
+                Tag = "Search",
+                Visible = false // Start invisible until needed
             };
             _searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             _searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
-           // _searchBox.Click += ButtonClicked;
             _searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg";
 
             // Apply auto-complete settings
@@ -534,6 +534,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var arg = new BeepAppBarEventsArgs("Search");
                 arg.Selectedstring = _searchBox.Text;
                 OnSearchBoxSelected?.Invoke(this, arg);
+                
+                // Make sure we redraw when text changes (in case we switch back to drawing mode)
+                Invalidate();
             };
 
             // Initialize notification button
@@ -653,7 +656,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Refreshes the hit areas based on the current layout.
         /// </summary>
-       
+      
 
         /// <summary>
         /// Handles a click on the logo area
@@ -779,7 +782,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _titleLabel.Draw(g, titleRect);
             }
 
-            // Continue with other components...
+            // Always draw the search box directly when visible and not already added as a control
             if (_showSearchBox && !_searchBoxAddedToControls)
             {
                 _searchBox.IsHovered = _hoveredComponentName == "Search";
@@ -1331,18 +1334,18 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Controls.Add(_searchBox);
                 _searchBoxAddedToControls = true;
 
-                // Start editing immediately
-              //  _searchBox.StartEditing();
+                // Focus the search box and select all text if any
                 _searchBox.Focus();
+                _searchBox.SelectAll();
 
                 // Register for lost focus to switch back to drawing mode
                 _searchBox.LostFocus += SearchBox_LostFocus;
             }
             else
             {
-                // If already added, just start editing
-            //    _searchBox.StartEditing();
+                // If already added, just focus it
                 _searchBox.Focus();
+                _searchBox.SelectAll();
             }
 
             var arg = new BeepAppBarEventsArgs("Search");
@@ -1361,6 +1364,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     if (!_searchBox.Focused)
                     {
                         RemoveSearchBoxControl();
+                        Invalidate(); // Ensure we redraw to show the drawn version
                     }
                 }));
             }
@@ -1374,7 +1378,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Controls.Remove(_searchBox);
                 _searchBoxAddedToControls = false;
                 _searchBox.Visible = false;
-                ResumeLayout(false); // Redraw to show the drawn version
+                ResumeLayout(false);
+                Invalidate(); // Ensure we redraw to show the drawn version
             }
         }
 
@@ -1590,7 +1595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 button.BackColor = _currentTheme.AppBarButtonBackColor != Color.Empty ?
                     _currentTheme.AppBarButtonBackColor : _currentTheme.AppBarBackColor;
                 button.ForeColor = _currentTheme.AppBarButtonForeColor != Color.Empty ?
-                    _currentTheme.AppBarButtonForeColor : _currentTheme.AppBarForeColor;
+                    _currentTheme.AppBarButtonForeColor : _currentTheme.ForeColor;
                 button.ParentBackColor = _currentTheme.AppBarBackColor;
                 button.HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 button.HoverForeColor = _currentTheme.ButtonHoverForeColor;
@@ -2008,5 +2013,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         //}
         #endregion "Drag and Move Functionality"
 
+        // Override Dispose to clean up resources
+protected override void Dispose(bool disposing)
+{
+    if (disposing)
+    {
+        // Clean up search box event handlers
+        if (_searchBox != null)
+        {
+            _searchBox.LostFocus -= SearchBox_LostFocus;
+        }
+    }
+    
+    base.Dispose(disposing);
+}
     }
 }

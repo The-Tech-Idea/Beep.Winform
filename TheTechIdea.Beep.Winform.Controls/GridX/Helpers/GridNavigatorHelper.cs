@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
@@ -11,10 +12,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private readonly BeepGridPro _grid;
         private BeepBindingNavigator _navigator;
         private BindingSource _bindingSource;
+        private object _uow; // optional UnitOfWork instance
 
         public GridNavigatorHelper(BeepGridPro grid)
         {
             _grid = grid;
+        }
+
+        public void SetUnitOfWork(object uow)
+        {
+            _uow = uow;
         }
 
         // Bind to a data source without a visual navigator (owner-drawn case)
@@ -65,21 +72,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void Navigator_NewRecordCreated(object sender, BindingSource bs)
         {
-            _grid.Data.Bind(_bindingSource);
-            _grid.Layout.Recalculate();
-            _grid.Invalidate();
+            InsertNew();
         }
 
         private void Navigator_DeleteCalled(object sender, BindingSource bs)
         {
-            _grid.Data.Bind(_bindingSource);
-            _grid.Layout.Recalculate();
-            _grid.Invalidate();
+            DeleteCurrent();
         }
 
         private void Navigator_SaveCalled(object sender, BindingSource bs)
         {
-            _grid.Invalidate();
+            Save();
         }
 
         // Exposed actions for owner-drawn navigator
@@ -110,6 +113,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void InsertNew()
         {
+          
+
             if (_bindingSource != null)
             {
                 try
@@ -128,6 +133,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void DeleteCurrent()
         {
+
+
             if (_bindingSource != null)
             {
                 try
@@ -144,6 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void Save()
         {
+           
             try
             {
                 _bindingSource?.EndEdit();
@@ -154,6 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         }
         public void Cancel()
         {
+          
             try
             {
                 _bindingSource?.CancelEdit();

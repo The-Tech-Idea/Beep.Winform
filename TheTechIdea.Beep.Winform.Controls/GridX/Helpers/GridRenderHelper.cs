@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls; // Use BeepControls for rendering/editing
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Helpers; // ImageListHelper
 
@@ -103,7 +102,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 TextRenderer.DrawText(g, col.ColumnCaption ?? col.ColumnName, headerFont, cellRect, hfg.Color,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
 
-                g.DrawRectangle(pen, cellRect);
+                using var pen2 = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark);
+                g.DrawRectangle(pen2, cellRect);
             }
         }
 
@@ -140,13 +140,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         _rowCheck.Draw(g, cbRect);
                 }
 
+                bool isActiveRow = r == _grid.Selection.RowIndex;
+                bool isSelectedRow = _grid.Data.Rows[r].IsSelected;
+
                 foreach (var sc in scrollCols)
                 {
                     var col = sc.Col;
                     var cell = _grid.Data.Rows[r].Cells[sc.Index];
                     var rect = new Rectangle(x, y, Math.Max(20, col.Width), _grid.RowHeight);
 
-                    var back = r == _grid.Selection.RowIndex
+                    var useSelected = isActiveRow || isSelectedRow;
+                    var back = useSelected
                         ? (Theme?.GridRowSelectedBackColor == Color.Empty ? (Theme?.SelectedRowBackColor ?? SystemColors.Highlight) : Theme.GridRowSelectedBackColor)
                         : (col.HasCustomBackColor && col.UseCustomColors ? col.ColumnBackColor : (Theme?.GridBackColor ?? SystemColors.Window));
                     var fore = col.HasCustomForeColor && col.UseCustomColors ? col.ColumnForeColor : (Theme?.GridForeColor ?? SystemColors.WindowText);
@@ -177,7 +181,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     var cell = _grid.Data.Rows[r].Cells[st.Index];
                     var rect = new Rectangle(startX, y, colW, _grid.RowHeight);
 
-                    var back = r == _grid.Selection.RowIndex
+                    bool isActiveRow = r == _grid.Selection.RowIndex;
+                    bool isSelectedRow = _grid.Data.Rows[r].IsSelected;
+                    var useSelected = isActiveRow || isSelectedRow;
+
+                    var back = useSelected
                         ? (Theme?.GridRowSelectedBackColor == Color.Empty ? (Theme?.SelectedRowBackColor ?? SystemColors.Highlight) : Theme.GridRowSelectedBackColor)
                         : (st.Col.HasCustomBackColor && st.Col.UseCustomColors ? st.Col.ColumnBackColor : (Theme?.GridBackColor ?? SystemColors.Window));
                     var fore = st.Col.HasCustomForeColor && st.Col.UseCustomColors ? st.Col.ColumnForeColor : (Theme?.GridForeColor ?? SystemColors.WindowText);
@@ -308,6 +316,41 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             UpdateDrawerFromCell(drawer, col, cell);
+
+            // Draw specialized controls similar to BeepSimpleGrid behavior
+            switch (drawer)
+            {
+                case BeepImage image:
+                    // BeepSimpleGrid calls DrawImage for BeepImage
+                    // Optional: size constraints can be applied based on column config if available
+                    image.Theme = _grid.Theme;
+                    image.IsFrameless = true;
+                    image.DrawImage(g, rect);
+                    return;
+                case BeepComboBox combo:
+                    combo.Theme = _grid.Theme;
+                    combo.IsFrameless = true;
+                    combo.Draw(g, rect);
+                    return;
+                case BeepCheckBoxBool cbBool:
+                    cbBool.Theme = _grid.Theme;
+                    cbBool.IsFrameless = true;
+                    cbBool.HideText = true;
+                    cbBool.Draw(g, rect);
+                    return;
+                case BeepCheckBoxChar cbChar:
+                    cbChar.Theme = _grid.Theme;
+                    cbChar.IsFrameless = true;
+                    cbChar.HideText = true;
+                    cbChar.Draw(g, rect);
+                    return;
+                case BeepCheckBoxString cbString:
+                    cbString.Theme = _grid.Theme;
+                    cbString.IsFrameless = true;
+                    cbString.HideText = true;
+                    cbString.Draw(g, rect);
+                    return;
+            }
 
             if (drawer is BeepControl bc)
             {

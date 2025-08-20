@@ -32,10 +32,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.ShowCheckBox && _grid.Layout.SelectAllCheckRect.Contains(e.Location))
             {
                 _selectAllChecked = !_selectAllChecked;
-                foreach (var row in _grid.Data.Rows)
+                for (int i = 0; i < _grid.Data.Rows.Count; i++)
                 {
+                    var row = _grid.Data.Rows[i];
                     row.IsSelected = _selectAllChecked;
                 }
+                _grid.OnRowSelectionChanged(-1);
                 _grid.Invalidate();
                 return;
             }
@@ -43,11 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Row checkbox
             if (_grid.ShowCheckBox)
             {
-                foreach (var row in _grid.Data.Rows)
+                for (int i = 0; i < _grid.Data.Rows.Count; i++)
                 {
+                    var row = _grid.Data.Rows[i];
                     if (row.RowCheckRect.Contains(e.Location))
                     {
                         row.IsSelected = !row.IsSelected;
+                        _grid.OnRowSelectionChanged(i);
                         _grid.Invalidate();
                         return;
                     }

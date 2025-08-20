@@ -574,13 +574,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.AnimationDuration = 500;
             beepGridPro1.AnimationType = DisplayAnimationType.None;
             beepGridPro1.ApplyThemeToChilds = false;
+            beepGridPro1.BackColor = Color.White;
             beepGridPro1.BadgeBackColor = Color.Red;
             beepGridPro1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepGridPro1.BadgeForeColor = Color.White;
             beepGridPro1.BadgeShape = BadgeShape.Circle;
             beepGridPro1.BadgeText = "";
             beepGridPro1.BlockID = null;
-            beepGridPro1.BorderColor = Color.Black;
+            beepGridPro1.BorderColor = Color.FromArgb(200, 200, 200);
             beepGridPro1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepGridPro1.BorderRadius = 8;
             beepGridPro1.BorderStyle = BorderStyle.FixedSingle;
@@ -1336,7 +1337,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DisabledBackColor = Color.White;
             beepGridPro1.DisabledBorderColor = Color.Empty;
             beepGridPro1.DisabledForeColor = Color.Black;
-            beepGridPro1.DrawingRect = new Rectangle(0, 0, 867, 288);
+            beepGridPro1.DrawingRect = new Rectangle(0, 0, 841, 288);
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableRippleEffect = false;
             beepGridPro1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
@@ -1347,13 +1348,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.FocusBorderColor = Color.RoyalBlue;
             beepGridPro1.FocusForeColor = Color.Black;
             beepGridPro1.FocusIndicatorColor = Color.Blue;
+            beepGridPro1.ForeColor = Color.FromArgb(40, 40, 40);
             beepGridPro1.Form = null;
             beepGridPro1.GlassmorphismBlur = 10F;
             beepGridPro1.GlassmorphismOpacity = 0.1F;
             beepGridPro1.GradientAngle = 0F;
             beepGridPro1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepGridPro1.GradientEndColor = Color.Gray;
-            beepGridPro1.GradientStartColor = Color.Gray;
+            beepGridPro1.GradientEndColor = Color.FromArgb(230, 230, 230);
+            beepGridPro1.GradientStartColor = Color.FromArgb(255, 255, 255);
             beepGridPro1.GridMode = false;
             beepGridPro1.GuidID = "ccf11685-638c-47f2-8fb6-ef84ea50c0b5";
             beepGridPro1.HelperText = "";
@@ -1410,7 +1412,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.SelectedBorderColor = Color.Empty;
             beepGridPro1.SelectedForeColor = Color.Black;
             beepGridPro1.SelectedValue = null;
-            beepGridPro1.ShadowColor = Color.Black;
+            beepGridPro1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepGridPro1.ShadowOffset = 0;
             beepGridPro1.ShadowOpacity = 0.5F;
             beepGridPro1.ShowAllBorders = false;
@@ -1422,7 +1424,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ShowRightBorder = false;
             beepGridPro1.ShowShadow = false;
             beepGridPro1.ShowTopBorder = false;
-            beepGridPro1.Size = new Size(867, 288);
+            beepGridPro1.Size = new Size(841, 288);
             beepGridPro1.SlideFrom = SlideDirection.Left;
             beepGridPro1.StaticNotMoving = false;
             beepGridPro1.TabIndex = 3;
@@ -1442,6 +1444,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.UIShape = ReactUIShape.Rounded;
             beepGridPro1.UISize = ReactUISize.Medium;
             beepGridPro1.UIVariant = ReactUIVariant.Default;
+            beepGridPro1.Uow = null;
             beepGridPro1.UseGlassmorphism = false;
             beepGridPro1.UseGradientBackground = true;
             beepGridPro1.UseThemeFont = true;

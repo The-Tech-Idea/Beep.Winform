@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [Description("Refactored, helper-driven grid control inspired by BeepSimpleGrid.")]
     [DisplayName("Beep Grid Pro")]
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
-    public class BeepGridPro : BeepControl
+    public partial class BeepGridPro : BeepControl
     {
         internal Helpers.GridLayoutHelper Layout { get; }
         internal Helpers.GridDataHelper Data { get; }
@@ -25,6 +26,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridEditHelper Edit { get; }
         internal Helpers.GridThemeHelper ThemeHelper { get; }
         internal Helpers.GridNavigatorHelper Navigator { get; }
+
+        private GridUnitOfWorkBinder _uowBinder;
+        private object _uow;
+
+        [Browsable(true)]
+        [Category("Data")] 
+        [Description("Assign an IUnitofWork<T> instance. When set, its Units will be used as the grid data source and kept in sync.")]
+        [TypeConverter(typeof(UnitOfWorksConverter))]
+        public object Uow
+        {
+            get => _uow;
+            set
+            {
+                if (!ReferenceEquals(_uow, value))
+                {
+                    _uow = value;
+                    EnsureBinder();
+                    _uowBinder.Attach(_uow);
+                    Navigator.SetUnitOfWork(_uow);
+                }
+            }
+        }
 
         [Browsable(true)]
         [Category("Data")]
@@ -288,6 +311,48 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 SafeRecalculate();
                 Invalidate();
             }
+        }
+
+        private void EnsureBinder()
+        {
+            _uowBinder ??= new GridUnitOfWorkBinder(this);
+        }
+
+        public void RebindUow()
+        {
+            if (_uow == null) return;
+            EnsureBinder();
+            _uowBinder.Attach(_uow);
+        }
+    }
+
+    public partial class BeepGridPro : BeepControl
+    {
+        [Browsable(false)]
+        public IReadOnlyList<BeepRowConfig> SelectedRows => Data.Rows.Where(r => r.IsSelected).ToList();
+
+        [Browsable(false)]
+        public IReadOnlyList<int> SelectedRowIndices => Data.Rows
+            .Select((r, i) => new { r, i })
+            .Where(x => x.r.IsSelected)
+            .Select(x => x.i)
+            .ToList();
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Raised when the row selection changes (checkbox or active cell). RowIndex = -1 means bulk change.")]
+        public event EventHandler<BeepRowSelectedEventArgs> RowSelectionChanged;
+
+        internal void OnRowSelectionChanged(int rowIndex)
+        {
+            BeepRowConfig row = (rowIndex >= 0 && rowIndex < Data.Rows.Count) ? Data.Rows[rowIndex] : null;
+            RowSelectionChanged?.Invoke(this, new BeepRowSelectedEventArgs(rowIndex, row));
+        }
+
+        internal void OnRowSelectionChanged(BeepRowConfig row)
+        {
+            int idx = row != null ? Data.Rows.IndexOf(row) : -1;
+            OnRowSelectionChanged(idx);
         }
     }
 }

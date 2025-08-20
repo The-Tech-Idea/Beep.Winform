@@ -38,9 +38,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     rr.Cells[c].IsSelected = (r == row && c == col);
                 }
             }
+            _grid.OnRowSelectionChanged(row);
         }
 
-        public void Clear() { RowIndex = ColumnIndex = -1; }
+        public void Clear()
+        {
+            RowIndex = ColumnIndex = -1;
+            _grid.OnRowSelectionChanged(-1);
+        }
 
         public void EnsureVisible()
         {

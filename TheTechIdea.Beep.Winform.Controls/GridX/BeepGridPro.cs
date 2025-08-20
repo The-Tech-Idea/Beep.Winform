@@ -12,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [Category("Beep Controls")]
     [Description("Refactored, helper-driven grid control inspired by BeepSimpleGrid.")]
     [DisplayName("Beep Grid Pro")]
+    [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
     public class BeepGridPro : BeepControl
     {
         internal Helpers.GridLayoutHelper Layout { get; }
@@ -26,18 +27,46 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridNavigatorHelper Navigator { get; }
 
         [Browsable(true)]
-        [Category("Data")] 
+        [Category("Data")]
+        [AttributeProvider(typeof(IListSource))] // Show BindingSource and list-like components in designer
+        [DefaultValue(null)]
         public object DataSource 
         {
             get => Data.DataSource;
-            set { Data.Bind(value); Invalidate(); }
+            set { Data.Bind(value); Navigator.BindTo(value); Layout.Recalculate(); Invalidate(); }
         }
+
+        // Optional DataMember to support ComplexBindingProperties at design-time
+        private string _dataMember = string.Empty;
+        [Browsable(true)]
+        [Category("Data")]
+        [DefaultValue("")]
+        public string DataMember 
+        { 
+            get => _dataMember; 
+            set 
+            { 
+                if (_dataMember != value) 
+                { 
+                    _dataMember = value ?? string.Empty; 
+                    // Rebind to apply the new DataMember when possible
+                    if (Data.DataSource != null) 
+                    { 
+                        Data.Bind(Data.DataSource); 
+                        Invalidate(); 
+                    }
+                } 
+            } 
+        }
+
+        // Expose columns collection for design-time editing and serialization
+        [Browsable(true)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        [Category("Data")]
+        public BeepGridColumnConfigCollection Columns => Data.Columns;
 
         [Browsable(false)]
         public BindingList<BeepRowConfig> Rows => Data.Rows;
-
-        [Browsable(false)]
-        public List<BeepColumnConfig> Columns => Data.Columns;
 
         [Browsable(true)]
         [Category("Layout")] 
@@ -63,6 +92,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             set { Layout.ShowColumnHeaders = value; Invalidate(); }
         }
 
+        // Owner-drawn navigator footer like BeepSimpleGrid (not a child control)
+        private bool _showNavigator = true;
+        [Browsable(true)]
+        [Category("Layout")] 
+        [DefaultValue(true)]
+        public bool ShowNavigator
+        {
+            get => _showNavigator;
+            set { if (_showNavigator != value) { _showNavigator = value; Layout.Recalculate(); Invalidate(); } }
+        }
+
         [Browsable(true)]
         [Category("Behavior")]
         public bool AllowUserToResizeColumns { get; set; } = true;
@@ -71,10 +111,30 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Category("Behavior")]
         public bool AllowUserToResizeRows { get; set; } = false;
 
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(false)]
+        public bool ReadOnly { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(false)]
+        public bool ShowCheckBox { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [DefaultValue(false)]
+        public bool AutoFillColumns { get; set; } = false;
+
         public BeepGridPro()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             UpdateStyles();
+
+            // Disable base-frame right border and borders so DrawingRect uses full client area
+            ShowRightBorder = false;
+            ShowAllBorders = false;
+            IsFrameless = true;
 
             Layout = new Helpers.GridLayoutHelper(this);
             Data = new Helpers.GridDataHelper(this);
@@ -87,6 +147,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ThemeHelper = new Helpers.GridThemeHelper(this);
             Navigator = new Helpers.GridNavigatorHelper(this);
 
+            // Subscribe to column model changes so designer edits are reflected immediately
+            HookColumnsCollection(Data.Columns);
+
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
@@ -98,16 +161,68 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             this.KeyDown += (s, e) => Input.HandleKeyDown(e);
         }
 
+        private void HookColumnsCollection(BeepGridColumnConfigCollection cols)
+        {
+            if (cols == null) return;
+            cols.ListChanged -= Columns_ListChanged; // avoid duplicates
+            cols.ListChanged += Columns_ListChanged;
+            // Subscribe to existing items
+            foreach (var col in cols)
+            {
+                if (col is INotifyPropertyChanged inpc)
+                {
+                    inpc.PropertyChanged -= Column_PropertyChanged;
+                    inpc.PropertyChanged += Column_PropertyChanged;
+                }
+            }
+        }
+
+        private void Columns_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            // Subscribe to added items
+            if (e.ListChangedType == ListChangedType.ItemAdded && e.NewIndex >= 0 && e.NewIndex < Data.Columns.Count)
+            {
+                var col = Data.Columns[e.NewIndex];
+                if (col is INotifyPropertyChanged inpc)
+                {
+                    inpc.PropertyChanged -= Column_PropertyChanged;
+                    inpc.PropertyChanged += Column_PropertyChanged;
+                }
+            }
+            else if (e.ListChangedType == ListChangedType.Reset)
+            {
+                // Re-hook all
+                HookColumnsCollection(Data.Columns);
+            }
+
+            SafeRecalculate();
+            Invalidate();
+        }
+
+        private void Column_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            SafeRecalculate();
+            Invalidate();
+        }
+
+        private void SafeRecalculate()
+        {
+            if (Layout != null && !Layout.IsCalculating)
+                Layout.Recalculate();
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            Layout.Recalculate();
+            UpdateDrawingRect();
+            SafeRecalculate();
             Invalidate();
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            UpdateDrawingRect();
             Layout.EnsureCalculated();
             Render.Draw(e.Graphics);
         }
@@ -140,6 +255,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public void AttachNavigator(BeepBindingNavigator navigator, object dataSource)
         {
             Navigator.Attach(navigator, dataSource);
+        }
+
+        // Expose action methods for owner-drawn navigator
+        public void MoveFirst() => Navigator.MoveFirst();
+        public void MovePrevious() => Navigator.MovePrevious();
+        public void MoveNext() => Navigator.MoveNext();
+        public void MoveLast() => Navigator.MoveLast();
+        public void InsertNew() => Navigator.InsertNew();
+        public void DeleteCurrent() => Navigator.DeleteCurrent();
+        public void Save() => Navigator.Save();
+        public void Cancel() => Navigator.Cancel();
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Raised when a cell value is changed by the editor.")]
+        public event EventHandler<BeepCellEventArgs> CellValueChanged;
+
+        internal void OnCellValueChanged(BeepCellConfig cell)
+        {
+            CellValueChanged?.Invoke(this, new BeepCellEventArgs(cell));
+        }
+
+        protected override void OnCreateControl()
+        {
+            base.OnCreateControl();
+            // Ensure hooks are active after designer rehydration
+            HookColumnsCollection(Data.Columns);
+            if (DesignMode && Data.DataSource != null && Data.Columns.Count == 0)
+            {
+                Data.AutoGenerateColumns();
+                SafeRecalculate();
+                Invalidate();
+            }
         }
     }
 }

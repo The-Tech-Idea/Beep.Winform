@@ -38,6 +38,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public int Height { get; set; } = 30; // Default cell height
         public EntityStructure EntityStructure { get; internal set; }
 
+        // Selection column drawing rect
+        public System.Drawing.Rectangle RowCheckRect { get; set; } = System.Drawing.Rectangle.Empty;
+
         // Row Events
         public event EventHandler<BeepRowEventArgs> OnRowSelected;
         public event EventHandler<BeepRowEventArgs> OnRowValidate;
@@ -47,20 +50,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         //Cell Events
         public event EventHandler<BeepCellEventArgs> OnCellSelected;
         public event EventHandler<BeepCellEventArgs> OnCellValidate;
-        //public override bool Equals(object obj)
-        //{
-        //    if (obj is BeepCellConfig other)
-        //    {
-        //        return this.Id == other.Id;
-        //    }
-        //    return false;
-        //}
-
-        //public override int GetHashCode()
-        //{
-        //    return Id.GetHashCode();
-        //}
-
 
         public void ApplyTheme(IBeepTheme theme)
         {

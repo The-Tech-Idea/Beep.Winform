@@ -50,6 +50,18 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             base.Configure(settings);
             viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
+           
+            beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
+        }
+
+        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
+        {
+            viewModel.Save();
+        }
+
+        public override void OnNavigatedTo(Dictionary<string, object> parameters)
+        {
+            base.OnNavigatedTo(parameters);
             BeepColumnConfig classhandlers = beepSimpleGrid1.GetColumnByName("ClassHandler");
             classhandlers.CellEditor = BeepColumnType.ListOfValue;
             int idx = 0;
@@ -62,18 +74,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 item1.Name = item.className;
                 classhandlers.Items.Add(item1);
             }
-            beepSimpleGrid1.SaveCalled += BeepSimpleGrid1_SaveCalled;
-        }
-
-        private void BeepSimpleGrid1_SaveCalled(object? sender, EventArgs e)
-        {
-            viewModel.Save();
-        }
-
-        public override void OnNavigatedTo(Dictionary<string, object> parameters)
-        {
-            base.OnNavigatedTo(parameters);
-            
             beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
 
 

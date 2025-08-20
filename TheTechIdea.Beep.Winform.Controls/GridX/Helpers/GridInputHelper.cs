@@ -76,6 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (r >= 0 && c >= 0)
             {
                 _grid.Selection.SelectCell(r, c);
+                EnsureSelectionVisible();
                 _grid.Invalidate();
             }
         }
@@ -89,6 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 col.Width = Math.Max(20, col.Width + dx);
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
+                _grid.ScrollBars?.UpdateBars();
                 _grid.Invalidate();
                 return;
             }
@@ -123,6 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (_grid.Data.Rows.Count > 0 && _grid.Data.Columns.Count > 0)
                 {
                     _grid.Selection.SelectCell(0, 0);
+                    EnsureSelectionVisible();
                     _grid.Invalidate();
                 }
                 return;
@@ -130,21 +133,86 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             int r = _grid.Selection.RowIndex;
             int c = _grid.Selection.ColumnIndex;
+            int visible = VisibleRowCount();
             switch (e.KeyCode)
             {
-                case Keys.Left:  c = Math.Max(0, c - 1); break;
-                case Keys.Right: c = Math.Min(_grid.Data.Columns.Count - 1, c + 1); break;
-                case Keys.Up:    r = Math.Max(0, r - 1); break;
-                case Keys.Down:  r = Math.Min(_grid.Data.Rows.Count - 1, r + 1); break;
-                case Keys.Home:  c = 0; break;
-                case Keys.End:   c = _grid.Data.Columns.Count - 1; break;
-                case Keys.PageUp:   r = Math.Max(0, r - VisibleRowCount()); break;
-                case Keys.PageDown: r = Math.Min(_grid.Data.Rows.Count - 1, r + VisibleRowCount()); break;
-                default: return;
+                case Keys.Left:
+                    c = Math.Max(0, c - 1);
+                    break;
+                case Keys.Right:
+                    c = Math.Min(_grid.Data.Columns.Count - 1, c + 1);
+                    break;
+                case Keys.Up:
+                    r = Math.Max(0, r - 1);
+                    break;
+                case Keys.Down:
+                    r = Math.Min(_grid.Data.Rows.Count - 1, r + 1);
+                    break;
+                case Keys.Home:
+                    if (e.Control)
+                    {
+                        r = 0;
+                        _grid.Scroll.SetVerticalIndex(0);
+                        _grid.ScrollBars?.SyncFromModel();
+                    }
+                    else
+                    {
+                        c = 0;
+                    }
+                    break;
+                case Keys.End:
+                    if (e.Control)
+                    {
+                        r = Math.Max(0, _grid.Data.Rows.Count - 1);
+                        int newStart = Math.Max(0, r - visible + 1);
+                        _grid.Scroll.SetVerticalIndex(newStart);
+                        _grid.ScrollBars?.SyncFromModel();
+                    }
+                    else
+                    {
+                        c = _grid.Data.Columns.Count - 1;
+                    }
+                    break;
+                case Keys.PageUp:
+                    r = Math.Max(0, r - visible);
+                    _grid.Scroll.SetVerticalIndex(Math.Max(0, _grid.Scroll.FirstVisibleRowIndex - visible));
+                    _grid.ScrollBars?.SyncFromModel();
+                    break;
+                case Keys.PageDown:
+                    r = Math.Min(_grid.Data.Rows.Count - 1, r + visible);
+                    {
+                        int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
+                        int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
+                        _grid.Scroll.SetVerticalIndex(newStart);
+                        _grid.ScrollBars?.SyncFromModel();
+                    }
+                    break;
+                default:
+                    return;
             }
+
             _grid.Selection.SelectCell(r, c);
-            _grid.Selection.EnsureVisible();
+            EnsureSelectionVisible();
             _grid.Invalidate();
+        }
+
+        private void EnsureSelectionVisible()
+        {
+            int visible = VisibleRowCount();
+            int start = _grid.Scroll.FirstVisibleRowIndex;
+            int r = _grid.Selection.RowIndex;
+            if (r < 0) return;
+
+            if (r < start)
+            {
+                _grid.Scroll.SetVerticalIndex(r);
+                _grid.ScrollBars?.SyncFromModel();
+            }
+            else if (r >= start + visible)
+            {
+                _grid.Scroll.SetVerticalIndex(Math.Max(0, r - visible + 1));
+                _grid.ScrollBars?.SyncFromModel();
+            }
         }
 
         private int VisibleRowCount()

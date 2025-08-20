@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,6 +7,8 @@ using System.Data;
 using System.Reflection;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Utilities;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -25,103 +27,216 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void Bind(object dataSource)
         {
             DataSource = dataSource;
-            // Only auto-generate columns if none exist, so user-configured columns are preserved
-            if (Columns.Count == 0)
+            
+            // Always ensure system columns are present FIRST
+            EnsureSystemColumns();
+            
+            // Only auto-generate columns if none exist beyond system columns, so user-configured columns are preserved
+            if (Columns.Count <= GetSystemColumnCount())
             {
                 AutoGenerateColumns();
+                return; // AutoGenerateColumns calls RefreshRows and auto-sizing
             }
+
+            // Refresh rows for existing columns (but limit in design mode)
             RefreshRows();
+
+            // Skip auto-sizing in design mode to prevent excessive operations
+            if (!System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime) && 
+                _grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
+            {
+                _grid.AutoResizeColumnsToFitContent();
+            }
+        }
+
+        private int GetSystemColumnCount()
+        {
+            return Columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID);
+        }
+
+        /// <summary>
+        /// Ensures system columns (checkbox, row number, row ID) are present, exactly like BeepSimpleGrid.EnsureDefaultColumns()
+        /// </summary>
+        public void EnsureSystemColumns()
+        {
+            // Check if Sel column exists
+            if (!Columns.Any(c => c.ColumnName == "Sel"))
+            {
+                var selColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "☑",
+                    ColumnName = "Sel",
+                    Width = _grid.Layout.CheckBoxColumnWidth > 0 ? _grid.Layout.CheckBoxColumnWidth : 30,
+                    Index = 0,
+                    Visible = _grid.ShowCheckBox,
+                    Sticked = true,
+                    IsUnbound = true,
+                    IsSelectionCheckBox = true,
+                    PropertyTypeName = typeof(bool).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.CheckBoxBool,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                selColumn.ColumnType = MapPropertyTypeToDbFieldCategory(selColumn.PropertyTypeName);
+                Columns.Insert(0, selColumn);
+            }
+
+            // Check if RowNum column exists
+            if (!Columns.Any(c => c.ColumnName == "RowNum"))
+            {
+                int index = Columns.Count(c => c.IsSelectionCheckBox);
+                var rowNumColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "#",
+                    ColumnName = "RowNum",
+                    Width = 30,
+                    Index = index,
+                    Visible = true,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowNumColumn = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                    AggregationType = AggregationType.Count
+                };
+                rowNumColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowNumColumn.PropertyTypeName);
+                Columns.Insert(index, rowNumColumn);
+            }
+
+            // Check if RowID column exists
+            if (!Columns.Any(c => c.ColumnName == "RowID"))
+            {
+                int index = Columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn);
+                var rowIdColumn = new BeepColumnConfig
+                {
+                    ColumnCaption = "RowID",
+                    ColumnName = "RowID",
+                    Width = 30,
+                    Index = index,
+                    Visible = false,
+                    Sticked = true,
+                    ReadOnly = true,
+                    IsRowID = true,
+                    IsUnbound = true,
+                    PropertyTypeName = typeof(int).AssemblyQualifiedName,
+                    CellEditor = BeepColumnType.Text,
+                    GuidID = Guid.NewGuid().ToString(),
+                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    Resizable = DataGridViewTriState.False,
+                    AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                };
+                rowIdColumn.ColumnType = MapPropertyTypeToDbFieldCategory(rowIdColumn.PropertyTypeName);
+                Columns.Insert(index, rowIdColumn);
+            }
+
+            // Reindex all columns to ensure proper ordering
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                Columns[i].Index = i;
+            }
         }
 
         public void AutoGenerateColumns()
         {
             Columns.Clear();
-            if (DataSource == null) return;
 
-            // Resolve effective data and a potential schema table (for DataTable/DataView)
+            EnsureSystemColumns();
+
             var (enumerable, schemaTable) = GetEffectiveEnumerableWithSchema();
 
-            // 1) Use schema from ADO.NET tables/views when available
             if (schemaTable != null)
             {
-                foreach (System.Data.DataColumn dc in schemaTable.Columns)
+                // Try DataTable schema if available
+                foreach (System.Data.DataColumn dCol in schemaTable.Columns)
                 {
-                    Columns.Add(new BeepColumnConfig
+                    if (IsSystemColumn(dCol.ColumnName)) continue;
+
+                    var bCol = new BeepColumnConfig
                     {
-                        ColumnName = dc.ColumnName,
-                        ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(dc.ColumnName),
+                        ColumnName = dCol.ColumnName,
+                        ColumnCaption = dCol.Caption ?? dCol.ColumnName,
+                        PropertyTypeName = dCol.DataType.AssemblyQualifiedName,
                         Width = 100,
-                        Visible = true
-                    });
+                        ColumnType = MapDbType(dCol.DataType),
+                        CellEditor = MapColumnType(dCol.DataType),
+                        Visible = true,
+                        Resizable = DataGridViewTriState.True,
+                        SortMode = DataGridViewColumnSortMode.Automatic,
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                    };
+                    bCol.Index = Columns.Count;
+                    Columns.Add(bCol);
                 }
-                return;
             }
-
-            // 2) Try ITypedList via BindingSource to get PropertyDescriptors even without data
-            if (DataSource is BindingSource bs)
+            else
             {
-                var typed = bs as ITypedList;
-                var pdc = typed?.GetItemProperties(null);
-                if (pdc != null && pdc.Count > 0)
+                // Try reflection on first item
+                var first = enumerable.Cast<object?>().FirstOrDefault();
+                if (first != null)
                 {
-                    foreach (PropertyDescriptor pd in pdc)
+                    foreach (var prop in first.GetType().GetProperties())
                     {
-                        if (pd.IsBrowsable)
+                        if (IsSystemColumn(prop.Name)) continue;
+
+                        var bCol = new BeepColumnConfig
                         {
-                            Columns.Add(new BeepColumnConfig
-                            {
-                                ColumnName = pd.Name,
-                                ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(pd.Name),
-                                Width = 100,
-                                Visible = true
-                            });
-                        }
+                            ColumnName = prop.Name,
+                            ColumnCaption = prop.Name,
+                            PropertyTypeName = prop.PropertyType.AssemblyQualifiedName,
+                            Width = 100,
+                            ColumnType = MapDbType(prop.PropertyType),
+                            CellEditor = MapColumnType(prop.PropertyType),
+                            Visible = true,
+                            Resizable = DataGridViewTriState.True,
+                            SortMode = DataGridViewColumnSortMode.Automatic,
+                            AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                        };
+                        bCol.Index = Columns.Count;
+                        Columns.Add(bCol);
                     }
-                    return;
-                }
-
-                // If DataSource of BindingSource is a Type, use it
-                if (bs.DataSource is Type tFromBS)
-                {
-                    AddColumnsFromType(tFromBS);
-                    return;
                 }
             }
 
-            // 3) If DataSource itself is a Type (design-time scenario)
-            if (DataSource is Type t)
-            {
-                AddColumnsFromType(t);
-                return;
-            }
+            // Refresh rows to populate them with data
+            RefreshRows();
 
-            // 4) Fallback: infer columns from first item or generic item type
-            var first = enumerable.Cast<object?>().FirstOrDefault();
-            if (first != null)
+            // Apply auto-sizing if enabled
+            if (_grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
             {
-                AddColumnsFromType(first.GetType());
-                return;
-            }
-
-            // 5) If no instance available, try to extract T from IEnumerable<T>
-            var itemType = GetEnumerableItemType(enumerable);
-            if (itemType != null)
-            {
-                AddColumnsFromType(itemType);
+                _grid.AutoResizeColumnsToFitContent();
             }
         }
 
         private void AddColumnsFromType(Type itemType)
         {
+            int startIndex = Columns.Count(c => c.IsSelectionCheckBox || c.IsRowNumColumn || c.IsRowID);
+            int index = startIndex;
+
             foreach (var prop in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (prop.GetIndexParameters().Length > 0) continue;
+                
+                // Skip if column already exists
+                if (Columns.Any(c => c.ColumnName == prop.Name && !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID))
+                    continue;
+
                 Columns.Add(new BeepColumnConfig
                 {
                     ColumnName = prop.Name,
                     ColumnCaption = MiscFunctions.CreateCaptionFromFieldName(prop.Name),
                     Width = 100,
-                    Visible = true
+                    Index = index++,
+                    Visible = true,
+                    PropertyTypeName = prop.PropertyType.AssemblyQualifiedName,
+                    CellEditor = MapPropertyTypeToCellEditor(prop.PropertyType.AssemblyQualifiedName),
+                    ColumnType = MapPropertyTypeToDbFieldCategory(prop.PropertyType.AssemblyQualifiedName)
                 });
             }
         }
@@ -143,15 +258,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var (enumerable, schemaTable) = GetEffectiveEnumerableWithSchema();
             var items = enumerable.Cast<object?>().ToList();
 
-            for (int i = 0; i < items.Count; i++)
+            // In design mode, limit to a small number of sample rows to reduce overhead
+            int maxRows = System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime ? 
+                          Math.Min(5, items.Count) : items.Count;
+
+            for (int i = 0; i < maxRows; i++)
             {
                 var r = new BeepRowConfig { RowIndex = i, DisplayIndex = i, Height = _grid.RowHeight, RowData = items[i] };
                 int colIndex = 0;
+                
                 foreach (var col in Columns)
                 {
                     object? val = null;
 
-                    if (items[i] is System.Data.DataRowView drv)
+                    // Handle system columns exactly like BeepSimpleGrid
+                    if (col.IsSelectionCheckBox)
+                    {
+                        val = false; // Default unchecked state
+                    }
+                    else if (col.IsRowNumColumn)
+                    {
+                        val = i + 1; // 1-based row number
+                    }
+                    else if (col.IsRowID)
+                    {
+                        val = i; // 0-based row ID for internal use
+                    }
+                    else if (items[i] is System.Data.DataRowView drv)
                     {
                         if (drv.DataView?.Table?.Columns.Contains(col.ColumnName) == true)
                         {
@@ -184,6 +317,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     colIndex++;
                 }
                 Rows.Add(r);
+            }
+
+            // Skip auto-sizing in design mode to prevent excessive operations
+            if (!System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime) && 
+                _grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
+            {
+                _grid.AutoResizeColumnsToFitContent();
             }
         }
 
@@ -265,6 +405,78 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // Single object
             return (new object[] { resolved }, schema);
+        }
+
+        // Helper methods exactly like BeepSimpleGrid
+        private DbFieldCategory MapPropertyTypeToDbFieldCategory(string propertyTypeName)
+        {
+            if (string.IsNullOrWhiteSpace(propertyTypeName))
+                return DbFieldCategory.String;
+
+            Type type = Type.GetType(propertyTypeName, throwOnError: false);
+            if (type == null)
+                return DbFieldCategory.String;
+
+            if (type == typeof(string)) return DbFieldCategory.String;
+            if (type == typeof(int) || type == typeof(long)) return DbFieldCategory.Numeric;
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return DbFieldCategory.Numeric;
+            if (type == typeof(DateTime)) return DbFieldCategory.Date;
+            if (type == typeof(bool)) return DbFieldCategory.Boolean;
+            if (type == typeof(char)) return DbFieldCategory.Char;
+            if (type == typeof(Guid)) return DbFieldCategory.Guid;
+
+            return DbFieldCategory.String;
+        }
+
+        private BeepColumnType MapPropertyTypeToCellEditor(string propertyTypeName)
+        {
+            if (string.IsNullOrWhiteSpace(propertyTypeName))
+                return BeepColumnType.Text;
+
+            Type type = Type.GetType(propertyTypeName, throwOnError: false);
+            if (type == null)
+                return BeepColumnType.Text;
+
+            if (type == typeof(string)) return BeepColumnType.Text;
+            if (type == typeof(int) || type == typeof(long)) return BeepColumnType.NumericUpDown;
+            if (type == typeof(float) || type == typeof(double) || type == typeof(decimal)) return BeepColumnType.Text;
+            if (type == typeof(DateTime)) return BeepColumnType.DateTime;
+            if (type == typeof(bool)) return BeepColumnType.CheckBoxBool;
+            if (type == typeof(char)) return BeepColumnType.CheckBoxChar;
+            if (type == typeof(Guid)) return BeepColumnType.Text;
+
+            return BeepColumnType.Text;
+        }
+
+        private bool IsSystemColumn(string columnName)
+        {
+            return columnName == "Sel" || columnName == "RowNum" || columnName == "RowID";
+        }
+
+        private static DbFieldCategory MapDbType(Type dataType)
+        {
+            if (dataType == typeof(string)) return DbFieldCategory.String;
+            if (dataType == typeof(int) || dataType == typeof(long)) return DbFieldCategory.Numeric;
+            if (dataType == typeof(float) || dataType == typeof(double) || dataType == typeof(decimal)) return DbFieldCategory.Numeric;
+            if (dataType == typeof(DateTime)) return DbFieldCategory.Date;
+            if (dataType == typeof(bool)) return DbFieldCategory.Boolean;
+            if (dataType == typeof(char)) return DbFieldCategory.Char;
+            if (dataType == typeof(Guid)) return DbFieldCategory.Guid;
+
+            return DbFieldCategory.String;
+        }
+
+        private static BeepColumnType MapColumnType(Type dataType)
+        {
+            if (dataType == typeof(string)) return BeepColumnType.Text;
+            if (dataType == typeof(int) || dataType == typeof(long)) return BeepColumnType.NumericUpDown;
+            if (dataType == typeof(float) || dataType == typeof(double) || dataType == typeof(decimal)) return BeepColumnType.Text;
+            if (dataType == typeof(DateTime)) return BeepColumnType.DateTime;
+            if (dataType == typeof(bool)) return BeepColumnType.CheckBoxBool;
+            if (dataType == typeof(char)) return BeepColumnType.CheckBoxChar;
+            if (dataType == typeof(Guid)) return BeepColumnType.Text;
+
+            return BeepColumnType.Text;
         }
     }
 }

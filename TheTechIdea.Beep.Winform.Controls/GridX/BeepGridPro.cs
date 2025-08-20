@@ -22,10 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridSelectionHelper Selection { get; }
         internal Helpers.GridInputHelper Input { get; }
         internal Helpers.GridScrollHelper Scroll { get; }
+        internal Helpers.GridScrollBarsHelper ScrollBars { get; }
         internal Helpers.GridSortFilterHelper SortFilter { get; }
         internal Helpers.GridEditHelper Edit { get; }
         internal Helpers.GridThemeHelper ThemeHelper { get; }
         internal Helpers.GridNavigatorHelper Navigator { get; }
+        internal Helpers.GridSizingHelper Sizing { get; }
 
         private GridUnitOfWorkBinder _uowBinder;
         private object _uow;
@@ -42,8 +44,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 if (!ReferenceEquals(_uow, value))
                 {
                     _uow = value;
-                    EnsureBinder();
-                    _uowBinder.Attach(_uow);
                     Navigator.SetUnitOfWork(_uow);
                 }
             }
@@ -56,7 +56,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public object DataSource 
         {
             get => Data.DataSource;
-            set { Data.Bind(value); Navigator.BindTo(value); Layout.Recalculate(); Invalidate(); }
+            set { 
+                if (!ReferenceEquals(Data.DataSource, value))
+                {
+                    Data.Bind(value); 
+                    Navigator.BindTo(value); 
+                    Layout.Recalculate(); 
+                    if (!DesignMode) Invalidate();
+                }
+            }
         }
 
         // Optional DataMember to support ComplexBindingProperties at design-time
@@ -96,7 +104,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public int RowHeight 
         { 
             get => Layout.RowHeight;
-            set { Layout.RowHeight = Math.Max(18, value); Invalidate(); }
+            set { 
+                if (Layout.RowHeight != Math.Max(18, value))
+                {
+                    Layout.RowHeight = Math.Max(18, value);
+                    if (!DesignMode) Invalidate();
+                }
+            }
         }
 
         [Browsable(true)]
@@ -104,7 +118,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public int ColumnHeaderHeight 
         { 
             get => Layout.ColumnHeaderHeight; 
-            set { Layout.ColumnHeaderHeight = Math.Max(22, value); Invalidate(); }
+            set { 
+                if (Layout.ColumnHeaderHeight != Math.Max(22, value))
+                {
+                    Layout.ColumnHeaderHeight = Math.Max(22, value);
+                    if (!DesignMode) Invalidate();
+                }
+            }
         }
 
         [Browsable(true)]
@@ -112,7 +132,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public bool ShowColumnHeaders 
         { 
             get => Layout.ShowColumnHeaders; 
-            set { Layout.ShowColumnHeaders = value; Invalidate(); }
+            set { 
+                if (Layout.ShowColumnHeaders != value)
+                {
+                    Layout.ShowColumnHeaders = value;
+                    if (!DesignMode) Invalidate();
+                }
+            }
         }
 
         // Owner-drawn navigator footer like BeepSimpleGrid (not a child control)
@@ -123,7 +149,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public bool ShowNavigator
         {
             get => _showNavigator;
-            set { if (_showNavigator != value) { _showNavigator = value; Layout.Recalculate(); Invalidate(); } }
+            set { 
+                if (_showNavigator != value) 
+                { 
+                    _showNavigator = value; 
+                    Layout.Recalculate(); 
+                    if (!DesignMode) Invalidate(); 
+                } 
+            }
         }
 
         [Browsable(true)]
@@ -142,16 +175,59 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Browsable(true)]
         [Category("Behavior")]
         [DefaultValue(false)]
-        public bool ShowCheckBox { get; set; } = false;
+        public bool ShowCheckBox 
+        { 
+            get => Data.Columns.Any(c => c.IsSelectionCheckBox && c.Visible);
+            set 
+            { 
+                if (ShowCheckBox != value)
+                {
+                    // Ensure system columns exist before setting visibility
+                    Data.EnsureSystemColumns();
+                    
+                    var selColumn = Data.Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
+                    if (selColumn != null)
+                    {
+                        selColumn.Visible = value;
+                        Layout.Recalculate();
+                        if (!DesignMode) Invalidate();
+                    }
+                }
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [DefaultValue(DataGridViewAutoSizeColumnsMode.None)]
+        public DataGridViewAutoSizeColumnsMode AutoSizeColumnsMode { get; set; } = DataGridViewAutoSizeColumnsMode.None;
 
         [Browsable(true)]
         [Category("Layout")]
         [DefaultValue(false)]
-        public bool AutoFillColumns { get; set; } = false;
+        public bool AutoSizeRowsToContent { get; set; } = false;
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [DefaultValue(2)]
+        [Description("Padding added to auto-sized row heights (in pixels)")]
+        public int RowAutoSizePadding { get; set; } = 2;
+
+        [Browsable(true)]
+        [Category("Layout")]
+        [DefaultValue(true)]
+        [Description("Whether to use DPI-aware scaling for row height calculations")]
+        public bool UseDpiAwareRowHeights { get; set; } = true;
+     
 
         public BeepGridPro()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
+            // Enhance control styles for better performance and reduced flickering
+            SetStyle(ControlStyles.AllPaintingInWmPaint | 
+                     ControlStyles.UserPaint | 
+                     ControlStyles.OptimizedDoubleBuffer | 
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.SupportsTransparentBackColor, true);
+            SetStyle(ControlStyles.Selectable, true);
             UpdateStyles();
 
             // Disable base-frame right border and borders so DrawingRect uses full client area
@@ -165,23 +241,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Selection = new Helpers.GridSelectionHelper(this);
             Input = new Helpers.GridInputHelper(this);
             Scroll = new Helpers.GridScrollHelper(this);
+            ScrollBars = new Helpers.GridScrollBarsHelper(this);
             SortFilter = new Helpers.GridSortFilterHelper(this);
             Edit = new Helpers.GridEditHelper(this);
             ThemeHelper = new Helpers.GridThemeHelper(this);
             Navigator = new Helpers.GridNavigatorHelper(this);
+            Sizing = new Helpers.GridSizingHelper(this);
 
-            // Subscribe to column model changes so designer edits are reflected immediately
-            HookColumnsCollection(Data.Columns);
+            // Only subscribe to events and setup complex initialization if not in design mode
+            if (!DesignMode)
+            {
+                // Subscribe to column model changes so designer edits are reflected immediately
+                HookColumnsCollection(Data.Columns);
+
+                this.MouseDown += (s, e) => Input.HandleMouseDown(e);
+                this.MouseMove += (s, e) => Input.HandleMouseMove(e);
+                this.MouseUp += (s, e) => Input.HandleMouseUp(e);
+                this.MouseWheel += (s, e) => { 
+                    // Handle mouse wheel exactly like BeepSimpleGrid
+                    ScrollBars?.HandleMouseWheel(e); 
+                    ScrollBars?.SyncFromModel(); 
+                };
+                this.KeyDown += (s, e) => Input.HandleKeyDown(e);
+
+                // Enable Excel-like filter popup automatically
+                this.EnableExcelFilter();
+            }
 
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
-
-            this.MouseDown += (s, e) => Input.HandleMouseDown(e);
-            this.MouseMove += (s, e) => Input.HandleMouseMove(e);
-            this.MouseUp += (s, e) => Input.HandleMouseUp(e);
-            this.MouseWheel += (s, e) => Scroll.HandleMouseWheel(e);
-            this.KeyDown += (s, e) => Input.HandleKeyDown(e);
         }
 
         private void HookColumnsCollection(BeepGridColumnConfigCollection cols)
@@ -202,6 +291,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         private void Columns_ListChanged(object sender, ListChangedEventArgs e)
         {
+            // Skip excessive processing in design mode
+            if (DesignMode) return;
+            
             // Subscribe to added items
             if (e.ListChangedType == ListChangedType.ItemAdded && e.NewIndex >= 0 && e.NewIndex < Data.Columns.Count)
             {
@@ -224,6 +316,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         private void Column_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            // Skip excessive processing in design mode
+            if (DesignMode) return;
+            
             SafeRecalculate();
             Invalidate();
         }
@@ -239,15 +334,54 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             base.OnResize(e);
             UpdateDrawingRect();
             SafeRecalculate();
-            Invalidate();
+            
+            // Only update scrollbars if not in design mode
+            if (!DesignMode)
+            {
+                ScrollBars?.UpdateBars();
+                Invalidate();
+            }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        
+        public override void Draw(Graphics graphics, Rectangle rectangle)
         {
-            base.OnPaint(e);
-            UpdateDrawingRect();
-            Layout.EnsureCalculated();
-            Render.Draw(e.Graphics);
+            base.Draw(graphics, rectangle);
+            try
+            {
+              
+                UpdateDrawingRect();
+                Layout.EnsureCalculated();
+
+                // Validate graphics and layout before rendering
+                if (graphics != null && Layout != null && Render != null)
+                {
+                    Render.Draw(graphics);
+                }
+
+                // Only update scrollbars during paint if not in design mode to prevent recursive invalidations
+                if (!DesignMode)
+                {
+                    ScrollBars?.UpdateBars();
+                }
+            }
+            catch (ArgumentException ex) when (ex.Message.Contains("Parameter is not valid"))
+            {
+                // Handle specific drawing parameter errors gracefully
+                // This can happen during resize operations or when graphics state is invalid
+                System.Diagnostics.Debug.WriteLine($"BeepGridPro OnPaint error: {ex.Message}");
+
+                // Try to recover by invalidating later
+                if (!DesignMode)
+                {
+                    BeginInvoke(new Action(() => Invalidate()));
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle any other drawing errors
+                System.Diagnostics.Debug.WriteLine($"BeepGridPro OnPaint unexpected error: {ex.Message}");
+            }
         }
 
         public override void ApplyTheme()
@@ -260,12 +394,76 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public void AutoGenerateColumns()
         {
             Data.AutoGenerateColumns();
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Ensures that system columns (checkbox, row number, row ID) are present in the grid.
+        /// This method is called automatically but can be called manually if needed.
+        /// </summary>
+        public void EnsureSystemColumns()
+        {
+            Data.EnsureSystemColumns();
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
             Invalidate();
         }
 
         public void RefreshGrid()
         {
             Data.RefreshRows();
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Auto-resize columns to fit their content, similar to BeepSimpleGrid
+        /// Also handles row height auto-sizing when AutoSizeColumnsMode is AllCells or AllCellsExceptHeader, or when AutoSizeRowsToContent is true
+        /// </summary>
+        public void AutoResizeColumnsToFitContent()
+        {
+            Sizing.AutoResizeColumnsToFitContent();
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Auto-resize row heights to fit their content based on the tallest cell in each row
+        /// </summary>
+        public void AutoSizeRowsToFitContent()
+        {
+            Sizing.AutoSizeRowsToFitContent();
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Calculate optimal width for a column based on its content
+        /// </summary>
+        /// <param name="column">The column to measure</param>
+        /// <param name="includeHeader">Whether to include header text in measurement</param>
+        /// <param name="allRows">Whether to measure all rows or just visible rows</param>
+        /// <returns>Optimal width in pixels</returns>
+        private int GetColumnWidth(BeepColumnConfig column, bool includeHeader, bool allRows)
+        {
+            return Sizing.GetColumnWidth(column, includeHeader, allRows);
+        }
+
+        /// <summary>
+        /// Set a specific column width by name
+        /// </summary>
+        /// <param name="columnName">Name of the column</param>
+        /// <param name="width">New width in pixels</param>
+        public void SetColumnWidth(string columnName, int width)
+        {
+            Sizing.SetColumnWidth(columnName, width);
+            SafeRecalculate();
+            ScrollBars?.UpdateBars();
             Invalidate();
         }
 
@@ -280,7 +478,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             Navigator.Attach(navigator, dataSource);
         }
 
-        // Expose action methods for owner-drawn navigator
+        // Expose action methods for owner-drawn navigator - delegate to Navigator helper
         public void MoveFirst() => Navigator.MoveFirst();
         public void MovePrevious() => Navigator.MovePrevious();
         public void MoveNext() => Navigator.MoveNext();
@@ -289,45 +487,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public void DeleteCurrent() => Navigator.DeleteCurrent();
         public void Save() => Navigator.Save();
         public void Cancel() => Navigator.Cancel();
-
-        [Browsable(true)]
-        [Category("Behavior")]
-        [Description("Raised when a cell value is changed by the editor.")]
-        public event EventHandler<BeepCellEventArgs> CellValueChanged;
-
-        internal void OnCellValueChanged(BeepCellConfig cell)
-        {
-            CellValueChanged?.Invoke(this, new BeepCellEventArgs(cell));
-        }
-
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
-            // Ensure hooks are active after designer rehydration
-            HookColumnsCollection(Data.Columns);
-            if (DesignMode && Data.DataSource != null && Data.Columns.Count == 0)
-            {
-                Data.AutoGenerateColumns();
-                SafeRecalculate();
-                Invalidate();
-            }
-        }
-
-        private void EnsureBinder()
-        {
-            _uowBinder ??= new GridUnitOfWorkBinder(this);
-        }
-
-        public void RebindUow()
-        {
-            if (_uow == null) return;
-            EnsureBinder();
-            _uowBinder.Attach(_uow);
-        }
-    }
-
-    public partial class BeepGridPro : BeepControl
-    {
+        
         [Browsable(false)]
         public IReadOnlyList<BeepRowConfig> SelectedRows => Data.Rows.Where(r => r.IsSelected).ToList();
 
@@ -353,6 +513,54 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             int idx = row != null ? Data.Rows.IndexOf(row) : -1;
             OnRowSelectionChanged(idx);
+        }
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Raised when a save operation is requested/completed.")]
+        public event EventHandler SaveCalled;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Raised when a cell value is changed by the editor.")]
+        public event EventHandler<BeepCellEventArgs> CellValueChanged;
+
+        internal void OnSaveCalled()
+        {
+            try { SaveCalled?.Invoke(this, EventArgs.Empty); } catch { }
+        }
+
+        /// <summary>
+        /// Raise CellValueChanged event for helpers to call
+        /// </summary>
+        /// <param name="cell">The cell that changed</param>
+        internal void OnCellValueChanged(BeepCellConfig cell)
+        {
+            CellValueChanged?.Invoke(this, new BeepCellEventArgs(cell));
+        }
+
+        // BeepSimpleGrid compatibility helpers
+        public BeepColumnConfig GetColumnByName(string columnName)
+        {
+            if (string.IsNullOrWhiteSpace(columnName)) return null;
+            return Data.Columns.FirstOrDefault(c => string.Equals(c.ColumnName, columnName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public BeepColumnConfig GetColumnByCaption(string caption)
+        {
+            if (string.IsNullOrWhiteSpace(caption)) return null;
+            return Data.Columns.FirstOrDefault(c => string.Equals(c.ColumnCaption, caption, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public BeepColumnConfig GetColumnByIndex(int index)
+        {
+            if (index < 0 || index >= Data.Columns.Count) return null;
+            return Data.Columns[index];
+        }
+
+        public Dictionary<string, BeepColumnConfig> GetDictionaryColumns()
+        {
+            return Data.Columns.ToDictionary(c => c.ColumnName, c => c, StringComparer.OrdinalIgnoreCase);
         }
     }
 }

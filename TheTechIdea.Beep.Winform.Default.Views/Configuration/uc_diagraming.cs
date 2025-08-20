@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
@@ -46,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         //        currentidx = 0;
         //    beepStepperBar1.UpdateCurrentStep(currentidx);
         //}
+        DriversConfigViewModel viewModel;
 
         int currentidx = -1;
         #region "IAddinVisSchema"
@@ -64,27 +66,37 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string BranchClass { get; set; } = "ADDIN";
         public string AddinName { get; set; }
         #endregion "IAddinVisSchema"
+        public override void Configure(Dictionary<string, object> settings)
+        {
+            base.Configure(settings);
+            viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
+           
+            // Wire grid events
+            beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;
+        }
+
+        private void beepGridPro1_SaveCalled(object? sender, EventArgs e)
+        {
+            viewModel.Save();
+        }
+
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
-         
-           
-            foreach (var item in Editor.ConfigEditor.DataConnections)
+            BeepColumnConfig classhandlers = beepGridPro1.GetColumnByName("ClassHandler");
+            classhandlers.CellEditor = BeepColumnType.ListOfValue;
+            int idx = 0;
+            foreach (var item in viewModel.DBAssemblyClasses)
             {
-                var item1 = new SimpleItem();
-                item1.DisplayField = item.ConnectionName;
-                item1.Value = item.ConnectionName;
-                item1.Text = item.ConnectionName;
-                item1.Name = item.ConnectionName;
-            
-
+                SimpleItem item1 = new SimpleItem();
+                item1.DisplayField = item.className;
+                item1.Value = idx++;
+                item1.Text = item.className;
+                item1.Name = item.className;
+                classhandlers.Items.Add(item1);
             }
+            beepGridPro1.DataSource = viewModel.DBWork.Units;
 
-
-        }
-
-        private void uc_diagraming_Load(object sender, EventArgs e)
-        {
 
         }
     }

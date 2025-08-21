@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -20,6 +21,46 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public GridInputHelper(BeepGridPro grid) { _grid = grid; }
 
+        public void HandleMouseMove(MouseEventArgs e)
+        {
+            if (_resizingColumn && _resizingColIndex >= 0)
+            {
+                int dx = e.X - _mouseDown.X;
+                var col = _grid.Data.Columns[_resizingColIndex];
+                col.Width = Math.Max(20, col.Width + dx);
+                _mouseDown = e.Location;
+                _grid.Layout.Recalculate();
+                _grid.ScrollBars?.UpdateBars();
+                _grid.Invalidate();
+                return;
+            }
+
+            // Track hover over header to show filter icon
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            {
+                int hoverIndex = -1;
+                for (int i = 0; i < _grid.Layout.HeaderCellRects.Length; i++)
+                {
+                    var r = _grid.Layout.HeaderCellRects[i];
+                    if (!r.IsEmpty && r.Contains(e.Location)) { hoverIndex = i; break; }
+                }
+                if (_grid.Layout.HoveredHeaderColumnIndex != hoverIndex)
+                {
+                    _grid.Layout.HoveredHeaderColumnIndex = hoverIndex;
+                    _grid.Invalidate();
+                }
+            }
+            else if (_grid.Layout.HoveredHeaderColumnIndex != -1)
+            {
+                _grid.Layout.HoveredHeaderColumnIndex = -1;
+                _grid.Invalidate();
+            }
+
+            _grid.Cursor = _grid.Layout.HeaderRect.Contains(e.Location) && HitTestColumnBorder(e.Location) >= 0
+                ? Cursors.VSplit
+                : Cursors.Default;
+        }
+
         public void HandleMouseDown(MouseEventArgs e)
         {
             _mouseDown = e.Location;
@@ -36,6 +77,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.OnRowSelectionChanged(-1);
                 _grid.Invalidate();
                 return;
+            }
+
+            // Filter icon click in header
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            {
+                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
+                if (colIdx >= 0 && _grid.Render.HeaderFilterIconRects.TryGetValue(colIdx, out var r) && r.Contains(e.Location))
+                {
+                    _grid.ShowFilterDialog();
+                    return;
+                }
             }
 
             // Row checkbox or selection checkbox column cell
@@ -81,32 +133,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Highlight active cell; do not toggle selection
-            var (r, c) = HitTestCell(e.Location);
-            if (r >= 0 && c >= 0)
+            var (rrow, rcol) = HitTestCell(e.Location);
+            if (rrow >= 0 && rcol >= 0)
             {
-                _grid.Selection.SelectCell(r, c);
+                _grid.Selection.SelectCell(rrow, rcol);
                 EnsureSelectionVisible();
                 _grid.Invalidate();
             }
-        }
-
-        public void HandleMouseMove(MouseEventArgs e)
-        {
-            if (_resizingColumn && _resizingColIndex >= 0)
-            {
-                int dx = e.X - _mouseDown.X;
-                var col = _grid.Data.Columns[_resizingColIndex];
-                col.Width = Math.Max(20, col.Width + dx);
-                _mouseDown = e.Location;
-                _grid.Layout.Recalculate();
-                _grid.ScrollBars?.UpdateBars();
-                _grid.Invalidate();
-                return;
-            }
-
-            _grid.Cursor = _grid.Layout.HeaderRect.Contains(e.Location) && HitTestColumnBorder(e.Location) >= 0
-                ? Cursors.VSplit
-                : Cursors.Default;
         }
 
         public void HandleMouseUp(MouseEventArgs e)

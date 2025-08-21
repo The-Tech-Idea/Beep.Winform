@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value;
                 UseThemeFont = false;
-                SafeApplyFont(_textFont);
+              //  SafeApplyFont(_textFont);
                 InitializeDrawingComponents();
                 Invalidate();
             }
@@ -575,24 +575,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
+        //protected override void OnDpiChangedAfterParent(EventArgs e)
+        //{
+        //    base.OnDpiChangedAfterParent(e);
 
-            // Update DPI scaling
-            if (IsHandleCreated)
-            {
-                using (Graphics g = CreateGraphics())
-                {
-                    UpdateDpiScaling(g);
-                }
-            }
+        //    // Update DPI scaling
+        //    if (IsHandleCreated)
+        //    {
+        //        using (Graphics g = CreateGraphics())
+        //        {
+        //            UpdateDpiScaling(g);
+        //        }
+        //    }
 
-            // Reinitialize with new DPI scaling
-            InitializeDrawingComponents();
-            RefreshHitAreas();
-            Invalidate();
-        }
+        //    // Reinitialize with new DPI scaling
+        //    InitializeDrawingComponents();
+        //    RefreshHitAreas();
+        //    Invalidate();
+        //}
 
         protected override void OnParentChanged(EventArgs e)
         {
@@ -694,7 +694,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
-                SafeApplyFont(_textFont);
+               // SafeApplyFont(_textFont);
             }
 
             // Apply theme to drawing components

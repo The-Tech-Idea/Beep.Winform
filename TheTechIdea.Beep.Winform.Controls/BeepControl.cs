@@ -1027,7 +1027,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepControl()
         {
             _isInitializing = true; // ✅ FIX: Set initialization flag
-
+            AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
            

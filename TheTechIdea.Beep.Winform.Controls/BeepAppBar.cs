@@ -389,19 +389,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Add helper:
         private static bool IsDesignTime => LicenseManager.UsageMode == LicenseUsageMode.Designtime;
 
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
+        //protected override void OnDpiChangedAfterParent(EventArgs e)
+        //{
+        //    base.OnDpiChangedAfterParent(e);
 
-            // Update DPI-dependent sizes
-            _logosize = ScaledLogoSize;
+        //    // Update DPI-dependent sizes
+        //    _logosize = ScaledLogoSize;
 
-            // Update component sizes
-            UpdateComponentSizes();
+        //    // Update component sizes
+        //    UpdateComponentSizes();
 
-            // Recalculate layout
-            Invalidate();
-        }
+        //    // Recalculate layout
+        //    Invalidate();
+        //}
         public BeepAppBar() : base()
         {
             // Set up basic properties

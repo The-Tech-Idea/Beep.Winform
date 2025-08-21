@@ -19,6 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int CheckBoxColumnWidth { get; set; } = 30; // Add checkbox column width like BeepSimpleGrid
         public Rectangle SelectAllCheckRect { get; private set; } = Rectangle.Empty;
         public bool IsCalculating { get; private set; }
+        public int HoveredHeaderColumnIndex { get; internal set; }
 
         public GridLayoutHelper(BeepGridPro grid) { _grid = grid; }
 

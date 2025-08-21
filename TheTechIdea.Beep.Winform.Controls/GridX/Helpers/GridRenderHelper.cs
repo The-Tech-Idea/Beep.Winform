@@ -35,6 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private BeepButton _btnFilter;
         private BeepButton _btnPrint;
 
+        // Store filter icon rectangles for hit-testing
+        private readonly Dictionary<int, Rectangle> _headerFilterIconRects = new();
+        public Dictionary<int, Rectangle> HeaderFilterIconRects => _headerFilterIconRects;
+
         public GridRenderHelper(BeepGridPro grid)
         {
             _grid = grid;
@@ -180,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     var cellRect = _grid.Layout.HeaderCellRects[i];
                     if (cellRect.Width > 0 && cellRect.Height > 0)
-                        DrawHeaderCell(g, col, cellRect);
+                        DrawHeaderCell(g, col, cellRect, i);
                 }
             }
             g.Restore(state1);
@@ -196,7 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     var cellRect = _grid.Layout.HeaderCellRects[i];
                     if (cellRect.Width > 0 && cellRect.Height > 0)
-                        DrawHeaderCell(g, col, cellRect);
+                        DrawHeaderCell(g, col, cellRect, i);
                 }
             }
             g.Restore(state2);
@@ -209,7 +213,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        private void DrawHeaderCell(Graphics g, BeepColumnConfig column, Rectangle cellRect)
+        // Draws a simple filter icon (funnel shape)
+        private void DrawFilterIcon(Graphics g, Rectangle rect, bool active)
+        {
+            Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? SystemColors.ControlText);
+            using (var pen = new Pen(iconColor, 2))
+            {
+                Point[] funnel = new[]
+                {
+                    new Point(rect.Left + rect.Width / 8, rect.Top + rect.Height / 4),
+                    new Point(rect.Right - rect.Width / 8, rect.Top + rect.Height / 4),
+                    new Point(rect.Left + rect.Width / 2, rect.Bottom - rect.Height / 8)
+                };
+                g.DrawLines(pen, funnel);
+                // Draw handle
+                g.DrawLine(pen,
+                    rect.Left + rect.Width / 2,
+                    rect.Bottom - rect.Height / 8,
+                    rect.Left + rect.Width / 2,
+                    rect.Bottom - rect.Height / 4);
+            }
+        }
+
+        private void DrawHeaderCell(Graphics g, BeepColumnConfig column, Rectangle cellRect, int columnIndex)
         {
             // Validate inputs first
             if (g == null || column == null || cellRect.Width <= 0 || cellRect.Height <= 0)
@@ -221,19 +247,29 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 g.FillRectangle(brush, cellRect);
             }
 
-            // Text - with robust TextRenderer (avoids GDI+ DrawString issues)
+            // Text - with robust TextRenderer
             var textColor = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
             var font = _grid?.Font ?? SystemFonts.DefaultFont;
 
+            // Calculate filter icon area (right side of header cell)
+            int filterIconSize = Math.Min(cellRect.Height - 6, 18); // 18px or less
+            Rectangle filterIconRect = new Rectangle(
+                cellRect.Right - filterIconSize - 4,
+                cellRect.Top + (cellRect.Height - filterIconSize) / 2,
+                filterIconSize,
+                filterIconSize);
+
+            // Draw text, leaving space for filter icon if shown
+            int textWidth = Math.Max(1, cellRect.Width - filterIconSize - 8);
+            var textRect = new Rectangle(
+                cellRect.X + 2,
+                cellRect.Y + 2,
+                textWidth,
+                Math.Max(1, cellRect.Height - 4)
+            );
             if (!string.IsNullOrEmpty(text))
             {
-                var textRect = new Rectangle(
-                    cellRect.X + 2,
-                    cellRect.Y + 2,
-                    Math.Max(1, cellRect.Width - 4),
-                    Math.Max(1, cellRect.Height - 4)
-                );
                 TextRenderer.DrawText(
                     g,
                     text,
@@ -245,6 +281,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     TextFormatFlags.EndEllipsis |
                     TextFormatFlags.NoPrefix
                 );
+            }
+
+            // Draw filter icon if hovered
+            bool showFilterIcon = column.ShowFilterIcon && _grid.Layout.HoveredHeaderColumnIndex == columnIndex;
+            if (showFilterIcon)
+            {
+                DrawFilterIcon(g, filterIconRect, column.IsFiltered);
+                _headerFilterIconRects[columnIndex] = filterIconRect;
+            }
+            else
+            {
+                _headerFilterIconRects.Remove(columnIndex);
             }
 
             // Border

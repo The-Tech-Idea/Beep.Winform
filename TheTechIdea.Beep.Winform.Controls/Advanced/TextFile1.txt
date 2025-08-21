@@ -1,0 +1,1 @@
+﻿wrong. you did not follow my instructions. i moved the class to C:\Users\f_ald\source\repos\The-Tech-Idea\Beep.Winform\TheTechIdea.Beep.Winform.Controls\Advanced\ and i create place holder classes. please read BeepControl and implement all features in BeepControlAdvanced using helpers and others

@@ -52,29 +52,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateContainerLayout();
         }
         // Override DPI scaling methods
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
+        //protected override void OnDpiChangedAfterParent(EventArgs e)
+        //{
+        //    base.OnDpiChangedAfterParent(e);
 
-            // Update container layout with new DPI
-            UpdateContainerLayoutForDpi();
+        //    // Update container layout with new DPI
+        //    UpdateContainerLayoutForDpi();
 
-            // Update all child controls
-            foreach (var entry in _controls)
-            {
-                if (entry.Value.Addin is Control control)
-                {
-                    UpdateControlForDpi(control);
-                }
-            }
+        //    // Update all child controls
+        //    foreach (var entry in _controls)
+        //    {
+        //        if (entry.Value.Addin is Control control)
+        //        {
+        //            UpdateControlForDpi(control);
+        //        }
+        //    }
 
-            // Update tab container
-            if (TabContainerPanel != null)
-            {
-                // TabContainerPanel should handle its own DPI scaling
-                TabContainerPanel.Invalidate();
-            }
-        }
+        //    // Update tab container
+        //    if (TabContainerPanel != null)
+        //    {
+        //        // TabContainerPanel should handle its own DPI scaling
+        //        TabContainerPanel.Invalidate();
+        //    }
+        //}
         private void UpdateContainerLayoutForDpi()
         {
             // Update paddings and sizes based on current DPI

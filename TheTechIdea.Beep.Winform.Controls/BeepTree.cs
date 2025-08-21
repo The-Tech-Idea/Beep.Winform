@@ -1724,37 +1724,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             //}
         }
         // Override OnDpiChangedAfterParent to handle DPI changes
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
+        //protected override void OnDpiChangedAfterParent(EventArgs e)
+        //{
+        //    base.OnDpiChangedAfterParent(e);
 
-            // Update all DPI-dependent rendering components
-            if (_toggleRenderer != null)
-            {
-                _toggleRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
-                _toggleRenderer.MaxImageSize = new Size(GetScaledImageSize() - 2, GetScaledImageSize() - 2);
-            }
+        //    // Update all DPI-dependent rendering components
+        //    if (_toggleRenderer != null)
+        //    {
+        //        _toggleRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+        //        _toggleRenderer.MaxImageSize = new Size(GetScaledImageSize() - 2, GetScaledImageSize() - 2);
+        //    }
 
-            if (_checkRenderer != null)
-            {
-                _checkRenderer.CheckBoxSize = GetScaledBoxSize();
-            }
+        //    if (_checkRenderer != null)
+        //    {
+        //        _checkRenderer.CheckBoxSize = GetScaledBoxSize();
+        //    }
 
-            if (_iconRenderer != null)
-            {
-                _iconRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
-            }
+        //    if (_iconRenderer != null)
+        //    {
+        //        _iconRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+        //    }
 
-            if (_button != null)
-            {
-                _button.MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize());
-                _button.UseScaledFont = UseScaledFont;
-            }
+        //    if (_button != null)
+        //    {
+        //        _button.MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize());
+        //        _button.UseScaledFont = UseScaledFont;
+        //    }
 
           
-            // Force complete redraw
-            Invalidate();
-        }
+        //    // Force complete redraw
+        //    Invalidate();
+        //}
         #endregion
 
     }

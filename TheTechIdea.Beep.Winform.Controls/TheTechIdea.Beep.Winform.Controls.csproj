@@ -643,6 +643,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Advanced\Adapters\" />
+    <Folder Include="Advanced\Properties\" />
     <Folder Include="Containers\" />
     <Folder Include="Icons\" />
     <Folder Include="Properties\DataSources\" />

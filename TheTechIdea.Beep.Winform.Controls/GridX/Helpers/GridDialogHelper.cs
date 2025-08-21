@@ -23,46 +23,13 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         // DPI helpers
         private float GetDpiScale()
         {
-            try
-            {
-                // Prefer per-monitor DPI from the control
-                int dpi = 96;
-                try { dpi = _grid?.DeviceDpi > 0 ? _grid.DeviceDpi : 96; } catch { dpi = 96; }
-                if (dpi <= 0 || dpi == 96)
-                {
-                    using var g = _grid.CreateGraphics();
-                    dpi = (int)Math.Round(g.DpiX);
-                }
-                float scale = dpi / 96f;
-                return Math.Max(0.5f, Math.Min(4f, scale));
-            }
-            catch { return 1f; }
+            // No-op: let Windows handle DPI (PerMonitorV2)
+            return 1f;
         }
 
         private void ApplyDpiScaling(Form dialog)
         {
-            if (dialog == null) return;
-            float scale = GetDpiScale();
-            if (Math.Abs(scale - 1f) < 0.01f) return;
-
-            // Avoid double scaling from AutoScale; perform manual scale
-            dialog.AutoScaleMode = AutoScaleMode.None;
-            try
-            {
-                dialog.SuspendLayout();
-                dialog.Scale(new SizeF(scale, scale));
-                // Scale font to keep readable proportions
-                try
-                {
-                    var f = dialog.Font;
-                    dialog.Font = new Font(f.FontFamily, f.Size * scale, f.Style, f.Unit, f.GdiCharSet, f.GdiVerticalFont);
-                }
-                catch { }
-            }
-            finally
-            {
-                dialog.ResumeLayout(true);
-            }
+            // No-op: avoid manual scaling to prevent double scaling
         }
 
         private Keys _pendingNavKey = Keys.None;
@@ -390,9 +357,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             BeepControl editor = column.CellEditor switch
             {
                 BeepColumnType.Text => new BeepTextBox { IsChild = false, IsFrameless = false, ShowAllBorders = true },
-                BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = false },
-                BeepColumnType.CheckBoxChar => new BeepCheckBoxChar { IsChild = false },
-                BeepColumnType.CheckBoxString => new BeepCheckBoxString { IsChild = false },
+                BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = false ,HideText=true},
+                BeepColumnType.CheckBoxChar => new BeepCheckBoxChar { IsChild = false, HideText = true },
+                BeepColumnType.CheckBoxString => new BeepCheckBoxString { IsChild = false, HideText = true },
                 BeepColumnType.ComboBox => new BeepComboBox { IsChild = false, ListItems = new System.ComponentModel.BindingList<SimpleItem>(column.Items ?? new List<SimpleItem>()) },
                 BeepColumnType.DateTime => new BeepDatePicker { IsChild = false },
                 BeepColumnType.Image => new BeepImage { IsChild = false },

@@ -1,4 +1,6 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+﻿using TheTechIdea.Beep.Winform.Controls.Models;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_Login
     {
@@ -74,7 +76,7 @@
             beepLabel1.DrawingRect = new Rectangle(1, 1, 298, 84);
             beepLabel1.Easing = Vis.Modules.EasingType.Linear;
             beepLabel1.EnableRippleEffect = false;
-            beepLabel1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepLabel1.FloatingLabel = true;
@@ -228,7 +230,7 @@
             beepLogin1.DrawingRect = new Rectangle(2, 2, 296, 264);
             beepLogin1.Easing = Vis.Modules.EasingType.Linear;
             beepLogin1.EnableRippleEffect = false;
-            beepLogin1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLogin1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLogin1.FieldID = null;
             beepLogin1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepLogin1.FloatingLabel = true;
@@ -371,7 +373,7 @@
             CancelbeepButton.DrawingRect = new Rectangle(0, 0, 300, 36);
             CancelbeepButton.Easing = Vis.Modules.EasingType.Linear;
             CancelbeepButton.EnableRippleEffect = false;
-            CancelbeepButton.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            CancelbeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CancelbeepButton.FieldID = null;
             CancelbeepButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             CancelbeepButton.FloatingLabel = true;

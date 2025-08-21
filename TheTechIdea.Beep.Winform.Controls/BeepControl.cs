@@ -4489,12 +4489,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private readonly Dictionary<Control, ExternalDrawingFunction> _childExternalDrawers
             = new Dictionary<Control, ExternalDrawingFunction>();
         // When the drawing should occur
-        public enum DrawingLayer
-        {
-            BeforeContent,
-            AfterContent,
-            AfterAll
-        }
+
         public class ExternalDrawingFunction
         {
             public Control ChildControl { get; set; }

@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.Dock = DockStyle.Fill;
             MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 770, 432);
             MainTemplatePanel.Easing = Vis.Modules.EasingType.Linear;
-            MainTemplatePanel.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            MainTemplatePanel.ExternalDrawingLayer = DrawingLayer.AfterAll;
             MainTemplatePanel.FieldID = null;
             MainTemplatePanel.FocusBackColor = Color.White;
             MainTemplatePanel.FocusBorderColor = Color.Gray;

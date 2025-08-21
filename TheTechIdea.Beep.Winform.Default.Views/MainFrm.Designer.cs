@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.DrawingRect = new Rectangle(2, 2, 913, 713);
             beepDisplayContainer1.Easing = EasingType.Linear;
             beepDisplayContainer1.EnableRippleEffect = true;
-            beepDisplayContainer1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepDisplayContainer1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepDisplayContainer1.FieldID = null;
             beepDisplayContainer1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepDisplayContainer1.FloatingLabel = true;
@@ -96,6 +96,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepDisplayContainer1.GradientEndColor = Color.FromArgb(255, 255, 255);
             beepDisplayContainer1.GradientStartColor = Color.FromArgb(245, 245, 245);
+            beepDisplayContainer1.GridMode = false;
             beepDisplayContainer1.GuidID = "b3ee9f08-fabd-4339-b553-35f73d487bb5";
             beepDisplayContainer1.HelperText = "";
             beepDisplayContainer1.HitAreaEventOn = false;
@@ -106,7 +107,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.HoverForeColor = Color.Black;
             beepDisplayContainer1.Id = -1;
             beepDisplayContainer1.InactiveBorderColor = Color.Gray;
-          //  beepDisplayContainer1.Info = (SimpleItem)resources.GetObject("beepDisplayContainer1.Info");
             beepDisplayContainer1.IsAcceptButton = false;
             beepDisplayContainer1.IsBorderAffectedByTheme = true;
             beepDisplayContainer1.IsCancelButton = false;
@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.LinkedProperty = null;
             beepDisplayContainer1.Location = new Point(282, 82);
             beepDisplayContainer1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepDisplayContainer1.ModernGradientType =ModernGradientType.Subtle;
+            beepDisplayContainer1.ModernGradientType = ModernGradientType.Subtle;
             beepDisplayContainer1.Name = "beepDisplayContainer1";
             beepDisplayContainer1.OverrideFontSize = TypeStyleFontSize.None;
             beepDisplayContainer1.Padding = new Padding(2);
@@ -220,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.DrawingRect = new Rectangle(0, 0, 1198, 35);
             beepMenuAppBar1.Easing = EasingType.Linear;
             beepMenuAppBar1.EnableRippleEffect = true;
-            beepMenuAppBar1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepMenuAppBar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepMenuAppBar1.FieldID = null;
             beepMenuAppBar1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepMenuAppBar1.FloatingLabel = true;
@@ -237,6 +237,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.ForwardDiagonal;
             beepMenuAppBar1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepMenuAppBar1.GradientStartColor = Color.FromArgb(255, 255, 255);
+            beepMenuAppBar1.GridMode = false;
             beepMenuAppBar1.GuidID = "6f369a04-3d65-47eb-9d84-d364141bc239";
             beepMenuAppBar1.HelperText = "";
             beepMenuAppBar1.HitAreaEventOn = false;
@@ -248,7 +249,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.Id = -1;
             beepMenuAppBar1.ImageSize = 18;
             beepMenuAppBar1.InactiveBorderColor = Color.Gray;
-          //  beepMenuAppBar1.Info = (SimpleItem)resources.GetObject("beepMenuAppBar1.Info");
             beepMenuAppBar1.IsAcceptButton = false;
             beepMenuAppBar1.IsBorderAffectedByTheme = true;
             beepMenuAppBar1.IsCancelButton = false;
@@ -279,7 +279,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepMenuAppBar1.MenuItemHeight = 35;
             beepMenuAppBar1.MenuItemWidth = 60;
-            beepMenuAppBar1.ModernGradientType =ModernGradientType.Subtle;
+            beepMenuAppBar1.ModernGradientType = ModernGradientType.Subtle;
             beepMenuAppBar1.Name = "beepMenuAppBar1";
             beepMenuAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepMenuAppBar1.ParentBackColor = Color.Empty;
@@ -358,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.CanBePressed = true;
             beepAppBar1.Category = Utilities.DbFieldCategory.String;
             beepAppBar1.ComponentName = "beepAppBar1";
-           // beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
+            beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
             beepAppBar1.DataSourceProperty = null;
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledBorderColor = Color.Empty;
@@ -369,7 +369,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.Easing = EasingType.Linear;
             beepAppBar1.EnableFormDragging = true;
             beepAppBar1.EnableRippleEffect = true;
-            beepAppBar1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepAppBar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepAppBar1.FieldID = null;
             beepAppBar1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepAppBar1.FloatingLabel = true;
@@ -386,6 +386,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Vertical;
             beepAppBar1.GradientEndColor = Color.FromArgb(25, 118, 210);
             beepAppBar1.GradientStartColor = Color.FromArgb(33, 150, 243);
+            beepAppBar1.GridMode = false;
             beepAppBar1.GuidID = "2feb3ec3-b1d8-4dd6-b1ec-70c10f5932b9";
             beepAppBar1.HelperText = "";
             beepAppBar1.HitAreaEventOn = false;
@@ -396,7 +397,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.HoverForeColor = Color.Black;
             beepAppBar1.Id = -1;
             beepAppBar1.InactiveBorderColor = Color.Gray;
-        //    beepAppBar1.Info = (SimpleItem)resources.GetObject("beepAppBar1.Info");
             beepAppBar1.IsAcceptButton = false;
             beepAppBar1.IsBorderAffectedByTheme = false;
             beepAppBar1.IsCancelButton = false;
@@ -425,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.LinkedProperty = null;
             beepAppBar1.Location = new Point(1, 1);
             beepAppBar1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepAppBar1.ModernGradientType =ModernGradientType.Subtle;
+            beepAppBar1.ModernGradientType = ModernGradientType.Subtle;
             beepAppBar1.Name = "beepAppBar1";
             beepAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppBar1.ParentBackColor = Color.Empty;
@@ -512,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.BorderThickness = 1;
             beepAppTree1.BottomoffsetForDrawingRect = 0;
             beepAppTree1.BoundProperty = null;
-            beepAppTree1.Branches = (List<IBranch>)resources.GetObject("beepAppTree1.Branches");
+            beepAppTree1.Branches = null;
             beepAppTree1.CanBeFocused = true;
             beepAppTree1.CanBeHovered = false;
             beepAppTree1.CanBePressed = true;
@@ -532,7 +532,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Easing = EasingType.Linear;
             beepAppTree1.EnableRippleEffect = true;
             beepAppTree1.ExtensionsHelpers = null;
-            beepAppTree1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepAppTree1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepAppTree1.FieldID = null;
             beepAppTree1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepAppTree1.Filterstring = null;
@@ -550,6 +550,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
             beepAppTree1.GradientEndColor = Color.FromArgb(230, 230, 230);
             beepAppTree1.GradientStartColor = Color.FromArgb(255, 255, 255);
+            beepAppTree1.GridMode = false;
             beepAppTree1.GuidID = "fb89b68d-3016-42c0-8e62-2f34a9f894ef";
             beepAppTree1.HelperText = "";
             beepAppTree1.HitAreaEventOn = false;
@@ -560,7 +561,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.HoverForeColor = Color.Black;
             beepAppTree1.Id = -1;
             beepAppTree1.InactiveBorderColor = Color.Gray;
-         //   beepAppTree1.Info = (SimpleItem)resources.GetObject("beepAppTree1.Info");
             beepAppTree1.IsAcceptButton = false;
             beepAppTree1.IsBorderAffectedByTheme = true;
             beepAppTree1.IsCancelButton = false;
@@ -590,9 +590,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.LinkedProperty = null;
             beepAppTree1.Location = new Point(1, 82);
             beepAppTree1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepAppTree1.ModernGradientType =ModernGradientType.Subtle;
+            beepAppTree1.ModernGradientType = ModernGradientType.Subtle;
             beepAppTree1.Name = "beepAppTree1";
-            //beepAppTree1.Nodes = (IList<SimpleItem>)resources.GetObject("beepAppTree1.Nodes");
+            beepAppTree1.Nodes = (IList<SimpleItem>)resources.GetObject("beepAppTree1.Nodes");
             beepAppTree1.ObjectType = "Beep";
             beepAppTree1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppTree1.Padding = new Padding(1);

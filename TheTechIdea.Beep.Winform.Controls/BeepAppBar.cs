@@ -404,11 +404,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //}
         public BeepAppBar() : base()
         {
-            // Set up basic properties
-            SetStyle(ControlStyles.AllPaintingInWmPaint
-            | ControlStyles.UserPaint
-            | ControlStyles.OptimizedDoubleBuffer, true);
-            UpdateStyles();
+          
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;

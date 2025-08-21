@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.DrawingRect = new Rectangle(1, 1, 619, 54);
             panel1.Easing = EasingType.Linear;
             panel1.EnableRippleEffect = true;
-            panel1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            panel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             panel1.FieldID = null;
             panel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             panel1.FloatingLabel = true;
@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.DrawingRect = new Rectangle(0, 0, 72, 44);
             DialogImage.Easing = EasingType.Linear;
             DialogImage.EnableRippleEffect = true;
-            DialogImage.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            DialogImage.ExternalDrawingLayer = DrawingLayer.AfterAll;
             DialogImage.FieldID = null;
             DialogImage.FillColor = Color.Black;
             DialogImage.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
@@ -384,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.DrawingRect = new Rectangle(1, 1, 38, 38);
             CloseButton.Easing = EasingType.Linear;
             CloseButton.EnableRippleEffect = true;
-            CloseButton.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            CloseButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CloseButton.FieldID = null;
             CloseButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             CloseButton.FloatingLabel = true;
@@ -540,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.DrawingRect = new Rectangle(2, 2, 427, 36);
             TitleLabel.Easing = EasingType.Linear;
             TitleLabel.EnableRippleEffect = true;
-            TitleLabel.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            TitleLabel.ExternalDrawingLayer = DrawingLayer.AfterAll;
             TitleLabel.FieldID = null;
             TitleLabel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             TitleLabel.FloatingLabel = true;
@@ -694,7 +694,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.DrawingRect = new Rectangle(1, 1, 619, 238);
             panel3.Easing = EasingType.Linear;
             panel3.EnableRippleEffect = true;
-            panel3.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            panel3.ExternalDrawingLayer = DrawingLayer.AfterAll;
             panel3.FieldID = null;
             panel3.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             panel3.FloatingLabel = true;
@@ -836,7 +836,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.DrawingRect = new Rectangle(1, 1, 127, 30);
             MiddleButton.Easing = EasingType.Linear;
             MiddleButton.EnableRippleEffect = true;
-            MiddleButton.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            MiddleButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             MiddleButton.FieldID = null;
             MiddleButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             MiddleButton.FloatingLabel = true;
@@ -992,7 +992,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.DrawingRect = new Rectangle(1, 1, 127, 30);
             RightButton.Easing = EasingType.Linear;
             RightButton.EnableRippleEffect = true;
-            RightButton.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            RightButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             RightButton.FieldID = null;
             RightButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             RightButton.FloatingLabel = true;
@@ -1148,7 +1148,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.DrawingRect = new Rectangle(1, 1, 127, 30);
             LeftButton.Easing = EasingType.Linear;
             LeftButton.EnableRippleEffect = true;
-            LeftButton.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            LeftButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             LeftButton.FieldID = null;
             LeftButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             LeftButton.FloatingLabel = true;
@@ -1310,7 +1310,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.DrawingRect = new Rectangle(4, 4, 589, 107);
             CaptionTextBox.Easing = EasingType.Linear;
             CaptionTextBox.EnableRippleEffect = true;
-            CaptionTextBox.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            CaptionTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CaptionTextBox.FieldID = null;
             CaptionTextBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             CaptionTextBox.FloatingLabel = true;
@@ -1464,7 +1464,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.DrawingRect = new Rectangle(1, 1, 268, 20);
             SelectFromListComboBox.Easing = EasingType.Linear;
             SelectFromListComboBox.EnableRippleEffect = true;
-            SelectFromListComboBox.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            SelectFromListComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             SelectFromListComboBox.FieldID = null;
             SelectFromListComboBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             SelectFromListComboBox.FloatingLabel = true;
@@ -1609,7 +1609,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.DrawingRect = new Rectangle(4, 4, 262, 28);
             InputTextBox.Easing = EasingType.Linear;
             InputTextBox.EnableRippleEffect = true;
-            InputTextBox.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            InputTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             InputTextBox.FieldID = null;
             InputTextBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             InputTextBox.FloatingLabel = true;

@@ -680,7 +680,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             IBeepTheme t = BeepThemesManager.GetTheme(_theme);
             if (t == null) return;
-            container.BackColor = BeepThemesManager.GetTheme(_theme).BackgroundColor;
+            if (container != null && container == _form)
+            {
+                var theme = BeepThemesManager.GetTheme(_theme);
+                if (theme?.BackgroundColor != Color.Empty && theme?.BackgroundColor != Color.Transparent)
+                {
+                    container.BackColor = theme.BackgroundColor;
+                }
+            }
 
             // Apply theme to the container itself
             ApplyThemeToControl(container);

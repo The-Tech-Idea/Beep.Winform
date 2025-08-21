@@ -120,7 +120,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleTextBox1.DrawingRect = new Rectangle(1, 1, 340, 22);
             beepSimpleTextBox1.Easing = EasingType.Linear;
             beepSimpleTextBox1.EnableRippleEffect = false;
-            beepSimpleTextBox1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepSimpleTextBox1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepSimpleTextBox1.FieldID = null;
             beepSimpleTextBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepSimpleTextBox1.FloatingLabel = true;
@@ -1197,7 +1197,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DrawingRect = new Rectangle(0, 0, 773, 422);
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableRippleEffect = false;
-            beepGridPro1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepGridPro1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepGridPro1.FieldID = null;
             beepGridPro1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepGridPro1.FloatingLabel = true;
@@ -1344,7 +1344,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleTextBoxEnhanced1.DrawingRect = new Rectangle(1, 1, 285, 30);
             beepSimpleTextBoxEnhanced1.Easing = EasingType.Linear;
             beepSimpleTextBoxEnhanced1.EnableRippleEffect = false;
-            beepSimpleTextBoxEnhanced1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepSimpleTextBoxEnhanced1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepSimpleTextBoxEnhanced1.FieldID = null;
             beepSimpleTextBoxEnhanced1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepSimpleTextBoxEnhanced1.FloatingLabel = true;
@@ -1494,7 +1494,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.DrawingRect = new Rectangle(1, 1, 207, 20);
             beepComboBox1.Easing = EasingType.Linear;
             beepComboBox1.EnableRippleEffect = false;
-            beepComboBox1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepComboBox1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepComboBox1.FieldID = null;
             beepComboBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepComboBox1.FloatingLabel = true;

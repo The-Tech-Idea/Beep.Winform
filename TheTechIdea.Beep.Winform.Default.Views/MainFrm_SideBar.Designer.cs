@@ -81,10 +81,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.DisabledBorderColor = Color.Empty;
             beepAppBar1.DisabledForeColor = Color.Black;
             beepAppBar1.Dock = DockStyle.Top;
-            beepAppBar1.DrawingRect = new Rectangle(0, 0, 691, 40);
+          
             beepAppBar1.Easing = Vis.Modules.EasingType.Linear;
             beepAppBar1.EnableRippleEffect = true;
-            beepAppBar1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepAppBar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepAppBar1.FieldID = null;
             beepAppBar1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepAppBar1.FloatingLabel = true;
@@ -100,8 +100,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.GradientStartColor = Color.FromArgb(33, 150, 243);
             beepAppBar1.GuidID = "2cfa0ec4-5de6-4771-8f7a-a0f5be8aa1b6";
             beepAppBar1.HelperText = "";
-            beepAppBar1.HitAreaEventOn = false;
-            beepAppBar1.HitTestControl = null;
+            
             beepAppBar1.HoverBackColor = Color.White;
             beepAppBar1.HoverBorderColor = Color.Gray;
             beepAppBar1.HoveredBackcolor = Color.Wheat;
@@ -237,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.Easing = Vis.Modules.EasingType.Linear;
             beepSideMenu1.EnableRippleEffect = true;
             beepSideMenu1.ExpandedWidth = 200;
-            beepSideMenu1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepSideMenu1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSideMenu1.FieldID = null;
             beepSideMenu1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepSideMenu1.FloatingLabel = true;
@@ -377,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.DrawingRect = new Rectangle(2, 2, 687, 369);
             beepDisplayContainer1.Easing = Vis.Modules.EasingType.Linear;
             beepDisplayContainer1.EnableRippleEffect = true;
-            beepDisplayContainer1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepDisplayContainer1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepDisplayContainer1.FieldID = null;
             beepDisplayContainer1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepDisplayContainer1.FloatingLabel = true;
@@ -509,7 +508,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.DrawingRect = new Rectangle(0, 0, 691, 35);
             beepMenuBar1.Easing = Vis.Modules.EasingType.Linear;
             beepMenuBar1.EnableRippleEffect = true;
-            beepMenuBar1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepMenuBar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepMenuBar1.FieldID = null;
             beepMenuBar1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepMenuBar1.FloatingLabel = true;

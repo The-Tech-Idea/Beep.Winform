@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public int Menuitemheight { get; private set; } = 15;
         #endregion "Popup List Properties"
-        public BeepPopupListForm()
+        public BeepPopupListForm() : base()
         {
             InitializeComponent();
 

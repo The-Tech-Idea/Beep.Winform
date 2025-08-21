@@ -117,14 +117,56 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponent();
             ishandled = false;
             AutoScaleMode = AutoScaleMode.Dpi;
-            // Set styles for custom painting and performance
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            UpdateStyles();
+            // ✅ FIX: Add proper control styles including transparent background support
+            SetStyle(
+                ControlStyles.UserPaint |
+                ControlStyles.ResizeRedraw |
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.SupportsTransparentBackColor, // ✅ ADD THIS!
+                true);
 
-            // Enable double buffering at the form level
+            UpdateStyles();
             this.DoubleBuffered = true;
 
+            // ✅ FIX: Set initial background color to prevent transparency
+            this.BackColor = SystemColors.Control; // Temporary until theme loads
+
             FormBorderStyle = FormBorderStyle.None;
+
+            // ✅ FIX: Force initial paint after creation
+          //  this.Load += BeepiForm_Load;
+          //  this.VisibleChanged += BeepiForm_VisibleChanged;
+        }
+        private void BeepiForm_Load(object sender, EventArgs e)
+        {
+            // Ensure proper background on load
+            if (BackColor == Color.Transparent || BackColor == Color.Empty)
+            {
+                BackColor = SystemColors.Control;
+            }
+
+            // Apply theme if available
+            ApplyTheme();
+
+            // Force immediate paint
+            Invalidate();
+            Update();
+        }
+
+        private void BeepiForm_VisibleChanged(object sender, EventArgs e)
+        {
+            if (Visible)
+            {
+                // Ensure background is set when becoming visible
+                if (BackColor == Color.Transparent || BackColor == Color.Empty)
+                {
+                    BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                }
+
+                Invalidate();
+                Update();
+            }
         }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
@@ -357,11 +399,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme Application
         public virtual void ApplyTheme()
         {
-            beepuiManager1.Theme = Theme;
-            BackColor = _currentTheme.BackColor;
-            BorderColor = _currentTheme.BorderColor;
+            // Suspend layout during theme application
+            SuspendLayout();
 
-            Invalidate();
+            try
+            {
+                if (beepuiManager1.Theme!= Theme)
+                {
+                    beepuiManager1.Theme = Theme;
+                }
+              
+
+                // ✅ FIX: Ensure we never have transparent background
+                Color newBackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                if (newBackColor == Color.Transparent || newBackColor == Color.Empty)
+                {
+                    newBackColor = SystemColors.Control;
+                }
+
+                BackColor = newBackColor;
+                BorderColor = _currentTheme?.BorderColor ?? SystemColors.ControlDark;
+            }
+            finally
+            {
+                ResumeLayout(true);
+                Invalidate();
+                Update(); // Force immediate paint
+            }
         }
         #endregion
         #region Maximize Toggle

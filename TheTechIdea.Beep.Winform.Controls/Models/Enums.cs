@@ -8,6 +8,13 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
-   
-
+    /// <summary>
+    /// Enum for external drawing layers
+    /// </summary>
+    public enum DrawingLayer
+    {
+        BeforeContent,
+        AfterContent,
+        AfterAll
+    }
 }

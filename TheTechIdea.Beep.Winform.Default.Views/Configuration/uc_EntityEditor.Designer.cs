@@ -302,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Easing = Vis.Modules.EasingType.Linear;
             beepSimpleGrid1.EnableRippleEffect = false;
             beepSimpleGrid1.EntityName = null;
-            beepSimpleGrid1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepSimpleGrid1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepSimpleGrid1.FitColumnToContent = false;
@@ -478,7 +478,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.DrawingRect = new Rectangle(10, 10, 949, 125);
             beepPanel1.Easing = Vis.Modules.EasingType.Linear;
             beepPanel1.EnableRippleEffect = false;
-            beepPanel1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepPanel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepPanel1.FieldID = null;
             beepPanel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepPanel1.FloatingLabel = true;
@@ -629,7 +629,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.DrawingRect = new Rectangle(0, 0, 24, 24);
             beepButton1.Easing = Vis.Modules.EasingType.Linear;
             beepButton1.EnableRippleEffect = false;
-            beepButton1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton1.FieldID = null;
             beepButton1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepButton1.FloatingLabel = true;
@@ -790,7 +790,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.DrawingRect = new Rectangle(1, 1, 122, 31);
             beepLabel2.Easing = Vis.Modules.EasingType.Linear;
             beepLabel2.EnableRippleEffect = false;
-            beepLabel2.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel2.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel2.FieldID = null;
             beepLabel2.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepLabel2.FloatingLabel = true;
@@ -944,7 +944,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.DrawingRect = new Rectangle(1, 1, 251, 20);
             EntitiesbeepComboBox.Easing = Vis.Modules.EasingType.Linear;
             EntitiesbeepComboBox.EnableRippleEffect = false;
-            EntitiesbeepComboBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            EntitiesbeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             EntitiesbeepComboBox.FieldID = null;
             EntitiesbeepComboBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             EntitiesbeepComboBox.FloatingLabel = true;
@@ -1088,7 +1088,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DrawingRect = new Rectangle(1, 1, 122, 31);
             beepLabel1.Easing = Vis.Modules.EasingType.Linear;
             beepLabel1.EnableRippleEffect = false;
-            beepLabel1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepLabel1.FloatingLabel = true;
@@ -1242,7 +1242,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.DrawingRect = new Rectangle(1, 1, 251, 20);
             DatasourcebeepComboBox.Easing = Vis.Modules.EasingType.Linear;
             DatasourcebeepComboBox.EnableRippleEffect = false;
-            DatasourcebeepComboBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            DatasourcebeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             DatasourcebeepComboBox.FieldID = null;
             DatasourcebeepComboBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             DatasourcebeepComboBox.FloatingLabel = true;

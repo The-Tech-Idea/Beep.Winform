@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DrawingRect = new Rectangle(1, 1, 220, 50);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableRippleEffect = false;
-            beepLabel1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepLabel1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepLabel1.FloatingLabel = true;
@@ -240,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepNumericUpDown1.DrawingRect = new Rectangle(0, 0, 73, 37);
             beepNumericUpDown1.Easing = EasingType.Linear;
             beepNumericUpDown1.EnableRippleEffect = false;
-            beepNumericUpDown1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepNumericUpDown1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepNumericUpDown1.FieldID = null;
             beepNumericUpDown1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepNumericUpDown1.FloatingLabel = true;
@@ -389,7 +389,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.DrawingRect = new Rectangle(4, 4, 192, 20);
             beepTextBox1.Easing = EasingType.Linear;
             beepTextBox1.EnableRippleEffect = false;
-            beepTextBox1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepTextBox1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepTextBox1.FieldID = null;
             beepTextBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepTextBox1.FloatingLabel = true;
@@ -722,7 +722,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.EnableRippleEffect = false;
             beepSimpleGrid1.EntityName = null;
-            beepSimpleGrid1.ExternalDrawingLayer = BeepControl.DrawingLayer.AfterAll;
+            beepSimpleGrid1.ExternalDrawingLayer  = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepSimpleGrid1.FitColumnToContent = false;

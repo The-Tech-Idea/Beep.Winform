@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.DisabledForeColor = Color.Black;
             beepPanel1.DrawingRect = new Rectangle(10, 10, 428, 312);
             beepPanel1.Easing = Vis.Modules.EasingType.Linear;
-            beepPanel1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepPanel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepPanel1.FieldID = null;
             beepPanel1.FocusBackColor = Color.White;
             beepPanel1.FocusBorderColor = Color.Gray;
@@ -215,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel3.DisabledForeColor = Color.FromArgb(173, 181, 189);
             beepLabel3.DrawingRect = new Rectangle(1, 1, 136, 27);
             beepLabel3.Easing = Vis.Modules.EasingType.Linear;
-            beepLabel3.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel3.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel3.FieldID = null;
             beepLabel3.FocusBackColor = Color.White;
             beepLabel3.FocusBorderColor = Color.Gray;
@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.DisabledForeColor = Color.FromArgb(173, 181, 189);
             databaseTextBox.DrawingRect = new Rectangle(4, 4, 227, 21);
             databaseTextBox.Easing = Vis.Modules.EasingType.Linear;
-            databaseTextBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            databaseTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             databaseTextBox.FieldID = null;
             databaseTextBox.FocusBackColor = Color.White;
             databaseTextBox.FocusBorderColor = Color.Gray;
@@ -491,7 +491,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.DisabledForeColor = Color.FromArgb(173, 181, 189);
             SavebeepButton.DrawingRect = new Rectangle(1, 1, 75, 34);
             SavebeepButton.Easing = Vis.Modules.EasingType.Linear;
-            SavebeepButton.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            SavebeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             SavebeepButton.FieldID = null;
             SavebeepButton.FocusBackColor = Color.FromArgb(0, 120, 215);
             SavebeepButton.FocusBorderColor = Color.Gray;
@@ -629,7 +629,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.DisabledForeColor = Color.FromArgb(173, 181, 189);
             CancelbeepButton.DrawingRect = new Rectangle(1, 1, 75, 34);
             CancelbeepButton.Easing = Vis.Modules.EasingType.Linear;
-            CancelbeepButton.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            CancelbeepButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
             CancelbeepButton.FieldID = null;
             CancelbeepButton.FocusBackColor = Color.FromArgb(0, 120, 215);
             CancelbeepButton.FocusBorderColor = Color.Gray;
@@ -766,7 +766,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel5.DisabledForeColor = Color.FromArgb(173, 181, 189);
             beepLabel5.DrawingRect = new Rectangle(1, 1, 136, 27);
             beepLabel5.Easing = Vis.Modules.EasingType.Linear;
-            beepLabel5.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel5.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel5.FieldID = null;
             beepLabel5.FocusBackColor = Color.White;
             beepLabel5.FocusBorderColor = Color.Gray;
@@ -904,7 +904,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.DisabledForeColor = Color.FromArgb(173, 181, 189);
             PasswordbeepTextBox.DrawingRect = new Rectangle(4, 4, 227, 21);
             PasswordbeepTextBox.Easing = Vis.Modules.EasingType.Linear;
-            PasswordbeepTextBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            PasswordbeepTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             PasswordbeepTextBox.FieldID = null;
             PasswordbeepTextBox.FocusBackColor = Color.White;
             PasswordbeepTextBox.FocusBorderColor = Color.Gray;
@@ -1048,7 +1048,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.DisabledForeColor = Color.FromArgb(173, 181, 189);
             OtherFolderbeepTextBox.DrawingRect = new Rectangle(4, 4, 227, 21);
             OtherFolderbeepTextBox.Easing = Vis.Modules.EasingType.Linear;
-            OtherFolderbeepTextBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            OtherFolderbeepTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             OtherFolderbeepTextBox.FieldID = null;
             OtherFolderbeepTextBox.FocusBackColor = Color.White;
             OtherFolderbeepTextBox.FocusBorderColor = Color.Gray;
@@ -1186,7 +1186,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.DisabledForeColor = Color.FromArgb(173, 181, 189);
             beepButton1.DrawingRect = new Rectangle(0, 0, 23, 23);
             beepButton1.Easing = Vis.Modules.EasingType.Linear;
-            beepButton1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepButton1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepButton1.FieldID = null;
             beepButton1.FocusBackColor = Color.FromArgb(0, 120, 215);
             beepButton1.FocusBorderColor = Color.Gray;
@@ -1324,7 +1324,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.DisabledForeColor = Color.FromArgb(173, 181, 189);
             beepLabel2.DrawingRect = new Rectangle(1, 1, 136, 27);
             beepLabel2.Easing = Vis.Modules.EasingType.Linear;
-            beepLabel2.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel2.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel2.FieldID = null;
             beepLabel2.FocusBackColor = Color.White;
             beepLabel2.FocusBorderColor = Color.Gray;
@@ -1455,7 +1455,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DisabledForeColor = Color.FromArgb(173, 181, 189);
             beepLabel1.DrawingRect = new Rectangle(1, 1, 136, 27);
             beepLabel1.Easing = Vis.Modules.EasingType.Linear;
-            beepLabel1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepLabel1.FieldID = null;
             beepLabel1.FocusBackColor = Color.White;
             beepLabel1.FocusBorderColor = Color.Gray;
@@ -1585,7 +1585,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.DisabledForeColor = Color.Black;
             SystemFolderbeepComboBox.DrawingRect = new Rectangle(1, 1, 233, 21);
             SystemFolderbeepComboBox.Easing = Vis.Modules.EasingType.Linear;
-            SystemFolderbeepComboBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            SystemFolderbeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             SystemFolderbeepComboBox.FieldID = null;
             SystemFolderbeepComboBox.FocusBackColor = Color.White;
             SystemFolderbeepComboBox.FocusBorderColor = Color.Gray;
@@ -1702,7 +1702,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.DisabledForeColor = Color.Black;
             LocalDbTypebeepComboBox.DrawingRect = new Rectangle(1, 1, 233, 21);
             LocalDbTypebeepComboBox.Easing = Vis.Modules.EasingType.Linear;
-            LocalDbTypebeepComboBox.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            LocalDbTypebeepComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             LocalDbTypebeepComboBox.FieldID = null;
             LocalDbTypebeepComboBox.FocusBackColor = Color.White;
             LocalDbTypebeepComboBox.FocusBorderColor = Color.Gray;

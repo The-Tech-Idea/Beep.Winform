@@ -187,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Fields and Properties"
 
         #region "Constructor and Initialization"
-        public BeepMenuBar() : base()
+        public BeepMenuBar() 
         {
             if (items == null)
             {

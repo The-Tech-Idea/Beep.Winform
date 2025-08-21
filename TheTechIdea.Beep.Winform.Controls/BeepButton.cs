@@ -747,7 +747,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
 
             }
-            SafeApplyFont(TextFont ?? _textFont);
+          //  SafeApplyFont(TextFont ?? _textFont);
             
             // Apply theme to child image control
             if (beepImage != null)

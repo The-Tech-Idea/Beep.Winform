@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
 
-        public BeepPopupForm()
+        public BeepPopupForm():base()
         {
             InitializePopupForm();
 

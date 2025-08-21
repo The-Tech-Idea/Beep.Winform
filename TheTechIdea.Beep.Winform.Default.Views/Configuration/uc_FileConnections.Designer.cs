@@ -2184,7 +2184,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.Easing = EasingType.Linear;
             beepSimpleGrid1.EnableRippleEffect = false;
             beepSimpleGrid1.EntityName = "ConnectionProperties";
-            beepSimpleGrid1.ExternalDrawingLayer = Winform.Controls.BeepControl.DrawingLayer.AfterAll;
+            beepSimpleGrid1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
             beepSimpleGrid1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             beepSimpleGrid1.FitColumnToContent = false;

@@ -42,10 +42,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SimpleItem _selectedItem;
         private int _selectedItemIndex = -1;
         private int _collapsedHeight = 0;
-        //private int _buttonWidth = 25;
-        //private int _maxListHeight = 200;
-        //private int _padding = 2;
-        //private int _minWidth = 80;
 
         // Convert hardcoded values to DPI-aware properties
         private int _buttonWidth => ScaleValue(25);
@@ -64,8 +60,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<SelectedItemChangedEventArgs> SelectedItemChanged;
         protected virtual void OnSelectedItemChanged(SimpleItem selectedItem)
         {
-            SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
-            SelectedIndexChanged?.DynamicInvoke(this, new SelectedItemChangedEventArgs(selectedItem));
+            var args = new SelectedItemChangedEventArgs(selectedItem);
+            SelectedItemChanged?.Invoke(this, args);
+            SelectedIndexChanged?.Invoke(this, args);
         }
 
         private Font _textFont = new Font("Arial", 10);
@@ -111,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _selectedItem;
             set
             {
-                if (value == null) return;
+                if (value == null) { _selectedItem = null; _selectedItemIndex = -1; _comboTextBox.Text = string.Empty; Text = string.Empty; Invalidate(); return; }
                 _selectedItem = value;
                 _selectedItemIndex = _listItems.IndexOf(_selectedItem);
                 _comboTextBox.Text = value.Text;
@@ -141,6 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     SelectedItem = _listItems[value];
                 }
+                else
+                {
+                    SelectedItem = null;
+                }
             }
         }
 
@@ -165,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public DbFieldCategory Category { get; set; } = DbFieldCategory.Numeric;
       
-        public string? PlaceholderText { get;  set; }="Select an item...";
+        public string? PlaceholderText { get; set; } = "Select an item...";
 
         public BeepComboBox()
         {
@@ -223,14 +224,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void BeepComboBox_LostFocus(object? sender, EventArgs e)
         {
-            _isFocused=false; ;
-            this.Invalidate();
+            _isEditing = false;
+            Invalidate();
         }
 
         private void BeepComboBox_GotFocus(object? sender, EventArgs e)
         {
-            IsFocused = false;
-
+            Invalidate();
         }
 
         public void Reset()
@@ -523,157 +523,159 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_currentTheme == null)
                     return;
-                // Use simplified drawing for grid mode
+                // Grid mode fast path
                 if (GridMode)
                 {
                     DrawForGrid(graphics, rectangle);
                     return;
                 }
 
-                // Remove expensive graphics settings for better performance
-                // graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                // graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                // graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-
-                // Create a working rectangle that respects border thickness
                 Rectangle workingRect = rectangle;
                 if (BorderThickness > 0)
                 {
                     workingRect.Inflate(-BorderThickness, -BorderThickness);
                 }
 
-                // Determine current state colors
                 Color backColor, foreColor, borderColor;
+                GetStateColors(out backColor, out foreColor, out borderColor);
 
-                if (Focused || _isEditing || _isPopupOpen)
+                // Background
+                if (IsRounded && BorderRadius > 0)
                 {
-                    // Selected/Focused state
-                    backColor = _currentTheme.ComboBoxSelectedBackColor != Color.Empty
-                        ? _currentTheme.ComboBoxSelectedBackColor
-                        : _currentTheme.ComboBoxBackColor;
-
-                    foreColor = _currentTheme.ComboBoxSelectedForeColor != Color.Empty
-                        ? _currentTheme.ComboBoxSelectedForeColor
-                        : _currentTheme.ComboBoxForeColor;
-
-                    borderColor = _currentTheme.ComboBoxSelectedBorderColor != Color.Empty
-                        ? _currentTheme.ComboBoxSelectedBorderColor
-                        : _currentTheme.ComboBoxBorderColor;
-                }
-                else if (IsHovered)
-                {
-                    // Hover state
-                    backColor = _currentTheme.ComboBoxHoverBackColor != Color.Empty
-                        ? _currentTheme.ComboBoxHoverBackColor
-                        : _currentTheme.ComboBoxBackColor;
-
-                    foreColor = _currentTheme.ComboBoxHoverForeColor != Color.Empty
-                        ? _currentTheme.ComboBoxHoverForeColor
-                        : _currentTheme.ComboBoxForeColor;
-
-                    borderColor = _currentTheme.ComboBoxHoverBorderColor != Color.Empty
-                        ? _currentTheme.ComboBoxHoverBorderColor
-                        : _currentTheme.ComboBoxBorderColor;
+                    using (GraphicsPath path = GetRoundedRectPath(workingRect, BorderRadius))
+                    using (SolidBrush brush = new SolidBrush(backColor))
+                    {
+                        graphics.FillPath(brush, path);
+                    }
                 }
                 else
                 {
-                    // Normal state
-                    backColor = _currentTheme.ComboBoxBackColor;
-                    foreColor = _currentTheme.ComboBoxForeColor;
-                    borderColor = _currentTheme.ComboBoxBorderColor;
+                    using (SolidBrush brush = new SolidBrush(backColor))
+                    {
+                        graphics.FillRectangle(brush, workingRect);
+                    }
                 }
 
-               
+                // Text or placeholder
+                string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
+                if (!string.IsNullOrEmpty(textToDraw))
+                {
+                    Rectangle textRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
 
+                    TextRenderer.DrawText(
+                        graphics,
+                        textToDraw,
+                        _textFont,
+                        textRect,
+                        foreColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+                else if (!string.IsNullOrEmpty(PlaceholderText) && !_isEditing)
+                {
+                    Rectangle placeholderRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
 
-                // Draw a divider between text area and dropdown button if needed
-                if (!_isEditing)
-                { // Draw background
+                    Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty
+                        ? _currentTheme.TextBoxPlaceholderColor
+                        : Color.FromArgb(150, foreColor);
+
+                    TextRenderer.DrawText(
+                        graphics,
+                        PlaceholderText,
+                        _textFont,
+                        placeholderRect,
+                        placeholderColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+
+                // Divider
+                int dividerX = workingRect.Right - _buttonWidth - _padding;
+                using (Pen dividerPen = new Pen(Color.FromArgb(40, borderColor), 1))
+                {
+                    graphics.DrawLine(
+                        dividerPen,
+                        new Point(dividerX, workingRect.Y + 4),
+                        new Point(dividerX, workingRect.Bottom - 4));
+                }
+
+                // Dropdown arrow area
+                var arrowRect = new Rectangle(
+                    workingRect.Right - _buttonWidth + 2,
+                    workingRect.Y + 2,
+                    _buttonWidth - 4,
+                    workingRect.Height - 4);
+                ControlPaint.DrawComboButton(graphics, arrowRect, ButtonState.Normal);
+
+                // Border
+                if (ShowAllBorders || BorderThickness > 0)
+                {
+                    using var pen = new Pen(borderColor, Math.Max(1, BorderThickness));
                     if (IsRounded && BorderRadius > 0)
                     {
-                        using (GraphicsPath path = GetRoundedRectPath(workingRect, BorderRadius))
-                        using (SolidBrush brush = new SolidBrush(backColor))
-                        {
-                            graphics.FillPath(brush, path);
-                        }
+                        using var path = GetRoundedRectPath(rectangle, BorderRadius);
+                        graphics.DrawPath(pen, path);
                     }
                     else
                     {
-                        using (SolidBrush brush = new SolidBrush(backColor))
-                        {
-                            graphics.FillRectangle(brush, workingRect);
-                        }
-                    }
-
-                    // Draw text
-                    string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
-
-                    if (!string.IsNullOrEmpty(textToDraw))
-                    {
-                        // Calculate text rectangle with proper padding
-                        Rectangle textRect = new Rectangle(
-                            workingRect.X + _padding,
-                            workingRect.Y,
-                            workingRect.Width - _buttonWidth - (_padding * 2),
-                            workingRect.Height);
-
-                        // Use TextRenderer for better text quality
-                        TextRenderer.DrawText(
-                            graphics,
-                            textToDraw,
-                            _textFont,
-                            textRect,
-                            foreColor,
-                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-                    }
-                    else if (!string.IsNullOrEmpty(PlaceholderText) && !_isEditing)
-                    {
-                        // Draw placeholder text if available and not editing
-                        Rectangle placeholderRect = new Rectangle(
-                            workingRect.X + _padding,
-                            workingRect.Y,
-                            workingRect.Width - _buttonWidth - (_padding * 2),
-                            workingRect.Height);
-
-                        Color placeholderColor = _currentTheme.TextBoxPlaceholderColor != Color.Empty
-                            ? _currentTheme.TextBoxPlaceholderColor
-                            : Color.FromArgb(150, foreColor);
-
-                        TextRenderer.DrawText(
-                            graphics,
-                            PlaceholderText,
-                            _textFont,
-                            placeholderRect,
-                            placeholderColor,
-                            TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-                    }
-                    int dividerX = rectangle.Right - _buttonWidth - _padding;
-                    using (Pen dividerPen = new Pen(Color.FromArgb(40, borderColor), 1))
-                    {
-                        graphics.DrawLine(
-                            dividerPen,
-                            new Point(dividerX, rectangle.Y + 4),
-                            new Point(dividerX, rectangle.Bottom - 4));
+                        graphics.DrawRectangle(pen, rectangle);
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                ////MiscFunctions.SendLog($"Error in BeepComboBox.Draw: {ex.Message}");
+                // swallow drawing exceptions
             }
         }
         public override void SetValue(object value)
         {
+            // Try to resolve selection from provided value
+            SimpleItem resolved = null;
+
             if (value is SimpleItem item)
             {
-                if (ListItems.Contains(item))
-                {
-                    SelectedItem = item;
-                }
+                // Prefer matching by identity first, then by Text/Value/Item/Name
+                resolved = ListItems.FirstOrDefault(x => ReferenceEquals(x, item))
+                           ?? ListItems.FirstOrDefault(x => string.Equals(x.Text, item.Text, StringComparison.OrdinalIgnoreCase))
+                           ?? ListItems.FirstOrDefault(x => Equals(x.Value, item.Value))
+                           ?? ListItems.FirstOrDefault(x => Equals(x.Item, item.Item))
+                           ?? ListItems.FirstOrDefault(x => string.Equals(x.Name, item.Name, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (value is string s)
+            {
+                resolved = ListItems.FirstOrDefault(x => string.Equals(x.Text, s, StringComparison.OrdinalIgnoreCase))
+                           ?? ListItems.FirstOrDefault(x => string.Equals(x.Name, s, StringComparison.OrdinalIgnoreCase))
+                           ?? ListItems.FirstOrDefault(x => string.Equals(Convert.ToString(x.Value), s, StringComparison.OrdinalIgnoreCase));
+            }
+            else if (value != null)
+            {
+                // Match by Value or Item or ToString
+                resolved = ListItems.FirstOrDefault(x => Equals(x.Value, value))
+                           ?? ListItems.FirstOrDefault(x => Equals(x.Item, value))
+                           ?? ListItems.FirstOrDefault(x => string.Equals(x.Text, value.ToString(), StringComparison.OrdinalIgnoreCase))
+                           ?? ListItems.FirstOrDefault(x => string.Equals(x.Name, value.ToString(), StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (resolved != null)
+            {
+                SelectedItem = resolved;
             }
             else if (value is string text)
             {
-                SelectedItem = ListItems.FirstOrDefault(x => x.Text == text);
+                // Fallback to set text only for display
+                _comboTextBox.Text = text;
+                Text = text;
+            }
+            else
+            {
+                // Clear selection
+                SelectedItem = null;
             }
             Invalidate();
         }
@@ -787,8 +789,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isEditing = true;
             _comboTextBox.Visible = true;
             _comboTextBox.Text = SelectedItem?.Text ?? string.Empty;
-            _comboTextBox.Focus();
-            _comboTextBox.SelectAll();
+            try
+            {
+                _comboTextBox.Focus();
+                _comboTextBox.SelectAll();
+            }
+            catch { }
             Invalidate();
         }
 
@@ -819,9 +825,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            if (_dropDownButton != null && !_dropDownButton.ClientRectangle.Contains(e.Location))
+            if (_dropDownButton != null && !_dropDownButton.Bounds.Contains(e.Location))
             {
                 StartEditing();
+            }
+            else if (_dropDownButton != null && _dropDownButton.Bounds.Contains(e.Location))
+            {
+                ToggleMenu();
             }
         }
 

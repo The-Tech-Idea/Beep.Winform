@@ -41,15 +41,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void SetVerticalIndex(int rowIndex)
         {
-            int px = System.Math.Max(0, rowIndex) * _grid.RowHeight;
+            // Calculate pixel offset by summing actual row heights up to the target index
+            if (_grid.Data?.Rows == null || _grid.Data.Rows.Count == 0 || rowIndex <= 0)
+            {
+                SetVerticalOffset(0);
+                return;
+            }
+
+            int clampedIndex = System.Math.Max(0, System.Math.Min(rowIndex, _grid.Data.Rows.Count - 1));
+            int px = 0;
+            for (int i = 0; i < clampedIndex; i++)
+            {
+                var r = _grid.Data.Rows[i];
+                px += r.Height > 0 ? r.Height : _grid.RowHeight;
+            }
             SetVerticalOffset(px);
         }
 
         public void SetVerticalOffset(int offsetPx)
         {
-            VerticalOffset = Math.Max(0, offsetPx);
-            // ? FIX: Recalculate FirstVisibleRowIndex from pixel offset
-            _firstVisibleRowIndex = CalculateRowIndexFromPixelOffset(offsetPx);
+            VerticalOffset = System.Math.Max(0, offsetPx);
+            // Recalculate FirstVisibleRowIndex from pixel offset
+            _firstVisibleRowIndex = CalculateRowIndexFromPixelOffset(VerticalOffset);
         }
 
         public void SetHorizontalOffset(int offset)
@@ -63,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         /// </summary>
         private int CalculateRowIndexFromPixelOffset(int pixelOffset)
         {
-            if (_grid.Data.Rows == null || pixelOffset <= 0)
+            if (_grid.Data?.Rows == null || pixelOffset <= 0)
                 return 0;
 
             int currentOffset = 0;

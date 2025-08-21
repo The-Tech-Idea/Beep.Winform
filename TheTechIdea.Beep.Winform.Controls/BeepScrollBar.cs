@@ -35,6 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Orientation _scrollOrientation = Orientation.Vertical;
         private bool _isHovering = false;
 
+        // Helper: effective upper bound for Value (like Win32 ScrollBar: Maximum - LargeChange)
+        private int ValueUpperBound => Math.Max(_minimum, _maximum - _largeChange);
+
         // COLORS (managed via theme but customizable)
         private Color _trackColor = SystemColors.ControlDark;
         private Color _thumbColor = SystemColors.ControlDarkDark;
@@ -76,7 +79,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (DesignMode) return;
                 _minimum = value;
                 if (_minimum > _maximum) _maximum = _minimum + 1;
+                if (_largeChange >= _maximum - _minimum)
+                    _largeChange = Math.Max(1, (_maximum - _minimum));
                 if (_value < _minimum) _value = _minimum;
+                if (_value > ValueUpperBound) _value = ValueUpperBound;
                 Refresh();
             }
         }
@@ -90,9 +96,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (DesignMode) return;
                 _maximum = Math.Max(value, _minimum + 1);
-                if (_largeChange >= _maximum - _minimum)
-                    _largeChange = (_maximum - _minimum) - 1;
-                if (_value > _maximum) _value = _maximum;
+                if (_largeChange > _maximum - _minimum)
+                    _largeChange = Math.Max(1, (_maximum - _minimum));
+                if (_value > ValueUpperBound) _value = ValueUpperBound;
                 Refresh();
             }
         }
@@ -105,7 +111,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 if (DesignMode) return;
-                int newValue = Math.Max(_minimum, Math.Min(value, _maximum));
+                // Clamp to [Minimum, Maximum - LargeChange]
+                int upper = ValueUpperBound;
+                int newValue = Math.Max(_minimum, Math.Min(value, upper));
                 if (_value != newValue)
                 {
                     int old = _value;
@@ -126,7 +134,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 if (DesignMode) return;
-                _largeChange = Math.Max(1, Math.Min(value, (_maximum - _minimum)));
+                int range = Math.Max(1, (_maximum - _minimum));
+                _largeChange = Math.Max(1, Math.Min(value, range));
+                if (_value > ValueUpperBound) _value = ValueUpperBound;
                 Refresh();
             }
         }
@@ -175,8 +185,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _thumbColorActive;
             set { _thumbColorActive = value; Refresh(); }
         }
-
-       
 
         // CONSTRUCTOR
         public BeepScrollBar()
@@ -273,23 +281,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             var r = DrawingRect;
             int range = _maximum - _minimum;
-            if (range <= _largeChange)
-                return r;
+            if (range <= 0) return r;
 
             int minThumbSize = GetScaledMinThumbSize(); // Use scaled minimum
 
             if (_scrollOrientation == Orientation.Vertical)
             {
-                int thumbH = Math.Max(minThumbSize, r.Height * _largeChange / range);
+                if (range <= _largeChange) return new Rectangle(r.X, r.Y, r.Width, r.Height);
+                int thumbH = Math.Max(minThumbSize, (int)Math.Round(r.Height * (_largeChange / (double)range)));
                 int trackLen = r.Height - thumbH;
-                int pos = r.Y + trackLen * (_value - _minimum) / (range - _largeChange);
+                int denom = Math.Max(1, range - _largeChange);
+                int pos = r.Y + (int)Math.Round(trackLen * (_value - _minimum) / (double)denom);
                 return new Rectangle(r.X, pos, r.Width, thumbH);
             }
             else
             {
-                int thumbW = Math.Max(minThumbSize, r.Width * _largeChange / range);
+                if (range <= _largeChange) return new Rectangle(r.X, r.Y, r.Width, r.Height);
+                int thumbW = Math.Max(minThumbSize, (int)Math.Round(r.Width * (_largeChange / (double)range)));
                 int trackLen = r.Width - thumbW;
-                int pos = r.X + trackLen * (_value - _minimum) / (range - _largeChange);
+                int denom = Math.Max(1, range - _largeChange);
+                int pos = r.X + (int)Math.Round(trackLen * (_value - _minimum) / (double)denom);
                 return new Rectangle(pos, r.Y, thumbW, r.Height);
             }
         }
@@ -312,9 +323,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 if (_scrollOrientation == Orientation.Vertical)
-                    Value += (e.Y < thumb.Y ? -_largeChange : _largeChange);
+                    Value = Value + (e.Y < thumb.Y ? -_largeChange : _largeChange);
                 else
-                    Value += (e.X < thumb.X ? -_largeChange : _largeChange);
+                    Value = Value + (e.X < thumb.X ? -_largeChange : _largeChange);
             }
         }
 
@@ -332,8 +343,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             int pos = (_scrollOrientation == Orientation.Vertical
                        ? e.Y - _dragOffset - r.Y
                        : e.X - _dragOffset - r.X);
+            pos = Math.Max(0, Math.Min(trackLen, pos));
             int range = _maximum - _minimum - _largeChange;
-            int newVal = _minimum + pos * range / trackLen;
+            if (range < 0) range = 0;
+            int newVal = _minimum + (trackLen == 0 ? 0 : (int)Math.Round(pos * (range / (double)trackLen)));
             Value = newVal;
             Update(); // force immediate repaint
         }
@@ -364,17 +377,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Left) Value -= _smallChange;
-            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Right) Value += _smallChange;
-            if (e.KeyCode == Keys.PageUp) Value -= _largeChange;
-            if (e.KeyCode == Keys.PageDown) Value += _largeChange;
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Left) Value = Value - _smallChange;
+            if (e.KeyCode == Keys.Down || e.KeyCode == Keys.Right) Value = Value + _smallChange;
+            if (e.KeyCode == Keys.PageUp) Value = Value - _largeChange;
+            if (e.KeyCode == Keys.PageDown) Value = Value + _largeChange;
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
         {
             base.OnMouseWheel(e);
-            int delta = e.Delta / SystemInformation.MouseWheelScrollDelta * _smallChange;
-            Value -= delta;
+            int deltaSteps = e.Delta / SystemInformation.MouseWheelScrollDelta;
+            if (deltaSteps != 0)
+            {
+                Value = Value - (deltaSteps * _smallChange);
+            }
         }
       
     }

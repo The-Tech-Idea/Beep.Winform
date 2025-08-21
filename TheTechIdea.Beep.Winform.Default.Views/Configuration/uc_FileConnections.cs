@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string AddinName { get; set; }
         #endregion "IAddinVisSchema"
         DataConnectionViewModel viewModel;
-        private IBeepService beepservice;
+       
        
       
 
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
-            viewModel = new DataConnectionViewModel(beepservice.DMEEditor, beepservice.vis);
+            viewModel = new DataConnectionViewModel(Editor, beepService.vis);
             viewModel.DBWork.Units.Filter = "Category = " + DatasourceCategory.FILE;
 
             BeepColumnConfig drivername = beepSimpleGrid1.GetColumnByName("DriverName");
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 driveritem.Text = item;
                 driveritem.Name = item;
                 driveritem.Value = item;
-                foreach (var DriversClasse in beepservice.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
+                foreach (var DriversClasse in beepService.Config_editor.DataDriversClasses.Where(x => x.PackageName == item))
                 {
                     SimpleItem itemversion = new SimpleItem();
                     itemversion.DisplayField = DriversClasse.version;

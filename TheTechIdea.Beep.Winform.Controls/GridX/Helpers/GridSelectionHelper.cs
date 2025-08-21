@@ -28,23 +28,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (col < 0 || col >= _grid.Data.Columns.Count) { Clear(); return; }
             RowIndex = row; ColumnIndex = col;
 
-            // Update model flags
+            // Only update active cell flags for highlighting; do NOT change row.IsSelected here.
             for (int r = 0; r < _grid.Data.Rows.Count; r++)
             {
                 var rr = _grid.Data.Rows[r];
-                rr.IsSelected = (r == row);
                 for (int c = 0; c < rr.Cells.Count; c++)
                 {
                     rr.Cells[c].IsSelected = (r == row && c == col);
                 }
             }
-            _grid.OnRowSelectionChanged(row);
+            // Do not raise RowSelectionChanged on highlight-only changes
         }
 
         public void Clear()
         {
             RowIndex = ColumnIndex = -1;
-            _grid.OnRowSelectionChanged(-1);
         }
 
         public void EnsureVisible()

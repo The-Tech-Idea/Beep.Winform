@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics.Arm;
 using TheTechIdea.Beep.ConfigUtil;
-
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Desktop.Common.Util;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             ishandled = false;
-
+            AutoScaleMode = AutoScaleMode.Dpi;
             // Set styles for custom painting and performance
             SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
             UpdateStyles();

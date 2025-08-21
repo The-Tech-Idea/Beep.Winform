@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InPopMode = true;
 
             // Initialize DPI scaling first
-            UpdateDpiScaling();
+            //UpdateDpiScaling();
             Padding = new Padding(4);
             BorderRadius = 3;
             BorderThickness = 2;
@@ -537,48 +537,48 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
-        #region "DPI Scaling Support"
-        protected float DpiScaleFactor { get; private set; } = 1.0f;
+        //#region "DPI Scaling Support"
+        //protected float DpiScaleFactor { get; private set; } = 1.0f;
 
-        protected virtual void UpdateDpiScaling()
-        {
-            if (IsHandleCreated)
-            {
-                DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(this);
-            }
-        }
+        //protected virtual void UpdateDpiScaling()
+        //{
+        //    if (IsHandleCreated)
+        //    {
+        //        DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(this);
+        //    }
+        //}
 
-        protected int ScaleValue(int value)
-        {
-            return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
-        }
+        //protected int ScaleValue(int value)
+        //{
+        //    return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
+        //}
 
-        protected Size ScaleSize(Size size)
-        {
-            return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
-        }
+        //protected Size ScaleSize(Size size)
+        //{
+        //    return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
+        //}
 
-        // Add DPI change handling
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
-            UpdateDpiScaling();
+        //// Add DPI change handling
+        //protected override void OnDpiChangedAfterParent(EventArgs e)
+        //{
+        //    base.OnDpiChangedAfterParent(e);
+        //    UpdateDpiScaling();
 
-            // Recalculate size if needed
-            if (TriggerControl != null && Visible)
-            {
-                RecalculatePopupSize();
-            }
+        //    // Recalculate size if needed
+        //    if (TriggerControl != null && Visible)
+        //    {
+        //        RecalculatePopupSize();
+        //    }
 
-            Invalidate();
-        }
+        //    Invalidate();
+        //}
 
-        private void RecalculatePopupSize()
-        {
-            // This method recalculates the popup size based on new DPI
-            // The specific implementation depends on the popup content
-            Invalidate();
-        }
-        #endregion
+        //private void RecalculatePopupSize()
+        //{
+        //    // This method recalculates the popup size based on new DPI
+        //    // The specific implementation depends on the popup content
+        //    Invalidate();
+        //}
+        //#endregion
     }
 }

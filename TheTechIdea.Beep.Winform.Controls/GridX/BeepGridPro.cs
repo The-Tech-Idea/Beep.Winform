@@ -16,6 +16,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
     public partial class BeepGridPro : BeepControl
     {
+
+        // Dedicated host layer for in-place editors (DevExpress-like practice)
+        private readonly Panel _editorHost;
+        internal Control EditorHost => _editorHost;
+
         internal Helpers.GridLayoutHelper Layout { get; }
         internal Helpers.GridDataHelper Data { get; }
         internal Helpers.GridRenderHelper Render { get; }
@@ -28,6 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridThemeHelper ThemeHelper { get; }
         internal Helpers.GridNavigatorHelper Navigator { get; }
         internal Helpers.GridSizingHelper Sizing { get; }
+        internal Helpers.GridDialogHelper Dialog { get; }
 
         private GridUnitOfWorkBinder _uowBinder;
         private object _uow;
@@ -235,6 +241,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ShowAllBorders = false;
             IsFrameless = true;
 
+            // Create a dedicated host layer for editors (kept only over active cell)
+            _editorHost = new Panel
+            {
+                Name = "EditorHost",
+                Visible = false,
+                BackColor =this.BackColor,
+                TabStop = false,
+                Dock = DockStyle.None
+            };
+            Controls.Add(_editorHost);
+            _editorHost.BringToFront();
+
             Layout = new Helpers.GridLayoutHelper(this);
             Data = new Helpers.GridDataHelper(this);
             Render = new Helpers.GridRenderHelper(this);
@@ -247,6 +265,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ThemeHelper = new Helpers.GridThemeHelper(this);
             Navigator = new Helpers.GridNavigatorHelper(this);
             Sizing = new Helpers.GridSizingHelper(this);
+            Dialog = new Helpers.GridDialogHelper(this);
 
             // Only subscribe to events and setup complex initialization if not in design mode
             if (!DesignMode)
@@ -271,6 +290,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;
+        }
+
+        // Ensure window style flags are set during handle creation
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                // Temporarily remove these flags to fix editor host visibility issues
+                // cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+                return cp;
+            }
         }
 
         private void HookColumnsCollection(BeepGridColumnConfigCollection cols)
@@ -334,6 +365,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             base.OnResize(e);
             UpdateDrawingRect();
             SafeRecalculate();
+
+            // Do not stretch the editor host; it will be sized to the active cell only
             
             // Only update scrollbars if not in design mode
             if (!DesignMode)
@@ -344,6 +377,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         }
 
         
+        protected override void DrawContent(Graphics g)
+        {
+            // Let base draw background/borders/shadows etc.
+            base.DrawContent(g);
+
+            // Then draw the grid content
+            try
+            {
+                UpdateDrawingRect();
+                Layout?.EnsureCalculated();
+                Render?.Draw(g);
+
+                // Keep scrollbars in sync after rendering
+                if (!DesignMode)
+                {
+                    ScrollBars?.UpdateBars();
+                }
+            }
+            catch { /* swallow to avoid design-time crashes */ }
+        }
+
         public override void Draw(Graphics graphics, Rectangle rectangle)
         {
             base.Draw(graphics, rectangle);
@@ -549,7 +603,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public BeepColumnConfig GetColumnByCaption(string caption)
         {
             if (string.IsNullOrWhiteSpace(caption)) return null;
-            return Data.Columns.FirstOrDefault(c => string.Equals(c.ColumnCaption, caption, StringComparison.OrdinalIgnoreCase));
+            return Data.Columns.FirstOrDefault(c => string.Equals(caption, c.ColumnCaption, StringComparison.OrdinalIgnoreCase));
         }
 
         public BeepColumnConfig GetColumnByIndex(int index)
@@ -561,6 +615,65 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public Dictionary<string, BeepColumnConfig> GetDictionaryColumns()
         {
             return Data.Columns.ToDictionary(c => c.ColumnName, c => c, StringComparer.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// Shows an editor dialog for the currently selected cell
+        /// </summary>
+        public void ShowCellEditor()
+        {
+            if (Selection.HasSelection)
+            {
+                var cell = Data.Rows[Selection.RowIndex].Cells[Selection.ColumnIndex];
+                Dialog.ShowEditorDialog(cell);
+            }
+        }
+
+        /// <summary>
+        /// Shows the filter dialog
+        /// </summary>
+        public void ShowFilterDialog()
+        {
+            Dialog.ShowFilterDialog();
+        }
+
+        /// <summary>
+        /// Shows the search dialog
+        /// </summary>
+        public void ShowSearchDialog()
+        {
+            Dialog.ShowSearchDialog();
+        }
+
+        /// <summary>
+        /// Shows the column configuration dialog
+        /// </summary>
+        public void ShowColumnConfigDialog()
+        {
+            Dialog.ShowColumnConfigDialog();
+        }
+
+        /// <summary>
+        /// Enables Excel-like filter functionality (can be called to initialize filters)
+        /// </summary>
+        public void EnableExcelFilter()
+        {
+            // This method can be expanded to add filter dropdowns to column headers
+            // For now, it's a placeholder that ensures the grid is ready for filtering
+            foreach (var col in Data.Columns.Where(c => !c.IsSelectionCheckBox && !c.IsRowNumColumn && !c.IsRowID))
+            {
+                col.ShowFilterIcon = true;
+            }
+            Invalidate();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                Dialog?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Control")]
     [Description("A control that provides a base for all Beep UI components.")]
     public class BeepControl : ContainerControl, IBeepUIComponent,IDisposable
-    {  
+    {
         #region "DPI Scaling Support"
         protected float DpiScaleFactor { get; private set; } = 1.0f;
 
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             return DpiScalingHelper.ScaleFont(font, DpiScaleFactor);
         }
-#endregion
+        #endregion
         #region "Delegates"
 
         #endregion "Delegates"
@@ -4682,10 +4682,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Apply DPI scaling to the font if needed
             Font scaledFont = newFont;
-            if (DpiScaleFactor != 1.0f)
-            {
-                scaledFont = ScaleFont(newFont);
-            }
+            //if (DpiScaleFactor != 1.0f)
+            //{
+            //    scaledFont = ScaleFont(newFont);
+            //}
 
             // Use SuspendLayout/ResumeLayout to prevent positioning issues
             SuspendLayout();

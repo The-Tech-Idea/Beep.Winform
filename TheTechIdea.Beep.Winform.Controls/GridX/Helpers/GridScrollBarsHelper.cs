@@ -117,12 +117,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (needsVertical)
             {
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = maxVerticalOffset + visibleHeight;
+                _verticalScrollBar.Maximum = totalRowHeight; // set to content height
                 _verticalScrollBar.LargeChange = visibleHeight;
                 _verticalScrollBar.SmallChange = _grid.RowHeight; // Use default row height for scroll step
-                
-                // ? FIX: Use pixel offset directly instead of converting from row index
-                _verticalScrollBar.Value = Math.Min(_grid.Scroll.VerticalOffset, maxVerticalOffset);
+
+                // Clamp Value to effective upper bound (Maximum - LargeChange)
+                int upper = Math.Max(_verticalScrollBar.Minimum, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
+                int desired = Math.Max(0, Math.Min(_grid.Scroll.VerticalOffset, upper));
+                if (_verticalScrollBar.Value != desired)
+                    _verticalScrollBar.Value = desired;
+
                 _verticalScrollBar.Visible = true;
             }
             else
@@ -142,8 +146,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _horizontalScrollBar.Minimum = 0;
                 _horizontalScrollBar.Maximum = totalColumnWidth;
                 _horizontalScrollBar.LargeChange = visibleWidth;
-                _horizontalScrollBar.SmallChange = _grid.Data.Columns.Where(c => !c.Sticked && c.Visible).Min(c => c.Width) / 2;
-                _horizontalScrollBar.Value = Math.Max(0, Math.Min(_grid.Scroll.HorizontalOffset, maxXOffset));
+                _horizontalScrollBar.SmallChange = _grid.Data.Columns.Where(c => !c.Sticked && c.Visible).DefaultIfEmpty().Min(c => c != null ? c.Width : 20) / 2;
+                int desiredX = Math.Max(0, Math.Min(_grid.Scroll.HorizontalOffset, maxXOffset));
+                if (_horizontalScrollBar.Value != desiredX)
+                    _horizontalScrollBar.Value = desiredX;
                 _horizontalScrollBar.Visible = true;
             }
             else
@@ -209,21 +215,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void VerticalScrollBar_Scroll(object sender, EventArgs e)
         {
-            // ? FIX: Convert pixel offset to row index for proper vertical scrolling
+            // Translate scrollbar value (pixel offset) to grid model
             int pixelOffset = _verticalScrollBar.Value;
             int rowIndex = CalculateRowIndexForPixelOffset(pixelOffset);
-            
-            // Update both pixel offset and row index in scroll model
             _grid.Scroll.SetVerticalOffset(pixelOffset);
             _grid.Scroll.SetVerticalIndex(rowIndex);
-            
-            // Force immediate redraw
             _grid.Invalidate();
         }
 
         private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
         {
-            // Immediately apply the new value exactly like BeepSimpleGrid
             _grid.Scroll.SetHorizontalOffset(_horizontalScrollBar.Value);
             _grid.Invalidate();
         }
@@ -233,25 +234,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Sync scrollbar positions with scroll model values
             if (_verticalScrollBar.Visible)
             {
-                // Convert row index to pixel offset for scrollbar synchronization
-                int pixelOffset = CalculatePixelOffsetForRowIndex(_grid.Scroll.FirstVisibleRowIndex);
-                int maxOffset = _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange;
-                int clampedOffset = Math.Max(_verticalScrollBar.Minimum, Math.Min(maxOffset, pixelOffset));
-                
-                if (_verticalScrollBar.Value != clampedOffset) 
+                int upper = Math.Max(_verticalScrollBar.Minimum, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
+                int desired = Math.Max(_verticalScrollBar.Minimum, Math.Min(upper, _grid.Scroll.VerticalOffset));
+                if (_verticalScrollBar.Value != desired)
                 {
-                    _verticalScrollBar.Value = clampedOffset;
-                    _yOffset = clampedOffset;
+                    _verticalScrollBar.Value = desired;
+                    _yOffset = desired;
                 }
             }
             
             if (_horizontalScrollBar.Visible)
             {
-                int h = Math.Max(_horizontalScrollBar.Minimum, Math.Min(_horizontalScrollBar.Maximum, _grid.Scroll.HorizontalOffset));
-                if (_horizontalScrollBar.Value != h) 
+                int maxX = Math.Max(0, _horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange);
+                int desiredX = Math.Max(_horizontalScrollBar.Minimum, Math.Min(maxX, _grid.Scroll.HorizontalOffset));
+                if (_horizontalScrollBar.Value != desiredX)
                 {
-                    _horizontalScrollBar.Value = h;
-                    _xOffset = h;
+                    _horizontalScrollBar.Value = desiredX;
+                    _xOffset = desiredX;
                 }
             }
         }
@@ -324,25 +323,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseWheel(MouseEventArgs e)
         {
-            // Handle mouse wheel with variable row heights
             if (_verticalScrollBar.Visible)
             {
-                // Calculate scroll step based on average row height or default
-                int scrollStep = _grid.RowHeight; // Use default row height as scroll step
-                if (e.Delta < 0) scrollStep = -scrollStep; // Reverse for downward scroll
-                
-                int currentPixelOffset = _verticalScrollBar.Value;
-                int newPixelOffset = Math.Max(_verticalScrollBar.Minimum, 
-                                    Math.Min(_verticalScrollBar.Maximum - _verticalScrollBar.LargeChange, 
-                                    currentPixelOffset - scrollStep)); // Note: subtract because wheel delta is inverted
-                
-                if (newPixelOffset != currentPixelOffset)
+                // Wheel delta: positive means scroll up; our model uses smaller pixel offset when scrolling up
+                int step = _grid.RowHeight;
+                int desired = _verticalScrollBar.Value - (e.Delta / SystemInformation.MouseWheelScrollDelta) * step;
+                int upper = Math.Max(_verticalScrollBar.Minimum, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
+                int newValue = Math.Max(_verticalScrollBar.Minimum, Math.Min(upper, desired));
+                if (newValue != _verticalScrollBar.Value)
                 {
-                    _verticalScrollBar.Value = newPixelOffset;
-                    
-                    // Convert pixel offset to row index
-                    int rowIndex = CalculateRowIndexForPixelOffset(newPixelOffset);
-                    _grid.Scroll.SetVerticalOffset(newPixelOffset);
+                    _verticalScrollBar.Value = newValue;
+                    int rowIndex = CalculateRowIndexForPixelOffset(newValue);
+                    _grid.Scroll.SetVerticalOffset(newValue);
                     _grid.Scroll.SetVerticalIndex(rowIndex);
                     _grid.Invalidate();
                 }

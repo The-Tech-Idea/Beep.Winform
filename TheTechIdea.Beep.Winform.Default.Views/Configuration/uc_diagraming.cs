@@ -83,8 +83,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
+            beepGridPro1.DataSource = viewModel.DBWork.Units;
             BeepColumnConfig classhandlers = beepGridPro1.GetColumnByName("ClassHandler");
-            classhandlers.CellEditor = BeepColumnType.ListOfValue;
+            classhandlers.CellEditor = BeepColumnType.ComboBox;
             int idx = 0;
             foreach (var item in viewModel.DBAssemblyClasses)
             {
@@ -94,8 +95,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 item1.Text = item.className;
                 item1.Name = item.className;
                 classhandlers.Items.Add(item1);
+                beepComboBox1.ListItems.Add(item1);
             }
-            beepGridPro1.DataSource = viewModel.DBWork.Units;
+          
 
 
         }

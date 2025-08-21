@@ -24,31 +24,27 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             _mouseDown = e.Location;
 
-            // Check navigator first
-            if (_grid.ShowNavigator && HitTestNavigator(e.Location))
-                return;
+            // Navigator
+            if (_grid.ShowNavigator && HitTestNavigator(e.Location)) return;
 
-            // Select-all checkbox
+            // Header select-all checkbox
             if (_grid.ShowCheckBox && _grid.Layout.SelectAllCheckRect.Contains(e.Location))
             {
                 _selectAllChecked = !_selectAllChecked;
                 for (int i = 0; i < _grid.Data.Rows.Count; i++)
-                {
-                    var row = _grid.Data.Rows[i];
-                    row.IsSelected = _selectAllChecked;
-                }
+                    _grid.Data.Rows[i].IsSelected = _selectAllChecked;
                 _grid.OnRowSelectionChanged(-1);
                 _grid.Invalidate();
                 return;
             }
 
-            // Row checkbox
+            // Row checkbox or selection checkbox column cell
             if (_grid.ShowCheckBox)
             {
                 for (int i = 0; i < _grid.Data.Rows.Count; i++)
                 {
                     var row = _grid.Data.Rows[i];
-                    if (row.RowCheckRect.Contains(e.Location))
+                    if (!row.RowCheckRect.IsEmpty && row.RowCheckRect.Contains(e.Location))
                     {
                         row.IsSelected = !row.IsSelected;
                         _grid.OnRowSelectionChanged(i);
@@ -56,9 +52,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         return;
                     }
                 }
+                int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
+                if (checkCol >= 0)
+                {
+                    var (rr, cc) = HitTestCell(e.Location);
+                    if (rr >= 0 && cc == checkCol)
+                    {
+                        var row = _grid.Data.Rows[rr];
+                        row.IsSelected = !row.IsSelected;
+                        _grid.OnRowSelectionChanged(rr);
+                        _grid.Invalidate();
+                        return;
+                    }
+                }
             }
 
-            // Column resize hit test in header
+            // Resize columns in header
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
             {
                 var idx = HitTestColumnBorder(e.Location);
@@ -71,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Select a cell
+            // Highlight active cell; do not toggle selection
             var (r, c) = HitTestCell(e.Location);
             if (r >= 0 && c >= 0)
             {
@@ -95,29 +104,68 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            if (_grid.Layout.HeaderRect.Contains(e.Location))
-            {
-                _grid.Cursor = HitTestColumnBorder(e.Location) >= 0 ? Cursors.VSplit : Cursors.Default;
-            }
-            else
-            {
-                _grid.Cursor = Cursors.Default;
-            }
+            _grid.Cursor = _grid.Layout.HeaderRect.Contains(e.Location) && HitTestColumnBorder(e.Location) >= 0
+                ? Cursors.VSplit
+                : Cursors.Default;
         }
 
         public void HandleMouseUp(MouseEventArgs e)
         {
-            _resizingColumn = false;
-            _resizingColIndex = -1;
-            _grid.Cursor = Cursors.Default;
+            if (_resizingColumn)
+            {
+                _resizingColumn = false;
+                _resizingColIndex = -1;
+                _grid.Cursor = Cursors.Default;
+                return;
+            }
+
+            var (r, c) = HitTestCell(e.Location);
+            if (r >= 0 && c >= 0 && !_grid.ReadOnly)
+            {
+                var cell = _grid.Data.Rows[r].Cells[c];
+                var col = _grid.Data.Columns[c];
+                bool isCheckCol = col.IsSelectionCheckBox;
+
+                // Select the cell first (this is the key - always select first)
+                _grid.Selection.SelectCell(r, c);
+                EnsureSelectionVisible();
+                _grid.Invalidate();
+
+                // Handle checkbox clicks immediately
+                if (isCheckCol)
+                {
+                    cell.IsSelected = !cell.IsSelected;
+                    _grid.Data.Rows[r].IsSelected = cell.IsSelected;
+                    _grid.OnRowSelectionChanged(r);
+                    return;
+                }
+
+                // For other editable cells, show dialog editor
+                if (!cell.IsReadOnly && cell.IsEditable)
+                {
+                    _grid.Dialog.ShowEditorDialog(cell);
+                }
+            }
         }
 
         public void HandleKeyDown(KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.F2 && !_grid.ReadOnly)
+            // F2 or Enter starts editing immediately (like BeepSimpleGrid)
+            if ((e.KeyCode == Keys.F2 || e.KeyCode == Keys.Enter) && !_grid.ReadOnly)
             {
-                _grid.Edit.BeginEdit();
-                return;
+                if (_grid.Selection.HasSelection)
+                {
+                    var cell = _grid.Data.Rows[_grid.Selection.RowIndex].Cells[_grid.Selection.ColumnIndex];
+                    var col = _grid.Data.Columns[_grid.Selection.ColumnIndex];
+                    
+                    // Only start editing if the cell is editable and not a checkbox
+                    if (!cell.IsReadOnly && cell.IsEditable && !col.IsSelectionCheckBox)
+                    {
+                        _grid.Dialog.ShowEditorDialog(cell);
+                        e.Handled = true;
+                        return;
+                    }
+                }
             }
 
             if (!_grid.Selection.HasSelection)
@@ -136,42 +184,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int visible = VisibleRowCount();
             switch (e.KeyCode)
             {
-                case Keys.Left:
-                    c = Math.Max(0, c - 1);
-                    break;
-                case Keys.Right:
-                    c = Math.Min(_grid.Data.Columns.Count - 1, c + 1);
-                    break;
-                case Keys.Up:
-                    r = Math.Max(0, r - 1);
-                    break;
-                case Keys.Down:
-                    r = Math.Min(_grid.Data.Rows.Count - 1, r + 1);
-                    break;
+                case Keys.Left: c = Math.Max(0, c - 1); break;
+                case Keys.Right: c = Math.Min(_grid.Data.Columns.Count - 1, c + 1); break;
+                case Keys.Up: r = Math.Max(0, r - 1); break;
+                case Keys.Down: r = Math.Min(_grid.Data.Rows.Count - 1, r + 1); break;
                 case Keys.Home:
-                    if (e.Control)
-                    {
-                        r = 0;
-                        _grid.Scroll.SetVerticalIndex(0);
-                        _grid.ScrollBars?.SyncFromModel();
-                    }
-                    else
-                    {
-                        c = 0;
-                    }
+                    if (e.Control) { r = 0; _grid.Scroll.SetVerticalIndex(0); _grid.ScrollBars?.SyncFromModel(); }
+                    else { c = 0; }
                     break;
                 case Keys.End:
                     if (e.Control)
                     {
                         r = Math.Max(0, _grid.Data.Rows.Count - 1);
-                        int newStart = Math.Max(0, r - visible + 1);
-                        _grid.Scroll.SetVerticalIndex(newStart);
+                        int newStartEnd = Math.Max(0, r - visible + 1);
+                        _grid.Scroll.SetVerticalIndex(newStartEnd);
                         _grid.ScrollBars?.SyncFromModel();
                     }
-                    else
-                    {
-                        c = _grid.Data.Columns.Count - 1;
-                    }
+                    else { c = _grid.Data.Columns.Count - 1; }
                     break;
                 case Keys.PageUp:
                     r = Math.Max(0, r - visible);
@@ -180,12 +209,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     break;
                 case Keys.PageDown:
                     r = Math.Min(_grid.Data.Rows.Count - 1, r + visible);
-                    {
-                        int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
-                        int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
-                        _grid.Scroll.SetVerticalIndex(newStart);
-                        _grid.ScrollBars?.SyncFromModel();
-                    }
+                    int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
+                    int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
+                    _grid.Scroll.SetVerticalIndex(newStart);
+                    _grid.ScrollBars?.SyncFromModel();
                     break;
                 default:
                     return;
@@ -215,10 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        private int VisibleRowCount()
-        {
-            return Math.Max(1, _grid.Layout.RowsRect.Height / _grid.RowHeight);
-        }
+        private int VisibleRowCount() => Math.Max(1, _grid.Layout.RowsRect.Height / _grid.RowHeight);
 
         private (int row, int col) HitTestCell(Point p)
         {
@@ -227,8 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 var row = _grid.Data.Rows[r];
                 for (int c = 0; c < row.Cells.Count; c++)
                 {
-                    if (row.Cells[c].Rect.Contains(p))
-                        return (r, c);
+                    if (row.Cells[c].Rect.Contains(p)) return (r, c);
                 }
             }
             return (-1, -1);
@@ -241,8 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int i = 0; i < _grid.Data.Columns.Count; i++)
             {
                 x += _grid.Data.Columns[i].Width;
-                if (Math.Abs(p.X - x) <= _resizeMargin)
-                    return i;
+                if (Math.Abs(p.X - x) <= _resizeMargin) return i;
             }
             return -1;
         }
@@ -251,24 +273,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             var navRect = _grid.Layout.GetType().GetProperty("NavigatorRect")?.GetValue(_grid.Layout) as Rectangle? ?? Rectangle.Empty;
             if (navRect == Rectangle.Empty || !navRect.Contains(p)) return false;
-
-            int buttonWidth = 24;
-            int buttonHeight = 24;
-            int padding = 6;
-            int spacing = 4;
+            int buttonWidth = 24, buttonHeight = 24, padding = 6, spacing = 4;
             int y = navRect.Top + (navRect.Height - buttonHeight) / 2;
-
-            // Left CRUD
             int leftX = navRect.Left + padding;
             _insertRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
             _deleteRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
             _saveRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
             _cancelRect = new Rectangle(leftX, y, buttonWidth, buttonHeight);
 
-            // Middle nav around center text
-            string recordCounter = (_grid.Data.Rows.Count > 0 && _grid.Selection.RowIndex >= 0)
-                ? $"{_grid.Selection.RowIndex + 1} - {_grid.Data.Rows.Count}"
-                : "0 - 0";
+            string recordCounter = (_grid.Data.Rows.Count > 0 && _grid.Selection.RowIndex >= 0) ? $"{_grid.Selection.RowIndex + 1} - {_grid.Data.Rows.Count}" : "0 - 0";
             using var font = new Font(_grid.Font.FontFamily, 9f);
             SizeF textSize = TextRenderer.MeasureText(recordCounter, font);
             float centerX = navRect.Left + (navRect.Width - textSize.Width) / 2f;
@@ -277,7 +290,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _nextRect = new Rectangle((int)(centerX + textSize.Width + padding), y, buttonWidth, buttonHeight);
             _lastRect = new Rectangle(_nextRect.Right + padding, y, buttonWidth, buttonHeight);
 
-            // Right utilities
             int rightX = navRect.Right - padding - buttonWidth;
             _printRect = new Rectangle(rightX, y, buttonWidth, buttonHeight); rightX -= buttonWidth + spacing;
             _filterRect = new Rectangle(rightX, y, buttonWidth, buttonHeight); rightX -= buttonWidth + spacing;
@@ -291,7 +303,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_prevRect.Contains(p)) { _grid.MovePrevious(); return true; }
             if (_nextRect.Contains(p)) { _grid.MoveNext(); return true; }
             if (_lastRect.Contains(p)) { _grid.MoveLast(); return true; }
-            // Query/Filter/Print could raise grid events or commands
             return _queryRect.Contains(p) || _filterRect.Contains(p) || _printRect.Contains(p);
         }
     }

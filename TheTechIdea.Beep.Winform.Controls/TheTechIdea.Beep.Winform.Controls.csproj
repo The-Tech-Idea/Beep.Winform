@@ -659,7 +659,7 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.22" />
+    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.23" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common.Util\TheTechIdea.Beep.Desktop.Common.Util.csproj" />

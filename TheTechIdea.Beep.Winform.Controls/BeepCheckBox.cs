@@ -173,7 +173,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _state = value;
                     _stateChanged = true;
                     UpdateCurrentValue();
+                 
                     Invalidate();
+                    RaiseSubmitChanges();
                 }
             }
         }

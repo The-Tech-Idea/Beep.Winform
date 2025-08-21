@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleTextBox1 = new BeepSimpleTextBox();
             driversConfigViewModelBindingSource = new BindingSource(components);
             beepGridPro1 = new TheTechIdea.Beep.Winform.Controls.GridX.BeepGridPro();
-            beepSimpleTextBoxEnhanced1 = new BeepSimpleTextBoxEnhanced();
+            beepSimpleTextBoxEnhanced1 = new BeepSimpleTextBox();
             beepComboBox1 = new BeepComboBox();
             MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
@@ -1621,7 +1621,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private BeepSimpleTextBox beepSimpleTextBox1;
         private BindingSource driversConfigViewModelBindingSource;
         private Controls.GridX.BeepGridPro beepGridPro1;
-        private BeepSimpleTextBoxEnhanced beepSimpleTextBoxEnhanced1;
+        private BeepSimpleTextBox beepSimpleTextBoxEnhanced1;
         private BeepComboBox beepComboBox1;
     }
 }

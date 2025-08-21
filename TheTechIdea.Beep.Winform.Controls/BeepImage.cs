@@ -1858,6 +1858,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "IBeep UI Component Implementation"
         public override void SetValue(object value)
         {
+            ImagePath = string.Empty;
             if (value != null)
             {
                 ImagePath = value.ToString();

@@ -3606,6 +3606,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepComponentEventArgs> OnValidate;
         public event EventHandler<BeepComponentEventArgs> OnValueChanged;
         public event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
+        public event EventHandler<BeepComponentEventArgs> SubmitChanges;
+
+        public void RaiseSubmitChanges()
+        {
+            SubmitChanges?.Invoke(this, new BeepComponentEventArgs(this, BoundProperty, _linkedproperty, GetValue()));
+        }
         private object _selectedValue;
         public object SelectedValue
         {
@@ -3939,6 +3945,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public event EventHandler<ControlHitTestArgs> OnControlHitTest;
         public event EventHandler<ControlHitTestArgs> HitDetected;
+        
+
         public List<ControlHitTest> HitList { get; set; } = new List<ControlHitTest>();
         public void AddHitTest(ControlHitTest hitTest)
         {
@@ -4474,7 +4482,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         #endregion
-       #region "External Drawing Support"
+        #region "External Drawing Support"
             // Delegate: child drawing gets parent Graphics plus its own Bounds
         public delegate void DrawExternalHandler(Graphics parentGraphics, Rectangle childBounds);
         // With this new dictionary that uses ExternalDrawingFunction
@@ -4752,6 +4760,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         #endregion "Dispose"
+        
     }
 
 }

@@ -63,6 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var args = new SelectedItemChangedEventArgs(selectedItem);
             SelectedItemChanged?.Invoke(this, args);
             SelectedIndexChanged?.Invoke(this, args);
+            RaiseSubmitChanges();
         }
 
         private Font _textFont = new Font("Arial", 10);
@@ -637,7 +638,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Try to resolve selection from provided value
             SimpleItem resolved = null;
-
+            SelectedItem = null;
             if (value is SimpleItem item)
             {
                 // Prefer matching by identity first, then by Text/Value/Item/Name
@@ -679,6 +680,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             Invalidate();
         }
+        
 
         public override object GetValue()
         {

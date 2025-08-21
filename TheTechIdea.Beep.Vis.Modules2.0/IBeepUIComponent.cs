@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         event EventHandler<BeepComponentEventArgs> OnValidate;
         event EventHandler<BeepComponentEventArgs> OnValueChanged;
         event EventHandler<BeepComponentEventArgs> OnLinkedValueChanged;
-  
+        event EventHandler<BeepComponentEventArgs> SubmitChanges;
 
 
     }

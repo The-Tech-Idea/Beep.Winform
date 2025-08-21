@@ -19,6 +19,55 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             _grid = grid;
         }
+        BeepCellConfig Currentcell;
+        // DPI helpers
+        private float GetDpiScale()
+        {
+            try
+            {
+                // Prefer per-monitor DPI from the control
+                int dpi = 96;
+                try { dpi = _grid?.DeviceDpi > 0 ? _grid.DeviceDpi : 96; } catch { dpi = 96; }
+                if (dpi <= 0 || dpi == 96)
+                {
+                    using var g = _grid.CreateGraphics();
+                    dpi = (int)Math.Round(g.DpiX);
+                }
+                float scale = dpi / 96f;
+                return Math.Max(0.5f, Math.Min(4f, scale));
+            }
+            catch { return 1f; }
+        }
+
+        private void ApplyDpiScaling(Form dialog)
+        {
+            if (dialog == null) return;
+            float scale = GetDpiScale();
+            if (Math.Abs(scale - 1f) < 0.01f) return;
+
+            // Avoid double scaling from AutoScale; perform manual scale
+            dialog.AutoScaleMode = AutoScaleMode.None;
+            try
+            {
+                dialog.SuspendLayout();
+                dialog.Scale(new SizeF(scale, scale));
+                // Scale font to keep readable proportions
+                try
+                {
+                    var f = dialog.Font;
+                    dialog.Font = new Font(f.FontFamily, f.Size * scale, f.Style, f.Unit, f.GdiCharSet, f.GdiVerticalFont);
+                }
+                catch { }
+            }
+            finally
+            {
+                dialog.ResumeLayout(true);
+            }
+        }
+
+        private Keys _pendingNavKey = Keys.None;
+        private bool _pendingReopenEditor = false;
+        private object _originalValue;
 
         /// <summary>
         /// Shows an editor dialog for the specified cell
@@ -34,11 +83,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // Close any existing editor dialog
             CloseEditorDialog();
+            Currentcell = cell;
+            _pendingNavKey = Keys.None;
+            _pendingReopenEditor = false;
 
             // Create editor control
             _currentEditor = CreateEditorForColumn(column);
             if (_currentEditor == null)
                 return;
+
+            // Keep original value for cancel
+            _originalValue = cell.CellValue;
 
             // Set initial value
             if (_currentEditor is IBeepUIComponent uiComponent)
@@ -46,33 +101,191 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 uiComponent.SetValue(cell.CellValue);
             }
 
-            // Create and configure dialog
-            _editorDialog = CreateEditorDialog(column.ColumnCaption ?? column.ColumnName, _currentEditor);
-            _editorDialog.StartPosition = FormStartPosition.CenterParent;
+            // Create a borderless popup aligned to the cell bounds with same size
+            _editorDialog = CreateCellOverlayEditorDialog(cell, _currentEditor);
 
-            // Show dialog and handle result
-            var result = _editorDialog.ShowDialog(_grid);
-            
-            if (result == DialogResult.OK && _currentEditor is IBeepUIComponent finalComponent)
+
+            // Ensure Tab and arrows are treated as input keys by the editor and all its children
+            WireEditorKeyHooks(_currentEditor);
+
+            // Monitor clicks on the grid to close editor when user clicks outside the overlay
+            AttachOutsideClickMonitor();
+
+            // Commit on deactivate (click outside)
+            _editorDialog.Deactivate += (s, e) =>
             {
-                // Get the new value and update the cell
-                var newValue = finalComponent.GetValue();
-                
-                // Update the cell value
-                cell.CellValue = newValue;
-                cell.IsDirty = true;
-                
-                // Update the data source
-                _grid.Data.UpdateCellValue(cell, newValue);
-                
-                // Notify of changes
-                _grid.OnCellValueChanged(cell);
-                
-                // Refresh the grid
-                _grid.Invalidate();
+                if (_editorDialog != null && _editorDialog.Visible)
+                {
+                    CommitAndClose(cell);
+                }
+            };
+
+            // When the overlay closes, perform any scheduled navigation
+            _editorDialog.FormClosed += (s, e) => { PerformPendingNavigation(); DetachOutsideClickMonitor(); };
+
+            // Show modeless to allow grid interaction after close
+            _editorDialog.Show(_grid);
+
+            // Focus the editor
+            _editorDialog.BeginInvoke(new Action(() =>
+            {
+                try { _currentEditor?.Focus(); } catch { }
+            }));
+        }
+
+        private void WireEditorKeyHooks(Control root)
+        {
+            if (root == null) return;
+            root.PreviewKeyDown -= Editor_PreviewKeyDown;
+            root.PreviewKeyDown += Editor_PreviewKeyDown;
+            root.KeyDown -= Editor_KeyDown;
+            root.KeyDown += Editor_KeyDown;
+
+            // Hook existing children
+            foreach (Control child in root.Controls)
+            {
+                WireEditorKeyHooks(child);
             }
 
-            CloseEditorDialog();
+            // Hook future children dynamically
+            root.ControlAdded -= Root_ControlAdded;
+            root.ControlAdded += Root_ControlAdded;
+        }
+
+        private void Root_ControlAdded(object? sender, ControlEventArgs e)
+        {
+            WireEditorKeyHooks(e.Control);
+        }
+
+        private void Editor_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                _pendingNavKey = Keys.Down;
+                _pendingReopenEditor = true;
+                e.Handled = true;
+                CommitAndClose(Currentcell);
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                e.Handled = true;
+                CancelAndClose(_originalValue);
+            }
+            else if (e.KeyCode == Keys.Tab)
+            {
+                _pendingNavKey = (e.Shift ? Keys.Left : Keys.Right);
+                _pendingReopenEditor = true;
+                e.Handled = true;
+                CommitAndClose(Currentcell);
+            }
+            else if (e.KeyCode == Keys.Left || e.KeyCode == Keys.Right || e.KeyCode == Keys.Up || e.KeyCode == Keys.Down)
+            {
+                _pendingNavKey = e.KeyCode;
+                _pendingReopenEditor = true;
+                e.Handled = true;
+                CommitAndClose(Currentcell);
+            }
+        }
+
+        private void Editor_PreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
+        {
+            // Treat Tab and arrow keys as input keys so KeyDown will fire
+            if (e.KeyCode == Keys.Tab ||
+                e.KeyCode == Keys.Left ||
+                e.KeyCode == Keys.Right ||
+                e.KeyCode == Keys.Up ||
+                e.KeyCode == Keys.Down)
+            {
+                e.IsInputKey = true;
+            }
+        }
+
+        // Commit/cancel helpers
+        void CommitAndClose(BeepCellConfig cell)
+        {
+            if (_currentEditor is IBeepUIComponent finalComponent)
+            {
+                var newValue = finalComponent.GetValue();
+                cell.CellValue = newValue;
+                cell.IsDirty = true;
+                _grid.Data.UpdateCellValue(cell, newValue);
+                _grid.OnCellValueChanged(cell);
+                _grid.Invalidate();
+            }
+            _editorDialog?.Close();
+            // If modeless, the FormClosed handler will run; but also trigger nav now just in case
+            PerformPendingNavigation();
+        }
+
+        void CancelAndClose(object originalValue)
+        {
+            if (_currentEditor is IBeepUIComponent revertComponent)
+            {
+                revertComponent.SetValue(originalValue);
+            }
+            // prevent any navigation after cancel
+            _pendingNavKey = Keys.None;
+            _pendingReopenEditor = false;
+            _editorDialog?.Close();
+        }
+
+        private void PerformPendingNavigation()
+        {
+            if (_pendingNavKey == Keys.None) return;
+
+            try
+            {
+                var navKey = _pendingNavKey;
+                var reopen = _pendingReopenEditor;
+                _pendingNavKey = Keys.None;
+                _pendingReopenEditor = false;
+
+                _grid.Input?.HandleKeyDown(new KeyEventArgs(navKey));
+
+                if (reopen)
+                {
+                    _grid.BeginInvoke(new Action(() =>
+                    {
+                        try { _grid.ShowCellEditor(); } catch { }
+                    }));
+                }
+            }
+            catch { }
+        }
+
+        private Form CreateCellOverlayEditorDialog(BeepCellConfig cell, Control editor)
+        {
+            var dialog = new Form
+            {
+                FormBorderStyle = FormBorderStyle.None,
+                ShowInTaskbar = false,
+                StartPosition = FormStartPosition.Manual,
+                TopMost = false,
+                BackColor = SystemColors.Window
+            };
+
+            // Determine cell rectangle in screen coordinates
+            var cellRect = cell.Rect;
+            if (cellRect.Width <= 0 || cellRect.Height <= 0)
+            {
+                cellRect = new Rectangle(0, 0, 200, 30);
+            }
+            var screenLoc = _grid.PointToScreen(cellRect.Location);
+
+            // Clamp to screen working area
+            var screen = Screen.FromControl(_grid);
+            var work = screen.WorkingArea;
+            int x = Math.Max(work.Left, Math.Min(screenLoc.X, work.Right - cellRect.Width));
+            int y = Math.Max(work.Top, Math.Min(screenLoc.Y, work.Bottom - cellRect.Height));
+
+            dialog.Bounds = new Rectangle(x, y, cellRect.Width, cellRect.Height);
+
+            // Fill with editor
+            editor.Dock = DockStyle.Fill;
+            dialog.Controls.Add(editor);
+            dialog.AutoScaleMode = AutoScaleMode.None;
+
+            return dialog;
         }
 
         /// <summary>
@@ -89,6 +302,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Create and configure dialog
             _filterDialog = CreateFilterDialog(filterPanel);
             _filterDialog.StartPosition = FormStartPosition.CenterParent;
+            ApplyDpiScaling(_filterDialog);
 
             // Show dialog
             _filterDialog.ShowDialog(_grid);
@@ -107,6 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Create and configure dialog
             using var searchDialog = CreateSearchDialog(searchPanel);
             searchDialog.StartPosition = FormStartPosition.CenterParent;
+            ApplyDpiScaling(searchDialog);
 
             // Show dialog
             searchDialog.ShowDialog(_grid);
@@ -123,6 +338,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Create and configure dialog
             using var configDialog = CreateColumnConfigDialog(configPanel);
             configDialog.StartPosition = FormStartPosition.CenterParent;
+            ApplyDpiScaling(configDialog);
 
             // Show dialog
             var result = configDialog.ShowDialog(_grid);
@@ -152,6 +368,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _currentEditor.Dispose();
                 _currentEditor = null;
             }
+
+            DetachOutsideClickMonitor();
         }
 
         /// <summary>
@@ -186,12 +404,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 BeepColumnType.ListOfValue => new BeepListofValuesBox { IsChild = false, ListItems = column.Items ?? new List<SimpleItem>() },
                 _ => new BeepTextBox { IsChild = false, IsFrameless = false, ShowAllBorders = true }
             };
-
+            editor.SubmitChanges -= Editor_SubmitChanges;
+            editor.SubmitChanges += Editor_SubmitChanges;
             editor.Theme = _grid.Theme;
             editor.Size = new Size(300, 30);
             editor.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             return editor;
+        }
+
+        private void Editor_SubmitChanges(object? sender, BeepComponentEventArgs e)
+        {
+            CommitAndClose(Currentcell);
         }
 
         private Form CreateEditorDialog(string title, Control editor)
@@ -572,6 +796,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             for (int i = 0; i < columnListBox.Items.Count && i < visibleColumns.Count; i++)
             {
                 visibleColumns[i].Visible = columnListBox.GetItemChecked(i);
+            }
+        }
+
+        // Monitor clicks on the grid to close editor when user clicks outside the overlay
+        private void AttachOutsideClickMonitor()
+        {
+            try
+            {
+                _grid.MouseDown -= Grid_MouseDown_CloseEditorIfOutside;
+                _grid.MouseDown += Grid_MouseDown_CloseEditorIfOutside;
+            }
+            catch { }
+        }
+
+        private void DetachOutsideClickMonitor()
+        {
+            try { _grid.MouseDown -= Grid_MouseDown_CloseEditorIfOutside; } catch { }
+        }
+
+        private void Grid_MouseDown_CloseEditorIfOutside(object? sender, MouseEventArgs e)
+        {
+            if (_editorDialog == null || !_editorDialog.Visible) return;
+
+            // Translate grid click to screen coords and check if inside editor bounds
+            var screenPt = _grid.PointToScreen(e.Location);
+            if (!_editorDialog.Bounds.Contains(screenPt))
+            {
+                // Commit current edit and close. Do not block the event; GridInputHelper will handle selection.
+                CommitAndClose(Currentcell);
+                // No return; allow the grid's own MouseDown pipeline to process this click normally.
             }
         }
 

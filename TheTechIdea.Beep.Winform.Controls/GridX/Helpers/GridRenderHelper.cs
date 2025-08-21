@@ -444,7 +444,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 string text = cell.CellValue?.ToString() ?? string.Empty;
                 if (!string.IsNullOrEmpty(text))
                 {
-                    var font = _grid?.Font ?? SystemFonts.DefaultFont;
+                    var font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme.GridCellFont);
                     var textRect = new Rectangle(rect.X + 2, rect.Y + 1, Math.Max(1, rect.Width - 4), Math.Max(1, rect.Height - 2));
                     TextRenderer.DrawText(g, text, font, textRect, foreColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                 }

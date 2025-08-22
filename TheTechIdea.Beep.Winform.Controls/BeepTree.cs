@@ -1564,76 +1564,101 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (DesignMode)
                 return;
 
-            // Calculate total content height based on visible nodes
+            // Ensure drawing rect is up to date
+            UpdateDrawingRect();
+
+            // Calculate total content size based on visible nodes
             int contentHeight = CalculateTotalContentHeight();
             int contentWidth = CalculateTotalContentWidth();
 
-            // Get visible area dimensions
-            int visibleHeight = ClientRectangle.Height;
-            int visibleWidth = ClientRectangle.Width;
+            // Available client area for content (exclude padding/borders via DrawingRect)
+            int availableHeight = Math.Max(0, DrawingRect.Height);
+            int availableWidth = Math.Max(0, DrawingRect.Width);
 
-            // Debug info
-            // System.Diagnostics.Debug.WriteLine($"Content: {contentWidth}x{contentHeight}, Visible: {visibleWidth}x{visibleHeight}");
+            // Initial need assessment
+            bool needsVertical = _showVerticalScrollBar && contentHeight > availableHeight;
+            bool needsHorizontal = _showHorizontalScrollBar && contentWidth > availableWidth;
 
-            // Determine if scrollbars are needed
-            bool needsVertical = _showVerticalScrollBar && contentHeight > visibleHeight;
-            bool needsHorizontal = _showHorizontalScrollBar && contentWidth > visibleWidth;
+            // Re-evaluate to account for the space consumed by the other scrollbar
+            bool changed;
+            do
+            {
+                changed = false;
 
-            // Update scrollbar for vertical scrolling
+                if (needsVertical)
+                {
+                    int viewWidthWithV = Math.Max(0, availableWidth - _verticalScrollBar.Width);
+                    bool shouldNeedHorizontal = _showHorizontalScrollBar && contentWidth > viewWidthWithV;
+                    if (shouldNeedHorizontal && !needsHorizontal)
+                    {
+                        needsHorizontal = true;
+                        changed = true;
+                    }
+                }
+
+                if (needsHorizontal)
+                {
+                    int viewHeightWithH = Math.Max(0, availableHeight - _horizontalScrollBar.Height);
+                    bool shouldNeedVertical = _showVerticalScrollBar && contentHeight > viewHeightWithH;
+                    if (shouldNeedVertical && !needsVertical)
+                    {
+                        needsVertical = true;
+                        changed = true;
+                    }
+                }
+            } while (changed);
+
+            // Final viewport size after accounting for scrollbars
+            int viewportHeight = availableHeight - (needsHorizontal ? _horizontalScrollBar.Height : 0);
+            int viewportWidth = availableWidth - (needsVertical ? _verticalScrollBar.Width : 0);
+            viewportHeight = Math.Max(0, viewportHeight);
+            viewportWidth = Math.Max(0, viewportWidth);
+
+            // Vertical scrollbar setup
             if (needsVertical)
             {
-                // Configure scrollbar
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = contentHeight;
-                _verticalScrollBar.SmallChange = 20;
-                _verticalScrollBar.LargeChange = visibleHeight;
-                _verticalScrollBar.Value = Math.Min(_yOffset, Math.Max(0, contentHeight - visibleHeight));
+                _verticalScrollBar.Maximum = Math.Max(contentHeight, 0);
+                _verticalScrollBar.SmallChange = Math.Max(1, GetScaledMinRowHeight() / 2);
+                _verticalScrollBar.LargeChange = Math.Max(1, viewportHeight);
 
-                // Position scrollbar
-                _verticalScrollBar.Location = new Point(
-                    DrawingRect.Right - _verticalScrollBar.Width,
-                    DrawingRect.Top);
-                _verticalScrollBar.Height = needsHorizontal ?
-                    visibleHeight - _horizontalScrollBar.Height :
-                    visibleHeight;
+                // Clamp value within valid range
+                int maxValue = Math.Max(0, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
+                _verticalScrollBar.Value = Math.Min(Math.Max(0, _yOffset), maxValue);
 
-                // Make visible
+                // Position and size
+                _verticalScrollBar.Location = new Point(DrawingRect.Right - _verticalScrollBar.Width, DrawingRect.Top);
+                _verticalScrollBar.Height = viewportHeight;
                 _verticalScrollBar.Visible = true;
                 _verticalScrollBar.BringToFront();
-
-                //    System.Diagnostics.Debug.WriteLine($"Vertical scrollbar visible: H={_verticalScrollBar.Height}, Max={_verticalScrollBar.Maximum}");
             }
             else
             {
                 _verticalScrollBar.Visible = false;
+                _verticalScrollBar.Value = 0;
                 _yOffset = 0;
             }
 
-            // Update scrollbar for horizontal scrolling
+            // Horizontal scrollbar setup
             if (needsHorizontal)
             {
-                // Configure scrollbar
                 _horizontalScrollBar.Minimum = 0;
-                _horizontalScrollBar.Maximum = contentWidth;
-                _horizontalScrollBar.SmallChange = 20;
-                _horizontalScrollBar.LargeChange = visibleWidth;
-                _horizontalScrollBar.Value = Math.Min(_xOffset, Math.Max(0, contentWidth - visibleWidth));
+                _horizontalScrollBar.Maximum = Math.Max(contentWidth, 0);
+                _horizontalScrollBar.SmallChange = Math.Max(1, GetScaledIndentWidth());
+                _horizontalScrollBar.LargeChange = Math.Max(1, viewportWidth);
 
-                // Position scrollbar
-                _horizontalScrollBar.Location = new Point(
-                    DrawingRect.Left,
-                    DrawingRect.Bottom - _horizontalScrollBar.Height);
-                _horizontalScrollBar.Width = needsVertical ?
-                    visibleWidth - _verticalScrollBar.Width :
-                    visibleWidth;
+                int maxValue = Math.Max(0, _horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange);
+                _horizontalScrollBar.Value = Math.Min(Math.Max(0, _xOffset), maxValue);
 
-                // Make visible
+                _horizontalScrollBar.Location = new Point(DrawingRect.Left, DrawingRect.Bottom - _horizontalScrollBar.Height);
+                _horizontalScrollBar.Width = viewportWidth;
                 _horizontalScrollBar.Visible = true;
                 _horizontalScrollBar.BringToFront();
             }
             else
             {
                 _horizontalScrollBar.Visible = false;
+                _horizontalScrollBar.Value = 0;
                 _xOffset = 0;
             }
         }
@@ -1655,10 +1680,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 totalHeight += rowHeight;
             }
 
-            // Add some padding
-            totalHeight += 20;
-
-            return Math.Max(totalHeight, 50); // Ensure minimum height
+            // No artificial padding or minimums - return actual content height
+            return totalHeight;
         }
 
         private int CalculateTotalContentWidth()
@@ -1676,17 +1699,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _button.Size = _button.GetPreferredSize(Size.Empty);
                 Size textSize = _button.Size;
 
-                int rowWidth = baseIndent + GetScaledBoxSize() + (_showCheckBox ? GetScaledBoxSize() + 4 : 0) + GetScaledImageSize() + 8 + textSize.Width + 40;
+                int rowWidth = baseIndent + GetScaledBoxSize() + (_showCheckBox ? GetScaledBoxSize() + 4 : 0) + GetScaledImageSize() + 8 + textSize.Width;
 
                 maxWidth = Math.Max(maxWidth, rowWidth);
             }
 
-            return Math.Max(maxWidth, 100); // Ensure minimum width
+            // No artificial minimum width - return actual content width
+            return maxWidth;
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
+            UpdateScrollBars();
             Invalidate();
         }
 

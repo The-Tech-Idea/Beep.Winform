@@ -137,6 +137,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             // External drawing - after all
             _externalDrawing.PerformExternalDrawing(g, DrawingLayer.AfterAll);
+
+      
         }
         #endregion
 
@@ -211,6 +213,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Parent Change Handling
         protected override void OnParentChanged(EventArgs e)
         {
+            base.OnParentChanged(e);
+
+            RegisterBadgeDrawer();
+        }
+        private void RegisterBadgeDrawer()
+        {
             var oldParent = Tag as Control;
             Tag = Parent;
 
@@ -229,12 +237,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         if (c is BaseControl beepParent)
                         {
                             beepParent.ClearChildExternalDrawing(this);
+                            Parent.Invalidate();
                         }
                     }
                 }
             }
-
-            base.OnParentChanged(e);
 
             // Register external badge drawing with new parent, if any
             if (Parent is BaseControl newBeepParent)
@@ -244,6 +251,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     newBeepParent.AddChildExternalDrawing(this, DrawBadgeExternally, DrawingLayer.AfterAll);
                     // Mark for redraw on parent
                     UpdateRegionForBadge();
+                    Parent.Invalidate();
                 }
             }
         }

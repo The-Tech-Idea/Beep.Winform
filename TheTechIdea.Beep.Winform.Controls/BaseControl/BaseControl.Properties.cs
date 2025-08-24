@@ -320,8 +320,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public bool ShowLeftBorder { get => _paint.ShowLeftBorder; set { _paint.ShowLeftBorder = value; Invalidate(); } }
         [Browsable(true)] public bool ShowRightBorder { get => _paint.ShowRightBorder; set { _paint.ShowRightBorder = value; Invalidate(); } }
         [Browsable(true)] public int BorderThickness { get => _paint.BorderThickness; set { _paint.BorderThickness = value; Invalidate(); } }
-        [Browsable(true)] public int BorderRadius { get => _paint.BorderRadius; set { _paint.BorderRadius = value; Invalidate(); UpdateControlRegion(); } }
-        [Browsable(true)] public bool IsRounded { get => _paint.IsRounded; set { _paint.IsRounded = value; Invalidate(); UpdateControlRegion(); } }
+        [Browsable(true)] public int BorderRadius { get => _paint.BorderRadius; set { _paint.BorderRadius = value; Invalidate();  } }
+        [Browsable(true)] public bool IsRounded { get => _paint.IsRounded; set { _paint.IsRounded = value; Invalidate();  } }
         [Browsable(true)] public DashStyle BorderDashStyle { get => _paint.BorderDashStyle; set { _paint.BorderDashStyle = value; Invalidate(); } }
         [Browsable(true)] public Color InactiveBorderColor { get => _paint.InactiveBorderColor; set { _paint.InactiveBorderColor = value; Invalidate(); } }
 
@@ -377,7 +377,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _paint.BadgeText;
             set
             {
+                if(value.Equals(_paint.BadgeText)) return;
                 _paint.BadgeText = value;
+                RegisterBadgeDrawer();
                 UpdateRegionForBadge();
                 Invalidate();
             }

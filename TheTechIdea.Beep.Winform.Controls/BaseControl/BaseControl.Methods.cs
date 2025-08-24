@@ -29,7 +29,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _paint.ShadowColor = _currentTheme.ShadowColor;
                 _paint.GradientStartColor = _currentTheme.GradientStartColor;
                 _paint.GradientEndColor = _currentTheme.GradientEndColor;
-
+                _paint.BadgeForeColor= _currentTheme.BadgeForeColor;
+                _paint.BadgeBackColor= _currentTheme.BadgeBackColor;
+                _paint.DisabledForeColor= _currentTheme.DisabledForeColor;
+                _paint.DisabledBackColor= _currentTheme.DisabledBackColor;
+                _paint.DisabledBorderColor= _currentTheme.DisabledBorderColor;
+     
                 // Respect IsChild same as base BeepControl
                 if (IsChild)
                 {
@@ -266,7 +271,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Main content
             _paint.Draw(g);
 
-
         }
 
         protected virtual void DrawBorders(Graphics g, Color effectiveBorderColor)
@@ -299,6 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Badge Methods (from BeepControl)
         public void UpdateRegionForBadge()
         {
+           
             if (Parent is BaseControl parentBeepControl)
             {
                 const int badgeSize = 22;

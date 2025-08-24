@@ -14,10 +14,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 {
     internal partial class ControlPaintHelper
     {
-        private readonly Control _owner;
+        private readonly BaseControl _owner;
         private BaseControl OwnerAdv => _owner as BaseControl;
 
-        public ControlPaintHelper(Control owner)
+        public ControlPaintHelper(BaseControl owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             UpdateRects();
@@ -199,10 +199,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 CustomBorderDrawer?.Invoke(g);
             }
 
-            if (!string.IsNullOrEmpty(BadgeText))
-            {
-                DrawBadge(g);
-            }
+            //if (!string.IsNullOrEmpty(BadgeText))
+            //{
+            //    //DrawBadge(g);
+            //    _owner.DrawBadgeExternally(g,new Rectangle() { Height=20,Width=20});
+            //}
         }
 
         private void DrawBackground(Graphics g)

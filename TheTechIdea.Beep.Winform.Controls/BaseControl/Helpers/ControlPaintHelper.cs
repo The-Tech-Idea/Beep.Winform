@@ -924,7 +924,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             GradientStops.Clear();
         }
 
-        internal static GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
+        public static GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             var path = new GraphicsPath();
             int d = Math.Min(Math.Min(radius * 2, rect.Width), rect.Height);

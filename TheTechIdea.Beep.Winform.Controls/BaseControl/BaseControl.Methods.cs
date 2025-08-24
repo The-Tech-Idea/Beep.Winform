@@ -273,7 +273,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             // Borders handled by helper; override in derived if needed
         }
-
+        protected  GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
+        {
+            return ControlPaintHelper.GetRoundedRectPath(rect, radius);
+        }
         protected virtual void DrawFocusIndicator(Graphics g)
         {
             // Focus indicator handled by effects helper; override in derived if needed

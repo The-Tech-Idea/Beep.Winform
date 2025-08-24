@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -18,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(true)]
     [DisplayName("Beep Project Task Card")]
     [Description("A project card for kanban-style project management with avatars, status, priority, progress, and actions.")]
-    public class BeepProjectTaskCard : BeepControl
+    public class BeepProjectTaskCard : BaseControl
     {
         #region Private Fields
         private BeepButton _actionButton;
@@ -300,7 +301,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set default size and style based on compact mode
             this.Size = _compactMode ? new Size(200, 180) : new Size(280, 320);
             this.BorderRadius = 12;
-            this.ShowShadow = true;
+           
             this.UseGradientBackground = true;
             this.GradientDirection = LinearGradientMode.Vertical;
             this.GradientStartColor = Color.FromArgb(255, 248, 249, 250);
@@ -640,14 +641,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawActionButton(Graphics g, Rectangle rect, string text, Color backgroundColor, Font font)
         {
-            // Draw button background
-            using (var brush = new SolidBrush(backgroundColor))
-            {
-                using (var path = CreateRoundedPath(rect, 6))
-                {
-                    g.FillPath(brush, path);
-                }
-            }
+          
 
             // Draw button text using BeepLabel methodology
             var buttonLabel = new BeepLabel

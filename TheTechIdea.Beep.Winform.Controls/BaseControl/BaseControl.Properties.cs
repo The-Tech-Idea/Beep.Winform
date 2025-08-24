@@ -371,7 +371,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         // Badge
-        [Browsable(true)] public string BadgeText { get => _paint.BadgeText; set { _paint.BadgeText = value; UpdateRegionForBadge(); Invalidate(); if (Parent is BaseControl parent) { if (!string.IsNullOrEmpty(value)) parent.AddChildExternalDrawing(this, DrawBadgeExternally, DrawingLayer.AfterAll); else parent.ClearChildExternalDrawing(this); } } }
+        [Browsable(true)]
+        public string BadgeText
+        {
+            get => _paint.BadgeText;
+            set
+            {
+                _paint.BadgeText = value;
+                UpdateRegionForBadge();
+                Invalidate();
+            }
+        }
+                //if (Parent is BaseControl parent) 
+                //{ if (!string.IsNullOrEmpty(value)) 
+                //        parent.AddChildExternalDrawing(this, DrawBadgeExternally, DrawingLayer.AfterAll); 
+                //    else parent.ClearChildExternalDrawing(this); } } }
         [Browsable(true)] public Color BadgeBackColor { get => _paint.BadgeBackColor; set { _paint.BadgeBackColor = value; UpdateRegionForBadge(); Invalidate(); } }
         [Browsable(true)] public Color BadgeForeColor { get => _paint.BadgeForeColor; set { _paint.BadgeForeColor = value; UpdateRegionForBadge(); Invalidate(); } }
         [Browsable(true)] public Font BadgeFont { get => _paint.BadgeFont; set { _paint.BadgeFont = value; UpdateRegionForBadge(); Invalidate(); } }

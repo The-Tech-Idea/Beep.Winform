@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -357,11 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         protected override void DrawContent(Graphics g)
         {
-            // Clear background once per frame
-            g.Clear(BackColor);
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.InterpolationMode = InterpolationMode.HighQualityBilinear;
+            base.DrawContent(g);
 
             UpdateDrawingRect();
             HitList.Clear();
@@ -827,7 +824,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _horizontalScrollBar.Theme = Theme;
 
          
-            Invalidate();
+       
             // Rebuild with new theme and DPI scaling
             if (this.Size != originalSize)
             {
@@ -1237,7 +1234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_lastHoveredItem != null && !string.IsNullOrEmpty(_lastHoveredItem.Text))
             {
                 // Reset the tooltip flag if we were tracking it per-item
-                tooltipShown = false;
+                //tooltipShown = false;
             }
         }
 

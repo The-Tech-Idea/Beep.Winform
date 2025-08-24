@@ -527,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.DisabledForeColor = Color.Empty;
             beepAppTree1.DMEEditor = null;
             beepAppTree1.Dock = DockStyle.Left;
-            beepAppTree1.DrawingRect = new Rectangle(1, 1, 279, 715);
+          
             beepAppTree1.DropHandler = null;
             beepAppTree1.Easing = EasingType.Linear;
             beepAppTree1.EnableRippleEffect = true;
@@ -553,8 +553,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.GridMode = false;
             beepAppTree1.GuidID = "fb89b68d-3016-42c0-8e62-2f34a9f894ef";
             beepAppTree1.HelperText = "";
-            beepAppTree1.HitAreaEventOn = false;
-            beepAppTree1.HitTestControl = null;
+         
             beepAppTree1.HoverBackColor = Color.FromArgb(230, 230, 230);
             beepAppTree1.HoverBorderColor = Color.FromArgb(0, 120, 215);
             beepAppTree1.HoveredBackcolor = Color.Wheat;

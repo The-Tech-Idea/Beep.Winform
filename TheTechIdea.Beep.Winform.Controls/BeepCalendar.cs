@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -16,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Calendar")]
     [Description("A comprehensive calendar control with event management, multiple views, and scheduling capabilities.")]
-    public class BeepCalendar : BeepControl
+    public class BeepCalendar : BaseControl
     {
         #region Fields
         private DateTime _currentDate = DateTime.Today;
@@ -144,7 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Font for time labels")]
         public Font TimeFont { get; set; } = new Font("Segoe UI", 10, FontStyle.Regular);
-        public Font DaysHeaderFont { get; private set; }
+        public Font DaysHeaderFont { get; private set; } = new Font("Segoe UI", 10, FontStyle.Regular);
         #endregion
 
         #region Events
@@ -1057,7 +1058,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (control is BeepButton button)
                 {
                     button.Theme = Theme;
-                    button.ApplyTheme();
+                   // button.ApplyTheme();
                 }
             }
 

@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -18,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     {
         #region Private Fields
         private string _themeName;
-        protected IBeepTheme _currentTheme;
+        protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private string _guidId = Guid.NewGuid().ToString();
         private string _blockId;
         private string _fieldId;

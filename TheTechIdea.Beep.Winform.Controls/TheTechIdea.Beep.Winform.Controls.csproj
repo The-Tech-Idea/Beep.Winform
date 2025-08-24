@@ -168,6 +168,7 @@
     <None Remove="GFX\SVG\check.svg" />
     <None Remove="GFX\SVG\checkround.svg" />
     <None Remove="GFX\SVG\checksquare.svg" />
+    <None Remove="GFX\SVG\circle-microphone-lines.svg" />
     <None Remove="GFX\SVG\closered.svg" />
     <None Remove="GFX\SVG\cockroachdb.svg" />
     <None Remove="GFX\SVG\comment.svg" />
@@ -274,6 +275,10 @@
     <None Remove="GFX\SVG\oracle.svg" />
     <None Remove="GFX\SVG\paperclip.svg" />
     <None Remove="GFX\SVG\pencil.svg" />
+    <None Remove="GFX\SVG\person-circle-check.svg" />
+    <None Remove="GFX\SVG\person-circle-plus.svg" />
+    <None Remove="GFX\SVG\person-circle-xmark.svg" />
+    <None Remove="GFX\SVG\person.svg" />
     <None Remove="GFX\SVG\personedit.svg" />
     <None Remove="GFX\SVG\personminus.svg" />
     <None Remove="GFX\SVG\personplus.svg" />
@@ -298,6 +303,7 @@
     <None Remove="GFX\SVG\search.svg" />
     <None Remove="GFX\SVG\searchappbar.svg" />
     <None Remove="GFX\SVG\search_1.svg" />
+    <None Remove="GFX\SVG\send.svg" />
     <None Remove="GFX\SVG\settings.svg" />
     <None Remove="GFX\SVG\share.svg" />
     <None Remove="GFX\SVG\signout.svg" />
@@ -408,6 +414,7 @@
     <EmbeddedResource Include="GFX\SVG\bullet.svg" />
     <EmbeddedResource Include="GFX\SVG\calendar.svg" />
     <EmbeddedResource Include="GFX\SVG\check-circle.svg" />
+    <EmbeddedResource Include="GFX\SVG\circle-microphone-lines.svg" />
     <EmbeddedResource Include="GFX\SVG\diagramming.svg" />
     <EmbeddedResource Include="GFX\SVG\fastbackword.svg" />
     <EmbeddedResource Include="GFX\SVG\fastforward.svg" />
@@ -437,6 +444,11 @@
     <EmbeddedResource Include="GFX\SVG\NAV\angle-small-left.svg" />
     <EmbeddedResource Include="GFX\SVG\NAV\angle-small-right.svg" />
     <EmbeddedResource Include="GFX\SVG\paperclip.svg" />
+    <EmbeddedResource Include="GFX\SVG\person-circle-check.svg" />
+    <EmbeddedResource Include="GFX\SVG\person-circle-plus.svg" />
+    <EmbeddedResource Include="GFX\SVG\person-circle-xmark.svg" />
+    <EmbeddedResource Include="GFX\SVG\person.svg" />
+    <EmbeddedResource Include="GFX\SVG\send.svg" />
     <EmbeddedResource Include="GFX\SVG\signout.svg" />
     <EmbeddedResource Include="GFX\SVG\simpleInfoapps.ico" />
   </ItemGroup>
@@ -643,12 +655,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Advanced\Adapters\" />
-    <Folder Include="Advanced\Properties\" />
+    <Folder Include="BaseControl\Adapters\" />
+    <Folder Include="BaseControl\Properties\" />
     <Folder Include="Containers\" />
+    <Folder Include="Forms\Adapters\" />
+    <Folder Include="Forms\Properties\" />
     <Folder Include="Icons\" />
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Resources\" />
+    <Folder Include="ToolTips\Helpers\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\square-minus.svg" />
@@ -661,9 +676,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
-    <PackageReference Include="TheTechIdea.Beep.Vis.Modules" Version="2.0.23" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common.Util\TheTechIdea.Beep.Desktop.Common.Util.csproj" />
+    <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
   </ItemGroup>
 </Project>

@@ -1,5 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -1809,11 +1810,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private Controls.BeepComboBox SystemFolderbeepComboBox;
         private Controls.BeepButton beepButton1;
         private Controls.BeepLabel beepLabel5;
-        private Controls.BeepTextBox PasswordbeepTextBox;
-        private Controls.BeepTextBox OtherFolderbeepTextBox;
+        private BeepTextBox PasswordbeepTextBox;
+        private BeepTextBox OtherFolderbeepTextBox;
         private Controls.BeepButton SavebeepButton;
         private Controls.BeepButton CancelbeepButton;
         private Controls.BeepLabel beepLabel3;
-        private Controls.BeepTextBox databaseTextBox;
+        private BeepTextBox databaseTextBox;
     }
 }

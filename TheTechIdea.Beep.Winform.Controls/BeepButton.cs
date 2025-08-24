@@ -781,8 +781,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
                 if (ApplyThemeOnImage)
                 {
-         //           beepImage.ImageEmbededin = ImageEmbededin.Button;
-                   beepImage.Theme = Theme;
+                 if(ImageEmbededin== ImageEmbededin.Button)
+                    {
+                        beepImage.Theme = Theme;
+                    }
+                   
                     beepImage.ApplyThemeToSvg();
                 }
 

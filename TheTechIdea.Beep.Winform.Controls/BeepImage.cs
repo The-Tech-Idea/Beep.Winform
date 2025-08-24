@@ -1,18 +1,13 @@
 ﻿using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Design;
-using Svg;
-using System.Drawing.Text;
-using Timer = System.Windows.Forms.Timer;
-using TheTechIdea.Beep.Vis.Modules;
-using System.Diagnostics;
-using TheTechIdea.Beep.Desktop.Common.Util;
 using System.Drawing.Imaging;
+using System.Drawing.Text;
 using System.Text.RegularExpressions;
-
-
-
-
+using Svg;
+using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Vis.Modules;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -83,6 +78,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _clipShape = value;
                     _stateChanged = true;
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
                     Invalidate();
                 }
             }
@@ -96,6 +93,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _cornerRadius = Math.Max(0, value);
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
         }
@@ -109,6 +109,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _customClipPath = value;
                 if (value != null)
                     ClipShape = ImageClipShape.Custom;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
         }
@@ -118,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool Grayscale
         {
             get => _grayscale;
-            set { _grayscale = value; Invalidate(); }
+            set { _grayscale = value; _stateChanged = true; _cachedRenderedImage?.Dispose(); _cachedRenderedImage = null; Invalidate(); }
         }
         private float _opacity = 1.0f;
         [Category("Effects")]
@@ -126,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public float Opacity
         {
             get => _opacity;
-            set { _opacity = Math.Max(0, Math.Min(1, value)); Invalidate(); }
+            set { _opacity = Math.Max(0, Math.Min(1, value)); _stateChanged = true; _cachedRenderedImage?.Dispose(); _cachedRenderedImage = null; Invalidate(); }
         }
 
         [Browsable(true)]
@@ -142,6 +145,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Size = new Size(_baseSize, _baseSize);
                 }
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
         }
@@ -156,6 +162,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 fillColor = value;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
         }
@@ -168,6 +177,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 strokeColor = value;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
         }
@@ -180,8 +192,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _imageEmbededin;
             set
             {
-                _imageEmbededin = value;
-                Invalidate();
+                if (_imageEmbededin != value)
+                {
+                    _imageEmbededin = value;
+                    _stateChanged = true; // Theme color rules changed -> recache
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
+                    ApplyThemeToSvg();
+                    Invalidate();
+                }
             }
         }
         private float _velocity = 0.0f;
@@ -216,6 +235,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         _manualRotationAngle = value;
                     }
                     _stateChanged = true;
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
                     Invalidate();
                 }
             }
@@ -235,6 +256,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _allowManualRotation = value;
                     if (!_allowManualRotation)
                         _manualRotationAngle = 0; // Reset manual rotation if disabled
+                    _stateChanged = true;
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
                     Invalidate();
                 }
             }
@@ -288,6 +312,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _imagepath = value;
                     _stateChanged = true;
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
 
                     if (!string.IsNullOrEmpty(_imagepath))
                     {
@@ -313,6 +339,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _scaleFactor = value;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate(); // Repaint when the scale factor changes
             }
         }
@@ -325,6 +354,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _scaleMode = value;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate(); // Repaint when the scale mode changes
             }
         }
@@ -338,6 +370,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _applyThemeOnImage = value;
+                _stateChanged = true; // theming affects rendering
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 ApplyTheme();
                 Invalidate();
             }
@@ -405,6 +440,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     regularImage = value;
                     svgDocument = null;  // Clear any loaded SVG
+                    _stateChanged = true;
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
                     Invalidate();  // Trigger repaint
                 }
             }
@@ -502,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #region "Theme Handling"
-      
+       
 
         public override void ApplyTheme()
         {
@@ -528,11 +566,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Apply theme to the regular image if needed
                 if (regularImage != null)
                 {
-                    // Apply theme colors to the regular image here if needed
-                    // For example, you can use a ColorMatrix to adjust colors
-                    // or apply a color overlay.
+                    // Potential place for non-SVG theming, if needed
                 }
             }
+            // Theme changed -> ensure cache regenerates even if rect hasn't changed
+            _stateChanged = true;
+            _cachedRenderedImage?.Dispose();
+            _cachedRenderedImage = null;
+            Invalidate();
         }
         public void ApplyThemeToSvg()
         {
@@ -661,13 +702,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             string modifiedXml = svgDocument.GetXML();
            // ////MiscFunctions.SendLog($"ApplyThemeToSvg: Modified SVG XML: {modifiedXml}");
 
-            // Trigger a redraw.
+            // Trigger a redraw and invalidate cache since colors changed
             try
             {
-                //     svgDocument.FlushStyles();
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
                 Refresh();
-            //    ////MiscFunctions.SendLog("ApplyThemeToSvg: Redraw triggered");
             }
             catch (Exception ex)
             {
@@ -723,6 +765,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Flush all styles
             svgDocument.FlushStyles();
+            _stateChanged = true;
+            _cachedRenderedImage?.Dispose();
+            _cachedRenderedImage = null;
             Invalidate();
         }
 
@@ -779,8 +824,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     hexagonPoints[1] = new Point(bounds.X + bounds.Width, bounds.Y + quarterHeight);         // Top right
                     hexagonPoints[2] = new Point(bounds.X + bounds.Width, bounds.Y + 3 * quarterHeight);     // Bottom right
                     hexagonPoints[3] = new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height);     // Bottom
-                    hexagonPoints[4] = new Point(bounds.X, bounds.Y + 3 * quarterHeight);                    // Bottom left
-                    hexagonPoints[5] = new Point(bounds.X, bounds.Y + quarterHeight);                        // Top left
+                    hexagonPoints[4] = new Point(0, bounds.Y + 3 * quarterHeight);                    // Bottom left
+                    hexagonPoints[5] = new Point(0, bounds.Y + quarterHeight);                        // Top left
                     path.AddPolygon(hexagonPoints);
                     break;
 
@@ -906,150 +951,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         //public void DrawImage(Graphics g, Rectangle imageRect)
         //{
-        //    g.SmoothingMode = SmoothingMode.AntiAlias;
-        //    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        //    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-        //    g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
-        //    // Store original graphics state to restore later
-        //    var originalTransform = g.Transform;
-        //    var originalCompositingMode = g.CompositingMode;
-        //    var originalClip = g.Clip;
-
-        //    try
-        //    {
-        //        // --- Animation Setup ---
-        //        float rotation = _manualRotationAngle + (IsSpinning ? _rotationAngle : 0);
-        //        float scale = (_isPulsing || _isBouncing) ? _pulseScale : 1.0f;
-        //        float alpha = _isFading ? _fadeAlpha : 1.0f;
-        //        int shakeOffset = _isShaking ? _shakeOffset : 0;
-
-        //        // The center point calculation is crucial - we need to use the exact coordinates from imageRect
-        //        PointF center = new PointF(
-        //            imageRect.X + imageRect.Width / 2f,
-        //            imageRect.Y + imageRect.Height / 2f  // This ensures we're centered at the right Y position
-        //        );
-
-        //        // --- Create clipping path if shape clipping is enabled ---
-        //        if (ClipShape != ImageClipShape.None)
-        //        {
-        //            using (GraphicsPath clipPath = CreateClipPath(imageRect))
-        //            {
-        //                // Apply clip directly using the exact imageRect coordinates
-        //                g.SetClip(clipPath);
-        //            }
-        //        }
-
-        //        // --- Apply transformations relative to the exact center point ---
-        //        g.TranslateTransform(center.X, center.Y);
-
-        //        // Apply flip if needed
-        //        if (_flipX || _flipY)
-        //        {
-        //            g.ScaleTransform(_flipX ? -1 : 1, _flipY ? -1 : 1);
-        //        }
-
-        //        // Apply scale and rotation
-        //        g.ScaleTransform(scale, scale);
-        //        g.RotateTransform(rotation);
-
-        //        // Move back to original position
-        //        g.TranslateTransform(-center.X, -center.Y);
-
-        //        // Add shake offset if needed
-        //        if (shakeOffset != 0)
-        //        {
-        //            g.TranslateTransform(shakeOffset, 0);
-        //        }
-
-        //        // --- Draw the image based on type ---
-        //        if (isSvg && svgDocument != null)
-        //        {
-        //            // For SVG images
-        //            SizeF imageSize = svgDocument.GetDimensions();
-        //            RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
-
-        //            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-        //            {
-        //                // Important: Use the scaled bounds that respects the Y position
-        //                g.TranslateTransform(scaledBounds.X, scaledBounds.Y);
-        //                g.ScaleTransform(scaledBounds.Width / imageSize.Width, scaledBounds.Height / imageSize.Height);
-
-        //                // Set compositing mode if needed for transparency
-        //                if (alpha < 1.0f)
-        //                    g.CompositingMode = CompositingMode.SourceOver;
-
-        //                // Draw the SVG
-        //                svgDocument.Draw(g);
-        //            }
-        //        }
-        //        else if (regularImage != null)
-        //        {
-        //            // For regular bitmap images
-        //            SizeF imageSize = regularImage.Size;
-        //            RectangleF scaledBounds = GetScaledBounds(imageSize, imageRect);
-
-        //            if (scaledBounds.Width > 0 && scaledBounds.Height > 0)
-        //            {
-        //                if (alpha < 1.0f || _grayscale)
-        //                {
-        //                    // Apply special effects with ImageAttributes
-        //                    ColorMatrix matrix = new ColorMatrix();
-
-        //                    if (_grayscale)
-        //                    {
-        //                        // Grayscale conversion matrix
-        //                        matrix.Matrix00 = matrix.Matrix11 = matrix.Matrix22 = 0.299f;
-        //                        matrix.Matrix01 = matrix.Matrix12 = 0.587f;
-        //                        matrix.Matrix02 = matrix.Matrix21 = 0.114f;
-        //                        matrix.Matrix10 = matrix.Matrix20 = 0;
-        //                    }
-
-        //                    // Apply opacity
-        //                    matrix.Matrix33 = alpha * _opacity;
-
-        //                    using (ImageAttributes attr = new ImageAttributes())
-        //                    {
-        //                        attr.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
-
-        //                        // Draw the image with exact position
-        //                        g.DrawImage(
-        //                            regularImage,
-        //                            new Rectangle(
-        //                                (int)scaledBounds.X,
-        //                                (int)scaledBounds.Y,  // Respect the Y position
-        //                                (int)scaledBounds.Width,
-        //                                (int)scaledBounds.Height
-        //                            ),
-        //                            0, 0, regularImage.Width, regularImage.Height,
-        //                            GraphicsUnit.Pixel,
-        //                            attr
-        //                        );
-        //                    }
-        //                }
-        //                else
-        //                {
-        //                    // Draw the image normally with exact position
-        //                    g.DrawImage(
-        //                        regularImage,
-        //                        new RectangleF(
-        //                            scaledBounds.X,
-        //                            scaledBounds.Y,  // Respect the Y position
-        //                            scaledBounds.Width,
-        //                            scaledBounds.Height
-        //                        )
-        //                    );
-        //                }
-        //            }
-        //        }
-        //    }
-        //    finally
-        //    {
-        //        // Restore original graphics state
-        //        g.Clip = originalClip;
-        //        g.Transform = originalTransform;
-        //        g.CompositingMode = originalCompositingMode;
-        //    }
+        //    ... old code omitted ...
         //}
 
         public void DrawImage(Graphics g, Rectangle imageRect)
@@ -1085,6 +987,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             float currentAlpha = _isFading ? _fadeAlpha : 1.0f;
             int currentShakeOffset = _isShaking ? _shakeOffset : 0;
 
+            // IMPORTANT: Also consider color-affecting changes by monitoring ForeColor/BackColor hash and ImageEmbededin
+            int colorSignature = HashCode.Combine(ForeColor, BackColor, _imageEmbededin);
+
             // Check if any state has changed
             bool changed = _stateChanged ||
                            _lastImagePath != _imagepath ||
@@ -1095,7 +1000,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                            _lastShakeOffset != currentShakeOffset ||
                            _lastClipShape != _clipShape ||
                            _lastFlipX != _flipX ||
-                           _lastFlipY != _flipY;
+                           _lastFlipY != _flipY ||
+                           _lastColorSignature != colorSignature;
 
             if (changed)
             {
@@ -1109,11 +1015,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _lastClipShape = _clipShape;
                 _lastFlipX = _flipX;
                 _lastFlipY = _flipY;
+                _lastColorSignature = colorSignature;
                 _stateChanged = false;
             }
 
             return changed;
         }
+
+        // Track last color-related signature for cache invalidation
+        private int _lastColorSignature;
 
         private void RegenerateImage(Rectangle imageRect)
         {
@@ -1323,31 +1233,31 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         case ImageClipShape.Diamond:
                             Point[] diamondPoints = new Point[4];
-                            diamondPoints[0] = new Point(bounds.Width / 2, 0);                    // Top
-                            diamondPoints[1] = new Point(bounds.Width, bounds.Height / 2);        // Right
-                            diamondPoints[2] = new Point(bounds.Width / 2, bounds.Height);        // Bottom
-                            diamondPoints[3] = new Point(0, bounds.Height / 2);                   // Left
-                            path.AddPolygon(diamondPoints);
+                                diamondPoints[0] = new Point(bounds.Width / 2, 0);                    // Top
+                                diamondPoints[1] = new Point(bounds.Width, bounds.Height / 2);        // Right
+                                diamondPoints[2] = new Point(bounds.Width / 2, bounds.Height);        // Bottom
+                                diamondPoints[3] = new Point(0, bounds.Height / 2);                   // Left
+                                path.AddPolygon(diamondPoints);
                             break;
 
                         case ImageClipShape.Triangle:
                             Point[] trianglePoints = new Point[3];
-                            trianglePoints[0] = new Point(bounds.Width / 2, 0);                   // Top
-                            trianglePoints[1] = new Point(0, bounds.Height);                      // Bottom left
-                            trianglePoints[2] = new Point(bounds.Width, bounds.Height);           // Bottom right
-                            path.AddPolygon(trianglePoints);
+                                trianglePoints[0] = new Point(bounds.Width / 2, 0);                   // Top
+                                trianglePoints[1] = new Point(0, bounds.Height);                      // Bottom left
+                                trianglePoints[2] = new Point(bounds.Width, bounds.Height);           // Bottom right
+                                path.AddPolygon(trianglePoints);
                             break;
 
                         case ImageClipShape.Hexagon:
                             Point[] hexagonPoints = new Point[6];
-                            int quarterHeight = bounds.Height / 4;
-                            hexagonPoints[0] = new Point(bounds.Width / 2, 0);                     // Top
-                            hexagonPoints[1] = new Point(bounds.Width, quarterHeight);              // Top right
-                            hexagonPoints[2] = new Point(bounds.Width, 3 * quarterHeight);          // Bottom right
-                            hexagonPoints[3] = new Point(bounds.Width / 2, bounds.Height);          // Bottom
-                            hexagonPoints[4] = new Point(0, 3 * quarterHeight);                     // Bottom left
-                            hexagonPoints[5] = new Point(0, quarterHeight);                         // Top left
-                            path.AddPolygon(hexagonPoints);
+                                int quarterHeight = bounds.Height / 4;
+                                hexagonPoints[0] = new Point(bounds.Width / 2, 0);                     // Top
+                                hexagonPoints[1] = new Point(bounds.Width, quarterHeight);              // Top right
+                                hexagonPoints[2] = new Point(bounds.Width, 3 * quarterHeight);          // Bottom right
+                                hexagonPoints[3] = new Point(bounds.Width / 2, bounds.Height);          // Bottom
+                                hexagonPoints[4] = new Point(0, 3 * quarterHeight);                     // Bottom left
+                                hexagonPoints[5] = new Point(0, quarterHeight);                         // Top left
+                                path.AddPolygon(hexagonPoints);
                             break;
 
                         default:
@@ -1572,6 +1482,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
 
                     // ApplyTheme(); // Apply theme after loading
+                    _stateChanged = true;
+                    _cachedRenderedImage?.Dispose();
+                    _cachedRenderedImage = null;
                     Invalidate(); // Trigger a repaint
                     return true;
                 }
@@ -1593,6 +1506,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             regularImage?.Dispose();
             regularImage = null;
             isSvg = false;
+            _stateChanged = true;
+            _cachedRenderedImage?.Dispose();
+            _cachedRenderedImage = null;
+            Invalidate();
         }
         public SvgDocument LoadSanitizedSvg(string svgFilePath)
         {
@@ -1617,6 +1534,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 svgDocument.FlushStyles();
                 //  svgDocument = SvgDocument.Open(svgPath);
                 isSvg = true;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate(); // Trigger repaint
             }
             catch (Exception ex)
@@ -1634,6 +1554,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 regularImage = Image.FromFile(imagePath);
                 isSvg = false;
                 regularImage.Tag = imagePath; // Store path for future reference
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate(); // Trigger repaint
             }
             catch (Exception ex)
@@ -1681,7 +1604,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //private string ProcessImagePath()
         //{
         //    string selectedPath = string.Empty;
-
+        //
         //    try
         //    {
         //        // Attempt to open ImageSelectorImporterForm
@@ -1695,14 +1618,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         //                    return selectedPath;  // Valid path obtained
         //                }
         //            }
-
+        //
         //    }
         //    catch (Exception ex)
         //    {
         //        // Config error dialog or handle the exception as needed
         //        MessageBox.Config($"Error processing image path: {ex.Message}", "Process ImagePath Path Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         //    }
-
+        //
         //    // Return empty if no valid path was obtained
         //    return string.Empty;
         //}
@@ -1768,6 +1691,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
+        protected override void OnForeColorChanged(EventArgs e)
+        {
+            base.OnForeColorChanged(e);
+            // ForeColor affects SVG recoloring when ImageEmbededin = Button or other contexts
+            _stateChanged = true;
+            _cachedRenderedImage?.Dispose();
+            _cachedRenderedImage = null;
+            if (_applyThemeOnImage && svgDocument != null)
+            {
+                ApplyThemeToSvg();
+            }
+            Invalidate();
+        }
+
+        protected override void OnBackColorChanged(EventArgs e)
+        {
+            base.OnBackColorChanged(e);
+            // BackColor can affect recoloring in some embedding contexts
+            _stateChanged = true;
+            _cachedRenderedImage?.Dispose();
+            _cachedRenderedImage = null;
+            if (_applyThemeOnImage && svgDocument != null)
+            {
+                ApplyThemeToSvg();
+            }
+            Invalidate();
+        }
 
         #endregion
         #region "Spin and Animations"
@@ -1919,6 +1869,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (isSvg && svgDocument != null)
             {
                 _flipX = !_flipX;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
             else if (regularImage != null)
@@ -1932,6 +1885,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (isSvg && svgDocument != null)
             {
                 _flipY = !_flipY;
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
             else if (regularImage != null)
@@ -1948,6 +1904,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (regularImage != null)
             {
                 regularImage.RotateFlip(rotateFlipType);
+                _stateChanged = true;
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
                 Invalidate();
             }
             else
@@ -1972,6 +1931,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     LoadImage(ImagePath);
                 }
             }
+            _stateChanged = true;
+            _cachedRenderedImage?.Dispose();
+            _cachedRenderedImage = null;
             Invalidate();
         }
 
@@ -1998,5 +1960,4 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
     }
-
 }

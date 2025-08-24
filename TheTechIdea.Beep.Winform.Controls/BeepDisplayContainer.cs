@@ -1,5 +1,4 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules;
@@ -554,7 +553,41 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             this.SuspendLayout();
             base.OnResize(e);
-            this.ResumeLayout(true);
+
+            try
+            {
+                // Invalidate and update the entire client region to force a full redraw cascade
+                this.Invalidate(true);
+                this.Update();
+
+                if (ContainerPanel != null && ContainerPanel.Visible)
+                {
+                    ContainerPanel.PerformLayout();
+                    ContainerPanel.Invalidate(true);
+                    ContainerPanel.Update();
+                }
+                if (TabContainerPanel != null && TabContainerPanel.Visible)
+                {
+                    TabContainerPanel.PerformLayout();
+                    TabContainerPanel.Invalidate(true);
+                    TabContainerPanel.Update();
+                    var sel = TabContainerPanel.SelectedTab;
+                    if (sel != null)
+                    {
+                        sel.Invalidate(true);
+                        sel.Update();
+                        foreach (Control child in sel.Controls)
+                        {
+                            child.Invalidate(true);
+                            child.Update();
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                this.ResumeLayout(true);
+            }
         }
 
         //protected override void OnPaint(PaintEventArgs e)

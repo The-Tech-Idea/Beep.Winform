@@ -20,6 +20,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
 
         #region "General Actions & UI"
+      
+        public static readonly string Person = $"{BaseNamespace}.person.svg";
+        public static readonly string Send = $"{BaseNamespace}send.svg";
+        public static readonly string Microphone = $"{BaseNamespace}.circle-microphone-lines.svg";
         public static readonly string CheckCircle = $"{BaseNamespace}.check-circle.svg";
         public static readonly string ExclamationTriangle = $"{BaseNamespace}.triangle-warning.svg";
         public static readonly string About = $"{BaseNamespace}.about.svg";
@@ -303,8 +307,114 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
     }
 
-    ///// <summary>
-    ///// Extension methods for easier use of BeepSvgPaths with BeepImage controls.
-    ///// </summary>
-   
+    /// <summary>
+    /// Extension methods for easier use of BeepSvgPaths with BeepImage controls.
+    /// </summary>
+    public static class BeepSvgPathExtensions
+    {
+        /// <summary>
+        /// Sets the image path for a BeepImage control using BeepSvgPaths
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <param name="svgPath">The SVG path from BeepSvgPaths</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetSvgPath(this BeepImage beepImage, string svgPath)
+        {
+            if (beepImage != null)
+            {
+                beepImage.ImagePath = svgPath;
+            }
+            return beepImage;
+        }
+
+        /// <summary>
+        /// Sets a search icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetSearchIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.Search);
+        }
+
+        /// <summary>
+        /// Sets a close/clear icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetCloseIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.Close);
+        }
+
+        /// <summary>
+        /// Sets an edit/pencil icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetEditIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.Edit);
+        }
+
+        /// <summary>
+        /// Sets a user icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetUserIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.User);
+        }
+
+        /// <summary>
+        /// Sets an email icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetEmailIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.Email);
+        }
+
+        /// <summary>
+        /// Sets a calendar icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetCalendarIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.Calendar);
+        }
+
+        /// <summary>
+        /// Sets a settings/gear icon for the BeepImage
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetSettingsIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.Settings);
+        }
+
+        /// <summary>
+        /// Sets a visibility/show icon for the BeepImage (useful for password fields)
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetVisibilityIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.DoorOpen);
+        }
+
+        /// <summary>
+        /// Sets a hide icon for the BeepImage (useful for password fields)
+        /// </summary>
+        /// <param name="beepImage">The BeepImage control</param>
+        /// <returns>The BeepImage for method chaining</returns>
+        public static BeepImage SetHideIcon(this BeepImage beepImage)
+        {
+            return beepImage.SetSvgPath(BeepSvgPaths.DoorClosed);
+        }
+    }
 }

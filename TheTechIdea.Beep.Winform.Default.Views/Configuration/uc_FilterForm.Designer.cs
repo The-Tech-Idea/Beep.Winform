@@ -3,6 +3,7 @@
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {

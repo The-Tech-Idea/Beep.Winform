@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using TheTechIdea.Beep.Vis.Modules;
+namespace TheTechIdea.Beep.Winform.Controls.Converters;
 public class DataMember
 {
     public string ClassName { get; set; }

@@ -1,5 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
@@ -1000,7 +1001,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         private Controls.BeepSimpleGrid beepSimpleGrid1;
         private Controls.BeepProgressBar progressBar1;
-        private Controls.BeepTextBox LogtextBox;
+        private BeepTextBox LogtextBox;
         private Controls.BeepPanel beepPanel1;
         private Controls.BeepButton RunScriptsbeepButton;
         private Controls.BeepNumericUpDown beepNumericUpDown1;

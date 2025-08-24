@@ -31,6 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler OnFormShown;
         public event EventHandler<FormClosingEventArgs> PreClose;
 
+        // Track original border settings when toggling maximized state
+        private int _savedBorderRadius = 0;
+        private int _savedBorderThickness = 1;
         #endregion "Fields"
         #region "Properties"
         [Browsable(true)]
@@ -133,10 +136,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.BackColor = SystemColors.Control; // Temporary until theme loads
 
             FormBorderStyle = FormBorderStyle.None;
-
-            // ✅ FIX: Force initial paint after creation
-          //  this.Load += BeepiForm_Load;
-          //  this.VisibleChanged += BeepiForm_VisibleChanged;
         }
         private void BeepiForm_Load(object sender, EventArgs e)
         {
@@ -214,6 +213,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnPaint(e);
 
+            // Do not draw custom border when maximized to avoid clipping/transparent edges
+            if (WindowState == FormWindowState.Maximized)
+                return;
+
             if (_borderThickness > 0 && _borderColor != Color.Transparent && ClientSize.Width > 0 && ClientSize.Height > 0)
             {
                 using var borderPen = new Pen(_borderColor, _borderThickness);
@@ -242,6 +245,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SuspendLayout();
             base.OnResize(e);
+
+            // Apply maximized layout fixes
+            ApplyMaximizedWindowFix();
+
             // Only update form region if valid size
             if (ClientSize.Width > 0 && ClientSize.Height > 0)
             {
@@ -259,6 +266,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void UpdateFormRegion()
         {
+            // Remove rounded region when maximized
+            if (WindowState == FormWindowState.Maximized)
+            {
+                this.Region = null;
+                return;
+            }
+
             if (_borderRadius > 0 && ClientSize.Width > 0 && ClientSize.Height > 0)
             {
                 Rectangle rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
@@ -279,10 +293,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnLayout(e);
 
-            if (_borderThickness > 0)
-            {
+            // Avoid extra padding when maximized; otherwise use border thickness
+            if (WindowState == FormWindowState.Maximized)
+                Padding = new Padding(0);
+            else if (_borderThickness > 0)
                 Padding = new Padding(_borderThickness);
-            }
 
             // Ensure docked controls are properly positioned
             foreach (Control control in Controls)
@@ -301,6 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int WM_NCHITTEST = 0x84;
         private const int WM_ENTERSIZEMOVE = 0x0231;
         private const int WM_EXITSIZEMOVE = 0x0232;
+        private const int WM_GETMINMAXINFO = 0x0024;
         private const int HTCLIENT = 1;
         private const int HTCAPTION = 2;
         private const int HTLEFT = 10;
@@ -337,6 +353,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     UpdateFormRegion();
                     Invalidate();
                     break;
+                case WM_GETMINMAXINFO:
+                    AdjustMaximizedBounds(m.LParam);
+                    break;
                 case WM_NCHITTEST when !_inpopupmode:
                     {
                         Point pos = PointToClient(new Point(m.LParam.ToInt32()));
@@ -366,6 +385,81 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             base.WndProc(ref m);
         }
+
+        // Handle borderless max bounds so the window fills the work area on maximize
+        private void AdjustMaximizedBounds(IntPtr lParam)
+        {
+            MINMAXINFO mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam);
+
+            IntPtr monitor = MonitorFromWindow(this.Handle, MONITOR_DEFAULTTONEAREST);
+            if (monitor != IntPtr.Zero)
+            {
+                MONITORINFO monitorInfo = new MONITORINFO();
+                monitorInfo.cbSize = Marshal.SizeOf(typeof(MONITORINFO));
+                GetMonitorInfo(monitor, ref monitorInfo);
+
+                Rectangle rcWorkArea = Rectangle.FromLTRB(
+                    monitorInfo.rcWork.left,
+                    monitorInfo.rcWork.top,
+                    monitorInfo.rcWork.right,
+                    monitorInfo.rcWork.bottom);
+                Rectangle rcMonitorArea = Rectangle.FromLTRB(
+                    monitorInfo.rcMonitor.left,
+                    monitorInfo.rcMonitor.top,
+                    monitorInfo.rcMonitor.right,
+                    monitorInfo.rcMonitor.bottom);
+
+                mmi.ptMaxPosition.x = Math.Abs(rcWorkArea.Left - rcMonitorArea.Left);
+                mmi.ptMaxPosition.y = Math.Abs(rcWorkArea.Top - rcMonitorArea.Top);
+                mmi.ptMaxSize.x = rcWorkArea.Width;
+                mmi.ptMaxSize.y = rcWorkArea.Height;
+
+                Marshal.StructureToPtr(mmi, lParam, true);
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct POINT
+        {
+            public int x;
+            public int y;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct MINMAXINFO
+        {
+            public POINT ptReserved;
+            public POINT ptMaxSize;
+            public POINT ptMaxPosition;
+            public POINT ptMinTrackSize;
+            public POINT ptMaxTrackSize;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+        private struct MONITORINFO
+        {
+            public int cbSize;
+            public RECT rcMonitor;
+            public RECT rcWork;
+            public int dwFlags;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        private struct RECT
+        {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
+
+        [DllImport("user32.dll")]
+        private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr MonitorFromWindow(IntPtr handle, int flags);
+
+        private const int MONITOR_DEFAULTTONEAREST = 2;
         #endregion
         #region Window Resizing
 
@@ -435,6 +529,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             WindowState = WindowState == FormWindowState.Maximized
                 ? FormWindowState.Normal
                 : FormWindowState.Maximized;
+        }
+
+        private void ApplyMaximizedWindowFix()
+        {
+            if (WindowState == FormWindowState.Maximized)
+            {
+                // Save and reset border settings to avoid clipped/transparent edges
+                _savedBorderRadius = _borderRadius;
+                _savedBorderThickness = _borderThickness;
+                _borderRadius = 0;
+                _borderThickness = 0;
+                Padding = new Padding(0);
+                Region = null;
+            }
+            else
+            {
+                // Restore settings when returning to normal state
+                _borderRadius = _savedBorderRadius;
+                _borderThickness = _savedBorderThickness;
+                Padding = new Padding(Math.Max(0, _borderThickness));
+            }
         }
 
         #endregion

@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -37,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Drawing components instead of actual controls
         private BeepImage _logo;
         private BeepLabel _titleLabel;
-        private BeepTextBox _searchBox;
+        private BeepMaterialTextField _searchBox;
         private BeepButton _profileButton;
         private BeepButton _notificationButton;
         private BeepButton _closeButton;
@@ -495,7 +496,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // Initialize search box as an actual control now
-            _searchBox = new BeepTextBox
+            _searchBox = new BeepMaterialTextField
             {
                 Width = 200,
                 Height = 30,
@@ -1588,10 +1589,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 button.Theme = Theme;
                 button.ImageEmbededin = ImageEmbededin.AppBar;
-                button.BackColor = _currentTheme.AppBarButtonBackColor != Color.Empty ?
-                    _currentTheme.AppBarButtonBackColor : _currentTheme.AppBarBackColor;
-                button.ForeColor = _currentTheme.AppBarButtonForeColor != Color.Empty ?
-                    _currentTheme.AppBarButtonForeColor : _currentTheme.ForeColor;
+                button.BackColor = _currentTheme.AppBarButtonBackColor ;
+                button.ForeColor = _currentTheme.AppBarButtonForeColor;
                 button.ParentBackColor = _currentTheme.AppBarBackColor;
                 button.HoverBackColor = _currentTheme.ButtonHoverBackColor;
                 button.HoverForeColor = _currentTheme.ButtonHoverForeColor;
@@ -1599,8 +1598,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 button.SelectedForeColor = _currentTheme.ButtonSelectedForeColor;
                 button.IsColorFromTheme = false;
                 button.IsChild = true;
-                button.ApplyThemeOnImage = applyThemeOnImage;
-                button.ApplyTheme();
+                button.ApplyThemeOnImage = true;
+
+                // Ensure the inner image gets the correct theme and recolors immediately
+                button.ApplyThemeToSvg();
             };
 
             // Apply to notification button

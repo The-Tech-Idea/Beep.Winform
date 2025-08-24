@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Force layout update with new DPI scaling
-            UpdateLayoutWithDpi();
+            //UpdateLayoutWithDpi();
             Invalidate();
         }
         #endregion
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _headerHeight = Math.Max(10, value);
-                UpdateLayoutWithDpi();
+              //  UpdateLayoutWithDpi();
                 Invalidate();
             }
         }
@@ -307,7 +307,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Suppress base painting to avoid flicker
+            // Let Windows/child controls paint backgrounds; only fill our header to prevent overdraw
+            int scaledHeaderHeight = ScaleValue(_headerHeight);
+            Rectangle headerRegion;
+            switch (_headerPosition)
+            {
+                case TabHeaderPosition.Top:
+                    headerRegion = new Rectangle(0, 0, ClientSize.Width, scaledHeaderHeight);
+                    break;
+                case TabHeaderPosition.Bottom:
+                    headerRegion = new Rectangle(0, ClientSize.Height - scaledHeaderHeight, ClientSize.Width, scaledHeaderHeight);
+                    break;
+                case TabHeaderPosition.Left:
+                    headerRegion = new Rectangle(0, 0, scaledHeaderHeight, ClientSize.Height);
+                    break;
+                case TabHeaderPosition.Right:
+                    headerRegion = new Rectangle(ClientSize.Width - scaledHeaderHeight, 0, scaledHeaderHeight, ClientSize.Height);
+                    break;
+                default:
+                    headerRegion = Rectangle.Empty;
+                    break;
+            }
+
+            if (!headerRegion.IsEmpty)
+            {
+                using var brush = new SolidBrush(Parent?.BackColor ?? BackColor);
+                e.Graphics.FillRectangle(brush, headerRegion);
+            }
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -1034,24 +1060,24 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedTab.Invalidate();
             Invalidate();
         }
-        // ✅ Add DPI-aware layout update method
-        private void UpdateLayoutWithDpi()
-        {
-            Rectangle rect = DisplayRectangle; // Now DPI-aware
-            foreach (TabPage page in TabPages)
-            {
-                page.Bounds = rect;
+        //// ✅ Add DPI-aware layout update method
+        //private void UpdateLayoutWithDpi()
+        //{
+        //    Rectangle rect = DisplayRectangle; // Now DPI-aware
+        //    foreach (TabPage page in TabPages)
+        //    {
+        //        page.Bounds = rect;
 
-                // Ensure child controls respect the new bounds
-                foreach (Control control in page.Controls)
-                {
-                    if (control.Dock == DockStyle.Fill)
-                    {
-                        control.Size = rect.Size;
-                    }
-                }
-            }
-        }
+        //        // Ensure child controls respect the new bounds
+        //        foreach (Control control in page.Controls)
+        //        {
+        //            if (control.Dock == DockStyle.Fill)
+        //            {
+        //                control.Size = rect.Size;
+        //            }
+        //        }
+        //    }
+        //}
 
       
 

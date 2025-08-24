@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis;
 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 
 

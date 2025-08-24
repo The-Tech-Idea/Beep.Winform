@@ -19,6 +19,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private Rectangle _firstRect, _prevRect, _nextRect, _lastRect, _insertRect, _deleteRect, _saveRect, _cancelRect, _queryRect, _filterRect, _printRect;
         private bool _selectAllChecked = false;
 
+        // Track checkbox press to avoid double-toggle between MouseDown/MouseUp
+        private bool _pressedOnCheckbox = false;
+        private int _pressedRow = -1;
+        private int _pressedCol = -1;
+
         public GridInputHelper(BeepGridPro grid) { _grid = grid; }
 
         public void HandleMouseMove(MouseEventArgs e)
@@ -64,6 +69,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void HandleMouseDown(MouseEventArgs e)
         {
             _mouseDown = e.Location;
+            _pressedOnCheckbox = false;
+            _pressedRow = _pressedCol = -1;
 
             // Navigator
             if (_grid.ShowNavigator && HitTestNavigator(e.Location)) return;
@@ -72,9 +79,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_grid.ShowCheckBox && _grid.Layout.SelectAllCheckRect.Contains(e.Location))
             {
                 _selectAllChecked = !_selectAllChecked;
-                for (int i = 0; i < _grid.Data.Rows.Count; i++)
-                    _grid.Data.Rows[i].IsSelected = _selectAllChecked;
-                _grid.OnRowSelectionChanged(-1);
+
+                if (_grid.MultiSelect)
+                {
+                    for (int i = 0; i < _grid.Data.Rows.Count; i++)
+                    {
+                        _grid.Data.Rows[i].IsSelected = _selectAllChecked;
+                        // keep selection column cell in sync if present
+                        SyncSelectionCellWithRow(i, _selectAllChecked);
+                    }
+                    _grid.OnRowSelectionChanged(-1);
+                }
+                else
+                {
+                    for (int i = 0; i < _grid.Data.Rows.Count; i++)
+                    {
+                        _grid.Data.Rows[i].IsSelected = false;
+                        SyncSelectionCellWithRow(i, false);
+                    }
+                    if (_selectAllChecked && _grid.Data.Rows.Count > 0)
+                    {
+                        _grid.Data.Rows[0].IsSelected = true;
+                        SyncSelectionCellWithRow(0, true);
+                        _grid.OnRowSelectionChanged(0);
+                    }
+                    else
+                    {
+                        _grid.OnRowSelectionChanged(-1);
+                    }
+                }
+
                 _grid.Invalidate();
                 return;
             }
@@ -90,31 +124,35 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Row checkbox or selection checkbox column cell
+            // Row checkbox rectangle click tracking (do not toggle here; toggle on MouseUp)
             if (_grid.ShowCheckBox)
             {
+                // Track row checkbox area press
                 for (int i = 0; i < _grid.Data.Rows.Count; i++)
                 {
                     var row = _grid.Data.Rows[i];
                     if (!row.RowCheckRect.IsEmpty && row.RowCheckRect.Contains(e.Location))
                     {
-                        row.IsSelected = !row.IsSelected;
-                        _grid.OnRowSelectionChanged(i);
-                        _grid.Invalidate();
-                        return;
+                        _pressedOnCheckbox = true;
+                        _pressedRow = i;
+                        _pressedCol = -1; // row area
+                        break;
                     }
                 }
-                int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
-                if (checkCol >= 0)
+
+                // Track selection checkbox column cell press
+                if (!_pressedOnCheckbox)
                 {
-                    var (rr, cc) = HitTestCell(e.Location);
-                    if (rr >= 0 && cc == checkCol)
+                    int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
+                    if (checkCol >= 0)
                     {
-                        var row = _grid.Data.Rows[rr];
-                        row.IsSelected = !row.IsSelected;
-                        _grid.OnRowSelectionChanged(rr);
-                        _grid.Invalidate();
-                        return;
+                        var (rr, cc) = HitTestCell(e.Location);
+                        if (rr >= 0 && cc == checkCol)
+                        {
+                            _pressedOnCheckbox = true;
+                            _pressedRow = rr;
+                            _pressedCol = cc;
+                        }
                     }
                 }
             }
@@ -132,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Highlight active cell; do not toggle selection
+            // Highlight active cell; do not toggle selection here
             var (rrow, rcol) = HitTestCell(e.Location);
             if (rrow >= 0 && rcol >= 0)
             {
@@ -153,23 +191,48 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             var (r, c) = HitTestCell(e.Location);
+
+            // If mouse-up is on the same checkbox we pressed, toggle now
+            if (_pressedOnCheckbox)
+            {
+                bool sameTarget = false;
+                if (_pressedCol == -1)
+                {
+                    // Row checkbox area: still within same row rect?
+                    var row = (_pressedRow >= 0 && _pressedRow < _grid.Data.Rows.Count) ? _grid.Data.Rows[_pressedRow] : null;
+                    sameTarget = row != null && row.RowCheckRect.Contains(e.Location);
+                }
+                else
+                {
+                    sameTarget = (r == _pressedRow && c == _pressedCol);
+                }
+
+                if (sameTarget)
+                {
+                    ToggleRowSelection(_pressedRow);
+                }
+
+                _pressedOnCheckbox = false;
+                _pressedRow = _pressedCol = -1;
+                return;
+            }
+
+            // Normal cell clicks (not on checkbox)
             if (r >= 0 && c >= 0 && !_grid.ReadOnly)
             {
                 var cell = _grid.Data.Rows[r].Cells[c];
                 var col = _grid.Data.Columns[c];
                 bool isCheckCol = col.IsSelectionCheckBox;
 
-                // Select the cell first (this is the key - always select first)
+                // Select the cell first
                 _grid.Selection.SelectCell(r, c);
                 EnsureSelectionVisible();
                 _grid.Invalidate();
 
-                // Handle checkbox clicks immediately
+                // Handle checkbox clicks (should be handled above through press tracking). Guard here for safety.
                 if (isCheckCol)
                 {
-                    cell.IsSelected = !cell.IsSelected;
-                    _grid.Data.Rows[r].IsSelected = cell.IsSelected;
-                    _grid.OnRowSelectionChanged(r);
+                    ToggleRowSelection(r);
                     return;
                 }
 
@@ -178,6 +241,56 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _grid.Dialog.ShowEditorDialog(cell);
                 }
+            }
+        }
+
+        private void ToggleRowSelection(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= _grid.Data.Rows.Count) return;
+
+            int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
+            var row = _grid.Data.Rows[rowIndex];
+            bool current = false;
+
+            if (checkCol >= 0)
+            {
+                var cell = row.Cells[checkCol];
+                current = (bool)(cell.CellValue ?? false);
+            }
+            else
+            {
+                current = row.IsSelected;
+            }
+
+            bool newState;
+            if (_grid.MultiSelect)
+            {
+                newState = !current;
+            }
+            else
+            {
+                newState = !current;
+                for (int k = 0; k < _grid.Data.Rows.Count; k++)
+                {
+                    _grid.Data.Rows[k].IsSelected = false;
+                    SyncSelectionCellWithRow(k, false);
+                }
+            }
+
+            row.IsSelected = newState;
+            SyncSelectionCellWithRow(rowIndex, newState);
+            _grid.OnRowSelectionChanged(rowIndex);
+            _grid.Invalidate();
+        }
+
+        private void SyncSelectionCellWithRow(int rowIndex, bool state)
+        {
+            int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
+            if (checkCol >= 0 && rowIndex >= 0 && rowIndex < _grid.Data.Rows.Count)
+            {
+                var cell = _grid.Data.Rows[rowIndex].Cells[checkCol];
+                cell.CellValue = state; // drives checkbox render
+                cell.IsSelected = state; // optional: align cell state
             }
         }
 

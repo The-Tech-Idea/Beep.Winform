@@ -180,6 +180,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         [Browsable(true)]
         [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("Allow selecting multiple rows via checkbox column. If false, only one row can be selected at a time.")]
+        public bool MultiSelect { get; set; } = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
         [DefaultValue(false)]
         public bool ShowCheckBox 
         { 

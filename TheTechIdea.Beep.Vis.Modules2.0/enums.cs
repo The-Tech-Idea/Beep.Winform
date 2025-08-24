@@ -197,6 +197,16 @@ namespace TheTechIdea.Beep.Vis.Modules
         Outlined,   // Full border outline, with floating label that moves to the border when focused
         Filled      // Filled background with bottom border, label animates upward when focused
     }
+
+    /// <summary>
+    /// Material Design density options for text fields
+    /// </summary>
+    public enum MaterialTextFieldDensity
+    {
+        Standard,    // Default spacing (72px height)
+        Dense,       // Reduced spacing (56px height)
+        Comfortable  // Increased spacing (88px height)
+    }
     public enum ReactUIVariant
     {
         Default,

@@ -70,9 +70,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             base.Configure(settings);
             viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
-           
+            beepButton1.Click += BeepButton1_Click;
             // Wire grid events
             beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;
+        }
+
+        private void BeepButton1_Click(object? sender, EventArgs e)
+        {
+
+            // Simple tooltip test
+            this.baseControl2.ShowToolTip("Testing Simple Tooltip - This should work now!");
         }
 
         private void beepGridPro1_SaveCalled(object? sender, EventArgs e)
@@ -98,8 +105,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 beepComboBox1.ListItems.Add(item1);
             }
           
-
-
         }
     }
 }

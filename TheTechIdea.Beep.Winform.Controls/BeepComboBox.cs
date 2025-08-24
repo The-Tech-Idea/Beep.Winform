@@ -10,6 +10,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

@@ -2,14 +2,15 @@
 using System.IO;
 using System.Reflection;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls;
 
-namespace TheTechIdea.Beep.Winform.Controls.Helpers
+namespace TheTechIdea.Beep.Icons
 {
     /// <summary>
     /// Static class providing easy access to all embedded SVG image paths in the Beep.Winform.Controls assembly.
     /// All paths are formatted as embedded resource names for use with Assembly.GetManifestResourceStream().
     /// </summary>
-    public static class BeepSvgPaths
+    public static class Svgs
     {
         private const string BaseNamespace = "TheTechIdea.Beep.Winform.Controls.GFX.SVG";
 
@@ -253,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static Dictionary<string, string> GetAllPaths()
         {
             var paths = new Dictionary<string, string>();
-            var type = typeof(BeepSvgPaths);
+            var type = typeof(Svgs);
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
 
             foreach (var field in fields)
@@ -308,15 +309,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     }
 
     /// <summary>
-    /// Extension methods for easier use of BeepSvgPaths with BeepImage controls.
+    /// Extension methods for easier use of Svgs with BeepImage controls.
     /// </summary>
     public static class BeepSvgPathExtensions
     {
         /// <summary>
-        /// Sets the image path for a BeepImage control using BeepSvgPaths
+        /// Sets the image path for a BeepImage control using Svgs
         /// </summary>
         /// <param name="beepImage">The BeepImage control</param>
-        /// <param name="svgPath">The SVG path from BeepSvgPaths</param>
+        /// <param name="svgPath">The SVG path from Svgs</param>
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetSvgPath(this BeepImage beepImage, string svgPath)
         {
@@ -334,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetSearchIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.Search);
+            return beepImage.SetSvgPath(Svgs.Search);
         }
 
         /// <summary>
@@ -344,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetCloseIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.Close);
+            return beepImage.SetSvgPath(Svgs.Close);
         }
 
         /// <summary>
@@ -354,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetEditIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.Edit);
+            return beepImage.SetSvgPath(Svgs.Edit);
         }
 
         /// <summary>
@@ -364,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetUserIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.User);
+            return beepImage.SetSvgPath(Svgs.User);
         }
 
         /// <summary>
@@ -374,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetEmailIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.Email);
+            return beepImage.SetSvgPath(Svgs.Email);
         }
 
         /// <summary>
@@ -384,7 +385,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetCalendarIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.Calendar);
+            return beepImage.SetSvgPath(Svgs.Calendar);
         }
 
         /// <summary>
@@ -394,7 +395,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetSettingsIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.Settings);
+            return beepImage.SetSvgPath(Svgs.Settings);
         }
 
         /// <summary>
@@ -404,7 +405,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetVisibilityIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.DoorOpen);
+            return beepImage.SetSvgPath(Svgs.DoorOpen);
         }
 
         /// <summary>
@@ -414,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>The BeepImage for method chaining</returns>
         public static BeepImage SetHideIcon(this BeepImage beepImage)
         {
-            return beepImage.SetSvgPath(BeepSvgPaths.DoorClosed);
+            return beepImage.SetSvgPath(Svgs.DoorClosed);
         }
     }
 }

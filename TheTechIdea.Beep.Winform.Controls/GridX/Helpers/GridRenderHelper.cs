@@ -9,8 +9,9 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
-using TheTechIdea.Beep.Winform.Controls.Helpers; // BeepSvgPaths
+using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
 using System.Collections.Generic;
+using TheTechIdea.Beep.Icons;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -605,10 +606,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_btnFirst != null) return;
 
             // CRUD and actions
-            _btnInsert = new BeepButton { ImagePath = BeepSvgPaths.NavPlus, Theme = _grid.Theme };
-            _btnDelete = new BeepButton { ImagePath = BeepSvgPaths.NavMinus, Theme = _grid.Theme };
-            _btnSave = new BeepButton { ImagePath = BeepSvgPaths.FloppyDisk, Theme = _grid.Theme };
-            _btnCancel = new BeepButton { ImagePath = BeepSvgPaths.NavBackArrow, Theme = _grid.Theme };
+            _btnInsert = new BeepButton { ImagePath = Svgs.NavPlus, Theme = _grid.Theme };
+            _btnDelete = new BeepButton { ImagePath = Svgs.NavMinus, Theme = _grid.Theme };
+            _btnSave = new BeepButton { ImagePath = Svgs.FloppyDisk, Theme = _grid.Theme };
+            _btnCancel = new BeepButton { ImagePath = Svgs.NavBackArrow, Theme = _grid.Theme };
 
             // Record navigation
             _btnFirst = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-left.svg", Theme = _grid.Theme };
@@ -617,9 +618,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _btnLast = new BeepButton { ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-right.svg", Theme = _grid.Theme };
 
             // Utilities
-            _btnQuery = new BeepButton { ImagePath = BeepSvgPaths.NavSearch, Theme = _grid.Theme };
-            _btnFilter = new BeepButton { ImagePath = BeepSvgPaths.NavWaving, Theme = _grid.Theme };
-            _btnPrint = new BeepButton { ImagePath = BeepSvgPaths.NavPrinter, Theme = _grid.Theme };
+            _btnQuery = new BeepButton { ImagePath = Svgs.NavSearch, Theme = _grid.Theme };
+            _btnFilter = new BeepButton { ImagePath = Svgs.NavWaving, Theme = _grid.Theme };
+            _btnPrint = new BeepButton { ImagePath = Svgs.NavPrinter, Theme = _grid.Theme };
 
             foreach (var btn in new[] { _btnInsert, _btnDelete, _btnSave, _btnCancel, _btnFirst, _btnPrev, _btnNext, _btnLast, _btnQuery, _btnFilter, _btnPrint })
                 ConfigureIconButton(btn);

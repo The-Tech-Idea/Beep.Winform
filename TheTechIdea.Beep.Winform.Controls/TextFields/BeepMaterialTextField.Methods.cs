@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
@@ -323,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
         #region Icon Methods
 
         /// <summary>
-        /// Set the leading icon using BeepSvgPaths
+        /// Set the leading icon using Svgs
         /// </summary>
         public void SetLeadingIcon(string svgPath)
         {
@@ -331,7 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
         }
 
         /// <summary>
-        /// Set the trailing icon using BeepSvgPaths
+        /// Set the trailing icon using Svgs
         /// </summary>
         public void SetTrailingIcon(string svgPath)
         {
@@ -365,8 +366,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
             if (!string.IsNullOrEmpty(TrailingIconPath))
             {
                 TrailingIconPath = UseSystemPasswordChar 
-                    ? BeepSvgPaths.DoorOpen 
-                    : BeepSvgPaths.DoorClosed;
+                    ? Svgs.DoorOpen 
+                    : Svgs.DoorClosed;
             }
         }
 
@@ -685,7 +686,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
             }
             else
             {
-                LeadingIconPath = BeepSvgPaths.Search; // Default search icon
+                LeadingIconPath = Svgs.Search; // Default search icon
             }
             
             ShowClearButton = showClearButton;

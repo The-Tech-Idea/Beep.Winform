@@ -170,15 +170,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public void Draw(Graphics g)
         {
             if (g == null) return;
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-
+            //g.SmoothingMode = SmoothingMode.AntiAlias;
+            //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            _owner.UpdateDrawingRect();
             if (UIVariant != ReactUIVariant.Default)
             {
                 ApplyReactUIStyles();
             }
-
+            Console.WriteLine($"DrawingRect: {DrawingRect}, BorderRect: {BorderRectangle}");
             DrawBackground(g);
 
             if (ShowShadow)

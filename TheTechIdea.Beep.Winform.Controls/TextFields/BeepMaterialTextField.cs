@@ -408,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
         [Browsable(true)]
         [Category("Icons")]
         [Description("SVG path for the leading (left) icon.")]
-        [TypeConverter(typeof(BeepSvgPathConverter))]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
         public string LeadingIconPath
         {
             get => _leadingIconPath;
@@ -425,7 +425,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
         [Browsable(true)]
         [Category("Icons")]
         [Description("SVG path for the trailing (right) icon.")]
-        [TypeConverter(typeof(BeepSvgPathConverter))]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
         public string TrailingIconPath
         {
             get => _trailingIconPath;

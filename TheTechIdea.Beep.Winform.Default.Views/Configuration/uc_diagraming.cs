@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AddinName = "Diagramming";
 
             Details.AddinName = "Diagramming";
-            beepSimpleTextBox1.ImagePath = BeepSvgPaths.Add;
+            beepSimpleTextBox1.ImagePath = TheTechIdea.Beep.Icons.Svgs.Add;
             //   this.beepCircularButton1.Click += BeepCircularButton1_Click;
             //  beepStepperBar1.ListItems=beepStepperBreadCrumb1.ListItems;
         }

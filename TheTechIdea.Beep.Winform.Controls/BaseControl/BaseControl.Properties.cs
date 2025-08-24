@@ -10,9 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Tooltips;
-using TheTechIdea.Beep.Winform.Controls.ToolTips;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {
@@ -228,9 +226,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region BeepControl Parity: Parent/Child Theming
-        private bool _isChild = false;
-        private Color _parentBackColor = Color.Empty;
-        private Color _tempBackColor = Color.Empty;
+        protected bool _isChild = false;
+        protected Color _parentBackColor = Color.Empty;
+        protected Color _tempBackColor = Color.Empty;
         private Control _parentControl;
 
         [Browsable(true)]
@@ -257,9 +255,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _parentBackColor = value;
+                // Invalidate();  // Trigger repaint
             }
         }
-
+      
         [Browsable(true)]
         [Category("Appearance")]
         public Color TempBackColor
@@ -280,11 +279,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _isChild = value;
-                if (Parent != null)
+                if (this.Parent != null)
                 {
                     if (value)
                     {
-                        _parentBackColor = Parent.BackColor;
+                        _parentBackColor = this.Parent.BackColor;
                         _tempBackColor = BackColor;
                         BackColor = _parentBackColor;
                     }
@@ -293,9 +292,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         BackColor = _tempBackColor;
                     }
                 }
-                Invalidate();
+
+                Invalidate();  // Trigger repaint
             }
         }
+
         #endregion
 
         #region Hit Testing Properties

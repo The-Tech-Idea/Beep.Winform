@@ -258,25 +258,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         // Parity wrappers
         public virtual void UpdateDrawingRect() => _paint.UpdateRects();
-        private void UpdateBorderRectangle() => _paint.UpdateRects();
-
-        protected virtual void DrawBackground(Graphics g)
-        {
-            // Background handled by helper in this implementation
-        }
 
         protected virtual void DrawContent(Graphics g)
         {
             // Ensure high-quality rendering for all content drawing
             // Main content
+            // draw background, border, shadow, badge, helper text, etc.
+          
             _paint.Draw(g);
 
         }
 
-        protected virtual void DrawBorders(Graphics g, Color effectiveBorderColor)
-        {
-            // Borders handled by helper; override in derived if needed
-        }
+    
         protected  GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             return ControlPaintHelper.GetRoundedRectPath(rect, radius);

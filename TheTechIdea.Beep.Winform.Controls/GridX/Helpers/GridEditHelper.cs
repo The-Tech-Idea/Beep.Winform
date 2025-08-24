@@ -55,16 +55,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     if (_editorControl is BeepComboBox oldCb)
                         oldCb.PopupClosed -= OnComboPopupClosed;
                     
-                    _grid.EditorHost.Controls.Remove(_editorControl);
+                    _grid.Parent.Controls.Remove(_editorControl);
                     _editorControl.Dispose();
                 }
                 catch { }
                 finally { _editorControl = null; }
             }
 
-            // Ensure editor host is completely cleared and reset
-            _grid.EditorHost.Controls.Clear();
-            _grid.EditorHost.Visible = false;
+         
 
             // Create editor
             _editorControl = CreateEditorForColumn(col);
@@ -156,13 +154,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                      Math.Max(18, _grid.RowHeight));
             }
 
-            // Position and show the editor host to cover the active cell
-            _grid.EditorHost.Bounds = rect;
-            _grid.EditorHost.BackColor = Color.Transparent;
-            _grid.EditorHost.BringToFront();
+           
 
             // Add the editor to the host
-            _grid.EditorHost.Controls.Add(_editorControl);
+            _grid.Parent.Controls.Add(_editorControl);
 
             // Set editor bounds explicitly with padding for borders
             var editorRect = new Rectangle(1, 1, rect.Width - 2, rect.Height - 2);
@@ -173,19 +168,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _editorControl.Visible = true;
             _editorControl.Show();
             _editorControl.BringToFront();
-
-            // Show the editor host AFTER everything is configured
-            _grid.EditorHost.Visible = true;
-
-            // Add debugging output
-            System.Diagnostics.Debug.WriteLine($"Editor Type: {_editorControl.GetType().Name}");
-            System.Diagnostics.Debug.WriteLine($"Editor Host Bounds: {_grid.EditorHost.Bounds}");
-            System.Diagnostics.Debug.WriteLine($"Editor Bounds: {_editorControl.Bounds}");
-            System.Diagnostics.Debug.WriteLine($"Editor Visible: {_editorControl.Visible}");
-            System.Diagnostics.Debug.WriteLine($"Editor BackColor: {_editorControl.BackColor}");
-            System.Diagnostics.Debug.WriteLine($"Host Visible: {_grid.EditorHost.Visible}");
-            System.Diagnostics.Debug.WriteLine($"Host Controls Count: {_grid.EditorHost.Controls.Count}");
-
+            
+         
             // Keep in sync with grid visuals
             _grid.Paint -= OnGridPaintReposition;
             _grid.Paint += OnGridPaintReposition;
@@ -272,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     var rect = _editingCell.Rect;
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        _grid.EditorHost.Bounds = rect;
+                        _editorControl.Bounds = rect;
                     }
                 }
                 catch { }
@@ -288,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     var rect = _editingCell.Rect;
                     if (rect.Width > 0 && rect.Height > 0)
                     {
-                        _grid.EditorHost.Bounds = rect;
+                        _editorControl.Bounds = rect;
                     }
                 }
                 catch { }
@@ -324,9 +308,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Resize -= OnGridMovedOrSized;
 
                 // Completely clear and hide the editor host
-                _grid.EditorHost.Controls.Clear();
-                _grid.EditorHost.Visible = false;
-                _grid.EditorHost.BackColor = Color.Transparent; // Reset background
+                _editorControl.Controls.Clear();
+                _editorControl.Visible = false;
+                _editorControl.BackColor = Color.Transparent; // Reset background
 
                 // Dispose editor asynchronously to prevent blocking
                 var editorToDispose = _editorControl;
@@ -336,7 +320,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     } catch { } 
                 }));
 
-                System.Diagnostics.Debug.WriteLine($"EndEdit: Editor disposed, Host visible: {_grid.EditorHost.Visible}, Controls count: {_grid.EditorHost.Controls.Count}");
+             //   System.Diagnostics.Debug.WriteLine($"EndEdit: Editor disposed, Host visible: {_grid.EditorHost.Visible}, Controls count: {_grid.EditorHost.Controls.Count}");
             }
             catch { }
             finally

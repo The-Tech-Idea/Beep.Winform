@@ -105,17 +105,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Handled in OnPaint
         }
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override  void OnPaint(PaintEventArgs e)
         {
+            base.OnPaint(e);
+            Console.WriteLine("OnPaint called");
+            // Use the current BufferedGraphicsContext to allocate a buffer
+          
             // Use built-in DoubleBuffered painting. Avoid disposing global BufferedGraphicsContext.
             var g = e.Graphics;
-            g.Clear(BackColor);
+                if (IsChild)
+                {
+                    BackColor = ParentBackColor;
+                }
 
-            // External drawing - before content
-            _externalDrawing.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
-
+                // Clear the entire buffer with the control's BackColor
+                g.Clear(BackColor);
+                // External drawing - before content
+                _externalDrawing.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+            Console.WriteLine("After external drawing");
             DrawContent(g);
-
+            Console.WriteLine("After DrawContent");
             // Draw hit area components (parity with BeepControl)
             if (_hitTest?.HitList != null)
             {
@@ -138,8 +147,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // External drawing - after all
             _externalDrawing.PerformExternalDrawing(g, DrawingLayer.AfterAll);
 
-      
+         
         }
+
+
         #endregion
 
         #region Mouse and Input Event Routing

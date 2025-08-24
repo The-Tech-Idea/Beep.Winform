@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Forms
 {
     /// <summary>
     /// Simple test form to verify the BeepSimpleTextBox fixes
@@ -22,12 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            SuspendLayout();
             
             // Form setup
-            this.Text = "BeepSimpleTextBox: Image & Line Number Fixes Test";
-            this.Size = new Size(800, 600);
-            this.StartPosition = FormStartPosition.CenterScreen;
+            Text = "BeepSimpleTextBox: Image & Line Number Fixes Test";
+            Size = new Size(800, 600);
+            StartPosition = FormStartPosition.CenterScreen;
             
             // Test 1: Basic textbox WITHOUT line numbers
             textBox1 = new BeepSimpleTextBox();
@@ -91,7 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             infoLabel.BorderStyle = BorderStyle.FixedSingle;
             
             // Add controls to form
-            this.Controls.AddRange(new Control[] 
+            Controls.AddRange(new Control[] 
             {
                 label1, textBox1,
                 label2, textBox2,
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 infoLabel
             });
             
-            this.ResumeLayout(false);
+            ResumeLayout(false);
         }
         
         private void TestButton_Click(object sender, EventArgs e)

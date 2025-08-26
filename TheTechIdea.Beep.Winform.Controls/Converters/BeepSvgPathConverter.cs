@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
+using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
@@ -23,6 +25,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
             try
             {
+                List<ImageConfiguration> images = ImageListHelper.ImgAssemblies;
+                foreach (var image in images) { 
+
+                        paths.Add(image.Path);
+                    
+                }
+            }
+            catch (Exception)
+            {
+
+                //If there's an error, just return the basic list
+            }
+            try
+            {
                 var type = typeof(BeepSvgPaths);
                 var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
 
@@ -31,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                     if (field.FieldType == typeof(string) && field.IsLiteral == false && field.IsInitOnly)
                     {
                         var value = field.GetValue(null) as string;
-                        if (!string.IsNullOrEmpty(value) && value.EndsWith(".svg"))
+                        if (!string.IsNullOrEmpty(value) && value.EndsWith(".svg") && !paths.Contains(value))
                         {
                             paths.Add(value);
                         }

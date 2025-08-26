@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private Size ButtonSize = new Size(200, 20);
         private int _highlightPanelSize = 5;
-        private int _menuItemHeight = 40;
+        private int _menuItemHeight = 24;
         protected int spacing = 10;
         int checkboxSize = 16;
         int checkboxPadding = 2;
@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Text width (matches font choice used in Draw)
                 Font textFont = UseThemeFont
-                    ? FontListHelper.CreateFontFromTypography(_currentTheme.LabelMedium)
+                    ? FontListHelper.CreateFontFromTypography(_currentTheme.ListUnSelectedFont)
                     : _textFont;
 
                 int textPaddingLeft = ScaleValue(2);
@@ -591,7 +591,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (_currentTheme.LabelMedium != null)
                 {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.ListUnSelectedFont);
                   
                 }
                 else
@@ -610,7 +610,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (UseThemeFont)
                 {
-                    _searchTextBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.LabelSmall);
+                    _searchTextBox.Font = FontListHelper.CreateFontFromTypography(_currentTheme.ListUnSelectedFont);
                 }
                 else
                 {
@@ -671,7 +671,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                 //  button.Theme = Theme;
                                 if (UseThemeFont)
                                 {
-                                    button.TextFont = BeepThemesManager.ToFont(_currentTheme.LabelMedium);
+                                    button.TextFont = BeepThemesManager.ToFont(_currentTheme.ListUnSelectedFont);
                                 }
                                 else
                                     button.TextFont = _textFont;

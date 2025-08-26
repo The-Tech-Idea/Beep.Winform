@@ -29,9 +29,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "DPI Scaling Support"
         protected float DpiScaleFactor { get; private set; } = 1.0f;
 
-        protected virtual void UpdateDpiScaling(Graphics g)
+        protected virtual void UpdateDpiScaling()
         {
-            DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(g);
+            // Update DPI scaling when parent form is resized
+            if (IsHandleCreated)
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(g);
+                }
+            }
+
+           
         }
 
         protected int ScaleValue(int value)
@@ -47,6 +56,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected Font ScaleFont(Font font)
         {
             return DpiScalingHelper.ScaleFont(font, DpiScaleFactor);
+        }
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+
+            // Get the new DPI scaling factor
+            UpdateDpiScaling(); 
+
+            // Adjust layout and scaling for all child controls
+            AdjustChildControlLayout(DpiScaleFactor);
+        }
+        private void AdjustChildControlLayout(float scalingFactor)
+        {
+            foreach (Control child in Controls)
+            {
+                // Adjust size and position based on scaling factor
+                child.Width = (int)(child.Width * scalingFactor);
+                child.Height = (int)(child.Height * scalingFactor);
+                child.Left = (int)(child.Left * scalingFactor);
+                child.Top = (int)(child.Top * scalingFactor);
+            }
+
+            Invalidate(); // Redraw the control
         }
         #endregion
         #region "Delegates"
@@ -251,7 +283,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Type of modern gradient to apply")]
-        public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.Subtle;
+        public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.None;
 
         /// <summary>
         /// Gets or sets the gradient stop positions and colors for advanced gradients

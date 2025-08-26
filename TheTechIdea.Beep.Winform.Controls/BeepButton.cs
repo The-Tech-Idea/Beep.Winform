@@ -543,9 +543,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             // Enable modern gradient background for stylish look
             UseGradientBackground = false;
-            ModernGradientType = ModernGradientType.Linear;
+            ModernGradientType = ModernGradientType.None;
           //  ShowShadow = true;
-            IsRounded = true;
+            IsRounded = false;
             
             // CRITICAL: Set border thickness to 0 for modern flat button look
             BorderThickness = 0;

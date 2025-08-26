@@ -95,11 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true), Category("Material Style - Icons")] 
         public string TrailingIconPath { get => _bcTrailingIconPath; set { _bcTrailingIconPath = value ?? string.Empty; Invalidate(); } }
         [Browsable(true), Category("Material Style - Icons")]
-        [TypeConverter(typeof(BeepSvgPathConverter))]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
         public string LeadingImagePath 
         { get => _bcLeadingImagePath; set { _bcLeadingImagePath = value ?? string.Empty; Invalidate(); } }
         [Browsable(true), Category("Material Style - Icons")]
-        [TypeConverter(typeof(BeepSvgPathConverter))]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
         public string TrailingImagePath 
         { get => _bcTrailingImagePath; set { _bcTrailingImagePath = value ?? string.Empty; Invalidate(); } }
         [Browsable(true), Category("Material Style - Icons"), DefaultValue(20)] public int MaterialIconSize { get => _bcIconSize; set { _bcIconSize = Math.Max(12, value); Invalidate(); } }

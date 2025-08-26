@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Icons;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
@@ -502,7 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             string iconPath = "";
             if (_textField.ShowClearButton && _textField.HasContent)
             {
-                iconPath = BeepSvgPaths.Close;
+                iconPath = Svgs.Close;
             }
             else if (!string.IsNullOrEmpty(_textField.TrailingIconPath))
             {

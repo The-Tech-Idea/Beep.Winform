@@ -86,15 +86,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public BaseControl()
         {
             _isInitializing = true;
-            
-            // Configure control styles
             AutoScaleMode = AutoScaleMode.Dpi;
             DoubleBuffered = true;
-            SetStyle(ControlStyles.ContainerControl | ControlStyles.UserPaint | 
-                     ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.Selectable | ControlStyles.UserMouse, true);
-            SetStyle(ControlStyles.ResizeRedraw, false);
-            UpdateStyles();
+            this.SetStyle(ControlStyles.ContainerControl, true);
+
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+
+            // Consider adding for large datasets:
+            SetStyle(ControlStyles.ResizeRedraw, true);  // Don't redraw on resize
+
+            // Ensure _columns is only initialized once
+            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
+            this.UpdateStyles();
 
             // Initialize helpers
             _paint = new ControlPaintHelper(this);

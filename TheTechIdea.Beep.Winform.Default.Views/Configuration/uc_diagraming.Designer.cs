@@ -66,7 +66,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2 = new TheTechIdea.Beep.Winform.Controls.Base.BaseControl();
             beepButton1 = new BeepButton();
             beepDatePicker1 = new BeepDatePicker();
-            beepCalendar1 = new BeepCalendar();
             MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             baseControl1.SuspendLayout();
@@ -74,7 +73,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             // MainTemplatePanel
             // 
-            MainTemplatePanel.Controls.Add(beepCalendar1);
             MainTemplatePanel.Controls.Add(beepDatePicker1);
             MainTemplatePanel.Controls.Add(beepButton1);
             MainTemplatePanel.Controls.Add(baseControl1);
@@ -284,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ApplyThemeToChilds = false;
             beepGridPro1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             beepGridPro1.BackColor = Color.White;
-            beepGridPro1.BadgeBackColor = Color.Red;
+            beepGridPro1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepGridPro1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepGridPro1.BadgeForeColor = Color.White;
             beepGridPro1.BadgeShape = BadgeShape.Circle;
@@ -1205,15 +1203,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ComponentName = "BeepControl";
             beepGridPro1.DataSource = driversConfigViewModelBindingSource;
             beepGridPro1.DataSourceProperty = null;
-            beepGridPro1.DisabledBackColor = Color.White;
-            beepGridPro1.DisabledBorderColor = Color.Empty;
-            beepGridPro1.DisabledForeColor = Color.Black;
-            beepGridPro1.DrawingRect = new Rectangle(0, 0, 457, 422);
+            beepGridPro1.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            beepGridPro1.DisabledBorderColor = Color.LightGray;
+            beepGridPro1.DisabledForeColor = Color.Gray;
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableRippleEffect = false;
             beepGridPro1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepGridPro1.FieldID = null;
-            beepGridPro1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepGridPro1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepGridPro1.FloatingLabel = true;
             beepGridPro1.FocusBackColor = Color.White;
             beepGridPro1.FocusBorderColor = Color.RoyalBlue;
@@ -1231,9 +1228,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.GridMode = false;
             beepGridPro1.GuidID = "ccf11685-638c-47f2-8fb6-ef84ea50c0b5";
             beepGridPro1.HelperText = "";
-            beepGridPro1.HitAreaEventOn = false;
-            beepGridPro1.HitTestControl = null;
-            beepGridPro1.HoverBackColor = Color.White;
+            beepGridPro1.HoverBackColor = Color.Wheat;
             beepGridPro1.HoverBorderColor = Color.Gray;
             beepGridPro1.HoveredBackcolor = Color.Wheat;
             beepGridPro1.HoverForeColor = Color.Black;
@@ -1263,9 +1258,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.IsVisible = false;
             beepGridPro1.Items = (List<object>)resources.GetObject("beepGridPro1.Items");
             beepGridPro1.LabelText = "";
+        
             beepGridPro1.LeftoffsetForDrawingRect = 0;
             beepGridPro1.LinkedProperty = null;
-            beepGridPro1.Location = new Point(15, 172);
+            beepGridPro1.Location = new Point(22, 211);
             beepGridPro1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepGridPro1.ModernGradientType = ModernGradientType.Subtle;
             beepGridPro1.Name = "beepGridPro1";
@@ -1296,7 +1292,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ShowRightBorder = false;
             beepGridPro1.ShowShadow = false;
             beepGridPro1.ShowTopBorder = false;
-            beepGridPro1.Size = new Size(457, 422);
+            beepGridPro1.Size = new Size(1062, 422);
             beepGridPro1.SlideFrom = SlideDirection.Left;
             beepGridPro1.StaticNotMoving = false;
             beepGridPro1.TabIndex = 3;
@@ -1319,6 +1315,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Uow = null;
             beepGridPro1.UseGlassmorphism = false;
             beepGridPro1.UseGradientBackground = true;
+
             beepGridPro1.UseThemeFont = true;
             // 
             // beepSimpleTextBoxEnhanced1
@@ -1798,7 +1795,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepMaterialTextField1.TimeFormat = "HH:mm:ss";
             beepMaterialTextField1.ToolTipText = "";
             beepMaterialTextField1.TopoffsetForDrawingRect = 0;
-            beepMaterialTextField1.TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.about.svg";
+            beepMaterialTextField1.TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.close.svg";
             beepMaterialTextField1.TrailingImagePath = "";
             beepMaterialTextField1.UIAnimation = ReactUIAnimation.None;
             beepMaterialTextField1.UIColor = ReactUIColor.Primary;
@@ -1821,7 +1818,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl1.AnimationType = DisplayAnimationType.None;
             baseControl1.ApplyThemeToChilds = true;
             baseControl1.BackColor = Color.White;
-            baseControl1.BadgeBackColor = Color.Red;
+            baseControl1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             baseControl1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             baseControl1.BadgeForeColor = Color.White;
             baseControl1.BadgeShape = BadgeShape.Circle;
@@ -1841,9 +1838,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl1.ComponentName = "BaseControl";
             baseControl1.Controls.Add(baseControl2);
             baseControl1.DataSourceProperty = null;
-            baseControl1.DisabledBackColor = Color.LightGray;
-            baseControl1.DisabledBorderColor = Color.Gray;
-            baseControl1.DisabledForeColor = Color.DarkGray;
+            baseControl1.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            baseControl1.DisabledBorderColor = Color.LightGray;
+            baseControl1.DisabledForeColor = Color.Gray;
             baseControl1.Easing = EasingType.Linear;
             baseControl1.EnableRippleEffect = false;
             baseControl1.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -1899,7 +1896,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl1.LeadingImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.about.svg";
             baseControl1.LeftoffsetForDrawingRect = 0;
             baseControl1.LinkedProperty = null;
-            baseControl1.Location = new Point(481, 3);
+            baseControl1.Location = new Point(480, 3);
             baseControl1.MaterialBorderRadius = 10;
             baseControl1.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             baseControl1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1932,7 +1929,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl1.ShowRightBorder = false;
             baseControl1.ShowShadow = false;
             baseControl1.ShowTopBorder = false;
-            baseControl1.Size = new Size(281, 106);
+            baseControl1.Size = new Size(285, 91);
             baseControl1.SlideFrom = SlideDirection.Left;
             baseControl1.StaticNotMoving = false;
             baseControl1.StylePreset = MaterialTextFieldStylePreset.ComfortableOutlined;
@@ -1966,7 +1963,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2.AnimationType = DisplayAnimationType.None;
             baseControl2.ApplyThemeToChilds = true;
             baseControl2.BackColor = Color.White;
-            baseControl2.BadgeBackColor = Color.Red;
+            baseControl2.BadgeBackColor = Color.FromArgb(33, 150, 243);
             baseControl2.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             baseControl2.BadgeForeColor = Color.White;
             baseControl2.BadgeShape = BadgeShape.Circle;
@@ -1985,9 +1982,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2.Category = Utilities.DbFieldCategory.String;
             baseControl2.ComponentName = "BaseControl";
             baseControl2.DataSourceProperty = null;
-            baseControl2.DisabledBackColor = Color.LightGray;
-            baseControl2.DisabledBorderColor = Color.Gray;
-            baseControl2.DisabledForeColor = Color.DarkGray;
+            baseControl2.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            baseControl2.DisabledBorderColor = Color.LightGray;
+            baseControl2.DisabledForeColor = Color.Gray;
             baseControl2.Easing = EasingType.Linear;
             baseControl2.EnableRippleEffect = false;
             baseControl2.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -2018,7 +2015,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2.IsAcceptButton = false;
             baseControl2.IsBorderAffectedByTheme = true;
             baseControl2.IsCancelButton = false;
-            baseControl2.IsChild = false;
+            baseControl2.IsChild = true;
             baseControl2.IsCustomeBorder = false;
             baseControl2.IsDefault = false;
             baseControl2.IsDeleted = false;
@@ -2043,7 +2040,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2.LeadingImagePath = "";
             baseControl2.LeftoffsetForDrawingRect = 0;
             baseControl2.LinkedProperty = null;
-            baseControl2.Location = new Point(62, 26);
+            baseControl2.Location = new Point(76, 26);
             baseControl2.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             baseControl2.MaterialFillColor = Color.FromArgb(245, 245, 245);
             baseControl2.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
@@ -2051,7 +2048,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2.ModernGradientType = ModernGradientType.None;
             baseControl2.Name = "baseControl2";
             baseControl2.OverrideFontSize = TypeStyleFontSize.None;
-            baseControl2.ParentBackColor = Color.Empty;
+            baseControl2.ParentBackColor = Color.White;
             baseControl2.ParentControl = null;
             baseControl2.PressedBackColor = Color.Gray;
             baseControl2.PressedBorderColor = Color.DarkGray;
@@ -2075,13 +2072,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             baseControl2.ShowRightBorder = false;
             baseControl2.ShowShadow = false;
             baseControl2.ShowTopBorder = false;
-            baseControl2.Size = new Size(137, 54);
+            baseControl2.Size = new Size(117, 54);
             baseControl2.SlideFrom = SlideDirection.Left;
             baseControl2.StaticNotMoving = false;
             baseControl2.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             baseControl2.TabIndex = 0;
             baseControl2.Tag = baseControl1;
-            baseControl2.TempBackColor = Color.Empty;
+            baseControl2.TempBackColor = Color.White;
             baseControl2.Text = "baseControl2";
             baseControl2.Theme = null;
             baseControl2.ToolTipText = "";
@@ -2297,7 +2294,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDatePicker1.DisabledBackColor = Color.White;
             beepDatePicker1.DisabledBorderColor = Color.Empty;
             beepDatePicker1.DisabledForeColor = Color.Black;
-            beepDatePicker1.DrawingRect = new Rectangle(0, 0, 206, 31);
+            beepDatePicker1.DrawingRect = new Rectangle(0, 0, 255, 31);
             beepDatePicker1.Easing = EasingType.Linear;
             beepDatePicker1.EnableRippleEffect = false;
             beepDatePicker1.ExcludedDates = (List<DateTime>)resources.GetObject("beepDatePicker1.ExcludedDates");
@@ -2386,7 +2383,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepDatePicker1.ShowRightBorder = false;
             beepDatePicker1.ShowShadow = false;
             beepDatePicker1.ShowTopBorder = false;
-            beepDatePicker1.Size = new Size(206, 31);
+            beepDatePicker1.Size = new Size(255, 31);
             beepDatePicker1.SlideFrom = SlideDirection.Left;
             beepDatePicker1.StaticNotMoving = false;
             beepDatePicker1.TabIndex = 11;
@@ -2416,155 +2413,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
     "Sunday"
     };
             // 
-            // beepCalendar1
-            // 
-            beepCalendar1.AnimationDuration = 500;
-            beepCalendar1.AnimationType = DisplayAnimationType.None;
-            beepCalendar1.ApplyThemeToChilds = true;
-            beepCalendar1.BackColor = Color.White;
-            beepCalendar1.BadgeBackColor = Color.Red;
-            beepCalendar1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
-            beepCalendar1.BadgeForeColor = Color.White;
-            beepCalendar1.BadgeShape = BadgeShape.Circle;
-            beepCalendar1.BadgeText = "";
-            beepCalendar1.BlockID = null;
-            beepCalendar1.BorderColor = Color.FromArgb(200, 200, 200);
-            beepCalendar1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepCalendar1.BorderRadius = 8;
-            beepCalendar1.BorderStyle = BorderStyle.FixedSingle;
-            beepCalendar1.BorderThickness = 1;
-            beepCalendar1.BottomoffsetForDrawingRect = 0;
-            beepCalendar1.BoundProperty = null;
-            beepCalendar1.CanBeFocused = true;
-            beepCalendar1.CanBeHovered = true;
-            beepCalendar1.CanBePressed = true;
-            beepCalendar1.Category = Utilities.DbFieldCategory.String;
-            beepCalendar1.ComponentName = "BaseControl";
-            beepCalendar1.CurrentDate = new DateTime(2025, 8, 24, 0, 0, 0, 0);
-            beepCalendar1.DataSourceProperty = null;
-            beepCalendar1.DayFont = new Font("Arial", 10F);
-            beepCalendar1.DisabledBackColor = Color.LightGray;
-            beepCalendar1.DisabledBorderColor = Color.Gray;
-            beepCalendar1.DisabledForeColor = Color.DarkGray;
-            beepCalendar1.Easing = EasingType.Linear;
-            beepCalendar1.EnableRippleEffect = false;
-            beepCalendar1.EventFont = new Font("Arial", 10F, FontStyle.Bold);
-            beepCalendar1.ExternalDrawingLayer = DrawingLayer.AfterAll;
-            beepCalendar1.FieldID = null;
-            beepCalendar1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
-            beepCalendar1.FloatingLabel = true;
-            beepCalendar1.FocusBackColor = Color.LightYellow;
-            beepCalendar1.FocusBorderColor = Color.RoyalBlue;
-            beepCalendar1.FocusForeColor = Color.Black;
-            beepCalendar1.FocusIndicatorColor = Color.RoyalBlue;
-            beepCalendar1.ForeColor = Color.FromArgb(33, 33, 33);
-            beepCalendar1.Form = null;
-            beepCalendar1.GlassmorphismBlur = 10F;
-            beepCalendar1.GlassmorphismOpacity = 0.1F;
-            beepCalendar1.GradientAngle = 0F;
-            beepCalendar1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
-            beepCalendar1.GradientEndColor = Color.FromArgb(230, 230, 230);
-            beepCalendar1.GradientStartColor = Color.FromArgb(255, 255, 255);
-            beepCalendar1.GridMode = false;
-            beepCalendar1.GuidID = "d3a79e8c-9ce1-4f96-b3eb-e4c99a4f35e6";
-            beepCalendar1.HeaderFont = new Font("Arial", 14F, FontStyle.Bold);
-            beepCalendar1.HelperText = "";
-            beepCalendar1.HoverBackColor = Color.LightBlue;
-            beepCalendar1.HoverBorderColor = Color.Blue;
-            beepCalendar1.HoveredBackcolor = Color.LightBlue;
-            beepCalendar1.HoverForeColor = Color.Black;
-            beepCalendar1.Id = -1;
-            beepCalendar1.InactiveBorderColor = Color.Gray;
-            beepCalendar1.IsAcceptButton = false;
-            beepCalendar1.IsBorderAffectedByTheme = true;
-            beepCalendar1.IsCancelButton = false;
-            beepCalendar1.IsChild = false;
-            beepCalendar1.IsCustomeBorder = false;
-            beepCalendar1.IsDefault = false;
-            beepCalendar1.IsDeleted = false;
-            beepCalendar1.IsDirty = false;
-            beepCalendar1.IsEditable = true;
-            beepCalendar1.IsFocused = false;
-            beepCalendar1.IsFrameless = false;
-            beepCalendar1.IsHovered = false;
-            beepCalendar1.IsNew = false;
-            beepCalendar1.IsPressed = false;
-            beepCalendar1.IsReadOnly = false;
-            beepCalendar1.IsRequired = false;
-            beepCalendar1.IsRounded = true;
-            beepCalendar1.IsRoundedAffectedByTheme = true;
-            beepCalendar1.IsSelected = false;
-            beepCalendar1.IsSelectedOptionOn = false;
-            beepCalendar1.IsShadowAffectedByTheme = true;
-            beepCalendar1.IsVisible = true;
-            beepCalendar1.Items = (List<object>)resources.GetObject("beepCalendar1.Items");
-            beepCalendar1.LabelText = "";
-            beepCalendar1.LeadingIconPath = "";
-            beepCalendar1.LeadingImagePath = "";
-            beepCalendar1.LeftoffsetForDrawingRect = 0;
-            beepCalendar1.LinkedProperty = null;
-            beepCalendar1.Location = new Point(501, 225);
-            beepCalendar1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
-            beepCalendar1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepCalendar1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepCalendar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepCalendar1.ModernGradientType = ModernGradientType.None;
-            beepCalendar1.Name = "beepCalendar1";
-            beepCalendar1.OverrideFontSize = TypeStyleFontSize.None;
-            beepCalendar1.ParentBackColor = Color.Empty;
-            beepCalendar1.ParentControl = null;
-            beepCalendar1.PressedBackColor = Color.Gray;
-            beepCalendar1.PressedBorderColor = Color.DarkGray;
-            beepCalendar1.PressedForeColor = Color.White;
-            beepCalendar1.RadialCenter = (PointF)resources.GetObject("beepCalendar1.RadialCenter");
-            beepCalendar1.RightoffsetForDrawingRect = 0;
-            beepCalendar1.SavedGuidID = null;
-            beepCalendar1.SavedID = null;
-            beepCalendar1.ScaleMode = ImageScaleMode.KeepAspectRatio;
-            beepCalendar1.SelectedBackColor = Color.LightGreen;
-            beepCalendar1.SelectedBorderColor = Color.Green;
-            beepCalendar1.SelectedForeColor = Color.Black;
-            beepCalendar1.SelectedValue = null;
-            beepCalendar1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
-            beepCalendar1.ShadowOffset = 3;
-            beepCalendar1.ShadowOpacity = 0.25F;
-            beepCalendar1.ShowAllBorders = false;
-            beepCalendar1.ShowBottomBorder = false;
-            beepCalendar1.ShowFocusIndicator = false;
-            beepCalendar1.ShowLeftBorder = false;
-            beepCalendar1.ShowRightBorder = false;
-            beepCalendar1.ShowShadow = false;
-            beepCalendar1.ShowSidebar = true;
-            beepCalendar1.ShowTopBorder = false;
-            beepCalendar1.Size = new Size(800, 600);
-            beepCalendar1.SlideFrom = SlideDirection.Left;
-            beepCalendar1.StaticNotMoving = false;
-            beepCalendar1.TabIndex = 12;
-            beepCalendar1.Tag = MainTemplatePanel;
-            beepCalendar1.TempBackColor = Color.Empty;
-            beepCalendar1.Text = "beepCalendar1";
-            beepCalendar1.Theme = null;
-            beepCalendar1.TimeFont = new Font("Segoe UI", 10F);
-            beepCalendar1.ToolTipText = null;
-            beepCalendar1.TopoffsetForDrawingRect = 0;
-            beepCalendar1.TrailingIconPath = "";
-            beepCalendar1.TrailingImagePath = "";
-            beepCalendar1.UIAnimation = ReactUIAnimation.None;
-            beepCalendar1.UIColor = ReactUIColor.Primary;
-            beepCalendar1.UICustomElevation = 0;
-            beepCalendar1.UIDensity = ReactUIDensity.Standard;
-            beepCalendar1.UIDisabled = false;
-            beepCalendar1.UIElevation = ReactUIElevation.None;
-            beepCalendar1.UIFullWidth = false;
-            beepCalendar1.UIShape = ReactUIShape.Rounded;
-            beepCalendar1.UISize = ReactUISize.Medium;
-            beepCalendar1.UIVariant = ReactUIVariant.Default;
-            beepCalendar1.UseGlassmorphism = false;
-            beepCalendar1.UseGradientBackground = false;
-            beepCalendar1.UseRichToolTip = true;
-            beepCalendar1.UseThemeFont = true;
-            beepCalendar1.ViewMode = CalendarViewMode.Month;
-            // 
             // uc_diagraming
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -2589,6 +2437,5 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private Controls.Base.BaseControl baseControl2;
         private BeepButton beepButton1;
         private BeepDatePicker beepDatePicker1;
-        private BeepCalendar beepCalendar1;
     }
 }

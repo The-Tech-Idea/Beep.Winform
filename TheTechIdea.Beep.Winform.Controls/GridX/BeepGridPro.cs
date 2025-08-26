@@ -1,10 +1,5 @@
-using System;
-using System.Collections.Generic;
+
 using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -15,12 +10,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [Description("Refactored, helper-driven grid control inspired by BeepSimpleGrid.")]
     [DisplayName("Beep Grid Pro")]
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
-    public partial class BeepGridPro : BeepControl
+    public  class BeepGridPro : BeepControl
     {
 
         // Dedicated host layer for in-place editors (DevExpress-like practice)
-        private readonly Panel _editorHost;
-        internal Control EditorHost => _editorHost;
+       // private readonly Panel _editorHost;
+      //  internal Control EditorHost => _editorHost;
 
         internal Helpers.GridLayoutHelper Layout { get; }
         internal Helpers.GridDataHelper Data { get; }
@@ -232,48 +227,51 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public bool UseDpiAwareRowHeights { get; set; } = true;
      
 
-        public BeepGridPro()
+        public BeepGridPro():base   ()
         {
-            // Enhance control styles for better performance and reduced flickering
-            SetStyle(ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.UserPaint | 
-                     ControlStyles.OptimizedDoubleBuffer | 
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.SupportsTransparentBackColor, true);
-            SetStyle(ControlStyles.Selectable, true);
-            UpdateStyles();
-
+            //// Enhance control styles for better performance and reduced flickering
+            //SetStyle(ControlStyles.AllPaintingInWmPaint | 
+            //         ControlStyles.UserPaint | 
+            //         ControlStyles.OptimizedDoubleBuffer | 
+            //         ControlStyles.ResizeRedraw |
+            //         ControlStyles.SupportsTransparentBackColor, true);
+            //SetStyle(ControlStyles.Selectable, true);
+            //UpdateStyles();
+            Console.WriteLine("BeepGridPro constructor called");
             // Disable base-frame right border and borders so DrawingRect uses full client area
             ShowRightBorder = false;
             ShowAllBorders = false;
             IsFrameless = true;
-
+            Console.WriteLine("BeepGridPro base constructor completed");
             // Create a dedicated host layer for editors (kept only over active cell)
-            _editorHost = new Panel
-            {
-                Name = "EditorHost",
-                Visible = false,
-                BackColor =this.BackColor,
-                TabStop = false,
-                Dock = DockStyle.None
-            };
-            Controls.Add(_editorHost);
-            _editorHost.BringToFront();
-
+          
+            Console.WriteLine("BeepGridPro editor host created");
             Layout = new Helpers.GridLayoutHelper(this);
+            Console.WriteLine("BeepGridPro layout helper created");
             Data = new Helpers.GridDataHelper(this);
+            Console.WriteLine("BeepGridPro data helper created");
             Render = new Helpers.GridRenderHelper(this);
+            Console.WriteLine("BeepGridPro render helper created");
             Selection = new Helpers.GridSelectionHelper(this);
+            Console.WriteLine("BeepGridPro selection helper created");
             Input = new Helpers.GridInputHelper(this);
+            Console.WriteLine("BeepGridPro input helper created");
             Scroll = new Helpers.GridScrollHelper(this);
+            Console.WriteLine("BeepGridPro scroll helper created");
             ScrollBars = new Helpers.GridScrollBarsHelper(this);
+            Console.WriteLine("BeepGridPro scrollbars helper created"); 
             SortFilter = new Helpers.GridSortFilterHelper(this);
+            Console.WriteLine("BeepGridPro sort/filter helper created");
             Edit = new Helpers.GridEditHelper(this);
+            Console.WriteLine("BeepGridPro edit helper created");
             ThemeHelper = new Helpers.GridThemeHelper(this);
+            Console.WriteLine("BeepGridPro theme helper created");
             Navigator = new Helpers.GridNavigatorHelper(this);
+            Console.WriteLine("BeepGridPro navigator helper created");
             Sizing = new Helpers.GridSizingHelper(this);
+            Console.WriteLine("BeepGridPro sizing helper created");
             Dialog = new Helpers.GridDialogHelper(this);
-
+            Console.WriteLine("BeepGridPro dialog helper created");
             // Only subscribe to events and setup complex initialization if not in design mode
             if (!DesignMode)
             {
@@ -382,20 +380,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 Invalidate();
             }
         }
-
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            System.Diagnostics.Debug.WriteLine("BeepGridPro OnPaint called");
+            base.OnPaint(e);
+        }
         
         protected override void DrawContent(Graphics g)
         {
-            // Let base draw background/borders/shadows etc.
+            Console.WriteLine("BeepGridPro DrawContent started");
+            // Let base d
+            // raw background/borders/shadows etc.
             base.DrawContent(g);
-
+            Console.WriteLine("BeepGridPro base DrawContent completed");
             // Then draw the grid content
             try
             {
+                Console.WriteLine("BeepGridPro DrawContent called");
                 UpdateDrawingRect();
                 Layout?.EnsureCalculated();
+                Console.WriteLine("BeepGridPro Layout calculated");
                 Render?.Draw(g);
-
+                Console.WriteLine("BeepGridPro Render completed");
                 // Keep scrollbars in sync after rendering
                 if (!DesignMode)
                 {

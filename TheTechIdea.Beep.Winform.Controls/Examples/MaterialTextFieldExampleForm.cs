@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Icons;
 
 namespace TheTechIdea.Beep.Winform.Controls.Examples
 {
@@ -102,8 +103,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Size = new Size(400, 48),
                 PlaceholderText = "Search...",
                 SearchBoxStyle = true,
-                LeadingIconPath = BeepSvgPaths.Search,
-                TrailingIconPath = BeepSvgPaths.Microphone,
+                LeadingIconPath = Svgs.Search,
+                TrailingIconPath = Svgs.Microphone,
                 ShowClearButton = false, // Use custom trailing icon instead
                 FillColor = Color.FromArgb(240, 240, 240)
             };
@@ -125,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 CurvedBorderRadius = 28, // Half of height for pill shape
                 ShowFill = true,
                 FillColor = Color.FromArgb(250, 250, 250),
-                LeadingIconPath = BeepSvgPaths.Person,
+                LeadingIconPath = Svgs.Person,
                 HelperText = "Custom curved border radius"
             };
             panel.Controls.Add(curvedField);
@@ -138,14 +139,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Location = new Point(20, yPosition),
                 Size = new Size(350, 64),
                 LabelText = "Message",
-                LeadingIconPath = BeepSvgPaths.Email,
-                TrailingIconPath = BeepSvgPaths.Send,
+                LeadingIconPath = Svgs.Email,
+                TrailingIconPath = Svgs.Send,
                 Variant = MaterialTextFieldVariant.Outlined,
                 HelperText = "Click icons to perform actions"
             };
             
             // Configure dual icons
-            dualIconField.ConfigureDualIcons(BeepSvgPaths.Email, BeepSvgPaths.Send, true, true);
+            dualIconField.ConfigureDualIcons(Svgs.Email, Svgs.Send, true, true);
             
             // Handle icon clicks
             dualIconField.LeadingIconClicked += (s, e) => MessageBox.Show("Email icon clicked!");
@@ -175,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Variant = MaterialTextFieldVariant.Outlined,
                 ErrorText = "Please enter a valid email address",
                 Text = "invalid-email",
-                LeadingIconPath = BeepSvgPaths.Email
+                LeadingIconPath = Svgs.Email
             };
             panel.Controls.Add(errorField);
             yPosition += spacing;
@@ -191,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 ReadOnly = true,
                 Text = "USER-12345",
                 HelperText = "This field cannot be edited",
-                LeadingIconPath = BeepSvgPaths.User
+                LeadingIconPath = Svgs.User
             };
             panel.Controls.Add(readOnlyField);
             yPosition += spacing;
@@ -279,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 LabelText = "Programming Language",
                 Variant = MaterialTextFieldVariant.Filled,
                 AutoCompleteMode = AutoCompleteMode.SuggestAppend,
-                LeadingIconPath = BeepSvgPaths.Search,
+                LeadingIconPath = Svgs.Search,
                 HelperText = "Type to see suggestions"
             };
             
@@ -380,7 +381,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Variant = MaterialTextFieldVariant.Outlined,
                 PrefixText = "https://",
                 Text = "example.com",
-                LeadingIconPath = BeepSvgPaths.Share,
+                LeadingIconPath = Svgs.Share,
                 HelperText = "Enter your website URL"
             };
 
@@ -439,7 +440,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 LabelText = "First Name",
                 Variant = MaterialTextFieldVariant.Outlined,
                 IsRequired = true,
-                LeadingIconPath = BeepSvgPaths.User
+                LeadingIconPath = Svgs.User
             };
 
             // Last Name  
@@ -459,7 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Size = new Size(520, 72),
                 LabelText = "Email Address",
                 Variant = MaterialTextFieldVariant.Filled,
-                LeadingIconPath = BeepSvgPaths.Email,
+                LeadingIconPath = Svgs.Email,
                 ShowClearButton = true,
                 IsRequired = true,
                 HelperText = "We'll use this to contact you"

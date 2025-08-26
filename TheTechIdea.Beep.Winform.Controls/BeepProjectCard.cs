@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Icons;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -49,8 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _estimatedHours = 120;
         
         // Visual Elements - using string paths like BeepTaskCard
-        private string _statusIconPath = BeepSvgPaths.CheckCircle;
-        private string _priorityIconPath = BeepSvgPaths.ExclamationTriangle;
+        private string _statusIconPath = Svgs.CheckCircle;
+        private string _priorityIconPath = Svgs.ExclamationTriangle;
         private Color _statusColor = Color.FromArgb(59, 130, 246); // Blue for In Progress
         private Color _priorityColor = Color.FromArgb(245, 158, 11); // Orange for Medium
         

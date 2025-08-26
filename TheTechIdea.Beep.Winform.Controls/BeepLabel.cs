@@ -352,11 +352,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
-            if (AutoSize)
-            {
-                Size newPreferred = GetPreferredSize(new Size(this.Width, 0));
-                this.Size = newPreferred;
-            }
+            //if (AutoSize)
+            //{
+            //    Size newPreferred = GetPreferredSize(new Size(this.Width, 0));
+            //    this.Size = newPreferred;
+            //}
             Invalidate();
         }
 
@@ -544,7 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                                FontStyle.Regular);
                     }
                 }
-               // SafeApplyFont(TextFont ?? _textFont);
+               SafeApplyFont(TextFont ?? _textFont);
                 ApplyThemeToSvg();
                 //Invalidate();
                 //Refresh();

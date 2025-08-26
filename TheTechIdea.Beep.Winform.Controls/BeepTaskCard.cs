@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Icons;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -25,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _subtitleText = "Cryptocurrency";
         private string _metricText = "110 hours / 45%";
         private float _progressValue = 45f; // Progress percentage (0-100)
-        private string _moreIconPath = BeepSvgPaths.Cat;
+        private string _moreIconPath = Svgs.Cat;
         private Image _moreIcon = null;
 
         [Category("Appearance")]

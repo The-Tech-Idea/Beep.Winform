@@ -2,16 +2,16 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
-using TheTechIdea.Beep.Desktop.Common.Util;
-using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {
     /// <summary>
-    /// TypeConverter for BeepSvgPaths to enable dropdown selection in Visual Studio designer
+    /// TypeConverter for all classes icon under namespace TheTechIdea.Beep.Icons to enable dropdown selection in Visual Studio designer
     /// </summary>
-    public class BeepSvgPathConverter : StringConverter
+    public class BeepImagesPathConverter : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context)
         {
@@ -20,48 +20,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
 
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            // Get all SVG paths from BeepSvgPaths class
             var paths = new System.Collections.Generic.List<string> { "(None)" };
-
+            string[] exts = new[] { ".svg", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico", ".webp" };
             try
             {
-                List<ImageConfiguration> images = ImageListHelper.ImgAssemblies;
-                foreach (var image in images) { 
+                // Search all loaded assemblies for icon/image classes
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var iconTypes = assemblies
+                    .SelectMany(a => {
+                        try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }
+                    })
+                    .Where(t => t.IsClass && t.IsPublic && t.IsAbstract && t.IsSealed && t.Namespace == "TheTechIdea.Beep.Icons");
 
-                        paths.Add(image.Path);
-                    
-                }
-            }
-            catch (Exception)
-            {
-
-                //If there's an error, just return the basic list
-            }
-            try
-            {
-                var type = typeof(BeepSvgPaths);
-                var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
-
-                foreach (var field in fields)
+                foreach (var type in iconTypes)
                 {
-                    if (field.FieldType == typeof(string) && field.IsLiteral == false && field.IsInitOnly)
+                    var fields = type.GetFields(BindingFlags.Public | BindingFlags.Static);
+                    foreach (var field in fields)
                     {
-                        var value = field.GetValue(null) as string;
-                        if (!string.IsNullOrEmpty(value) && value.EndsWith(".svg") && !paths.Contains(value))
+                        if (field.FieldType == typeof(string) && !field.IsLiteral && field.IsInitOnly)
                         {
-                            paths.Add(value);
+                            var value = field.GetValue(null) as string;
+                            if (!string.IsNullOrEmpty(value) && exts.Any(ext => value.EndsWith(ext, StringComparison.OrdinalIgnoreCase)))
+                            {
+                                paths.Add(value);
+                            }
                         }
                     }
                 }
-
-                // Sort alphabetically for easier browsing
+                // Remove duplicates and sort
+                paths = paths.Distinct().ToList();
                 paths.Sort();
             }
             catch (Exception)
             {
                 // If there's an error, just return the basic list
             }
-
             return new StandardValuesCollection(paths.ToArray());
         }
 
@@ -78,7 +71,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                     return string.Empty;
                 return stringValue;
             }
-
             return base.ConvertFrom(context, culture, value);
         }
 
@@ -90,7 +82,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Converters
                     return "(None)";
                 return stringValue;
             }
-
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }

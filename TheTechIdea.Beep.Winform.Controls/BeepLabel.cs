@@ -378,19 +378,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+          
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
             UpdateDrawingRect();
             contentRect = DrawingRect;
-            DrawImageAndText(e.Graphics);
+            DrawImageAndText(g);
         }
-
         private void DrawImageAndText(Graphics g)
         {
             
-            g.ResetTransform();
-            if (!SetFont() && UseThemeFont)
-            {
-                _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            }
+          
 
             bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
 
@@ -534,7 +534,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 DisabledForeColor = _currentTheme.LabelDisabledForeColor;
                 if (UseThemeFont)
                 {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelFont);
 
                     // Create a smaller font for subheader if not explicitly set
                     if (_subHeaderFont == null)
@@ -544,7 +544,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                                                FontStyle.Regular);
                     }
                 }
-               SafeApplyFont(TextFont ?? _textFont);
+              // SafeApplyFont(TextFont ?? _textFont);
                 ApplyThemeToSvg();
                 //Invalidate();
                 //Refresh();

@@ -2,8 +2,6 @@
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using System.Diagnostics;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 

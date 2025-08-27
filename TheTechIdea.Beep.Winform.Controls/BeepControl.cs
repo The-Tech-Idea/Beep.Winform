@@ -76,8 +76,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         //-----------------------------------------------
         
         /// </summary>
-        protected bool _isRounded = true;
-        protected bool _useGradientBackground = true;
+        protected bool _isRounded = false;
+        protected bool _useGradientBackground = false;
         protected LinearGradientMode _gradientDirection = LinearGradientMode.Horizontal;
         protected Color _gradientStartColor = Color.Gray;
         protected Color _gradientEndColor = Color.Gray;
@@ -1027,7 +1027,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepControl()
         {
             _isInitializing = true; // ✅ FIX: Set initialization flag
-            AutoScaleMode = AutoScaleMode.Dpi;
+            this.AutoScaleMode = AutoScaleMode.Dpi; // or Font
+            this.AutoScaleDimensions = new SizeF(96f, 96f); // ensure design baseline
+                                                            // Avoid manual scaling of sizes/locations/fonts.
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
            
@@ -1052,7 +1054,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isInitializing = false; // 
 
         }
-    
+      
+
+
 
         #endregion "Constructors"
         #region "Feature Management"

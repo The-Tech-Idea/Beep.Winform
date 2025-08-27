@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
         {
             _componentsAccessor = new FormComponentsAccessor(this);
             _styleHelper = new FormUIStyleHelper(this, _componentsAccessor);
-            _buttonHelper = new FormButtonStyleHelper(this, _componentsAccessor);
+            //_buttonHelper = new FormButtonStyleHelper(this, _componentsAccessor);
             _themeHelper = new FormThemeHelper(this, _componentsAccessor);
             _windowHelper = new FormWindowHelper(this, _componentsAccessor);
         }
@@ -83,11 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
             // Keep title in sync
             TextChanged += (s, e) => { if (_titleLabel != null) _titleLabel.Text = Text; };
             
-            // Update icon when available
-            if (Icon != null && _appIcon != null)
-            {
-                try { _appIcon.Image = Icon.ToBitmap(); } catch { }
-            }
+          
 
             // Setup drag-drop after all components are initialized
             if (!DesignMode)
@@ -101,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
         private void ApplyUIStyle()
         {
             _styleHelper.ApplyUIStyle(_uiStyle, ref _titleBarHeight);
-            _buttonHelper.SetupButtons(_uiStyle, _titleBarHeight);
+            //_buttonHelper.SetupButtons(_uiStyle, _titleBarHeight);
             
             // Apply theme colors after layout if theme is set
             if (_currentTheme != null && !string.IsNullOrEmpty(_theme))
@@ -139,7 +135,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
             _contentBackColor = colorScheme.ContentBackColor;
             _statusBarColor = colorScheme.StatusBarColor;
             _borderColor = colorScheme.BorderColor;
-            
             ApplyColors();
         }
 
@@ -153,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
 
         private void UpdateButtonsForStyle()
         {
-            _buttonHelper.UpdateButtonsForStyle(_uiStyle);
+          //  _buttonHelper.UpdateButtonsForStyle(_uiStyle);
             SetupCaptionButtons();
         }
 
@@ -162,7 +157,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
             try
             {
                 if (_currentTheme == null) return;
-                
                 // Apply base theme properties
                 ForeColor = _currentTheme.PrimaryTextColor;
                 BackColor = _currentTheme.BackgroundColor;
@@ -220,6 +214,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
                 _btnClose.Cursor = Cursors.Hand;
                 _btnClose.TabStop = false;
             }
+            if(_btnFromStyle!=null)
+            {
+                _btnFromStyle.Click -= OnFormStyleClick;
+                _btnFromStyle.Click += OnFormStyleClick;
+                _btnFromStyle.Cursor = Cursors.Hand;
+                _btnFromStyle.TabStop = false;
+            }   
+            if(_btnThemes!=null)
+            {
+                _btnThemes.Click -= OnThemesClick;
+                _btnThemes.Click += OnThemesClick;
+                _btnThemes.Cursor = Cursors.Hand;
+                _btnThemes.TabStop = false;
+            }
+        }
+
+        private void OnThemesClick(object? sender, EventArgs e)
+        {
+           
+        }
+
+        private void OnFormStyleClick(object? sender, EventArgs e)
+        {
+           
         }
 
         private void OnMinimizeClick(object sender, EventArgs e)
@@ -249,12 +267,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
         private void OnFormLoad(object sender, EventArgs e)
         {
             _windowHelper.ApplyWindowEffects(_enableShadow, _enableGlow);
-            _buttonHelper.UpdateMaximizeButton(_uiStyle, WindowState);
+          // _buttonHelper.UpdateMaximizeButton(_uiStyle, WindowState);
         }
 
         private void OnFormResize(object sender, EventArgs e)
         {
-            _buttonHelper.UpdateMaximizeButton(_uiStyle, WindowState);
+         //   _buttonHelper.UpdateMaximizeButton(_uiStyle, WindowState);
         }
 
         private void OnTitleBarMouseDown(object sender, MouseEventArgs e)
@@ -277,19 +295,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
             _windowHelper.DrawFormBorder(e, _uiStyle, _borderColor);
         }
 
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                return _windowHelper.ModifyCreateParams(cp);
-            }
-        }
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        CreateParams cp = base.CreateParams;
+        //        return _windowHelper.ModifyCreateParams(cp);
+        //    }
+        //}
         #endregion
 
         #region Internal Component Access for Helpers
         internal BeepPanel GetTitleBar() => _titleBar;
-        internal PictureBox GetAppIcon() => _appIcon;
+        internal BeepImage GetAppIcon() => _appIcon;
         internal BeepLabel GetTitleLabel() => _titleLabel;
         internal BeepPanel GetTitleRightHost() => _titleRightHost;
         internal BeepButton GetBtnMin() => _btnMin;

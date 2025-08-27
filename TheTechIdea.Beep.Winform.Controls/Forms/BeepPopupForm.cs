@@ -64,19 +64,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-
-
         public BeepPopupForm():base()
         {
             InitializePopupForm();
 
         }
-
-        //public BeepPopupForm(IBeepService beepService) : base(beepService)
-        //{
-        //    InitializePopupForm();
-        //}
-
         private void InitializePopupForm()
         {
             StartPosition = FormStartPosition.Manual;

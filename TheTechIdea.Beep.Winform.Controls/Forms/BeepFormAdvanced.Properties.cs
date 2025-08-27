@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms
                     _uiStyle = value; 
                     ApplyUIStyle();
                     UpdateButtonsForStyle();
-                    _buttonHelper.UpdateMaximizeButton(_uiStyle, WindowState);
+                  //  _buttonHelper.UpdateMaximizeButton(_uiStyle, WindowState);
                     
                     if (DesignMode)
                     {

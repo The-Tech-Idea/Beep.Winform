@@ -327,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int HTBOTTOM = 15;
         private const int HTBOTTOMLEFT = 16;
         private const int HTBOTTOMRIGHT = 17;
-
+        const int WM_DPICHANGED = 0x02E0;
         // Only allow dragging in a safe area (e.g., top strip) and not over child controls
         private bool IsOverChildControl(Point clientPos)
         {
@@ -340,11 +340,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             const int dragBarHeight = 36;
             return clientPos.Y <= dragBarHeight && !IsOverChildControl(clientPos);
         }
+        [DllImport("user32.dll")]
+        private static extern uint GetDpiForWindow(IntPtr hWnd);
 
+      
         protected override void WndProc(ref Message m)
         {
             switch (m.Msg)
             {
+                case WM_DPICHANGED:
+                    {   // lParam -> RECT* with suggested bounds at the new DPI
+                        var suggested = Marshal.PtrToStructure<RECT>(m.LParam);
+                        var suggestedBounds = Rectangle.FromLTRB(suggested.left, suggested.top, suggested.right, suggested.bottom);
+                        this.Bounds = suggestedBounds;
+
+                        // Optional: rescale your UI (only if you’re doing manual scaling)
+                        // You can compute factor from old/new DPI using GetDpiForWindow, or cache last DPI.
+                        uint dpi = GetDpiForWindow(this.Handle);
+                        float newScale = dpi / 96f;
+
+                        // Example: scale the whole control tree relative to previous scale you stored.
+                        // If using AutoScaleMode=None, you might do:
+                        // this.Scale(new SizeF(newScale / _lastScale, newScale / _lastScale));
+                        // _lastScale = newScale;
+
+                        // If AutoScaleMode=Dpi, usually you don’t need to do anything else here.
+                    }
+                    break;
                 case WM_ENTERSIZEMOVE:
                     _inMoveOrResize = true;
                     break;

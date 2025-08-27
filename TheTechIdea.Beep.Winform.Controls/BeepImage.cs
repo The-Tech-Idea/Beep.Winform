@@ -1,12 +1,13 @@
-﻿using System.ComponentModel;
+﻿using Svg;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Text.RegularExpressions;
-using Svg;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -48,6 +49,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #endregion "Fields"
         #region "Properties"
+        [Browsable(true)]
+        [Category("Icons")]
+        [Description("SVG path for the  pic.")]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public string EmbeddedImagePath
+        {
+            get => _imagepath;
+            set
+            {
+                ImagePath = value;
+           
+            }
+        }
         private bool _preserveSvgBackgrounds = false;
         [Browsable(true)]
         [Category("Appearance")]

@@ -5,11 +5,12 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;
@@ -72,7 +73,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("SVG path for the   icon.")]
+        [TypeConverter(typeof(BeepImagesPathConverter))]
+        public string EmbeddedImagePath
+        {
+            get => beepImage?.ImagePath;
+            set
+            {
+                ImagePath = value;
+               
+            }
+        }
         private Color tmpbackcolor;
         private Color tmpforcolor;
 
@@ -223,6 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
         [Category("Appearance")]
         [Description("Indicates where the image is embedded.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public ImageEmbededin ImageEmbededin
         {
             get => _imageEmbededin;

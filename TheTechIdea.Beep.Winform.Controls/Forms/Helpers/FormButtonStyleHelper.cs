@@ -140,13 +140,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         private void SetupModernButtons(int titleBarHeight)
         {
             ResetButtonsToStandard(titleBarHeight);
-            SetupDefaultButtons("?", "?", "?");
+          //  SetupDefaultButtons("?", "?", "?");
         }
 
         private void SetupClassicButtons(int titleBarHeight)
         {
             ResetButtonsToStandard(titleBarHeight);
-            SetupDefaultButtons("_", "?", "?");
+          //  SetupDefaultButtons("_", "?", "?");
         }
 
         private void SetupMinimalButtons(int titleBarHeight)
@@ -330,21 +330,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 _components.BtnMin.Text = minText;
                 _components.BtnMin.HoverBackColor = Color.FromArgb(60, 60, 60);
                 _components.BtnMin.ForeColor = Color.White;
-                _components.BtnMin.BackColor = Color.Transparent;
+                _components.BtnMin.BackColor = Color.Black;
             }
             if (_components.BtnMax != null)
             {
                 _components.BtnMax.Text = maxText;
                 _components.BtnMax.HoverBackColor = Color.FromArgb(60, 60, 60);
                 _components.BtnMax.ForeColor = Color.White;
-                _components.BtnMax.BackColor = Color.Transparent;
+                _components.BtnMax.BackColor = Color.Black;
             }
             if (_components.BtnClose != null)
             {
                 _components.BtnClose.Text = closeText;
                 _components.BtnClose.HoverBackColor = Color.FromArgb(232, 17, 35);
                 _components.BtnClose.ForeColor = Color.White;
-                _components.BtnClose.BackColor = Color.Transparent;
+                _components.BtnClose.BackColor = Color.Black;
             }
         }
         #endregion

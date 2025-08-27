@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 
         // Access through internal properties
         public BeepPanel TitleBar => _form.GetTitleBar();
-        public PictureBox AppIcon => _form.GetAppIcon();
+        public BeepImage AppIcon => _form.GetAppIcon();
         public BeepLabel TitleLabel => _form.GetTitleLabel();
         public BeepPanel TitleRightHost => _form.GetTitleRightHost();
         public BeepButton BtnMin => _form.GetBtnMin();

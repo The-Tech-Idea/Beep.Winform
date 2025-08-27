@@ -158,11 +158,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Properties"
 
         // Constructor
-        public BeepStatCard()
+        public BeepStatCard() : base()
         {
-            DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            IsChild = false;
+              IsChild = false;
             Padding = new Padding(10);
             BoundProperty = "ValueText";
             InitializeComponents();

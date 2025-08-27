@@ -54,25 +54,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => _scrollSpeed = Math.Max(0, value);
         }
 
-        public BeepMarquee()
+        public BeepMarquee():base()
         {
-            // Example:
-            // _marqueeComponents["item1"] = new MyLabelComponent { Text = "Hello" };
-            // _marqueeComponents["item2"] = new MyLabelComponent { Text = "World" };
-
             // Create and configure the timer
             _timer = new Timer();
             _timer.Interval = 30; // Default to ~33 FPS
             _timer.Tick += (sender, e) => OnTimerTick();
-            _timer.Start();
 
-            // Turn on double buffering to reduce flicker.
-            SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            SetStyle(ControlStyles.ResizeRedraw, true);
-            SetStyle(ControlStyles.UserPaint, true);
-            SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            // Only start the timer if not in design mode
+            if (!DesignMode)
+            {
+                _timer.Start();
+            }
+
+       
         }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
 
+            if (!DesignMode)
+            {
+                _timer.Start();
+            }
+        }
         /// <summary>
         /// Adds a new component to the marquee. 
         /// If the key already exists, it is replaced.
@@ -99,7 +104,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Timer handler that updates the scroll position and redraws.
         /// </summary>
         private void OnTimerTick()
-        {
+        { // Skip animation logic if in design mode
+            if (DesignMode) return;
             // Move the offset left or right
             _scrollOffset += ScrollLeft ? -_scrollSpeed : _scrollSpeed;
 

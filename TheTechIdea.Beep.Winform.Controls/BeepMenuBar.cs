@@ -469,7 +469,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _menuButton.ToolTipText = item.DisplayField ?? "";
             _menuButton.IsHovered = isHovered;
             _menuButton.Theme = this.Theme;
-
+            _menuButton.TextFont=TextFont;
             // Draw the menu item using the drawing button
             _menuButton.Draw(g, rect);
         }
@@ -558,14 +558,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "DPI and Resize Handling"
         protected override void OnResize(EventArgs e)
         {
-            // Update DPI scaling when control is resized
-            if (IsHandleCreated)
-            {
-                using (Graphics g = CreateGraphics())
-                {
-                    UpdateDpiScaling(g);
-                }
-            }
+            
 
             base.OnResize(e);
 
@@ -608,14 +601,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void ParentForm_Resize(object sender, EventArgs e)
         {
-            // Update DPI scaling when parent form is resized
-            if (IsHandleCreated)
-            {
-                using (Graphics g = CreateGraphics())
-                {
-                    UpdateDpiScaling(g);
-                }
-            }
             
             // Refresh layout safely
             SafeInvoke(() => {
@@ -692,7 +677,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                    _textFont = FontListHelper.CreateFontFromTypography(_currentTheme.MenuItemUnSelectedFont);
                 }
                // SafeApplyFont(_textFont);
             }

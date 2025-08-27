@@ -773,14 +773,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _button.UseScaledFont = UseScaledFont;
             }
 
-            // CRITICAL DPI FIX: Update all rendering components with new DPI scaling after theme change
-            if (IsHandleCreated)
-            {
-                using (Graphics g = CreateGraphics())
-                {
-                    UpdateDpiScaling(g);
-                }
-            }
+         
 
             // Update DPI-scaled sizes for all rendering components
             if (_toggleRenderer != null)
@@ -1719,14 +1712,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnFontChanged(e);
 
 
-            // CRITICAL DPI FIX: Recalculate all DPI-dependent values when font changes
-            if (IsHandleCreated)
-            {
-                using (Graphics g = CreateGraphics())
-                {
-                    UpdateDpiScaling(g);
-                }
-            }
 
             // Update button font and recalculate preferred size
             if (_button != null)

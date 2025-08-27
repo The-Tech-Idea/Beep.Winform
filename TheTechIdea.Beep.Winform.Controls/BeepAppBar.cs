@@ -500,20 +500,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 Width = 200,
                 Height = 30,
+                Margin = new Padding(0),
+                Padding = new Padding(0),
                 Theme = this.Theme,
                 Text = string.Empty,
                 ApplyThemeOnImage = true,
-                IsChild = true, // Mark as child to handle properly in drawing
+              //  IsChild = true, // Mark as child to handle properly in drawing
                 PlaceholderText = "Search...",
                 Anchor = AnchorStyles.Right,
                 ApplyThemeToChilds = true,
                 IsFrameless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                ImageAlign = ContentAlignment.MiddleRight,
-                TextImageRelation = TextImageRelation.TextBeforeImage,
-                TextAlignment = HorizontalAlignment.Left,
-                ShowAllBorders = true,
+               StylePreset= MaterialTextFieldStylePreset.MaterialOutlined,
                 MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
                 Tag = "Search",
                 Visible = false // Start invisible until needed

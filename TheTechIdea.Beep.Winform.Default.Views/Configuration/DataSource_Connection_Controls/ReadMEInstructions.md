@@ -9,4 +9,6 @@
 8- All Models are in DataManagementModels project.you dont need to create new model if existing model is available
 7- Create new DTO Model (if needed) for the control in TheTechIdea.Beep.MVVM project
 8- Create new View for the control in TheTechIdea.Beep.Winform.Default.Views project  and in Configuration/DataSource_Connection_Controls folder
-9- Create a Plan and Progress Files in Folder, update them accordingly
+9- Create a Plan and Progress Files in Folder, update them accordingly.
+10 - Dont edit or update DataManagementengine project .
+11- Dont edit or update DataManagementModels project .

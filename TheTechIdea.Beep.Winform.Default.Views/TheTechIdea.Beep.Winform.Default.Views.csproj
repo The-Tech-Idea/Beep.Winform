@@ -39,10 +39,7 @@
 		<MakeDir Directories="$(_Dest)" Condition="!Exists('$(_Dest)')" />
 
 		<!-- Copy only if the package exists -->
-		<Copy SourceFiles="$(_PkgPath)"
-			  DestinationFolder="$(_Dest)"
-			  SkipUnchangedFiles="true"
-			  Condition="Exists('$(_PkgPath)')" />
+		<Copy SourceFiles="$(_PkgPath)" DestinationFolder="$(_Dest)" SkipUnchangedFiles="true" Condition="Exists('$(_PkgPath)')" />
 	</Target>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 		<Copy SourceFiles="$(TargetDir)$(Assemblyname).dll" DestinationFolder="$(ProjectDir)..\..\outputDLL\$(Assemblyname)\$(TargetFramework)" SkipUnchangedFiles="false" />

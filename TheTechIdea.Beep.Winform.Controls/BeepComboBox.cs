@@ -11,6 +11,7 @@ using System.Drawing.Text;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -18,11 +19,10 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep ComboBox")]
     [Category("Beep Controls")]
     [Description("A combo box control that displays a list of items.")]
-    public class BeepComboBox : BeepControl
+        public class BeepComboBox : BaseControl
     {
         public event EventHandler PopupOpened;
         public event EventHandler PopupClosed;
-        private BeepTextBox _comboTextBox;
         private BeepButton _dropDownButton;
         private BeepPopupListForm _beepListBox;
 
@@ -44,9 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _selectedItemIndex = -1;
         private int _collapsedHeight = 0;
 
+        // Store the text input value
+        private string _inputText = string.Empty;
+
         // Convert hardcoded values to DPI-aware properties
-        private int _buttonWidth => ScaleValue(25);
-        private int _padding => ScaleValue(2);
+        private int _buttonWidth => ScaleValue(20); // Reduced from 25
+        private int _padding => ScaleValue(1); // Reduced from 2
         private int _minWidth => ScaleValue(80);
         private int _maxListHeight => ScaleValue(200);
  
@@ -81,10 +84,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _textFont = value ?? new Font("Arial", 10);
                 UseThemeFont = false;
                 Font = _textFont;
-                if (_comboTextBox != null)
-                {
-                    _comboTextBox.TextFont = _textFont;
-                }
                 GetControlHeight();
                 Invalidate();
             }
@@ -110,15 +109,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _selectedItem;
             set
             {
-                if (value == null) { _selectedItem = null; _selectedItemIndex = -1; _comboTextBox.Text = string.Empty; Text = string.Empty; Invalidate(); return; }
+                if (value == null) { _selectedItem = null; _selectedItemIndex = -1; _inputText = string.Empty; Text = string.Empty; Invalidate(); return; }
                 _selectedItem = value;
                 _selectedItemIndex = _listItems.IndexOf(_selectedItem);
-                _comboTextBox.Text = value.Text;
+                _inputText = value.Text;
                 Text = value.Text;
                 if(_selectedItem.Item != null)
                 {
                     SelectedValue = _selectedItem.Item;
                 }
+                
+                // Clear any error state when a valid selection is made
+                if (HasError && !string.IsNullOrEmpty(_selectedItem.Text))
+                {
+                    HasError = false;
+                    ErrorText = string.Empty;
+                }
+                
                 OnSelectedItemChanged(_selectedItem);
                 Invalidate();
             }
@@ -127,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         public string SelectedText
         {
-            get => _comboTextBox.Text;
+            get => _inputText;
         }
 
         [Browsable(false)]
@@ -170,34 +177,76 @@ namespace TheTechIdea.Beep.Winform.Controls
       
         public string? PlaceholderText { get; set; } = "Select an item...";
 
+        // Material Design convenience properties
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("The floating label text that appears above the combo box.")]
+        public string ComboBoxLabel
+        {
+            get => LabelText;
+            set => LabelText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Helper text that appears below the combo box.")]
+        public string ComboBoxHelperText
+        {
+            get => HelperText;
+            set => HelperText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Error message to display when validation fails.")]
+        public string ComboBoxErrorText
+        {
+            get => ErrorText;
+            set => ErrorText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Whether the combo box is in an error state.")]
+        public bool ComboBoxHasError
+        {
+            get => HasError;
+            set => HasError = value;
+        }
+
         public BeepComboBox()
         {
-            ShowAllBorders=true;
+            ShowAllBorders = true;
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint |
                      ControlStyles.OptimizedDoubleBuffer, true);
             DoubleBuffered = true;
 
-            if (Width < _minWidth) Width = 150;
+            if (Width < _minWidth) Width = 120; // Reduced from 150
 
-            _comboTextBox = new BeepTextBox
-            {
-                IsChild = true,
-                ShowAllBorders = false,
-                IsFrameless=true,
-                BorderStyle = BorderStyle.None,
-                Multiline = false,
-                AutoSize = false,
-                Visible = false
-            };
-            _comboTextBox.TextFont = _textFont;
-            _comboTextBox.TextChanged += (s, e) => Invalidate();
-            Controls.Add(_comboTextBox);
+            // Initialize drawing components (don't add to Controls)
+            InitializeDrawingComponents();
+            
+            // Enable Material Design styling
+            EnableMaterialStyle = true;
+            MaterialVariant = MaterialTextFieldVariant.Outlined;
+            MaterialBorderRadius = 4; // Reduced from 8
+            LabelText = "Select Option"; // Default floating label
+            HelperText = ""; // No default helper text
+            
             this.GotFocus += BeepComboBox_GotFocus;
             this.LostFocus += BeepComboBox_LostFocus;
             GetControlHeight();
             Height = _collapsedHeight;
 
+            BorderRadius = 3;
+            ApplyTheme();
+
+            Click += (s, e) => StartEditing();
+        }
+
+        private void InitializeDrawingComponents()
+        {
             _dropDownButton = new BeepButton
             {
                 IsChild = true,
@@ -209,19 +258,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 HideText = true,
                 BorderRadius = 0,
-                UIShape= ReactUIShape.Square,
+                UIShape = ReactUIShape.Square,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.ImageBeforeText
             };
             _dropDownButton.Click += (s, e) => ToggleMenu();
-            Controls.Add(_dropDownButton);
             SetDropDownButtonImage();
-
-            BorderRadius = 3;
-            ApplyTheme();
-
-            Click += (s, e) => StartEditing();
         }
 
         private void BeepComboBox_LostFocus(object? sender, EventArgs e)
@@ -238,27 +281,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void Reset()
         {
             SelectedItem = null;
-            _comboTextBox.Text = string.Empty;
+            _inputText = string.Empty;
+            
+            // Clear error state on reset
+            HasError = false;
+            ErrorText = string.Empty;
+            
             Invalidate();
         }
 
         private int GetControlHeight()
         {
             int minHeight;
-            if (_comboTextBox == null)
+            using (Graphics g = CreateGraphics())
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    SizeF textSize = g.MeasureString("A", _textFont);
-                    minHeight = (int)Math.Ceiling(textSize.Height);
-                }
+                SizeF textSize = g.MeasureString("A", _textFont);
+                minHeight = (int)Math.Ceiling(textSize.Height);
             }
-            else
-            {
-                minHeight = _comboTextBox.SingleLineHeight;
-            }
-            // Ensure _collapsedHeight is at least minHeight, adding padding for breathing room
-            _collapsedHeight = Math.Max(minHeight, minHeight + (2 * _padding) + 2); // +2 for extra space
+            // Ensure _collapsedHeight is at least minHeight, adding minimal padding for breathing room
+            _collapsedHeight = Math.Max(minHeight, minHeight + (2 * _padding) + 1); // Reduced extra space from +2 to +1
             return _collapsedHeight;
         }
 
@@ -305,31 +346,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Rectangle clientRect = DrawingRect;
 
-            // Only reposition if size actually changed
-            if (_comboTextBox != null)
-            {
-                var newLocation = new Point(
-                    clientRect.X + _padding,
-                    (clientRect.Height - _comboTextBox.SingleLineHeight) / 2);
-
-                var newSize = new Size(
-                    clientRect.Width - _buttonWidth - (2 * _padding),
-                    _comboTextBox.SingleLineHeight);
-
-                // Only update if different
-                if (_comboTextBox.Location != newLocation || _comboTextBox.Size != newSize)
-                {
-                    _comboTextBox.Location = newLocation;
-                    _comboTextBox.Size = newSize;
-                }
-            }
-
             if (_dropDownButton != null)
             {
                 int buttonHeight = clientRect.Height - (2 * _padding);
                 var newLocation = new Point(
                     clientRect.Right - _buttonWidth - _padding,
-                    _comboTextBox?.Top ?? _padding);
+                    clientRect.Y + _padding);
 
                 var newSize = new Size(_buttonWidth, buttonHeight);
 
@@ -363,6 +385,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedForeColor = _currentTheme.ComboBoxSelectedForeColor;
             SelectedBorderColor = _currentTheme.ComboBoxSelectedBorderColor;
 
+            // Apply Material Design theme colors if enabled
+            if (EnableMaterialStyle)
+            {
+                MaterialOutlineColor = _currentTheme.ComboBoxBorderColor;
+                MaterialPrimaryColor = _currentTheme.ComboBoxSelectedBorderColor;
+                MaterialFillColor = _currentTheme.ComboBoxBackColor;
+                ErrorColor = _currentTheme.ErrorColor;
+            }
+
             // Apply font if theme fonts are enabled
             if (UseThemeFont)
             {
@@ -380,24 +411,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             SafeApplyFont(_textFont);
-            // Apply theme to the text box component
-            if (_comboTextBox != null)
-            {
-                _comboTextBox.Theme = Theme;
-                _comboTextBox.BackColor = _currentTheme.ComboBoxBackColor;
-                _comboTextBox.ForeColor = _currentTheme.ComboBoxForeColor;
-                _comboTextBox.BorderStyle = BorderStyle.None;
-                _comboTextBox.Multiline = false;
-                _comboTextBox.AutoSize = false;
-                _comboTextBox.TextFont = _textFont;
-
-                // Apply additional text box properties if needed
-                if (UseThemeFont && _currentTheme.ComboBoxItemFont != null)
-                {
-                    _comboTextBox.TextFont = FontListHelper.CreateFontFromTypography(_currentTheme.ComboBoxItemFont);
-                }
-            }
-
             // Apply theme to the dropdown button
             if (_dropDownButton != null)
             {
@@ -436,9 +449,123 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
-            Rectangle rectangle = ClientRectangle;
-            rectangle.Inflate(-1, -1);
-            Draw(g, rectangle);
+            
+            // Draw the text box content
+            DrawTextBoxContent(g);
+            
+            // Draw the dropdown button
+            DrawDropDownButton(g);
+        }
+
+        private void DrawTextBoxContent(Graphics g)
+        {
+            Rectangle workingRect = DrawingRect;
+            
+            // In Material Design, we don't show placeholder text when there's a floating label
+            // The floating label handles the placeholder functionality
+            if (!EnableMaterialStyle)
+            {
+                // Fallback for non-material mode
+                string textToDraw = _isEditing ? _inputText : (SelectedItem?.Text ?? string.Empty);
+                if (!string.IsNullOrEmpty(textToDraw))
+                {
+                    Rectangle textRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
+
+                    TextRenderer.DrawText(
+                        g,
+                        textToDraw,
+                        _textFont,
+                        textRect,
+                        ForeColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+                else if (!string.IsNullOrEmpty(PlaceholderText) && !_isEditing)
+                {
+                    Rectangle placeholderRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
+
+                    Color placeholderColor = Color.FromArgb(150, ForeColor);
+
+                    TextRenderer.DrawText(
+                        g,
+                        PlaceholderText,
+                        _textFont,
+                        placeholderRect,
+                        placeholderColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+            }
+            else
+            {
+                // Material Design mode - let BaseControl handle the floating label
+                // We just need to draw the selected text
+                string textToDraw = SelectedItem?.Text ?? string.Empty;
+                if (!string.IsNullOrEmpty(textToDraw))
+                {
+                    Rectangle textRect = new Rectangle(
+                        workingRect.X + _padding,
+                        workingRect.Y,
+                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Height);
+
+                    TextRenderer.DrawText(
+                        g,
+                        textToDraw,
+                        _textFont,
+                        textRect,
+                        ForeColor,
+                        TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+            }
+        }
+
+        private void DrawDropDownButton(Graphics g)
+        {
+            Rectangle workingRect = DrawingRect;
+            
+            // Divider
+            int dividerX = workingRect.Right - _buttonWidth - _padding;
+            using (Pen dividerPen = new Pen(Color.FromArgb(40, ForeColor), 1))
+            {
+                g.DrawLine(
+                    dividerPen,
+                    new Point(dividerX, workingRect.Y + _padding),
+                    new Point(dividerX, workingRect.Bottom - _padding));
+            }
+
+            // Material-style dropdown arrow
+            DrawMaterialDropdownArrow(g, workingRect);
+        }
+
+        private void DrawMaterialDropdownArrow(Graphics g, Rectangle workingRect)
+        {
+            // Calculate arrow bounds - centered in the button area
+            int arrowSize = Math.Min(_buttonWidth - (_padding * 2), workingRect.Height - (_padding * 2));
+            int arrowX = workingRect.Right - _buttonWidth + (_buttonWidth - arrowSize) / 2;
+            int arrowY = workingRect.Y + (workingRect.Height - arrowSize) / 2;
+            
+            Rectangle arrowRect = new Rectangle(arrowX, arrowY, arrowSize, arrowSize);
+            
+            // Create arrow points for a downward chevron
+            Point[] arrowPoints = new Point[]
+            {
+                new Point(arrowRect.Left + arrowSize / 4, arrowRect.Top + arrowSize / 3),
+                new Point(arrowRect.Left + arrowSize / 2, arrowRect.Top + (2 * arrowSize) / 3),
+                new Point(arrowRect.Left + (3 * arrowSize) / 4, arrowRect.Top + arrowSize / 3)
+            };
+            
+            // Draw the arrow with material styling
+            using (SolidBrush arrowBrush = new SolidBrush(ForeColor))
+            {
+                g.FillPolygon(arrowBrush, arrowPoints);
+            }
         }
         private void DrawForGrid(Graphics graphics, Rectangle rectangle)
         {
@@ -460,23 +587,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                     Color.FromArgb(150, foreColor) : foreColor;
 
                 var textRect = new Rectangle(
-                    rectangle.X + 4,
+                    rectangle.X + _padding,
                     rectangle.Y,
-                    rectangle.Width - _buttonWidth - 8,
+                    rectangle.Width - _buttonWidth - (_padding * 2),
                     rectangle.Height);
 
                 TextRenderer.DrawText(graphics, textToDraw, _textFont, textRect, textColor,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
-            // Simple dropdown arrow using ControlPaint for speed
-            var arrowRect = new Rectangle(
-                rectangle.Right - _buttonWidth + 2,
-                rectangle.Y + 2,
-                _buttonWidth - 4,
-                rectangle.Height - 4);
-
-            ControlPaint.DrawComboButton(graphics, arrowRect, ButtonState.Normal);
+            // Material-style dropdown arrow for grid mode
+            DrawMaterialDropdownArrow(graphics, rectangle);
         }
         // Optimized state color determination with caching
         private void GetStateColors(out Color backColor, out Color foreColor, out Color borderColor)
@@ -559,7 +680,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Text or placeholder
-                string textToDraw = _comboTextBox.Visible ? _comboTextBox.Text : (SelectedItem?.Text ?? string.Empty);
+                string textToDraw = _isEditing ? _inputText : (SelectedItem?.Text ?? string.Empty);
                 if (!string.IsNullOrEmpty(textToDraw))
                 {
                     Rectangle textRect = new Rectangle(
@@ -603,17 +724,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     graphics.DrawLine(
                         dividerPen,
-                        new Point(dividerX, workingRect.Y + 4),
-                        new Point(dividerX, workingRect.Bottom - 4));
+                        new Point(dividerX, workingRect.Y + _padding),
+                        new Point(dividerX, workingRect.Bottom - _padding));
                 }
 
-                // Dropdown arrow area
-                var arrowRect = new Rectangle(
-                    workingRect.Right - _buttonWidth + 2,
-                    workingRect.Y + 2,
-                    _buttonWidth - 4,
-                    workingRect.Height - 4);
-                ControlPaint.DrawComboButton(graphics, arrowRect, ButtonState.Normal);
+                // Material-style dropdown arrow
+                DrawMaterialDropdownArrow(graphics, workingRect);
 
                 // Border
                 if (ShowAllBorders || BorderThickness > 0)
@@ -667,17 +783,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (resolved != null)
             {
                 SelectedItem = resolved;
+                // Clear any previous error when a valid selection is made
+                ClearValidationError();
             }
             else if (value is string text)
             {
                 // Fallback to set text only for display
-                _comboTextBox.Text = text;
+                _inputText = text;
                 Text = text;
+                // Set error if trying to set a value that doesn't exist in the list
+                if (IsRequired && string.IsNullOrEmpty(text))
+                {
+                    SetValidationError("This field is required");
+                }
             }
             else
             {
                 // Clear selection
                 SelectedItem = null;
+                // Set error if required field has no selection
+                if (IsRequired && value == null)
+                {
+                    SetValidationError("Please select a valid option");
+                }
             }
             Invalidate();
         }
@@ -686,6 +814,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override object GetValue()
         {
             return SelectedItem;
+        }
+
+        /// <summary>
+        /// Sets a validation error on the combo box
+        /// </summary>
+        /// <param name="errorMessage">The error message to display</param>
+        public void SetValidationError(string errorMessage)
+        {
+            ErrorText = errorMessage;
+            HasError = true;
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Clears any validation error
+        /// </summary>
+        public void ClearValidationError()
+        {
+            ErrorText = string.Empty;
+            HasError = false;
+            Invalidate();
         }
 
         #region Popup List Methods (Unchanged from Original)
@@ -790,14 +939,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
 
             _isEditing = true;
-            _comboTextBox.Visible = true;
-            _comboTextBox.Text = SelectedItem?.Text ?? string.Empty;
-            try
-            {
-                _comboTextBox.Focus();
-                _comboTextBox.SelectAll();
-            }
-            catch { }
+            _inputText = SelectedItem?.Text ?? string.Empty;
             Invalidate();
         }
 
@@ -807,10 +949,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
 
             _isEditing = false;
-            _comboTextBox.Visible = false;
-            if (!string.IsNullOrEmpty(_comboTextBox.Text))
+            if (!string.IsNullOrEmpty(_inputText))
             {
-                var item = ListItems.FirstOrDefault(x => x.Text == _comboTextBox.Text);
+                var item = ListItems.FirstOrDefault(x => x.Text == _inputText);
                 if (item != null)
                 {
                     SelectedItem = item;
@@ -862,7 +1003,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _penCache.Clear();
 
                 ClosePopup();
-                _comboTextBox?.Dispose();
                 _dropDownButton?.Dispose();
                 _beepListBox?.Dispose();
             }

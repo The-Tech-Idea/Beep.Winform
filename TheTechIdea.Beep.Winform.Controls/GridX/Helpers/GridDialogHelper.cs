@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private Form _editorDialog;
         private Form _filterDialog;
         private BeepControl _currentEditor;
-
+        private IBeepUIComponent _currenteditorUIcomponent;
         public GridDialogHelper(BeepGridPro grid)
         {
             _grid = grid;
@@ -55,7 +55,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _pendingReopenEditor = false;
 
             // Create editor control
-            _currentEditor = CreateEditorForColumn(column);
+            _currenteditorUIcomponent = CreateEditorForColumn(column);
+            _currentEditor = _currenteditorUIcomponent as BeepControl;
             if (_currentEditor == null)
                 return;
 
@@ -352,9 +353,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
         }
 
-        private BeepControl CreateEditorForColumn(BeepColumnConfig column)
+        private IBeepUIComponent CreateEditorForColumn(BeepColumnConfig column)
         {
-            BeepControl editor = column.CellEditor switch
+            IBeepUIComponent editor = column.CellEditor switch
             {
                 BeepColumnType.Text => new BeepTextBox { IsChild = false, IsFrameless = false, ShowAllBorders = true },
                 BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = false ,HideText=true},
@@ -374,8 +375,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             editor.SubmitChanges -= Editor_SubmitChanges;
             editor.SubmitChanges += Editor_SubmitChanges;
             editor.Theme = _grid.Theme;
-            editor.Size = new Size(300, 30);
-            editor.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            Control control = editor as Control;
+            control.Size = new Size(300, 30);
+            control.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
 
             return editor;
         }

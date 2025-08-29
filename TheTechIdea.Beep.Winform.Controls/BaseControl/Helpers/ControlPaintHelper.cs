@@ -20,6 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public ControlPaintHelper(BaseControl owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            
             UpdateRects();
         }
 
@@ -129,8 +130,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         [Browsable(true)] public BorderStyle BorderStyle { get; set; } = BorderStyle.FixedSingle;
         #endregion
 
-        public Rectangle DrawingRect { get; private set; }
-        public Rectangle BorderRectangle { get; private set; }
+        public Rectangle DrawingRect { get;  set; }
+        public Rectangle BorderRectangle { get;  set; }
 
         public void UpdateRects()
         {

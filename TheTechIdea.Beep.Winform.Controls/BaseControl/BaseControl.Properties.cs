@@ -226,7 +226,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region BeepControl Parity: Parent/Child Theming
-        protected bool _isChild = false;
+        protected bool _isChild = true;
         protected Color _parentBackColor = Color.Empty;
         protected Color _tempBackColor = Color.Empty;
         private Control _parentControl;
@@ -300,9 +300,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region Hit Testing Properties
-        public List<ControlHitTest> HitList => _hitTest.HitList;
-        public ControlHitTest HitTestControl => _hitTest.HitTestControl;
-        public bool HitAreaEventOn => _hitTest.HitAreaEventOn;
+        public List<ControlHitTest> HitList { get { return  _hitTest.HitList; } set {  _hitTest.HitList= value; } }
+        public ControlHitTest HitTestControl { get { return _hitTest.HitTestControl; } set { _hitTest.HitTestControl = value; } }
+      
+        public bool HitAreaEventOn { get { return _hitTest.HitAreaEventOn; } set { _hitTest.HitAreaEventOn = value; } }
+       
         #endregion
 
         #region External Drawing Properties
@@ -373,7 +375,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         // Badge
         [Browsable(true)]
-        public string BadgeText
+        public virtual string BadgeText
         {
             get => _paint.BadgeText;
             set
@@ -429,7 +431,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public new BorderStyle BorderStyle { get => _paint.BorderStyle; set { _paint.BorderStyle = value; Invalidate(); } }
 
         // Drawing rect and offsets
-        [Browsable(false)] public Rectangle DrawingRect => _paint.DrawingRect;
+        [Browsable(false)] public Rectangle DrawingRect  {get { return _paint.DrawingRect; }
+            set { _paint.DrawingRect = value; _paint.UpdateRects(); Invalidate(); }
+        }
         [Browsable(false)] public int LeftoffsetForDrawingRect { get => _paint.LeftoffsetForDrawingRect; set { _paint.LeftoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }
         [Browsable(false)] public int TopoffsetForDrawingRect { get => _paint.TopoffsetForDrawingRect; set { _paint.TopoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }
         [Browsable(false)] public int RightoffsetForDrawingRect { get => _paint.RightoffsetForDrawingRect; set { _paint.RightoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }

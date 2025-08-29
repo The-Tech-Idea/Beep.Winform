@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private object _originalValue;
         private bool _suppressLostFocus;
         private bool _isEndingEdit;
-
+        private IBeepUIComponent _currenteditorUIcomponent;
         public GridEditHelper(BeepGridPro grid) { _grid = grid; }
 
         public void BeginEdit()
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _editorControl.KeyDown -= OnEditorKeyDown;
                     _editorControl.LostFocus -= OnEditorLostFocus;
-                    if (_editorControl is BeepComboBox oldCb)
+                    if (_currenteditorUIcomponent is BeepComboBox oldCb)
                         oldCb.PopupClosed -= OnComboPopupClosed;
                     
                     _grid.Parent.Controls.Remove(_editorControl);
@@ -62,10 +62,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 finally { _editorControl = null; }
             }
 
-         
+
 
             // Create editor
-            _editorControl = CreateEditorForColumn(col);
+            _currenteditorUIcomponent = CreateEditorForColumn(col);
+            if (!(_currenteditorUIcomponent is BeepControl editor)) return;
+            _editorControl = editor as BeepControl;
             _editingCell = cell;
             _originalValue = cell.CellValue;
             _isEndingEdit = false;
@@ -84,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             // Populate items and configure specific control types
             var itemsToUse = GetFilteredItems(col, cell);
-            if (_editorControl is BeepComboBox combo)
+            if (_currenteditorUIcomponent is BeepComboBox combo)
             {
                 combo.ListItems.Clear();
                 foreach (var item in itemsToUse) combo.ListItems.Add(item);
@@ -194,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         _editorControl.Focus();
                         
                         // Handle ComboBox popup after focus is established
-                        if (_editorControl is BeepComboBox cb)
+                        if (_currenteditorUIcomponent is BeepComboBox cb)
                         {
                             try { cb.IsPopupOpen = true; } catch { }
                         }
@@ -212,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void OnComboPopupClosed(object sender, EventArgs e)
         {
             // Don't end edit immediately when popup closes to prevent disposal race
-            if (!_isEndingEdit && _editorControl is BeepComboBox combo)
+            if (!_isEndingEdit && _currenteditorUIcomponent is BeepComboBox combo)
             {
                 // Check if the grid still has a valid handle before attempting BeginInvoke
                 if (_grid != null && !_grid.IsDisposed && _grid.IsHandleCreated)
@@ -297,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 // Detach all event handlers
                 _editorControl.KeyDown -= OnEditorKeyDown;
                 _editorControl.LostFocus -= OnEditorLostFocus;
-                if (_editorControl is BeepComboBox combo)
+                if (_currenteditorUIcomponent is BeepComboBox combo)
                 {
                     combo.PopupClosed -= OnComboPopupClosed;
                     try { combo.IsPopupOpen = false; } catch { }
@@ -352,10 +354,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return baseItems.ToList();
         }
 
-        private BeepControl CreateEditorForColumn(BeepColumnConfig col)
+        private IBeepUIComponent CreateEditorForColumn(BeepColumnConfig col)
         {
             // Create fresh instances like BeepSimpleGrid.CreateCellControlForEditing
-            BeepControl editor = col.CellEditor switch
+            IBeepUIComponent editor = col.CellEditor switch
             {
                 BeepColumnType.Text => new BeepTextBox { IsChild = true, IsFrameless = true, ShowAllBorders = false, GridMode = true },
                 BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = true, GridMode = true },

@@ -3800,7 +3800,7 @@ namespace TheTechIdea.Beep.Winform.Controls
        
         #endregion
         #region Control Creation and Updating
-        private BeepControl CreateCellControlForDrawing(BeepCellConfig cell)
+        private IBeepUIComponent CreateCellControlForDrawing(BeepCellConfig cell)
         {
             // Get the column definition based on cell.ColumnIndex.
             var column = Columns[cell.ColumnIndex];
@@ -3837,7 +3837,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return new BeepTextBox { Theme = Theme, IsChild = true, GridMode = true };
             }
         }
-        private BeepControl CreateCellControlForEditing(BeepCellConfig cell)
+        private IBeepUIComponent CreateCellControlForEditing(BeepCellConfig cell)
         {
             // Get the column definition based on cell.ColumnIndex.
             var column = Columns[cell.ColumnIndex];

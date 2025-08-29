@@ -17,6 +17,7 @@ using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 // Add enum for sort direction
 
@@ -27,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
     [Category("Data")]
     [Description("High-performance grid control with virtual scrolling, custom cell rendering, and modern UI features Found in Web.")]
     [DisplayName("Beep Grid")]
-    public class BeepGrid : BeepControl
+    public class BeepGrid : BaseControl
     {
         #region Fields
 
@@ -1273,6 +1274,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 Focus();
             }
+        }
+
+        #endregion
+
+        #region Drawing Methods
+
+        /// <summary>
+        /// Override BaseControl's DrawContent to prevent material design drawing from interfering with grid child controls
+        /// </summary>
+        protected override void DrawContent(Graphics g)
+        {
+            // For BeepGrid, we skip BaseControl's material design drawing entirely
+            // because the grid uses child controls for its UI components and custom painting
+            // The child controls will be painted by the base.OnPaint() call in BaseControl.OnPaint()
         }
 
         #endregion

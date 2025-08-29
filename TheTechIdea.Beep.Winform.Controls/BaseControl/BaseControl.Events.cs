@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             SuspendLayout();
             base.OnResize(e);
             _paint.UpdateRects();
-            
+            UpdateMaterialLayout();
             if (IsHandleCreated)
             {
                 BeginInvoke((MethodInvoker)delegate { UpdateControlRegion(); });
@@ -49,6 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             
             // Ensure parent redraws badge area if size changes
             UpdateRegionForBadge();
+          
             ResumeLayout();
         }
 
@@ -102,52 +103,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Handled in OnPaint
+            // Don't call base.OnPaintBackground(e) to prevent double background drawing
+            // Background is handled in OnPaint through DrawContent
         }
 
-        protected override  void OnPaint(PaintEventArgs e)
+        protected override void OnPaint(PaintEventArgs e)
         {
-            base.OnPaint(e);
             Console.WriteLine("OnPaint called");
+
             // Use the current BufferedGraphicsContext to allocate a buffer
-          
-            // Use built-in DoubleBuffered painting. Avoid disposing global BufferedGraphicsContext.
-            var g = e.Graphics;
+            BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+            using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+            {
+                // Use the buffered Graphics object for all drawing
+                Graphics g = buffer.Graphics;
                 if (IsChild)
                 {
                     BackColor = ParentBackColor;
                 }
-
                 // Clear the entire buffer with the control's BackColor
                 g.Clear(BackColor);
-                // External drawing - before content
-                _externalDrawing.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
-            Console.WriteLine("After external drawing");
-            DrawContent(g);
-            Console.WriteLine("After DrawContent");
-            // Draw hit area components (parity with BeepControl)
-            if (_hitTest?.HitList != null)
-            {
-                foreach (var hitTest in _hitTest.HitList)
+
+                // EXTERNAL DRAWING - BEFORE CONTENT LAYER
+                _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+
+                // Draw the main content (this will include child controls through the buffer)
+                DrawContent(g);
+
+                // Draw hit area components (parity with BeepControl)
+                if (_hitTest?.HitList != null)
                 {
-                    if (hitTest.IsVisible && hitTest.uIComponent != null)
+                    foreach (var hitTest in _hitTest.HitList)
                     {
-                        hitTest.uIComponent.Draw(g, hitTest.TargetRect);
+                        if (hitTest.IsVisible && hitTest.uIComponent != null)
+                        {
+                            hitTest.uIComponent.Draw(g, hitTest.TargetRect);
+                        }
                     }
                 }
+
+                // Effects and overlays
+                _effects.DrawOverlays(g);
+
+                // Finally, render the entire off-screen buffer to the screen
+                buffer.Render(e.Graphics);
             }
-
-            // Effects and overlays
-            _effects.DrawOverlays(g);
-
-            // External drawing - after content
-            _externalDrawing.PerformExternalDrawing(g, 
-                DrawingLayer.AfterContent);
-
-            // External drawing - after all
-            _externalDrawing.PerformExternalDrawing(g, DrawingLayer.AfterAll);
-
-         
         }
 
 

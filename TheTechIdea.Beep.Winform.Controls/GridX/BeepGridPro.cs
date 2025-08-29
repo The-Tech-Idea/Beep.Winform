@@ -1,5 +1,6 @@
 
 using System.ComponentModel;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -10,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [Description("Refactored, helper-driven grid control inspired by BeepSimpleGrid.")]
     [DisplayName("Beep Grid Pro")]
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
-    public  class BeepGridPro : BeepControl
+    public  class BeepGridPro : BaseControl
     {
 
         // Dedicated host layer for in-place editors (DevExpress-like practice)
@@ -230,18 +231,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         public BeepGridPro():base   ()
         {
             //// Enhance control styles for better performance and reduced flickering
-            //SetStyle(ControlStyles.AllPaintingInWmPaint | 
-            //         ControlStyles.UserPaint | 
-            //         ControlStyles.OptimizedDoubleBuffer | 
+            //SetStyle(ControlStyles.AllPaintingInWmPaint |
+            //         ControlStyles.UserPaint |
+            //         ControlStyles.OptimizedDoubleBuffer |
             //         ControlStyles.ResizeRedraw |
             //         ControlStyles.SupportsTransparentBackColor, true);
             //SetStyle(ControlStyles.Selectable, true);
             //UpdateStyles();
             Console.WriteLine("BeepGridPro constructor called");
             // Disable base-frame right border and borders so DrawingRect uses full client area
-            ShowRightBorder = false;
-            ShowAllBorders = false;
-            IsFrameless = true;
+            //ShowRightBorder = false;
+            //ShowAllBorders = false;
+            //IsFrameless = true;
             Console.WriteLine("BeepGridPro base constructor completed");
             // Create a dedicated host layer for editors (kept only over active cell)
           
@@ -297,17 +298,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             ShowColumnHeaders = true;
         }
 
-        // Ensure window style flags are set during handle creation
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                var cp = base.CreateParams;
-                // Temporarily remove these flags to fix editor host visibility issues
-                // cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
-                return cp;
-            }
-        }
+        //// Ensure window style flags are set during handle creation
+        //protected override CreateParams CreateParams
+        //{
+        //    get
+        //    {
+        //        var cp = base.CreateParams;
+        //        // Temporarily remove these flags to fix editor host visibility issues
+        //        // cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+        //        return cp;
+        //    }
+        //}
 
         private void HookColumnsCollection(BeepGridColumnConfigCollection cols)
         {
@@ -380,24 +381,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 Invalidate();
             }
         }
+
         protected override void OnPaint(PaintEventArgs e)
         {
             System.Diagnostics.Debug.WriteLine("BeepGridPro OnPaint called");
             base.OnPaint(e);
         }
-        
+
         protected override void DrawContent(Graphics g)
         {
-            Console.WriteLine("BeepGridPro DrawContent started");
-            // Let base d
-            // raw background/borders/shadows etc.
+            // Skip BaseControl's material design drawing entirely for grid controls
+            // Grid handles its own custom drawing through Render helper
             base.DrawContent(g);
-            Console.WriteLine("BeepGridPro base DrawContent completed");
-            // Then draw the grid content
+            UpdateDrawingRect();
+            Console.WriteLine("BeepGridPro DrawContent called");
             try
             {
-                Console.WriteLine("BeepGridPro DrawContent called");
-                UpdateDrawingRect();
                 Layout?.EnsureCalculated();
                 Console.WriteLine("BeepGridPro Layout calculated");
                 Render?.Draw(g);
@@ -411,45 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             catch { /* swallow to avoid design-time crashes */ }
         }
 
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            base.Draw(graphics, rectangle);
-            try
-            {
-              
-                UpdateDrawingRect();
-                Layout.EnsureCalculated();
 
-                // Validate graphics and layout before rendering
-                if (graphics != null && Layout != null && Render != null)
-                {
-                    Render.Draw(graphics);
-                }
-
-                // Only update scrollbars during paint if not in design mode to prevent recursive invalidations
-                if (!DesignMode)
-                {
-                    ScrollBars?.UpdateBars();
-                }
-            }
-            catch (ArgumentException ex) when (ex.Message.Contains("Parameter is not valid"))
-            {
-                // Handle specific drawing parameter errors gracefully
-                // This can happen during resize operations or when graphics state is invalid
-                System.Diagnostics.Debug.WriteLine($"BeepGridPro OnPaint error: {ex.Message}");
-
-                // Try to recover by invalidating later
-                if (!DesignMode)
-                {
-                    BeginInvoke(new Action(() => Invalidate()));
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle any other drawing errors
-                System.Diagnostics.Debug.WriteLine($"BeepGridPro OnPaint unexpected error: {ex.Message}");
-            }
-        }
 
         public override void ApplyTheme()
         {

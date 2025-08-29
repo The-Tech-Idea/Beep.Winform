@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private BeepCheckBoxBool _rowCheck;
 
         // Cache drawers per column (like BeepSimpleGrid)
-        private readonly Dictionary<string, BeepControl> _columnDrawerCache = new();
+        private readonly Dictionary<string, IBeepUIComponent> _columnDrawerCache = new();
 
         // Navigator buttons (owner-drawn)
         private BeepButton _btnFirst;
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         internal IBeepTheme Theme => _grid.Theme != null ? BeepThemesManager.GetTheme(_grid.Theme) : BeepThemesManager.GetDefaultTheme();
 
         // Create or get cached drawer for a given column
-        private BeepControl GetDrawerForColumn(BeepColumnConfig col)
+        private IBeepUIComponent GetDrawerForColumn(BeepColumnConfig col)
         {
             if (col == null) return null;
             string key = col.ColumnName ?? col.ColumnCaption ?? col.GuidID ?? col.GetHashCode().ToString();
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return cached;
             }
 
-            BeepControl drawer = col.CellEditor switch
+            IBeepUIComponent drawer = col.CellEditor switch
             {
                 BeepColumnType.CheckBoxBool => new BeepCheckBoxBool { IsChild = true, GridMode = true, HideText = true },
                 BeepColumnType.CheckBoxChar => new BeepCheckBoxChar { IsChild = true, GridMode = true, HideText = true },
@@ -501,9 +501,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             drawer.Theme = _grid.Theme;
-            drawer.BackColor = backColor;
-            drawer.ForeColor = foreColor;
-            drawer.Bounds = rect;
+            Control control= drawer as Control;
+            control.BackColor = backColor;
+            control.ForeColor = foreColor;
+            control.Bounds = rect;
 
             // Populate list-based controls BEFORE setting value, so they can resolve SelectedItem
             if (drawer is BeepComboBox combo)
@@ -526,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try { ic.SetValue(cell.CellValue); } catch { }
             }
-            else if (drawer is BeepButton btn)
+            else if (drawer is IBeepUIComponent btn)
             {
                 btn.Text = cell.CellValue?.ToString() ?? string.Empty;
             }

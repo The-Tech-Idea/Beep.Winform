@@ -261,15 +261,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-            // Ensure high-quality rendering for all content drawing
-            // Main content
-            // draw background, border, shadow, badge, helper text, etc.
-          
-            _paint.Draw(g);
+            // Set high quality rendering
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
+            if (EnableMaterialStyle)
+            {
+                // Use material design drawing
+                DrawMaterialContent(g);
+            }
+            else
+            {
+                // Use regular ControlPaintHelper drawing
+                _paint.Draw(g);
+            }
         }
 
+        /// <summary>
+        /// Draws material design content using the enhanced material helper
+        /// </summary>
+        private void DrawMaterialContent(Graphics g)
+        {
+            _materialHelper ??= new BaseControlMaterialHelper(this);
+            _materialHelper.UpdateLayout();
+
+            // Apply elevation settings to the material helper
+            _materialHelper.SetElevation(_bcElevationLevel);
+            _materialHelper.SetElevationEnabled(_bcUseElevation);
+
+            _materialHelper.DrawAll(g);
+        }
     
+        /// <summary>
+        /// Updates the material helper layout. Called by derived classes when layout changes.
+        /// </summary>
+        protected void UpdateMaterialLayout()
+        {
+            if (_materialHelper != null)
+            {
+                _materialHelper.UpdateLayout();
+            }
+        }
+
         protected  GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             return ControlPaintHelper.GetRoundedRectPath(rect, radius);

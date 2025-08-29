@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using ContentAlignment = System.Drawing.ContentAlignment;
@@ -24,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [Description("A button control with an image and text.")]
     [DisplayName("Beep Button")]
-    public class BeepButton : BeepControl
+    public class BeepButton : BaseControl
     {
         #region "Properties"
         // Add these new fields to your BeepButton class (in your region "Properties" or near other private fields):
@@ -531,6 +532,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ControlHitTest beepImageHitTest;
         private Color _originalForColor;
 
+        // Material Design Style Preset property
+        [Browsable(true), Category("Material Style"), DefaultValue(MaterialTextFieldStylePreset.Default)]
+        [Description("Applies a predefined style preset that configures variant, radius, fill, and other Material Design properties.")]
+        public MaterialTextFieldStylePreset StylePreset
+        {
+            get => base.StylePreset;
+            set => base.StylePreset = value;
+        }
+
         #endregion "Properties"
         #region "Constructor"
         // Constructor
@@ -554,6 +564,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeHovered = true;
             CanBePressed = true;
             CanBeFocused = true;
+
+            // Enable material style for icon support
+            EnableMaterialStyle = true;
             
             // Enable modern gradient background for stylish look
             UseGradientBackground = false;
@@ -816,69 +829,18 @@ namespace TheTechIdea.Beep.Winform.Controls
            
         }
       
-     
-        protected override void OnPaintBackground(PaintEventArgs pevent)
-        {
-            // Prevent default background painting.
-            // Optionally, if you need a background color use:
-            // pevent.Graphics.Clear(BackColor);
-        }
+    
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-          //  SuspendLayout();
-            base.OnPaint(e);
-
-         //   e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-         //   //    ResumeLayout();
-        }
+      
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
-            
-           
-            g.ResetTransform();
-            // Let the base BeepControl handle modern styling (gradients, shadows, rounded corners)
-            // This draws the beautiful gradient background, shadows, and rounded corners
-           
 
-        
+            UpdateDrawingRect();
+         
             contentRect = DrawingRect;
             DrawImageAndText(g);
-            // Draw button content (image and text) over the styled background
-            //switch (ButtonType)
-            //{
-            //    case ButtonType.Normal:
-            //        // Normal button with image and text
-            //        DrawImageAndText(g);
-            //        break;
-            //    case ButtonType.AnimatedArrow:
-            //        // Image-only button
-            //        DrawButtonAndImage1(g);
-            //        break;
-            //    case ButtonType.ExpandingIcon:
-            //        DrawButtonAndImage2(g);
-            //        // Text-only button
-            //        break;
-            //        case ButtonType.SlidingArrow:
-            //        DrawButtonAndImage3(g);
-            //        break;
-            //        case ButtonType.SlidingBackground:
-            //        DrawButtonAndImage4(g);
-            //        break;
 
-            //}
-            
-
-            // Draw splash effect if active (Material Design ripple) - AFTER base styling
-            if (splashActive)
-            {
-                DrawSplashEffect(g);
-            }
-
-            // Apply very subtle state overlays for better visual feedback (much more subtle)
-            DrawStateOverlays(g);
-            g.ResetClip();
         }
 
         private void DrawSplashEffect(Graphics g)
@@ -1232,11 +1194,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion Splash Animation
         #region "Badge"
         // after you change BadgeText, or on Resize, or on LocationChanged:
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-          
-        }
+       
 
         // if you have a BadgeText property override:
         public override string BadgeText
@@ -1256,6 +1214,8 @@ namespace TheTechIdea.Beep.Winform.Controls
       
 
         private BeepControl _lastBeepParent;
+        private Color _originalBackColor;
+
         protected override void OnParentChanged(EventArgs e)
         {
             base.OnParentChanged(e);

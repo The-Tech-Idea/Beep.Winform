@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public string BranchClass { get; set; } = "ADDIN";
         public string AddinName { get; set; }
         #endregion "IAddinVisSchema"
-        DataConnectionViewModel viewModel;
+        FileConnectionViewModel viewModel;
        
        
       

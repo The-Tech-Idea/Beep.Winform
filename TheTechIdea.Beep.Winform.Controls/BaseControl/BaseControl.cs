@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private bool CanFocus() => _paint?.CanBeFocused ?? true;
 
         // Helpers
-        private readonly ControlPaintHelper _paint;
+        internal readonly ControlPaintHelper _paint;
         private readonly ControlEffectHelper _effects;
         private readonly ControlHitTestHelper _hitTest;
         private readonly ControlInputHelper _input;
@@ -80,6 +80,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private readonly ControlDpiHelper _dpi;
         private readonly ControlDataBindingHelper _dataBinding;
 
+        // Internal access to paint helper for helpers within the same assembly
+        internal ControlPaintHelper PaintHelper => _paint;
+       
         #endregion
 
         #region Constructor
@@ -111,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _input = new ControlInputHelper(this, _effects, _hitTest);
 
             // Let helper call back for custom border drawing
-            _paint.CustomBorderDrawer = g => DrawCustomBorder(g);
+           // _paint.CustomBorderDrawer = g => DrawCustomBorder(g);
 
             // Set defaults
             Padding = new Padding(0);
@@ -151,6 +154,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
            _externalDrawing.ClearAllChildExternalDrawing();
         }
+        #endregion
+
+        #region Event Handlers
+      
         #endregion
 
         #region Utility Methods

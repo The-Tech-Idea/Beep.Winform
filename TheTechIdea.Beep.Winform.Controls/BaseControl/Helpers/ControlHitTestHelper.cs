@@ -20,8 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         #region Properties
         public List<ControlHitTest> HitList { get; set; }
-        public ControlHitTest HitTestControl { get; private set; }
-        public bool HitAreaEventOn { get; private set; }
+        public ControlHitTest HitTestControl { get;  set; }
+        public bool HitAreaEventOn { get;  set; }
         #endregion
 
         #region Events

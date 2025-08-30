@@ -413,30 +413,52 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             // Call base for graphics setup and UpdateDrawingRect (now handled by BaseControl)
             base.DrawContent(g);
 
-            // Now do our custom grid drawing
-            Console.WriteLine("BeepGridPro DrawContent called");
+            // Clip to the DrawingRect to ensure grid draws within the intended area
+            var drawingRect = DrawingRect;
+            if (drawingRect.Width <= 0 || drawingRect.Height <= 0)
+            {
+                Console.WriteLine("BeepGridPro DrawContent - Invalid DrawingRect, skipping draw");
+                return;
+            }
+
+            Console.WriteLine("BeepGridPro DrawContent - DrawingRect: " + drawingRect.ToString());
+
+            // Save the current graphics state
+            var graphicsState = g.Save();
+
             try
             {
+                // Set clipping region to DrawingRect
+                g.SetClip(drawingRect);
+
+                // Now do our custom grid drawing within the clipped area
+                Console.WriteLine("BeepGridPro DrawContent called");
                 Console.WriteLine("BeepGridPro DrawContent - Starting layout calculation");
                 Layout?.EnsureCalculated();
                 Console.WriteLine("BeepGridPro Layout calculated");
                 Render?.Draw(g);
                 Console.WriteLine("BeepGridPro Render completed");
 
-                Console.WriteLine("BeepGridPro DrawContent - DrawingRect: " + DrawingRect.ToString());
                 // Draw custom scrollbars after grid content
                 ScrollBars?.DrawScrollBars(g);
                 Console.WriteLine("BeepGridPro ScrollBars drawn");
-                // Keep scrollbars in sync after rendering
-                if (!DesignMode)
-                {
-                    ScrollBars?.UpdateBars();
-                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"BeepGridPro DrawContent - Grid drawing failed: {ex.Message}");
             }
+            finally
+            {
+                // Always restore the graphics state
+                g.Restore(graphicsState);
+            }
+
+            // Keep scrollbars in sync after rendering (outside clipping)
+            if (!DesignMode)
+            {
+                ScrollBars?.UpdateBars();
+            }
+
             Console.WriteLine("BeepGridPro DrawContent END");
         }
 

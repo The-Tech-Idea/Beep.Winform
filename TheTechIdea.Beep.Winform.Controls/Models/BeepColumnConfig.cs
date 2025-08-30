@@ -603,6 +603,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _sortDirection;
             set { _sortDirection = value; OnPropertyChanged(nameof(SortDirection)); }
         }
+        private bool _allowsortDirection = true;
+        [Category("Sorting")]
+        [Description("The Allow sort  for the column.")]
+        public bool AllowSort
+        {
+            get => _allowsortDirection;
+            set { _allowsortDirection = value; OnPropertyChanged(nameof(AllowSort)); }
+        }
 
         #endregion
 

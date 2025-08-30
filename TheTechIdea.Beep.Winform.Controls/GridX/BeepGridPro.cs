@@ -1,12 +1,76 @@
 
 using System.ComponentModel;
+using System.ComponentModel.Design;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
+    /// <summary>
+    /// Grid style presets inspired by popular JavaScript frameworks and design systems
+    /// </summary>
+    public enum BeepGridStyle
+    {
+        /// <summary>
+        /// Default Beep grid styling
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// Clean, minimal styling with subtle borders
+        /// </summary>
+        Clean,
+
+        /// <summary>
+        /// Bootstrap-inspired table styling with striped rows
+        /// </summary>
+        Bootstrap,
+
+        /// <summary>
+        /// Material Design table styling
+        /// </summary>
+        Material,
+
+        /// <summary>
+        /// Modern flat design with minimal borders
+        /// </summary>
+        Flat,
+
+        /// <summary>
+        /// Dark-optimized styling for data-heavy grids
+        /// </summary>
+        Dark,
+
+        /// <summary>
+        /// Compact styling for dense data display
+        /// </summary>
+        Compact,
+
+        /// <summary>
+        /// Professional corporate styling
+        /// </summary>
+        Corporate,
+
+        /// <summary>
+        /// Minimalist styling with focus on content
+        /// </summary>
+        Minimal,
+
+        /// <summary>
+        /// Card-based styling for modern UIs
+        /// </summary>
+        Card,
+
+        /// <summary>
+        /// Borderless modern styling
+        /// </summary>
+        Borderless
+    }
+
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [Description("Refactored, helper-driven grid control inspired by BeepSimpleGrid.")]
@@ -180,6 +244,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
+        private BeepGridStyle _gridStyle = BeepGridStyle.Default;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style preset for the grid, inspired by popular JavaScript frameworks.")]
+        [DefaultValue(BeepGridStyle.Default)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        public BeepGridStyle GridStyle
+        {
+            get => _gridStyle;
+            set
+            {
+                if (_gridStyle != value)
+                {
+                    _gridStyle = value;
+                    ApplyGridStyle();
+                    // Always refresh, both at design time and runtime
+                    Invalidate();
+                    Refresh();
+
+                    // Notify designer of the change
+                    if (DesignMode && Site != null)
+                    {
+                        IComponentChangeService changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
+                        changeService?.OnComponentChanged(this, null, null, null);
+                    }
+                }
+            }
+        }
+
         [Browsable(true)]
         [Category("Behavior")]
         public bool AllowUserToResizeColumns { get; set; } = true;
@@ -248,14 +342,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         public BeepGridPro():base   ()
         {
-            //// Enhance control styles for better performance and reduced flickering
-            //SetStyle(ControlStyles.AllPaintingInWmPaint |
-            //         ControlStyles.UserPaint |
-            //         ControlStyles.OptimizedDoubleBuffer |
-            //         ControlStyles.ResizeRedraw |
-            //         ControlStyles.SupportsTransparentBackColor, true);
-            //SetStyle(ControlStyles.Selectable, true);
-            //UpdateStyles();
+            // Enhance control styles for better performance and reduced flickering
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.SupportsTransparentBackColor, true);
+            SetStyle(ControlStyles.Selectable, true);
+            UpdateStyles();
             Console.WriteLine("BeepGridPro constructor called");
             // Disable base-frame right border and borders so DrawingRect uses full client area
             //ShowRightBorder = false;
@@ -400,12 +494,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            System.Diagnostics.Debug.WriteLine("BeepGridPro OnPaint called");
-            base.OnPaint(e);
-        }
-
         protected override void DrawContent(Graphics g)
         {
             Console.WriteLine("BeepGridPro DrawContent START");
@@ -468,7 +556,181 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         {
             base.ApplyTheme();
             ThemeHelper.ApplyTheme();
+            ApplyGridStyle(); // Apply grid style after theme
             Invalidate();
+        }
+
+        /// <summary>
+        /// Applies the selected grid style preset to customize the grid's appearance
+        /// </summary>
+        public void ApplyGridStyle()
+        {
+            // Reset to base theme colors first
+            var theme = BeepThemesManager.GetTheme(Theme);
+            if (theme == null) return;
+
+            // Apply style-specific customizations (layout and visual effects only, no color changes)
+            switch (_gridStyle)
+            {
+                case BeepGridStyle.Default:
+                    // Use theme defaults - no special styling
+                    RowHeight = 24;
+                    ColumnHeaderHeight = 26;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = false;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 2;
+                    break;
+
+                case BeepGridStyle.Clean:
+                    // Clean style: subtle borders, minimal styling
+                    RowHeight = 26;
+                    ColumnHeaderHeight = 28;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = false;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 3;
+                    break;
+
+                case BeepGridStyle.Bootstrap:
+                    // Bootstrap-inspired: striped rows, clean borders
+                    RowHeight = 24;
+                    ColumnHeaderHeight = 26;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = true;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 2;
+                    break;
+
+                case BeepGridStyle.Material:
+                    // Material Design: elevation effects, clean lines
+                    RowHeight = 28;
+                    ColumnHeaderHeight = 32;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = false;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+                    Render.UseElevation = true;
+                    Render.UseHeaderGradient = true;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 4;
+                    break;
+
+                case BeepGridStyle.Flat:
+                    // Flat design: minimal borders, flat appearance
+                    RowHeight = 24;
+                    ColumnHeaderHeight = 26;
+                    Render.ShowGridLines = false;
+                    Render.ShowRowStripes = false;
+                    Render.UseElevation = false;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = false;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 2;
+                    break;
+
+                case BeepGridStyle.Dark:
+                    // Dark theme: optimized for data-heavy grids (structure only)
+                    RowHeight = 22;
+                    ColumnHeaderHeight = 24;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = true;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = true;
+                    Render.HeaderCellPadding = 1;
+                    break;
+
+                case BeepGridStyle.Compact:
+                    // Compact: smaller padding, tighter spacing
+                    RowHeight = 20;
+                    ColumnHeaderHeight = 24;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = false;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = false;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 1;
+                    break;
+
+                case BeepGridStyle.Corporate:
+                    // Corporate: professional, conservative styling
+                    RowHeight = 26;
+                    ColumnHeaderHeight = 30;
+                    Render.ShowGridLines = true;
+                    Render.ShowRowStripes = false;
+                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+                    Render.UseElevation = false;
+                    Render.UseHeaderGradient = true;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = true;
+                    Render.HeaderCellPadding = 3;
+                    break;
+
+                case BeepGridStyle.Minimal:
+                    // Minimal: focus on content, very subtle styling
+                    RowHeight = 24;
+                    ColumnHeaderHeight = 26;
+                    Render.ShowGridLines = false;
+                    Render.ShowRowStripes = false;
+                    Render.UseElevation = false;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = false;
+                    Render.UseHeaderHoverEffects = false;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 2;
+                    break;
+
+                case BeepGridStyle.Card:
+                    // Card-based: modern card-like appearance
+                    RowHeight = 28;
+                    ColumnHeaderHeight = 32;
+                    Render.ShowGridLines = false;
+                    Render.ShowRowStripes = false;
+                    Render.UseElevation = true;
+                    Render.CardStyle = true;
+                    Render.UseHeaderGradient = true;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = true;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 4;
+                    break;
+
+                case BeepGridStyle.Borderless:
+                    // Borderless: no visible grid lines
+                    RowHeight = 24;
+                    ColumnHeaderHeight = 26;
+                    Render.ShowGridLines = false;
+                    Render.ShowRowStripes = false;
+                    Render.UseElevation = false;
+                    Render.UseHeaderGradient = false;
+                    Render.ShowSortIndicators = true;
+                    Render.UseHeaderHoverEffects = false;
+                    Render.UseBoldHeaderText = false;
+                    Render.HeaderCellPadding = 2;
+                    break;
+            }
+
+            // Recalculate layout after style changes
+            Layout.Recalculate();
         }
 
         public void AutoGenerateColumns()
@@ -690,6 +952,43 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             {
                 col.ShowFilterIcon = true;
             }
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Toggles the sort direction for the specified column index
+        /// </summary>
+        /// <param name="columnIndex">The index of the column to sort</param>
+        public void ToggleColumnSort(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= Data.Columns.Count)
+                return;
+
+            var column = Data.Columns[columnIndex];
+            if (column == null)
+                return;
+
+            // Toggle sort direction
+            var newDirection = column.SortDirection == SortDirection.Ascending 
+                ? SortDirection.Descending 
+                : SortDirection.Ascending;
+
+            // Clear previous sort indicators
+            foreach (var col in Data.Columns)
+            {
+                col.IsSorted = false;
+                col.ShowSortIcon = false;
+            }
+
+            // Set new sort
+            column.IsSorted = true;
+            column.ShowSortIcon = true;
+            column.SortDirection = newDirection;
+
+            // Apply the sort
+            SortFilter.Sort(column.ColumnName, newDirection);
+
+            // Refresh the grid
             Invalidate();
         }
 

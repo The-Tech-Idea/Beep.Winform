@@ -43,6 +43,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Refresh rows for existing columns (but limit in design mode)
             RefreshRows();
 
+            // Update page info for paging controls
+            UpdatePageInfo();
+
             // Skip auto-sizing in design mode to prevent excessive operations
             if (!System.ComponentModel.LicenseManager.UsageMode.Equals(System.ComponentModel.LicenseUsageMode.Designtime) && 
                 _grid.AutoSizeColumnsMode != DataGridViewAutoSizeColumnsMode.None)
@@ -356,6 +359,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 _grid.AutoResizeColumnsToFitContent();
             }
+
+            // Update page info after refreshing rows
+            UpdatePageInfo();
         }
 
         // Resolve the data source honoring BindingSource and the BeepGridPro.DataMember
@@ -731,6 +737,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid._fullData = new List<object>();
             }
             _grid._dataOffset = 0;
+        }
+
+        private void UpdatePageInfo()
+        {
+            // Update page info in the render helper
+            int totalRecords = Rows.Count;
+            int currentPage = 1; // For now, assume single page until paging is implemented
+            int totalPages = 1;   // For now, assume single page until paging is implemented
+
+            _grid.Render.UpdatePageInfo(currentPage, totalPages, totalRecords);
         }
     }
 }

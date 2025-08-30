@@ -272,21 +272,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-            // Update drawing bounds as necessary (parity with BeepControl)
-            UpdateDrawingRect();
-
+       
             if (EnableMaterialStyle)
             {
                 Console.WriteLine("BaseControl DrawContent - Using material style");
                 // Use material design drawing
                 DrawMaterialContent(g);
+               
             }
             else
             {
+                UpdateDrawingRect();
                 Console.WriteLine("BaseControl DrawContent - Using paint helper");
                 // Use regular ControlPaintHelper drawing
                 _paint.Draw(g);
             }
+              // Update drawing bounds as necessary (parity with BeepControl)
+           
+
             Console.WriteLine("BaseControl DrawContent END");
         }
 
@@ -305,6 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _materialHelper.SetElevationEnabled(_bcUseElevation);
 
             _materialHelper.DrawAll(g);
+           
         }
     
         /// <summary>

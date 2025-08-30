@@ -74,12 +74,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         // Helpers
         internal readonly ControlPaintHelper _paint;
-        private readonly ControlEffectHelper _effects;
-        private readonly ControlHitTestHelper _hitTest;
-        private readonly ControlInputHelper _input;
-        private readonly ControlExternalDrawingHelper _externalDrawing;
-        private readonly ControlDpiHelper _dpi;
-        private readonly ControlDataBindingHelper _dataBinding;
+        internal readonly ControlEffectHelper _effects;
+        internal readonly ControlHitTestHelper _hitTest;
+        internal readonly ControlInputHelper _input;
+        internal readonly ControlExternalDrawingHelper _externalDrawing;
+        internal readonly ControlDpiHelper _dpi;
+        internal readonly ControlDataBindingHelper _dataBinding;
+        internal BaseControlMaterialHelper _materialHelper;
 
         // Internal access to paint helper for helpers within the same assembly
         internal ControlPaintHelper PaintHelper => _paint;
@@ -114,9 +115,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _dataBinding = new ControlDataBindingHelper(this);
             _externalDrawing = new ControlExternalDrawingHelper(this);
             _input = new ControlInputHelper(this, _effects, _hitTest);
-
+            _materialHelper = new BaseControlMaterialHelper(this);
             // Let helper call back for custom border drawing
-           // _paint.CustomBorderDrawer = g => DrawCustomBorder(g);
+            // _paint.CustomBorderDrawer = g => DrawCustomBorder(g);
 
             // Set defaults
             Padding = new Padding(0);

@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     // Material rendering extension for BaseControl (partial)
     public partial class BaseControl
     {
-        private BaseControlMaterialHelper _materialHelper;
+       
 
         #region Material fields
         private bool _bcEnableMaterialStyle = true;

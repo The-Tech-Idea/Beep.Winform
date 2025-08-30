@@ -170,10 +170,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.floppy-disk.svg");
             btnCancel = CreateButton("Rollback", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg");
 
-            // Set theme effects to false for all buttons
-            SetThemeEffects(btnFirst);
-            SetThemeEffects(btnPrevious);
-            SetThemeEffects(btnNext);
+            btnFirst = CreateButton("First", btnFirst_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-left.svg");
+            btnPrevious = CreateButton("Previous", btnPrevious_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-left.svg");
+            btnNext = CreateButton("Next", btnNext_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg");
+            btnLast = CreateButton("Last", btnLast_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-right.svg");
+            btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg");
+            btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg");
+            btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.floppy-disk.svg");
+            btnCancel = CreateButton("Rollback", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg");
             SetThemeEffects(btnLast);
             SetThemeEffects(btnInsert);
             SetThemeEffects(btnDelete);
@@ -215,7 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.AddRange(new Control[]
             {
                 btnFirst, btnPrevious, btnNext, btnLast, txtPosition,
-                btnInsert, btnDelete, btnSave, btnCancel,btnQuery,btnFilter,btnPrint,btnEmail
+                btnInsert, btnDelete, btnSave, btnCancel, btnQuery, btnFilter, btnPrint, btnEmail
             });
 
 
@@ -306,7 +310,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure DrawingRect is updated
             UpdateDrawingRect();
 
-            // Calculate total width for visible buttons
+            // Decide which layout to use depending on parent grid style
+            bool professionalStyle = false;
+            try
+            {
+                var parentGrid = this.Parent as TheTechIdea.Beep.Winform.Controls.Grid.BeepGrid;
+                // If we are hosted inside BeepGrid (classic) check GridStyle
+                if (parentGrid != null)
+                {
+                    var style = (GridX.BeepGridStyle)parentGrid.GridStyle;
+                    professionalStyle = (
+                        style == GridX.BeepGridStyle.Corporate ||
+                        style == GridX.BeepGridStyle.Minimal ||
+                        style == GridX.BeepGridStyle.Clean ||
+                        style == GridX.BeepGridStyle.Flat ||
+                        style == GridX.BeepGridStyle.Material ||
+                        style == GridX.BeepGridStyle.Compact ||
+                        style == GridX.BeepGridStyle.Card ||
+                        style == GridX.BeepGridStyle.Borderless);
+                }
+            }
+            catch { professionalStyle = false; }
+
+            // Calculate total width for visible buttons/label
             int visibleButtons = 0;
             foreach (var control in Controls)
             {
@@ -328,6 +354,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Arrange buttons sequentially
             int currentX = centerX;
+
+            if (professionalStyle)
+            {
+                // Only place the position label centered; hide small pager buttons
+                foreach (var control in Controls)
+                {
+                    if (control is BeepButton button)
+                    {
+                        // Keep action buttons visible, but hide tiny navigation buttons
+                        if (button == btnFirst || button == btnPrevious || button == btnNext || button == btnLast)
+                        {
+                            button.Visible = false;
+                            continue;
+                        }
+                    }
+                }
+
+                // Center the position label
+                txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, ButtonHeight));
+                int labelX = DrawingRect.Left + (DrawingRect.Width - txtPosition.Width) / 2;
+                txtPosition.Location = new Point(labelX, centerY);
+                return;
+            }
 
             foreach (var control in Controls)
             {

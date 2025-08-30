@@ -135,8 +135,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public void UpdateRects()
         {
+            Rectangle? drawingrect = Rectangle.Empty;
             int shadow = ShowShadow ? ShadowOffset : 0;
-            int border = ShowAllBorders ? BorderThickness : 0;
+            int border = 0;
+            if (ShowAllBorders || MaterialBorderVariant == MaterialTextFieldVariant.Outlined)
+            {
+                border = BorderThickness;
+            }
             var padding = _owner.Padding;
 
             // Include custom offsets like base BeepControl
@@ -144,24 +149,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             int topPad = padding.Top + TopoffsetForDrawingRect;
             int rightPad = padding.Right + RightoffsetForDrawingRect;
             int bottomPad = padding.Bottom + BottomoffsetForDrawingRect;
+            Rectangle? materialcontentrect= Rectangle.Empty;
+            // If Material outlined variant uses a floating label, the label overlaps
+            // the top border by roughly half its height. Reserve space so content
+            // (DrawingRect) doesn't draw under the floating label.
+            if (MaterialBorderVariant == MaterialTextFieldVariant.Outlined && FloatingLabel && !string.IsNullOrEmpty(LabelText))
+            {
+                materialcontentrect= _owner._materialHelper?.GetContentRect();
+            }
 
-            int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
-            int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
+            // If helper text is present, reserve room below the border so it doesn't overlap content
+            if (materialcontentrect.HasValue && materialcontentrect.Value != Rectangle.Empty)
+            {
+                DrawingRect = (Rectangle)materialcontentrect;
+            }
+            else
+            {
+                int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
+                int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
 
-            DrawingRect = new Rectangle(
-                shadow + border + leftPad,
-                shadow + border + topPad,
-                w,
-                h);
+                DrawingRect = new Rectangle(
+                    shadow + border + leftPad,
+                    shadow + border + topPad,
+                    w,
+                    h);
 
-            // Update border rectangle
-            int halfPen = (int)Math.Ceiling(BorderThickness / 2f);
-            BorderRectangle = new Rectangle(
-                shadow + halfPen,
-                shadow + halfPen,
-                _owner.Width - (shadow + halfPen) * 2,
-                _owner.Height - (shadow + halfPen) * 2
-            );
+                // Update border rectangle
+                int halfPen = (int)Math.Ceiling(BorderThickness / 2f);
+                BorderRectangle = new Rectangle(
+                    shadow + halfPen,
+                    shadow + halfPen,
+                    _owner.Width - (shadow + halfPen) * 2,
+                    _owner.Height - (shadow + halfPen) * 2
+                );
+            }
+
+            
         }
 
         // Custom border flag will be held on owner (via BaseControl.IsCustomeBorder),
@@ -178,6 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             if (UIVariant != ReactUIVariant.Default)
             {
                 ApplyReactUIStyles();
+                _owner.UpdateDrawingRect();
             }
             Console.WriteLine($"DrawingRect: {DrawingRect}, BorderRect: {BorderRectangle}");
             DrawBackground(g);

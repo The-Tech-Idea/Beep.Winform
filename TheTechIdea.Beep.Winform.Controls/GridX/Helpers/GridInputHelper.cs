@@ -16,7 +16,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private int _resizeMargin = 3;
 
         // Cached nav button rects per paint (computed in render). We recompute on the fly here for simplicity
-        private Rectangle _firstRect, _prevRect, _nextRect, _lastRect, _insertRect, _deleteRect, _saveRect, _cancelRect, _queryRect, _filterRect, _printRect;
         private bool _selectAllChecked = false;
 
         // Track checkbox press to avoid double-toggle between MouseDown/MouseUp
@@ -121,6 +120,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     _grid.ShowFilterDialog();
                     return;
+                }
+            }
+
+            // Sort icon click in header
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            {
+                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
+                if (colIdx >= 0 && _grid.Render.HeaderSortIconRects.TryGetValue(colIdx, out var r) && r.Contains(e.Location))
+                {
+                    _grid.ToggleColumnSort(colIdx);
+                    return;
+                }
+            }
+
+            // General column header click (for sorting)
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            {
+                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
+                if (colIdx >= 0)
+                {
+                    var column = _grid.Data.Columns[colIdx];
+                    if (column != null && column.AllowSort)
+                    {
+                        _grid.ToggleColumnSort(colIdx);
+                        return;
+                    }
                 }
             }
 
@@ -419,37 +444,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             var navRect = _grid.Layout.GetType().GetProperty("NavigatorRect")?.GetValue(_grid.Layout) as Rectangle? ?? Rectangle.Empty;
             if (navRect == Rectangle.Empty || !navRect.Contains(p)) return false;
-            int buttonWidth = 24, buttonHeight = 24, padding = 6, spacing = 4;
-            int y = navRect.Top + (navRect.Height - buttonHeight) / 2;
-            int leftX = navRect.Left + padding;
-            _insertRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            _deleteRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            _saveRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            _cancelRect = new Rectangle(leftX, y, buttonWidth, buttonHeight);
 
-            string recordCounter = (_grid.Data.Rows.Count > 0 && _grid.Selection.RowIndex >= 0) ? $"{_grid.Selection.RowIndex + 1} - {_grid.Data.Rows.Count}" : "0 - 0";
-            using var font = new Font(_grid.Font.FontFamily, 9f);
-            SizeF textSize = TextRenderer.MeasureText(recordCounter, font);
-            float centerX = navRect.Left + (navRect.Width - textSize.Width) / 2f;
-            _firstRect = new Rectangle((int)centerX - (buttonWidth * 2) - padding * 2, y, buttonWidth, buttonHeight);
-            _prevRect = new Rectangle((int)centerX - buttonWidth - padding, y, buttonWidth, buttonHeight);
-            _nextRect = new Rectangle((int)(centerX + textSize.Width + padding), y, buttonWidth, buttonHeight);
-            _lastRect = new Rectangle(_nextRect.Right + padding, y, buttonWidth, buttonHeight);
+            // Use the centralized hit test system
+            if (_grid._hitTest.HitTest(p))
+            {
+                // Execute the hit action if one exists
+                if (_grid._hitTest.HitTestControl?.HitAction != null)
+                {
+                    _grid._hitTest.HitTestControl.HitAction.Invoke();
+                }
+                return true;
+            }
 
-            int rightX = navRect.Right - padding - buttonWidth;
-            _printRect = new Rectangle(rightX, y, buttonWidth, buttonHeight); rightX -= buttonWidth + spacing;
-            _filterRect = new Rectangle(rightX, y, buttonWidth, buttonHeight); rightX -= buttonWidth + spacing;
-            _queryRect = new Rectangle(rightX, y, buttonWidth, buttonHeight);
-
-            if (_insertRect.Contains(p)) { _grid.InsertNew(); return true; }
-            if (_deleteRect.Contains(p)) { _grid.DeleteCurrent(); return true; }
-            if (_saveRect.Contains(p)) { _grid.Save(); return true; }
-            if (_cancelRect.Contains(p)) { _grid.Cancel(); return true; }
-            if (_firstRect.Contains(p)) { _grid.MoveFirst(); return true; }
-            if (_prevRect.Contains(p)) { _grid.MovePrevious(); return true; }
-            if (_nextRect.Contains(p)) { _grid.MoveNext(); return true; }
-            if (_lastRect.Contains(p)) { _grid.MoveLast(); return true; }
-            return _queryRect.Contains(p) || _filterRect.Contains(p) || _printRect.Contains(p);
+            return false;
         }
     }
 }

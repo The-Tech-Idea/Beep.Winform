@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             } 
         }
 
-        public string BoundProperty 
+        public virtual string BoundProperty 
         { 
             get => _boundProperty; 
             set 

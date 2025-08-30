@@ -9,42 +9,68 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     internal class GridScrollBarsHelper
     {
         private readonly BeepGridPro _grid;
-        private readonly BeepScrollBar _verticalScrollBar;
-        private readonly BeepScrollBar _horizontalScrollBar;
+
+        // Custom scrollbar properties
+        private Rectangle _verticalScrollBarRect;
+        private Rectangle _horizontalScrollBarRect;
+        private Rectangle _verticalThumbRect;
+        private Rectangle _horizontalThumbRect;
+
         private bool _showVerticalScrollBar = true;
         private bool _showHorizontalScrollBar = true;
-        private int _yOffset = 0;
-        private int _xOffset = 0;
-        private bool _scrollBarsUpdatePending = false;
+        private int _verticalOffset = 0;
+        private int _horizontalOffset = 0;
+
+        // Cached metrics for performance
         private int _cachedTotalColumnWidth = 0;
         private int _cachedMaxXOffset = 0;
+
+        // Scrollbar interaction states
+        private bool _isVerticalThumbDragging = false;
+        private bool _isHorizontalThumbDragging = false;
+        private Point _lastMousePos;
+
+        // Scrollbar dimensions
+        private const int SCROLLBAR_WIDTH = 15;
+        private const int SCROLLBAR_HEIGHT = 15;
+        private const int MIN_THUMB_SIZE = 20;
+
+        // Colors for custom scrollbars
+        private Color _scrollbarTrackColor = Color.FromArgb(240, 240, 240);
+        private Color _scrollbarThumbColor = Color.FromArgb(200, 200, 200);
+        private Color _scrollbarThumbHoverColor = Color.FromArgb(180, 180, 180);
+        private Color _scrollbarThumbPressedColor = Color.FromArgb(160, 160, 160);
+
+        private bool _verticalThumbHovered = false;
+        private bool _horizontalThumbHovered = false;
+
+        // Public properties for scrollbar visibility
+        public bool IsVerticalScrollBarNeeded
+        {
+            get
+            {
+                if (_grid.Data.Rows == null || _grid.Data.Columns == null)
+                    return false;
+
+                int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
+                int visibleHeight = _grid.Layout.RowsRect.Height;
+                return _showVerticalScrollBar && totalRowHeight > visibleHeight;
+            }
+        }
 
         public GridScrollBarsHelper(BeepGridPro grid)
         {
             _grid = grid;
+            InitializeScrollBars();
+        }
 
-            // Create exactly like BeepSimpleGrid
-            _verticalScrollBar = new BeepScrollBar
-            {
-                ScrollOrientation = Orientation.Vertical,
-                Theme = _grid.Theme,
-                Visible = false,
-                IsChild = true,
-                Width = 15
-            };
-            _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
-            _grid.Controls.Add(_verticalScrollBar);
-
-            _horizontalScrollBar = new BeepScrollBar
-            {
-                ScrollOrientation = Orientation.Horizontal,
-                Theme = _grid.Theme,
-                Visible = false,
-                IsChild = true,
-                Height = 15
-            };
-            _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
-            _grid.Controls.Add(_horizontalScrollBar);
+        private void InitializeScrollBars()
+        {
+            // Initialize scrollbar rectangles
+            _verticalScrollBarRect = Rectangle.Empty;
+            _horizontalScrollBarRect = Rectangle.Empty;
+            _verticalThumbRect = Rectangle.Empty;
+            _horizontalThumbRect = Rectangle.Empty;
         }
 
         public void UpdateBars()
@@ -56,23 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            if (_scrollBarsUpdatePending) return;
-
-            _scrollBarsUpdatePending = true;
-
-            // Use BeginInvoke only if handle exists and not in design mode
-            if (_grid.IsHandleCreated && !_grid.IsDisposed)
-            {
-                _grid.BeginInvoke(new Action(() =>
-                {
-                    _scrollBarsUpdatePending = false;
-                    UpdateScrollBarsCore();
-                }));
-            }
-            else
-            {
-                _scrollBarsUpdatePending = false;
-            }
+            UpdateScrollBarsCore();
         }
 
         private void UpdateScrollBarsCore()
@@ -83,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Calculate content dimensions with variable row heights
             int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
             int visibleHeight = _grid.Layout.RowsRect.Height;
-            
+
             // For variable row heights, we need to calculate offset differently
             int maxVerticalOffset = Math.Max(0, totalRowHeight - visibleHeight);
 
@@ -107,93 +117,94 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int borderWidth = 1;
             int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0;
             int totalColumnWidth = _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width) + totalBorderWidth;
-            int visibleWidth = _grid.Layout.RowsRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0);
+            int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar && maxVerticalOffset > 0 ? SCROLLBAR_WIDTH : 0);
 
             // Determine if scrollbars are needed
             bool needsVertical = _showVerticalScrollBar && totalRowHeight > visibleHeight;
             bool needsHorizontal = _showHorizontalScrollBar && totalColumnWidth > visibleWidth;
 
-            // Update vertical scrollbar with pixel-based scrolling for variable row heights
-            if (needsVertical)
-            {
-                _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = totalRowHeight; // set to content height
-                _verticalScrollBar.LargeChange = visibleHeight;
-                _verticalScrollBar.SmallChange = _grid.RowHeight; // Use default row height for scroll step
+            // Update scrollbar rectangles and thumb positions
+            PositionScrollBars(needsVertical, needsHorizontal, maxVerticalOffset, totalRowHeight, visibleHeight, totalColumnWidth, visibleWidth);
 
-                // Clamp Value to effective upper bound (Maximum - LargeChange)
-                int upper = Math.Max(_verticalScrollBar.Minimum, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
-                int desired = Math.Max(0, Math.Min(_grid.Scroll.VerticalOffset, upper));
-                if (_verticalScrollBar.Value != desired)
-                    _verticalScrollBar.Value = desired;
-
-                _verticalScrollBar.Visible = true;
-            }
-            else
-            {
-                if (_verticalScrollBar.Visible)
-                {
-                    _verticalScrollBar.Visible = false;
-                    _grid.Scroll.SetVerticalIndex(0);
-                    _grid.Scroll.SetVerticalOffset(0);
-                }
-            }
-
-            // Update horizontal scrollbar exactly like BeepSimpleGrid
-            if (needsHorizontal)
-            {
-                int maxXOffset = Math.Max(0, totalColumnWidth - visibleWidth);
-                _horizontalScrollBar.Minimum = 0;
-                _horizontalScrollBar.Maximum = totalColumnWidth;
-                _horizontalScrollBar.LargeChange = visibleWidth;
-                _horizontalScrollBar.SmallChange = _grid.Data.Columns.Where(c => !c.Sticked && c.Visible).DefaultIfEmpty().Min(c => c != null ? c.Width : 20) / 2;
-                int desiredX = Math.Max(0, Math.Min(_grid.Scroll.HorizontalOffset, maxXOffset));
-                if (_horizontalScrollBar.Value != desiredX)
-                    _horizontalScrollBar.Value = desiredX;
-                _horizontalScrollBar.Visible = true;
-            }
-            else
-            {
-                if (_horizontalScrollBar.Visible)
-                {
-                    _horizontalScrollBar.Visible = false;
-                    _grid.Scroll.SetHorizontalOffset(0);
-                }
-            }
-
-            PositionScrollBars();
-            UpdateCachedHorizontalMetrics();
+            // Update cached metrics
+            UpdateCachedHorizontalMetrics(totalColumnWidth, visibleWidth, needsVertical);
         }
 
-        private void PositionScrollBars()
+        private void PositionScrollBars(bool needsVertical, bool needsHorizontal, int maxVerticalOffset, int totalRowHeight, int visibleHeight, int totalColumnWidth, int visibleWidth)
         {
-            if (_verticalScrollBar == null || _horizontalScrollBar == null) return;
-
-            int verticalScrollWidth = _verticalScrollBar.Width;
-            int horizontalScrollHeight = _horizontalScrollBar.Height;
             var rowsRect = _grid.Layout.RowsRect;
 
-            // Position exactly like BeepSimpleGrid
-            if (_verticalScrollBar.Visible)
+            // Reset scrollbar rectangles
+            _verticalScrollBarRect = Rectangle.Empty;
+            _horizontalScrollBarRect = Rectangle.Empty;
+            _verticalThumbRect = Rectangle.Empty;
+            _horizontalThumbRect = Rectangle.Empty;
+
+            // Position vertical scrollbar
+            if (needsVertical)
             {
-                _verticalScrollBar.Location = new Point(rowsRect.Right - verticalScrollWidth, rowsRect.Top);
-                _verticalScrollBar.Height = rowsRect.Height - (_horizontalScrollBar.Visible ? horizontalScrollHeight : 0);
+                int scrollbarWidth = SCROLLBAR_WIDTH;
+                int scrollbarHeight = rowsRect.Height - (needsHorizontal ? SCROLLBAR_HEIGHT : 0);
+
+                _verticalScrollBarRect = new Rectangle(
+                    rowsRect.Right - scrollbarWidth,
+                    rowsRect.Top,
+                    scrollbarWidth,
+                    scrollbarHeight
+                );
+
+                // Calculate thumb size and position
+                float thumbRatio = (float)visibleHeight / totalRowHeight;
+                int thumbHeight = Math.Max(MIN_THUMB_SIZE, (int)(scrollbarHeight * thumbRatio));
+                int maxThumbY = scrollbarHeight - thumbHeight;
+
+                float offsetRatio = maxVerticalOffset > 0 ? (float)_grid.Scroll.VerticalOffset / maxVerticalOffset : 0;
+                int thumbY = (int)(offsetRatio * maxThumbY);
+
+                _verticalThumbRect = new Rectangle(
+                    _verticalScrollBarRect.X,
+                    _verticalScrollBarRect.Y + thumbY,
+                    scrollbarWidth,
+                    thumbHeight
+                );
             }
 
-            if (_horizontalScrollBar.Visible)
+            // Position horizontal scrollbar
+            if (needsHorizontal)
             {
-                _horizontalScrollBar.Location = new Point(rowsRect.Left, rowsRect.Bottom - horizontalScrollHeight);
-                _horizontalScrollBar.Width = rowsRect.Width - (_verticalScrollBar.Visible ? verticalScrollWidth : 0);
+                int scrollbarHeight = SCROLLBAR_HEIGHT;
+                int scrollbarWidth = rowsRect.Width - (needsVertical ? SCROLLBAR_WIDTH : 0);
+
+                _horizontalScrollBarRect = new Rectangle(
+                    rowsRect.Left,
+                    rowsRect.Bottom - scrollbarHeight,
+                    scrollbarWidth,
+                    scrollbarHeight
+                );
+
+                // Calculate thumb size and position
+                int maxHorizontalOffset = Math.Max(0, totalColumnWidth - visibleWidth);
+                float thumbRatio = maxHorizontalOffset > 0 ? (float)visibleWidth / totalColumnWidth : 1;
+                int thumbWidth = Math.Max(MIN_THUMB_SIZE, (int)(scrollbarWidth * thumbRatio));
+                int maxThumbX = scrollbarWidth - thumbWidth;
+
+                float offsetRatio = maxHorizontalOffset > 0 ? (float)_grid.Scroll.HorizontalOffset / maxHorizontalOffset : 0;
+                int thumbX = (int)(offsetRatio * maxThumbX);
+
+                _horizontalThumbRect = new Rectangle(
+                    _horizontalScrollBarRect.X + thumbX,
+                    _horizontalScrollBarRect.Y,
+                    thumbWidth,
+                    scrollbarHeight
+                );
             }
         }
 
-        private void UpdateCachedHorizontalMetrics()
+        private void UpdateCachedHorizontalMetrics(int totalColumnWidth, int visibleWidth, bool needsVertical)
         {
-            int visibleColumnCount = _grid.Data.Columns.Count(o => o.Visible);
-            int borderWidth = 1;
-            int totalBorderWidth = visibleColumnCount > 0 ? (visibleColumnCount - 1) * borderWidth : 0;
-            _cachedTotalColumnWidth = _grid.Data.Columns.Where(o => o.Visible).Sum(col => col.Width) + totalBorderWidth;
-            _cachedMaxXOffset = Math.Max(0, _cachedTotalColumnWidth - (_grid.Layout.RowsRect.Width - (_verticalScrollBar.Visible ? _verticalScrollBar.Width : 0)));
+            int scrollbarWidth = needsVertical ? SCROLLBAR_WIDTH : 0;
+            _cachedTotalColumnWidth = totalColumnWidth;
+            _cachedMaxXOffset = Math.Max(0, totalColumnWidth - (visibleWidth - scrollbarWidth));
         }
 
         private int GetVisibleRowCount()
@@ -213,46 +224,250 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return Math.Max(1, Math.Min(visibleCount, _grid.Data.Rows.Count));
         }
 
-        private void VerticalScrollBar_Scroll(object sender, EventArgs e)
+        public void DrawScrollBars(Graphics g)
         {
-            // Translate scrollbar value (pixel offset) to grid model
-            int pixelOffset = _verticalScrollBar.Value;
-            int rowIndex = CalculateRowIndexForPixelOffset(pixelOffset);
-            _grid.Scroll.SetVerticalOffset(pixelOffset);
-            _grid.Scroll.SetVerticalIndex(rowIndex);
+            // Draw vertical scrollbar
+            if (!_verticalScrollBarRect.IsEmpty)
+            {
+                // Draw track
+                using (var brush = new SolidBrush(_scrollbarTrackColor))
+                {
+                    g.FillRectangle(brush, _verticalScrollBarRect);
+                }
+
+                // Draw thumb
+                Color thumbColor = _scrollbarThumbColor;
+                if (_isVerticalThumbDragging)
+                    thumbColor = _scrollbarThumbPressedColor;
+                else if (_verticalThumbHovered)
+                    thumbColor = _scrollbarThumbHoverColor;
+
+                using (var brush = new SolidBrush(thumbColor))
+                {
+                    g.FillRectangle(brush, _verticalThumbRect);
+                }
+
+                // Draw border
+                using (var pen = new Pen(Color.FromArgb(180, 180, 180)))
+                {
+                    g.DrawRectangle(pen, _verticalScrollBarRect);
+                }
+            }
+
+            // Draw horizontal scrollbar
+            if (!_horizontalScrollBarRect.IsEmpty)
+            {
+                // Draw track
+                using (var brush = new SolidBrush(_scrollbarTrackColor))
+                {
+                    g.FillRectangle(brush, _horizontalScrollBarRect);
+                }
+
+                // Draw thumb
+                Color thumbColor = _scrollbarThumbColor;
+                if (_isHorizontalThumbDragging)
+                    thumbColor = _scrollbarThumbPressedColor;
+                else if (_horizontalThumbHovered)
+                    thumbColor = _scrollbarThumbHoverColor;
+
+                using (var brush = new SolidBrush(thumbColor))
+                {
+                    g.FillRectangle(brush, _horizontalThumbRect);
+                }
+
+                // Draw border
+                using (var pen = new Pen(Color.FromArgb(180, 180, 180)))
+                {
+                    g.DrawRectangle(pen, _horizontalScrollBarRect);
+                }
+            }
+        }
+
+        public void HandleMouseMove(Point location)
+        {
+            bool wasVerticalHovered = _verticalThumbHovered;
+            bool wasHorizontalHovered = _horizontalThumbHovered;
+
+            _verticalThumbHovered = _verticalThumbRect.Contains(location);
+            _horizontalThumbHovered = _horizontalThumbRect.Contains(location);
+
+            // Update cursor
+            if (_verticalThumbHovered || _horizontalThumbHovered)
+            {
+                _grid.Cursor = Cursors.Hand;
+            }
+            else if (!_isVerticalThumbDragging && !_isHorizontalThumbDragging)
+            {
+                _grid.Cursor = Cursors.Default;
+            }
+
+            // Handle dragging
+            if (_isVerticalThumbDragging)
+            {
+                HandleVerticalThumbDrag(location);
+            }
+            else if (_isHorizontalThumbDragging)
+            {
+                HandleHorizontalThumbDrag(location);
+            }
+
+            // Redraw if hover state changed
+            if (wasVerticalHovered != _verticalThumbHovered || wasHorizontalHovered != _horizontalThumbHovered)
+            {
+                _grid.Invalidate();
+            }
+        }
+
+        public void HandleMouseDown(Point location, MouseButtons button)
+        {
+            if (button == MouseButtons.Left)
+            {
+                if (_verticalThumbRect.Contains(location))
+                {
+                    _isVerticalThumbDragging = true;
+                    _lastMousePos = location;
+                    _grid.Capture = true;
+                }
+                else if (_horizontalThumbRect.Contains(location))
+                {
+                    _isHorizontalThumbDragging = true;
+                    _lastMousePos = location;
+                    _grid.Capture = true;
+                }
+                else if (_verticalScrollBarRect.Contains(location))
+                {
+                    // Page up/down
+                    HandleVerticalPageClick(location);
+                }
+                else if (_horizontalScrollBarRect.Contains(location))
+                {
+                    // Page left/right
+                    HandleHorizontalPageClick(location);
+                }
+            }
+        }
+
+        public void HandleMouseUp(Point location, MouseButtons button)
+        {
+            if (button == MouseButtons.Left)
+            {
+                _isVerticalThumbDragging = false;
+                _isHorizontalThumbDragging = false;
+                _grid.Capture = false;
+                _grid.Cursor = Cursors.Default;
+            }
+        }
+
+        private void HandleVerticalThumbDrag(Point location)
+        {
+            int deltaY = location.Y - _lastMousePos.Y;
+            _lastMousePos = location;
+
+            if (!_verticalScrollBarRect.IsEmpty && deltaY != 0)
+            {
+                float scrollbarHeight = _verticalScrollBarRect.Height - _verticalThumbRect.Height;
+                if (scrollbarHeight > 0)
+                {
+                    float ratio = deltaY / scrollbarHeight;
+                    int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
+                    int visibleHeight = _grid.Layout.RowsRect.Height;
+                    int maxOffset = Math.Max(0, totalRowHeight - visibleHeight);
+
+                    int newOffset = _grid.Scroll.VerticalOffset + (int)(ratio * maxOffset);
+                    newOffset = Math.Max(0, Math.Min(maxOffset, newOffset));
+
+                    if (newOffset != _grid.Scroll.VerticalOffset)
+                    {
+                        _grid.Scroll.SetVerticalOffset(newOffset);
+                        int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
+                        _grid.Scroll.SetVerticalIndex(rowIndex);
+                        _grid.Invalidate();
+                    }
+                }
+            }
+        }
+
+        private void HandleHorizontalThumbDrag(Point location)
+        {
+            int deltaX = location.X - _lastMousePos.X;
+            _lastMousePos = location;
+
+            if (!_horizontalScrollBarRect.IsEmpty && deltaX != 0)
+            {
+                float scrollbarWidth = _horizontalScrollBarRect.Width - _horizontalThumbRect.Width;
+                if (scrollbarWidth > 0)
+                {
+                    float ratio = deltaX / scrollbarWidth;
+                    int totalColumnWidth = CalculateTotalContentWidth();
+                    int visibleWidth = _grid.Layout.RowsRect.Width - (_verticalScrollBarRect.IsEmpty ? 0 : SCROLLBAR_WIDTH);
+                    int maxOffset = Math.Max(0, totalColumnWidth - visibleWidth);
+
+                    int newOffset = _grid.Scroll.HorizontalOffset + (int)(ratio * maxOffset);
+                    newOffset = Math.Max(0, Math.Min(maxOffset, newOffset));
+
+                    if (newOffset != _grid.Scroll.HorizontalOffset)
+                    {
+                        _grid.Scroll.SetHorizontalOffset(newOffset);
+                        _grid.Invalidate();
+                    }
+                }
+            }
+        }
+
+        private void HandleVerticalPageClick(Point location)
+        {
+            if (_verticalThumbRect.Contains(location))
+                return; // Already handled by thumb drag
+
+            int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
+            int visibleHeight = _grid.Layout.RowsRect.Height;
+            int pageSize = visibleHeight;
+
+            if (location.Y < _verticalThumbRect.Y)
+            {
+                // Page up
+                int newOffset = Math.Max(0, _grid.Scroll.VerticalOffset - pageSize);
+                _grid.Scroll.SetVerticalOffset(newOffset);
+                int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
+                _grid.Scroll.SetVerticalIndex(rowIndex);
+            }
+            else
+            {
+                // Page down
+                int maxOffset = Math.Max(0, totalRowHeight - visibleHeight);
+                int newOffset = Math.Min(maxOffset, _grid.Scroll.VerticalOffset + pageSize);
+                _grid.Scroll.SetVerticalOffset(newOffset);
+                int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
+                _grid.Scroll.SetVerticalIndex(rowIndex);
+            }
+
             _grid.Invalidate();
         }
 
-        private void HorizontalScrollBar_Scroll(object sender, EventArgs e)
+        private void HandleHorizontalPageClick(Point location)
         {
-            _grid.Scroll.SetHorizontalOffset(_horizontalScrollBar.Value);
-            _grid.Invalidate();
-        }
+            if (_horizontalThumbRect.Contains(location))
+                return; // Already handled by thumb drag
 
-        public void SyncFromModel()
-        {
-            // Sync scrollbar positions with scroll model values
-            if (_verticalScrollBar.Visible)
+            int totalColumnWidth = _cachedTotalColumnWidth;
+            int visibleWidth = _grid.Layout.RowsRect.Width - (_showVerticalScrollBar ? SCROLLBAR_WIDTH : 0);
+            int pageSize = visibleWidth;
+
+            if (location.X < _horizontalThumbRect.X)
             {
-                int upper = Math.Max(_verticalScrollBar.Minimum, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
-                int desired = Math.Max(_verticalScrollBar.Minimum, Math.Min(upper, _grid.Scroll.VerticalOffset));
-                if (_verticalScrollBar.Value != desired)
-                {
-                    _verticalScrollBar.Value = desired;
-                    _yOffset = desired;
-                }
+                // Page left
+                int newOffset = Math.Max(0, _grid.Scroll.HorizontalOffset - pageSize);
+                _grid.Scroll.SetHorizontalOffset(newOffset);
             }
-            
-            if (_horizontalScrollBar.Visible)
+            else
             {
-                int maxX = Math.Max(0, _horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange);
-                int desiredX = Math.Max(_horizontalScrollBar.Minimum, Math.Min(maxX, _grid.Scroll.HorizontalOffset));
-                if (_horizontalScrollBar.Value != desiredX)
-                {
-                    _horizontalScrollBar.Value = desiredX;
-                    _xOffset = desiredX;
-                }
+                // Page right
+                int maxOffset = Math.Max(0, totalColumnWidth - visibleWidth);
+                int newOffset = Math.Min(maxOffset, _grid.Scroll.HorizontalOffset + pageSize);
+                _grid.Scroll.SetHorizontalOffset(newOffset);
             }
+
+            _grid.Invalidate();
         }
 
         private int CalculateTotalContentHeight()
@@ -323,18 +538,25 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseWheel(MouseEventArgs e)
         {
-            if (_verticalScrollBar.Visible)
+            // Handle mouse wheel scrolling using custom scrollbar logic
+            if (!_verticalScrollBarRect.IsEmpty)
             {
-                // Wheel delta: positive means scroll up; our model uses smaller pixel offset when scrolling up
+                // Calculate scroll step based on row height
                 int step = _grid.RowHeight;
-                int desired = _verticalScrollBar.Value - (e.Delta / SystemInformation.MouseWheelScrollDelta) * step;
-                int upper = Math.Max(_verticalScrollBar.Minimum, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
-                int newValue = Math.Max(_verticalScrollBar.Minimum, Math.Min(upper, desired));
-                if (newValue != _verticalScrollBar.Value)
+                int delta = (e.Delta / SystemInformation.MouseWheelScrollDelta) * step;
+
+                // Calculate new vertical offset
+                int totalRowHeight = CalculateTotalContentHeightWithVariableRows();
+                int visibleHeight = _grid.Layout.RowsRect.Height;
+                int maxOffset = Math.Max(0, totalRowHeight - visibleHeight);
+
+                int newOffset = _grid.Scroll.VerticalOffset - delta;
+                newOffset = Math.Max(0, Math.Min(maxOffset, newOffset));
+
+                if (newOffset != _grid.Scroll.VerticalOffset)
                 {
-                    _verticalScrollBar.Value = newValue;
-                    int rowIndex = CalculateRowIndexForPixelOffset(newValue);
-                    _grid.Scroll.SetVerticalOffset(newValue);
+                    _grid.Scroll.SetVerticalOffset(newOffset);
+                    int rowIndex = CalculateRowIndexForPixelOffset(newOffset);
                     _grid.Scroll.SetVerticalIndex(rowIndex);
                     _grid.Invalidate();
                 }

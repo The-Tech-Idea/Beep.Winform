@@ -16,6 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
     {
         private readonly BeepGridPro _grid;
         public object DataSource { get; private set; }
+        public string DataMember { get; private set; }
         public BindingList<BeepRowConfig> Rows { get; } = new();
         public BeepGridColumnConfigCollection Columns { get; } = new();
 
@@ -27,6 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void Bind(object dataSource)
         {
             DataSource = dataSource;
+            DataMember = _grid.DataMember; // Update DataMember from grid
             
             // Always ensure system columns are present FIRST
             EnsureSystemColumns();
@@ -177,11 +179,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
             else
             {
-                // Try reflection on first item
-                var first = enumerable.Cast<object?>().FirstOrDefault();
-                if (first != null)
+                // Use entity type if available, otherwise try reflection on first item
+                Type itemType = _grid.EntityType;
+                if (itemType != null)
                 {
-                    foreach (var prop in first.GetType().GetProperties())
+                    // Use the known entity type for better column generation
+                    foreach (var prop in itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
                         if (IsSystemColumn(prop.Name)) continue;
 
@@ -200,6 +203,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         };
                         bCol.Index = Columns.Count;
                         Columns.Add(bCol);
+                    }
+                }
+                else
+                {
+                    // Fallback: Try reflection on first item
+                    var first = enumerable.Cast<object?>().FirstOrDefault();
+                    if (first != null)
+                    {
+                        foreach (var prop in first.GetType().GetProperties())
+                        {
+                            if (IsSystemColumn(prop.Name)) continue;
+
+                            var bCol = new BeepColumnConfig
+                            {
+                                ColumnName = prop.Name,
+                                ColumnCaption = prop.Name,
+                                PropertyTypeName = prop.PropertyType.AssemblyQualifiedName,
+                                Width = 100,
+                                ColumnType = MapDbType(prop.PropertyType),
+                                CellEditor = MapColumnType(prop.PropertyType),
+                                Visible = true,
+                                Resizable = DataGridViewTriState.True,
+                                SortMode = DataGridViewColumnSortMode.Automatic,
+                                AutoSizeMode = DataGridViewAutoSizeColumnMode.None
+                            };
+                            bCol.Index = Columns.Count;
+                            Columns.Add(bCol);
+                        }
                     }
                 }
             }
@@ -339,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return bs.List ?? bs.DataSource ?? data;
             }
 
-            string dataMember = _grid?.DataMember ?? string.Empty;
+            string dataMember = DataMember ?? string.Empty;
             if (!string.IsNullOrWhiteSpace(dataMember))
             {
                 // Handle ADO.NET containers
@@ -400,10 +431,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             if (resolved is IEnumerable en)
             {
+                // Try to determine entity type from the enumerable
+                if (_grid.EntityType == null && en.GetType().IsGenericType)
+                {
+                    var genericArgs = en.GetType().GetGenericArguments();
+                    if (genericArgs.Length > 0)
+                    {
+                        _grid.SetEntityType(genericArgs[0]);
+                    }
+                }
                 return (en, schema);
             }
 
-            // Single object
+            // Single object - set entity type if not already set
+            if (_grid.EntityType == null && resolved != null)
+            {
+                _grid.SetEntityType(resolved.GetType());
+            }
             return (new object[] { resolved }, schema);
         }
 
@@ -639,6 +683,54 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             { 
                 return value; 
             }
+        }
+
+        // Data synchronization methods (moved from BeepGridPro for better encapsulation)
+        internal void SyncFullDataFromBindingSource()
+        {
+            _grid._fullData = new List<object>();
+            var bindingSource = _grid.Navigator.GetBindingSource();
+            if (bindingSource == null) return;
+
+            var enumerator = bindingSource.GetEnumerator();
+            int i = 0;
+            bool isFirstItem = true;
+
+            while (enumerator.MoveNext())
+            {
+                var item = enumerator.Current;
+                if (item == null) continue;
+
+                // Set _entityType based on the first valid item
+                if (isFirstItem && _grid._entityType == null)
+                {
+                    _grid._entityType = item.GetType();
+                    isFirstItem = false;
+                }
+
+                _grid._fullData.Add(item);
+                i++;
+            }
+
+            if (_grid._entityType == null)
+            {
+                // No valid items found to set _entityType
+            }
+        }
+
+        internal void InitializeData()
+        {
+            var bindingSource = _grid.Navigator.GetBindingSource();
+            if (bindingSource != null)
+            {
+                SyncFullDataFromBindingSource(); // Initial sync from BindingSource
+            }
+            else
+            {
+                // Fallback
+                _grid._fullData = new List<object>();
+            }
+            _grid._dataOffset = 0;
         }
     }
 }

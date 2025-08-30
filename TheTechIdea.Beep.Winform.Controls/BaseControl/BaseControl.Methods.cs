@@ -117,12 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Get the top-level form for this control
             var form = FindForm();
             if (form == null) return;
-           
+            
+            _toolTip?.Show(text, this, PointToClient(MousePosition), 3000);
         }
 
         public virtual void HideToolTip()
         {
-         
+            _toolTip?.Hide(this);
         }
 
         public virtual bool ValidateData(out string message)
@@ -244,7 +245,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Control State Management
         protected virtual void ShowToolTipIfExists()
         {
-            
+            if (!string.IsNullOrEmpty(ToolTipText))
+            {
+                _toolTip?.Show(ToolTipText, this, PointToClient(MousePosition), 3000);
+            }
         }
 
         public override Size GetPreferredSize(Size proposedSize)
@@ -261,23 +265,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
+            Console.WriteLine("BaseControl DrawContent START");
             // Set high quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
+            // Update drawing bounds as necessary (parity with BeepControl)
+            UpdateDrawingRect();
+
             if (EnableMaterialStyle)
             {
+                Console.WriteLine("BaseControl DrawContent - Using material style");
                 // Use material design drawing
                 DrawMaterialContent(g);
             }
             else
             {
+                Console.WriteLine("BaseControl DrawContent - Using paint helper");
                 // Use regular ControlPaintHelper drawing
                 _paint.Draw(g);
             }
+            Console.WriteLine("BaseControl DrawContent END");
         }
+
+
 
         /// <summary>
         /// Draws material design content using the enhanced material helper

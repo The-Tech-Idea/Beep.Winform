@@ -24,6 +24,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _uow = uow;
         }
 
+        public BindingSource GetBindingSource()
+        {
+            return _bindingSource;
+        }
+
         // Bind to a data source without a visual navigator (owner-drawn case)
         public void BindTo(object dataSource)
         {
@@ -43,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             _navigator.DeleteCalled += Navigator_DeleteCalled;
             _navigator.SaveCalled += Navigator_SaveCalled;
 
-            _grid.Data.Bind(_bindingSource);
+            _grid.Data.Bind(dataSource); // Bind to original data source
             _grid.Layout.Recalculate();
             _grid.Invalidate();
         }
@@ -54,6 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return bs;
 
             var newBs = new BindingSource();
+            newBs.DataMember = _grid.DataMember; // Set DataMember from grid
             if (data is IEnumerable enumerable)
                 newBs.DataSource = enumerable;
             else if (data != null)

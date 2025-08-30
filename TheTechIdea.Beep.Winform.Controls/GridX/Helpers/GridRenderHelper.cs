@@ -82,29 +82,41 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void Draw(Graphics g)
         {
+            Console.WriteLine("GridRenderHelper.Draw called.");
             // Validate graphics object and grid state
             if (g == null || _grid == null || _grid.Layout == null)
-                return;
+            {
+                Console.WriteLine("Draw skipped: Invalid graphics or grid state.");
 
+                return;
+            }
+              
+            Console.WriteLine("Drawing grid...");
             var rowsRect = _grid.Layout.RowsRect;
             if (rowsRect.Width <= 0 || rowsRect.Height <= 0)
+            {
+                Console.WriteLine("Draw skipped: Invalid rows rectangle.");
                 return;
-
+            }
+               
+            Console.WriteLine($"RowsRect: {rowsRect}");
             // Draw background
             using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
             {
                 g.FillRectangle(brush, rowsRect);
             }
-
+            Console.WriteLine("Background drawn.");
             // Draw column headers
             if (_grid.ShowColumnHeaders)
             {
                 try
                 {
+                    Console.WriteLine("Drawing column headers...");
                     DrawColumnHeaders(g);
                 }
                 catch (Exception)
                 {
+                    Console.WriteLine("Error drawing column headers.");
                     // Silently handle header drawing errors to prevent crashes
                 }
             }
@@ -112,10 +124,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw data rows
             try
             {
+                Console.WriteLine("Drawing rows...");
                 DrawRows(g);
             }
             catch (Exception)
             {
+                Console.WriteLine("Error drawing rows.");
                 // Silently handle row drawing errors to prevent crashes
             }
 
@@ -124,10 +138,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try
                 {
+                    Console.WriteLine("Drawing navigator...");
                     DrawNavigatorArea(g);
                 }
                 catch (Exception)
                 {
+                    Console.WriteLine("Error drawing navigator.");
                     // Silently handle navigator drawing errors
                 }
             }
@@ -135,10 +151,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw selection indicators
             try
             {
+                Console.WriteLine("Drawing selection indicators...");
                 DrawSelectionIndicators(g);
             }
             catch (Exception)
             {
+                Console.WriteLine("Error drawing selection indicators.");
                 // Silently handle selection drawing errors
             }
         }

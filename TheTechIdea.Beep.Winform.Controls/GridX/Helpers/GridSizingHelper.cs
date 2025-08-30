@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 availableWidth -= rowNumColumn.Width;
 
             // Reserve space for vertical scrollbar if needed
-            if (_grid.ScrollBars != null)
+            if (_grid.ScrollBars.IsVerticalScrollBarNeeded)
                 availableWidth -= 15; // Approximate scrollbar width
 
             if (availableWidth <= 0) return;

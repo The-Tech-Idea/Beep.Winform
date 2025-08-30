@@ -46,6 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected string _text = string.Empty;
         private SimpleItem _info = new SimpleItem();
         private bool _isInitializing = true;
+        protected ToolTip _toolTip;
 
         // State flags (exposed like base BeepControl)
         [Browsable(true)]
@@ -90,6 +91,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             _isInitializing = true;
             AutoScaleMode = AutoScaleMode.Dpi;
+            AutoScaleDimensions = new SizeF(96f, 96f); // ensure design baseline
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
 
@@ -98,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 
             // Consider adding for large datasets:
-            SetStyle(ControlStyles.ResizeRedraw, true);  // Don't redraw on resize
+            SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
 
             // Ensure _columns is only initialized once
             SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
@@ -119,8 +121,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Set defaults
             Padding = new Padding(0);
             ComponentName = "BaseControl";
+            InitializeTooltip();
+            UpdateDrawingRect();
             
             _isInitializing = false;
+        }
+        #endregion
+
+        #region ToolTip
+        protected void InitializeTooltip()
+        {
+            _toolTip = new ToolTip
+            {
+                AutoPopDelay = 5000,
+                InitialDelay = 500,
+                ReshowDelay = 500,
+                ShowAlways = true // Always show the tooltip, even if the control is not active
+            };
         }
         #endregion
 
@@ -134,6 +151,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     tip.Dispose();
                 }
+
+                // Dispose tooltip
+                _toolTip?.Dispose();
 
                 // Clear external drawing from parent
                 if (Parent is BaseControl parentBeepControl)

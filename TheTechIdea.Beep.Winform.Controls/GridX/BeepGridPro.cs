@@ -3,6 +3,7 @@ using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -31,6 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridNavigatorHelper Navigator { get; }
         internal Helpers.GridSizingHelper Sizing { get; }
         internal Helpers.GridDialogHelper Dialog { get; }
+
+        // Data management fields (similar to BeepSimpleGrid)
+        internal Type _entityType;
+        internal List<object> _fullData;
+        internal int _dataOffset = 0;
 
         private GridUnitOfWorkBinder _uowBinder;
         private object _uow;
@@ -62,8 +68,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             set { 
                 if (!ReferenceEquals(Data.DataSource, value))
                 {
-                    Data.Bind(value); 
+                    Data.Bind(value); // Bind to original data source
                     Navigator.BindTo(value); 
+                    Data.InitializeData(); // Sync data after binding
                     Layout.Recalculate(); 
                     if (!DesignMode) Invalidate();
                 }
@@ -75,6 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         [Browsable(true)]
         [Category("Data")]
         [DefaultValue("")]
+        [TypeConverter(typeof(BeepDataMemberConverter))]
         public string DataMember 
         { 
             get => _dataMember; 
@@ -86,7 +94,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     // Rebind to apply the new DataMember when possible
                     if (Data.DataSource != null) 
                     { 
-                        Data.Bind(Data.DataSource); 
+                        Navigator.BindTo(Data.DataSource); // Re-bind navigator with new DataMember
+                        Data.Bind(Data.DataSource); // Re-bind data with original data source
+                        Data.InitializeData(); // Re-sync data with new DataMember
                         Invalidate(); 
                     }
                 } 
@@ -101,6 +111,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         [Browsable(false)]
         public BindingList<BeepRowConfig> Rows => Data.Rows;
+
+        [Browsable(false)]
+        internal Type EntityType => _entityType;
+
+        internal void SetEntityType(Type entityType)
+        {
+            _entityType = entityType;
+        }
 
         [Browsable(true)]
         [Category("Layout")] 
@@ -285,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 this.MouseWheel += (s, e) => { 
                     // Handle mouse wheel exactly like BeepSimpleGrid
                     ScrollBars?.HandleMouseWheel(e); 
-                    ScrollBars?.SyncFromModel(); 
+                    // Custom scrollbars updated automatically through drawing
                 };
                 this.KeyDown += (s, e) => Input.HandleKeyDown(e);
 
@@ -390,24 +408,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         protected override void DrawContent(Graphics g)
         {
-            // Skip BaseControl's material design drawing entirely for grid controls
-            // Grid handles its own custom drawing through Render helper
+            Console.WriteLine("BeepGridPro DrawContent START");
+
+            // Call base for graphics setup and UpdateDrawingRect (now handled by BaseControl)
             base.DrawContent(g);
-            UpdateDrawingRect();
+
+            // Now do our custom grid drawing
             Console.WriteLine("BeepGridPro DrawContent called");
             try
             {
+                Console.WriteLine("BeepGridPro DrawContent - Starting layout calculation");
                 Layout?.EnsureCalculated();
                 Console.WriteLine("BeepGridPro Layout calculated");
                 Render?.Draw(g);
                 Console.WriteLine("BeepGridPro Render completed");
+
+                Console.WriteLine("BeepGridPro DrawContent - DrawingRect: " + DrawingRect.ToString());
+                // Draw custom scrollbars after grid content
+                ScrollBars?.DrawScrollBars(g);
+                Console.WriteLine("BeepGridPro ScrollBars drawn");
                 // Keep scrollbars in sync after rendering
                 if (!DesignMode)
                 {
                     ScrollBars?.UpdateBars();
                 }
             }
-            catch { /* swallow to avoid design-time crashes */ }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"BeepGridPro DrawContent - Grid drawing failed: {ex.Message}");
+            }
+            Console.WriteLine("BeepGridPro DrawContent END");
         }
 
 
@@ -639,6 +669,39 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 col.ShowFilterIcon = true;
             }
             Invalidate();
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+
+            // Handle custom scrollbar mouse interaction
+            if (!DesignMode)
+            {
+                ScrollBars?.HandleMouseMove(e.Location);
+            }
+        }
+
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+
+            // Handle custom scrollbar mouse interaction
+            if (!DesignMode)
+            {
+                ScrollBars?.HandleMouseDown(e.Location, e.Button);
+            }
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+
+            // Handle custom scrollbar mouse interaction
+            if (!DesignMode)
+            {
+                ScrollBars?.HandleMouseUp(e.Location, e.Button);
+            }
         }
 
         protected override void Dispose(bool disposing)

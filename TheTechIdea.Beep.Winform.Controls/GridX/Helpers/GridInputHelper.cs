@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 col.Width = Math.Max(20, col.Width + dx);
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
-                _grid.ScrollBars?.UpdateBars();
+                // Custom scrollbars are updated automatically through drawing
                 _grid.Invalidate();
                 return;
             }
@@ -335,7 +335,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 case Keys.Up: r = Math.Max(0, r - 1); break;
                 case Keys.Down: r = Math.Min(_grid.Data.Rows.Count - 1, r + 1); break;
                 case Keys.Home:
-                    if (e.Control) { r = 0; _grid.Scroll.SetVerticalIndex(0); _grid.ScrollBars?.SyncFromModel(); }
+                    if (e.Control) { r = 0; _grid.Scroll.SetVerticalIndex(0); /* Custom scrollbars updated automatically */ }
                     else { c = 0; }
                     break;
                 case Keys.End:
@@ -344,21 +344,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         r = Math.Max(0, _grid.Data.Rows.Count - 1);
                         int newStartEnd = Math.Max(0, r - visible + 1);
                         _grid.Scroll.SetVerticalIndex(newStartEnd);
-                        _grid.ScrollBars?.SyncFromModel();
+                        /* Custom scrollbars updated automatically */
                     }
                     else { c = _grid.Data.Columns.Count - 1; }
                     break;
                 case Keys.PageUp:
                     r = Math.Max(0, r - visible);
                     _grid.Scroll.SetVerticalIndex(Math.Max(0, _grid.Scroll.FirstVisibleRowIndex - visible));
-                    _grid.ScrollBars?.SyncFromModel();
+                    /* Custom scrollbars updated automatically */
                     break;
                 case Keys.PageDown:
                     r = Math.Min(_grid.Data.Rows.Count - 1, r + visible);
                     int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
                     int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
                     _grid.Scroll.SetVerticalIndex(newStart);
-                    _grid.ScrollBars?.SyncFromModel();
+                    /* Custom scrollbars updated automatically */
                     break;
                 default:
                     return;
@@ -379,12 +379,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (r < start)
             {
                 _grid.Scroll.SetVerticalIndex(r);
-                _grid.ScrollBars?.SyncFromModel();
+                // Custom scrollbars are updated automatically through drawing
             }
             else if (r >= start + visible)
             {
                 _grid.Scroll.SetVerticalIndex(Math.Max(0, r - visible + 1));
-                _grid.ScrollBars?.SyncFromModel();
+                // Custom scrollbars are updated automatically through drawing
             }
         }
 

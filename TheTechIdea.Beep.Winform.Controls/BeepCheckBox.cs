@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -58,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     }
     //-------------------------------------------------
     // Generic class for flexibility
-    public class BeepCheckBox<T> : BeepControl
+    public class BeepCheckBox<T> : BaseControl
     {
         #region Constructors
         public BeepCheckBox()

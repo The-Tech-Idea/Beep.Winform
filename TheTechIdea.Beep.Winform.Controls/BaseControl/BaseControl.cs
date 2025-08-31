@@ -106,16 +106,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Ensure _columns is only initialized once
             SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
             this.UpdateStyles();
-
+            Console.WriteLine("Start of Helper Classes Init");
             // Initialize helpers
-            _paint = new ControlPaintHelper(this);
-            _effects = new ControlEffectHelper(this);
-            _hitTest = new ControlHitTestHelper(this);
-            _dpi = new ControlDpiHelper(this);
-            _dataBinding = new ControlDataBindingHelper(this);
-            _externalDrawing = new ControlExternalDrawingHelper(this);
-            _input = new ControlInputHelper(this, _effects, _hitTest);
             _materialHelper = new BaseControlMaterialHelper(this);
+            Console.WriteLine("Material Done ");
+            _paint = new ControlPaintHelper(this);
+            Console.WriteLine("Paint Helper Done");
+            _effects = new ControlEffectHelper(this);
+            Console.WriteLine("Effecst Done");
+            _hitTest = new ControlHitTestHelper(this);
+            Console.WriteLine("HitTest Done");
+            _dpi = new ControlDpiHelper(this);
+            Console.WriteLine("DPI Done");
+            _dataBinding = new ControlDataBindingHelper(this);
+            Console.WriteLine("DataBinding Done");
+            _externalDrawing = new ControlExternalDrawingHelper(this);
+            Console.WriteLine("External drawing Done");
+            _input = new ControlInputHelper(this, _effects, _hitTest);
+            Console.WriteLine("Input Done");
+           
             // Let helper call back for custom border drawing
             // _paint.CustomBorderDrawer = g => DrawCustomBorder(g);
 

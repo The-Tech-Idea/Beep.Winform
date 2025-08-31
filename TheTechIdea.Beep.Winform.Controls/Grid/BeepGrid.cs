@@ -3450,7 +3450,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             try
             {
                 // Create appropriate editor based on column type
-                _editingControl = CreateCellControlForEditing(cell);
+                _editingControl = (BeepControl)CreateCellControlForEditing(cell);
                 if (_editingControl == null) return;
 
                 // Position the editor
@@ -3471,7 +3471,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
         }
 
-        private BeepControl CreateCellControlForEditing(BeepCellConfig cell)
+        private IBeepUIComponent CreateCellControlForEditing(BeepCellConfig cell)
         {
             var column = _columns[cell.ColumnIndex];
 
@@ -3549,12 +3549,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             try
             {
                 object newValue = null;
-
+                IBeepUIComponent _currenteditorUIcomponent= _editingControl as IBeepUIComponent;
                 if (_editingControl is BeepTextBox textBox)
                 {
                     newValue = textBox.Text;
                 }
-                else if (_editingControl is BeepCheckBoxBool checkBox)
+                else if (_currenteditorUIcomponent is BeepCheckBoxBool checkBox)
                 {
                     newValue = checkBox.CurrentValue;
                 }

@@ -41,20 +41,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _icons = new BaseControlIconsHelper(owner);
+            Console.WriteLine("BaseControlMaterialHelper initialized.");
             UpdateColors();
+            Console.WriteLine("Material colors updated.");
             UpdateLayout();
+            Console.WriteLine("Material layout updated.");
         }
 
         public void UpdateLayout()
         {
+            Console.WriteLine("Updating Material Layout");
             // Get the current DrawingRect - don't try to modify it
-            var drawingRect = _owner.DrawingRect;
-            if (drawingRect.Width <= 0 || drawingRect.Height <= 0) return;
-
+            var drawingRect = new Rectangle(0,0,_owner.Width,_owner.Height);
+            if (drawingRect.Width <= 0 || drawingRect.Height <= 0)
+            {
+                Console.WriteLine("Invalid drawing rectangle dimensions.");
+                return;
+            }
             // Calculate padding based on Material Design variant
             int horizontalPadding = 16; // Standard Material Design padding
             int verticalPadding = 8;
-
+            Console.WriteLine($"Initial Padding - H: {horizontalPadding}, V: {verticalPadding}");
             // Adjust padding based on variant
             switch (_owner.MaterialVariant)
             {
@@ -71,10 +78,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     verticalPadding = 8;
                     break;
             }
-
+            Console.WriteLine($"Adjusted Padding - H: {horizontalPadding}, V: {verticalPadding}");
             // Input area (the full drawable area for this control)
             _inputRect = new Rectangle(0, 0, drawingRect.Width, drawingRect.Height);
-
+            Console.WriteLine($"Input Rect: {_inputRect}");
             // Field area (input area minus padding)
             _fieldRect = new Rectangle(
                 _inputRect.X + horizontalPadding,
@@ -82,16 +89,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 Math.Max(0, _inputRect.Width - (horizontalPadding * 2)),
                 Math.Max(0, _inputRect.Height - (verticalPadding * 2))
             );
-
+            Console.WriteLine($"Field Rect: {_fieldRect}");
             // Update icons layout within the field area
             _icons.UpdateLayout(_fieldRect);
-
+            Console.WriteLine($"Leading Icon Rect: {_icons.LeadingRect}, Trailing Icon Rect: {_icons.TrailingRect}");
             // Content rectangle is the adjusted area that excludes icon spaces
             _contentRect = _icons.AdjustedContentRect;
-
+            Console.WriteLine($"Content Rect: {_contentRect}");
             // If no icons, use the full field area
             if (_contentRect.IsEmpty)
             {
+                Console.WriteLine("No icons present, using full field area for content.");
                 _contentRect = new Rectangle(
                     _fieldRect.X + 4,
                     _fieldRect.Y + 4,
@@ -99,6 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     Math.Max(0, _fieldRect.Height - 8)
                 );
             }
+            Console.WriteLine($"Final Content Rect: {_contentRect}");
         }
 
         public void UpdateColors()

@@ -121,21 +121,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 st.ForeColor = Color.Black;
                 st.BorderStyle = BorderStyle.FixedSingle;
             }
-            else if (_editorControl is BeepCheckBoxBool checkBool)
+            else if (_currenteditorUIcomponent is BeepCheckBoxBool checkBool)
             {
                 checkBool.BackColor = Color.White;
                 checkBool.ForeColor = Color.Black;
                 checkBool.GridMode = true;
                 checkBool.CheckBoxSize = Math.Min(cell.Rect.Width - 4, cell.Rect.Height - 4);
             }
-            else if (_editorControl is BeepCheckBoxChar checkChar)
+            else if (_currenteditorUIcomponent is BeepCheckBoxChar checkChar)
             {
                 checkChar.BackColor = Color.White;
                 checkChar.ForeColor = Color.Black;
                 checkChar.GridMode = true;
                 checkChar.CheckBoxSize = Math.Min(cell.Rect.Width - 4, cell.Rect.Height - 4);
             }
-            else if (_editorControl is BeepCheckBoxString checkString)
+            else if (_currenteditorUIcomponent is BeepCheckBoxString checkString)
             {
                 checkString.BackColor = Color.White;
                 checkString.ForeColor = Color.Black;

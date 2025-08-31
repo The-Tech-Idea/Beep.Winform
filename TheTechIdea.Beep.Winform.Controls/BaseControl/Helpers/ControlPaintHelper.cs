@@ -153,19 +153,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             // If Material outlined variant uses a floating label, the label overlaps
             // the top border by roughly half its height. Reserve space so content
             // (DrawingRect) doesn't draw under the floating label.
-            if (MaterialBorderVariant == MaterialTextFieldVariant.Outlined && FloatingLabel && !string.IsNullOrEmpty(LabelText))
+            Console.WriteLine($"Material Style Enabled: {_owner.EnableMaterialStyle}");
+            if (_owner.EnableMaterialStyle)
             {
-                materialcontentrect= _owner._materialHelper?.GetContentRect();
-            }
-
-            // If helper text is present, reserve room below the border so it doesn't overlap content
-            if (materialcontentrect.HasValue && materialcontentrect.Value != Rectangle.Empty)
-            {
+                Console.WriteLine("Material style is enabled, updating layout via MaterialHelper.");
+                _owner._materialHelper.UpdateLayout();
+                Console.WriteLine("MaterialHelper layout updated.");
+                materialcontentrect = _owner._materialHelper.GetContentRect();
+                Console.WriteLine($"Material content rect: {materialcontentrect}");
                 DrawingRect = (Rectangle)materialcontentrect;
+                Console.WriteLine("Updated DrawingRect from MaterialHelper.");
+                return;
             }
-            else
-            {
-                int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
+            Console.WriteLine("Material style not enabled, using standard layout.");
+
+            int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
                 int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
 
                 DrawingRect = new Rectangle(
@@ -182,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     _owner.Width - (shadow + halfPen) * 2,
                     _owner.Height - (shadow + halfPen) * 2
                 );
-            }
+            
 
             
         }

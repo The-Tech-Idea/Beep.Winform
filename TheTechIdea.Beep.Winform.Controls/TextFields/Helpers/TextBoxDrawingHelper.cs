@@ -687,6 +687,10 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                 }
             }
             
+            // For debugging: add a check to see what text we're getting
+            System.Diagnostics.Debug.WriteLine($"GetActualText returning: '{text}' (Length: {text?.Length ?? 0})");
+            System.Diagnostics.Debug.WriteLine($"Text contains newlines: {text?.Contains('\n') ?? false}");
+            
             return text;
         }
         
@@ -713,9 +717,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private TextFormatFlags GetTextFormatFlags()
         {
-            TextFormatFlags flags = TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.NoPadding | TextFormatFlags.NoClipping;
+            TextFormatFlags flags = TextFormatFlags.PreserveGraphicsClipping | TextFormatFlags.NoPadding;
             
-            // Add alignment
+            // Alignment
             switch (_textBox.TextAlignment)
             {
                 case HorizontalAlignment.Left:
@@ -729,20 +733,48 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                     break;
             }
             
-            flags |= TextFormatFlags.VerticalCenter;
-            
-            var control = _textBox as BeepSimpleTextBox;
-            if (control?.Multiline == true)
+            // Multiline behavior must be based on the interface, not a specific control type
+            if (_textBox.Multiline)
             {
-                flags |= TextFormatFlags.WordBreak;
+                // Enable multiline rendering with line breaks support
+                flags |= TextFormatFlags.TextBoxControl;
+                flags |= TextFormatFlags.Top; // top-align for multiline
+                flags |= TextFormatFlags.ExpandTabs; // better tab handling
+                
+                // Word wrap handling (try to read WordWrap property if available)
+                bool wordWrap = true;
+                try
+                {
+                    var pi = _textBox.GetType().GetProperty("WordWrap");
+                    if (pi != null && pi.PropertyType == typeof(bool))
+                    {
+                        wordWrap = (bool)(pi.GetValue(_textBox) ?? true);
+                    }
+                }
+                catch { /* ignore */ }
+                
+                if (wordWrap)
+                {
+                    flags |= TextFormatFlags.WordBreak;
+                }
+                else
+                {
+                    // No WordBreak => do not wrap long lines (still honor explicit newlines)
+                }
+                
+                // Remove single-line-only flags
                 flags &= ~TextFormatFlags.SingleLine;
                 flags &= ~TextFormatFlags.VerticalCenter;
-                flags |= TextFormatFlags.Top;
+                flags &= ~TextFormatFlags.EndEllipsis;
+                flags &= ~TextFormatFlags.NoClipping; // allow clipping to rect
             }
             else
             {
+                // Single line behavior
                 flags |= TextFormatFlags.SingleLine;
+                flags |= TextFormatFlags.VerticalCenter;
                 flags |= TextFormatFlags.EndEllipsis;
+                flags |= TextFormatFlags.NoClipping;
             }
             
             return flags;

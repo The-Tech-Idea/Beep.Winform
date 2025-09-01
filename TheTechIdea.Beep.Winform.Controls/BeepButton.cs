@@ -541,6 +541,159 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => base.StylePreset = value;
         }
 
+        // Material Design convenience properties
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("The floating label text that appears above the button.")]
+        public string ButtonLabel
+        {
+            get => LabelText;
+            set => LabelText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Helper text that appears below the button.")]
+        public string ButtonHelperText
+        {
+            get => HelperText;
+            set => HelperText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Error message to display when validation fails.")]
+        public string ButtonErrorText
+        {
+            get => ErrorText;
+            set => ErrorText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Whether the button is in an error state.")]
+        public bool ButtonHasError
+        {
+            get => HasError;
+            set => HasError = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Automatically adjust size when Material Design styling is enabled.")]
+        [DefaultValue(true)]
+        public bool ButtonAutoSizeForMaterial { get; set; } = true;
+
+        /// <summary>
+        /// Override the base Material size compensation to handle Button-specific logic
+        /// </summary>
+        public override void ApplyMaterialSizeCompensation()
+        {
+            if (!EnableMaterialStyle || !ButtonAutoSizeForMaterial)
+                return;
+
+            Console.WriteLine($"BeepButton: Applying Material size compensation. Current size: {Width}x{Height}");
+
+            // Calculate current text size if we have content
+            Size textSize = Size.Empty;
+            if (!string.IsNullOrEmpty(Text))
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    var measuredSize = g.MeasureString(Text, _textFont ?? Font);
+                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
+                }
+            }
+            
+            // Add image size if present
+            if (beepImage?.HasImage == true)
+            {
+                Size imageSize = beepImage.GetImageSize();
+                
+                // Limit image size to MaxImageSize
+                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+                {
+                    float scaleFactor = Math.Min(
+                        (float)_maxImageSize.Width / imageSize.Width,
+                        (float)_maxImageSize.Height / imageSize.Height);
+                    imageSize = new Size(
+                        (int)(imageSize.Width * scaleFactor),
+                        (int)(imageSize.Height * scaleFactor));
+                }
+                
+                // Combine text and image sizes based on layout
+                switch (TextImageRelation)
+                {
+                    case TextImageRelation.ImageBeforeText:
+                    case TextImageRelation.TextBeforeImage:
+                        textSize.Width += imageSize.Width + 8; // Add spacing
+                        textSize.Height = Math.Max(textSize.Height, imageSize.Height);
+                        break;
+                    case TextImageRelation.ImageAboveText:
+                    case TextImageRelation.TextAboveImage:
+                        textSize.Width = Math.Max(textSize.Width, imageSize.Width);
+                        textSize.Height += imageSize.Height + 8; // Add spacing
+                        break;
+                    case TextImageRelation.Overlay:
+                        textSize.Width = Math.Max(textSize.Width, imageSize.Width);
+                        textSize.Height = Math.Max(textSize.Height, imageSize.Height);
+                        break;
+                }
+            }
+            
+            // Use a reasonable default content size if no text or image
+            if (textSize.IsEmpty)
+            {
+                textSize = new Size(100, 32);
+            }
+            
+            Console.WriteLine($"BeepButton: Base content size: {textSize}");
+            Console.WriteLine($"BeepButton: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
+            
+            // Apply Material size compensation using base method
+            AdjustSizeForMaterial(textSize, true);
+            
+            Console.WriteLine($"BeepButton: Final size after compensation: {Width}x{Height}");
+        }
+
+        /// <summary>
+        /// Override to provide button specific minimum dimensions
+        /// </summary>
+        /// <returns>Minimum height for Material Design button</returns>
+        protected override int GetMaterialMinimumHeight()
+        {
+            // Button specific Material Design heights based on variant
+            switch (MaterialVariant)
+            {
+                case MaterialTextFieldVariant.Outlined:
+                    return 40; // Standard outlined button height
+                case MaterialTextFieldVariant.Filled:
+                    return 36; // Filled buttons are slightly shorter
+                case MaterialTextFieldVariant.Standard:
+                    return 32; // Text buttons are most compact
+                default:
+                    return 36;
+            }
+        }
+
+        /// <summary>
+        /// Override to provide button specific minimum width
+        /// </summary>
+        /// <returns>Minimum width for Material Design button</returns>
+        protected override int GetMaterialMinimumWidth()
+        {
+            // Base minimum width for button
+            int baseMinWidth = 64; // Material Design minimum touch target
+            
+            // Add space for padding (Material Design buttons have significant horizontal padding)
+            baseMinWidth += 32; // 16px padding on each side
+            
+            // Add space for icons if present
+            var iconSpace = GetMaterialIconSpace();
+            baseMinWidth += iconSpace.Width;
+            
+            return baseMinWidth;
+        }
         #endregion "Properties"
         #region "Constructor"
         // Constructor
@@ -565,18 +718,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBePressed = true;
             CanBeFocused = true;
 
-            // Enable material style for icon support
+            // Enable material style for modern button appearance
             EnableMaterialStyle = true;
+            MaterialVariant = MaterialTextFieldVariant.Filled; // Buttons work well with filled variant
+            MaterialBorderRadius = 8;
             
             // Enable modern gradient background for stylish look
             UseGradientBackground = false;
             ModernGradientType = ModernGradientType.None;
           //  ShowShadow = true;
-            IsRounded = false;
+            IsRounded = true; // Enable rounded corners for Material Design
             
             // CRITICAL: Set border thickness to 0 for modern flat button look
             BorderThickness = 0;
             ShowAllBorders = false;
+            
+            // Apply Material Design size compensation if enabled
+            if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
+            {
+                // Apply size compensation when handle is created
+                this.HandleCreated += (s, e) => {
+                    ApplyMaterialSizeCompensation();
+                };
+            }
             
             // DON'T set hardcoded gradient colors - let ApplyTheme() handle them from the theme
             
@@ -705,6 +869,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
+            
+            // Apply Material Design size compensation if enabled
+            if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
+            {
+                ApplyMaterialSizeCompensation();
+            }
+            
           // // Console.WriteLine("Font Changed");
             if (AutoSize)
             {
@@ -1160,7 +1331,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-          
+      
             longPressTimer.Stop();
         }
         protected override void OnDoubleClick(EventArgs e)
@@ -1331,7 +1502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;
-                if (ApplyThemeOnImage)
+                if ( ApplyThemeOnImage)
                 {
                     beepImage.Theme = Theme;
                     beepImage.ApplyTheme();
@@ -1619,13 +1790,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // CSS Style 2: Icon size should be 2.2em height/width (about 24px at 17px font)
-            int iconSize = Math.Min(24, Math.Min(contentRect.Height - 8, contentRect.Width - 8));
-            if (imageSize.Width > iconSize || imageSize.Height > iconSize)
+            // Limit image size to MaxImageSize (same as original)
+            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
                 float scaleFactor = Math.Min(
-                    (float)iconSize / imageSize.Width,
-                    (float)iconSize / imageSize.Height);
+                    (float)_maxImageSize.Width / imageSize.Width,
+                    (float)_maxImageSize.Height / imageSize.Height);
                 imageSize = new Size(
                     (int)(imageSize.Width * scaleFactor),
                     (int)(imageSize.Height * scaleFactor));
@@ -1633,96 +1803,53 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             Size textSize = TextRenderer.MeasureText(Text, cssFont);
 
-            // CSS Style 2 Layout: Text on left, expanding icon container on right
-            int iconContainerSize = Math.Min(contentRect.Height - 6, iconSize + 8); // 2.2em container
-            int iconContainerPadding = 3; // 0.3em right padding
+            // Use the existing CalculateLayout function - no need to duplicate!
+            Rectangle imageRect, textRect;
+            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
 
-            // CSS Style 2 animations
-            float iconContainerWidth = iconContainerSize; // Default width
-            float iconTranslateX = 0f;
-            float iconScale = 1f;
+            // CSS Style 2: Hover effects (translate and rotate)
+            float imageTranslateX = 0f;
+            float imageRotation = 0f;
+            float imageScale = 1f;
+            float textTranslateX = 0f;
 
             if (IsHovered)
             {
-                // CSS hover: .icon width: calc(100% - 0.6em) and translateX
-                iconContainerWidth = contentRect.Width - 12; // calc(100% - 0.6em)
-                iconTranslateX = 2f; // translateX(0.1em)
+                // CSS hover: translateX(-4px) and rotate(-3deg)
+                imageTranslateX = -4f;
+                imageRotation = -3f;
+                imageScale = 1.05f;
+                textTranslateX = -2f;
             }
 
             if (IsPressed)
             {
                 // CSS active: transform: scale(0.95)
-                iconScale = 0.95f;
-            }
-
-            // Calculate CSS Style 2 layout
-            Rectangle textRect = new Rectangle(
-                contentRect.Left + 18, // padding-left: 1.2em
-                contentRect.Top,
-                contentRect.Width - (int)iconContainerWidth - 30, // Leave space for icon
-                contentRect.Height
-            );
-
-            Rectangle iconContainerRect = new Rectangle(
-                (int)(contentRect.Right - iconContainerWidth - iconContainerPadding),
-                contentRect.Top + (contentRect.Height - iconContainerSize) / 2,
-                (int)iconContainerWidth,
-                iconContainerSize
-            );
-
-            Rectangle iconRect = new Rectangle(
-                (int)(iconContainerRect.X + iconTranslateX + (iconContainerRect.Width - imageSize.Width) / 2),
-                iconContainerRect.Y + (iconContainerRect.Height - imageSize.Height) / 2,
-                imageSize.Width,
-                imageSize.Height
-            );
-
-            // Draw CSS Style 2: White icon container with shadow
-            using (SolidBrush iconContainerBrush = new SolidBrush(Color.White))
-            {
-                using (GraphicsPath iconContainerPath = GetRoundedRectPath(iconContainerRect, iconContainerSize / 3))
-                {
-                    // Apply scale transformation for pressed state
-                    if (IsPressed && iconScale != 1f)
-                    {
-                        Matrix scaleMatrix = new Matrix();
-                        PointF center = new PointF(
-                            iconContainerRect.X + iconContainerRect.Width / 2f,
-                            iconContainerRect.Y + iconContainerRect.Height / 2f
-                        );
-                        scaleMatrix.Translate(center.X, center.Y);
-                        scaleMatrix.Scale(iconScale, iconScale);
-                        scaleMatrix.Translate(-center.X, -center.Y);
-                        iconContainerPath.Transform(scaleMatrix);
-                    }
-
-                    // Draw shadow: box-shadow: 0.1em 0.1em 0.6em 0.2em #7b52b9
-                    using (SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(40, 123, 82, 185)))
-                    {
-                        using (GraphicsPath shadowPath = (GraphicsPath)iconContainerPath.Clone())
-                        {
-                            Matrix shadowMatrix = new Matrix();
-                            shadowMatrix.Translate(1.5f, 1.5f); // 0.1em offset
-                            shadowPath.Transform(shadowMatrix);
-                            g.FillPath(shadowBrush, shadowPath);
-                        }
-                    }
-
-                    // Draw white icon container
-                    g.FillPath(iconContainerBrush, iconContainerPath);
-                }
+                imageScale = 0.95f;
+                textTranslateX = 0f;
             }
 
             // Draw the image using BeepImage with CSS Style 2 transformations (same structure as original)
             if (beepImage != null && beepImage.HasImage)
             {
-                // CSS Style 2: Icon color should be #7b52b9 (purple)
-                beepImage.ForeColor = Color.FromArgb(123, 82, 185);
-                beepImage.ManualRotationAngle = 0; // No rotation in this style
-                beepImage.ScaleFactor = 1f; // Scale handled by container
+                // Apply CSS Style 2 transformations to BeepImage
+                beepImage.ManualRotationAngle = imageRotation;
+                beepImage.ScaleFactor = imageScale;
 
+                // Calculate final image rectangle with translations
+                Rectangle finalImageRect = new Rectangle(
+                    (int)(imageRect.X + imageTranslateX),
+                    imageRect.Y,
+                    imageRect.Width,
+                    imageRect.Height
+                );
+
+                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
+                {
+                    imageSize = this.Size;
+                }
                 beepImage.MaximumSize = imageSize;
-                beepImage.Size = imageSize;
+                beepImage.Size = finalImageRect.Size;
 
                 if (ApplyThemeOnImage)
                 {
@@ -1731,12 +1858,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // Let BeepImage handle all the drawing (same as original)
-                beepImage.DrawImage(g, iconRect);
+                beepImage.DrawImage(g, finalImageRect);
 
                 // Setup hit testing (same as original)
                 if (beepImageHitTest == null)
                 {
-                    beepImageHitTest = new ControlHitTest(iconRect, Point.Empty)
+                    beepImageHitTest = new ControlHitTest(finalImageRect, Point.Empty)
                     {
                         Name = "BeepImageRect",
                         ActionName = "ImageClicked",
@@ -1749,22 +1876,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else
                 {
-                    beepImageHitTest.TargetRect = iconRect;
+                    beepImageHitTest.TargetRect = finalImageRect;
                 }
 
                 AddHitTest(beepImageHitTest);
             }
 
-            // Draw text with CSS Style 2 styling (same structure as original)
+            // Draw text with CSS Style 2 effects (same structure as original)
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
+                // Apply text transformation for CSS Style 2 animation
+                Rectangle transformedTextRect = new Rectangle(
+                    (int)(textRect.X + textTranslateX),
+                    textRect.Y,
+                    textRect.Width,
+                    textRect.Height
+                );
+
                 TextFormatFlags flags = GetTextFormatFlags(TextAlign);
 
-                // CSS Style 2: White text color, letter-spacing: 0.05em
-                using (var textBrush = new SolidBrush(Color.White))
+                // Use high-quality text rendering with CSS font
+                using (var textBrush = new SolidBrush(textColor))
                 {
                     g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    TextRenderer.DrawText(g, Text, cssFont, textRect, Color.White, flags);
+                    TextRenderer.DrawText(g, Text, cssFont, transformedTextRect, textColor, flags);
                 }
             }
         }
@@ -2177,9 +2312,57 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        #endregion "Draw Button From Html "
         #endregion "Draw Image and text"
-    }
-  
+        #endregion
+        #region "Material Design Support"
 
+        /// <summary>
+        /// Manually triggers Material Design size compensation for testing/debugging
+        /// </summary>
+        public void ForceMaterialSizeCompensation()
+        {
+            Console.WriteLine($"BeepButton: Force compensation called. EnableMaterialStyle: {EnableMaterialStyle}, AutoSize: {ButtonAutoSizeForMaterial}");
+            
+            // Temporarily enable auto size if needed
+            bool originalAutoSize = ButtonAutoSizeForMaterial;
+            ButtonAutoSizeForMaterial = true;
+            
+            ApplyMaterialSizeCompensation();
+            
+            // Restore original setting
+            ButtonAutoSizeForMaterial = originalAutoSize;
+            
+            // Force layout update
+            UpdateMaterialLayout();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Gets current Material Design size information for debugging
+        /// </summary>
+        public string GetMaterialSizeInfo()
+        {
+            if (!EnableMaterialStyle)
+                return "Material Design is disabled";
+                
+            var padding = GetMaterialStylePadding();
+            var effects = GetMaterialEffectsSpace();
+            var icons = GetMaterialIconSpace();
+            var minSize = CalculateMinimumSizeForMaterial(new Size(100, 32));
+            
+            return $"Material Info:\n" +
+                   $"Current Size: {Width}x{Height}\n" +
+                   $"Variant: {MaterialVariant}\n" +
+                   $"Padding: {padding}\n" +
+                   $"Effects Space: {effects}\n" +
+                   $"Icon Space: {icons}\n" +
+                   $"Calculated Min Size: {minSize}\n" +
+                   $"Auto Size Enabled: {ButtonAutoSizeForMaterial}\n" +
+                   $"Has Image: {beepImage?.HasImage}\n" +
+                   $"TextImageRelation: {TextImageRelation}\n" +
+                   $"ButtonType: {ButtonType}";
+        }
+        
+        #endregion "Material Design Support"
+    }
 }

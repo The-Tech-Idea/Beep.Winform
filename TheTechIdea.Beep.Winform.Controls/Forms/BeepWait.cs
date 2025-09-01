@@ -28,7 +28,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             StartSpinner();
             Theme=BeepThemesManager.CurrentThemeName;
             ApplyTheme();
+            
+            // Ensure multiline is properly configured
             messege.Multiline = true;
+            messege.AcceptsReturn = true;
+            messege.WordWrap = true;
+            messege.ScrollBars = ScrollBars.Vertical;
+            
            // _spinnerImage.ApplyThemeOnImage = true;
           //  _spinnerImage.Theme = Theme;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
@@ -111,7 +117,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SafeInvoke(() =>
             {
-                messege.AppendText(text + Environment.NewLine);
+                // Use direct text assignment for consistency
+                string currentText = messege.Text ?? "";
+                string newText = currentText + text + Environment.NewLine;
+                messege.Text = newText;
                 messege.SelectionStart = messege.Text.Length;
                 messege.ScrollToCaret();
             });
@@ -134,7 +143,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Title.Visible = true;
                 LogopictureBox.Visible = false;
                 Title.Text = title;
-                messege.AppendText(text + Environment.NewLine);
+                // Use direct text assignment for consistency
+                string currentText = messege.Text ?? "";
+                string newText = currentText + text + Environment.NewLine;
+                messege.Text = newText;
                 messege.SelectionStart = messege.Text.Length;
                 messege.ScrollToCaret();
             });
@@ -169,42 +181,36 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void UpdateProgress(int progress, string text = null)
         {
             // Ensure the method is thread-safe
-            //SafeInvoke(() =>
-            //{
-                //Debug.WriteLine($"UpdateProgress called with text: {text}");
-                if (!string.IsNullOrEmpty(text))
+            if (!string.IsNullOrEmpty(text))
+            {
+                if (messege == null)
                 {
-                    if (messege == null)
-                    {
-                        //Debug.WriteLine("messege control is null.");
-                        return;
-                    }
-                    if (messege.IsDisposed)
-                    {
-                        //Debug.WriteLine("messege control is disposed.");
-                        return;
-                    }
-                //Debug.WriteLine("started");
+                    return;
+                }
+                if (messege.IsDisposed)
+                {
+                    return;
+                }
+
                 InvokeAction(messege, () => {
-                    messege.AppendText(text + Environment.NewLine);
+                    // Debug: Check current multiline setting
+                    System.Diagnostics.Debug.WriteLine($"Multiline: {messege.Multiline}, AcceptsReturn: {messege.AcceptsReturn}");
+                    System.Diagnostics.Debug.WriteLine($"Current text length: {messege.Text.Length}");
+                    System.Diagnostics.Debug.WriteLine($"Adding text: '{text}'");
+                    
+                    // Alternative approach: Direct text manipulation instead of AppendText
+                    string currentText = messege.Text ?? "";
+                    string newText = currentText + text + Environment.NewLine;
+                    messege.Text = newText;
+                    
                     messege.SelectionStart = messege.Text.Length;
                     messege.ScrollToCaret();
-                    //messege.Refresh(); // Force redraw
+                    
+                    System.Diagnostics.Debug.WriteLine($"Final text length: {messege.Text.Length}");
+                    System.Diagnostics.Debug.WriteLine($"Text contains newlines: {messege.Text.Contains('\n')}");
+                    System.Diagnostics.Debug.WriteLine($"Text preview: '{messege.Text.Substring(Math.Max(0, messege.Text.Length - 50))}'");
                 });
-                //messege.BeginInvoke(new Action(() =>
-                //    {
-                //        messege.AppendText(text + Environment.NewLine);
-                //        messege.SelectionStart = messege.Text.Length;
-                //        messege.ScrollToCaret();
-                //        messege.Refresh(); // Force redraw
-                //   }));
-                //Debug.WriteLine("finshed ");
-                    //messege.AppendText(text + Environment.NewLine);
-                    //messege.SelectionStart = messege.Text.Length;
-                    //messege.ScrollToCaret();
-                    //messege.Refresh(); // Force redraw
-                }
-            //});
+            }
         }
 
         public async Task<IErrorsInfo> CloseAsync()

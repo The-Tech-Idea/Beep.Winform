@@ -20,173 +20,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public ControlPaintHelper(BaseControl owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            
             UpdateRects();
         }
 
-        #region Basic Appearance Properties
-        [Browsable(true)] public bool ShowAllBorders { get; set; } = false;
-        [Browsable(true)] public bool ShowTopBorder { get; set; } = false;
-        [Browsable(true)] public bool ShowBottomBorder { get; set; } = false;
-        [Browsable(true)] public bool ShowLeftBorder { get; set; } = false;
-        [Browsable(true)] public bool ShowRightBorder { get; set; } = false;
-        [Browsable(true)] public int BorderThickness { get; set; } = 1;
-        [Browsable(true)] public int BorderRadius { get; set; } = 8;
-        [Browsable(true)] public bool IsRounded { get; set; } = true;
-        [Browsable(true)] public DashStyle BorderDashStyle { get; set; } = DashStyle.Solid;
-        [Browsable(true)] public Color InactiveBorderColor { get; set; } = Color.Gray;
-
-        [Browsable(true)] public bool ShowShadow { get; set; } = false;
-        [Browsable(true)] public Color ShadowColor { get; set; } = Color.Black;
-        [Browsable(true)] public float ShadowOpacity { get; set; } = 0.25f;
-        [Browsable(true)] public int ShadowOffset { get; set; } = 3;
-
-        [Browsable(true)] public bool UseGradientBackground { get; set; } = false;
-        [Browsable(true)] public LinearGradientMode GradientDirection { get; set; } = LinearGradientMode.Horizontal;
-        [Browsable(true)] public Color GradientStartColor { get; set; } = Color.LightGray;
-        [Browsable(true)] public Color GradientEndColor { get; set; } = Color.Gray;
-        #endregion
-
-        #region DrawingRect Offsets (parity with BeepControl)
-        // These offsets allow consumers to shrink/shift the inner drawing rectangle
-        [Browsable(false)] public int LeftoffsetForDrawingRect { get; set; } = 0;
-        [Browsable(false)] public int TopoffsetForDrawingRect { get; set; } = 0;
-        [Browsable(false)] public int RightoffsetForDrawingRect { get; set; } = 0;
-        [Browsable(false)] public int BottomoffsetForDrawingRect { get; set; } = 0;
-        #endregion
-
-        #region Modern Gradient Properties
-        [Browsable(true)] public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.None;
-        [Browsable(false)] public List<GradientStop> GradientStops { get; set; } = new List<GradientStop>();
-        [Browsable(true)] public PointF RadialCenter { get; set; } = new PointF(0.5f, 0.5f);
-        [Browsable(true)] public float GradientAngle { get; set; } = 0f;
-        [Browsable(true)] public bool UseGlassmorphism { get; set; } = false;
-        [Browsable(true)] public float GlassmorphismBlur { get; set; } = 10f;
-        [Browsable(true)] public float GlassmorphismOpacity { get; set; } = 0.1f;
-        #endregion
-
-        #region Material UI Properties
-        [Browsable(true)] public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
-        [Browsable(true)] public bool FloatingLabel { get; set; } = true;
-        [Browsable(true)] public string LabelText { get; set; } = string.Empty;
-        [Browsable(true)] public string HelperText { get; set; } = string.Empty;
-        [Browsable(true)] public Color FocusBorderColor { get; set; } = Color.RoyalBlue;
-        [Browsable(true)] public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
-        
-        // Validation state for helper text color
-        [Browsable(true)] public bool IsValid { get; set; } = true;
-        #endregion
-
-        #region React UI Properties
-        [Browsable(true)] public ReactUIVariant UIVariant { get; set; } = ReactUIVariant.Default;
-        [Browsable(true)] public ReactUISize UISize { get; set; } = ReactUISize.Medium;
-        [Browsable(true)] public ReactUIColor UIColor { get; set; } = ReactUIColor.Primary;
-        [Browsable(true)] public ReactUIDensity UIDensity { get; set; } = ReactUIDensity.Standard;
-        [Browsable(true)] public ReactUIElevation UIElevation { get; set; } = ReactUIElevation.None;
-        [Browsable(true)] public ReactUIShape UIShape { get; set; } = ReactUIShape.Rounded;
-        [Browsable(true)] public ReactUIAnimation UIAnimation { get; set; } = ReactUIAnimation.None;
-        [Browsable(true)] public bool UIFullWidth { get; set; } = false;
-        [Browsable(true)] public int UICustomElevation { get; set; } = 0;
-        [Browsable(true)] public bool UIDisabled 
-        { 
-            get => !_owner.Enabled; 
-            set => _owner.Enabled = !value; 
-        }
-        #endregion
-
-        #region Badge Properties
-        [Browsable(true)] public string BadgeText { get; set; } = "";
-        [Browsable(true)] public Color BadgeBackColor { get; set; } = Color.Red;
-        [Browsable(true)] public Color BadgeForeColor { get; set; } = Color.White;
-        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Arial", 8, FontStyle.Bold);
-        [Browsable(true)] public BadgeShape BadgeShape { get; set; } = BadgeShape.Circle;
-        #endregion
-
-        #region State Colors
-        [Browsable(true)] public Color HoverBackColor { get; set; } = Color.LightBlue;
-        [Browsable(true)] public Color HoverBorderColor { get; set; } = Color.Blue;
-        [Browsable(true)] public Color HoverForeColor { get; set; } = Color.Black;
-        [Browsable(true)] public Color PressedBackColor { get; set; } = Color.Gray;
-        [Browsable(true)] public Color PressedBorderColor { get; set; } = Color.DarkGray;
-        [Browsable(true)] public Color PressedForeColor { get; set; } = Color.White;
-        [Browsable(true)] public Color FocusBackColor { get; set; } = Color.LightYellow;
-        [Browsable(true)] public Color FocusForeColor { get; set; } = Color.Black;
-        [Browsable(true)] public Color DisabledBackColor { get; set; } = Color.LightGray;
-        [Browsable(true)] public Color DisabledBorderColor { get; set; } = Color.Gray;
-        [Browsable(true)] public Color DisabledForeColor { get; set; } = Color.DarkGray;
-        [Browsable(true)] public Color SelectedBackColor { get; set; } = Color.LightGreen;
-        [Browsable(true)] public Color SelectedBorderColor { get; set; } = Color.Green;
-        [Browsable(true)] public Color SelectedForeColor { get; set; } = Color.Black;
-        #endregion
-
-        #region Additional Properties for Full Parity
-        [Browsable(true)] public bool CanBeHovered { get; set; } = true;
-        [Browsable(true)] public bool CanBePressed { get; set; } = true;
-        [Browsable(true)] public bool CanBeFocused { get; set; } = true;
-        [Browsable(true)] public bool IsFrameless { get; set; } = false;
-        [Browsable(true)] public bool IsBorderAffectedByTheme { get; set; } = true;
-        [Browsable(true)] public bool IsShadowAffectedByTheme { get; set; } = true;
-        [Browsable(true)] public bool IsRoundedAffectedByTheme { get; set; } = true;
-        [Browsable(true)] public BorderStyle BorderStyle { get; set; } = BorderStyle.FixedSingle;
-        #endregion
-
-        public Rectangle DrawingRect { get;  set; }
-        public Rectangle BorderRectangle { get;  set; }
+        public Rectangle DrawingRect { get; set; }
+        public Rectangle BorderRectangle { get; set; }
 
         public void UpdateRects()
         {
-            Rectangle? drawingrect = Rectangle.Empty;
-            int shadow = ShowShadow ? ShadowOffset : 0;
+            int shadow = _owner.ShowShadow ? _owner.ShadowOffset : 0;
             int border = 0;
-            if (ShowAllBorders || MaterialBorderVariant == MaterialTextFieldVariant.Outlined)
+            if (_owner.ShowAllBorders || _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined)
             {
-                border = BorderThickness;
+                border = _owner.BorderThickness;
             }
             var padding = _owner.Padding;
 
             // Include custom offsets like base BeepControl
-            int leftPad = padding.Left + LeftoffsetForDrawingRect;
-            int topPad = padding.Top + TopoffsetForDrawingRect;
-            int rightPad = padding.Right + RightoffsetForDrawingRect;
-            int bottomPad = padding.Bottom + BottomoffsetForDrawingRect;
-            Rectangle? materialcontentrect= Rectangle.Empty;
-            // If Material outlined variant uses a floating label, the label overlaps
-            // the top border by roughly half its height. Reserve space so content
-            // (DrawingRect) doesn't draw under the floating label.
-            Console.WriteLine($"Material Style Enabled: {_owner.EnableMaterialStyle}");
-            if (_owner.EnableMaterialStyle)
+            int leftPad = padding.Left + _owner.LeftoffsetForDrawingRect;
+            int topPad = padding.Top + _owner.TopoffsetForDrawingRect;
+            int rightPad = padding.Right + _owner.RightoffsetForDrawingRect;
+            int bottomPad = padding.Bottom + _owner.BottomoffsetForDrawingRect;
+            
+            // If Material style is enabled and helper exists, use it
+            if (_owner.EnableMaterialStyle && _owner._materialHelper != null)
             {
-                Console.WriteLine("Material style is enabled, updating layout via MaterialHelper.");
-                _owner._materialHelper.UpdateLayout();
-                Console.WriteLine("MaterialHelper layout updated.");
-                materialcontentrect = _owner._materialHelper.GetContentRect();
-                Console.WriteLine($"Material content rect: {materialcontentrect}");
-                DrawingRect = (Rectangle)materialcontentrect;
-                Console.WriteLine("Updated DrawingRect from MaterialHelper.");
-                return;
+                try
+                {
+                    _owner._materialHelper.UpdateLayout();
+                    var materialContentRect = _owner._materialHelper.GetContentRect();
+                    
+                    if (materialContentRect.Width > 0 && materialContentRect.Height > 0)
+                    {
+                        DrawingRect = materialContentRect;
+                        return;
+                    }
+                }
+                catch
+                {
+                    // Fall through to standard layout
+                }
             }
-            Console.WriteLine("Material style not enabled, using standard layout.");
-
+            
+            // Standard layout (like BeepControl)
             int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
-                int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
+            int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
 
-                DrawingRect = new Rectangle(
-                    shadow + border + leftPad,
-                    shadow + border + topPad,
-                    w,
-                    h);
+            DrawingRect = new Rectangle(
+                shadow + border + leftPad,
+                shadow + border + topPad,
+                w,
+                h);
 
-                // Update border rectangle
-                int halfPen = (int)Math.Ceiling(BorderThickness / 2f);
-                BorderRectangle = new Rectangle(
-                    shadow + halfPen,
-                    shadow + halfPen,
-                    _owner.Width - (shadow + halfPen) * 2,
-                    _owner.Height - (shadow + halfPen) * 2
-                );
-            
-
-            
+            // Update border rectangle
+            int halfPen = (int)Math.Ceiling(_owner.BorderThickness / 2f);
+            BorderRectangle = new Rectangle(
+                shadow + halfPen,
+                shadow + halfPen,
+                Math.Max(0, _owner.Width - (shadow + halfPen) * 2),
+                Math.Max(0, _owner.Height - (shadow + halfPen) * 2)
+            );
         }
 
         // Custom border flag will be held on owner (via BaseControl.IsCustomeBorder),
@@ -200,15 +93,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             _owner.UpdateDrawingRect();
-            if (UIVariant != ReactUIVariant.Default)
+            if (_owner.UIVariant != ReactUIVariant.Default)
             {
                 ApplyReactUIStyles();
                 _owner.UpdateDrawingRect();
             }
-            Console.WriteLine($"DrawingRect: {DrawingRect}, BorderRect: {BorderRectangle}");
             DrawBackground(g);
 
-            if (ShowShadow)
+            if (_owner.ShowShadow)
             {
                 DrawShadow(g);
             }
@@ -216,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             // If consumer wants full custom border, let them draw; otherwise default borders
             if (!(OwnerAdv?.IsCustomeBorder ?? false))
             {
-                if (!IsFrameless)
+                if (!_owner.IsFrameless)
                 {
                     DrawBorders(g);
                 }
@@ -226,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 CustomBorderDrawer?.Invoke(g);
             }
 
-            //if (!string.IsNullOrEmpty(BadgeText))
+            //if (!string.IsNullOrEmpty(_owner.BadgeText))
             //{
             //    //DrawBadge(g);
             //    _owner.DrawBadgeExternally(g,new Rectangle() { Height=20,Width=20});
@@ -237,20 +129,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             Color backColor = GetEffectiveBackColor();
 
-            if (UseGradientBackground && ModernGradientType != ModernGradientType.None)
+            if (_owner.UseGradientBackground && _owner.ModernGradientType != ModernGradientType.None)
             {
                 DrawModernGradient(g, backColor);
             }
-            else if (UseGradientBackground)
+            else if (_owner.UseGradientBackground)
             {
-                DrawLinearGradient(g, GradientStartColor, GradientEndColor);
+                DrawLinearGradient(g, _owner.GradientStartColor, _owner.GradientEndColor);
             }
             else
             {
                 // Material UI Filled variant background
-                if (MaterialBorderVariant == MaterialTextFieldVariant.Filled)
+                if (_owner.MaterialBorderVariant == MaterialTextFieldVariant.Filled)
                 {
-                    backColor = FilledBackgroundColor;
+                    backColor = _owner.FilledBackgroundColor;
                 }
 
                 using (var brush = new SolidBrush(backColor))
@@ -265,35 +157,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             var ownerAdv = OwnerAdv;
             if (ownerAdv != null)
             {
-                if (!_owner.Enabled) return DisabledBackColor;
-                if (ownerAdv.IsPressed) return PressedBackColor;
-                if (ownerAdv.IsHovered) return HoverBackColor;
-                if (_owner.Focused) return FocusBackColor;
-                if (ownerAdv.IsSelected) return SelectedBackColor;
+                if (!_owner.Enabled) return _owner.DisabledBackColor;
+                if (ownerAdv.IsPressed) return _owner.PressedBackColor;
+                if (ownerAdv.IsHovered) return _owner.HoverBackColor;
+                if (_owner.Focused) return _owner.FocusBackColor;
+                if (ownerAdv.IsSelected) return _owner.SelectedBackColor;
             }
             return _owner.BackColor;
         }
 
         private void DrawShadow(Graphics g)
         {
-            if (ShadowOpacity <= 0) return;
+            if (_owner.ShadowOpacity <= 0) return;
 
-            int shadowDepth = Math.Max(1, ShadowOffset / 2);
+            int shadowDepth = Math.Max(1, _owner.ShadowOffset / 2);
             int maxLayers = Math.Min(shadowDepth, 6);
 
             Rectangle shadowRect = new Rectangle(
-                DrawingRect.X + ShadowOffset,
-                DrawingRect.Y + ShadowOffset,
+                DrawingRect.X + _owner.ShadowOffset,
+                DrawingRect.Y + _owner.ShadowOffset,
                 DrawingRect.Width,
                 DrawingRect.Height);
 
             for (int i = 1; i <= maxLayers; i++)
             {
                 float layerOpacityFactor = (float)(maxLayers - i + 1) / maxLayers;
-                float finalOpacity = ShadowOpacity * layerOpacityFactor * 0.6f;
+                float finalOpacity = _owner.ShadowOpacity * layerOpacityFactor * 0.6f;
                 int layerAlpha = Math.Max(5, (int)(255 * finalOpacity));
 
-                Color layerShadowColor = Color.FromArgb(layerAlpha, ShadowColor);
+                Color layerShadowColor = Color.FromArgb(layerAlpha, _owner.ShadowColor);
                 int spread = i - 1;
                 Rectangle layerRect = new Rectangle(
                     shadowRect.X - spread,
@@ -303,9 +195,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
                 using (var shadowBrush = new SolidBrush(layerShadowColor))
                 {
-                    if (IsRounded && BorderRadius > 0)
+                    if (_owner.IsRounded && _owner.BorderRadius > 0)
                     {
-                        int shadowRadius = Math.Max(0, BorderRadius + spread);
+                        int shadowRadius = Math.Max(0, _owner.BorderRadius + spread);
                         using (var shadowPath = GetRoundedRectPath(layerRect, shadowRadius))
                         {
                             g.FillPath(shadowBrush, shadowPath);
@@ -322,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private void DrawBorders(Graphics g)
         {
             // Material UI borders take priority
-            if (MaterialBorderVariant != MaterialTextFieldVariant.Standard)
+            if (_owner.MaterialBorderVariant != MaterialTextFieldVariant.Standard)
             {
                 DrawMaterialBorder(g);
                 return;
@@ -330,16 +222,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
             Color effectiveBorderColor = GetEffectiveBorderColor();
 
-            if (ShowAllBorders && BorderThickness > 0)
+            if (_owner.ShowAllBorders && _owner.BorderThickness > 0)
             {
-                using (var borderPen = new Pen(effectiveBorderColor, BorderThickness))
+                using (var borderPen = new Pen(effectiveBorderColor, _owner.BorderThickness))
                 {
-                    borderPen.DashStyle = BorderDashStyle;
+                    borderPen.DashStyle = _owner.BorderDashStyle;
                     borderPen.Alignment = PenAlignment.Inset;
 
-                    if (IsRounded)
+                    if (_owner.IsRounded)
                     {
-                        using (var path = GetRoundedRectPath(BorderRectangle, BorderRadius))
+                        using (var path = GetRoundedRectPath(BorderRectangle, _owner.BorderRadius))
                         {
                             g.DrawPath(borderPen, path);
                         }
@@ -353,16 +245,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             else
             {
                 // Draw individual borders
-                using (var borderPen = new Pen(effectiveBorderColor, BorderThickness))
+                using (var borderPen = new Pen(effectiveBorderColor, _owner.BorderThickness))
                 {
-                    borderPen.DashStyle = BorderDashStyle;
-                    if (ShowTopBorder)
+                    borderPen.DashStyle = _owner.BorderDashStyle;
+                    if (_owner.ShowTopBorder)
                         g.DrawLine(borderPen, BorderRectangle.Left, BorderRectangle.Top, BorderRectangle.Right, BorderRectangle.Top);
-                    if (ShowBottomBorder)
+                    if (_owner.ShowBottomBorder)
                         g.DrawLine(borderPen, BorderRectangle.Left, BorderRectangle.Bottom, BorderRectangle.Right, BorderRectangle.Bottom);
-                    if (ShowLeftBorder)
+                    if (_owner.ShowLeftBorder)
                         g.DrawLine(borderPen, BorderRectangle.Left, BorderRectangle.Top, BorderRectangle.Left, BorderRectangle.Bottom);
-                    if (ShowRightBorder)
+                    if (_owner.ShowRightBorder)
                         g.DrawLine(borderPen, BorderRectangle.Right, BorderRectangle.Top, BorderRectangle.Right, BorderRectangle.Bottom);
                 }
             }
@@ -373,14 +265,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             var ownerAdv = OwnerAdv;
             if (ownerAdv != null)
             {
-                if (!_owner.Enabled) return DisabledBorderColor;
-                if (_owner.Focused) return FocusBorderColor;
-                if (ownerAdv.IsHovered) return HoverBorderColor;
-                if (ownerAdv.IsPressed) return PressedBorderColor;
-                if (ownerAdv.IsSelected) return SelectedBorderColor;
+                if (!_owner.Enabled) return _owner.DisabledBorderColor;
+                if (_owner.Focused) return _owner.FocusBorderColor;
+                if (ownerAdv.IsHovered) return _owner.HoverBorderColor;
+                if (ownerAdv.IsPressed) return _owner.PressedBorderColor;
+                if (ownerAdv.IsSelected) return _owner.SelectedBorderColor;
                 return ownerAdv.BorderColor;
             }
-            return InactiveBorderColor;
+            return _owner.InactiveBorderColor;
         }
 
         private void DrawMaterialBorder(Graphics g)
@@ -388,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             Color borderColor = GetEffectiveBorderColor();
             Rectangle borderRect = BorderRectangle;
 
-            switch (MaterialBorderVariant)
+            switch (_owner.MaterialBorderVariant)
             {
                 case MaterialTextFieldVariant.Standard:
                     using (var underlinePen = new Pen(borderColor, 1))
@@ -396,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                         g.DrawLine(underlinePen, borderRect.Left, borderRect.Bottom - 1, borderRect.Right, borderRect.Bottom - 1);
                         if (_owner.Focused)
                         {
-                            using (var focusPen = new Pen(FocusBorderColor, 2))
+                            using (var focusPen = new Pen(_owner.FocusBorderColor, 2))
                                 g.DrawLine(focusPen, borderRect.Left, borderRect.Bottom, borderRect.Right, borderRect.Bottom);
                         }
                     }
@@ -405,9 +297,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 case MaterialTextFieldVariant.Outlined:
                     using (var borderPen = new Pen(borderColor, 1))
                     {
-                        if (IsRounded)
+                        if (_owner.IsRounded)
                         {
-                            using (var path = GetRoundedRectPath(borderRect, BorderRadius))
+                            using (var path = GetRoundedRectPath(borderRect, _owner.BorderRadius))
                                 g.DrawPath(borderPen, path);
                         }
                         else
@@ -416,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                         }
 
                         // Draw floating label if needed
-                        if (FloatingLabel && !string.IsNullOrEmpty(LabelText))
+                        if (_owner.FloatingLabel && !string.IsNullOrEmpty(_owner.LabelText))
                         {
                             DrawFloatingLabel(g, borderRect, borderColor);
                         }
@@ -430,7 +322,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                         g.DrawLine(underlinePen, borderRect.Left, borderRect.Bottom - 1, borderRect.Right, borderRect.Bottom - 1);
                         if (_owner.Focused)
                         {
-                            using (var focusPen = new Pen(FocusBorderColor, 2))
+                            using (var focusPen = new Pen(_owner.FocusBorderColor, 2))
                                 g.DrawLine(focusPen, borderRect.Left, borderRect.Bottom, borderRect.Right, borderRect.Bottom);
                         }
                     }
@@ -438,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
 
             // Draw helper text if provided
-            if (!string.IsNullOrEmpty(HelperText))
+            if (!string.IsNullOrEmpty(_owner.HelperText))
             {
                 DrawHelperText(g, borderRect);
             }
@@ -447,23 +339,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private void DrawFloatingLabel(Graphics g, Rectangle borderRect, Color borderColor)
         {
             var labelFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.8f);
-            var labelSize = TextRenderer.MeasureText(LabelText, labelFont);
+            var labelSize = TextRenderer.MeasureText(_owner.LabelText, labelFont);
             int labelX = borderRect.X + 10;
             var labelGapRect = new Rectangle(labelX - 2, borderRect.Y - labelSize.Height / 2, labelSize.Width + 4, labelSize.Height);
 
             using (var backBrush = new SolidBrush(_owner.BackColor))
                 g.FillRectangle(backBrush, labelGapRect);
 
-            using (var labelBrush = new SolidBrush(_owner.Focused ? FocusBorderColor : borderColor))
-                g.DrawString(LabelText, labelFont, labelBrush, labelX, borderRect.Y - labelSize.Height / 2);
+            using (var labelBrush = new SolidBrush(_owner.Focused ? _owner.FocusBorderColor : borderColor))
+                g.DrawString(_owner.LabelText, labelFont, labelBrush, labelX, borderRect.Y - labelSize.Height / 2);
         }
 
         private void DrawHelperText(Graphics g, Rectangle borderRect)
         {
             var helperFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.8f);
-            Color helperColor = IsValid ? Color.Gray : Color.Red;
+            Color helperColor = _owner.IsValid ? Color.Gray : Color.Red;
             var helperRect = new Rectangle(borderRect.X, borderRect.Bottom + 2, borderRect.Width, 20);
-            TextRenderer.DrawText(g, HelperText, helperFont, helperRect, helperColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+            TextRenderer.DrawText(g, _owner.HelperText, helperFont, helperRect, helperColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
         }
 
         private void DrawBadge(Graphics g)
@@ -474,11 +366,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
 
             // Badge shadow
-            if (ShowShadow)
+            if (_owner.ShowShadow)
             {
-                float badgeShadowOpacity = Math.Min(0.3f, ShadowOpacity * 0.8f);
+                float badgeShadowOpacity = Math.Min(0.3f, _owner.ShadowOpacity * 0.8f);
                 int badgeShadowOffset = 1;
-                Color badgeShadowColor = Color.FromArgb((int)(255 * badgeShadowOpacity), ShadowColor);
+                Color badgeShadowColor = Color.FromArgb((int)(255 * badgeShadowOpacity), _owner.ShadowColor);
 
                 using (var shadowBrush = new SolidBrush(badgeShadowColor))
                 {
@@ -487,9 +379,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
 
             // Badge background
-            using (var brush = new SolidBrush(BadgeBackColor))
+            using (var brush = new SolidBrush(_owner.BadgeBackColor))
             {
-                switch (BadgeShape)
+                switch (_owner.BadgeShape)
                 {
                     case BadgeShape.Circle:
                         g.FillEllipse(brush, badgeRect);
@@ -505,13 +397,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
 
             // Badge text
-            if (!string.IsNullOrEmpty(BadgeText))
+            if (!string.IsNullOrEmpty(_owner.BadgeText))
             {
-                using (var textBrush = new SolidBrush(BadgeForeColor))
-                using (var scaledFont = GetScaledBadgeFont(g, BadgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), BadgeFont))
+                using (var textBrush = new SolidBrush(_owner.BadgeForeColor))
+                using (var scaledFont = GetScaledBadgeFont(g, _owner.BadgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), _owner.BadgeFont))
                 {
                     var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(BadgeText, scaledFont, textBrush, badgeRect, fmt);
+                    g.DrawString(_owner.BadgeText, scaledFont, textBrush, badgeRect, fmt);
                 }
             }
         }
@@ -519,13 +411,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         #region Modern Gradient Methods
         private void DrawModernGradient(Graphics g, Color baseColor)
         {
-            switch (ModernGradientType)
+            switch (_owner.ModernGradientType)
             {
                 case ModernGradientType.Subtle:
                     DrawSubtleGradient(g, DrawingRect, baseColor);
                     break;
                 case ModernGradientType.Linear:
-                    DrawLinearGradient(g, GradientStartColor, GradientEndColor);
+                    DrawLinearGradient(g, _owner.GradientStartColor, _owner.GradientEndColor);
                     break;
                 case ModernGradientType.Radial:
                     DrawRadialGradient(g, DrawingRect, baseColor);
@@ -538,7 +430,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     break;
             }
 
-            if (UseGlassmorphism)
+            if (_owner.UseGlassmorphism)
             {
                 ApplyGlassmorphism(g, DrawingRect);
             }
@@ -554,7 +446,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 ? Color.FromArgb(Math.Max(0, baseColor.R - (int)(255 * subtleFactor)), Math.Max(0, baseColor.G - (int)(255 * subtleFactor)), Math.Max(0, baseColor.B - (int)(255 * subtleFactor)))
                 : Color.FromArgb(Math.Min(255, baseColor.R + (int)(255 * subtleFactor)), Math.Min(255, baseColor.G + (int)(255 * subtleFactor)), Math.Min(255, baseColor.B + (int)(255 * subtleFactor)));
 
-            float angleRadians = (float)(GradientAngle * Math.PI / 180f);
+            float angleRadians = (float)(_owner.GradientAngle * Math.PI / 180f);
             using (var gradientBrush = CreateAngledGradientBrush(rect, color1, color2, angleRadians))
             {
                 var blend = new ColorBlend();
@@ -567,9 +459,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void DrawLinearGradient(Graphics g, Color startColor, Color endColor)
         {
-            using (var gradientBrush = new LinearGradientBrush(DrawingRect, startColor, endColor, GradientDirection))
+            using (var gradientBrush = new LinearGradientBrush(DrawingRect, startColor, endColor, _owner.GradientDirection))
             {
-                if (GradientStops.Count > 0)
+                if (_owner.GradientStops.Count > 0)
                 {
                     ApplyGradientStops(gradientBrush);
                 }
@@ -579,10 +471,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void DrawRadialGradient(Graphics g, Rectangle rect, Color baseColor)
         {
-            Color centerColor = GradientStartColor != Color.LightGray ? GradientStartColor : baseColor;
-            Color edgeColor = GradientEndColor != Color.Gray ? GradientEndColor : ModifyColorBrightness(baseColor, 0.7f);
+            Color centerColor = _owner.GradientStartColor != Color.LightGray ? _owner.GradientStartColor : baseColor;
+            Color edgeColor = _owner.GradientEndColor != Color.Gray ? _owner.GradientEndColor : ModifyColorBrightness(baseColor, 0.7f);
 
-            var center = new PointF(rect.X + rect.Width * RadialCenter.X, rect.Y + rect.Height * RadialCenter.Y);
+            var center = new PointF(rect.X + rect.Width * _owner.RadialCenter.X, rect.Y + rect.Height * _owner.RadialCenter.Y);
             float radius = Math.Max(rect.Width, rect.Height) * 0.7f;
 
             using (var path = new GraphicsPath())
@@ -605,7 +497,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
             for (int i = 0; i < segments; i++)
             {
-                float startAngle = (i * 360f / segments) + GradientAngle;
+                float startAngle = (i * 360f / segments) + _owner.GradientAngle;
                 float hue = (startAngle % 360f) / 360f;
                 Color segmentColor = ColorFromHSV(hue, 0.5f, baseColor.GetBrightness());
 
@@ -648,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void ApplyGlassmorphism(Graphics g, Rectangle rect)
         {
-            using (var glassBrush = new SolidBrush(Color.FromArgb((int)(255 * GlassmorphismOpacity), Color.White)))
+            using (var glassBrush = new SolidBrush(Color.FromArgb((int)(255 * _owner.GlassmorphismOpacity), Color.White)))
             {
                 var random = new Random(42);
                 for (int i = 0; i < rect.Width * rect.Height / 1000; i++)
@@ -669,51 +561,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private void ApplyReactUIStyles()
         {
             // Apply shape based on UIShape
-            switch (UIShape)
+            switch (_owner.UIShape)
             {
                 case ReactUIShape.Square:
-                    IsRounded = false;
-                    BorderRadius = 0;
+                    _owner.IsRounded = false;
+                    _owner.BorderRadius = 0;
                     break;
                 case ReactUIShape.Rounded:
-                    IsRounded = true;
-                    BorderRadius = GetSizeBasedValue(8, 4, 8, 12, 16);
+                    _owner.IsRounded = true;
+                    _owner.BorderRadius = GetSizeBasedValue(8, 4, 8, 12, 16);
                     break;
                 case ReactUIShape.Circular:
-                    IsRounded = true;
-                    BorderRadius = Math.Min(_owner.Width, _owner.Height) / 2;
+                    _owner.IsRounded = true;
+                    _owner.BorderRadius = Math.Min(_owner.Width, _owner.Height) / 2;
                     break;
                 case ReactUIShape.Pill:
-                    IsRounded = true;
-                    BorderRadius = _owner.Height / 2;
+                    _owner.IsRounded = true;
+                    _owner.BorderRadius = _owner.Height / 2;
                     break;
             }
 
             // Apply elevation/shadows
-            switch (UIElevation)
+            switch (_owner.UIElevation)
             {
                 case ReactUIElevation.None:
-                    ShowShadow = false;
+                    _owner.ShowShadow = false;
                     break;
                 case ReactUIElevation.Low:
-                    ShowShadow = true;
-                    ShadowOpacity = 0.2f;
-                    ShadowOffset = 2;
+                    _owner.ShowShadow = true;
+                    _owner.ShadowOpacity = 0.2f;
+                    _owner.ShadowOffset = 2;
                     break;
                 case ReactUIElevation.Medium:
-                    ShowShadow = true;
-                    ShadowOpacity = 0.3f;
-                    ShadowOffset = 4;
+                    _owner.ShowShadow = true;
+                    _owner.ShadowOpacity = 0.3f;
+                    _owner.ShadowOffset = 4;
                     break;
                 case ReactUIElevation.High:
-                    ShowShadow = true;
-                    ShadowOpacity = 0.4f;
-                    ShadowOffset = 6;
+                    _owner.ShowShadow = true;
+                    _owner.ShadowOpacity = 0.4f;
+                    _owner.ShadowOffset = 6;
                     break;
                 case ReactUIElevation.Custom:
-                    ShowShadow = true;
-                    ShadowOpacity = 0.3f;
-                    ShadowOffset = UICustomElevation;
+                    _owner.ShowShadow = true;
+                    _owner.ShadowOpacity = 0.3f;
+                    _owner.ShadowOffset = _owner.UICustomElevation;
                     break;
             }
 
@@ -723,7 +615,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private int GetSizeBasedValue(int xs, int sm, int md, int lg, int xl)
         {
-            return UISize switch
+            return _owner.UISize switch
             {
                 ReactUISize.ExtraSmall => xs,
                 ReactUISize.Small => sm,
@@ -738,7 +630,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             Color primaryColor, secondaryColor, backgroundColor, textColor, borderColor;
 
-            switch (UIColor)
+            switch (_owner.UIColor)
             {
                 case ReactUIColor.Primary:
                     primaryColor = Color.FromArgb(25, 118, 210);
@@ -791,48 +683,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     break;
             }
 
-            if (UIVariant == ReactUIVariant.Outlined || UIVariant == ReactUIVariant.Text)
+            if (_owner.UIVariant == ReactUIVariant.Outlined || _owner.UIVariant == ReactUIVariant.Text)
             {
                 _owner.ForeColor = primaryColor;
                 _owner.BackColor = backgroundColor;
                 if (OwnerAdv != null) OwnerAdv.BorderColor = primaryColor;
-                HoverForeColor = secondaryColor;
-                HoverBackColor = Color.FromArgb(10, primaryColor);
-                HoverBorderColor = secondaryColor;
+                _owner.HoverForeColor = secondaryColor;
+                _owner.HoverBackColor = Color.FromArgb(10, primaryColor);
+                _owner.HoverBorderColor = secondaryColor;
             }
             else
             {
                 _owner.ForeColor = textColor;
                 _owner.BackColor = primaryColor;
                 if (OwnerAdv != null) OwnerAdv.BorderColor = primaryColor;
-                HoverForeColor = textColor;
-                HoverBackColor = secondaryColor;
-                HoverBorderColor = secondaryColor;
+                _owner.HoverForeColor = textColor;
+                _owner.HoverBackColor = secondaryColor;
+                _owner.HoverBorderColor = secondaryColor;
             }
         }
 
         private void ApplyVariantStyling()
         {
-            switch (UIVariant)
+            switch (_owner.UIVariant)
             {
                 case ReactUIVariant.Outlined:
-                    ShowAllBorders = true;
-                    BorderThickness = 1;
+                    _owner.ShowAllBorders = true;
+                    _owner.BorderThickness = 1;
                     break;
                 case ReactUIVariant.Text:
-                    ShowAllBorders = false;
+                    _owner.ShowAllBorders = false;
                     break;
                 case ReactUIVariant.Contained:
                 case ReactUIVariant.Filled:
-                    ShowAllBorders = false;
+                    _owner.ShowAllBorders = false;
                     break;
                 case ReactUIVariant.Ghost:
                     _owner.BackColor = Color.Transparent;
-                    ShowAllBorders = false;
+                    _owner.ShowAllBorders = false;
                     break;
                 default:
-                    ShowAllBorders = true;
-                    BorderThickness = 1;
+                    _owner.ShowAllBorders = true;
+                    _owner.BorderThickness = 1;
                     break;
             }
         }
@@ -841,9 +733,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         #region Helper Methods
         private void FillShape(Graphics g, Brush brush, Rectangle rect)
         {
-            if (IsRounded)
+            if (_owner.IsRounded)
             {
-                using (var path = GetRoundedRectPath(rect, BorderRadius))
+                using (var path = GetRoundedRectPath(rect, _owner.BorderRadius))
                 {
                     g.FillPath(brush, path);
                 }
@@ -907,9 +799,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void ApplyGradientStops(LinearGradientBrush brush)
         {
-            if (GradientStops.Count < 2) return;
+            if (_owner.GradientStops.Count < 2) return;
 
-            var sortedStops = GradientStops.OrderBy(s => s.Position).ToList();
+            var sortedStops = _owner.GradientStops.OrderBy(s => s.Position).ToList();
             var blend = new ColorBlend();
             blend.Colors = sortedStops.Select(s => s.Color).ToArray();
             blend.Positions = sortedStops.Select(s => s.Position).ToArray();
@@ -944,12 +836,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public void AddGradientStop(float position, Color color)
         {
-            GradientStops.Add(new GradientStop(position, color));
+            _owner.GradientStops.Add(new GradientStop(position, color));
         }
 
         public void ClearGradientStops()
         {
-            GradientStops.Clear();
+            _owner.GradientStops.Clear();
         }
 
         public static GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)

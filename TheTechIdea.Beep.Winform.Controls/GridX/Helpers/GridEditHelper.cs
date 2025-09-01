@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 lov.BackColor = Color.White;
                 lov.ForeColor = Color.Black;
             }
-            else if (_editorControl is BeepTextBox st)
+            else if (_currenteditorUIcomponent is BeepTextBox st)
             {
                 st.ShowAllBorders = false;
                 st.IsFrameless = true;

@@ -1,39 +1,217 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+﻿using System;
 using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using TheTechIdea.Beep.Desktop.Common.Util;
+using System.Collections.Generic;
+using System.Linq;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-
-
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
+using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
-    [Description("A text box control with Beep styling.")]
+    [Description("A modern, high-performance text box control with advanced capabilities.")]
     [DisplayName("Beep TextBox")]
     [Category("Beep Controls")]
-    public class BeepTextBox : BeepControl
+    public class BeepTextBox : BaseControl, IBeepTextBox
     {
-        #region "Properties"
-      
-        public new event EventHandler TextChanged;
-        private TextBox _innerTextBox;
-        private BeepImage beepImage;
-        private string _maskFormat = "";
-        private bool _onlyDigits = false;
-        private bool _onlyCharacters = false;
-        private TextImageRelation _textImageRelation = TextImageRelation.ImageBeforeText;
-        private ContentAlignment _imageAlign = ContentAlignment.MiddleLeft;
-        private Size _maxImageSize = new Size(16, 16); // Default image size
-        private string? _imagepath;
-        private bool _multiline = false;
-        int padding = 1;
-      
-        int offset = 0;
-        private Font _textFont = new Font("Arial", 10);
+        #region "Helper Instance"
+        
+        /// <summary>
+        /// The main helper that coordinates all functionality
+        /// </summary>
+        private BeepSimpleTextBoxHelper _helper;
+        
+        /// <summary>
+        /// Gets the helper instance for internal use
+        /// </summary>
+        internal BeepSimpleTextBoxHelper Helper => _helper;
+        
+        #endregion
+        
+        #region "Core Fields"
+        
+        private BeepImage _beepImage;
+        private string _placeholderText = "";
+        private Rectangle _textRect;
+        private List<string> _lines = new List<string>();
+        private bool _isInitializing = true;
+        
+        // Performance optimizations
+        private Timer _delayedUpdateTimer;
+        private bool _needsTextUpdate = false;
+        private bool _needsLayoutUpdate = false;
+        
+        // Animation support
+        private Timer _animationTimer;
+        private float _focusAnimationProgress = 0f;
+        private bool _isFocusAnimating = false;
+        
+        // Smart features
+        private DateTime _lastKeyPressTime = DateTime.MinValue;
+        private bool _isTyping = false;
+        private Timer _typingTimer;
+        
+        #endregion
+        
+        #region "Properties - Core Text"
+        
+        public override string Text
+        {
+            get => _text;
+            set
+            {
+                string newValue = value ?? "";
+                
+                // Only filter out during initialization or if it's obviously a designer default
+                if (_isInitializing && (string.IsNullOrEmpty(newValue) || newValue.StartsWith("BeepTextBox")))
+                {
+                    _text = "";
+                    return;
+                }
+
+                if (_text != newValue)
+                {
+                    string oldText = _text;
+                    _text = newValue;
+                    
+                    // Update lines and helper immediately for better responsiveness
+                    UpdateLines();
+                    _helper?.InvalidateAllCaches();
+                    
+                    // Trigger events and updates
+                    OnTextChangedInternal(oldText, _text);
+                    
+                    // Use immediate invalidation instead of delayed timer during normal operation
+                    if (!_isInitializing)
+                    {
+                        Invalidate();
+                    }
+                    else
+                    {
+                        // Use delayed update only during initialization
+                        _needsTextUpdate = true;
+                        _delayedUpdateTimer?.Stop();
+                        _delayedUpdateTimer?.Start();
+                    }
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Placeholder text shown when textbox is empty.")]
+        public string PlaceholderText
+        {
+            get => _placeholderText;
+            set
+            {
+                if (_placeholderText != value)
+                {
+                    _placeholderText = value ?? "";
+                    if (string.IsNullOrEmpty(_text))
+                    {
+                        Invalidate();
+                    }
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region "Properties - Modern Features"
+        
+        private bool _enableSmartFeatures = true;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("Enable modern smart features like typing indicators and smooth animations.")]
+        public bool EnableSmartFeatures
+        {
+            get => _enableSmartFeatures;
+            set
+            {
+                _enableSmartFeatures = value;
+                if (!value)
+                {
+                    _typingTimer?.Stop();
+                    _animationTimer?.Stop();
+                }
+            }
+        }
+        
+        private bool _enableFocusAnimation = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(true)]
+        [Description("Enable smooth focus border animation.")]
+        public bool EnableFocusAnimation
+        {
+            get => _enableFocusAnimation;
+            set => _enableFocusAnimation = value;
+        }
+        
+        private bool _enableTypingIndicator = true;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(true)]
+        [Description("Enable visual typing indicator effects.")]
+        public bool EnableTypingIndicator
+        {
+            get => _enableTypingIndicator;
+            set => _enableTypingIndicator = value;
+        }
+        
+        private int _maxLength = 0;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(0)]
+        [Description("Maximum number of characters allowed. 0 means no limit.")]
+        public int MaxLength
+        {
+            get => _maxLength;
+            set => _maxLength = Math.Max(0, value);
+        }
+        
+        private bool _showCharacterCount = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description("Show character count when MaxLength is set.")]
+        public bool ShowCharacterCount
+        {
+            get => _showCharacterCount;
+            set
+            {
+                _showCharacterCount = value;
+                Invalidate();
+            }
+        }
+        
+        private bool _enableSpellCheck = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [DefaultValue(false)]
+        [Description("Enable basic spell checking (requires dictionary).")]
+        public bool EnableSpellCheck
+        {
+            get => _enableSpellCheck;
+            set => _enableSpellCheck = value;
+        }
+        
+        #endregion
+        
+        #region "Properties - Appearance"
+        
+        private Font _textFont = new Font("Segoe UI", 10);
         [Browsable(true)]
         [MergableProperty(true)]
         [Category("Appearance")]
@@ -44,38 +222,662 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _textFont;
             set
             {
-
-                _textFont = value;
-                UseThemeFont = false;
-              //  Font = _textFont;
-                _innerTextBox.Font = _textFont;
-                UpdateMinimumSize();
-                Invalidate();
-
-
+                if (_textFont != value)
+                {
+                    _textFont?.Dispose();
+                    _textFont = value ?? new Font("Segoe UI", 10);
+                    UseThemeFont = false;
+                    _helper?.InvalidateAllCaches();
+                    InvalidateLayout();
+                }
             }
         }
-        private bool _showverticalscrollbar = false;
+        
+        private Color _placeholderTextColor = Color.Gray;
         [Browsable(true)]
         [Category("Appearance")]
-        public bool ShowVerticalScrollBar
+        [Description("Color for placeholder text.")]
+        public Color PlaceholderTextColor
         {
-            get => _showverticalscrollbar;
+            get => _placeholderTextColor;
             set
             {
-                _showverticalscrollbar = value;
+                _placeholderTextColor = value;
+                if (_currentTheme != null)
+                    _currentTheme.TextBoxPlaceholderColor = value;
+                if (string.IsNullOrEmpty(_text))
+                {
+                    Invalidate();
+                }
+            }
+        }
+        
+        private Color _focusBorderColor = Color.DodgerBlue;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Border color when the control has focus.")]
+        public Color FocusBorderColor
+        {
+            get => _focusBorderColor;
+            set
+            {
+                _focusBorderColor = value;
+                if (Focused)
+                {
+                    Invalidate();
+                }
+            }
+        }
+        
+        private int _borderWidth = 1;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(1)]
+        [Description("Width of the border in pixels.")]
+        public int BorderWidth
+        {
+            get => _borderWidth;
+            set
+            {
+                _borderWidth = Math.Max(0, Math.Min(value, 5));
+                Invalidate();
+            }
+        }
+        
+        #endregion
+        
+        #region "Properties - Behavior"
+        
+        private bool _multiline = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Allow multiple lines of text.")]
+        public bool Multiline
+        {
+            get => _multiline;
+            set
+            {
+                _multiline = value;
                 if (value)
                 {
-                    _innerTextBox.ScrollBars = ScrollBars.Vertical;
+                    AcceptsReturn = true;
                 }
-                else
+                UpdateLines();
+                InvalidateLayout();
+            }
+        }
+        
+        private bool _readOnly = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Prevent text editing.")]
+        public bool ReadOnly
+        {
+            get => _readOnly;
+            set
+            {
+                _readOnly = value;
+                TabStop = !value;
+                Invalidate();
+            }
+        }
+        
+        private bool _acceptsReturn = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Accept Enter key for new lines.")]
+        public bool AcceptsReturn
+        {
+            get => _acceptsReturn;
+            set
+            {
+                _acceptsReturn = value;
+                if (_multiline && !value)
                 {
-                    _innerTextBox.ScrollBars = ScrollBars.None;
+                    _acceptsReturn = true;
+                }
+            }
+        }
+        
+        private bool _acceptsTab = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Accept Tab key for indentation.")]
+        public bool AcceptsTab
+        {
+            get => _acceptsTab;
+            set => _acceptsTab = value;
+        }
+        
+        private HorizontalAlignment _textAlignment = HorizontalAlignment.Left;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Text alignment within the control.")]
+        public HorizontalAlignment TextAlignment
+        {
+            get => _textAlignment;
+            set
+            {
+                _textAlignment = value;
+                Invalidate();
+            }
+        }
+        
+        private bool _wordWrap = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Enable word wrapping in multiline mode.")]
+        public bool WordWrap
+        {
+            get => _wordWrap;
+            set
+            {
+                _wordWrap = value;
+                UpdateLines();
+                Invalidate();
+            }
+        }
+        
+        private bool _useSystemPasswordChar = false;
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Use system password character.")]
+        public bool UseSystemPasswordChar
+        {
+            get => _useSystemPasswordChar;
+            set
+            {
+                _useSystemPasswordChar = value;
+                Invalidate();
+            }
+        }
+        
+        private char _passwordChar = '\0';
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Custom password character.")]
+        public char PasswordChar
+        {
+            get => _passwordChar;
+            set
+            {
+                _passwordChar = value;
+                Invalidate();
+            }
+        }
+        
+        #endregion
+        
+        #region "Properties - Validation and Masking"
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Specifies the mask format for the text box.")]
+        [DefaultValue(TextBoxMaskFormat.None)]
+        public TextBoxMaskFormat MaskFormat
+        {
+            get => _helper?.Validation?.MaskFormat ?? TextBoxMaskFormat.None;
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.MaskFormat = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Custom mask pattern for input validation.")]
+        public string CustomMask
+        {
+            get => _helper?.Validation?.CustomMask ?? string.Empty;
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.CustomMask = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Date format pattern for date masking.")]
+        public string DateFormat
+        {
+            get => _helper?.Validation?.DateFormat ?? "MM/dd/yyyy";
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.DateFormat = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Time format pattern for time masking.")]
+        public string TimeFormat
+        {
+            get => _helper?.Validation?.TimeFormat ?? "HH:mm:ss";
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.TimeFormat = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Date time format pattern for datetime masking.")]
+        public string DateTimeFormat
+        {
+            get => _helper?.Validation?.DateTimeFormat ?? "MM/dd/yyyy HH:mm:ss";
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.DateTimeFormat = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Allow only numeric input.")]
+        public bool OnlyDigits
+        {
+            get => _helper?.Validation?.OnlyDigits ?? false;
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.OnlyDigits = value;
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Validation")]
+        [Description("Allow only alphabetic characters.")]
+        public bool OnlyCharacters
+        {
+            get => _helper?.Validation?.OnlyCharacters ?? false;
+            set
+            {
+                if (_helper?.Validation != null)
+                {
+                    _helper.Validation.OnlyCharacters = value;
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region "Properties - AutoComplete"
+        
+        [Browsable(true)]
+        [Category("AutoComplete")]
+        [Description("AutoComplete mode for the textbox.")]
+        public AutoCompleteMode AutoCompleteMode
+        {
+            get => _helper?.AutoComplete?.AutoCompleteMode ?? AutoCompleteMode.None;
+            set
+            {
+                if (_helper?.AutoComplete != null)
+                {
+                    _helper.AutoComplete.AutoCompleteMode = value;
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("AutoComplete")]
+        [Description("AutoComplete source for the textbox.")]
+        public AutoCompleteSource AutoCompleteSource
+        {
+            get => _helper?.AutoComplete?.AutoCompleteSource ?? AutoCompleteSource.None;
+            set
+            {
+                if (_helper?.AutoComplete != null)
+                {
+                    _helper.AutoComplete.AutoCompleteSource = value;
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("AutoComplete")]
+        [Description("Custom AutoComplete source collection.")]
+        public AutoCompleteStringCollection AutoCompleteCustomSource
+        {
+            get => _helper?.AutoComplete?.AutoCompleteCustomSource;
+            set
+            {
+                if (_helper?.AutoComplete != null)
+                {
+                    _helper.AutoComplete.AutoCompleteCustomSource = value;
+                }
+            }
+        }
+        
+        #endregion
+        
+        #region "Properties - Scrolling"
+        
+        [Browsable(true)]
+        [Category("Scrolling")]
+        [DefaultValue(true)]
+        [Description("Shows or hides the vertical scrollbar.")]
+        public bool ShowVerticalScrollBar
+        {
+            get => _helper?.Scrolling?.ShowVerticalScrollBar ?? true;
+            set
+            {
+                if (_helper?.Scrolling != null)
+                {
+                    _helper.Scrolling.ShowVerticalScrollBar = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Scrolling")]
+        [DefaultValue(true)]
+        [Description("Shows or hides the horizontal scrollbar.")]
+        public bool ShowHorizontalScrollBar
+        {
+            get => _helper?.Scrolling?.ShowHorizontalScrollBar ?? true;
+            set
+            {
+                if (_helper?.Scrolling != null)
+                {
+                    _helper.Scrolling.ShowHorizontalScrollBar = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        // Legacy properties for compatibility
+        [Browsable(true)]
+        [Category("Scrolling")]
+        [Description("Shows scrollbars when content overflows.")]
+        public bool ShowScrollbars
+        {
+            get => ShowVerticalScrollBar && ShowHorizontalScrollBar;
+            set
+            {
+                ShowVerticalScrollBar = value;
+                ShowHorizontalScrollBar = value;
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Scrolling")]
+        [Description("Type of scrollbars to show.")]
+        public ScrollBars ScrollBars
+        {
+            get
+            {
+                if (ShowVerticalScrollBar && ShowHorizontalScrollBar) return ScrollBars.Both;
+                if (ShowVerticalScrollBar) return ScrollBars.Vertical;
+                if (ShowHorizontalScrollBar) return ScrollBars.Horizontal;
+                return ScrollBars.None;
+            }
+            set
+            {
+                switch (value)
+                {
+                    case ScrollBars.None:
+                        ShowVerticalScrollBar = false;
+                        ShowHorizontalScrollBar = false;
+                        break;
+                    case ScrollBars.Horizontal:
+                        ShowVerticalScrollBar = false;
+                        ShowHorizontalScrollBar = true;
+                        break;
+                    case ScrollBars.Vertical:
+                        ShowVerticalScrollBar = true;
+                        ShowHorizontalScrollBar = false;
+                        break;
+                    case ScrollBars.Both:
+                        ShowVerticalScrollBar = true;
+                        ShowHorizontalScrollBar = true;
+                        break;
                 }
                 Invalidate();
             }
         }
-
+        
+        #endregion
+        
+        #region "Properties - Selection and Caret"
+        
+        [Browsable(false)]
+        public int SelectionStart
+        {
+            get => _helper?.Caret?.SelectionStart ?? 0;
+            set
+            {
+                if (_helper?.Caret != null)
+                {
+                    _helper.Caret.SelectionStart = value;
+                    _helper.Caret.CaretPosition = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(false)]
+        public int SelectionLength
+        {
+            get => _helper?.Caret?.SelectionLength ?? 0;
+            set
+            {
+                if (_helper?.Caret != null)
+                {
+                    _helper.Caret.SelectionLength = value;
+                    Invalidate();
+                }
+            }
+        }
+        
+        [Browsable(false)]
+        public string SelectedText => _helper?.Caret?.SelectedText ?? string.Empty;
+        
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color for selected text.")]
+        public Color SelectionBackColor { get; set; } = SystemColors.Highlight;
+        
+        #endregion
+        
+        #region "Properties - Image"
+        
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Path to the image file to display in the textbox.")]
+        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public string ImagePath
+        {
+            get => _beepImage?.ImagePath ?? "";
+            set
+            {
+                if (_beepImage != null)
+                {
+                    _beepImage.ImagePath = value;
+                    _beepImage.Visible = !string.IsNullOrEmpty(value);
+                    InvalidateLayout();
+                }
+            }
+        }
+        
+        private Size _maxImageSize = new Size(20, 20);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Size of the image displayed in the textbox.")]
+        public Size MaxImageSize
+        {
+            get => _maxImageSize;
+            set
+            {
+                _maxImageSize = value;
+                if (_beepImage != null)
+                {
+                    _beepImage.Size = _maxImageSize;
+                }
+                InvalidateLayout();
+            }
+        }
+        
+        private TextImageRelation _textImageRelation = TextImageRelation.ImageBeforeText;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Relationship between text and image.")]
+        public TextImageRelation TextImageRelation
+        {
+            get => _textImageRelation;
+            set
+            {
+                _textImageRelation = value;
+                InvalidateLayout();
+            }
+        }
+        
+        private ContentAlignment _imageAlign = ContentAlignment.MiddleLeft;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Align image within the textbox.")]
+        public ContentAlignment ImageAlign
+        {
+            get => _imageAlign;
+            set
+            {
+                _imageAlign = value;
+                InvalidateLayout();
+            }
+        }
+        
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Apply theme styling to the image.")]
+        public bool ApplyThemeOnImage
+        {
+            get => _beepImage?.ApplyThemeOnImage ?? false;
+            set
+            {
+                if (_beepImage != null)
+                {
+                    _beepImage.ApplyThemeOnImage = value;
+                    if (value && _currentTheme != null)
+                    {
+                        _beepImage.Theme = Theme;
+                        _beepImage.ApplyTheme();
+                    }
+                }
+                Invalidate();
+            }
+        }
+        
+        public BeepImage BeepImage => _beepImage;
+        
+        #endregion
+        
+        #region "Properties - Line Numbers"
+        
+        private bool _showLineNumbers = false;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(false)]
+        [Description("Shows or hides line numbers on the left side of the textbox.")]
+        public bool ShowLineNumbers
+        {
+            get => _showLineNumbers;
+            set
+            {
+                _showLineNumbers = value;
+                InvalidateLayout();
+            }
+        }
+        
+        private int _lineNumberMarginWidth = 40;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [DefaultValue(40)]
+        [Description("Width of the line number margin.")]
+        public int LineNumberMarginWidth
+        {
+            get => _lineNumberMarginWidth;
+            set
+            {
+                _lineNumberMarginWidth = Math.Max(20, value);
+                if (_showLineNumbers)
+                {
+                    InvalidateLayout();
+                }
+            }
+        }
+        
+        private Color _lineNumberForeColor = Color.Gray;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Foreground color for line numbers.")]
+        public Color LineNumberForeColor
+        {
+            get => _lineNumberForeColor;
+            set
+            {
+                _lineNumberForeColor = value;
+                if (_showLineNumbers)
+                    Invalidate();
+            }
+        }
+        
+        private Color _lineNumberBackColor = Color.FromArgb(248, 248, 248);
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Background color for line number margin.")]
+        public Color LineNumberBackColor
+        {
+            get => _lineNumberBackColor;
+            set
+            {
+                _lineNumberBackColor = value;
+                if (_showLineNumbers)
+                    Invalidate();
+            }
+        }
+        
+        private Font _lineNumberFont;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Font used for line numbers.")]
+        public Font LineNumberFont
+        {
+            get => _lineNumberFont ?? TextFont;
+            set
+            {
+                _lineNumberFont?.Dispose();
+                _lineNumberFont = value;
+                if (_showLineNumbers)
+                    Invalidate();
+            }
+        }
+        
+        #endregion
+        
+        #region "Properties - Legacy Compatibility"
+        
         [Browsable(true)]
         [Category("Appearance")]
         public int PreferredHeight
@@ -84,663 +886,79 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_multiline)
                 {
-                    return _innerTextBox.PreferredHeight;
+                    return Height;
                 }
                 else
                 {
-                    // Calculate single-line height without extra padding
-                    using (TextBox tempTextBox = new TextBox())
+                    using (Graphics g = CreateGraphics())
                     {
-                        tempTextBox.Multiline = false;
-                        tempTextBox.BorderStyle = BorderStyle.None;
-                        tempTextBox.Font = TextFont;
-                        return tempTextBox.PreferredHeight;
+                        return (int)Math.Ceiling(g.MeasureString("Aj", TextFont).Height) + Padding.Vertical + _borderWidth * 2;
                     }
                 }
             }
         }
-        // Provide a public property that returns single-line height based on the current font
+        
         [Browsable(false)]
         public int SingleLineHeight
         {
             get
             {
-               return GetSingleLineHeight();
-            }
-        }
-        // show the inner textbox properties like multiline
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool Multiline
-        {
-            get => _multiline;
-            set
-            {
-                _multiline = value;
-                _innerTextBox.ScrollBars = ScrollBars.Vertical;
-                _innerTextBox.WordWrap = true;
-                UpdateMinimumSize();
-                Invalidate();
+                using (Graphics g = CreateGraphics())
+                {
+                    return (int)Math.Ceiling(g.MeasureString("Aj", TextFont).Height);
+                }
             }
         }
         
         [Browsable(true)]
-        [Category("Appearance")]
-        public bool ReadOnly
-        {
-            get => _innerTextBox.ReadOnly;
-            set
-            {
-                _innerTextBox.ReadOnly = value;
-                Invalidate();
-            }
-        }
-      
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool UseSystemPasswordChar
-        {
-            get => _innerTextBox.UseSystemPasswordChar;
-            set
-            {
-                _innerTextBox.UseSystemPasswordChar = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public char PasswordChar
-        {
-            get => _innerTextBox.PasswordChar;
-            set
-            {
-                _innerTextBox.PasswordChar = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool WordWrap
-        {
-            get => _innerTextBox.WordWrap;
-            set
-            {
-                _innerTextBox.WordWrap = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool AcceptsReturn
-        {
-            get => _innerTextBox.AcceptsReturn;
-            set
-            {
-                _innerTextBox.AcceptsReturn = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool AcceptsTab
-        {
-            get => _innerTextBox.AcceptsTab;
-            set
-            {
-                _innerTextBox.AcceptsTab = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool ShowScrollbars
-        {
-            get => _innerTextBox.ScrollBars != ScrollBars.None;
-            set
-            {
-                _innerTextBox.ScrollBars = value ? ScrollBars.Both : ScrollBars.None;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public ScrollBars ScrollBars
-        {
-            get => _innerTextBox.ScrollBars;
-            set
-            {
-                _innerTextBox.ScrollBars = value;
-                Invalidate();
-            }
-        }
-
-        [Browsable(true)
-        ][Category("Appearance")]
-        public bool AutoSize
-        {
-            get => _innerTextBox.AutoSize;
-            set
-            {
-                _innerTextBox.AutoSize = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool CausesValidation
-        {
-            get => _innerTextBox.CausesValidation;
-            set
-            {
-                _innerTextBox.CausesValidation = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool HideSelection
-        {
-            get => _innerTextBox.HideSelection;
-            set
-            {
-                _innerTextBox.HideSelection = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool Modified
-        {
-            get => _innerTextBox.Modified;
-            set
-            {
-                _innerTextBox.Modified = value;
-                Invalidate();
-            }
-        }
-     
-        [Browsable(true)]
-        [Category("Appearance")]
-        public HorizontalAlignment TextAlignment
-        {
-            get => _innerTextBox.TextAlign;
-            set
-            {
-                _innerTextBox.TextAlign = value;
-                Invalidate();
-            }
-        }
-       
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("PlaceholderText  in the control.")]
-        public string PlaceholderText
-        {
-            get => _innerTextBox.PlaceholderText;
-            set
-            {
-                _innerTextBox.PlaceholderText = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Data")]
-        [Description("The Text  represent for the control.")]
-        public override string Text
-        {
-            get => _text;
-            set
-            {
-                _text = value;
-                _isControlinvalidated = true;
-                _innerTextBox.Text = value;
-                Invalidate();  // Trigger repaint when the text changes
-            }
-        }
-        #region "Format and Masking"
+        [Category("Behavior")]
+        public bool CausesValidation { get; set; } = true;
+        
         [Browsable(true)]
         [Category("Behavior")]
-        [Description("Restrict input to digits only.")]
-        public bool OnlyDigits
-        {
-            get => _onlyDigits;
-            set => _onlyDigits = value;
-        }
-
+        public bool HideSelection { get; set; } = true;
+        
         [Browsable(true)]
         [Category("Behavior")]
-        [Description("Restrict input to alphabetic characters only.")]
-        public bool OnlyCharacters
+        public bool Modified { get; set; } = false;
+        
+        #endregion
+        
+        #region "Events"
+        
+        public new event EventHandler TextChanged;
+        public event EventHandler SearchTriggered;
+        public event EventHandler<EventArgs> TypingStarted;
+        public event EventHandler<EventArgs> TypingStopped;
+        
+        #endregion
+        
+        #region "Constructor"
+        
+        public BeepTextBox() : base()
         {
-            get => _onlyCharacters;
-            set => _onlyCharacters = value;
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Specify the mask or format for text display.")]
-        public TextBoxMaskFormat MaskFormat
-        {
-            get => _maskFormatEnum;
-            set
-            {
-                _maskFormatEnum = value;
-                ApplyMaskFormat();
-                Invalidate();
-            }
-        }
-
-        private TextBoxMaskFormat _maskFormatEnum = TextBoxMaskFormat.None;
-        // Optional: For custom mask formats
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Specify a custom mask format.")]
-        public string CustomMask
-        {
-            get => _customMask;
-            set
-            {
-                _customMask = value;
-                if (MaskFormat == TextBoxMaskFormat.Custom)
-                {
-                    ApplyMaskFormat();
-                }
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Specify the custom date and time format for display.")]
-        public string DateFormat
-        {
-            get => _dateFormat;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    _dateFormat = "MM/dd/yyyy"; // Default format
-                }
-                else
-                {
-                    // Validate the format string
-                    try
-                    {
-                        DateTime.Now.ToString(value, CultureInfo.CurrentCulture);
-                        _dateFormat = value;
-                    }
-                    catch (FormatException)
-                    {
-                        throw new FormatException($"The date format '{value}' is invalid.");
-                    }
-                }
-                ApplyMaskFormat();
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Specify the custom time format for display.")]
-        public string TimeFormat
-        {
-            get => _timeFormat;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    _timeFormat = "HH:mm:ss"; // Default time format (24-hour)
-                }
-                else
-                {
-                    // Validate the format string
-                    try
-                    {
-                        DateTime.Now.ToString(value, CultureInfo.CurrentCulture);
-                        _timeFormat = value;
-                    }
-                    catch (FormatException)
-                    {
-                        throw new FormatException($"The time format '{value}' is invalid.");
-                    }
-                }
-                ApplyTimeFormat();
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Specify the custom date and time format for display.")]
-        public string DateTimeFormat
-        {
-            get => _dateTimeFormat;
-            set
-            {
-                if (string.IsNullOrWhiteSpace(value))
-                {
-                    _dateTimeFormat = $"{_dateFormat} {_timeFormat}"; // Default combined format
-                }
-                else
-                {
-                    // Validate the format string
-                    try
-                    {
-                        // Attempt to format the current date and time with the provided format
-                        DateTime.Now.ToString(value, CultureInfo.CurrentCulture);
-                        _dateTimeFormat = value;
-                    }
-                    catch (FormatException)
-                    {
-                        throw new FormatException($"The date and time format '{value}' is invalid.");
-                    }
-                }
-                ApplyMaskFormat(); // Reapply formatting with the new DateTimeFormat
-                Invalidate(); // Refresh the control to reflect changes
-            }
-        }
-        private string _dateTimeFormat = "MM/dd/yyyy HH:mm:ss"; // Default combined format
-
-        private string _timeFormat = "HH:mm:ss"; // Default format
-        private string _dateFormat = "MM/dd/yyyy HH:mm:ss"; // Default format
-
-        private string _customMask = string.Empty;
-        #endregion "Format and Masking"
-        #region "Image Properties"
-        [Browsable(true)]
-        [Category("Appearance")]
-        public Size MaxImageSize
-        {
-            get => _maxImageSize;
-            set
-            {
-                _maxImageSize = value;
-                if (beepImage != null)
-                {
-                    beepImage.Size = value;
-                  
-                }
-                UpdateMinimumSize();
-                PositionInnerTextBoxAndImage();
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public TextImageRelation TextImageRelation
-        {
-            get => _textImageRelation;
-            set
-            {
-                _textImageRelation = value;
-                Invalidate();
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        public ContentAlignment ImageAlign
-        {
-            get => _imageAlign;
-            set
-            {
-                _imageAlign = value;
-                Invalidate();
-            }
-        }
-        bool _applyThemeOnImage = false;
-
-        private int spacing = 4;
-
-        public bool ApplyThemeOnImage
-        {
-            get => _applyThemeOnImage;
-            set
-            {
-                _applyThemeOnImage = value;
-                if (value)
-                {
-
-                    if (ApplyThemeOnImage)
-                    {
-                        beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
-                         beepImage.Theme = Theme;
-                        ApplyTheme();
-                    }
-                }
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
-        [Description("Specify the image file to load (SVG, PNG, JPG, etc.).")]
-        public string ImagePath
-        {
-            get => beepImage?.ImagePath;
-            set
-            {
-                if (beepImage == null)
-                {
-                    beepImage = new BeepImage()
-                    {
-                        Size = _maxImageSize,
-                        ShowAllBorders = false,
-                        IsBorderAffectedByTheme = false,
-                        IsShadowAffectedByTheme = false,
-                        IsChild = true,
-                      
-                        Dock = DockStyle.None,
-                        Margin = new Padding(0)
-                    };
-
-                }
-                if (beepImage != null)
-                {
-                    beepImage.ImagePath = value;
-                    if (ApplyThemeOnImage)
-                    {
-                       // beepImage.Theme = Theme;
-                        beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
-                        beepImage.ApplyThemeToSvg();
-                        ApplyTheme();
-                    }
-                    UpdateMinimumSize();
-                    Invalidate(); // Repaint when the image changes
-                                  // UpdateSize();
-                   // PositionInnerTextBoxAndImage();
-                }
-            }
-        }
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //[DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
-        //public new bool IsChild
-        //{
-        //    get => _isChild;
-        //    set
-        //    {
-        //        _isChild = value;
-        //        base.IsChild = value;
-        //        Control parent = null;
-        //        if (this.Parent != null)
-        //        {
-        //            parent = this.Parent;
-        //        }
-        //        if (parent != null)
-        //        {
-        //            if (value)
-        //            {
-        //                parentbackcolor = parent.BackColor;
-        //                TempBackColor = _innerTextBox.BackColor;
-        //                BackColor = parentbackcolor;
-        //                _innerTextBox.BackColor = parentbackcolor;
-        //                beepImage.BackColor = parentbackcolor;
-        //                beepImage.ParentBackColor = parentbackcolor;
-        //            }
-        //            else
-        //            {
-        //                beepImage.BackColor = _tempbackcolor;
-        //                BackColor = _tempbackcolor;
-        //                _innerTextBox.BackColor = _tempbackcolor;
-        //            }
-        //        }
-        //        else
-        //        {
-        //         //   //Debug.WriteLine($"No Parent ");
-        //            return;
-        //        }
-        //        Invalidate();
-        //       _innerTextBox.Invalidate()  ;  // Trigger repaint
-        //    }
-        //}
-        #endregion "Image Properties"
-        #region "AutoCompelete Properties"
-
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete displayed in the control.")]
-        public AutoCompleteMode AutoCompleteMode
-        {
-            get => _innerTextBox.AutoCompleteMode;
-            set
-            {
-                _innerTextBox.AutoCompleteMode = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete displayed in the control.")]
-        public AutoCompleteSource AutoCompleteSource
-        {
-            get => _innerTextBox.AutoCompleteSource;
-            set
-            {
-                _innerTextBox.AutoCompleteSource = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("AutoComplete Custom Source .")]
-        public AutoCompleteStringCollection AutoCompleteCustomSource
-        {
-            get => _innerTextBox.AutoCompleteCustomSource;
-            set
-            {
-                _innerTextBox.AutoCompleteCustomSource = value;
-                Invalidate();
-            }
-        }
-     
-        #endregion "AutoCompelete Properties"
-        #endregion "Properties"
-        #region "Constructors"
-        public BeepTextBox():base()
-        {
-           
-            //      BackColor = Color.Black;
-           // Padding = new Padding(3);
+            _isInitializing = true;
+            
             InitializeComponents();
-            base.TextChanged += BeepTextBox_TextChanged;
-            ForeColorChanged += BeepTextBox_ForeColorChanged;
-            BackColorChanged += BeepTextBox_BackColorChanged;
-            EnabledChanged += BeepTextBox_EnabledChanged;
-           
-            // AutoSize = true;
-            BoundProperty = "Text";
-            BorderRadius=3;
-            Padding = new Padding(3);
-            beepImage.IsChild = true;
-            ShowAllBorders=true;
-            IsShadowAffectedByTheme = false;
-            IsBorderAffectedByTheme = false;
-            AutoSize = false; // Prevents automatic shrinking
-           // Value = DefaultSize; // Ensures a default size
-            //   ApplyTheme(); // Ensure _currentTheme is initialized
-            // Ensure size adjustments occur after initialization
+            SetControlStyles();
+            InitializeProperties();
+            InitializeTimers();
+            
+            _helper = new BeepSimpleTextBoxHelper(this);
+            
             UpdateDrawingRect();
-            AdjustTextBoxHeight();
-            PositionInnerTextBoxAndImage();
-            _innerTextBox.TextChanged += (s, e) =>
-            {
-                _text = _innerTextBox.Text;
-                TextChanged?.Invoke(this, EventArgs.Empty);
-                ////MiscFunctions.SendLog($"📝 BeepTextBox.TextChanged: {_innerTextBox.Text}");
-            };
-            // Inside BeepTextBox constructor or initialization
-            _innerTextBox.GotFocus += (s, e) => {
-                // Set a flag if needed beyond standard Focused property
-                // Invalidate to trigger redraw with focus styles
-                Invalidate();
-                // Potentially update parent AppBar if applicable? (Check BeepAppBar logic)
-            };
-            _innerTextBox.LostFocus += (s, e) => {
-                Invalidate();
-            };
-            _innerTextBox.Font = TextFont; // Ensure font is set early
-            _innerTextBox.BorderStyle = BorderStyle.None;
-            _innerTextBox.Multiline = false; // Default to single-line
-            _innerTextBox.AutoSize = false; // Prevent auto-resize
-            //_innerTextBox.GotFocus += (s, e) =>
-            //{
-            //   ////MiscFunctions.SendLog($"🎯 BeepTextBox Got Focus: {_innerTextBox.Text}");
-            //};
+            UpdateLines();
+            
+            _isInitializing = false;
         }
-
-
-        #endregion "Constructors"
+        
+        #endregion
+        
         #region "Initialization"
-        private void InitializeScaling()
-        {
-            float scaleFactor = DeviceDpi / 96f;
-            padding = (int)(2 * scaleFactor);
-        }
-
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            InitializeScaling();
-            UpdateMinimumSize();
-            AdjustTextBoxHeight();
-            PositionInnerTextBoxAndImage();
-        }
-        protected override void OnLayout(LayoutEventArgs levent)
-        {
-            base.OnLayout(levent);
-        }
-        protected override Size DefaultSize => new Size(200, GetSingleLineHeight());
-
-        public int SelectionStart { get => _innerTextBox.SelectionStart; set { _innerTextBox.SelectionStart = value; } }
-
-        protected override void OnCreateControl()
-        {
-            base.OnCreateControl();
-        }
-        protected override void InitLayout()
-        {
-            base.InitLayout();
-
-        }
+        
         private void InitializeComponents()
         {
-            _innerTextBox = new TextBox
-            {
-                BorderStyle = BorderStyle.None,
-                Multiline = false,
-                BackColor = BackColor // Match parent initially
-            };
-            
-            _innerTextBox.TextChanged += InnerTextBox_TextChanged;
-            _innerTextBox.KeyPress += InnerTextBox_KeyPress;
-            _innerTextBox.KeyDown += OnSearchKeyDown;
-            _innerTextBox.BorderStyle = BorderStyle.None; // Ensure no border
-            _innerTextBox.Invalidated += BeepTextBox_Invalidated;
-            
-            // Handle background color changes to ensure consistency
-            _innerTextBox.BackColorChanged += (s, e) => _innerTextBox.BackColor = BackColor;
-            
-            Controls.Add(_innerTextBox);
-            _innerTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-            
-            beepImage = new BeepImage()
+            _beepImage = new BeepImage()
             {
                 Size = _maxImageSize,
                 ShowAllBorders = false,
@@ -748,1133 +966,1219 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IsShadowAffectedByTheme = false,
                 IsChild = true,
                 ClipShape = ImageClipShape.None,
-                BackColor = BackColor // Match parent initially
+                Visible = false,
+                IsFrameless = true,
+                ImageEmbededin = ImageEmbededin.TextBox,
+                ScaleMode = ImageScaleMode.KeepAspectRatio,
+                Padding = new Padding(0),
+                Margin = new Padding(0)
             };
-
-
-            // DO NOT add beepImage to Controls - it's only used for drawing
-
-            UpdateMinimumSize();
-        }
-        #endregion "Initialization"
-        #region "Paint and Invalidate"
-        private void BeepTextBox_EnabledChanged(object? sender, EventArgs e)
-        {
-            _innerTextBox.Enabled = Enabled;
-        }
-
-        private void BeepTextBox_BackColorChanged(object? sender, EventArgs e)
-        {
-            _innerTextBox.BackColor = BackColor;
-        }
-
-        private void BeepTextBox_ForeColorChanged(object? sender, EventArgs e)
-        {
-            _innerTextBox.ForeColor = ForeColor;
-        }
-        private void BeepTextBox_TextChanged(object sender, EventArgs e)
-        {
-         //  ////MiscFunctions.SendLog($"✅ BeepLabel TextChanged: {base.Text}");
-          
-            _innerTextBox.Text = Text;
-            if (_isApplyingMask)
+            
+            if (_currentTheme != null)
             {
-                ApplyMaskFormat();
-
+                _beepImage.Theme = _currentTheme.ToString();
+                _beepImage.BackColor = _currentTheme.TextBoxBackColor;
             }
-            // Invalidate();
         }
-        private void BeepTextBox_Invalidated(object? sender, InvalidateEventArgs e)
+        
+        private void SetControlStyles()
         {
-    //        _isControlinvalidated = true;
-      //      if(_innerTextBox!=null)   _innerTextBox.Invalidate();
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
+                     ControlStyles.DoubleBuffer |
+                     ControlStyles.Selectable |
+                     ControlStyles.StandardClick |
+                     ControlStyles.StandardDoubleClick |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw, true);
+            SetStyle(ControlStyles.ContainerControl, false);
+            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+        }
+        
+        private void InitializeProperties()
+        {
+            _text = string.Empty;
+            BoundProperty = "Text";
+            BorderRadius = 4;
+            ShowAllBorders = true;
+            IsShadowAffectedByTheme = false;
+            IsBorderAffectedByTheme = false;
+            TabStop = true;
+            
+            // Modern defaults
+            Font = new Font("Segoe UI", 10);
+            _textFont = Font;
+        }
+        
+        private void InitializeTimers()
+        {
+            // Delayed update timer for performance
+            _delayedUpdateTimer = new Timer()
+            {
+                Interval = 50 // 50ms delay for batching updates
+            };
+            _delayedUpdateTimer.Tick += DelayedUpdateTimer_Tick;
+            
+            // Animation timer
+            _animationTimer = new Timer()
+            {
+                Interval = 16 // ~60 FPS
+            };
+            _animationTimer.Tick += AnimationTimer_Tick;
+            
+            // Typing timer
+            _typingTimer = new Timer()
+            {
+                Interval = 1000 // 1 second
+            };
+            _typingTimer.Tick += TypingTimer_Tick;
+        }
+        
+        protected override Size DefaultSize => new Size(200, 34);
+        
+        #endregion
+        
+        #region "Timer Event Handlers"
+        
+        private void DelayedUpdateTimer_Tick(object sender, EventArgs e)
+        {
+            _delayedUpdateTimer.Stop();
+            
+            if (_needsTextUpdate)
+            {
+                UpdateLines();
+                _helper?.InvalidateAllCaches();
+                _needsTextUpdate = false;
+            }
+            
+            if (_needsLayoutUpdate)
+            {
+                UpdateDrawingRect();
+                _helper?.HandleResize();
+                _needsLayoutUpdate = false;
+            }
+            
             Invalidate();
         }
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    base.OnPaint(e);
-
-        //}
-        //protected override void DrawContent(Graphics g)
-        //{
-        //    base.DrawContent(g);
-        //    UpdateDrawingRect();
-        //    _innerTextBox.Invalidate();
-        //}
-
-        #endregion "Paint and Invalidate"
-        #region "Size and Position"
-        // protected override Value DefaultSize => GetDefaultSize();
-        private bool _issingleLineMeasurementTaken = false;
-        private int _singleLineHeight = 0;
-        private int GetSingleLineHeight()
+        
+        private void AnimationTimer_Tick(object sender, EventArgs e)
         {
-            if (_issingleLineMeasurementTaken && _singleLineHeight > 0)
+            if (_isFocusAnimating && _enableFocusAnimation)
             {
-                return _singleLineHeight;
-            }
-            
-            // Get accurate text height based on current font and DPI
-            using (TextBox tempTextBox = new TextBox())
-            {
-                tempTextBox.Text = "Aj"; // Include both ascenders and descenders
-                tempTextBox.Multiline = false;
-                tempTextBox.BorderStyle = BorderStyle.None;
-                tempTextBox.Font = TextFont;
-                
-                // Create the control temporarily to get its real height
-                if (!tempTextBox.IsHandleCreated)
-                    tempTextBox.CreateControl();
-            
-                // Store height for future use
-                _issingleLineMeasurementTaken = true;
-                _singleLineHeight = tempTextBox.PreferredHeight;
-                return _singleLineHeight;
-            }
-        }
-
-        //protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
-        //{
-        //    // Ensure DrawingRect is updated from BeepControl
-        //    UpdateDrawingRect();
-
-        //    // Prevent zero-size issues
-        //    int minWidth = Math.Max(50, DrawingRect.Width);
-        //    int minHeight = Math.Max(GetSingleLineHeight(), DrawingRect.Height);
-
-        //    // Ensure the width and height do not go below the minimum
-        //    width = Math.Max(width, minWidth);
-        //    height = Math.Max(height, minHeight);
-
-        //    // Prevent auto-resizing conflict when multiline but AutoSize is false
-        //    if (_multiline && !AutoSize)
-        //    {
-        //        base.SetBoundsCore(DrawingRect.X, DrawingRect.Y, DrawingRect.Width, DrawingRect.Height, specified);
-        //        return;
-        //    }
-
-        //    // Ensure height is always a multiple of the single-line height
-        //    int singleLineHeight = GetSingleLineHeight();
-        //    if (height % singleLineHeight != 0)
-        //    {
-        //        height = ((height / singleLineHeight) * singleLineHeight);
-        //    }
-
-        //    // Apply the final constrained size within DrawingRect
-        //    base.SetBoundsCore(x, y, width, height, specified);
-        //}
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            
-            // Exit if size is zero (during initialization)
-            if (Width == 0 || Height == 0) return;
-
-            // Enforce minimum size to avoid inner textbox overlapping borders
-            UpdateMinimumSize();
-            if (Width < MinimumSize.Width) Width = MinimumSize.Width;
-            if (Height < MinimumSize.Height) Height = MinimumSize.Height;
-
-            // Update the drawing rectangle
-            UpdateDrawingRect();
-            
-            // Recalculate layout
-            AdjustTextBoxHeight();
-            PositionInnerTextBoxAndImage();
-            // Update inner TextBox text alignment to match drawn text
-            switch (TextAlignment)
-            {
-                case HorizontalAlignment.Center:
-                    _innerTextBox.TextAlign = HorizontalAlignment.Center;
-                    break;
-                case HorizontalAlignment.Right:
-                    _innerTextBox.TextAlign = HorizontalAlignment.Right;
-                    break;
-                case HorizontalAlignment.Left:
-                default:
-                    _innerTextBox.TextAlign = HorizontalAlignment.Left;
-                    break;
-            }
-        }
-
-        // Use inner rect that accounts for border thickness
-        private Rectangle GetInnerContentRect(Rectangle baseRect)
-        {
-            int border = ShowAllBorders ? 1 : 0;
-            return new Rectangle(
-                baseRect.X + padding + border,
-                baseRect.Y + padding + border,
-                Math.Max(1, baseRect.Width - 2 * (padding + border)),
-                Math.Max(1, baseRect.Height - 2 * (padding + border))
-            );
-        }
-
-        // Compute and enforce a sensible MinimumSize based on text height and image
-        private void UpdateMinimumSize()
-        {
-            int border = ShowAllBorders ? 1 : 0;
-
-            // Base single-line text height
-            int textH = GetSingleLineHeight();
-
-            // Image contribution (height and width)
-            int imgW = 0;
-            int imgH = 0;
-            if (beepImage != null && !string.IsNullOrEmpty(beepImage.ImagePath))
-            {
-                // Limit image height to not exceed text height in single-line
-                imgH = Math.Min(_maxImageSize.Height, textH);
-                // Scale width proportionally if needed
-                int w = _maxImageSize.Width;
-                if (_maxImageSize.Height > 0 && _maxImageSize.Height != imgH)
+                if (Focused)
                 {
-                    float ratio = (float)imgH / _maxImageSize.Height;
-                    w = Math.Max(1, (int)(_maxImageSize.Width * ratio));
-                }
-                imgW = w;
-            }
-
-            int minHeight = Math.Max(textH, imgH) + (padding + border) * 2;
-
-            // Minimal content width to avoid caret clipping
-            int minTextWidth = 24;
-
-            // Account for left or right image and spacing
-            int minWidth = (padding + border) * 2 + (imgW > 0 ? imgW + spacing : 0) + minTextWidth;
-
-            if (MinimumSize.Width != minWidth || MinimumSize.Height != minHeight)
-            {
-                MinimumSize = new Size(minWidth, minHeight);
-            }
-        }
-
-        private void AdjustTextBoxHeight()
-        {
-            UpdateDrawingRect();
-            Rectangle inner = GetInnerContentRect(DrawingRect);
-
-            int availableWidth = inner.Width;
-            int availableHeight = inner.Height;
-
-            if (_multiline)
-            {
-                _innerTextBox.Multiline = true;
-                _innerTextBox.Size = new Size(Math.Max(1, availableWidth), Math.Max(1, availableHeight));
-            }
-            else
-            {
-                _innerTextBox.Multiline = false;
-                _innerTextBox.Size = new Size(Math.Max(1, availableWidth), GetSingleLineHeight());
-            }
-
-            // Vertical centering for single-line
-            int textY = _multiline ? inner.Y : inner.Y + Math.Max(0, (inner.Height - _innerTextBox.Height) / 2);
-            _innerTextBox.Location = new Point(inner.X, textY);
-        }
-        private void PositionInnerTextBoxAndImage()
-        {
-            if (beepImage != null)
-            {
-                beepImage.IsChild = true;
-                beepImage.ParentBackColor = BackColor;
-            }
-
-            if (Width == 0 || Height == 0) return;
-
-            UpdateDrawingRect();
-            Rectangle innerRect = GetInnerContentRect(DrawingRect);
-
-            bool hasImage = beepImage != null && !string.IsNullOrEmpty(beepImage.ImagePath);
-            int textBoxHeight = _multiline ? innerRect.Height : GetSingleLineHeight();
-            int textBoxY = _multiline ? innerRect.Y : innerRect.Y + (innerRect.Height - textBoxHeight) / 2;
-
-            if (hasImage && beepImage != null)
-            {
-                int maxImageHeight = _multiline
-                    ? Math.Min(_maxImageSize.Height, innerRect.Height)
-                    : Math.Min(_maxImageSize.Height, textBoxHeight);
-                int maxImageWidth = _maxImageSize.Width;
-
-                if (_maxImageSize.Height > maxImageHeight && _maxImageSize.Height > 0)
-                {
-                    float ratio = (float)maxImageHeight / _maxImageSize.Height;
-                    maxImageWidth = Math.Max(1, (int)(_maxImageSize.Width * ratio));
-                }
-
-                maxImageWidth = Math.Min(maxImageWidth, Math.Max(1, innerRect.Width / 3));
-                Size imageSize = new Size(Math.Max(1, maxImageWidth), Math.Max(1, maxImageHeight));
-                beepImage.Size = imageSize;
-
-                if (_textImageRelation == TextImageRelation.ImageBeforeText)
-                {
-                    int imageX = innerRect.X;
-                    int imageY = innerRect.Y + (innerRect.Height - imageSize.Height) / 2;
-                    beepImage.Location = new Point(imageX, imageY);
-
-                    int textBoxX = imageX + imageSize.Width + spacing;
-                    int textBoxWidth = Math.Max(1, innerRect.Right - textBoxX);
-
-                    _innerTextBox.Location = new Point(textBoxX, textBoxY);
-                    _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
+                    _focusAnimationProgress = Math.Min(1.0f, _focusAnimationProgress + 0.1f);
                 }
                 else
                 {
-                    int imageX = innerRect.Right - imageSize.Width;
-                    int imageY = innerRect.Y + (innerRect.Height - imageSize.Height) / 2;
-                    beepImage.Location = new Point(imageX, imageY);
-
-                    int textBoxX = innerRect.X;
-                    int textBoxWidth = Math.Max(1, imageX - spacing - textBoxX);
-
-                    _innerTextBox.Location = new Point(textBoxX, textBoxY);
-                    _innerTextBox.Size = new Size(textBoxWidth, textBoxHeight);
+                    _focusAnimationProgress = Math.Max(0.0f, _focusAnimationProgress - 0.1f);
                 }
-
-                beepImage.Visible = true;
+                
+                if (_focusAnimationProgress <= 0.0f || _focusAnimationProgress >= 1.0f)
+                {
+                    _isFocusAnimating = false;
+                    _animationTimer.Stop();
+                }
+                
+                Invalidate();
+            }
+        }
+        
+        private void TypingTimer_Tick(object sender, EventArgs e)
+        {
+            _typingTimer.Stop();
+            _isTyping = false;
+            TypingStopped?.Invoke(this, EventArgs.Empty);
+            
+            if (_enableTypingIndicator)
+            {
+                Invalidate();
+            }
+        }
+        
+        #endregion
+        
+        #region "Event Overrides"
+        
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            _helper?.HandleFocusGained();
+            
+            if (_enableFocusAnimation && _enableSmartFeatures)
+            {
+                _isFocusAnimating = true;
+                _animationTimer.Start();
             }
             else
             {
-                _innerTextBox.Location = new Point(innerRect.X, textBoxY);
-                _innerTextBox.Size = new Size(innerRect.Width, textBoxHeight);
-
-                if (beepImage != null)
-                {
-                    beepImage.Visible = false;
-                }
-            }
-
-            _innerTextBox.Multiline = _multiline;
-        }
-        #endregion "Size and Position"
-        #region "Mouse Events"
-        //protected override void OnMouseEnter(EventArgs e)
-        //{
-
-        //}
-        //protected override void OnMouseLeave(EventArgs e)
-        //{
-
-        //}
-
-        //protected override void OnGotFocus(EventArgs e)
-        //{
-
-        //}
-
-        #endregion "Mouse Events"
-        #region "Key Events"
-        private void InnerTextBox_TextChanged(object sender, EventArgs e)
-        {
-            if (_isApplyingMask)
-            {
-                _isApplyingMask = true;
-                ApplyMaskFormat();
-                _isApplyingMask = false;
-
-              //  Text = _innerTextBox.Text;
-                TextChanged?.Invoke(this, EventArgs.Empty);
-              //  Invalidate();
+                Invalidate();
             }
         }
-        private void InnerTextBox_KeyPress(object sender, KeyPressEventArgs e)
+        
+        protected override void OnLostFocus(EventArgs e)
         {
-            // Retrieve the current culture's decimal and group separators
-            string decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-            string groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
-
-            // Handle input restrictions based on OnlyDigits and OnlyCharacters
-            if (OnlyDigits)
+            base.OnLostFocus(e);
+            _helper?.HandleFocusLost();
+            
+            if (_enableFocusAnimation && _enableSmartFeatures)
             {
-                // Allow digits, control characters, decimal separator, and group separator
-                if (!char.IsDigit(e.KeyChar) &&
-                    !char.IsControl(e.KeyChar) &&
-                    e.KeyChar.ToString() != decimalSeparator &&
-                    e.KeyChar.ToString() != groupSeparator)
-                {
-                    e.Handled = true;
-                    return;
-                }
-
-                // If decimal separator is pressed, allow only one occurrence
-                if (e.KeyChar.ToString() == decimalSeparator && _innerTextBox.Text.Contains(decimalSeparator))
-                {
-                    e.Handled = true;
-                    return;
-                }
+                _isFocusAnimating = true;
+                _animationTimer.Start();
             }
-            else if (OnlyCharacters)
+            else
             {
-                // Allow only letters and control characters
-                if (!char.IsLetter(e.KeyChar) &&
-                    !char.IsControl(e.KeyChar))
-                {
-                    e.Handled = true;
-                    return;
-                }
+                Invalidate();
             }
-
-            // Additional restrictions based on MaskFormat
-            switch (MaskFormat)
+        }
+        
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (!_readOnly)
             {
-                case TextBoxMaskFormat.Currency:
-                case TextBoxMaskFormat.Percentage:
-                case TextBoxMaskFormat.Decimal:
-                    // Allow only one decimal separator based on current culture
-                    if (e.KeyChar.ToString() == decimalSeparator && _innerTextBox.Text.Contains(decimalSeparator))
-                    {
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.PhoneNumber:
-                    // Allow digits, control characters, and specific phone number symbols
-                    if (!char.IsDigit(e.KeyChar) &&
-                        !char.IsControl(e.KeyChar) &&
-                        e.KeyChar != '(' &&
-                        e.KeyChar != ')' &&
-                        e.KeyChar != '-' &&
-                        e.KeyChar != ' ' &&
-                        e.KeyChar != '+'
-                    )
-                    {
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.Email:
-                    // Allow standard email characters: letters, digits, and specific symbols
-                    if (!char.IsLetterOrDigit(e.KeyChar) &&
-                        !char.IsControl(e.KeyChar) &&
-                        e.KeyChar != '@' &&
-                        e.KeyChar != '.' &&
-                        e.KeyChar != '_' &&
-                        e.KeyChar != '-' &&
-                        e.KeyChar != '+')
-                    {
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.URL:
-                    // Allow standard URL characters: letters, digits, and specific symbols
-                    if (!char.IsLetterOrDigit(e.KeyChar) &&
-                        !char.IsControl(e.KeyChar) &&
-                        e.KeyChar != '/' &&
-                        e.KeyChar != ':' &&
-                        e.KeyChar != '.' &&
-                        e.KeyChar != '?' &&
-                        e.KeyChar != '#' &&
-                        e.KeyChar != '&' &&
-                        e.KeyChar != '=' &&
-                        e.KeyChar != '%' &&
-                        e.KeyChar != '-' &&
-                        e.KeyChar != '_' &&
-                        e.KeyChar != '~' &&
-                        e.KeyChar != ':')
-                    {
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.IPAddress:
-                    // Allow digits, control characters, and dots
-                    if (!char.IsDigit(e.KeyChar) &&
-                        !char.IsControl(e.KeyChar) &&
-                        e.KeyChar != '.')
-                    {
-                        e.Handled = true;
-                    }
-                    else if (e.KeyChar == '.' && _innerTextBox.Text.EndsWith("."))
-                    {
-                        // Prevent consecutive dots
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.CreditCard:
-                    // Allow only digits, control characters, and spaces
-                    if (!char.IsDigit(e.KeyChar) &&
-                        !char.IsControl(e.KeyChar) &&
-                        e.KeyChar != ' ')
-                    {
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.Hexadecimal:
-                    // Allow only hexadecimal characters and control characters
-                    if (!Uri.IsHexDigit(e.KeyChar) &&
-                        !char.IsControl(e.KeyChar))
-                    {
-                        e.Handled = true;
-                    }
-                    break;
-
-                case TextBoxMaskFormat.Custom:
-                    // Implement custom mask restrictions if necessary
-                    // Example: Allow only specific characters or enforce a pattern
-                    // This depends on how CustomMask is defined and intended to be used
-                    break;
-
-                case TextBoxMaskFormat.None:
+                Focus();
+                _helper?.HandleMouseClick(e, _textRect);
+            }
+        }
+        
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            base.OnMouseWheel(e);
+            if (_multiline)
+            {
+                _helper?.Scrolling?.HandleMouseWheel(e);
+            }
+        }
+        
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            _needsLayoutUpdate = true;
+            _delayedUpdateTimer?.Stop();
+            _delayedUpdateTimer?.Start();
+        }
+        
+        #endregion
+        
+        #region "Key Handling"
+        
+        protected override bool IsInputKey(Keys keyData)
+        {
+            switch (keyData)
+            {
+                case Keys.Left:
+                case Keys.Right:
+                case Keys.Home:
+                case Keys.End:
+                case Keys.Back:
+                case Keys.Delete:
+                    return true;
+                case Keys.Enter:
+                    RaiseSubmitChanges();
+                    return _multiline && _acceptsReturn;
+                case Keys.Tab:
+                    RaiseSubmitChanges();
+                    return _acceptsTab;
+                case Keys.Up:
+                case Keys.Down:
+                    return _multiline;
                 default:
-                    // No additional restrictions
-                    break;
+                    return base.IsInputKey(keyData);
             }
         }
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(nint hWnd, int msg, int wParam, int lParam);
-
-        private const int WM_VSCROLL = 0x115;
-        private const int SB_BOTTOM = 7;
-
-        private void ForceScrollToBottom()
-        {
-            if (_innerTextBox != null)
-                SendMessage(_innerTextBox.Handle, WM_VSCROLL, SB_BOTTOM, 0);
-        }
-
-        public void ScrollToCaret()
-        {
-           
-            
-            _innerTextBox.ScrollToCaret();
-            
-          
-            Invalidate();
-        }
-        public void AppendText(string v)
-        {
-            if (_innerTextBox == null) return;
-
-            _innerTextBox.AppendText(v);
-
-            // Move the caret to the end
-            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-
-            // Call ScrollToCaret() asynchronously to allow UI updates
-            _innerTextBox.BeginInvoke(new Action(() =>
-            {
-                _innerTextBox.ScrollToCaret();
-                ForceScrollToBottom();
-            }));
-
-            _innerTextBox.Invalidate();
-            Invalidate();
-        }
-
-
-
-        #endregion "Key Events"
-        #region "Search Events"
-        private void OnSearchKeyDown(object sender, KeyEventArgs e)
+        
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             base.OnKeyDown(e);
-            if (e.KeyCode == Keys.Enter) OnSearchTriggered();
-        }
-        public event EventHandler SearchTriggered;
-        protected virtual void OnSearchTriggered() => SearchTriggered?.Invoke(this, EventArgs.Empty);
-
-        #endregion "Search Events"
-        #region "Masking Logic"
-        private void ApplyMaskFormat()
-        {
-            switch (MaskFormat)
+            
+            if (_readOnly) return;
+            
+            // Start typing indicator
+            if (!_isTyping && _enableTypingIndicator && _enableSmartFeatures)
             {
-                case TextBoxMaskFormat.Currency:
-                    ApplyCurrencyFormat();
-                    break;
-                case TextBoxMaskFormat.Percentage:
-                    ApplyPercentageFormat();
-                    break;
-                case TextBoxMaskFormat.Date:
-                    ApplyDateFormat();
-                    break;
-                case TextBoxMaskFormat.Time:
-                    ApplyTimeFormat();
-                    break;
-                case TextBoxMaskFormat.PhoneNumber:
-                    ApplyPhoneNumberFormat();
-                    break;
-                case TextBoxMaskFormat.Email:
-                    // Email format doesn't alter display but can trigger validation
-                    break;
-                case TextBoxMaskFormat.SocialSecurityNumber:
-                    ApplySSNFormat();
-                    break;
-                case TextBoxMaskFormat.ZipCode:
-                    ApplyZipCodeFormat();
-                    break;
-                case TextBoxMaskFormat.IPAddress:
-                    ApplyIPAddressFormat();
-                    break;
-                case TextBoxMaskFormat.CreditCard:
-                    ApplyCreditCardFormat();
-                    break;
-                case TextBoxMaskFormat.Hexadecimal:
-                    // Hexadecimal input is handled via KeyPress restrictions
-                    break;
-                case TextBoxMaskFormat.URL:
-                    // URL format doesn't alter display but can trigger validation
-                    break;
-                case TextBoxMaskFormat.TimeSpan:
-                    ApplyTimeSpanFormat();
-                    break;
-                case TextBoxMaskFormat.Decimal:
-                    ApplyDecimalFormat();
-                    break;
-                case TextBoxMaskFormat.CurrencyWithoutSymbol:
-                    ApplyCurrencyWithoutSymbolFormat();
-                    break;
-                case TextBoxMaskFormat.DateTime:
-                    ApplyDateTimeFormat();
-                    break;
-                case TextBoxMaskFormat.Year:
-                    ApplyYearFormat();
-                    break;
-                case TextBoxMaskFormat.MonthYear:
-                    ApplyMonthYearFormat();
-                    break;
-                case TextBoxMaskFormat.Custom:
-                    ApplyCustomFormat();
-                    break;
-                case TextBoxMaskFormat.Alphanumeric:
-                case TextBoxMaskFormat.Numeric:
-                case TextBoxMaskFormat.Password:
-                case TextBoxMaskFormat.None:
-                default:
-                    // No formatting applied
-                    break;
+                _isTyping = true;
+                _lastKeyPressTime = DateTime.Now;
+                TypingStarted?.Invoke(this, EventArgs.Empty);
+                Invalidate();
             }
-        }
-        private void ApplyCurrencyFormat()
-        {
-            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
+            
+            // Reset typing timer
+            _typingTimer.Stop();
+            _typingTimer.Start();
+            
+            // Handle keyboard shortcuts
+            if (e.Control)
             {
-                _innerTextBox.Text = value.ToString("C2"); // Currency format with 2 decimal places
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyPercentageFormat()
-        {
-            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
-            {
-                _innerTextBox.Text = value.ToString("P2"); // Percentage format with 2 decimal places
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyDateFormat()
-        {
-            if (DateTime.TryParse(_innerTextBox.Text, out DateTime date))
-            {
-                _innerTextBox.Text = date.ToString(_dateFormat, CultureInfo.CurrentCulture); // Use custom date format
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyTimeFormat()
-        {
-            if (DateTime.TryParse(_innerTextBox.Text, out DateTime time))
-            {
-                _innerTextBox.Text = time.ToString(_timeFormat, CultureInfo.CurrentCulture); // Use custom time format
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyDateTimeFormat()
-        {
-            if (DateTime.TryParse(_innerTextBox.Text, out DateTime dateTime))
-            {
-                _innerTextBox.Text = dateTime.ToString(_dateTimeFormat);
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyPhoneNumberFormat()
-        {
-            // Simple formatting for U.S. phone numbers
-            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
-            if (digits.Length >= 10)
-            {
-                _innerTextBox.Text = Regex.Replace(digits, @"(\d{3})(\d{3})(\d{4})", "($1) $2-$3");
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplySSNFormat()
-        {
-            // Formats SSN as XXX-XX-XXXX
-            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
-            if (digits.Length >= 9)
-            {
-                _innerTextBox.Text = Regex.Replace(digits, @"(\d{3})(\d{2})(\d{4})", "$1-$2-$3");
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyZipCodeFormat()
-        {
-            // Formats ZIP code as XXXXX or XXXXX-XXXX
-            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
-            if (digits.Length == 5)
-            {
-                _innerTextBox.Text = digits;
-            }
-            else if (digits.Length == 9)
-            {
-                _innerTextBox.Text = Regex.Replace(digits, @"(\d{5})(\d{4})", "$1-$2");
-            }
-            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-        }
-        private void ApplyIPAddressFormat()
-        {
-            // Simple IPv4 formatting
-            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
-            if (digits.Length > 12) digits = digits.Substring(0, 12); // Max 12 digits for IPv4
-
-            string ip = "";
-            for (int i = 0; i < digits.Length; i++)
-            {
-                ip += digits[i];
-                if ((i + 1) % 3 == 0 && i < digits.Length - 1)
+                switch (e.KeyCode)
                 {
-                    ip += ".";
-                }
-            }
-
-            _innerTextBox.Text = ip;
-            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-        }
-        private void ApplyCreditCardFormat()
-        {
-            // Formats credit card numbers as XXXX XXXX XXXX XXXX
-            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
-            digits = digits.Length > 16 ? digits.Substring(0, 16) : digits;
-
-            string formatted = Regex.Replace(digits, @"(\d{4})(?=\d)", "$1 ");
-            _innerTextBox.Text = formatted.Trim();
-            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-        }
-        private void ApplyTimeSpanFormat()
-        {
-            if (TimeSpan.TryParse(_innerTextBox.Text, out TimeSpan ts))
-            {
-                _innerTextBox.Text = ts.ToString(@"hh\:mm\:ss");
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyDecimalFormat()
-        {
-            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
-            {
-                _innerTextBox.Text = value.ToString("N2"); // Numeric format with 2 decimal places
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyCurrencyWithoutSymbolFormat()
-        {
-            if (decimal.TryParse(_innerTextBox.Text, out decimal value))
-            {
-                _innerTextBox.Text = value.ToString("N2"); // Numeric format without currency symbol
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyYearFormat()
-        {
-            if (int.TryParse(_innerTextBox.Text, out int year))
-            {
-                _innerTextBox.Text = year.ToString("D4"); // Ensure 4-digit year
-                _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-            }
-        }
-        private void ApplyMonthYearFormat()
-        {
-            // Formats as MM/yyyy
-            string digits = Regex.Replace(_innerTextBox.Text, @"\D", "");
-            if (digits.Length >= 6)
-            {
-                _innerTextBox.Text = Regex.Replace(digits, @"(\d{2})(\d{4})", "$1/$2");
-            }
-            _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-        }
-        private void ApplyCustomFormat()
-        {
-            if (!string.IsNullOrEmpty(CustomMask))
-            {
-                // Implement custom formatting based on CustomMask
-                // This could involve regex-based formatting or other rules
-                // For demonstration, let's assume CustomMask is a format string with placeholders
-                try
-                {
-                    // Example: "AAA-9999" where A=Letter and 9=Digit
-                    string formatted = "";
-                    int digitIndex = 0, letterIndex = 0;
-                    foreach (char maskChar in CustomMask)
-                    {
-                        if (maskChar == 'A' && letterIndex < _innerTextBox.Text.Length && char.IsLetter(_innerTextBox.Text[letterIndex]))
-                        {
-                            formatted += char.ToUpper(_innerTextBox.Text[letterIndex++]);
-                        }
-                        else if (maskChar == '9' && digitIndex < _innerTextBox.Text.Length && char.IsDigit(_innerTextBox.Text[digitIndex]))
-                        {
-                            formatted += _innerTextBox.Text[digitIndex++];
-                        }
+                    case Keys.Z:
+                        if (e.Shift)
+                            _helper?.UndoRedo?.Redo();
                         else
-                        {
-                            formatted += maskChar;
-                        }
+                            _helper?.UndoRedo?.Undo();
+                        e.Handled = true;
+                        return;
+                    case Keys.Y:
+                        _helper?.UndoRedo?.Redo();
+                        e.Handled = true;
+                        return;
+                    case Keys.A:
+                        SelectAll();
+                        e.Handled = true;
+                        return;
+                    case Keys.C:
+                        Copy();
+                        e.Handled = true;
+                        return;
+                    case Keys.V:
+                        Paste();
+                        e.Handled = true;
+                        return;
+                    case Keys.X:
+                        Cut();
+                        e.Handled = true;
+                        return;
+                }
+            }
+            
+            // Handle navigation
+            switch (e.KeyCode)
+            {
+                case Keys.Left:
+                    _helper?.Caret?.MoveCaret(-1, e.Shift);
+                    e.Handled = true;
+                    break;
+                case Keys.Right:
+                    _helper?.Caret?.MoveCaret(1, e.Shift);
+                    e.Handled = true;
+                    break;
+                case Keys.Up:
+                    if (_multiline)
+                    {
+                        _helper?.Caret?.MoveCaretVertical(-1, e.Shift);
+                        e.Handled = true;
                     }
-
-                    _innerTextBox.Text = formatted;
-                    _innerTextBox.SelectionStart = _innerTextBox.Text.Length;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error applying custom mask: {ex.Message}");
-                }
+                    break;
+                case Keys.Down:
+                    if (_multiline)
+                    {
+                        _helper?.Caret?.MoveCaretVertical(1, e.Shift);
+                        e.Handled = true;
+                    }
+                    break;
+                case Keys.Home:
+                    HandleHomeKey(e.Control, e.Shift);
+                    e.Handled = true;
+                    break;
+                case Keys.End:
+                    HandleEndKey(e.Control, e.Shift);
+                    e.Handled = true;
+                    break;
+                case Keys.Back:
+                    HandleBackspace();
+                    e.Handled = true;
+                    break;
+                case Keys.Delete:
+                    HandleDelete();
+                    e.Handled = true;
+                    break;
+                case Keys.Enter:
+                    if (_multiline && _acceptsReturn)
+                    {
+                        _helper?.InsertText(Environment.NewLine);
+                        UpdateLines();
+                        ValidateCaretPosition();
+                        ScrollToCaret();
+                        Invalidate();
+                    }
+                    else
+                    {
+                        SearchTriggered?.Invoke(this, EventArgs.Empty);
+                    }
+                    e.Handled = true;
+                    break;
+                case Keys.Tab:
+                    if (_acceptsTab)
+                    {
+                        _helper?.InsertText("\t");
+                        UpdateLines();
+                        ValidateCaretPosition();
+                        ScrollToCaret();
+                        Invalidate();
+                        e.Handled = true;
+                    }
+                    break;
             }
         }
-        private bool _isApplyingMask = false;
-        #endregion "Masking Logic"
-        #region "IBeepComponent Implementation"
-      
-        public bool ValidateData(out string message)
+        
+        protected override void OnKeyPress(KeyPressEventArgs e)
         {
-            return EntityHelper.ValidateData(MaskFormat, Text, CustomMask, out message);
-        }
-        public void Clear()
-        {
-            _innerTextBox.Clear();
-        }
-        public void Focus()
-        {
-            _innerTextBox.Focus();
-        }
-        public void SelectAll()
-        {
-            _innerTextBox.SelectAll();
-        }
-        public bool SetFocus()
-        {
-            return _innerTextBox.Focus();
-        }
-        public override void SetValue(object value)
-        {
-            Text = value?.ToString();
-            _innerTextBox.Text = Text;
-        }
-        public override object GetValue()
-        {
-            return _innerTextBox.Text;
-
-        }
-        public override void ClearValue()
-        {
-            Text = "";
-
-        }
-        private void DrawForGrid(Graphics graphics, Rectangle rectangle)
-        {
-            // Background
-            using (var brush = new SolidBrush(BackColor))
+            base.OnKeyPress(e);
+            
+            if (_readOnly)
             {
-                graphics.FillRectangle(brush, rectangle);
-            }
-
-            // Text only - no images, no borders for maximum speed
-            if (!string.IsNullOrEmpty(Text))
-            {
-                var textColor = ForeColor;
-                var flags = TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis;
-
-                var textRect = new Rectangle(rectangle.X + 2, rectangle.Y, rectangle.Width - 4, rectangle.Height);
-                TextRenderer.DrawText(graphics, Text, TextFont, textRect, textColor, flags);
-            }
-        }
-        public override void Draw(Graphics graphics, Rectangle rectangle)
-        {
-            if (GridMode)
-            {
-                DrawForGrid(graphics, rectangle);
+                e.Handled = true;
                 return;
             }
-
-            // Enable high-quality rendering
-            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.ResetTransform();
-
-            // Clip all drawing to the rectangle bounds
-            using (Region clipRegion = new Region(rectangle))
+            
+            if (char.IsControl(e.KeyChar))
             {
-                graphics.Clip = clipRegion;
-
-                // First, draw the background
-                Color bgColor = Enabled ? BackColor : DisabledBackColor;
-                using (SolidBrush bgBrush = new SolidBrush(bgColor))
+                return; // Already handled in OnKeyDown
+            }
+            
+            // Check max length
+            if (_maxLength > 0 && _text.Length >= _maxLength && _helper?.Caret?.SelectionLength == 0)
+            {
+                e.Handled = true;
+                return;
+            }
+            
+            // Insert the character
+            _helper?.InsertText(e.KeyChar.ToString());
+            
+            // Ensure proper updates after character insertion
+            UpdateLines();
+            ValidateCaretPosition();
+            
+            // Auto-scroll for multiline
+            if (_multiline)
+            {
+                ScrollToCaret();
+            }
+            
+            Invalidate();
+            e.Handled = true;
+        }
+        
+        #endregion
+        
+        #region "Key Handling Helpers"
+        
+        private void HandleHomeKey(bool control, bool shift)
+        {
+            if (_helper?.Caret == null) return;
+            
+            int newPosition;
+            if (control)
+            {
+                newPosition = 0;
+            }
+            else if (_multiline)
+            {
+                var lines = GetLines();
+                var currentLineInfo = GetLineInfoFromPosition(_helper.Caret.CaretPosition, lines);
+                newPosition = GetPositionFromLineInfo(currentLineInfo.LineIndex, 0, lines);
+            }
+            else
+            {
+                newPosition = 0;
+            }
+            
+            _helper.Caret.CaretPosition = newPosition;
+            if (!shift)
+            {
+                _helper.Caret.ClearSelection();
+            }
+            else
+            {
+                UpdateSelection(newPosition);
+            }
+        }
+        
+        private void HandleEndKey(bool control, bool shift)
+        {
+            if (_helper?.Caret == null) return;
+            
+            int newPosition;
+            if (control)
+            {
+                newPosition = _text.Length;
+            }
+            else if (_multiline)
+            {
+                var lines = GetLines();
+                var currentLineInfo = GetLineInfoFromPosition(_helper.Caret.CaretPosition, lines);
+                newPosition = GetPositionFromLineInfo(currentLineInfo.LineIndex, lines[currentLineInfo.LineIndex].Length, lines);
+            }
+            else
+            {
+                newPosition = _text.Length;
+            }
+            
+            _helper.Caret.CaretPosition = newPosition;
+            if (!shift)
+            {
+                _helper.Caret.ClearSelection();
+            }
+            else
+            {
+                UpdateSelection(newPosition);
+            }
+        }
+        
+        private void UpdateSelection(int newCaretPosition)
+        {
+            if (_helper?.Caret == null) return;
+            
+            if (_helper.Caret.SelectionLength == 0)
+            {
+                _helper.Caret.SelectionStart = _helper.Caret.CaretPosition;
+            }
+            
+            int selStart = Math.Min(_helper.Caret.SelectionStart, newCaretPosition);
+            int selEnd = Math.Max(_helper.Caret.SelectionStart, newCaretPosition);
+            
+            _helper.Caret.SelectionStart = selStart;
+            _helper.Caret.SelectionLength = selEnd - selStart;
+            _helper.Caret.CaretPosition = newCaretPosition;
+        }
+        
+        private void HandleBackspace()
+        {
+            if (_helper?.Caret?.HasSelection == true)
+            {
+                _helper.Caret.RemoveSelectedText();
+            }
+            else if (_helper?.Caret?.CaretPosition > 0)
+            {
+                _helper.DeleteText(_helper.Caret.CaretPosition - 1, 1);
+            }
+            
+            // Ensure proper updates after deletion
+            UpdateLines();
+            ValidateCaretPosition();
+            Invalidate();
+        }
+        
+        private void HandleDelete()
+        {
+            if (_helper?.Caret?.HasSelection == true)
+            {
+                _helper.Caret.RemoveSelectedText();
+            }
+            else if (_helper?.Caret?.CaretPosition < _text.Length)
+            {
+                _helper.DeleteText(_helper.Caret.CaretPosition, 1);
+            }
+            
+            // Ensure proper updates after deletion
+            UpdateLines();
+            ValidateCaretPosition();
+            Invalidate();
+        }
+        
+        #endregion
+        
+        #region "Text Operations"
+        
+        public void Copy()
+        {
+            if (!string.IsNullOrEmpty(SelectedText))
+            {
+                try
                 {
-                    if (IsRounded)
+                    Clipboard.SetText(SelectedText);
+                }
+                catch (ExternalException)
+                {
+                    // Clipboard access failed, ignore
+                }
+            }
+        }
+        
+        public void Cut()
+        {
+            if (!string.IsNullOrEmpty(SelectedText) && !_readOnly)
+            {
+                Copy();
+                _helper?.Caret?.RemoveSelectedText();
+                // Ensure text is updated and lines are recalculated
+                UpdateLines();
+                ValidateCaretPosition();
+                Invalidate();
+            }
+        }
+        
+        public void Paste()
+        {
+            if (!_readOnly && Clipboard.ContainsText())
+            {
+                try
+                {
+                    string clipboardText = Clipboard.GetText();
+                    
+                    // Handle multiline paste in single-line mode
+                    if (!_multiline && clipboardText.Contains('\n'))
                     {
-                        using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
+                        clipboardText = clipboardText.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
+                    }
+                    
+                    // Respect max length
+                    if (_maxLength > 0)
+                    {
+                        int availableLength = _maxLength - _text.Length + (_helper?.Caret?.SelectionLength ?? 0);
+                        if (clipboardText.Length > availableLength)
                         {
-                            graphics.FillPath(bgBrush, path);
+                            clipboardText = clipboardText.Substring(0, Math.Max(0, availableLength));
                         }
+                    }
+                    
+                    _helper?.InsertText(clipboardText);
+                    // Ensure proper updates after paste
+                    UpdateLines();
+                    ValidateCaretPosition();
+                    ScrollToCaret();
+                    Invalidate();
+                }
+                catch (ExternalException)
+                {
+                    // Clipboard access failed, ignore
+                }
+            }
+        }
+        
+        public void SelectAll()
+        {
+            _helper?.Caret?.SelectAll();
+            Invalidate();
+        }
+        
+        public void Clear()
+        {
+            if (!_readOnly)
+            {
+                Text = "";
+                if (_helper?.Caret != null)
+                {
+                    _helper.Caret.CaretPosition = 0;
+                    _helper.Caret.SelectionStart = 0;
+                    _helper.Caret.SelectionLength = 0;
+                }
+                UpdateLines();
+                Invalidate();
+            }
+        }
+        
+        public void ScrollToCaret()
+        {
+            _helper?.Scrolling?.ScrollToCaret(_helper.Caret?.CaretPosition ?? 0);
+        }
+        
+        /// <summary>
+        /// Insert text at current caret position (public method for external use)
+        /// </summary>
+        public void InsertText(string text)
+        {
+            if (!_readOnly && !string.IsNullOrEmpty(text))
+            {
+                // Handle multiline insertion in single-line mode
+                if (!_multiline && text.Contains('\n'))
+                {
+                    text = text.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
+                }
+                
+                _helper?.InsertText(text);
+                UpdateLines();
+                ValidateCaretPosition();
+                ScrollToCaret();
+                Invalidate();
+            }
+        }
+        
+        #endregion
+        
+        #region "Drawing"
+        
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // Enable high-quality rendering
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+            
+            base.OnPaint(e);
+            
+            // Draw focus animation border
+            if (Focused && _enableFocusAnimation && _focusAnimationProgress > 0)
+            {
+                DrawFocusAnimation(e.Graphics);
+            }
+            
+            // Draw character count if enabled
+            if (_showCharacterCount && _maxLength > 0)
+            {
+                DrawCharacterCount(e.Graphics);
+            }
+            
+            // Draw typing indicator
+            if (_isTyping && _enableTypingIndicator && _enableSmartFeatures)
+            {
+                DrawTypingIndicator(e.Graphics);
+            }
+            
+            // Let helper draw the main content
+            _helper?.DrawAll(e.Graphics, ClientRectangle, _textRect);
+        }
+        
+        private void DrawFocusAnimation(Graphics g)
+        {
+            if (_focusAnimationProgress <= 0) return;
+            
+            var focusRect = ClientRectangle;
+            focusRect.Inflate(-1, -1);
+            
+            int alpha = (int)(255 * _focusAnimationProgress);
+            using (var pen = new Pen(Color.FromArgb(alpha, _focusBorderColor), _borderWidth))
+            {
+                if (BorderRadius > 0)
+                {
+                    using (var path = GetRoundedRectPath(focusRect, BorderRadius))
+                    {
+                        g.DrawPath(pen, path);
+                    }
+                }
+                else
+                {
+                    g.DrawRectangle(pen, focusRect);
+                }
+            }
+        }
+        
+        private void DrawCharacterCount(Graphics g)
+        {
+            string countText = $"{_text.Length}/{_maxLength}";
+            using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
+            {
+                var textSize = g.MeasureString(countText, font);
+                var location = new PointF(Width - textSize.Width - 5, Height - textSize.Height - 2);
+                
+                Color textColor = _text.Length > _maxLength * 0.9 ? Color.Red : Color.Gray;
+                using (var brush = new SolidBrush(textColor))
+                {
+                    g.DrawString(countText, font, brush, location);
+                }
+            }
+        }
+        
+        private void DrawTypingIndicator(Graphics g)
+        {
+            // Simple typing indicator - small dot in corner
+            var indicatorRect = new Rectangle(Width - 12, Height - 12, 8, 8);
+            using (var brush = new SolidBrush(Color.Green))
+            {
+                g.FillEllipse(brush, indicatorRect);
+            }
+        }
+        
+        #endregion
+        
+        #region "Helper Methods"
+        
+        private void UpdateDrawingRect()
+        {
+            _textRect = ClientRectangle;
+            int borderOffset = _borderWidth;
+            _textRect.Inflate(-Padding.Horizontal / 2 - borderOffset, -Padding.Vertical / 2 - borderOffset);
+            
+            // Reserve space for line numbers when enabled and multiline
+            if (_showLineNumbers && _multiline)
+            {
+                _textRect.X += _lineNumberMarginWidth;
+                _textRect.Width = Math.Max(1, _textRect.Width - _lineNumberMarginWidth);
+            }
+            
+            // Reserve space for character count
+            if (_showCharacterCount && _maxLength > 0)
+            {
+                _textRect.Height = Math.Max(1, _textRect.Height - 15);
+            }
+        }
+        
+        private void InvalidateLayout()
+        {
+            _needsLayoutUpdate = true;
+            _delayedUpdateTimer?.Stop();
+            _delayedUpdateTimer?.Start();
+        }
+        
+        private void OnTextChangedInternal(string oldText, string newText)
+        {
+            Modified = oldText != newText;
+            
+            TextChanged?.Invoke(this, EventArgs.Empty);
+        }
+        
+        public string GetDisplayText()
+        {
+            string actualText = GetActualText();
+            
+            if (string.IsNullOrEmpty(actualText))
+            {
+                return string.IsNullOrEmpty(PlaceholderText) ? "" : PlaceholderText;
+            }
+            
+            return actualText;
+        }
+        
+        private string GetActualText()
+        {
+            if (string.IsNullOrEmpty(_text) ||
+                _text.StartsWith("BeepTextBox") ||
+                _text.Equals(Name) ||
+                (_isInitializing && string.IsNullOrWhiteSpace(_text)))
+            {
+                return string.Empty;
+            }
+            
+            // Handle password characters
+            if (_useSystemPasswordChar && !string.IsNullOrEmpty(_text))
+            {
+                return new string('•', _text.Length);
+            }
+            else if (_passwordChar != '\0' && !string.IsNullOrEmpty(_text))
+            {
+                return new string(_passwordChar, _text.Length);
+            }
+            
+            return _text;
+        }
+        
+        public List<string> GetLines() => new List<string>(_lines);
+        
+        private (int LineIndex, int ColumnIndex) GetLineInfoFromPosition(int position, List<string> lines)
+        {
+            if (lines.Count == 0) return (0, 0);
+            if (position <= 0) return (0, 0);
+
+            int currentPos = 0;
+
+            for (int i = 0; i < lines.Count; i++)
+            {
+                int lineLength = lines[i].Length;
+                int lineEndPos = currentPos + lineLength;
+
+                if (position <= lineEndPos)
+                {
+                    return (i, position - currentPos);
+                }
+
+                currentPos = lineEndPos;
+
+                if (i < lines.Count - 1)
+                {
+                    if (currentPos < _text.Length)
+                    {
+                        if (currentPos + 1 < _text.Length &&
+                            _text[currentPos] == '\r' && _text[currentPos + 1] == '\n')
+                        {
+                            currentPos += 2;
+                        }
+                        else if (_text[currentPos] == '\n' || _text[currentPos] == '\r')
+                        {
+                            currentPos += 1;
+                        }
+                    }
+                }
+            }
+
+            int lastLineIndex = lines.Count - 1;
+            return (lastLineIndex, lines[lastLineIndex].Length);
+        }
+        
+        private int GetPositionFromLineInfo(int lineIndex, int columnIndex, List<string> lines)
+        {
+            if (lineIndex >= lines.Count) return _text.Length;
+            if (lineIndex < 0) return 0;
+
+            int position = 0;
+            int currentLine = 0;
+            int i = 0;
+
+            while (i < _text.Length && currentLine < lineIndex)
+            {
+                if (_text[i] == '\r')
+                {
+                    if (i + 1 < _text.Length && _text[i + 1] == '\n')
+                    {
+                        i += 2;
                     }
                     else
                     {
-                        graphics.FillRectangle(bgBrush, rectangle);
+                        i += 1;
                     }
+                    currentLine++;
                 }
-
-                // Draw the border if needed
-                if (ShowAllBorders)
+                else if (_text[i] == '\n')
                 {
-                    Color borderColor = BorderColor;
-                    using (Pen borderPen = new Pen(borderColor, 1))
+                    i += 1;
+                    currentLine++;
+                }
+                else
+                {
+                    i += 1;
+                }
+            }
+
+            position = i;
+            columnIndex = Math.Max(0, Math.Min(columnIndex, lines[lineIndex].Length));
+            position += columnIndex;
+
+            return Math.Min(position, _text.Length);
+        }
+        
+        /// <summary>
+        /// Validates and corrects caret position after text changes
+        /// </summary>
+        private void ValidateCaretPosition()
+        {
+            if (_helper?.Caret != null)
+            {
+                int textLength = _text?.Length ?? 0;
+                
+                // Ensure caret position is within valid range
+                if (_helper.Caret.CaretPosition > textLength)
+                {
+                    _helper.Caret.CaretPosition = textLength;
+                }
+                
+                // Ensure selection is within valid range
+                if (_helper.Caret.SelectionStart > textLength)
+                {
+                    _helper.Caret.SelectionStart = textLength;
+                    _helper.Caret.SelectionLength = 0;
+                }
+                else if (_helper.Caret.SelectionStart + _helper.Caret.SelectionLength > textLength)
+                {
+                    _helper.Caret.SelectionLength = textLength - _helper.Caret.SelectionStart;
+                }
+            }
+        }
+        
+        private void UpdateLines()
+        {
+            _lines.Clear();
+            
+            if (string.IsNullOrEmpty(_text))
+            {
+                _lines.Add("");
+                return;
+            }
+            
+            if (_multiline)
+            {
+                // Handle all types of line endings properly
+                string[] splitLines = _text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+                _lines.AddRange(splitLines);
+                
+                // Handle word wrapping if enabled and we have a valid text rectangle
+                if (_wordWrap && _textRect.Width > 10) // Minimum width check
+                {
+                    var wrappedLines = new List<string>();
+                    using (var g = CreateGraphics())
                     {
-                        if (IsRounded)
+                        foreach (var line in _lines)
                         {
-                            using (GraphicsPath path = GetRoundedRectPath(rectangle, BorderRadius))
+                            if (string.IsNullOrEmpty(line))
                             {
-                                graphics.DrawPath(borderPen, path);
+                                wrappedLines.Add("");
                             }
+                            else
+                            {
+                                wrappedLines.AddRange(WrapLine(line, g));
+                            }
+                        }
+                    }
+                    _lines = wrappedLines;
+                }
+            }
+            else
+            {
+                // For single line, replace all line breaks with spaces
+                string singleLineText = _text.Replace("\r\n", " ").Replace("\r", " ").Replace("\n", " ");
+                _lines.Add(singleLineText);
+            }
+            
+            // Ensure we always have at least one line
+            if (_lines.Count == 0)
+                _lines.Add("");
+        }
+        
+        private List<string> WrapLine(string line, Graphics g)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrEmpty(line))
+            {
+                result.Add("");
+                return result;
+            }
+            
+            // Check if the line fits without wrapping
+            var lineSize = g.MeasureString(line, _textFont);
+            if (lineSize.Width <= _textRect.Width)
+            {
+                result.Add(line);
+                return result;
+            }
+            
+            // Word-based wrapping
+            var words = line.Split(' ');
+            var currentLine = "";
+            
+            foreach (var word in words)
+            {
+                var testLine = string.IsNullOrEmpty(currentLine) ? word : $"{currentLine} {word}";
+                var testSize = g.MeasureString(testLine, _textFont);
+                
+                if (testSize.Width <= _textRect.Width)
+                {
+                    currentLine = testLine;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(currentLine))
+                    {
+                        result.Add(currentLine);
+                        currentLine = word;
+                    }
+                    else
+                    {
+                        // Word is too long for the line, check if we need character-level wrapping
+                        if (g.MeasureString(word, _textFont).Width > _textRect.Width)
+                        {
+                            result.AddRange(WrapLongWord(word, g));
+                            currentLine = "";
                         }
                         else
                         {
-                            graphics.DrawRectangle(borderPen, rectangle);
+                            result.Add(word);
+                            currentLine = "";
                         }
                     }
                 }
-
-                // Use the same inner rect calculation as the live layout
-                Rectangle innerRect = GetInnerContentRect(rectangle);
-                int textBoxHeight = Multiline ? innerRect.Height : GetSingleLineHeight();
-
-                // Draw Image if visible
-                if (beepImage != null && !string.IsNullOrEmpty(beepImage.ImagePath))
+            }
+            
+            if (!string.IsNullOrEmpty(currentLine))
+            {
+                result.Add(currentLine);
+            }
+            
+            return result;
+        }
+        
+        private List<string> WrapLongWord(string word, Graphics g)
+        {
+            var result = new List<string>();
+            var currentPart = "";
+            
+            foreach (char c in word)
+            {
+                var testPart = currentPart + c;
+                var testSize = g.MeasureString(testPart, _textFont);
+                
+                if (testSize.Width <= _textRect.Width)
                 {
-                    // Get constrained image size (harmonized with live layout)
-                    int maxImageHeight = Multiline
-                        ? Math.Min(_maxImageSize.Height, innerRect.Height)
-                        : Math.Min(_maxImageSize.Height, textBoxHeight);
-                    int maxImageWidth = _maxImageSize.Width;
-
-                    // Scale proportionally if needed
-                    if (_maxImageSize.Height > maxImageHeight && _maxImageSize.Height > 0)
+                    currentPart = testPart;
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(currentPart))
                     {
-                        float ratio = (float)maxImageHeight / _maxImageSize.Height;
-                        maxImageWidth = Math.Max(1, (int)(_maxImageSize.Width * ratio));
-                    }
-
-                    // Ensure width fits
-                    maxImageWidth = Math.Min(maxImageWidth, Math.Max(1, innerRect.Width / 3));
-                    Size constrainedImageSize = new Size(maxImageWidth, maxImageHeight);
-
-                    Rectangle imageRect;
-                    if (_textImageRelation == TextImageRelation.ImageBeforeText)
-                    {
-                        // Image on left
-                        imageRect = new Rectangle(
-                            innerRect.X,
-                            innerRect.Y + (innerRect.Height - constrainedImageSize.Height) / 2,
-                            constrainedImageSize.Width,
-                            constrainedImageSize.Height
-                        );
-
-                        // Adjust inner rectangle for text
-                        innerRect.X += constrainedImageSize.Width + spacing;
-                        innerRect.Width -= constrainedImageSize.Width + spacing;
+                        result.Add(currentPart);
+                        currentPart = c.ToString();
                     }
                     else
                     {
-                        // Image on right
-                        imageRect = new Rectangle(
-                            innerRect.Right - constrainedImageSize.Width,
-                            innerRect.Y + (innerRect.Height - constrainedImageSize.Height) / 2,
-                            constrainedImageSize.Width,
-                            constrainedImageSize.Height
-                        );
-
-                        // Adjust inner rectangle for text
-                        innerRect.Width -= constrainedImageSize.Width + spacing;
+                        // Even a single character doesn't fit, add it anyway
+                        result.Add(c.ToString());
+                        currentPart = "";
                     }
-
-                    // Draw the image
-                    beepImage.Draw(graphics, imageRect);
                 }
-
-                // Determine text to draw - either actual text or placeholder
-                string textToDraw = Text;
-                Color textColor = ForeColor;
-
-                // Use placeholder text if actual text is empty
-                if (string.IsNullOrEmpty(textToDraw) && !string.IsNullOrEmpty(PlaceholderText))
+            }
+            
+            if (!string.IsNullOrEmpty(currentPart))
+            {
+                result.Add(currentPart);
+            }
+            
+            return result;
+        }
+        
+        public void AppendText(string text)
+        {
+            if (!_readOnly && !string.IsNullOrEmpty(text))
+            {
+                string newText = _text + text;
+                
+                // Respect max length
+                if (_maxLength > 0 && newText.Length > _maxLength)
                 {
-                    textToDraw = PlaceholderText;
-                    textColor = _currentTheme?.TextBoxPlaceholderColor ?? Color.Gray;
+                    newText = newText.Substring(0, _maxLength);
                 }
-
-                // Draw the text if there's something to draw
-                if (!string.IsNullOrEmpty(textToDraw))
+                
+                // Update text property (this will trigger UpdateLines)
+                Text = newText;
+                
+                // Update caret position to end of text
+                if (_helper?.Caret != null)
                 {
-                    TextFormatFlags flags = TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
-
-                    if (Multiline)
-                    {
-                        flags |= TextFormatFlags.WordBreak; // Allow word wrapping for multiline
-                    }
-                    else
-                    {
-                        flags |= TextFormatFlags.SingleLine | TextFormatFlags.VerticalCenter; // Force single line for non-multiline
-                    }
-
-                    // Set text alignment
-                    switch (TextAlignment)
-                    {
-                        case HorizontalAlignment.Center:
-                            flags |= TextFormatFlags.HorizontalCenter;
-                            break;
-                        case HorizontalAlignment.Right:
-                            flags |= TextFormatFlags.Right;
-                            break;
-                        case HorizontalAlignment.Left:
-                        default:
-                            flags |= TextFormatFlags.Left;
-                            break;
-                    }
-
-                    // Handle password masking if needed
-                    if (UseSystemPasswordChar && !string.IsNullOrEmpty(Text))
-                    {
-                        // Use a solid bullet for password masking
-                        textToDraw = new string('•', Text.Length);
-                    }
-                    else if (PasswordChar != '\0' && !string.IsNullOrEmpty(Text))
-                    {
-                        // Use the custom password char
-                        textToDraw = new string(PasswordChar, Text.Length);
-                    }
-
-                    // Draw the text
-                    TextRenderer.DrawText(graphics, textToDraw, TextFont, innerRect, textColor, flags);
+                    _helper.Caret.CaretPosition = _text.Length;
+                    _helper.Caret.SelectionStart = _text.Length;
+                    _helper.Caret.SelectionLength = 0;
                 }
-
-                graphics.ResetClip();
+                
+                // For multiline controls, ensure the new content is visible
+                if (_multiline)
+                {
+                    ScrollToCaret();
+                }
+                
+                // Ensure visual update
+                Invalidate();
             }
         }
-
-
-        #endregion "IBeepComponent Implementation"
-        #region "Format Strings"
-
-        // Define format strings for various MaskFormats
-        private string _currencyFormat = "C2";       // Currency with 2 decimal places
-        private string _percentageFormat = "P2";     // Percentage with 2 decimal places
-        private string _decimalFormat = "N2";        // Number with 2 decimal places
-        private string _monthYearFormat = "MM/yyyy"; // Month and Year format
-
-        #endregion "Format Strings"
+        
+        #endregion
+        
+        #region "IBeepComponent Implementation"
+        
+        public bool ValidateData(out string message)
+        {
+            return _helper?.ValidateAllData(out message) ?? EntityHelper.ValidateData(MaskFormat, Text, CustomMask, out message);
+        }
+        
+        public override void SetValue(object value)
+        {
+            Text = value?.ToString() ?? string.Empty;
+        }
+        
+        public override object GetValue()
+        {
+            return Text;
+        }
+        
+        public override void ClearValue()
+        {
+            Text = string.Empty;
+        }
+        
+        #endregion
+        
+        #region "IBeepTextBox Implementation"
+        
+        void IBeepTextBox.Focus()
+        {
+            Focus();
+        }
+        
+        #endregion
+        
         #region "Theme and Style"
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-            _textFont = Font;
-        //   // Console.WriteLine("Font Changed");
-            if (AutoSize)
-            {
-                Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
-            }
-        }
-        public void AfterThemeApplied()
-        {
-            beepImage.BackColor = BackColor;
-            beepImage.ParentBackColor = BackColor;
-            if (ApplyThemeOnImage)
-            {
-                // beepImage.ImageEmbededin = ImageEmbededin.TextBox;
-                beepImage.ApplyThemeToSvg();
-            }
-            //  Refresh();           // Forcing the current control to refresh
-            //   Parent?.Refresh();   // Ensuring the parent is also updated
-            _innerTextBox.Invalidate();
-            beepImage.Invalidate();
-            Invalidate();
-            Refresh();
-
-            //  ////MiscFunctions.SendLog($"AfterThemeApplied: {this.Text}");
-        }
+        
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;
             base.ApplyTheme();
+            
             if (IsChild && Parent != null)
             {
-                parentbackcolor = Parent.BackColor;
-                BackColor = parentbackcolor;
-                _innerTextBox.BackColor = parentbackcolor;
+                ParentBackColor = Parent.BackColor;
+                BackColor = ParentBackColor;
             }
             else
             {
                 BackColor = _currentTheme.TextBoxBackColor;
-                _innerTextBox.BackColor = _currentTheme.TextBoxBackColor;
             }
 
-                // var themeBackColor = Color.FromArgb(255, _currentTheme.TextBoxBackColor.R, _currentTheme.TextBoxBackColor.G, _currentTheme.TextBoxBackColor.B);
-              
-            
-            _innerTextBox.ForeColor = _currentTheme.TextBoxForeColor;
             ForeColor = _currentTheme.TextBoxForeColor;
-          
             SelectedBackColor = _currentTheme.TextBoxBackColor;
             SelectedForeColor = _currentTheme.TextBoxForeColor;
             HoverBackColor = _currentTheme.TextBoxHoverBackColor;
             HoverForeColor = _currentTheme.TextBoxHoverForeColor;
             DisabledBackColor = _currentTheme.DisabledBackColor;
             DisabledForeColor = _currentTheme.DisabledForeColor;
-            // Remove borders to prevent interference
-            _innerTextBox.BorderStyle = BorderStyle.None;
-            BorderColor=_currentTheme.BorderColor;
-            // Force the text box to refresh
-          
+            BorderColor = _currentTheme.BorderColor;
+            _focusBorderColor = _currentTheme.FocusIndicatorColor;
+            _placeholderTextColor = _currentTheme.TextBoxPlaceholderColor;
+            
             if (UseThemeFont)
             {
+                _textFont?.Dispose();
                 _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
-               
             }
-            if (_innerTextBox != null)
-            {
-                //_innerTextBox.BeginInvoke(new Action(() => _innerTextBox.Font = _textFont));
-                _innerTextBox.Font = _textFont;
-            }
-
             
-            beepImage.IsChild = true;
-            beepImage.ImageEmbededin = ImageEmbededin.None;
-            beepImage.ParentBackColor = BackColor; 
-            beepImage.BackColor = BackColor;
-            beepImage.ForeColor = _currentTheme.TextBoxForeColor;
-            beepImage.BorderColor = _currentTheme.BorderColor;
-            beepImage.HoverBackColor = _currentTheme.TextBoxHoverBackColor;
-            beepImage.HoverForeColor = _currentTheme.TextBoxHoverForeColor;
-           
-            beepImage.ShowAllBorders = false;
-            beepImage.IsFrameless = true;
-            beepImage.IsBorderAffectedByTheme = false;
-            beepImage.IsShadowAffectedByTheme = false;
-            beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
-            if (beepImage != null)
+            if (_beepImage != null)
             {
+                _beepImage.IsChild = true;
+                _beepImage.ImageEmbededin = ImageEmbededin.TextBox;
+                _beepImage.ParentBackColor = BackColor; 
+                _beepImage.BackColor = BackColor;
+                _beepImage.ForeColor = _currentTheme.TextBoxForeColor;
+                _beepImage.BorderColor = _currentTheme.BorderColor;
+                _beepImage.HoverBackColor = _currentTheme.TextBoxHoverBackColor;
+                _beepImage.HoverForeColor = _currentTheme.TextBoxHoverForeColor;
+                _beepImage.ShowAllBorders = false;
+                _beepImage.IsFrameless = true;
+                _beepImage.IsBorderAffectedByTheme = false;
+                _beepImage.IsShadowAffectedByTheme = false;
+                _beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
                 
                 if (ApplyThemeOnImage)
                 {
-                    // beepImage.Theme = Theme;
-                    beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
-                    beepImage.ApplyThemeToSvg();
-                    
+                    _beepImage.ApplyThemeOnImage = ApplyThemeOnImage;
+                    _beepImage.ApplyThemeToSvg();
                 }
-                Invalidate(); // Repaint when the image changes
-                              // UpdateSize();
-                              // PositionInnerTextBoxAndImage();
             }
-            AfterThemeApplied();
+            
+            Invalidate();
         }
-        #endregion "Theme and Style"
+        
+        #endregion
+        
+        #region "Cleanup"
+        
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _delayedUpdateTimer?.Stop();
+                _delayedUpdateTimer?.Dispose();
+                _animationTimer?.Stop();
+                _animationTimer?.Dispose();
+                _typingTimer?.Stop();
+                _typingTimer?.Dispose();
+                
+                _helper?.Dispose();
+                _textFont?.Dispose();
+                _lineNumberFont?.Dispose();
+            }
+            base.Dispose(disposing);
+        }
+        
+        #endregion
+        
+        #region "Draw Override"
+        
+        public override void Draw(Graphics graphics, Rectangle rectangle)
+        {
+            if (graphics == null || rectangle.Width <= 0 || rectangle.Height <= 0)
+                return;
+
+            // High-quality rendering for drawing mode
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            Rectangle textRect = rectangle;
+            textRect.Inflate(-Padding.Horizontal / 2 - _borderWidth, -Padding.Vertical / 2 - _borderWidth);
+            
+            if (_showLineNumbers && _multiline)
+            {
+                textRect.X += _lineNumberMarginWidth;
+                textRect.Width = Math.Max(1, textRect.Width - _lineNumberMarginWidth);
+            }
+
+            _helper?.DrawAll(graphics, rectangle, textRect);
+        }
+        
+        #endregion
     }
 }

@@ -28,29 +28,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
-            _paint.UpdateRects();
+            
+            // Add null check to prevent exceptions during initialization
+            _paint?.UpdateRects();
             Invalidate();
         }
 
         protected override void OnResize(EventArgs e)
         {
-            SuspendLayout();
             base.OnResize(e);
-            _paint.UpdateRects();
-        //    UpdateMaterialLayout();
-            if (IsHandleCreated)
-            {
-                BeginInvoke((MethodInvoker)delegate { UpdateControlRegion(); });
-            }
-            else
-            {
-                UpdateControlRegion();
-            }
+            
+            // Simple, direct approach like BeepControl
+            _paint?.UpdateRects();
+            
+            //// Only update material layout if helper is initialized
+            //if (_materialHelper != null)
+            //{
+            //    UpdateMaterialLayout();
+            //}
+            
+            // Simple region update
+            UpdateControlRegion();
             
             // Ensure parent redraws badge area if size changes
             UpdateRegionForBadge();
-          
-            ResumeLayout();
         }
 
         private void UpdateControlRegion()
@@ -60,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             Region controlRegion;
             var regionRect = new Rectangle(0, 0, Width, Height);
 
-            if (IsRounded)
+            if (IsRounded && BorderRadius > 0)
             {
                 using (var path = ControlPaintHelper.GetRoundedRectPath(regionRect, BorderRadius))
                 {
@@ -109,18 +110,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            Console.WriteLine("OnPaint called");
-
             // Use the current BufferedGraphicsContext to allocate a buffer
             BufferedGraphicsContext context = BufferedGraphicsManager.Current;
             using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
             {
                 // Use the buffered Graphics object for all drawing
                 Graphics g = buffer.Graphics;
-                if (IsChild)
+                
+                // Set background color properly
+                if (IsChild && ParentBackColor != Color.Empty)
                 {
                     BackColor = ParentBackColor;
                 }
+                
                 // Clear the entire buffer with the control's BackColor
                 g.Clear(BackColor);
 
@@ -142,8 +144,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     }
                 }
 
-                // Effects and overlays
-                _effects.DrawOverlays(g);
+                // Effects and overlays - add null check
+                _effects?.DrawOverlays(g);
 
                 // Finally, render the entire off-screen buffer to the screen
                 buffer.Render(e.Graphics);

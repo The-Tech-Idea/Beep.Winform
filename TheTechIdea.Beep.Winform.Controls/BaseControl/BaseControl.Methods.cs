@@ -26,14 +26,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 ForeColor = _currentTheme.ForeColor;
                 BorderColor = _currentTheme.BorderColor;
                 
-                _paint.ShadowColor = _currentTheme.ShadowColor;
-                _paint.GradientStartColor = _currentTheme.GradientStartColor;
-                _paint.GradientEndColor = _currentTheme.GradientEndColor;
-                _paint.BadgeForeColor= _currentTheme.BadgeForeColor;
-                _paint.BadgeBackColor= _currentTheme.BadgeBackColor;
-                _paint.DisabledForeColor= _currentTheme.DisabledForeColor;
-                _paint.DisabledBackColor= _currentTheme.DisabledBackColor;
-                _paint.DisabledBorderColor= _currentTheme.DisabledBorderColor;
+                ShadowColor = _currentTheme.ShadowColor;
+                GradientStartColor = _currentTheme.GradientStartColor;
+                GradientEndColor = _currentTheme.GradientEndColor;
+                BadgeForeColor= _currentTheme.BadgeForeColor;
+                BadgeBackColor= _currentTheme.BadgeBackColor;
+                DisabledForeColor= _currentTheme.DisabledForeColor;
+                DisabledBackColor= _currentTheme.DisabledBackColor;
+                DisabledBorderColor= _currentTheme.DisabledBorderColor;
      
                 // Respect IsChild same as base BeepControl
                 if (IsChild)
@@ -265,42 +265,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-            Console.WriteLine("BaseControl DrawContent START");
             // Set high quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
 
-       
             if (EnableMaterialStyle)
             {
-                Console.WriteLine("BaseControl DrawContent - Using material style");
                 // Use material design drawing
                 DrawMaterialContent(g);
-               
             }
             else
             {
                 UpdateDrawingRect();
-                Console.WriteLine("BaseControl DrawContent - Using paint helper");
                 // Use regular ControlPaintHelper drawing
                 _paint.Draw(g);
             }
-              // Update drawing bounds as necessary (parity with BeepControl)
-           
-
-            Console.WriteLine("BaseControl DrawContent END");
         }
-
-
 
         /// <summary>
         /// Draws material design content using the enhanced material helper
         /// </summary>
         private void DrawMaterialContent(Graphics g)
         {
-            _materialHelper ??= new BaseControlMaterialHelper(this);
+            // Create material helper if it doesn't exist
+            if (_materialHelper == null)
+            {
+                _materialHelper = new BaseControlMaterialHelper(this);
+            }
+            
             _materialHelper.UpdateLayout();
 
             // Apply elevation settings to the material helper
@@ -308,7 +302,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _materialHelper.SetElevationEnabled(_bcUseElevation);
 
             _materialHelper.DrawAll(g);
-           
         }
     
         /// <summary>
@@ -316,6 +309,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         protected void UpdateMaterialLayout()
         {
+            // Add null check to prevent NullReferenceException during initialization
             if (_materialHelper != null)
             {
                 _materialHelper.UpdateLayout();
@@ -370,13 +364,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public virtual void ResetValidation()
         {
             // Reset any validation state
-            _paint.IsValid = true;
+            IsValid = true;
             Invalidate();
         }
 
         public virtual void SetValidationError(string message)
         {
-            _paint.IsValid = false;
+            IsValid = false;
             HelperText = message;
             Invalidate();
         }
@@ -396,6 +390,273 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 ApplyThemeToControl(e.Control);
             }
+        }
+        #endregion
+
+        #region Material Design Size Calculation Methods
+        
+        /// <summary>
+        /// Gets the padding requirements for the current Material Design variant
+        /// </summary>
+        /// <returns>Padding structure with Material Design spacing requirements</returns>
+        public virtual Padding GetMaterialStylePadding()
+        {
+            if (!EnableMaterialStyle)
+                return Padding.Empty;
+
+            // Material Design padding based on variant
+            switch (MaterialVariant)
+            {
+                case MaterialTextFieldVariant.Outlined:
+                    return new Padding(16, 8, 16, 8);
+                case MaterialTextFieldVariant.Filled:
+                    return new Padding(16, 12, 16, 12);
+                case MaterialTextFieldVariant.Standard:
+                    return new Padding(0, 8, 0, 8);
+                default:
+                    return new Padding(16, 8, 16, 8);
+            }
+        }
+
+        /// <summary>
+        /// Gets the additional space required for Material Design focus indicators and elevation
+        /// </summary>
+        /// <returns>Size of additional space needed for focus and elevation effects</returns>
+        public virtual Size GetMaterialEffectsSpace()
+        {
+            if (!EnableMaterialStyle)
+                return Size.Empty;
+
+            int focusSpace = 4; // 2px on each side for focus ring
+            int elevationSpace = MaterialUseElevation ? Math.Min(MaterialElevationLevel, 5) : 0;
+
+            return new Size(focusSpace + elevationSpace, focusSpace + elevationSpace);
+        }
+
+        /// <summary>
+        /// Gets the space required for Material Design icons
+        /// </summary>
+        /// <returns>Size of space needed for leading and trailing icons</returns>
+        public virtual Size GetMaterialIconSpace()
+        {
+            if (!EnableMaterialStyle)
+                return Size.Empty;
+
+            int totalIconWidth = 0;
+            int iconHeight = 0;
+
+            // Calculate leading icon space
+            if (!string.IsNullOrEmpty(LeadingIconPath) || !string.IsNullOrEmpty(LeadingImagePath))
+            {
+                totalIconWidth += IconSize + (IconPadding * 2) + 8; // icon + padding + margin
+                iconHeight = Math.Max(iconHeight, IconSize);
+            }
+
+            // Calculate trailing icon space
+            if (!string.IsNullOrEmpty(TrailingIconPath) || !string.IsNullOrEmpty(TrailingImagePath) || ShowClearButton)
+            {
+                totalIconWidth += IconSize + (IconPadding * 2) + 8; // icon + padding + margin
+                iconHeight = Math.Max(iconHeight, IconSize);
+            }
+
+            return new Size(totalIconWidth, iconHeight);
+        }
+
+        /// <summary>
+        /// Calculates the minimum size required for Material Design styling
+        /// </summary>
+        /// <param name="baseContentSize">The base content size (e.g., text size)</param>
+        /// <returns>Minimum size that accommodates Material Design requirements</returns>
+        public virtual Size CalculateMinimumSizeForMaterial(Size baseContentSize)
+        {
+            if (!EnableMaterialStyle)
+                return baseContentSize;
+
+            if (MaterialPreserveContentArea)
+            {
+                // Alternative approach: Keep content area the same, adjust only internal layout
+                return CalculateSizePreservingContentArea(baseContentSize);
+            }
+            else
+            {
+                // Standard Material Design approach: Follow Material Design size specifications
+                return CalculateStandardMaterialSize(baseContentSize);
+            }
+        }
+
+        /// <summary>
+        /// Calculates size while preserving the original content area dimensions
+        /// </summary>
+        protected virtual Size CalculateSizePreservingContentArea(Size baseContentSize)
+        {
+            // In this mode, we keep the overall control size the same as non-Material
+            // but internally adjust how we draw the content within the available space
+            
+            // Add minimal adjustments for essential Material elements only
+            var iconSpace = GetMaterialIconSpace();
+            var minEffects = new Size(4, 4); // Minimal space for focus indicators
+            
+            return new Size(
+                Math.Max(baseContentSize.Width + iconSpace.Width + minEffects.Width, 120),
+                Math.Max(baseContentSize.Height + minEffects.Height, 24)
+            );
+        }
+
+        /// <summary>
+        /// Calculates size following standard Material Design specifications
+        /// </summary>
+        protected virtual Size CalculateStandardMaterialSize(Size baseContentSize)
+        {
+            // Original implementation - follows Material Design specs
+            var materialPadding = GetMaterialStylePadding();
+            var effectsSpace = GetMaterialEffectsSpace();
+            var iconSpace = GetMaterialIconSpace();
+
+            int requiredWidth = baseContentSize.Width + 
+                              materialPadding.Horizontal + 
+                              effectsSpace.Width + 
+                              iconSpace.Width;
+
+            int requiredHeight = Math.Max(
+                baseContentSize.Height + materialPadding.Vertical + effectsSpace.Height,
+                iconSpace.Height + materialPadding.Vertical + effectsSpace.Height
+            );
+
+            // Apply minimum Material Design dimensions
+            requiredWidth = Math.Max(requiredWidth, GetMaterialMinimumWidth());
+            requiredHeight = Math.Max(requiredHeight, GetMaterialMinimumHeight());
+
+            return new Size(requiredWidth, requiredHeight);
+        }
+
+        /// <summary>
+        /// Gets the minimum width for Material Design controls
+        /// </summary>
+        /// <returns>Minimum width in pixels</returns>
+        protected virtual int GetMaterialMinimumWidth()
+        {
+            // Material Design minimum widths based on component type
+            return 120; // Base minimum, can be overridden by derived controls
+        }
+
+        /// <summary>
+        /// Gets the minimum height for Material Design controls
+        /// </summary>
+        /// <returns>Minimum height in pixels</returns>
+        protected virtual int GetMaterialMinimumHeight()
+        {
+            // Material Design minimum heights based on variant
+            switch (MaterialVariant)
+            {
+                case MaterialTextFieldVariant.Outlined:
+                    return 56; // Standard Material outlined field height
+                case MaterialTextFieldVariant.Filled:
+                    return 56; // Standard Material filled field height
+                case MaterialTextFieldVariant.Standard:
+                    return 48; // Standard Material standard field height
+                default:
+                    return 56;
+            }
+        }
+
+        /// <summary>
+        /// Gets the effective content rectangle accounting for Material Design spacing
+        /// </summary>
+        /// <returns>Rectangle available for content after Material Design spacing is applied</returns>
+        public virtual Rectangle GetMaterialContentRectangle()
+        {
+            if (!EnableMaterialStyle)
+                return ClientRectangle;
+
+            if (_materialHelper != null)
+            {
+                return _materialHelper.GetContentRect();
+            }
+
+            // Fallback calculation if material helper is not available
+            var padding = GetMaterialStylePadding();
+            var effects = GetMaterialEffectsSpace();
+            var icons = GetMaterialIconSpace();
+
+            return new Rectangle(
+                padding.Left + effects.Width / 2 + (icons.Width > 0 ? IconSize + IconPadding : 0),
+                padding.Top + effects.Height / 2,
+                Math.Max(0, Width - padding.Horizontal - effects.Width - icons.Width),
+                Math.Max(0, Height - padding.Vertical - effects.Height)
+            );
+        }
+
+        /// <summary>
+        /// Adjusts control size to accommodate Material Design requirements
+        /// </summary>
+        /// <param name="baseContentSize">The base content size that needs to be accommodated</param>
+        /// <param name="respectMaximumSize">Whether to respect any maximum size constraints</param>
+        public virtual void AdjustSizeForMaterial(Size baseContentSize, bool respectMaximumSize = true)
+        {
+            if (!EnableMaterialStyle)
+                return;
+
+            var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
+            
+            // Apply DPI scaling
+            requiredSize = ScaleSize(requiredSize);
+
+            // Respect maximum size constraints if specified
+            if (respectMaximumSize && MaximumSize != Size.Empty)
+            {
+                requiredSize.Width = Math.Min(requiredSize.Width, MaximumSize.Width);
+                requiredSize.Height = Math.Min(requiredSize.Height, MaximumSize.Height);
+            }
+
+            // Update control size if it's smaller than required
+            if (Width < requiredSize.Width || Height < requiredSize.Height)
+            {
+                Size = new Size(
+                    Math.Max(Width, requiredSize.Width),
+                    Math.Max(Height, requiredSize.Height)
+                );
+            }
+        }
+        
+      
+        /// <summary>
+        /// Triggers Material Design size compensation when properties change
+        /// </summary>
+        protected virtual void OnMaterialPropertyChanged()
+        {
+            if (EnableMaterialStyle && MaterialAutoSizeCompensation && !_isInitializing)
+            {
+                ApplyMaterialSizeCompensation();
+            }
+        }
+
+        /// <summary>
+        /// Applies Material Design size compensation - can be overridden by derived controls
+        /// </summary>
+        public virtual void ApplyMaterialSizeCompensation()
+        {
+            if (!EnableMaterialStyle || !MaterialAutoSizeCompensation)
+                return;
+
+            // Calculate current text size if we have content
+            Size textSize = Size.Empty;
+            if (!string.IsNullOrEmpty(Text))
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    var measuredSize = g.MeasureString(Text, Font);
+                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
+                }
+            }
+            
+            // Use a reasonable default content size if no text
+            if (textSize.IsEmpty)
+            {
+                textSize = new Size(100, 20);
+            }
+            
+            // Apply Material size compensation
+            AdjustSizeForMaterial(textSize, true);
         }
         #endregion
     }

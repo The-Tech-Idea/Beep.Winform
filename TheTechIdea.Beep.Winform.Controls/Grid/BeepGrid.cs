@@ -3550,7 +3550,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             {
                 object newValue = null;
                 IBeepUIComponent _currenteditorUIcomponent= _editingControl as IBeepUIComponent;
-                if (_editingControl is BeepTextBox textBox)
+                if (_currenteditorUIcomponent is BeepTextBox textBox)
                 {
                     newValue = textBox.Text;
                 }

@@ -54,8 +54,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Tooltips (Rich)
         private string _toolTipText = string.Empty;
 
-       
-
         [Browsable(false)]
         public bool UseRichToolTip { get; set; } = true;
         #endregion
@@ -218,11 +216,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         // Validation parity
         [Browsable(false)]
-        public bool IsValid
-        {
-            get => _paint.IsValid;
-            private set { _paint.IsValid = value; }
-        }
+        public bool IsValid { get; set; } = true;
         #endregion
 
         #region BeepControl Parity: Parent/Child Theming
@@ -315,58 +309,100 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        #region Appearance Property Wrappers
+        #region Direct Appearance Properties (Previously Delegated)
+        /// <summary>
+        /// Property to enable automatic size compensation for Material Design
+        /// </summary>
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Automatically adjusts control size to accommodate Material Design spacing requirements")]
+        [DefaultValue(true)]
+        public bool MaterialAutoSizeCompensation
+        {
+            get => _materialAutoSizeCompensation;
+            set
+            {
+                if (_materialAutoSizeCompensation != value)
+                {
+                    _materialAutoSizeCompensation = value;
+
+                    // Trigger immediate compensation when enabled
+                    if (value && EnableMaterialStyle && !_isInitializing)
+                    {
+                        ApplyMaterialSizeCompensation();
+                    }
+
+                    // Trigger property changed handler
+                    OnMaterialPropertyChanged();
+
+                    // Update layout if material helper exists
+                    UpdateMaterialLayout();
+
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Alternative sizing mode for Material Design - preserves content area instead of following Material specs
+        /// </summary>
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("When enabled, preserves the original content area size instead of following Material Design size specifications")]
+        [DefaultValue(false)]
+        public bool MaterialPreserveContentArea { get; set; } = false;
+
         // Basic appearance
-        [Browsable(true)] public bool ShowAllBorders { get => _paint.ShowAllBorders; set { _paint.ShowAllBorders = value; if (value && BorderThickness == 0) BorderThickness = 1; Invalidate(); } }
-        [Browsable(true)] public bool ShowTopBorder { get => _paint.ShowTopBorder; set { _paint.ShowTopBorder = value; Invalidate(); } }
-        [Browsable(true)] public bool ShowBottomBorder { get => _paint.ShowBottomBorder; set { _paint.ShowBottomBorder = value; Invalidate(); } }
-        [Browsable(true)] public bool ShowLeftBorder { get => _paint.ShowLeftBorder; set { _paint.ShowLeftBorder = value; Invalidate(); } }
-        [Browsable(true)] public bool ShowRightBorder { get => _paint.ShowRightBorder; set { _paint.ShowRightBorder = value; Invalidate(); } }
-        [Browsable(true)] public int BorderThickness { get => _paint.BorderThickness; set { _paint.BorderThickness = value; Invalidate(); } }
-        [Browsable(true)] public int BorderRadius { get => _paint.BorderRadius; set { _paint.BorderRadius = value; Invalidate();  } }
-        [Browsable(true)] public bool IsRounded { get => _paint.IsRounded; set { _paint.IsRounded = value; Invalidate();  } }
-        [Browsable(true)] public DashStyle BorderDashStyle { get => _paint.BorderDashStyle; set { _paint.BorderDashStyle = value; Invalidate(); } }
-        [Browsable(true)] public Color InactiveBorderColor { get => _paint.InactiveBorderColor; set { _paint.InactiveBorderColor = value; Invalidate(); } }
+        [Browsable(true)] public bool ShowAllBorders { get; set; } = false;
+        [Browsable(true)] public bool ShowTopBorder { get; set; } = false;
+        [Browsable(true)] public bool ShowBottomBorder { get; set; } = false;
+        [Browsable(true)] public bool ShowLeftBorder { get; set; } = false;
+        [Browsable(true)] public bool ShowRightBorder { get; set; } = false;
+        [Browsable(true)] public int BorderThickness { get; set; } = 1;
+        [Browsable(true)] public int BorderRadius { get; set; } = 8;
+        [Browsable(true)] public bool IsRounded { get; set; } = true;
+        [Browsable(true)] public DashStyle BorderDashStyle { get; set; } = DashStyle.Solid;
+        [Browsable(true)] public Color InactiveBorderColor { get; set; } = Color.Gray;
 
         // Shadow
-        [Browsable(true)] public bool ShowShadow { get => _paint.ShowShadow; set { _paint.ShowShadow = value; Invalidate(); } }
-        [Browsable(true)] public Color ShadowColor { get => _paint.ShadowColor; set { _paint.ShadowColor = value; Invalidate(); } }
-        [Browsable(true)] public float ShadowOpacity { get => _paint.ShadowOpacity; set { _paint.ShadowOpacity = value; Invalidate(); } }
-        [Browsable(true)] public int ShadowOffset { get => _paint.ShadowOffset; set { _paint.ShadowOffset = value; Invalidate(); } }
+        [Browsable(true)] public bool ShowShadow { get; set; } = false;
+        [Browsable(true)] public Color ShadowColor { get; set; } = Color.Black;
+        [Browsable(true)] public float ShadowOpacity { get; set; } = 0.25f;
+        [Browsable(true)] public int ShadowOffset { get; set; } = 3;
 
         // Gradients
-        [Browsable(true)] public bool UseGradientBackground { get => _paint.UseGradientBackground; set { _paint.UseGradientBackground = value; Invalidate(); } }
-        [Browsable(true)] public LinearGradientMode GradientDirection { get => _paint.GradientDirection; set { _paint.GradientDirection = value; Invalidate(); } }
-        [Browsable(true)] public Color GradientStartColor { get => _paint.GradientStartColor; set { _paint.GradientStartColor = value; Invalidate(); } }
-        [Browsable(true)] public Color GradientEndColor { get => _paint.GradientEndColor; set { _paint.GradientEndColor = value; Invalidate(); } }
+        [Browsable(true)] public bool UseGradientBackground { get; set; } = false;
+        [Browsable(true)] public LinearGradientMode GradientDirection { get; set; } = LinearGradientMode.Horizontal;
+        [Browsable(true)] public Color GradientStartColor { get; set; } = Color.LightGray;
+        [Browsable(true)] public Color GradientEndColor { get; set; } = Color.Gray;
 
         // Modern gradients
-        [Browsable(true)] public ModernGradientType ModernGradientType { get => _paint.ModernGradientType; set { _paint.ModernGradientType = value; Invalidate(); } }
-        [Browsable(false)] public List<GradientStop> GradientStops { get => _paint.GradientStops; set { _paint.GradientStops = value; Invalidate(); } }
-        [Browsable(true)] public PointF RadialCenter { get => _paint.RadialCenter; set { _paint.RadialCenter = value; Invalidate(); } }
-        [Browsable(true)] public float GradientAngle { get => _paint.GradientAngle; set { _paint.GradientAngle = value; Invalidate(); } }
-        [Browsable(true)] public bool UseGlassmorphism { get => _paint.UseGlassmorphism; set { _paint.UseGlassmorphism = value; Invalidate(); } }
-        [Browsable(true)] public float GlassmorphismBlur { get => _paint.GlassmorphismBlur; set { _paint.GlassmorphismBlur = value; Invalidate(); } }
-        [Browsable(true)] public float GlassmorphismOpacity { get => _paint.GlassmorphismOpacity; set { _paint.GlassmorphismOpacity = value; Invalidate(); } }
+        [Browsable(true)] public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.None;
+        [Browsable(false)] public List<GradientStop> GradientStops { get; set; } = new List<GradientStop>();
+        [Browsable(true)] public PointF RadialCenter { get; set; } = new PointF(0.5f, 0.5f);
+        [Browsable(true)] public float GradientAngle { get; set; } = 0f;
+        [Browsable(true)] public bool UseGlassmorphism { get; set; } = false;
+        [Browsable(true)] public float GlassmorphismBlur { get; set; } = 10f;
+        [Browsable(true)] public float GlassmorphismOpacity { get; set; } = 0.1f;
 
         // Material UI
-        [Browsable(true)] public MaterialTextFieldVariant MaterialBorderVariant { get => _paint.MaterialBorderVariant; set { _paint.MaterialBorderVariant = value; Invalidate(); } }
-        [Browsable(true)] public bool FloatingLabel { get => _paint.FloatingLabel; set { _paint.FloatingLabel = value; Invalidate(); } }
-        [Browsable(true)] public string LabelText { get => _paint.LabelText; set { _paint.LabelText = value; Invalidate(); } }
-        [Browsable(true)] public string HelperText { get => _paint.HelperText; set { _paint.HelperText = value; Invalidate(); } }
-        [Browsable(true)] public Color FocusBorderColor { get => _paint.FocusBorderColor; set { _paint.FocusBorderColor = value; Invalidate(); } }
-        [Browsable(true)] public Color FilledBackgroundColor { get => _paint.FilledBackgroundColor; set { _paint.FilledBackgroundColor = value; Invalidate(); } }
+        [Browsable(true)] public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
+        [Browsable(true)] public bool FloatingLabel { get; set; } = true;
+        [Browsable(true)] public string LabelText { get; set; } = string.Empty;
+        [Browsable(true)] public string HelperText { get; set; } = string.Empty;
+        [Browsable(true)] public Color FocusBorderColor { get; set; } = Color.RoyalBlue;
+        [Browsable(true)] public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
 
         // React UI
-        [Browsable(true)] public ReactUIVariant UIVariant { get => _paint.UIVariant; set { _paint.UIVariant = value; Invalidate(); } }
-        [Browsable(true)] public ReactUISize UISize { get => _paint.UISize; set { _paint.UISize = value; Invalidate(); } }
-        [Browsable(true)] public ReactUIColor UIColor { get => _paint.UIColor; set { _paint.UIColor = value; Invalidate(); } }
-        [Browsable(true)] public ReactUIDensity UIDensity { get => _paint.UIDensity; set { _paint.UIDensity = value; Invalidate(); } }
-        [Browsable(true)] public ReactUIElevation UIElevation { get => _paint.UIElevation; set { _paint.UIElevation = value; Invalidate(); } }
-        [Browsable(true)] public ReactUIShape UIShape { get => _paint.UIShape; set { _paint.UIShape = value; Invalidate(); } }
-        [Browsable(true)] public ReactUIAnimation UIAnimation { get => _paint.UIAnimation; set { _paint.UIAnimation = value; Invalidate(); } }
-        [Browsable(true)] public bool UIFullWidth { get => _paint.UIFullWidth; set { _paint.UIFullWidth = value; Invalidate(); } }
-        [Browsable(true)] public int UICustomElevation { get => _paint.UICustomElevation; set { _paint.UICustomElevation = value; Invalidate(); } }
+        [Browsable(true)] public ReactUIVariant UIVariant { get; set; } = ReactUIVariant.Default;
+        [Browsable(true)] public ReactUISize UISize { get; set; } = ReactUISize.Medium;
+        [Browsable(true)] public ReactUIColor UIColor { get; set; } = ReactUIColor.Primary;
+        [Browsable(true)] public ReactUIDensity UIDensity { get; set; } = ReactUIDensity.Standard;
+        [Browsable(true)] public ReactUIElevation UIElevation { get; set; } = ReactUIElevation.None;
+        [Browsable(true)] public ReactUIShape UIShape { get; set; } = ReactUIShape.Rounded;
+        [Browsable(true)] public ReactUIAnimation UIAnimation { get; set; } = ReactUIAnimation.None;
+        [Browsable(true)] public bool UIFullWidth { get; set; } = false;
+        [Browsable(true)] public int UICustomElevation { get; set; } = 0;
         [Browsable(true)] public bool UIDisabled 
         { 
             get => !Enabled; 
@@ -374,43 +410,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         // Badge
+        private string _badgeText = "";
         [Browsable(true)]
         public virtual string BadgeText
         {
-            get => _paint.BadgeText;
+            get => _badgeText;
             set
             {
-                if(value.Equals(_paint.BadgeText)) return;
-                _paint.BadgeText = value;
+                if(value.Equals(_badgeText)) return;
+                _badgeText = value;
                 RegisterBadgeDrawer();
                 UpdateRegionForBadge();
                 Invalidate();
             }
         }
-                //if (Parent is BaseControl parent) 
-                //{ if (!string.IsNullOrEmpty(value)) 
-                //        parent.AddChildExternalDrawing(this, DrawBadgeExternally, DrawingLayer.AfterAll); 
-                //    else parent.ClearChildExternalDrawing(this); } } }
-        [Browsable(true)] public Color BadgeBackColor { get => _paint.BadgeBackColor; set { _paint.BadgeBackColor = value; UpdateRegionForBadge(); Invalidate(); } }
-        [Browsable(true)] public Color BadgeForeColor { get => _paint.BadgeForeColor; set { _paint.BadgeForeColor = value; UpdateRegionForBadge(); Invalidate(); } }
-        [Browsable(true)] public Font BadgeFont { get => _paint.BadgeFont; set { _paint.BadgeFont = value; UpdateRegionForBadge(); Invalidate(); } }
-        [Browsable(true)] public BadgeShape BadgeShape { get => _paint.BadgeShape; set { _paint.BadgeShape = value; UpdateRegionForBadge(); Invalidate(); } }
+        [Browsable(true)] public Color BadgeBackColor { get; set; } = Color.Red;
+        [Browsable(true)] public Color BadgeForeColor { get; set; } = Color.White;
+        [Browsable(true)] public Font BadgeFont { get; set; } = new Font("Arial", 8, FontStyle.Bold);
+        [Browsable(true)] public BadgeShape BadgeShape { get; set; } = BadgeShape.Circle;
 
         // State colors
-        [Browsable(true)] public Color HoverBackColor { get => _paint.HoverBackColor; set { _paint.HoverBackColor = value; Invalidate(); } }
-        [Browsable(true)] public Color HoverBorderColor { get => _paint.HoverBorderColor; set { _paint.HoverBorderColor = value; Invalidate(); } }
-        [Browsable(true)] public Color HoverForeColor { get => _paint.HoverForeColor; set { _paint.HoverForeColor = value; Invalidate(); } }
-        [Browsable(true)] public Color PressedBackColor { get => _paint.PressedBackColor; set { _paint.PressedBackColor = value; Invalidate(); } }
-        [Browsable(true)] public Color PressedBorderColor { get => _paint.PressedBorderColor; set { _paint.PressedBorderColor = value; Invalidate(); } }
-        [Browsable(true)] public Color PressedForeColor { get => _paint.PressedForeColor; set { _paint.PressedForeColor = value; Invalidate(); } }
-        [Browsable(true)] public Color FocusBackColor { get => _paint.FocusBackColor; set { _paint.FocusBackColor = value; Invalidate(); } }
-        [Browsable(true)] public Color FocusForeColor { get => _paint.FocusForeColor; set { _paint.FocusForeColor = value; Invalidate(); } }
-        [Browsable(true)] public Color DisabledBackColor { get => _paint.DisabledBackColor; set { _paint.DisabledBackColor = value; Invalidate(); } }
-        [Browsable(true)] public Color DisabledBorderColor { get => _paint.DisabledBorderColor; set { _paint.DisabledBorderColor = value; Invalidate(); } }
-        [Browsable(true)] public Color DisabledForeColor { get => _paint.DisabledForeColor; set { _paint.DisabledForeColor = value; Invalidate(); } }
-        [Browsable(true)] public Color SelectedBackColor { get => _paint.SelectedBackColor; set { _paint.SelectedBackColor = value; Invalidate(); } }
-        [Browsable(true)] public Color SelectedBorderColor { get => _paint.SelectedBorderColor; set { _paint.SelectedBorderColor = value; Invalidate(); } }
-        [Browsable(true)] public Color SelectedForeColor { get => _paint.SelectedForeColor; set { _paint.SelectedForeColor = value; Invalidate(); } }
+        [Browsable(true)] public Color HoverBackColor { get; set; } = Color.LightBlue;
+        [Browsable(true)] public Color HoverBorderColor { get; set; } = Color.Blue;
+        [Browsable(true)] public Color HoverForeColor { get; set; } = Color.Black;
+        [Browsable(true)] public Color PressedBackColor { get; set; } = Color.Gray;
+        [Browsable(true)] public Color PressedBorderColor { get; set; } = Color.DarkGray;
+        [Browsable(true)] public Color PressedForeColor { get; set; } = Color.White;
+        [Browsable(true)] public Color FocusBackColor { get; set; } = Color.LightYellow;
+        [Browsable(true)] public Color FocusForeColor { get; set; } = Color.Black;
+        [Browsable(true)] public Color DisabledBackColor { get; set; } = Color.LightGray;
+        [Browsable(true)] public Color DisabledBorderColor { get; set; } = Color.Gray;
+        [Browsable(true)] public Color DisabledForeColor { get; set; } = Color.DarkGray;
+        [Browsable(true)] public Color SelectedBackColor { get; set; } = Color.LightGreen;
+        [Browsable(true)] public Color SelectedBorderColor { get; set; } = Color.Green;
+        [Browsable(true)] public Color SelectedForeColor { get; set; } = Color.Black;
 
         // Effects
         [Browsable(true)] public bool ShowFocusIndicator { get => _effects.ShowFocusIndicator; set { _effects.ShowFocusIndicator = value; Invalidate(); } }
@@ -422,22 +455,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public SlideDirection SlideFrom { get => _effects.SlideFrom; set { _effects.SlideFrom = value; Invalidate(); } }
 
         // Additional BeepControl parity properties
-        [Browsable(true)] public bool CanBeHovered { get => _paint.CanBeHovered; set => _paint.CanBeHovered = value; }
-        [Browsable(true)] public bool CanBePressed { get => _paint.CanBePressed; set => _paint.CanBePressed = value; }
-        [Browsable(true)] public bool CanBeFocused { get => _paint.CanBeFocused; set => _paint.CanBeFocused = value; }
-        [Browsable(true)] public bool IsBorderAffectedByTheme { get => _paint.IsBorderAffectedByTheme; set => _paint.IsBorderAffectedByTheme = value; }
-        [Browsable(true)] public bool IsShadowAffectedByTheme { get => _paint.IsShadowAffectedByTheme; set => _paint.IsShadowAffectedByTheme = value; }
-        [Browsable(true)] public bool IsRoundedAffectedByTheme { get => _paint.IsRoundedAffectedByTheme; set => _paint.IsRoundedAffectedByTheme = value; }
-        [Browsable(true)] public new BorderStyle BorderStyle { get => _paint.BorderStyle; set { _paint.BorderStyle = value; Invalidate(); } }
+        [Browsable(true)] public bool CanBeHovered { get; set; } = true;
+        [Browsable(true)] public bool CanBePressed { get; set; } = true;
+        [Browsable(true)] public bool CanBeFocused { get; set; } = true;
+        [Browsable(true)] public bool IsBorderAffectedByTheme { get; set; } = true;
+        [Browsable(true)] public bool IsShadowAffectedByTheme { get; set; } = true;
+        [Browsable(true)] public bool IsRoundedAffectedByTheme { get; set; } = true;
+        [Browsable(true)] public new BorderStyle BorderStyle { get; set; } = BorderStyle.FixedSingle;
 
         // Drawing rect and offsets
-        [Browsable(false)] public Rectangle DrawingRect  {get { return _paint.DrawingRect; }
-            set { _paint.DrawingRect = value; _paint.UpdateRects(); Invalidate(); }
+        [Browsable(false)] 
+        public Rectangle DrawingRect
+        {
+            get { return _paint != null ? _paint.DrawingRect : Rectangle.Empty; }
+            set 
+            { 
+                if (_paint != null)
+                {
+                    _paint.DrawingRect = value; 
+                    _paint.UpdateRects();
+                }
+                Invalidate(); 
+            }
         }
-        [Browsable(false)] public int LeftoffsetForDrawingRect { get => _paint.LeftoffsetForDrawingRect; set { _paint.LeftoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }
-        [Browsable(false)] public int TopoffsetForDrawingRect { get => _paint.TopoffsetForDrawingRect; set { _paint.TopoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }
-        [Browsable(false)] public int RightoffsetForDrawingRect { get => _paint.RightoffsetForDrawingRect; set { _paint.RightoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }
-        [Browsable(false)] public int BottomoffsetForDrawingRect { get => _paint.BottomoffsetForDrawingRect; set { _paint.BottomoffsetForDrawingRect = value; _paint.UpdateRects(); Invalidate(); } }
+        [Browsable(false)] public int LeftoffsetForDrawingRect { get; set; } = 0;
+        [Browsable(false)] public int TopoffsetForDrawingRect { get; set; } = 0;
+        [Browsable(false)] public int RightoffsetForDrawingRect { get; set; } = 0;
+        [Browsable(false)] public int BottomoffsetForDrawingRect { get; set; } = 0;
 
         // Image scaling support
         [Browsable(true)] public ImageScaleMode ScaleMode { get; set; } = ImageScaleMode.KeepAspectRatio;
@@ -462,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public string SavedGuidID { get; set; }
 
         // Alias to match BeepControl naming
-        [Browsable(true)] public Color HoveredBackcolor { get => _paint.HoverBackColor; set { _paint.HoverBackColor = value; Invalidate(); } }
+        [Browsable(true)] public Color HoveredBackcolor { get => HoverBackColor; set { HoverBackColor = value; Invalidate(); } }
         #endregion
 
         #region Events

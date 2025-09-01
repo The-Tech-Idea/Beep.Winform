@@ -214,6 +214,70 @@ namespace TheTechIdea.Beep.Winform.Controls
             set => HasError = value;
         }
 
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Automatically adjust size when Material Design styling is enabled.")]
+        [DefaultValue(true)]
+        public bool ComboBoxAutoSizeForMaterial { get; set; } = true;
+
+        /// <summary>
+        /// Override EnableMaterialStyle to apply size compensation when toggled
+        /// </summary>
+        [Browsable(true), Category("Material Style"), DefaultValue(true)]
+        public new bool EnableMaterialStyle
+        {
+            get => base.EnableMaterialStyle;
+            set
+            {
+                if (base.EnableMaterialStyle != value)
+                {
+                    base.EnableMaterialStyle = value;
+                    
+                    // Recalculate height for the new mode
+                    GetControlHeight();
+                    Height = _collapsedHeight;
+                    
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Override the base Material size compensation to handle ComboBox-specific logic
+        /// </summary>
+        public override void ApplyMaterialSizeCompensation()
+        {
+            if (!EnableMaterialStyle || !ComboBoxAutoSizeForMaterial)
+                return;
+
+            Console.WriteLine($"BeepComboBox: Applying Material size compensation. Current size: {Width}x{Height}");
+
+            // Calculate current text size if we have content
+            Size textSize = Size.Empty;
+            if (!string.IsNullOrEmpty(Text))
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    var measuredSize = g.MeasureString(Text, _textFont);
+                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
+                }
+            }
+            
+            // Use a reasonable default content size if no text
+            if (textSize.IsEmpty)
+            {
+                textSize = new Size(100, 20);
+            }
+            
+            Console.WriteLine($"BeepComboBox: Base content size: {textSize}");
+            Console.WriteLine($"BeepComboBox: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
+            
+            // Apply Material size compensation using base method
+            AdjustSizeForMaterial(textSize, true);
+            
+            Console.WriteLine($"BeepComboBox: Final size after compensation: {Width}x{Height}");
+        }
+
         public BeepComboBox()
         {
             ShowAllBorders = true;
@@ -222,8 +286,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                      ControlStyles.OptimizedDoubleBuffer, true);
             DoubleBuffered = true;
 
-            if (Width < _minWidth) Width = 120; // Reduced from 150
-
             // Initialize drawing components (don't add to Controls)
             InitializeDrawingComponents();
             
@@ -231,20 +293,59 @@ namespace TheTechIdea.Beep.Winform.Controls
             EnableMaterialStyle = true;
             MaterialVariant = MaterialTextFieldVariant.Outlined;
             MaterialBorderRadius = 4; // Reduced from 8
-            LabelText = "Select Option"; // Default floating label
-            HelperText = ""; // No default helper text
+            LabelText = string.Empty; // Default floating label
+            HelperText = string.Empty; // No default helper text
             
-            this.GotFocus += BeepComboBox_GotFocus;
-            this.LostFocus += BeepComboBox_LostFocus;
+            // Calculate initial dimensions
             GetControlHeight();
+            
+            // Apply Material Design size compensation if enabled
+            if (EnableMaterialStyle)
+            {
+                // Apply size compensation when handle is created (equivalent to Load for controls)
+                this.HandleCreated += (s, e) => {
+                    if (ComboBoxAutoSizeForMaterial)
+                        ApplyMaterialSizeCompensation();
+                };
+                // Also apply immediately for controls created at runtime
+                ApplyInitialMaterialSizing();
+            }
+            else
+            {
+                // Original sizing logic
+                if (Width < _minWidth) Width = 120; // Reduced from 150
+            }
+            
             Height = _collapsedHeight;
 
             BorderRadius = 3;
-            ApplyTheme();
+            
+            this.GotFocus += BeepComboBox_GotFocus;
+            this.LostFocus += BeepComboBox_LostFocus;
 
             Click += (s, e) => StartEditing();
+            
+            // Apply theme after all initialization
+            ApplyTheme();
         }
 
+        /// <summary>
+        /// Applies initial Material Design sizing during construction
+        /// </summary>
+        private void ApplyInitialMaterialSizing()
+        {
+            // Calculate minimum required size for Material Design
+            var baseContentSize = new Size(100, 20); // Base content size for initial sizing
+            var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
+            
+            // Set initial size to accommodate Material Design requirements
+            if (Width < requiredSize.Width)
+            {
+                Width = requiredSize.Width;
+            }
+            
+            // Height will be set by GetControlHeight() and _collapsedHeight assignment
+        }
         private void InitializeDrawingComponents()
         {
             _dropDownButton = new BeepButton
@@ -292,6 +393,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private int GetControlHeight()
         {
+            if (EnableMaterialStyle)
+            {
+                // Use Material Design height calculation
+                return CalculateHeightForMaterial();
+            }
+            
+            // Original logic for non-Material mode
             int minHeight;
             using (Graphics g = CreateGraphics())
             {
@@ -303,12 +411,101 @@ namespace TheTechIdea.Beep.Winform.Controls
             return _collapsedHeight;
         }
 
+        /// <summary>
+        /// Calculates the appropriate height for Material Design mode
+        /// </summary>
+        /// <returns>Minimum height that accommodates Material Design requirements</returns>
+        private int CalculateHeightForMaterial()
+        {
+            // Calculate base text height
+            int baseTextHeight;
+            using (Graphics g = CreateGraphics())
+            {
+                SizeF textSize = g.MeasureString("Ag", _textFont); // Use "Ag" to account for ascenders and descenders
+                baseTextHeight = (int)Math.Ceiling(textSize.Height);
+            }
+
+            if (MaterialPreserveContentArea)
+            {
+                // Preserve content area approach - minimal height increase
+                Console.WriteLine("BeepComboBox: Using content-preserving height calculation");
+                int preservedHeight = baseTextHeight + (2 * _padding) + 4; // Minimal padding for Material styling
+                _collapsedHeight = Math.Max(preservedHeight, 24); // Ensure minimum usable height
+                return _collapsedHeight;
+            }
+            else
+            {
+                // Standard Material Design approach
+                Console.WriteLine("BeepComboBox: Using standard Material Design height calculation");
+                // Get Material Design minimum height
+                int materialMinHeight = GetMaterialMinimumHeight();
+                
+                // Calculate required height based on content
+                var baseContentSize = new Size(100, baseTextHeight); // Width doesn't matter for height calculation
+                var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
+                
+                // Use the larger of Material minimum or calculated requirement
+                _collapsedHeight = Math.Max(materialMinHeight, requiredSize.Height);
+                
+                return _collapsedHeight;
+            }
+        }
+
+        /// <summary>
+        /// Override to provide combo box specific minimum dimensions
+        /// </summary>
+        /// <returns>Minimum height for Material Design combo box</returns>
+        protected override int GetMaterialMinimumHeight()
+        {
+            // ComboBox specific Material Design heights
+            switch (MaterialVariant)
+            {
+                case MaterialTextFieldVariant.Outlined:
+                    return 56; // Standard Material outlined combo box height
+                case MaterialTextFieldVariant.Filled:
+                    return 64; // Filled combo boxes need more height
+                case MaterialTextFieldVariant.Standard:
+                    return 48; // Standard variant is more compact
+                default:
+                    return 56;
+            }
+        }
+
+        /// <summary>
+        /// Override to provide combo box specific minimum width
+        /// </summary>
+        /// <returns>Minimum width for Material Design combo box</returns>
+        protected override int GetMaterialMinimumWidth()
+        {
+            // Base minimum width for combo box
+            int baseMinWidth = 120;
+            
+            // Add space for dropdown button
+            baseMinWidth += _buttonWidth + (_padding * 2);
+            
+            // Add space for icons if present
+            var iconSpace = GetMaterialIconSpace();
+            baseMinWidth += iconSpace.Width;
+            
+            return baseMinWidth;
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
 
-            if (Width < _minWidth)
-                Width = _minWidth;
+            // Enforce minimum dimensions
+            if (EnableMaterialStyle)
+            {
+                // Use Material Design size enforcement
+                EnforceMaterialSizing();
+            }
+            else
+            {
+                // Original non-Material logic
+                if (Width < _minWidth)
+                    Width = _minWidth;
+            }
 
             GetControlHeight();
             if (!_isPopupOpen && Height != _collapsedHeight)
@@ -316,6 +513,50 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             PositionControls();
             Invalidate();
+        }
+
+        /// <summary>
+        /// Enforces Material Design sizing requirements
+        /// </summary>
+        private void EnforceMaterialSizing()
+        {
+            // Calculate required dimensions for current content
+            int baseTextWidth = 100; // Minimum content width estimate
+            using (Graphics g = CreateGraphics())
+            {
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    SizeF textSize = g.MeasureString(Text, _textFont);
+                    baseTextWidth = (int)Math.Ceiling(textSize.Width);
+                }
+            }
+
+            var baseContentSize = new Size(baseTextWidth, 20); // Base content size
+            var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
+            
+            // Apply DPI scaling
+            requiredSize = ScaleSize(requiredSize);
+            
+            // Enforce minimum dimensions
+            bool sizeChanged = false;
+            
+            if (Width < requiredSize.Width)
+            {
+                Width = requiredSize.Width;
+                sizeChanged = true;
+            }
+            
+            if (Height < requiredSize.Height)
+            {
+                Height = requiredSize.Height;
+                sizeChanged = true;
+            }
+            
+            // Update collapsed height if it changed
+            if (sizeChanged)
+            {
+                _collapsedHeight = Height;
+            }
         }
         /// <summary>
         /// Overrides the OnLayout method to position child controls correctly.
@@ -1007,6 +1248,72 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _beepListBox?.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            
+            // Update font reference
+            _textFont = Font;
+            
+            // Recalculate size requirements for new font
+            if (EnableMaterialStyle && ComboBoxAutoSizeForMaterial)
+            {
+                ApplyMaterialSizeCompensation();
+            }
+            else
+            {
+                GetControlHeight();
+                Height = _collapsedHeight;
+            }
+            
+            // Recalculate icon layout when font changes
+            _materialHelper?.UpdateLayout();
+        }
+
+        /// <summary>
+        /// Manually triggers Material Design size compensation for testing/debugging
+        /// </summary>
+        public void ForceMaterialSizeCompensation()
+        {
+            Console.WriteLine($"BeepComboBox: Force compensation called. EnableMaterialStyle: {EnableMaterialStyle}, AutoSize: {ComboBoxAutoSizeForMaterial}");
+            
+            // Temporarily enable auto size if needed
+            bool originalAutoSize = ComboBoxAutoSizeForMaterial;
+            ComboBoxAutoSizeForMaterial = true;
+            
+            ApplyMaterialSizeCompensation();
+            
+            // Restore original setting
+            ComboBoxAutoSizeForMaterial = originalAutoSize;
+            
+            // Force layout update
+            UpdateMaterialLayout();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Gets current Material Design size information for debugging
+        /// </summary>
+        public string GetMaterialSizeInfo()
+        {
+            if (!EnableMaterialStyle)
+                return "Material Design is disabled";
+                
+            var padding = GetMaterialStylePadding();
+            var effects = GetMaterialEffectsSpace();
+            var icons = GetMaterialIconSpace();
+            var minSize = CalculateMinimumSizeForMaterial(new Size(100, 20));
+            
+            return $"Material Info:\n" +
+                   $"Current Size: {Width}x{Height}\n" +
+                   $"Variant: {MaterialVariant}\n" +
+                   $"Padding: {padding}\n" +
+                   $"Effects Space: {effects}\n" +
+                   $"Icon Space: {icons}\n" +
+                   $"Calculated Min Size: {minSize}\n" +
+                   $"Auto Size Enabled: {ComboBoxAutoSizeForMaterial}";
         }
     }
 }

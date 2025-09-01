@@ -6,6 +6,7 @@ using System.Drawing;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [DisplayName("Beep Label")]
     [Description("A label control with support for images and multi-line text.")]
-    public class BeepLabel : BeepControl
+    public class BeepLabel : BaseControl
     {
 
             #region "Fields"
@@ -301,6 +302,130 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
+        // Material Design convenience properties
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("The floating label text that appears above the label content.")]
+        public string LabelText
+        {
+            get => base.LabelText;
+            set => base.LabelText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Helper text that appears below the label.")]
+        public string LabelHelperText
+        {
+            get => HelperText;
+            set => HelperText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Error message to display when validation fails.")]
+        public string LabelErrorText
+        {
+            get => ErrorText;
+            set => ErrorText = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Whether the label is in an error state.")]
+        public bool LabelHasError
+        {
+            get => HasError;
+            set => HasError = value;
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Automatically adjust size when Material Design styling is enabled.")]
+        [DefaultValue(true)]
+        public bool LabelAutoSizeForMaterial { get; set; } = true;
+
+        /// <summary>
+        /// Override the base Material size compensation to handle Label-specific logic
+        /// </summary>
+        public override void ApplyMaterialSizeCompensation()
+        {
+            if (!EnableMaterialStyle || !LabelAutoSizeForMaterial)
+                return;
+
+            Console.WriteLine($"BeepLabel: Applying Material size compensation. Current size: {Width}x{Height}");
+
+            // Calculate current text size if we have content
+            Size textSize = Size.Empty;
+            if (!string.IsNullOrEmpty(Text))
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    var measuredSize = g.MeasureString(Text, _textFont ?? Font);
+                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
+                }
+            }
+            
+            // Add subheader text size if present
+            if (!string.IsNullOrEmpty(SubHeaderText))
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    var subHeaderMeasuredSize = g.MeasureString(SubHeaderText, SubHeaderFont ?? Font);
+                    textSize.Width = Math.Max(textSize.Width, (int)Math.Ceiling(subHeaderMeasuredSize.Width));
+                    textSize.Height += HeaderSubheaderSpacing + (int)Math.Ceiling(subHeaderMeasuredSize.Height);
+                }
+            }
+            
+            // Use a reasonable default content size if no text
+            if (textSize.IsEmpty)
+            {
+                textSize = new Size(100, 20);
+            }
+            
+            Console.WriteLine($"BeepLabel: Base content size: {textSize}");
+            Console.WriteLine($"BeepLabel: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
+            
+            // Apply Material size compensation using base method
+            AdjustSizeForMaterial(textSize, true);
+            
+            Console.WriteLine($"BeepLabel: Final size after compensation: {Width}x{Height}");
+        }
+        /// <summary>
+        /// Override to provide label specific minimum dimensions
+        /// </summary>
+        /// <returns>Minimum height for Material Design label</returns>
+        protected override int GetMaterialMinimumHeight()
+        {
+            // Label specific Material Design heights
+            // Labels are more flexible and don't have strict height requirements like input controls
+            switch (MaterialVariant)
+            {
+                case MaterialTextFieldVariant.Outlined:
+                case MaterialTextFieldVariant.Filled:
+                case MaterialTextFieldVariant.Standard:
+                    return 32; // Minimum for readable text with some padding
+                default:
+                    return 32;
+            }
+        }
+
+        /// <summary>
+        /// Override to provide label specific minimum width
+        /// </summary>
+        /// <returns>Minimum width for Material Design label</returns>
+        protected override int GetMaterialMinimumWidth()
+        {
+            // Base minimum width for label
+            int baseMinWidth = 80;
+            
+            // Add space for icons if present
+            var iconSpace = GetMaterialIconSpace();
+            baseMinWidth += iconSpace.Width;
+            
+            return baseMinWidth;
+        }
         #endregion "Properties"
 
         #region "Constructors"
@@ -311,6 +436,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             BoundProperty = "Text";
             BorderRadius = 3;
+            
+            // Enable Material Design styling by default for labels
+            EnableMaterialStyle = false; // Start with Material Design disabled for backward compatibility
+            MaterialVariant = MaterialTextFieldVariant.Standard; // Labels work well with standard variant
+            MaterialBorderRadius = 4;
+            
+            // Apply Material Design size compensation if enabled
+            if (EnableMaterialStyle && LabelAutoSizeForMaterial)
+            {
+                // Apply size compensation when handle is created
+                this.HandleCreated += (s, e) => {
+                    ApplyMaterialSizeCompensation();
+                };
+            }
         }
 
         protected override void InitLayout()
@@ -323,6 +462,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = Font;
+            
+            // Apply Material Design size compensation if enabled
+            if (EnableMaterialStyle && LabelAutoSizeForMaterial)
+            {
+                ApplyMaterialSizeCompensation();
+            }
+            
             if (AutoSize)
             {
                 this.Size = GetPreferredSize(new Size(this.Width, 0));
@@ -514,8 +660,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsChild && Parent != null)
                 {
-                    parentbackcolor = Parent.BackColor;
-                    BackColor = parentbackcolor;
+                    ParentBackColor = Parent.BackColor;
+                    BackColor = ParentBackColor;
                 }
                 else
                 {
@@ -928,42 +1074,56 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepControl _lastBeepParent;
 
 
-        protected override void OnParentChanged(EventArgs e)
-        {
-            base.OnParentChanged(e);
-
-            // unregister from old parent
-            if (_lastBeepParent != null)
-                _lastBeepParent.ClearChildExternalDrawing(this);
-
-            // register with new parent
-            if (Parent is BeepControl newBeepParent)
-            {
-                newBeepParent.AddChildExternalDrawing(
-                    this,
-                    DrawBadgeExternally,
-                    DrawingLayer.AfterAll
-                );
-            }
-
-            _lastBeepParent = Parent as BeepControl;
-        }
-        private void DrawBadgeExternally(Graphics g, Rectangle childBounds)
-        {
-            // only draw if there's text
-            if (string.IsNullOrEmpty(BadgeText))
-                return;
-
-            const int badgeSize = 22;
-            // place it top-right, slightly overlapping
-            int x = childBounds.Right - badgeSize / 2;
-            int y = childBounds.Y - badgeSize / 2;
-            var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
-
-            // now call your existing routine
-            DrawBadgeImplementation(g, badgeRect);
-        }
 
         #endregion "Badge"
+
+        #region "Material Design Support"
+        
+        /// <summary>
+        /// Manually triggers Material Design size compensation for testing/debugging
+        /// </summary>
+        public void ForceMaterialSizeCompensation()
+        {
+            Console.WriteLine($"BeepLabel: Force compensation called. EnableMaterialStyle: {EnableMaterialStyle}, AutoSize: {LabelAutoSizeForMaterial}");
+            
+            // Temporarily enable auto size if needed
+            bool originalAutoSize = LabelAutoSizeForMaterial;
+            LabelAutoSizeForMaterial = true;
+            
+            ApplyMaterialSizeCompensation();
+            
+            // Restore original setting
+            LabelAutoSizeForMaterial = originalAutoSize;
+            
+            // Force layout update
+            UpdateMaterialLayout();
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Gets current Material Design size information for debugging
+        /// </summary>
+        public string GetMaterialSizeInfo()
+        {
+            if (!EnableMaterialStyle)
+                return "Material Design is disabled";
+                
+            var padding = GetMaterialStylePadding();
+            var effects = GetMaterialEffectsSpace();
+            var icons = GetMaterialIconSpace();
+            var minSize = CalculateMinimumSizeForMaterial(new Size(100, 20));
+            
+            return $"Material Info:\n" +
+                   $"Current Size: {Width}x{Height}\n" +
+                   $"Variant: {MaterialVariant}\n" +
+                   $"Padding: {padding}\n" +
+                   $"Effects Space: {effects}\n" +
+                   $"Icon Space: {icons}\n" +
+                   $"Calculated Min Size: {minSize}\n" +
+                   $"Auto Size Enabled: {LabelAutoSizeForMaterial}\n" +
+                   $"Has SubHeader: {!string.IsNullOrEmpty(SubHeaderText)}";
+        }
+        
+        #endregion "Material Design Support"
     }
 }

@@ -51,9 +51,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _bcEnableMaterialStyle;
             set
             {
-                _bcEnableMaterialStyle = value;
-                IsCustomeBorder = false; // keep ControlPaintHelper drawing borders
-                Invalidate();
+                if (_bcEnableMaterialStyle != value)
+                {
+                    _bcEnableMaterialStyle = value;
+                    IsCustomeBorder = false; // keep ControlPaintHelper drawing borders
+                    OnMaterialPropertyChanged();
+                    Invalidate();
+                }
             }
         }
 
@@ -63,9 +67,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _bcMaterialVariant;
             set
             {
-                _bcMaterialVariant = value;
-                MaterialBorderVariant = value; // ControlPaintHelper paints according to enum
-                Invalidate();
+                if (_bcMaterialVariant != value)
+                {
+                    _bcMaterialVariant = value;
+                    MaterialBorderVariant = value; // ControlPaintHelper paints according to enum
+                    OnMaterialPropertyChanged();
+                    Invalidate();
+                }
             }
         }
 
@@ -75,9 +83,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             get => _bcMaterialRadius;
             set
             {
-                _bcMaterialRadius = Math.Max(0, value);
-                BorderRadius = _bcMaterialRadius; // keep background rounding consistent
-                Invalidate();
+                if (_bcMaterialRadius != Math.Max(0, value))
+                {
+                    _bcMaterialRadius = Math.Max(0, value);
+                    BorderRadius = _bcMaterialRadius; // keep background rounding consistent
+                    OnMaterialPropertyChanged();
+                    Invalidate();
+                }
             }
         }
 

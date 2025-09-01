@@ -94,6 +94,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.IsSelected = false;
             beepRowConfig1.IsVisible = false;
             beepRowConfig1.OldDisplayIndex = 0;
+            beepRowConfig1.RowCheckRect = new Rectangle(0, 0, 0, 0);
             beepRowConfig1.RowData = null;
             beepRowConfig1.RowIndex = 1;
             beepRowConfig1.UpperX = 0;
@@ -127,6 +128,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ColumnHeaderFont = new Font("Arial", 8F);
             beepSimpleGrid1.ColumnHeaderHeight = 40;
             beepColumnConfig1.AggregationType = AggregationType.None;
+            beepColumnConfig1.AllowSort = true;
             beepColumnConfig1.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig1.ColumnBackColor = Color.FromArgb(224, 224, 224);
             beepColumnConfig1.ColumnBorderColor = Color.Gray;
@@ -169,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig1.ParentColumnName = null;
             beepColumnConfig1.PropertyTypeName = "System.Boolean, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
             beepColumnConfig1.QueryToGetValues = null;
-            beepColumnConfig1.ReadOnly = false;
+            beepColumnConfig1.ReadOnly = true;
             beepColumnConfig1.Resizable = DataGridViewTriState.False;
             beepColumnConfig1.ShowFilterIcon = true;
             beepColumnConfig1.ShowSortIcon = true;
@@ -179,6 +181,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig1.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig1.Width = 30;
             beepColumnConfig2.AggregationType = AggregationType.Count;
+            beepColumnConfig2.AllowSort = true;
             beepColumnConfig2.ColumnCaption = "#";
             beepColumnConfig2.ColumnName = "RowNum";
             beepColumnConfig2.ColumnType = Utilities.DbFieldCategory.Numeric;
@@ -225,6 +228,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig2.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig2.Width = 30;
             beepColumnConfig3.AggregationType = AggregationType.None;
+            beepColumnConfig3.AllowSort = true;
             beepColumnConfig3.ColumnCaption = "RowID";
             beepColumnConfig3.ColumnName = "RowID";
             beepColumnConfig3.ColumnType = Utilities.DbFieldCategory.Numeric;
@@ -272,6 +276,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig3.Visible = false;
             beepColumnConfig3.Width = 30;
             beepColumnConfig4.AggregationType = AggregationType.None;
+            beepColumnConfig4.AllowSort = true;
             beepColumnConfig4.CellEditor = BeepColumnType.NumericUpDown;
             beepColumnConfig4.ColumnCaption = "ID";
             beepColumnConfig4.ColumnName = "ID";
@@ -309,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig4.ParentColumnName = null;
             beepColumnConfig4.PropertyTypeName = "System.Int32";
             beepColumnConfig4.QueryToGetValues = null;
-            beepColumnConfig4.ReadOnly = false;
+            beepColumnConfig4.ReadOnly = true;
             beepColumnConfig4.ShowFilterIcon = true;
             beepColumnConfig4.ShowSortIcon = true;
             beepColumnConfig4.SortDirection = SortDirection.Ascending;
@@ -317,6 +322,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig4.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig4.Visible = false;
             beepColumnConfig5.AggregationType = AggregationType.None;
+            beepColumnConfig5.AllowSort = true;
             beepColumnConfig5.ColumnCaption = "Guid ID";
             beepColumnConfig5.ColumnName = "GuidID";
             beepColumnConfig5.CustomControlName = null;
@@ -352,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig5.ParentColumnName = null;
             beepColumnConfig5.PropertyTypeName = "System.String";
             beepColumnConfig5.QueryToGetValues = null;
-            beepColumnConfig5.ReadOnly = false;
+            beepColumnConfig5.ReadOnly = true;
             beepColumnConfig5.ShowFilterIcon = true;
             beepColumnConfig5.ShowSortIcon = true;
             beepColumnConfig5.SortDirection = SortDirection.Ascending;
@@ -360,6 +366,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig5.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig5.Visible = false;
             beepColumnConfig6.AggregationType = AggregationType.None;
+            beepColumnConfig6.AllowSort = true;
             beepColumnConfig6.ColumnBackColor = Color.FromArgb(224, 224, 224);
             beepColumnConfig6.ColumnCaption = "Package Name";
             beepColumnConfig6.ColumnForeColor = Color.FromArgb(0, 192, 0);
@@ -407,6 +414,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig6.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig6.Visible = false;
             beepColumnConfig7.AggregationType = AggregationType.None;
+            beepColumnConfig7.AllowSort = true;
             beepColumnConfig7.ColumnBackColor = Color.FromArgb(224, 224, 224);
             beepColumnConfig7.ColumnBorderColor = Color.Gray;
             beepColumnConfig7.ColumnCaption = "Driver Class";
@@ -455,6 +463,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig7.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig7.UseCustomColors = true;
             beepColumnConfig8.AggregationType = AggregationType.None;
+            beepColumnConfig8.AllowSort = true;
             beepColumnConfig8.ColumnCaption = "version";
             beepColumnConfig8.ColumnName = "version";
             beepColumnConfig8.CustomControlName = null;
@@ -497,6 +506,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig8.Sticked = true;
             beepColumnConfig8.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig9.AggregationType = AggregationType.None;
+            beepColumnConfig9.AllowSort = true;
             beepColumnConfig9.ColumnCaption = "dllname";
             beepColumnConfig9.ColumnName = "dllname";
             beepColumnConfig9.CustomControlName = null;
@@ -532,13 +542,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig9.ParentColumnName = null;
             beepColumnConfig9.PropertyTypeName = "System.String";
             beepColumnConfig9.QueryToGetValues = null;
-            beepColumnConfig9.ReadOnly = false;
+            beepColumnConfig9.ReadOnly = true;
             beepColumnConfig9.ShowFilterIcon = true;
             beepColumnConfig9.ShowSortIcon = true;
             beepColumnConfig9.SortDirection = SortDirection.Ascending;
             beepColumnConfig9.Sticked = false;
             beepColumnConfig9.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig10.AggregationType = AggregationType.None;
+            beepColumnConfig10.AllowSort = true;
             beepColumnConfig10.ColumnCaption = "Adapter Type";
             beepColumnConfig10.ColumnName = "AdapterType";
             beepColumnConfig10.CustomControlName = null;
@@ -574,13 +585,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig10.ParentColumnName = null;
             beepColumnConfig10.PropertyTypeName = "System.String";
             beepColumnConfig10.QueryToGetValues = null;
-            beepColumnConfig10.ReadOnly = false;
+            beepColumnConfig10.ReadOnly = true;
             beepColumnConfig10.ShowFilterIcon = true;
             beepColumnConfig10.ShowSortIcon = true;
             beepColumnConfig10.SortDirection = SortDirection.Ascending;
             beepColumnConfig10.Sticked = false;
             beepColumnConfig10.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig11.AggregationType = AggregationType.None;
+            beepColumnConfig11.AllowSort = true;
             beepColumnConfig11.ColumnCaption = "Command Builder Type";
             beepColumnConfig11.ColumnName = "CommandBuilderType";
             beepColumnConfig11.CustomControlName = null;
@@ -616,7 +628,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig11.ParentColumnName = null;
             beepColumnConfig11.PropertyTypeName = "System.String";
             beepColumnConfig11.QueryToGetValues = null;
-            beepColumnConfig11.ReadOnly = false;
+            beepColumnConfig11.ReadOnly = true;
             beepColumnConfig11.ShowFilterIcon = true;
             beepColumnConfig11.ShowSortIcon = true;
             beepColumnConfig11.SortDirection = SortDirection.Ascending;
@@ -624,6 +636,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig11.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig11.Visible = false;
             beepColumnConfig12.AggregationType = AggregationType.None;
+            beepColumnConfig12.AllowSort = true;
             beepColumnConfig12.ColumnCaption = "Db Connection Type";
             beepColumnConfig12.ColumnName = "DbConnectionType";
             beepColumnConfig12.CustomControlName = null;
@@ -659,7 +672,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig12.ParentColumnName = null;
             beepColumnConfig12.PropertyTypeName = "System.String";
             beepColumnConfig12.QueryToGetValues = null;
-            beepColumnConfig12.ReadOnly = false;
+            beepColumnConfig12.ReadOnly = true;
             beepColumnConfig12.ShowFilterIcon = true;
             beepColumnConfig12.ShowSortIcon = true;
             beepColumnConfig12.SortDirection = SortDirection.Ascending;
@@ -667,6 +680,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig12.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig12.Visible = false;
             beepColumnConfig13.AggregationType = AggregationType.None;
+            beepColumnConfig13.AllowSort = true;
             beepColumnConfig13.ColumnCaption = "Db Transaction Type";
             beepColumnConfig13.ColumnName = "DbTransactionType";
             beepColumnConfig13.CustomControlName = null;
@@ -702,7 +716,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig13.ParentColumnName = null;
             beepColumnConfig13.PropertyTypeName = "System.String";
             beepColumnConfig13.QueryToGetValues = null;
-            beepColumnConfig13.ReadOnly = false;
+            beepColumnConfig13.ReadOnly = true;
             beepColumnConfig13.ShowFilterIcon = true;
             beepColumnConfig13.ShowSortIcon = true;
             beepColumnConfig13.SortDirection = SortDirection.Ascending;
@@ -710,6 +724,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig13.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig13.Visible = false;
             beepColumnConfig14.AggregationType = AggregationType.None;
+            beepColumnConfig14.AllowSort = true;
             beepColumnConfig14.ColumnCaption = "Connection String";
             beepColumnConfig14.ColumnName = "ConnectionString";
             beepColumnConfig14.CustomControlName = null;
@@ -745,13 +760,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig14.ParentColumnName = null;
             beepColumnConfig14.PropertyTypeName = "System.String";
             beepColumnConfig14.QueryToGetValues = null;
-            beepColumnConfig14.ReadOnly = false;
+            beepColumnConfig14.ReadOnly = true;
             beepColumnConfig14.ShowFilterIcon = true;
             beepColumnConfig14.ShowSortIcon = true;
             beepColumnConfig14.SortDirection = SortDirection.Ascending;
             beepColumnConfig14.Sticked = false;
             beepColumnConfig14.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig15.AggregationType = AggregationType.None;
+            beepColumnConfig15.AllowSort = true;
             beepColumnConfig15.ColumnCaption = "parameter1";
             beepColumnConfig15.ColumnName = "parameter1";
             beepColumnConfig15.CustomControlName = null;
@@ -787,7 +803,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig15.ParentColumnName = null;
             beepColumnConfig15.PropertyTypeName = "System.String";
             beepColumnConfig15.QueryToGetValues = null;
-            beepColumnConfig15.ReadOnly = false;
+            beepColumnConfig15.ReadOnly = true;
             beepColumnConfig15.ShowFilterIcon = true;
             beepColumnConfig15.ShowSortIcon = true;
             beepColumnConfig15.SortDirection = SortDirection.Ascending;
@@ -795,6 +811,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig15.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig15.Visible = false;
             beepColumnConfig16.AggregationType = AggregationType.None;
+            beepColumnConfig16.AllowSort = true;
             beepColumnConfig16.ColumnCaption = "parameter2";
             beepColumnConfig16.ColumnName = "parameter2";
             beepColumnConfig16.CustomControlName = null;
@@ -830,7 +847,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig16.ParentColumnName = null;
             beepColumnConfig16.PropertyTypeName = "System.String";
             beepColumnConfig16.QueryToGetValues = null;
-            beepColumnConfig16.ReadOnly = false;
+            beepColumnConfig16.ReadOnly = true;
             beepColumnConfig16.ShowFilterIcon = true;
             beepColumnConfig16.ShowSortIcon = true;
             beepColumnConfig16.SortDirection = SortDirection.Ascending;
@@ -838,6 +855,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig16.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig16.Visible = false;
             beepColumnConfig17.AggregationType = AggregationType.None;
+            beepColumnConfig17.AllowSort = true;
             beepColumnConfig17.ColumnCaption = "parameter3";
             beepColumnConfig17.ColumnName = "parameter3";
             beepColumnConfig17.CustomControlName = null;
@@ -873,7 +891,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig17.ParentColumnName = null;
             beepColumnConfig17.PropertyTypeName = "System.String";
             beepColumnConfig17.QueryToGetValues = null;
-            beepColumnConfig17.ReadOnly = false;
+            beepColumnConfig17.ReadOnly = true;
             beepColumnConfig17.ShowFilterIcon = true;
             beepColumnConfig17.ShowSortIcon = true;
             beepColumnConfig17.SortDirection = SortDirection.Ascending;
@@ -881,6 +899,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig17.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig17.Visible = false;
             beepColumnConfig18.AggregationType = AggregationType.None;
+            beepColumnConfig18.AllowSort = true;
             beepColumnConfig18.ColumnCaption = "iconname";
             beepColumnConfig18.ColumnName = "iconname";
             beepColumnConfig18.CustomControlName = null;
@@ -923,6 +942,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig18.Sticked = false;
             beepColumnConfig18.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig19.AggregationType = AggregationType.None;
+            beepColumnConfig19.AllowSort = true;
             beepColumnConfig19.ColumnCaption = "class Handler";
             beepColumnConfig19.ColumnName = "classHandler";
             beepColumnConfig19.CustomControlName = null;
@@ -958,13 +978,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig19.ParentColumnName = null;
             beepColumnConfig19.PropertyTypeName = "System.String";
             beepColumnConfig19.QueryToGetValues = null;
-            beepColumnConfig19.ReadOnly = false;
+            beepColumnConfig19.ReadOnly = true;
             beepColumnConfig19.ShowFilterIcon = true;
             beepColumnConfig19.ShowSortIcon = true;
             beepColumnConfig19.SortDirection = SortDirection.Ascending;
             beepColumnConfig19.Sticked = false;
             beepColumnConfig19.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig20.AggregationType = AggregationType.None;
+            beepColumnConfig20.AllowSort = true;
             beepColumnConfig20.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig20.ColumnCaption = "ADOType";
             beepColumnConfig20.ColumnName = "ADOType";
@@ -1009,6 +1030,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig20.Sticked = false;
             beepColumnConfig20.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig21.AggregationType = AggregationType.None;
+            beepColumnConfig21.AllowSort = true;
             beepColumnConfig21.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig21.ColumnCaption = "Create Local";
             beepColumnConfig21.ColumnName = "CreateLocal";
@@ -1053,6 +1075,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig21.Sticked = false;
             beepColumnConfig21.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig22.AggregationType = AggregationType.None;
+            beepColumnConfig22.AllowSort = true;
             beepColumnConfig22.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig22.ColumnCaption = "In Memory";
             beepColumnConfig22.ColumnName = "InMemory";
@@ -1097,6 +1120,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig22.Sticked = false;
             beepColumnConfig22.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig23.AggregationType = AggregationType.None;
+            beepColumnConfig23.AllowSort = true;
             beepColumnConfig23.ColumnCaption = "Extensions";
             beepColumnConfig23.ColumnName = "extensionstoHandle";
             beepColumnConfig23.CustomControlName = null;
@@ -1132,13 +1156,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig23.ParentColumnName = null;
             beepColumnConfig23.PropertyTypeName = "System.String";
             beepColumnConfig23.QueryToGetValues = null;
-            beepColumnConfig23.ReadOnly = false;
+            beepColumnConfig23.ReadOnly = true;
             beepColumnConfig23.ShowFilterIcon = true;
             beepColumnConfig23.ShowSortIcon = true;
             beepColumnConfig23.SortDirection = SortDirection.Ascending;
             beepColumnConfig23.Sticked = false;
             beepColumnConfig23.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig24.AggregationType = AggregationType.None;
+            beepColumnConfig24.AllowSort = true;
             beepColumnConfig24.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig24.ColumnCaption = "Favourite";
             beepColumnConfig24.ColumnName = "Favourite";
@@ -1176,13 +1201,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig24.ParentColumnName = null;
             beepColumnConfig24.PropertyTypeName = "System.Boolean";
             beepColumnConfig24.QueryToGetValues = null;
-            beepColumnConfig24.ReadOnly = false;
+            beepColumnConfig24.ReadOnly = true;
             beepColumnConfig24.ShowFilterIcon = true;
             beepColumnConfig24.ShowSortIcon = true;
             beepColumnConfig24.SortDirection = SortDirection.Ascending;
             beepColumnConfig24.Sticked = false;
             beepColumnConfig24.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig25.AggregationType = AggregationType.None;
+            beepColumnConfig25.AllowSort = true;
             beepColumnConfig25.ColumnCaption = "Datasource Category";
             beepColumnConfig25.ColumnName = "DatasourceCategory";
             beepColumnConfig25.CustomControlName = null;
@@ -1225,6 +1251,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig25.Sticked = false;
             beepColumnConfig25.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig26.AggregationType = AggregationType.None;
+            beepColumnConfig26.AllowSort = true;
             beepColumnConfig26.ColumnCaption = "Datasource Type";
             beepColumnConfig26.ColumnName = "DatasourceType";
             beepColumnConfig26.CustomControlName = null;
@@ -1267,6 +1294,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig26.Sticked = false;
             beepColumnConfig26.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig27.AggregationType = AggregationType.None;
+            beepColumnConfig27.AllowSort = true;
             beepColumnConfig27.CellEditor = BeepColumnType.CheckBoxBool;
             beepColumnConfig27.ColumnCaption = "Is Missing";
             beepColumnConfig27.ColumnName = "IsMissing";
@@ -1441,7 +1469,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowBottomBorder = true;
             beepSimpleGrid1.ShowCheckboxes = true;
             beepSimpleGrid1.ShowColumnHeaders = true;
-            beepSimpleGrid1.ShowFilter = true;
+            beepSimpleGrid1.ShowFilter = false;
             beepSimpleGrid1.ShowFilterIcon = false;
             beepSimpleGrid1.ShowFocusIndicator = false;
             beepSimpleGrid1.ShowFooter = false;
@@ -1456,7 +1484,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.ShowRowNumbers = true;
             beepSimpleGrid1.ShowShadow = false;
             beepSimpleGrid1.ShowSortIcon = false;
-            beepSimpleGrid1.ShowSortIcons = true;
+            beepSimpleGrid1.ShowSortIcons = false;
             beepSimpleGrid1.ShowTopBorder = true;
             beepSimpleGrid1.ShowVerticalGridLines = true;
             beepSimpleGrid1.ShowVerticalScrollBar = true;
@@ -1485,7 +1513,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.UIShape = ReactUIShape.Rounded;
             beepSimpleGrid1.UISize = ReactUISize.Medium;
             beepSimpleGrid1.UIVariant = ReactUIVariant.Default;
-            beepSimpleGrid1.UpdateLog = (Dictionary<DateTime, Editor.EntityUpdateInsertLog>)resources.GetObject("beepSimpleGrid1.UpdateLog");
+            beepSimpleGrid1.UpdateLog = null;
             beepSimpleGrid1.UseGlassmorphism = false;
             beepSimpleGrid1.UseGradientBackground = true;
             beepSimpleGrid1.UseThemeFont = true;

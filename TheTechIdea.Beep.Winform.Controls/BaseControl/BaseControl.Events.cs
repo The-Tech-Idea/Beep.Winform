@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             SuspendLayout();
             base.OnResize(e);
             _paint.UpdateRects();
-            UpdateMaterialLayout();
+        //    UpdateMaterialLayout();
             if (IsHandleCreated)
             {
                 BeginInvoke((MethodInvoker)delegate { UpdateControlRegion(); });

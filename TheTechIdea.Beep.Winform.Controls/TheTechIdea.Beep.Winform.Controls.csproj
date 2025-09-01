@@ -658,6 +658,7 @@
   <ItemGroup>
     <Folder Include="BaseControl\Adapters\" />
     <Folder Include="BaseControl\Properties\" />
+    <Folder Include="BaseImage\Helpers\" />
     <Folder Include="Containers\" />
     <Folder Include="Forms\Adapters\" />
     <Folder Include="Forms\Properties\" />

@@ -599,8 +599,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             //// Enable double buffering and optimized painting
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint, true);
+                     ControlStyles.UserPaint |
+                     ControlStyles.Selectable |           // ADD: Enable selection in designer
+                     ControlStyles.StandardClick |        // ADD: Enable standard click behavior
+                     ControlStyles.ResizeRedraw, true);   // ADD: Redraw on resize
             UpdateStyles();
+            
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 100;
@@ -609,6 +613,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             BoundProperty = "ImagePath";
             fillColor = Color.Black;
             strokeColor = Color.Black;
+            
+            // Enable tab stop for proper focus behavior
+            TabStop = true;
+            
             // ImageSelector.SetSelector();
         }
 

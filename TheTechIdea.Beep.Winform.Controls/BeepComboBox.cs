@@ -220,6 +220,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(true)]
         public bool ComboBoxAutoSizeForMaterial { get; set; } = true;
 
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("If true, the control grows horizontally to fit its content. Default is false.")]
+        [DefaultValue(false)]
+        public bool AutoWidthToContent { get; set; } = false;
+
         /// <summary>
         /// Override EnableMaterialStyle to apply size compensation when toggled
         /// </summary>
@@ -338,13 +344,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             var baseContentSize = new Size(100, 20); // Base content size for initial sizing
             var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
             
-            // Set initial size to accommodate Material Design requirements
-            if (Width < requiredSize.Width)
+            // Always ensure minimum height; width only if explicitly allowed
+            if (Height < requiredSize.Height)
             {
-                Width = requiredSize.Width;
+                Height = requiredSize.Height;
+            }
+
+            if (AutoWidthToContent)
+            {
+                if (Width < requiredSize.Width)
+                {
+                    Width = requiredSize.Width;
+                }
+            }
+            else
+            {
+                // Respect a minimal, reasonable width without content growth
+                var minWidth = ScaleValue(GetMaterialMinimumWidth());
+                if (Width < minWidth)
+                {
+                    Width = minWidth;
+                }
             }
             
-            // Height will be set by GetControlHeight() and _collapsedHeight assignment
+            // Height will also be set by GetControlHeight() and _collapsedHeight assignment
         }
         private void InitializeDrawingComponents()
         {
@@ -537,19 +560,32 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Apply DPI scaling
             requiredSize = ScaleSize(requiredSize);
             
-            // Enforce minimum dimensions
             bool sizeChanged = false;
             
-            if (Width < requiredSize.Width)
-            {
-                Width = requiredSize.Width;
-                sizeChanged = true;
-            }
-            
+            // Always enforce minimum height to keep label/helper/caret area correct
             if (Height < requiredSize.Height)
             {
                 Height = requiredSize.Height;
                 sizeChanged = true;
+            }
+            
+            // Width: only grow to content if explicitly enabled; otherwise cap to minimal width
+            if (AutoWidthToContent)
+            {
+                if (Width < requiredSize.Width)
+                {
+                    Width = requiredSize.Width;
+                    sizeChanged = true;
+                }
+            }
+            else
+            {
+                var minWidth = ScaleValue(GetMaterialMinimumWidth());
+                if (Width < minWidth)
+                {
+                    Width = minWidth;
+                    sizeChanged = true;
+                }
             }
             
             // Update collapsed height if it changed

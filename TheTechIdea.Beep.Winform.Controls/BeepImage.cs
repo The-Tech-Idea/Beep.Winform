@@ -323,24 +323,82 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _imagepath;
             set
             {
-                if (_imagepath != value)
+                // If the new value is the same as the current, but we don't actually have an image loaded,
+                // force a reload attempt. This fixes cases where the first load failed and the same path is set again.
+                if (string.Equals(_imagepath, value, StringComparison.OrdinalIgnoreCase))
                 {
-                    _imagepath = value;
-                    _stateChanged = true;
-                    _cachedRenderedImage?.Dispose();
-                    _cachedRenderedImage = null;
+                    if (!HasImage && !string.IsNullOrWhiteSpace(value))
+                    {
+                        _stateChanged = true;
+                        _cachedRenderedImage?.Dispose();
+                        _cachedRenderedImage = null;
 
-                    if (!string.IsNullOrEmpty(_imagepath))
-                    {
-                        LoadImage(_imagepath);
-                        ApplyTheme();
-                        Invalidate();
+                        bool imageLoaded = LoadImage(value);
+                        if (imageLoaded)
+                        {
+                            if (_applyThemeOnImage && _currentTheme != null)
+                            {
+                                ApplyTheme();
+                            }
+                            Invalidate();
+                            if (Parent != null)
+                            {
+                                Parent.Invalidate(this.Bounds);
+                            }
+                            Update();
+                        }
+                        else
+                        {
+                            // If reload failed, clear to safe state
+                            ClearImage();
+                            Invalidate();
+                            if (Parent != null)
+                            {
+                                Parent.Invalidate(this.Bounds);
+                            }
+                            Update();
+                        }
                     }
-                    else
+                    return; // No change needed if image is already correctly loaded
+                }
+
+                // Normal path: value actually changed
+                _imagepath = value;
+                _stateChanged = true;
+                
+                // Clear any cached rendered image immediately
+                _cachedRenderedImage?.Dispose();
+                _cachedRenderedImage = null;
+
+                if (!string.IsNullOrEmpty(_imagepath))
+                {
+                    bool imageLoaded = LoadImage(_imagepath);
+                    if (imageLoaded)
                     {
-                        ClearImage();
+                        // Apply theme if configured
+                        if (_applyThemeOnImage && _currentTheme != null)
+                        {
+                            ApplyTheme();
+                        }
+                        
+                        // Force immediate invalidation and refresh
                         Invalidate();
+                        if (Parent != null)
+                        {
+                            Parent.Invalidate(this.Bounds);
+                        }
+                        Update(); // Force immediate repaint
                     }
+                }
+                else
+                {
+                    ClearImage();
+                    Invalidate();
+                    if (Parent != null)
+                    {
+                        Parent.Invalidate(this.Bounds);
+                    }
+                    Update(); // Force immediate repaint
                 }
             }
         }
@@ -1618,6 +1676,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         //private string ProcessImagePath()
         //{
+
         //    string selectedPath = string.Empty;
         //
         //    try

@@ -70,8 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Theme = Theme
             };
             BoundProperty = "State";
-            ShowAllBorders = false;
-            BorderRadius = 3;
+          
             
             // Ensure the control is properly configured for user interaction
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Selectable, true);
@@ -288,65 +287,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #endregion
         #region Methods
-        //protected override void OnResize(EventArgs e)
-        //{
-        //    base.OnResize(e);
-        //    UpdateDrawingRect();
-        //    AdjustSize; // Call directly, no need for recursion flag if we avoid recursive property sets
-        //}
-        //private void AdjustSize()
-        //{
-        //    bool hasText = !HideText && !string.IsNullOrEmpty(Text);
-        //    Size textSize = hasText ? TextRenderer.MeasureText(Text, Font) : Size.Empty;
-        //    int checkBoxSize = CheckBoxSize;
-
-        //    int newWidth, newHeight;
-
-        //    if (!hasText)
-        //    {
-        //        // Center checkbox, minimal size
-        //        newWidth = Padding.Left + checkBoxSize + Padding.Right;
-        //        newHeight = Padding.Top + checkBoxSize + Padding.Bottom;
-        //    }
-        //    else
-        //    {
-        //        switch (TextAlignRelativeToCheckBox)
-        //        {
-        //            case TextAlignment.Right: // Text right, checkbox left
-        //                newWidth = Padding.Left + checkBoxSize + Spacing + textSize.Width + Padding.Right;
-        //                newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
-        //                break;
-
-        //            case TextAlignment.Left: // Text left, checkbox right
-        //                newWidth = Padding.Left + textSize.Width + Spacing + checkBoxSize + Padding.Right;
-        //                newHeight = Padding.Top + Math.Max(checkBoxSize, textSize.Height) + Padding.Bottom;
-        //                break;
-
-        //            case TextAlignment.Above: // Text above, checkbox below
-        //                newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
-        //                newHeight = Padding.Top + textSize.Height + Spacing + checkBoxSize + Padding.Bottom;
-        //                break;
-
-        //            case TextAlignment.Below: // Text below, checkbox above
-        //                newWidth = Padding.Left + Math.Max(checkBoxSize, textSize.Width) + Padding.Right;
-        //                newHeight = Padding.Top + checkBoxSize + Spacing + textSize.Height + Padding.Bottom;
-        //                break;
-
-        //            default:
-        //                throw new ArgumentOutOfRangeException(nameof(TextAlignRelativeToCheckBox));
-        //        }
-        //    }
-
-        //    //// Only set size if different to avoid unnecessary recursion
-        //    //if (Width != newWidth || Height != newHeight)
-        //    //{
-        //    //    Width = Math.Max(Width, newWidth); // Preserve larger width if set externally
-        //    //    Height = Math.Max(Height, newHeight); // Preserve larger height if set externally
-        //    //}
-
-        //    // No need for Invalidate here; OnResize already triggers a repaint
-        //}
-        protected override void OnTextChanged(EventArgs e)
+       protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
             // Force a layout update when the text changes.
@@ -634,53 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             graphics.FillRectangle(indeterminateBrush, indeterminateRect);
         }
-        // Optimized check mark drawing
-        private void DrawCheckMarkOptimized(Graphics graphics, Rectangle bounds)
-        {
-            Color checkColor = _currentTheme.CheckBoxCheckedForeColor;
-            if (!_penCache.TryGetValue(checkColor, out Pen checkPen))
-            {
-                checkPen = new Pen(checkColor, 2);
-                _penCache[checkColor] = checkPen;
-            }
-
-            // Pre-calculated check mark points for better performance
-            Point[] checkMarkPoints = new Point[]
-            {
-        new Point(bounds.X + bounds.Width / 4, bounds.Y + bounds.Height / 2),
-        new Point(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height * 3 / 4),
-        new Point(bounds.X + bounds.Width * 3 / 4, bounds.Y + bounds.Height / 4)
-            };
-
-            graphics.DrawLines(checkPen, checkMarkPoints);
-        }
-
-        // Optimized indeterminate mark drawing
-        private void DrawIndeterminateMarkOptimized(Graphics graphics, Rectangle bounds)
-        {
-            Color indeterminateColor = _currentTheme.CheckBoxForeColor;
-            if (!_brushCache.TryGetValue(indeterminateColor, out SolidBrush indeterminateBrush))
-            {
-                indeterminateBrush = new SolidBrush(indeterminateColor);
-                _brushCache[indeterminateColor] = indeterminateBrush;
-            }
-
-            Rectangle indeterminateRect = new Rectangle(
-                bounds.X + bounds.Width / 4,
-                bounds.Y + bounds.Height / 4,
-                bounds.Width / 2,
-                bounds.Height / 2);
-
-            graphics.FillRectangle(indeterminateBrush, indeterminateRect);
-        }
-
-        // Optimized text drawing
-        private void DrawTextOptimized(Graphics graphics, string text, Font font, Color color, Rectangle textRect)
-        {
-            // Use TextRenderer for better performance
-            TextRenderer.DrawText(graphics, text, font, textRect, color,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-        }
+      
 
         // State change detection
         private bool CheckIfStateChanged(Rectangle rectangle)
@@ -692,100 +587,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             return changed;
         }
-        private void CalculateLayout(Rectangle rectangle, int checkBoxSize, Size textSize,
-    out Rectangle checkBoxRect, out Rectangle textRect)
-        {
-            checkBoxRect = Rectangle.Empty;
-            textRect = Rectangle.Empty;
-
-            if (HideText)
-            {
-                checkBoxRect = new Rectangle(
-                    rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                    rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                    checkBoxSize, checkBoxSize);
-            }
-            else
-            {
-                switch (TextAlignRelativeToCheckBox)
-                {
-                    case TextAlignment.Right:
-                        checkBoxRect = new Rectangle(rectangle.X + Padding.Left,
-                            rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                            checkBoxSize, checkBoxSize);
-                        textRect = new Rectangle(checkBoxRect.Right + Spacing,
-                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
-                            textSize.Width, textSize.Height);
-                        break;
-
-                    case TextAlignment.Left:
-                        textRect = new Rectangle(rectangle.X + Padding.Left,
-                            rectangle.Y + (rectangle.Height - textSize.Height) / 2,
-                            textSize.Width, textSize.Height);
-                        checkBoxRect = new Rectangle(textRect.Right + Spacing,
-                            rectangle.Y + (rectangle.Height - checkBoxSize) / 2,
-                            checkBoxSize, checkBoxSize);
-                        break;
-
-                    case TextAlignment.Above:
-                        textRect = new Rectangle(rectangle.X + (rectangle.Width - textSize.Width) / 2,
-                            rectangle.Y + Padding.Top,
-                            textSize.Width, textSize.Height);
-                        checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                            textRect.Bottom + Spacing,
-                            checkBoxSize, checkBoxSize);
-                        break;
-
-                    case TextAlignment.Below:
-                        checkBoxRect = new Rectangle(rectangle.X + (rectangle.Width - checkBoxSize) / 2,
-                            rectangle.Y + Padding.Top,
-                            checkBoxSize, checkBoxSize);
-                        textRect = new Rectangle(rectangle.X + (rectangle.Width - textSize.Width) / 2,
-                            checkBoxRect.Bottom + Spacing,
-                            textSize.Width, textSize.Height);
-                        break;
-
-                    default:
-                        checkBoxRect = new Rectangle(rectangle.X, rectangle.Y, checkBoxSize, checkBoxSize);
-                        break;
-                }
-            }
-        }
-
-        // Update tracking state
-        private void UpdateLastDrawnState(Rectangle rectangle)
-        {
-            _lastDrawnState = _state;
-            _lastDrawnText = Text;
-            _lastDrawnRect = rectangle;
-            _stateChanged = false;
-        }
-
-
-
+    
         protected override void DrawContent(Graphics g)
         {
             UpdateDrawingRect();
             base.DrawContent(g);
             Draw(g, DrawingRect);
         }
-        private Rectangle GetCheckBoxRectangle(Rectangle rectangle)
-        {
-            // Calculate checkbox rectangle using CheckBoxSize
-            int checkBoxSize = Math.Min(CheckBoxSize, rectangle.Height - Padding.Top - Padding.Bottom);
-            int centerY = (rectangle.Height - checkBoxSize) / 2;
-
-            return new Rectangle(Padding.Left, centerY, checkBoxSize, checkBoxSize);
-        }
-        private Rectangle GetTextRectangle(string text, Font font, Rectangle rectangle, Rectangle checkBoxRect)
-        {
-            Size textSize = TextRenderer.MeasureText(text, font);
-            int offsetX = checkBoxRect.Right + Spacing; // Start text after checkbox + spacing
-            int centerY = rectangle.Y + (rectangle.Height - textSize.Height) / 2;
-            int textWidth = rectangle.Width - (offsetX - rectangle.X) - Padding.Right;
-            return new Rectangle(offsetX, centerY, textWidth, textSize.Height);
-        }
-        private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
+       private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
         {
             TextRenderer.DrawText(
                 g,

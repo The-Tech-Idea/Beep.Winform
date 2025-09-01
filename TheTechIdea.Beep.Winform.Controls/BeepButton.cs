@@ -83,8 +83,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
-                ImagePath = value;
-               
+              
+                if (beepImage != null)
+                {
+                    beepImage.ImagePath = value;
+                    Invalidate();
+                }
+
             }
         }
         private Color tmpbackcolor;
@@ -369,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => beepImage?.ImagePath;
             set
             {
-
+               
                 if (beepImage != null)
                 {
                     beepImage.ImagePath = value;
@@ -606,7 +611,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             
             // Add image size if present
-            if (beepImage?.HasImage == true)
+            if (beepImage?.HasImage == true || beepImage?.ImagePath!=string.Empty)
             {
                 Size imageSize = beepImage.GetImageSize();
                 

@@ -1676,9 +1676,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void UpdateDrawingRect()
         {
-            _textRect = ClientRectangle;
-            int borderOffset = _borderWidth;
-            _textRect.Inflate(-Padding.Horizontal / 2 - borderOffset, -Padding.Vertical / 2 - borderOffset);
+            // Always keep BaseControl's drawing rectangles up to date
+            base.UpdateDrawingRect();
+
+            // Prefer Material content rectangle when Material style is enabled
+            Rectangle contentArea;
+            if (EnableMaterialStyle)
+            {
+                // Ensure material helper layout is updated before fetching rects
+                UpdateMaterialLayout();
+                contentArea = GetMaterialContentRectangle();
+
+                // Fallback if material content rect is empty
+                if (contentArea.Width <= 0 || contentArea.Height <= 0)
+                {
+                    contentArea = DrawingRect;
+                }
+            }
+            else
+            {
+                contentArea = DrawingRect;
+            }
+
+            _textRect = contentArea;
+
+            // Apply padding and border offsets inside the content area
+            int borderOffset = Math.Max(0, _borderWidth);
+            _textRect.Inflate(-(Padding.Horizontal / 2 + borderOffset), -(Padding.Vertical / 2 + borderOffset));
             
             // Reserve space for line numbers when enabled and multiline
             if (_showLineNumbers && _multiline)
@@ -2129,6 +2153,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
             
+            // Recompute text rectangle after theme changes (padding, material, etc.)
+            UpdateDrawingRect();
             Invalidate();
         }
         
@@ -2167,13 +2193,34 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.SmoothingMode = SmoothingMode.AntiAlias;
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
+            // Use material content rect if available; otherwise base on provided rectangle
             Rectangle textRect = rectangle;
-            textRect.Inflate(-Padding.Horizontal / 2 - _borderWidth, -Padding.Vertical / 2 - _borderWidth);
+            if (EnableMaterialStyle)
+            {
+                // Approximate content area within the provided rectangle
+                var padding = GetMaterialStylePadding();
+                var effects = GetMaterialEffectsSpace();
+                textRect = new Rectangle(
+                    rectangle.X + padding.Left + effects.Width / 2,
+                    rectangle.Y + padding.Top + effects.Height / 2,
+                    Math.Max(0, rectangle.Width - padding.Horizontal - effects.Width),
+                    Math.Max(0, rectangle.Height - padding.Vertical - effects.Height)
+                );
+            }
+
+            // Apply internal padding and border
+            int borderOffset = Math.Max(0, _borderWidth);
+            textRect.Inflate(-(Padding.Horizontal / 2 + borderOffset), -(Padding.Vertical / 2 + borderOffset));
             
             if (_showLineNumbers && _multiline)
             {
                 textRect.X += _lineNumberMarginWidth;
                 textRect.Width = Math.Max(1, textRect.Width - _lineNumberMarginWidth);
+            }
+
+            if (_showCharacterCount && _maxLength > 0)
+            {
+                textRect.Height = Math.Max(1, textRect.Height - 15);
             }
 
             _helper?.DrawAll(graphics, rectangle, textRect);

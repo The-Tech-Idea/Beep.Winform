@@ -530,7 +530,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.DrawContent(g);
             UpdateDrawingRect();
-            contentRect = DrawingRect;
+            // Apply a small inner inset to prevent clipping and tighten baseline look
+            var inset = Math.Max(1, ScaleValue(1));
+            var rect = DrawingRect;
+            rect.Inflate(-inset, -inset);
+            contentRect = rect;
             DrawImageAndText(g);
         }
         private void DrawImageAndText(Graphics g)

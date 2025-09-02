@@ -688,8 +688,8 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             
             // For debugging: add a check to see what text we're getting
-            System.Diagnostics.Debug.WriteLine($"GetActualText returning: '{text}' (Length: {text?.Length ?? 0})");
-            System.Diagnostics.Debug.WriteLine($"Text contains newlines: {text?.Contains('\n') ?? false}");
+         //   System.Diagnostics.Debug.WriteLine($"GetActualText returning: '{text}' (Length: {text?.Length ?? 0})");
+         //   System.Diagnostics.Debug.WriteLine($"Text contains newlines: {text?.Contains('\n') ?? false}");
             
             return text;
         }

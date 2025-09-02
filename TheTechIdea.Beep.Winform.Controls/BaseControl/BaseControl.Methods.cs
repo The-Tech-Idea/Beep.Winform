@@ -103,6 +103,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public virtual void SafeApplyFont(Font newFont, bool preserveLocation = true)
         {
+            if (_dpi == null || DisableDpiAndScaling)
+            {
+                Font = newFont;
+                return;
+            }
             _dpi.SafeApplyFont(newFont, preserveLocation);
         }
         #endregion
@@ -212,21 +217,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Image and Size Utility Methods (from BeepControl)
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {
+            if (_dpi == null || DisableDpiAndScaling) return 1.0f;
             return _dpi.GetScaleFactor(imageSize, targetSize, ScaleMode);
         }
 
         public RectangleF GetScaledBounds(SizeF imageSize, Rectangle targetRect)
         {
+            if (_dpi == null || DisableDpiAndScaling) return new RectangleF(targetRect.Location, targetRect.Size);
             return _dpi.GetScaledBounds(imageSize, targetRect, ScaleMode);
         }
 
         public RectangleF GetScaledBounds(SizeF imageSize)
         {
+            if (_dpi == null || DisableDpiAndScaling) return new RectangleF(Point.Empty, new SizeF(imageSize.Width, imageSize.Height));
             return _dpi.GetScaledBounds(imageSize, ScaleMode);
         }
 
         public Size GetSuitableSizeForTextAndImage(Size imageSize, Size maxImageSize, TextImageRelation textImageRelation)
         {
+            if (_dpi == null || DisableDpiAndScaling) return maxImageSize;
             return _dpi.GetSuitableSizeForTextAndImage(imageSize, maxImageSize, textImageRelation);
         }
 
@@ -238,6 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
         {
+            if (_dpi == null || DisableDpiAndScaling) return originalFont;
             return _dpi.GetScaledFont(g, text, maxSize, originalFont);
         }
         #endregion
@@ -265,11 +275,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-            // Set high quality rendering
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            if (EnableHighQualityRendering)
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            }
+            else
+            {
+                g.SmoothingMode = SmoothingMode.None;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+                g.PixelOffsetMode = PixelOffsetMode.Default;
+                g.TextRenderingHint = TextRenderingHint.SystemDefault;
+            }
 
             if (EnableMaterialStyle)
             {
@@ -278,8 +297,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
             else
             {
-                UpdateDrawingRect();
-                // Use regular ControlPaintHelper drawing
+                _paint.EnsureUpdated();
                 _paint.Draw(g);
             }
         }
@@ -428,7 +446,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 return Size.Empty;
 
             int focusSpace = 4; // 2px on each side for focus ring
-            int elevationSpace = MaterialUseElevation ? Math.Min(MaterialElevationLevel, 5) : 0;
+            // Elevation applies on both sides; use 2x to reflect left+right / top+bottom
+            int elevationSpace = MaterialUseElevation ? Math.Min(MaterialElevationLevel, 5) * 2 : 0;
 
             return new Size(focusSpace + elevationSpace, focusSpace + elevationSpace);
         }
@@ -608,6 +627,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 requiredSize.Height = Math.Min(requiredSize.Height, MaximumSize.Height);
             }
 
+            // Always raise MinimumSize to the required Material size (never shrink an explicit larger MinimumSize)
+            if (MinimumSize != Size.Empty)
+            {
+                MinimumSize = new Size(
+                    Math.Max(MinimumSize.Width, requiredSize.Width),
+                    Math.Max(MinimumSize.Height, requiredSize.Height)
+                );
+            }
+            else
+            {
+                MinimumSize = requiredSize;
+            }
+
             // Update control size if it's smaller than required
             if (Width < requiredSize.Width || Height < requiredSize.Height)
             {
@@ -616,6 +648,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     Math.Max(Height, requiredSize.Height)
                 );
             }
+        }
+
+        /// <summary>
+        /// Utility for derived controls: given your base content minimum (e.g., 300x30),
+        /// returns the effective minimum including Material padding and effects.
+        /// </summary>
+        /// <param name="baseContentMinimum">The intrinsic minimum of the control's content.</param>
+        /// <returns>Minimum size including Material padding, effects and icons, DPI-scaled.</returns>
+        protected Size GetEffectiveMaterialMinimum(Size baseContentMinimum)
+        {
+            if (!EnableMaterialStyle)
+                return baseContentMinimum;
+
+            var min = CalculateMinimumSizeForMaterial(baseContentMinimum);
+            return ScaleSize(min);
         }
         
       

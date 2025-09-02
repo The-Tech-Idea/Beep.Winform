@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             base.OnPaddingChanged(e);
             
             // Add null check to prevent exceptions during initialization
-            _paint?.UpdateRects();
+            _paint?.InvalidateRects();
             Invalidate();
         }
 
@@ -38,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             base.OnResize(e);
             
-            // Simple, direct approach like BeepControl
-            _paint?.UpdateRects();
+            // Mark rects dirty and let drawing ensure they’re updated
+            _paint?.InvalidateRects();
             
             //// Only update material layout if helper is initialized
             //if (_materialHelper != null)
@@ -110,45 +110,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            // Use the current BufferedGraphicsContext to allocate a buffer
-            BufferedGraphicsContext context = BufferedGraphicsManager.Current;
-            using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+            if (UseExternalBufferedGraphics)
             {
-                // Use the buffered Graphics object for all drawing
-                Graphics g = buffer.Graphics;
-                
-                // Set background color properly
+                BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+                using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+                {
+                    Graphics g = buffer.Graphics;
+                    if (IsChild && ParentBackColor != Color.Empty)
+                    {
+                        BackColor = ParentBackColor;
+                    }
+                    g.Clear(BackColor);
+                    _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+                    DrawContent(g);
+                    DrawHitListIfNeeded(g);
+                    _effects?.DrawOverlays(g);
+                    buffer.Render(e.Graphics);
+                }
+            }
+            else
+            {
+                Graphics g = e.Graphics;
                 if (IsChild && ParentBackColor != Color.Empty)
                 {
                     BackColor = ParentBackColor;
                 }
-                
-                // Clear the entire buffer with the control's BackColor
                 g.Clear(BackColor);
-
-                // EXTERNAL DRAWING - BEFORE CONTENT LAYER
                 _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
-
-                // Draw the main content (this will include child controls through the buffer)
                 DrawContent(g);
-
-                // Draw hit area components (parity with BeepControl)
-                if (_hitTest?.HitList != null)
-                {
-                    foreach (var hitTest in _hitTest.HitList)
-                    {
-                        if (hitTest.IsVisible && hitTest.uIComponent != null)
-                        {
-                            hitTest.uIComponent.Draw(g, hitTest.TargetRect);
-                        }
-                    }
-                }
-
-                // Effects and overlays - add null check
+                DrawHitListIfNeeded(g);
                 _effects?.DrawOverlays(g);
+            }
+        }
 
-                // Finally, render the entire off-screen buffer to the screen
-                buffer.Render(e.Graphics);
+        private void DrawHitListIfNeeded(Graphics g)
+        {
+            if (!AutoDrawHitListComponents || _hitTest?.HitList == null || _hitTest.HitList.Count == 0)
+                return;
+
+            int drawn = 0;
+            var clip = ClientRectangle;
+            foreach (var ht in _hitTest.HitList)
+            {
+                if (!ht.IsVisible || ht.uIComponent == null)
+                    continue;
+                if (!clip.IntersectsWith(ht.TargetRect))
+                    continue;
+                ht.uIComponent.Draw(g, ht.TargetRect);
+                drawn++;
+                if (MaxHitListDrawPerFrame > 0 && drawn >= MaxHitListDrawPerFrame)
+                    break;
             }
         }
 

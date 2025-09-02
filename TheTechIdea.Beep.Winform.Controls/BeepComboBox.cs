@@ -47,9 +47,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Store the text input value
         private string _inputText = string.Empty;
 
-        // Convert hardcoded values to DPI-aware properties
-        private int _buttonWidth => ScaleValue(20); // Reduced from 25
-        private int _padding => ScaleValue(1); // Reduced from 2
+    // Convert hardcoded values to DPI-aware properties
+    private int _buttonWidth => ScaleValue(24); // Slightly wider for better hit area and visuals
+    private int _padding => ScaleValue(3); // More breathing room for text/baseline
         private int _minWidth => ScaleValue(80);
         private int _maxListHeight => ScaleValue(200);
  
@@ -502,10 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Base minimum width for combo box
             int baseMinWidth = 120;
-            
-            // Add space for dropdown button
-            baseMinWidth += _buttonWidth + (_padding * 2);
-            
+
             // Add space for icons if present
             var iconSpace = GetMaterialIconSpace();
             baseMinWidth += iconSpace.Width;
@@ -621,14 +618,29 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (this.Width <= 0 || this.Height <= 0)
                 return;
 
-            Rectangle clientRect = DrawingRect;
+            // Compute button location depending on Material mode
+            Rectangle clientRect;
+            if (EnableMaterialStyle)
+            {
+                var stylePadding = GetMaterialStylePadding();
+                var effects = GetMaterialEffectsSpace();
+                int left = stylePadding.Left + (effects.Width / 2);
+                int top = stylePadding.Top + (effects.Height / 2);
+                int width = Width - stylePadding.Horizontal - effects.Width;
+                int height = Height - stylePadding.Vertical - effects.Height;
+                clientRect = new Rectangle(left, top, Math.Max(0, width), Math.Max(0, height));
+            }
+            else
+            {
+                clientRect = DrawingRect;
+            }
 
             if (_dropDownButton != null)
             {
-                int buttonHeight = clientRect.Height - (2 * _padding);
+                int buttonHeight = Math.Max(0, clientRect.Height - (2 * _padding));
                 var newLocation = new Point(
                     clientRect.Right - _buttonWidth - _padding,
-                    clientRect.Y + _padding);
+                    Math.Max(0, clientRect.Y + _padding));
 
                 var newSize = new Size(_buttonWidth, buttonHeight);
 
@@ -736,8 +748,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawTextBoxContent(Graphics g)
         {
-            Rectangle workingRect = DrawingRect;
-            
+            // Prefer material helper rects when Material is enabled; fallback to legacy DrawingRect otherwise
+            Rectangle workingRect = EnableMaterialStyle && _materialHelper != null
+                ? _materialHelper.GetContentRect()
+                : DrawingRect;
+
             // In Material Design, we don't show placeholder text when there's a floating label
             // The floating label handles the placeholder functionality
             if (!EnableMaterialStyle)
@@ -782,14 +797,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Material Design mode - let BaseControl handle the floating label
-                // We just need to draw the selected text
+                // We just need to draw the selected text within the helper's content area
                 string textToDraw = SelectedItem?.Text ?? string.Empty;
                 if (!string.IsNullOrEmpty(textToDraw))
                 {
                     Rectangle textRect = new Rectangle(
                         workingRect.X + _padding,
                         workingRect.Y,
-                        workingRect.Width - _buttonWidth - (_padding * 2),
+                        workingRect.Width - (_padding * 2),
                         workingRect.Height);
 
                     TextRenderer.DrawText(
@@ -805,37 +820,88 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawDropDownButton(Graphics g)
         {
-            Rectangle workingRect = DrawingRect;
-            
-            // Divider
-            int dividerX = workingRect.Right - _buttonWidth - _padding;
-            using (Pen dividerPen = new Pen(Color.FromArgb(40, ForeColor), 1))
+            if (EnableMaterialStyle)
             {
-                g.DrawLine(
-                    dividerPen,
-                    new Point(dividerX, workingRect.Y + _padding),
-                    new Point(dividerX, workingRect.Bottom - _padding));
-            }
+                // Ask the material helper for the trailing icon rect (reserved via GetMaterialIconSpace override)
+                Rectangle buttonRect = Rectangle.Empty;
+                if (_materialHelper != null)
+                {
+                    buttonRect = _materialHelper.GetTrailingIconRect();
+                }
 
-            // Material-style dropdown arrow
-            DrawMaterialDropdownArrow(g, workingRect);
+                if (buttonRect.IsEmpty)
+                {
+                    // Fallback to computing from client + Material padding/effects
+                    var stylePadding = GetMaterialStylePadding();
+                    var effects = GetMaterialEffectsSpace();
+                    int contentLeft = stylePadding.Left + (effects.Width / 2);
+                    int contentTop = stylePadding.Top + (effects.Height / 2);
+                    int contentWidth = Width - stylePadding.Horizontal - effects.Width;
+                    int contentHeight = Height - stylePadding.Vertical - effects.Height;
+                    var contentRect = new Rectangle(contentLeft, contentTop, Math.Max(0, contentWidth), Math.Max(0, contentHeight));
+                    int buttonX = contentRect.Right - _buttonWidth - _padding;
+                    int buttonY = contentRect.Y + _padding;
+                    int buttonH = Math.Max(0, contentRect.Height - (2 * _padding));
+                    buttonRect = new Rectangle(buttonX, buttonY, _buttonWidth, buttonH);
+
+                    // Divider at the left edge of the button area
+                    int dividerX = buttonRect.Left - _padding;
+                    using (Pen dividerPen = new Pen(Color.FromArgb(40, BorderColor), 1))
+                    {
+                        g.DrawLine(
+                            dividerPen,
+                            new Point(dividerX, contentRect.Y + _padding),
+                            new Point(dividerX, contentRect.Bottom - _padding));
+                    }
+                }
+                else
+                {
+                    // Draw a divider against the left edge of the helper-provided button rect
+                    int dividerX = buttonRect.Left - _padding / 2;
+                    using (Pen dividerPen = new Pen(Color.FromArgb(40, BorderColor), 1))
+                    {
+                        g.DrawLine(
+                            dividerPen,
+                            new Point(dividerX, buttonRect.Top),
+                            new Point(dividerX, buttonRect.Bottom));
+                    }
+                }
+
+                // Draw arrow centered within buttonRect
+                DrawMaterialDropdownArrow(g, buttonRect);
+            }
+            else
+            {
+                // Non-material: use DrawingRect area
+                Rectangle workingRect = DrawingRect;
+
+                int dividerX = workingRect.Right - _buttonWidth - _padding;
+                using (Pen dividerPen = new Pen(Color.FromArgb(40, ForeColor), 1))
+                {
+                    g.DrawLine(
+                        dividerPen,
+                        new Point(dividerX, workingRect.Y + _padding),
+                        new Point(dividerX, workingRect.Bottom - _padding));
+                }
+
+                DrawMaterialDropdownArrow(g, workingRect);
+            }
         }
 
         private void DrawMaterialDropdownArrow(Graphics g, Rectangle workingRect)
         {
-            // Calculate arrow bounds - centered in the button area
-            int arrowSize = Math.Min(_buttonWidth - (_padding * 2), workingRect.Height - (_padding * 2));
-            int arrowX = workingRect.Right - _buttonWidth + (_buttonWidth - arrowSize) / 2;
-            int arrowY = workingRect.Y + (workingRect.Height - arrowSize) / 2;
-            
-            Rectangle arrowRect = new Rectangle(arrowX, arrowY, arrowSize, arrowSize);
+            // Calculate arrow bounds - centered within the provided workingRect (button area)
+            int arrowVisualSize = Math.Min(ScaleValue(12), Math.Min(_buttonWidth - (_padding * 2), workingRect.Height - (_padding * 2)));
+            int arrowX = workingRect.Left + (workingRect.Width - arrowVisualSize) / 2;
+            int arrowY = workingRect.Top + (workingRect.Height - arrowVisualSize) / 2;
+            Rectangle arrowRect = new Rectangle(arrowX, arrowY, arrowVisualSize, arrowVisualSize);
             
             // Create arrow points for a downward chevron
             Point[] arrowPoints = new Point[]
             {
-                new Point(arrowRect.Left + arrowSize / 4, arrowRect.Top + arrowSize / 3),
-                new Point(arrowRect.Left + arrowSize / 2, arrowRect.Top + (2 * arrowSize) / 3),
-                new Point(arrowRect.Left + (3 * arrowSize) / 4, arrowRect.Top + arrowSize / 3)
+                new Point(arrowRect.Left + arrowVisualSize / 4, arrowRect.Top + arrowVisualSize / 3),
+                new Point(arrowRect.Left + arrowVisualSize / 2, arrowRect.Top + (2 * arrowVisualSize) / 3),
+                new Point(arrowRect.Left + (3 * arrowVisualSize) / 4, arrowRect.Top + arrowVisualSize / 3)
             };
             
             // Draw the arrow with material styling
@@ -843,6 +909,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 g.FillPolygon(arrowBrush, arrowPoints);
             }
+        }
+        
+        /// <summary>
+        /// Reserve space for the dropdown button in Material content calculations
+        /// </summary>
+        public override Size GetMaterialIconSpace()
+        {
+            var baseIcons = base.GetMaterialIconSpace();
+            // Add trailing space for the dropdown button
+            int trailingButton = _buttonWidth + (_padding * 2);
+            int width = baseIcons.Width + trailingButton;
+            int height = baseIcons.Height; // height is already handled by Material min-height
+            return new Size(width, height);
         }
         private void DrawForGrid(Graphics graphics, Rectangle rectangle)
         {

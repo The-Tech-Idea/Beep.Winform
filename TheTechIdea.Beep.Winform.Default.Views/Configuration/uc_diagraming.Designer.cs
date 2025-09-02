@@ -1690,10 +1690,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DisabledForeColor = Color.Gray;
             beepGridPro1.DrawingRect = new Rectangle(1, 1, 689, 361);
             beepGridPro1.Easing = EasingType.Linear;
-            beepGridPro1.EnableMaterialStyle = false;
-            beepGridPro1.EnableRippleEffect = false;
-            beepGridPro1.ErrorColor = Color.FromArgb(176, 0, 32);
-            beepGridPro1.ErrorText = "";
+         
             beepGridPro1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepGridPro1.FieldID = null;
             beepGridPro1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
@@ -1713,7 +1710,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.GridMode = false;
             beepGridPro1.GridStyle = Winform.Controls.GridX.BeepGridStyle.Bootstrap;
             beepGridPro1.GuidID = "d0e57685-f329-4008-b1f8-b3bc71e13439";
-            beepGridPro1.HasError = false;
+        
             beepGridPro1.HelperText = "";
             beepGridPro1.HitAreaEventOn = false;
             beepGridPro1.HitTestControl = null;
@@ -1721,7 +1718,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.HoverBorderColor = Color.Blue;
             beepGridPro1.HoveredBackcolor = Color.LightBlue;
             beepGridPro1.HoverForeColor = Color.Black;
-            beepGridPro1.IconSize = 20;
+          
             beepGridPro1.Id = -1;
             beepGridPro1.InactiveBorderColor = Color.Gray;
             beepGridPro1.IsAcceptButton = false;
@@ -1745,24 +1742,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.IsSelected = false;
             beepGridPro1.IsSelectedOptionOn = false;
             beepGridPro1.IsShadowAffectedByTheme = true;
-            beepGridPro1.IsValid = true;
+           
             beepGridPro1.IsVisible = true;
             beepGridPro1.Items = (List<object>)resources.GetObject("beepGridPro1.Items");
             beepGridPro1.LabelText = "";
-            beepGridPro1.LeadingIconPath = "";
-            beepGridPro1.LeadingImagePath = "";
+         
             beepGridPro1.LeftoffsetForDrawingRect = 0;
             beepGridPro1.LinkedProperty = null;
             beepGridPro1.Location = new Point(438, 72);
-            beepGridPro1.MaterialBorderRadius = 10;
-            beepGridPro1.MaterialBorderVariant = MaterialTextFieldVariant.Filled;
-            beepGridPro1.MaterialFillColor = Color.FromArgb(245, 245, 245);
-            beepGridPro1.MaterialIconPadding = 8;
-            beepGridPro1.MaterialIconSize = 20;
-            beepGridPro1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
-            beepGridPro1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepGridPro1.MaterialShowFill = true;
-            beepGridPro1.MaterialVariant = MaterialTextFieldVariant.Filled;
+          
             beepGridPro1.ModernGradientType = ModernGradientType.None;
             beepGridPro1.Name = "beepGridPro1";
             beepGridPro1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1776,7 +1764,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.RowHeight = 24;
             beepGridPro1.SavedGuidID = null;
             beepGridPro1.SavedID = null;
-            beepGridPro1.ScaleMode = ImageScaleMode.KeepAspectRatio;
+          
             beepGridPro1.SelectedBackColor = Color.LightGreen;
             beepGridPro1.SelectedBorderColor = Color.Green;
             beepGridPro1.SelectedForeColor = Color.Black;
@@ -1802,8 +1790,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Theme = null;
             beepGridPro1.ToolTipText = null;
             beepGridPro1.TopoffsetForDrawingRect = 0;
-            beepGridPro1.TrailingIconPath = "";
-            beepGridPro1.TrailingImagePath = "";
+      
             beepGridPro1.UIAnimation = ReactUIAnimation.None;
             beepGridPro1.UIColor = ReactUIColor.Primary;
             beepGridPro1.UICustomElevation = 0;
@@ -1817,7 +1804,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Uow = null;
             beepGridPro1.UseGlassmorphism = false;
             beepGridPro1.UseGradientBackground = false;
-            beepGridPro1.UseRichToolTip = true;
+           
             beepGridPro1.UseThemeFont = true;
             // 
             // beepCheckBoxBool1

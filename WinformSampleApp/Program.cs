@@ -1,3 +1,5 @@
+using System.Windows.Forms;
+
 namespace WinformSampleApp
 {
     internal static class Program
@@ -8,8 +10,9 @@ namespace WinformSampleApp
         [STAThread]
         static void Main(string[] args)
         {
-            // To customize application configuration such as set high DPI settings or default font,
-            // see https://aka.ms/applicationconfiguration.
+            // High DPI: lock to SystemAware to avoid per-monitor rescaling
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            // Initialize defaults (visual styles, default font, etc.)
             ApplicationConfiguration.Initialize();
 
             // Check for command line arguments to choose which form to show

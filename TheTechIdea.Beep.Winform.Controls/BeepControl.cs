@@ -27,10 +27,32 @@ namespace TheTechIdea.Beep.Winform.Controls
     public class BeepControl : ContainerControl, IBeepUIComponent,IDisposable
     {
         #region "DPI Scaling Support"
+        [Category("DPI/Scaling")]
+        [Description("Disable all DPI/scaling logic for this control (AutoScale, DPI-based size/font scaling, parent scaling).")]
+        public bool DisableDpiAndScaling
+        {
+            get => _disableDpiAndScaling;
+            set
+            {
+                _disableDpiAndScaling = value;
+                if (_disableDpiAndScaling)
+                {
+                    try
+                    {
+                        AutoScaleMode = AutoScaleMode.None;
+                        DpiScaleFactor = 1.0f;
+                    }
+                    catch { /* ignore in design-time */ }
+                }
+            }
+        }
+    private bool _disableDpiAndScaling = true; // default opt-out of scaling
+
         protected float DpiScaleFactor { get; private set; } = 1.0f;
 
         protected virtual void UpdateDpiScaling()
         {
+            if (DisableDpiAndScaling) { DpiScaleFactor = 1.0f; return; }
             // Update DPI scaling when parent form is resized
             if (IsHandleCreated)
             {
@@ -45,21 +67,30 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected int ScaleValue(int value)
         {
+            if (DisableDpiAndScaling) return value;
             return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
         }
 
         protected Size ScaleSize(Size size)
         {
+            if (DisableDpiAndScaling) return size;
             return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
         }
 
         protected Font ScaleFont(Font font)
         {
+            if (DisableDpiAndScaling) return font;
             return DpiScalingHelper.ScaleFont(font, DpiScaleFactor);
         }
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
             base.OnDpiChangedAfterParent(e);
+
+            if (DisableDpiAndScaling)
+            {
+                DpiScaleFactor = 1.0f;
+                return;
+            }
 
             // Get the new DPI scaling factor
             UpdateDpiScaling(); 
@@ -69,6 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void AdjustChildControlLayout(float scalingFactor)
         {
+            if (DisableDpiAndScaling || Math.Abs(scalingFactor - 1.0f) < 0.001f) return;
             foreach (Control child in Controls)
             {
                 // Adjust size and position based on scaling factor
@@ -79,6 +111,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             Invalidate(); // Redraw the control
+        }
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            if (DisableDpiAndScaling) return; // block parent/form scaling
+            base.ScaleControl(factor, specified);
+        }
+
+        protected override void ScaleCore(float dx, float dy)
+        {
+            if (DisableDpiAndScaling) return; // block parent/form scaling
+            base.ScaleCore(dx, dy);
         }
         #endregion
         #region "Delegates"
@@ -259,6 +302,29 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Background color when using the Filled variant")]
         public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
 
+        // Effects toggles
+        private bool _enableSplashEffect = true;
+        [Category("Effects")]
+        [Description("If true, controls inheriting from this base may show a splash (ink ripple) effect on click. Turn off to disable.")]
+        public bool EnableSplashEffect
+        {
+            get => _enableSplashEffect;
+            set
+            {
+                _enableSplashEffect = value;
+                if (!_enableSplashEffect)
+                {
+                    // Stop any ongoing ripple animation
+                    _showRipple = false;
+                    if (_rippleTimer != null)
+                    {
+                        _rippleTimer.Stop();
+                    }
+                    Invalidate();
+                }
+            }
+        }
+
         [Category("Material UI")]
         [Description("Whether to show a ripple effect on click (Material Design style)")]
         public bool EnableRippleEffect { get; set; } = false;
@@ -407,16 +473,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool CanBeFocused { get { return _canbefocused; } set { _canbefocused = value; } }
         [Browsable(false)]
         [Category("Appearance")]
-        public int RightoffsetForDrawingRect { get { return _rightoffsetForDrawingRect; } set { _rightoffsetForDrawingRect = value; Invalidate(); } }
+    public int RightoffsetForDrawingRect { get { return _rightoffsetForDrawingRect; } set { _rightoffsetForDrawingRect = value; InvalidateDrawingRect(); Invalidate(); } }
         [Browsable(false)]
         [Category("Appearance")]
-        public int BottomoffsetForDrawingRect { get { return _bottomoffsetForDrawingRect; } set { _bottomoffsetForDrawingRect = value; Invalidate(); } }
+    public int BottomoffsetForDrawingRect { get { return _bottomoffsetForDrawingRect; } set { _bottomoffsetForDrawingRect = value; InvalidateDrawingRect(); Invalidate(); } }
         [Browsable(false)]
         [Category("Appearance")]
-        public int TopoffsetForDrawingRect { get { return _topoffsetForDrawingRect; } set { _topoffsetForDrawingRect = value; Invalidate(); } }
+    public int TopoffsetForDrawingRect { get { return _topoffsetForDrawingRect; } set { _topoffsetForDrawingRect = value; InvalidateDrawingRect(); Invalidate(); } }
         [Browsable(false)]
         [Category("Appearance")]
-        public int LeftoffsetForDrawingRect { get { return _leftoffsetForDrawingRect; } set { _leftoffsetForDrawingRect = value; Invalidate(); } }
+    public int LeftoffsetForDrawingRect { get { return _leftoffsetForDrawingRect; } set { _leftoffsetForDrawingRect = value; InvalidateDrawingRect(); Invalidate(); } }
         //IsRoundedAffectedByTheme
         [Browsable(true)]
         [Category("Appearance")]
@@ -1053,6 +1119,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         public Rectangle DrawingRect { get; set; }
         public bool IsCustomeBorder { get; set; }
 
+    // Performance toggles
+    [Category("Performance")]
+    [Description("If true, uses an extra BufferedGraphics layer in OnPaint. When false, relies on built-in DoubleBuffered drawing.")]
+    public bool UseExternalBufferedGraphics { get; set; } = false;
+
+    [Category("Performance")]
+    [Description("If true, sets high-quality smoothing/text rendering. Turn off to favor speed.")]
+    public bool EnableHighQualityRendering { get; set; } = true;
+
+    [Category("Performance")]
+    [Description("Automatically draws components in HitList during DrawContent.")]
+    public bool AutoDrawHitListComponents { get; set; } = true;
+
+    [Category("Performance")]
+    [Description("Optional cap for how many HitList components to draw per frame. 0 or negative disables capping.")]
+    public int MaxHitListDrawPerFrame { get; set; } = 0; // unlimited by default
+
         #endregion "Public Properties"
         #region "Constructors"
         bool _isInitializing = true; // Flag to track initialization state
@@ -1081,7 +1164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            // ShowAllBorders = true;
             //  BackColor = Color.Transparent;
             Padding = new Padding(0);
-            UpdateDrawingRect();
+            EnsureDrawingRect();
             ComponentName = "BeepControl";
             _isInitializing = false; // 
 
@@ -1452,7 +1535,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void StartRippleEffect(Point center)
         {
-            if (UIAnimation != ReactUIAnimation.Ripple)
+            if (!EnableSplashEffect || UIAnimation != ReactUIAnimation.Ripple)
                 return;
 
             _rippleCenter = center;
@@ -1489,7 +1572,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void DrawRippleEffect(Graphics g)
         {
-            if (!_showRipple || UIAnimation != ReactUIAnimation.Ripple)
+            if (!EnableSplashEffect || !_showRipple || UIAnimation != ReactUIAnimation.Ripple)
                 return;
 
             // Draw a circular ripple effect
@@ -1511,7 +1594,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
-            UpdateDrawingRect();
+            EnsureDrawingRect();
             Invalidate(); // Trigger a redraw when padding changes
         }
         protected override void OnResize(EventArgs e)
@@ -1520,7 +1603,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.SuspendLayout();
 
             base.OnResize(e);
-            UpdateDrawingRect();
+            EnsureDrawingRect();
 
             // Check if the handle is created before using BeginInvoke
             if (IsHandleCreated)
@@ -1611,12 +1694,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override Size GetPreferredSize(Size proposedSize)
         {
-            UpdateDrawingRect();
+            EnsureDrawingRect();
             // Adjust size based on border thickness
             int adjustedWidth = DrawingRect.Width;
             int adjustedHeight = DrawingRect.Height;
 
             return new Size(adjustedWidth, adjustedHeight);
+        }
+        private bool _drawingRectDirty = true;
+        public void InvalidateDrawingRect()
+        {
+            _drawingRectDirty = true;
+        }
+        private void EnsureDrawingRect()
+        {
+            if (!_drawingRectDirty) return;
+            UpdateDrawingRect();
+            _drawingRectDirty = false;
         }
         public virtual void UpdateDrawingRect()
         {
@@ -1961,46 +2055,57 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected override void OnPaint(PaintEventArgs e)
         {
-            // Use the current BufferedGraphicsContext to allocate a buffer
-            BufferedGraphicsContext context = BufferedGraphicsManager.Current;
-            using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+            if (UseExternalBufferedGraphics)
             {
-                // Use the buffered Graphics object for all drawing
-                Graphics g = buffer.Graphics;
-
-                // Set graphic quality options as before
-              //  g.SmoothingMode = SmoothingMode.AntiAlias;
-             //   g.TextContrast = 12;
+                // Use an extra buffering layer
+                BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+                using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+                {
+                    Graphics g = buffer.Graphics;
+                    if (IsChild)
+                    {
+                        BackColor = parentbackcolor;
+                    }
+                    g.Clear(BackColor);
+                    PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+                    DrawContent(g);
+                    PerformExternalDrawing(g, DrawingLayer.AfterContent);
+                    buffer.Render(e.Graphics);
+                }
+            }
+            else
+            {
+                // Rely on built-in DoubleBuffered drawing
+                Graphics g = e.Graphics;
                 if (IsChild)
                 {
                     BackColor = parentbackcolor;
                 }
-
-                // Clear the entire buffer with the control's BackColor
                 g.Clear(BackColor);
-                // EXTERNAL DRAWING - BEFORE CONTENT LAYER
-    
-                    PerformExternalDrawing(g, DrawingLayer.BeforeContent);
-           
-
-                // Draw the main content
+                PerformExternalDrawing(g, DrawingLayer.BeforeContent);
                 DrawContent(g);
-
-                // 3) AFTER CONTENT
                 PerformExternalDrawing(g, DrawingLayer.AfterContent);
-
-
-                // Finally, render the entire off-screen buffer to the screen
-                buffer.Render(e.Graphics);
             }
         }
         // Fix for Error 1 - Line 1967 in DrawBackground method
         protected virtual void DrawBackground(Graphics g)
         {
-            // Ensure high-quality rendering for the background
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.CompositingQuality = CompositingQuality.HighQuality;
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            // Early-out if fully transparent and no background effects
+            if (BackColor.A == 0 && !UseGradientBackground && !UseGlassmorphism)
+                return;
+            // Rendering quality toggle
+            if (EnableHighQualityRendering)
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.CompositingQuality = CompositingQuality.HighQuality;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            }
+            else
+            {
+                g.SmoothingMode = SmoothingMode.None;
+                g.CompositingQuality = CompositingQuality.HighSpeed;
+                g.InterpolationMode = InterpolationMode.NearestNeighbor;
+            }
 
             Color backcolor = BackColor;
 
@@ -2073,9 +2178,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         protected virtual void DrawContent(Graphics g)
         {
-            // Ensure high-quality rendering for all content drawing
-            g.SmoothingMode = SmoothingMode.AntiAlias;
-            g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit; // Improve text clarity
+            // Rendering quality toggle
+            if (EnableHighQualityRendering)
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+            }
+            else
+            {
+                g.SmoothingMode = SmoothingMode.None;
+                g.TextRenderingHint = TextRenderingHint.SystemDefault;
+            }
 
             // Update drawing bounds as necessary
             UpdateDrawingRect();
@@ -2134,15 +2247,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw hit area components
-            if (HitList != null)
+            if (AutoDrawHitListComponents && HitList != null && HitList.Count > 0)
             {
+                int drawn = 0;
+                var clipRect = ClientRectangle;
                 foreach (var hitTest in HitList)
                 {
-                    if (hitTest.IsVisible && hitTest.uIComponent != null)
-                    {
-                        // Ensure the component's Draw method also sets Smoothing/TextRendering if needed
-                        hitTest.uIComponent.Draw(g, hitTest.TargetRect);
-                    }
+                    if (!hitTest.IsVisible || hitTest.uIComponent == null)
+                        continue;
+
+                    // Skip offscreen rectangles to avoid needless work
+                    if (!clipRect.IntersectsWith(hitTest.TargetRect))
+                        continue;
+
+                    hitTest.uIComponent.Draw(g, hitTest.TargetRect);
+                    drawn++;
+                    if (MaxHitListDrawPerFrame > 0 && drawn >= MaxHitListDrawPerFrame)
+                        break;
                 }
             }
 

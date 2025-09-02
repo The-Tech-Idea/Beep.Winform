@@ -25,9 +25,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public Rectangle DrawingRect { get; set; }
         public Rectangle BorderRectangle { get; set; }
+    private bool _rectsDirty = true;
 
         public void UpdateRects()
         {
+            _rectsDirty = false;
             int shadow = _owner.ShowShadow ? _owner.ShadowOffset : 0;
             int border = 0;
             if (_owner.ShowAllBorders || _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined)
@@ -82,6 +84,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             );
         }
 
+        public void InvalidateRects()
+        {
+            _rectsDirty = true;
+        }
+
+        public void EnsureUpdated()
+        {
+            if (_rectsDirty) UpdateRects();
+        }
+
         // Custom border flag will be held on owner (via BaseControl.IsCustomeBorder),
         // we expose an event-like callback for custom drawing if needed.
         public Action<Graphics> CustomBorderDrawer { get; set; }
@@ -92,11 +104,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             //g.SmoothingMode = SmoothingMode.AntiAlias;
             //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-            _owner.UpdateDrawingRect();
+            EnsureUpdated();
             if (_owner.UIVariant != ReactUIVariant.Default)
             {
                 ApplyReactUIStyles();
-                _owner.UpdateDrawingRect();
+                UpdateRects();
             }
             DrawBackground(g);
 
@@ -400,7 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             if (!string.IsNullOrEmpty(_owner.BadgeText))
             {
                 using (var textBrush = new SolidBrush(_owner.BadgeForeColor))
-                using (var scaledFont = GetScaledBadgeFont(g, _owner.BadgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), _owner.BadgeFont))
+                using (var scaledFont = _owner.DisableDpiAndScaling ? _owner.BadgeFont : GetScaledBadgeFont(g, _owner.BadgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), _owner.BadgeFont))
                 {
                     var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString(_owner.BadgeText, scaledFont, textBrush, badgeRect, fmt);

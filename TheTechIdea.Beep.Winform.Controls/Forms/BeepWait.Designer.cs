@@ -53,6 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.AnimationType = DisplayAnimationType.None;
             Title.ApplyThemeOnImage = false;
             Title.ApplyThemeToChilds = true;
+            Title.AutoDrawHitListComponents = true;
             Title.BackColor = Color.White;
             Title.BadgeBackColor = Color.Red;
             Title.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -76,11 +77,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DisabledBackColor = Color.LightGray;
             Title.DisabledBorderColor = Color.Empty;
             Title.DisabledForeColor = Color.Gray;
+            Title.DisableDpiAndScaling = true;
             Title.Dock = DockStyle.Top;
             Title.DrawingRect = new Rectangle(1, 1, 860, 51);
             Title.Easing = EasingType.Linear;
+            Title.EnableHighQualityRendering = true;
             Title.EnableMaterialStyle = false;
             Title.EnableRippleEffect = false;
+            Title.EnableSplashEffect = false;
             Title.ErrorColor = Color.FromArgb(176, 0, 32);
             Title.ErrorText = "";
             Title.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -160,6 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             Title.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             Title.MaterialVariant = MaterialTextFieldVariant.Standard;
+            Title.MaxHitListDrawPerFrame = 0;
             Title.MaxImageSize = new Size(16, 16);
             Title.ModernGradientType = ModernGradientType.Subtle;
             Title.Multiline = false;
@@ -218,6 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.UIShape = ReactUIShape.Rounded;
             Title.UISize = ReactUISize.Medium;
             Title.UIVariant = ReactUIVariant.Default;
+            Title.UseExternalBufferedGraphics = false;
             Title.UseGlassmorphism = false;
             Title.UseGradientBackground = false;
             Title.UseRichToolTip = true;
@@ -232,6 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.AnimationType = DisplayAnimationType.None;
             LogopictureBox.ApplyThemeOnImage = false;
             LogopictureBox.ApplyThemeToChilds = false;
+            LogopictureBox.AutoDrawHitListComponents = true;
             LogopictureBox.BackColor = Color.White;
             LogopictureBox.BadgeBackColor = Color.Red;
             LogopictureBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -259,10 +266,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.DisabledBackColor = Color.Gray;
             LogopictureBox.DisabledBorderColor = Color.Empty;
             LogopictureBox.DisabledForeColor = Color.Empty;
+            LogopictureBox.DisableDpiAndScaling = true;
             LogopictureBox.DrawingRect = new Rectangle(0, 0, 43, 37);
             LogopictureBox.Easing = EasingType.Linear;
             LogopictureBox.EmbeddedImagePath = null;
+            LogopictureBox.EnableHighQualityRendering = true;
             LogopictureBox.EnableRippleEffect = false;
+            LogopictureBox.EnableSplashEffect = true;
             LogopictureBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
             LogopictureBox.FieldID = null;
             LogopictureBox.FillColor = Color.Black;
@@ -331,6 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.ManualRotationAngle = 0F;
             LogopictureBox.Margin = new Padding(6);
             LogopictureBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            LogopictureBox.MaxHitListDrawPerFrame = 0;
             LogopictureBox.ModernGradientType = ModernGradientType.Subtle;
             LogopictureBox.Name = "LogopictureBox";
             LogopictureBox.Opacity = 1F;
@@ -383,6 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.UIShape = ReactUIShape.Rounded;
             LogopictureBox.UISize = ReactUISize.Medium;
             LogopictureBox.UIVariant = ReactUIVariant.Default;
+            LogopictureBox.UseExternalBufferedGraphics = false;
             LogopictureBox.UseGlassmorphism = false;
             LogopictureBox.UseGradientBackground = false;
             LogopictureBox.UseThemeFont = true;
@@ -400,6 +412,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.ApplyThemeToChilds = true;
             messege.AutoCompleteMode = AutoCompleteMode.None;
             messege.AutoCompleteSource = AutoCompleteSource.None;
+            messege.AutoDrawHitListComponents = true;
             messege.BackColor = Color.White;
             messege.BadgeBackColor = Color.FromArgb(33, 150, 243);
             messege.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -427,9 +440,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.DisabledBackColor = Color.FromArgb(200, 200, 200);
             messege.DisabledBorderColor = Color.LightGray;
             messege.DisabledForeColor = Color.Gray;
+            messege.DisableDpiAndScaling = true;
             messege.DrawingRect = new Rectangle(24, 8, 805, 414);
             messege.Easing = EasingType.Linear;
+            messege.EnableHighQualityRendering = true;
             messege.EnableRippleEffect = false;
+            messege.EnableSplashEffect = false;
             messege.ErrorColor = Color.FromArgb(176, 0, 32);
             messege.ErrorText = "";
             messege.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -498,13 +514,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.LineNumberForeColor = Color.Gray;
             messege.LinkedProperty = null;
             messege.Location = new Point(5, 155);
-            messege.Margin = new Padding(6);
+            messege.Margin = new Padding(6, 6, 6, 6);
             messege.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             messege.MaterialFillColor = Color.FromArgb(245, 245, 245);
             messege.MaterialIconPadding = 8;
             messege.MaterialIconSize = 20;
             messege.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             messege.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            messege.MaxHitListDrawPerFrame = 0;
             messege.MaxImageSize = new Size(16, 16);
             messege.MinimumSize = new Size(28, 20);
             messege.ModernGradientType = ModernGradientType.Subtle;
@@ -575,6 +592,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.UIShape = ReactUIShape.Rounded;
             messege.UISize = ReactUISize.Medium;
             messege.UIVariant = ReactUIVariant.Default;
+            messege.UseExternalBufferedGraphics = false;
             messege.UseGlassmorphism = false;
             messege.UseGradientBackground = false;
             messege.UseRichToolTip = true;
@@ -590,6 +608,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.AnimationType = DisplayAnimationType.None;
             beepLabel1.ApplyThemeOnImage = false;
             beepLabel1.ApplyThemeToChilds = true;
+            beepLabel1.AutoDrawHitListComponents = true;
             beepLabel1.BackColor = Color.White;
             beepLabel1.BadgeBackColor = Color.Red;
             beepLabel1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -613,10 +632,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.DisabledBackColor = Color.LightGray;
             beepLabel1.DisabledBorderColor = Color.Empty;
             beepLabel1.DisabledForeColor = Color.Gray;
+            beepLabel1.DisableDpiAndScaling = true;
             beepLabel1.DrawingRect = new Rectangle(1, 1, 108, 39);
             beepLabel1.Easing = EasingType.Linear;
+            beepLabel1.EnableHighQualityRendering = true;
             beepLabel1.EnableMaterialStyle = false;
             beepLabel1.EnableRippleEffect = false;
+            beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepLabel1.ErrorText = "";
             beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -696,6 +718,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepLabel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepLabel1.MaterialVariant = MaterialTextFieldVariant.Standard;
+            beepLabel1.MaxHitListDrawPerFrame = 0;
             beepLabel1.MaxImageSize = new Size(16, 16);
             beepLabel1.ModernGradientType = ModernGradientType.Subtle;
             beepLabel1.Multiline = false;
@@ -754,6 +777,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.UIShape = ReactUIShape.Rounded;
             beepLabel1.UISize = ReactUISize.Medium;
             beepLabel1.UIVariant = ReactUIVariant.Default;
+            beepLabel1.UseExternalBufferedGraphics = false;
             beepLabel1.UseGlassmorphism = false;
             beepLabel1.UseGradientBackground = false;
             beepLabel1.UseRichToolTip = true;
@@ -768,6 +792,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.AnimationType = DisplayAnimationType.None;
             beepLabel2.ApplyThemeOnImage = false;
             beepLabel2.ApplyThemeToChilds = true;
+            beepLabel2.AutoDrawHitListComponents = true;
             beepLabel2.BackColor = Color.White;
             beepLabel2.BadgeBackColor = Color.Red;
             beepLabel2.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -791,10 +816,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.DisabledBackColor = Color.LightGray;
             beepLabel2.DisabledBorderColor = Color.Empty;
             beepLabel2.DisabledForeColor = Color.Gray;
+            beepLabel2.DisableDpiAndScaling = true;
             beepLabel2.DrawingRect = new Rectangle(1, 1, 273, 30);
             beepLabel2.Easing = EasingType.Linear;
+            beepLabel2.EnableHighQualityRendering = true;
             beepLabel2.EnableMaterialStyle = false;
             beepLabel2.EnableRippleEffect = false;
+            beepLabel2.EnableSplashEffect = false;
             beepLabel2.ErrorColor = Color.FromArgb(176, 0, 32);
             beepLabel2.ErrorText = "";
             beepLabel2.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -874,6 +902,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepLabel2.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepLabel2.MaterialVariant = MaterialTextFieldVariant.Standard;
+            beepLabel2.MaxHitListDrawPerFrame = 0;
             beepLabel2.MaxImageSize = new Size(16, 16);
             beepLabel2.ModernGradientType = ModernGradientType.Subtle;
             beepLabel2.Multiline = false;
@@ -932,6 +961,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel2.UIShape = ReactUIShape.Rounded;
             beepLabel2.UISize = ReactUISize.Medium;
             beepLabel2.UIVariant = ReactUIVariant.Default;
+            beepLabel2.UseExternalBufferedGraphics = false;
             beepLabel2.UseGlassmorphism = false;
             beepLabel2.UseGradientBackground = false;
             beepLabel2.UseRichToolTip = true;
@@ -946,6 +976,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.AnimationType = DisplayAnimationType.None;
             _spinnerImage.ApplyThemeOnImage = false;
             _spinnerImage.ApplyThemeToChilds = false;
+            _spinnerImage.AutoDrawHitListComponents = true;
             _spinnerImage.BackColor = Color.White;
             _spinnerImage.BadgeBackColor = Color.Red;
             _spinnerImage.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
@@ -973,10 +1004,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.DisabledBackColor = Color.Gray;
             _spinnerImage.DisabledBorderColor = Color.Empty;
             _spinnerImage.DisabledForeColor = Color.Empty;
+            _spinnerImage.DisableDpiAndScaling = true;
             _spinnerImage.DrawingRect = new Rectangle(0, 0, 144, 76);
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.EmbeddedImagePath = null;
+            _spinnerImage.EnableHighQualityRendering = true;
             _spinnerImage.EnableRippleEffect = false;
+            _spinnerImage.EnableSplashEffect = true;
             _spinnerImage.ExternalDrawingLayer = DrawingLayer.AfterAll;
             _spinnerImage.FieldID = null;
             _spinnerImage.FillColor = Color.Black;
@@ -1045,6 +1079,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.ManualRotationAngle = 0F;
             _spinnerImage.Margin = new Padding(6);
             _spinnerImage.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            _spinnerImage.MaxHitListDrawPerFrame = 0;
             _spinnerImage.ModernGradientType = ModernGradientType.Subtle;
             _spinnerImage.Name = "_spinnerImage";
             _spinnerImage.Opacity = 1F;
@@ -1097,6 +1132,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.UIShape = ReactUIShape.Rounded;
             _spinnerImage.UISize = ReactUISize.Medium;
             _spinnerImage.UIVariant = ReactUIVariant.Default;
+            _spinnerImage.UseExternalBufferedGraphics = false;
             _spinnerImage.UseGlassmorphism = false;
             _spinnerImage.UseGradientBackground = false;
             _spinnerImage.UseThemeFont = true;
@@ -1105,7 +1141,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // BeepWait
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
             ClientSize = new Size(864, 634);

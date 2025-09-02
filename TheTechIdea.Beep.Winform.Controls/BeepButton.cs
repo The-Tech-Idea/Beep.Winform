@@ -108,9 +108,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public Color SplashColor { get; set; } = Color.Gray;
+    [Browsable(true)]
+    [Category("Appearance")]
+    public Color SplashColor { get; set; } = Color.Gray;
         #region "Long press properties"
         private Timer longPressTimer;
         private bool isLongPressTriggered = false;
@@ -1016,12 +1016,14 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             contentRect = DrawingRect;
             DrawImageAndText(g);
+            // Overlay splash effect last
+            DrawSplashEffect(g);
 
         }
 
         private void DrawSplashEffect(Graphics g)
         {
-            if (!splashActive) return;
+            if (!EnableSplashEffect || !splashActive) return;
 
             // Calculate the current radius based on the animation progress
             float currentRadius = splashProgress * MaxSplashRadius;
@@ -1298,18 +1300,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             ImageClicked?.Invoke(this, ev);
         }
-        protected override void OnMouseDown(MouseEventArgs e)
+    protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
            
             isLongPressTriggered = false;
             longPressTimer.Start();
             
-            // Enable splash effect by default for modern Material Design feel
-            splashActive = true;
-            splashCenter = e.Location; // Use the mouse click location for the ripple's center
-            splashProgress = 0f;
-            splashTimer.Start();
+            // Enable splash effect when allowed
+            if (EnableSplashEffect)
+            {
+                splashActive = true;
+                splashCenter = e.Location; // Use the mouse click location for the ripple's center
+                splashProgress = 0f;
+                splashTimer.Start();
+            }
            
             if (IsSelectedOptionOn)
             {
@@ -1358,6 +1363,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Add the timer event handler method:
         private void SplashTimer_Tick(object sender, EventArgs e)
         {
+            if (!EnableSplashEffect)
+            {
+                splashTimer.Stop();
+                splashActive = false;
+                splashProgress = 0f;
+                return;
+            }
             splashProgress += SplashSpeed; // Increase the progress
             if (splashProgress >= 1f)
             {
@@ -1403,6 +1415,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // register with new parent
             if (Parent is BeepControl newBeepParent)
             {
+                // inherit splash effect setting from parent BeepControl
+                this.EnableSplashEffect = newBeepParent.EnableSplashEffect;
                 newBeepParent.AddChildExternalDrawing(
                     this,
                     DrawBadgeExternally,

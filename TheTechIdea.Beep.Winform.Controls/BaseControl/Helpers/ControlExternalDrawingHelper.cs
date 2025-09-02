@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             if (!string.IsNullOrEmpty(badgeText))
             {
                 using (var textBrush = new SolidBrush(badgeForeColor))
-                using (var scaledFont = GetScaledBadgeFont(g, badgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), badgeFont))
+                    using (var scaledFont = _owner.DisableDpiAndScaling ? badgeFont : GetScaledBadgeFont(g, badgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), badgeFont))
                 {
                     var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                     g.DrawString(badgeText, scaledFont, textBrush, badgeRect, fmt);

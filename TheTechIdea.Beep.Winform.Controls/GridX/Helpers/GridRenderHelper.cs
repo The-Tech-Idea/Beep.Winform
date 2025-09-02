@@ -933,7 +933,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (navRect.IsEmpty) return;
 
             // Clear existing navigator hit tests
-            _grid._hitTest.ClearHitList();
+            _grid.ClearHitList();
 
             // Fill navigator background
             using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
@@ -1025,10 +1025,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var cancelRect = new Rectangle(leftX, y, buttonWidth, buttonHeight);
 
             // Register CRUD button hit tests
-            _grid._hitTest.AddHitArea("Insert", insertRect, _btnInsert, () => _grid.InsertNew());
-            _grid._hitTest.AddHitArea("Delete", deleteRect, _btnDelete, () => _grid.DeleteCurrent());
-            _grid._hitTest.AddHitArea("Save", saveRect, _btnSave, () => _grid.Save());
-            _grid._hitTest.AddHitArea("Cancel", cancelRect, _btnCancel, () => _grid.Cancel());
+            _grid.AddHitArea("Insert", insertRect, _btnInsert, () => _grid.InsertNew());
+            _grid.AddHitArea("Delete", deleteRect, _btnDelete, () => _grid.DeleteCurrent());
+            _grid.AddHitArea("Save", saveRect, _btnSave, () => _grid.Save());
+            _grid.AddHitArea("Cancel", cancelRect, _btnCancel, () => _grid.Cancel());
 
             foreach (var tuple in new[] { (_btnInsert, insertRect), (_btnDelete, deleteRect), (_btnSave, saveRect), (_btnCancel, cancelRect) })
             {
@@ -1062,10 +1062,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var lastRect = new Rectangle(nextRect.Right + spacing, y, buttonWidth, buttonHeight);
 
             // Register navigation button hit tests
-            _grid._hitTest.AddHitArea("First", firstRect, _btnFirst, () => _grid.MoveFirst());
-            _grid._hitTest.AddHitArea("Prev", prevRect, _btnPrev, () => _grid.MovePrevious());
-            _grid._hitTest.AddHitArea("Next", nextRect, _btnNext, () => _grid.MoveNext());
-            _grid._hitTest.AddHitArea("Last", lastRect, _btnLast, () => _grid.MoveLast());
+            _grid.AddHitArea("First", firstRect, _btnFirst, () => _grid.MoveFirst());
+            _grid.AddHitArea("Prev", prevRect, _btnPrev, () => _grid.MovePrevious());
+            _grid.AddHitArea("Next", nextRect, _btnNext, () => _grid.MoveNext());
+            _grid.AddHitArea("Last", lastRect, _btnLast, () => _grid.MoveLast());
 
             foreach (var tuple in new[] { (_btnFirst, firstRect), (_btnPrev, prevRect), (_btnNext, nextRect), (_btnLast, lastRect) })
             {
@@ -1087,8 +1087,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 var printRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight);
 
                 // Register utility button hit tests
-                _grid._hitTest.AddHitArea("Filter", filterRect, _btnFilter);
-                _grid._hitTest.AddHitArea("Print", printRect, _btnPrint);
+                _grid.AddHitArea("Filter", filterRect, _btnFilter);
+                _grid.AddHitArea("Print", printRect, _btnPrint);
 
                 foreach (var tuple in new[] { (_btnFilter, filterRect), (_btnPrint, printRect) })
                 {
@@ -1109,10 +1109,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var cancelRect = new Rectangle(leftX, y, buttonWidth, buttonHeight);
 
             // Register CRUD button hit tests
-            _grid._hitTest.AddHitArea("Insert", insertRect, _btnInsert, () => _grid.InsertNew());
-            _grid._hitTest.AddHitArea("Delete", deleteRect, _btnDelete, () => _grid.DeleteCurrent());
-            _grid._hitTest.AddHitArea("Save", saveRect, _btnSave, () => _grid.Save());
-            _grid._hitTest.AddHitArea("Cancel", cancelRect, _btnCancel, () => _grid.Cancel());
+            _grid.AddHitArea("Insert", insertRect, _btnInsert, () => _grid.InsertNew());
+            _grid.AddHitArea("Delete", deleteRect, _btnDelete, () => _grid.DeleteCurrent());
+            _grid.AddHitArea("Save", saveRect, _btnSave, () => _grid.Save());
+            _grid.AddHitArea("Cancel", cancelRect, _btnCancel, () => _grid.Cancel());
 
             foreach (var tuple in new[] { (_btnInsert, insertRect), (_btnDelete, deleteRect), (_btnSave, saveRect), (_btnCancel, cancelRect) })
             {
@@ -1175,10 +1175,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             var lastRect = new Rectangle(nextRect.Right + spacing, y, buttonWidth, buttonHeight);
 
             // Register navigation button hit tests
-            _grid._hitTest.AddHitArea("First", firstRect, _btnFirst, () => _grid.MoveFirst());
-            _grid._hitTest.AddHitArea("Prev", prevRect, _btnPrev, () => _grid.MovePrevious());
-            _grid._hitTest.AddHitArea("Next", nextRect, _btnNext, () => _grid.MoveNext());
-            _grid._hitTest.AddHitArea("Last", lastRect, _btnLast, () => _grid.MoveLast());
+            _grid.AddHitArea("First", firstRect, _btnFirst, () => _grid.MoveFirst());
+            _grid.AddHitArea("Prev", prevRect, _btnPrev, () => _grid.MovePrevious());
+            _grid.AddHitArea("Next", nextRect, _btnNext, () => _grid.MoveNext());
+            _grid.AddHitArea("Last", lastRect, _btnLast, () => _grid.MoveLast());
 
             foreach (var tuple in new[] { (_btnFirst, firstRect), (_btnPrev, prevRect), (_btnNext, nextRect), (_btnLast, lastRect) })
             {
@@ -1200,7 +1200,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 Size pageInfoSize = TextRenderer.MeasureText(_lblPageInfo.Text, headerFont);
                 var pageInfoRect = new Rectangle(rightX - pageInfoSize.Width, y, pageInfoSize.Width, buttonHeight);
-                _grid._hitTest.AddHitArea("PageInfo", pageInfoRect, _lblPageInfo);
+                _grid.AddHitArea("PageInfo", pageInfoRect, _lblPageInfo);
                 _lblPageInfo.Draw(g, pageInfoRect);
                 rightX = pageInfoRect.Left - sectionSpacing;
             }
@@ -1218,9 +1218,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 var printRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight);
 
                 // Register utility button hit tests
-                _grid._hitTest.AddHitArea("Query", queryRect, _btnQuery);
-                _grid._hitTest.AddHitArea("Filter", filterRect, _btnFilter);
-                _grid._hitTest.AddHitArea("Print", printRect, _btnPrint);
+                _grid.AddHitArea("Query", queryRect, _btnQuery);
+                _grid.AddHitArea("Filter", filterRect, _btnFilter);
+                _grid.AddHitArea("Print", printRect, _btnPrint);
 
                 foreach (var tuple in new[] { (_btnQuery, queryRect), (_btnFilter, filterRect), (_btnPrint, printRect) })
                 {

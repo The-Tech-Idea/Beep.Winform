@@ -92,6 +92,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         // Internal access to paint helper for helpers within the same assembly
         internal ControlPaintHelper PaintHelper => _paint;
        
+    // Performance toggles
+    [Category("Performance")]
+    [Description("If true, uses an extra BufferedGraphics layer in OnPaint. When false, relies on built-in DoubleBuffered drawing.")]
+    public bool UseExternalBufferedGraphics { get; set; } = false;
+
+    [Category("Performance")]
+    [Description("If true, sets high-quality smoothing/text rendering. Turn off to favor speed.")]
+    public bool EnableHighQualityRendering { get; set; } = true;
+
+    [Category("Performance")]
+    [Description("Automatically draws components in HitList during OnPaint.")]
+    public bool AutoDrawHitListComponents { get; set; } = true;
+
+    [Category("Performance")]
+    [Description("Optional cap for how many HitList components to draw per frame. 0 or negative disables capping.")]
+    public int MaxHitListDrawPerFrame { get; set; } = 0;
+
+    // Effects toggles
+    [Category("Effects")]
+    [Description("If true, controls inheriting from this base may show a splash (ink ripple) effect on click. Turn off to disable.")]
+        private bool _enableSplashEffect = false;
+        public bool EnableSplashEffect
+        {
+            get => _enableSplashEffect;
+            set => _enableSplashEffect = value;
+        }
+
         #endregion
 
         #region Constructor
@@ -114,6 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
+            // Respect DisableDpiAndScaling at runtime; default remains DPI unless disabled later
             AutoScaleMode = AutoScaleMode.Dpi;
             AutoScaleDimensions = new SizeF(96f, 96f); // ensure design baseline
             DoubleBuffered = true;
@@ -134,7 +162,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 // 1. Initialize core helpers first (no dependencies)
-                _dpi = new ControlDpiHelper(this);
+                // Create DPI helper only if scaling isn't disabled
+                if (!DisableDpiAndScaling)
+                    _dpi = new ControlDpiHelper(this);
                 _paint = new ControlPaintHelper(this);
                 _dataBinding = new ControlDataBindingHelper(this);
                 _externalDrawing = new ControlExternalDrawingHelper(this);
@@ -217,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     _paint = new ControlPaintHelper(this);
                 }
                 
-                if (_dpi == null)
+                if (_dpi == null && !DisableDpiAndScaling)
                 {
                     Console.WriteLine("Creating minimal DPI helper for fallback");
                     _dpi = new ControlDpiHelper(this);

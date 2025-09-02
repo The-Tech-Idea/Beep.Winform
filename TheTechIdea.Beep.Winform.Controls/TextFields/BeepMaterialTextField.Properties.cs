@@ -11,6 +11,44 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields
 {
     public partial class BeepMaterialTextField
     {
+        #region Material Elevation (MD3)
+        private int _materialElevationLevel = 0;
+        private bool _materialUseElevation = true;
+
+        [Browsable(true)]
+        [Category("Material Design 3.0")]
+        [Description("Elevation level for shadow effects (0-5). Higher values create more pronounced shadows.")]
+        [DefaultValue(0)]
+        public int MaterialElevationLevel
+        {
+            get => _materialElevationLevel;
+            set
+            {
+                int clamped = Math.Max(0, Math.Min(value, 5));
+                if (_materialElevationLevel == clamped) return;
+                _materialElevationLevel = clamped;
+                // Hook for future shadow rendering; for now just redraw
+                Invalidate();
+            }
+        }
+
+        [Browsable(true)]
+        [Category("Material Design 3.0")]
+        [Description("Enable or disable elevation shadow effects.")]
+        [DefaultValue(true)]
+        public bool MaterialUseElevation
+        {
+            get => _materialUseElevation;
+            set
+            {
+                if (_materialUseElevation == value) return;
+                _materialUseElevation = value;
+                // Hook for future shadow rendering; for now just redraw
+                Invalidate();
+            }
+        }
+        #endregion
+
         #region Advanced Text Properties from BeepSimpleTextBox
         bool _applyThemeOnImage = false;
 

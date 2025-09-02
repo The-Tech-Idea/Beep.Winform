@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
@@ -255,6 +256,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showCheckBox = value;
+                RecalculateLayoutCache();
+                UpdateScrollBars();
                 Invalidate();
             }
         }
@@ -266,6 +269,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _totalContentHeight = 0;
         private List<SimpleItem> _nodes = new List<SimpleItem>();
         private List<NodeInfo> _visibleNodes = new List<NodeInfo>();
+        // Virtualization settings
+        private bool _virtualizeLayout = true;
+        private int _virtualizationBufferRows = 100;
+        [Browsable(true)]
+        [Category("Performance")]
+        [Description("If true, only measures nodes near the viewport to reduce work on massive trees.")]
+        public bool VirtualizeLayout
+        {
+            get => _virtualizeLayout;
+            set { _virtualizeLayout = value; Invalidate(); }
+        }
+        [Browsable(true)]
+        [Category("Performance")]
+        [Description("Extra rows to measure above/below the viewport when virtualization is enabled.")]
+        public int VirtualizationBufferRows
+        {
+            get => _virtualizationBufferRows;
+            set { _virtualizationBufferRows = Math.Max(0, value); Invalidate(); }
+        }
       
 
         // Renderers
@@ -273,6 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton _button = new BeepButton();
         private BeepCheckBoxBool _checkRenderer=new BeepCheckBoxBool();
         private BeepImage _iconRenderer=new BeepImage();
+    private System.Windows.Forms.Timer _resizeTimer; // debounce resize work
         private SimpleItem lastmenuitem;
         private bool _isPopupOpen;
         private const string PlusIcon = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.plus.svg";
@@ -289,6 +312,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             public Rectangle IconRect;
             public Rectangle TextRect;
             public int RowHeight;
+            public Size TextSize;
+            public int RowWidth;
+            public int Y; // cached top position in content coordinates
+            // cached content-space rectangles
+            public Rectangle RowRectContent;
+            public Rectangle ToggleRectContent;
+            public Rectangle CheckRectContent;
+            public Rectangle IconRectContent;
+            public Rectangle TextRectContent;
         }
 
         [Browsable(false)] public IList<SimpleItem> Nodes { get => _nodes; set { _nodes = new List<SimpleItem>(value); RebuildVisible(); Invalidate(); } }
@@ -304,10 +336,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 true);
             this.UpdateStyles();
             this.DoubleBuffered = true;
-            BeepButton _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(GetScaledBoxSize()-2,GetScaledBoxSize()-2), Size = new Size(GetScaledBoxSize(), GetScaledBoxSize()) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
-            BeepCheckBoxBool _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = GetScaledBoxSize() };
-            BeepImage _iconRenderer = new BeepImage { IsChild = true, ScaleMode = ImageScaleMode.KeepAspectRatio };
-            BeepButton _button = new BeepButton {IsSelectedOptionOn=true, IsChild = true, MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize()) };
+            _toggleRenderer = new BeepButton { IsChild=true, MaxImageSize=new Size(GetScaledBoxSize()-2,GetScaledBoxSize()-2), Size = new Size(GetScaledBoxSize(), GetScaledBoxSize()) ,ImageAlign= ContentAlignment.MiddleCenter,HideText=true};
+            _checkRenderer = new BeepCheckBoxBool { IsChild = true, CheckBoxSize = GetScaledBoxSize() };
+            _iconRenderer = new BeepImage { IsChild = true, ScaleMode = ImageScaleMode.KeepAspectRatio };
+            _button = new BeepButton {IsSelectedOptionOn=true, IsChild = true, MaxImageSize = new Size(GetScaledBoxSize(), GetScaledBoxSize()) };
+            // Debounce timer for resize
+            _resizeTimer = new System.Windows.Forms.Timer();
+            _resizeTimer.Interval = 50; // ms
+            _resizeTimer.Tick += (s, e) =>
+            {
+                _resizeTimer.Stop();
+                UpdateScrollBars();
+                Invalidate();
+            };
+           
            MouseDown += OnMouseDownHandler;
             MouseUp += OnMouseUpHandler;
             MouseMove += OnMouseMoveHandler;
@@ -347,6 +389,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
             foreach (var root in _nodes) Recurse(root, 0);
+            // Build cached sizes to avoid measuring on every paint/scroll calc
+            RecalculateLayoutCache();
             
             // CRITICAL FIX: Update scrollbars whenever visible nodes are rebuilt
             if (!DesignMode && IsHandleCreated)
@@ -361,15 +405,40 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.DrawContent(g);
 
             UpdateDrawingRect();
+            // Keep layout cache fresh around the current viewport when virtualization is enabled
+            RecalculateLayoutCache();
             HitList.Clear();
 
             // Update scrollbars based on current content
             UpdateScrollBars();
 
-            int y = 0;
-            foreach (var root in _nodes)
+            if (_visibleNodes.Count == 0)
+                return;
+
+            // Determine which rows intersect current viewport
+            int viewportTop = _yOffset;
+            int viewportBottom = _yOffset + DrawingRect.Height;
+
+            // Find starting index (first node whose bottom >= viewportTop)
+            int startIndex = 0;
+            for (int i = 0; i < _visibleNodes.Count; i++)
             {
-                DrawNodeRecursive(g, root, 0, ref y);
+                var n = _visibleNodes[i];
+                int bottom = n.Y + (n.RowHeight > 0 ? n.RowHeight : GetScaledMinRowHeight());
+                if (bottom >= viewportTop)
+                {
+                    startIndex = i;
+                    break;
+                }
+            }
+
+            for (int i = startIndex; i < _visibleNodes.Count; i++)
+            {
+                var n = _visibleNodes[i];
+                if (n.Y > viewportBottom)
+                    break;
+
+                DrawNodeFromCache(g, n);
             }
 
             // Ensure scrollbars are drawn on top
@@ -377,6 +446,77 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _verticalScrollBar.Invalidate();
             if (_horizontalScrollBar.Visible)
                 _horizontalScrollBar.Invalidate();
+        }
+
+        // Draw a node using cached layout and current scroll offsets
+        private void DrawNodeFromCache(Graphics g, NodeInfo node)
+        {
+            var item = node.Item;
+            int level = node.Level;
+            int rowHeight = node.RowHeight > 0 ? node.RowHeight : GetScaledMinRowHeight();
+
+            // Transform function from content-space to viewport-space
+            Func<Rectangle, Rectangle> toViewport = (rc) => new Rectangle(
+                DrawingRect.Left + rc.X - _xOffset,
+                DrawingRect.Top + rc.Y - _yOffset,
+                rc.Width,
+                rc.Height);
+
+            // Row background rect in viewport
+            Rectangle rowRect = new Rectangle(DrawingRect.Left, DrawingRect.Top + (node.Y - _yOffset), DrawingRect.Width, rowHeight);
+
+            // Toggle
+            _toggleRenderer.ImagePath = (item.Children?.Count > 0) ? (item.IsExpanded ? MinusIcon : PlusIcon) : MinusIcon;
+            _toggleRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+            _toggleRenderer.MaxImageSize = new Size(GetScaledImageSize() - 2, GetScaledImageSize() - 2);
+            if (!node.ToggleRectContent.IsEmpty)
+            {
+                _toggleRenderer.Draw(g, toViewport(node.ToggleRectContent));
+            }
+
+            // Checkbox
+            if (_showCheckBox && !node.CheckRectContent.IsEmpty)
+            {
+                _checkRenderer.CurrentValue = item.IsChecked;
+                _checkRenderer.Draw(g, toViewport(node.CheckRectContent));
+            }
+
+            // Icon
+            if (!string.IsNullOrEmpty(item.ImagePath) && !node.IconRectContent.IsEmpty)
+            {
+                _iconRenderer.ImagePath = item.ImagePath;
+                _iconRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
+                var state = g.Save();
+                try
+                {
+                    _iconRenderer.DrawImage(g, toViewport(node.IconRectContent));
+                }
+                finally
+                {
+                    g.Restore(state);
+                }
+            }
+
+            // Text
+            var textRectContent = node.TextRectContent;
+            Size textSize = node.TextSize;
+            if (textSize.Width == 0 || textSize.Height == 0)
+            {
+                textSize = TextRenderer.MeasureText(item.Text ?? string.Empty, _textFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+                textRectContent.Size = textSize;
+            }
+            var textRect = toViewport(textRectContent);
+            _button.Text = item.Text ?? string.Empty;
+            _button.Size = textRect.Size;
+            _button.Location = textRect.Location;
+            _button.TextAlign = ContentAlignment.MiddleLeft;
+            _button.IsHovered = (item == _lastHoveredItem && !item.IsSelected);
+            _button.IsSelected = item.IsSelected;
+            _button.Draw(g, textRect);
+
+            // Update SimpleItem coordinates (viewport coords)
+            item.X = rowRect.X;
+            item.Y = rowRect.Y;
         }
 
         private void DrawNodeRecursive(Graphics g, SimpleItem item, int level, ref int y)
@@ -446,12 +586,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             int iconX = adjustedX + GetScaledBoxSize() + checkboxWidth + 4;
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                BeepImage iconRenderer = new BeepImage
-                {
-                    ImagePath = item.ImagePath,
-                    Size = new Size(GetScaledImageSize(), GetScaledImageSize()),
-                    ScaleMode = ImageScaleMode.KeepAspectRatio
-                };
+                _iconRenderer.ImagePath = item.ImagePath;
+                _iconRenderer.Size = new Size(GetScaledImageSize(), GetScaledImageSize());
 
                 int iconY = adjustedY + (rowHeight - GetScaledImageSize()) / 2;
                 Rectangle iconRect = new Rectangle(iconX, iconY, GetScaledImageSize(), GetScaledImageSize());
@@ -459,7 +595,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 GraphicsState state = g.Save();
                 try
                 {
-                    iconRenderer.DrawImage(g, iconRect);
+                    _iconRenderer.DrawImage(g, iconRect);
                     AddHitArea($"icon_{item.GuidId}", iconRect);
                 }
                 finally
@@ -524,9 +660,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             var point = e.Location;
 
             // Right-click context menu
-            if (e.Button == MouseButtons.Right && HitTest(point, out var ht) && ht.Name.StartsWith("row_"))
+            if (e.Button == MouseButtons.Right && LocalHitTest(point, out string htName, out var htItem, out var htRect) && htName.StartsWith("row_"))
             {
-                var guid = ht.Name.Substring(4); // everything after "row_"
+                var guid = htName.Substring(4); // everything after "row_"
                 var item = FindItemByGuid(guid);
                 if (item != null)
                 {
@@ -550,9 +686,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Left or middle click on toggle/check/row
-            if (HitTest(point, out var hit))
+            if (LocalHitTest(point, out var hitName, out var hitItem, out var hitRect))
             {
-                var parts = hit.Name.Split('_');
+                var parts = hitName.Split('_');
                 if (parts.Length == 2)
                 {
                     string type = parts[0], guid = parts[1];
@@ -663,9 +799,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             Point mousePosition = PointToClient(MousePosition);
 
             // Find the node at the current mouse position
-            if (HitTest(mousePosition, out var hitTest))
+            if (LocalHitTest(mousePosition, out var hitName, out var hitItem, out var targetRect))
             {
-                string[] parts = hitTest.Name.Split('_');
+                string[] parts = hitName.Split('_');
                 if (parts.Length == 2)
                 {
                     string type = parts[0], guid = parts[1];
@@ -689,7 +825,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                             // Set hover state for current item
                             _lastHoveredItem = hoveredItem;
-                            _lastHoveredRect = hitTest.TargetRect;
+                            _lastHoveredRect = targetRect;
 
                             // Raise event with the hovered item
                             BeepMouseEventArgs args = new BeepMouseEventArgs("MouseHover", hoveredItem);
@@ -725,6 +861,62 @@ namespace TheTechIdea.Beep.Winform.Controls
                     HideToolTip();
                 }
             }
+        }
+
+        // Local hit-test using cached content rectangles (no per-paint HitList building)
+        private bool LocalHitTest(Point p, out string name, out SimpleItem item, out Rectangle rect)
+        {
+            name = string.Empty; item = null; rect = Rectangle.Empty;
+            if (_visibleNodes == null || _visibleNodes.Count == 0) return false;
+
+            // Transform p to content-space by reversing viewport transform
+            // We will compare against content-space rectangles translated to viewport
+            int viewportTop = _yOffset;
+            int viewportBottom = _yOffset + DrawingRect.Height;
+
+            // Find first node potentially visible
+            int startIndex = 0;
+            for (int i = 0; i < _visibleNodes.Count; i++)
+            {
+                var n = _visibleNodes[i];
+                int bottom = n.Y + (n.RowHeight > 0 ? n.RowHeight : GetScaledMinRowHeight());
+                if (bottom >= viewportTop) { startIndex = i; break; }
+            }
+
+            Func<Rectangle, Rectangle> toViewport = (rc) => new Rectangle(
+                DrawingRect.Left + rc.X - _xOffset,
+                DrawingRect.Top + rc.Y - _yOffset,
+                rc.Width,
+                rc.Height);
+
+            for (int i = startIndex; i < _visibleNodes.Count; i++)
+            {
+                var n = _visibleNodes[i];
+                if (n.Y > viewportBottom) break;
+
+                Rectangle rowVp = new Rectangle(DrawingRect.Left, DrawingRect.Top + (n.Y - _yOffset), DrawingRect.Width, n.RowHeight);
+                if (!rowVp.Contains(p)) continue;
+
+                // Check parts in priority order
+                var toggleVp = toViewport(n.ToggleRectContent);
+                if (!n.ToggleRectContent.IsEmpty && toggleVp.Contains(p)) { name = $"toggle_{n.Item.GuidId}"; item = n.Item; rect = toggleVp; return true; }
+
+                if (_showCheckBox && !n.CheckRectContent.IsEmpty)
+                {
+                    var checkVp = toViewport(n.CheckRectContent);
+                    if (checkVp.Contains(p)) { name = $"check_{n.Item.GuidId}"; item = n.Item; rect = checkVp; return true; }
+                }
+
+                if (!n.IconRectContent.IsEmpty)
+                {
+                    var iconVp = toViewport(n.IconRectContent);
+                    if (iconVp.Contains(p)) { name = $"icon_{n.Item.GuidId}"; item = n.Item; rect = iconVp; return true; }
+                }
+
+                name = $"row_{n.Item.GuidId}"; item = n.Item; rect = rowVp; return true;
+            }
+
+            return false;
         }
         private void OnMouseUpHandler(object s, MouseEventArgs e)
         {
@@ -1657,16 +1849,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int totalHeight = 0;
 
-            // Sum the heights of all visible rows
+            // Sum cached heights of all visible rows
             foreach (var node in _visibleNodes)
             {
-                // Calculate row height (same logic as in DrawNodeRecursive)
-                Font drawFont = UseThemeFont ? BeepThemesManager.ToFont(_currentTheme.LabelSmall) : (_useScaledfont ? Font : _textFont);
-                _button.Text = node.Item.Text ?? string.Empty;
-                _button.Size = _button.GetPreferredSize(Size.Empty);
-                Size textSize = _button.Size;
-
-                int rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(GetScaledBoxSize(), GetScaledImageSize())) + 2 * GetScaledVerticalPadding());
+                int rowHeight = node.RowHeight > 0 ? node.RowHeight : GetScaledMinRowHeight();
                 totalHeight += rowHeight;
             }
 
@@ -1678,19 +1864,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int maxWidth = 0;
 
-            // Find the widest row
+            // Find the widest row using cached widths
             foreach (var node in _visibleNodes)
             {
-                // Calculate content width for this row (similar to DrawNodeRecursive)
-                int level = node.Level;
-                int baseIndent = level * GetScaledIndentWidth();
-
-                _button.Text = node.Item.Text ?? string.Empty;
-                _button.Size = _button.GetPreferredSize(Size.Empty);
-                Size textSize = _button.Size;
-
-                int rowWidth = baseIndent + GetScaledBoxSize() + (_showCheckBox ? GetScaledBoxSize() + 4 : 0) + GetScaledImageSize() + 8 + textSize.Width;
-
+                int rowWidth = node.RowWidth;
+                if (rowWidth == 0)
+                {
+                    int baseIndent = node.Level * GetScaledIndentWidth();
+                    int textWidth = node.TextSize.Width;
+                    rowWidth = baseIndent + GetScaledBoxSize() + 4 + (_showCheckBox ? GetScaledBoxSize() + 4 : 0) + GetScaledImageSize() + 8 + textWidth;
+                }
                 maxWidth = Math.Max(maxWidth, rowWidth);
             }
 
@@ -1701,8 +1884,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateScrollBars();
-            Invalidate();
+            // Debounce heavy recalcs during interactive resize
+            if (_resizeTimer != null)
+            {
+                _resizeTimer.Stop();
+                _resizeTimer.Start();
+            }
+            else
+            {
+                UpdateScrollBars();
+                Invalidate();
+            }
         }
 
         #endregion
@@ -1721,7 +1913,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
            
-
+            // Font change affects measurements
+            RecalculateLayoutCache();
+            UpdateScrollBars();
             Invalidate();
 
             //if (AutoSize)
@@ -1763,6 +1957,87 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    Invalidate();
         //}
         #endregion
+
+        // Compute cached sizes/positions for visible nodes (reduces per-frame work)
+        private void RecalculateLayoutCache()
+        {
+            if (_visibleNodes == null || _visibleNodes.Count == 0)
+                return;
+
+            // Ensure measure uses current font
+            _button.TextFont = _textFont;
+            _button.UseScaledFont = UseScaledFont;
+
+            // Determine virtualization indices
+            int start = 0, end = _visibleNodes.Count - 1;
+            if (_virtualizeLayout && DrawingRect.Height > 0)
+            {
+                // Find an approximate center index based on current vertical offset
+                int yAccum = 0;
+                for (int i = 0; i < _visibleNodes.Count; i++)
+                {
+                    int estH = _visibleNodes[i].RowHeight > 0 ? _visibleNodes[i].RowHeight : GetScaledMinRowHeight();
+                    if (yAccum + estH >= _yOffset) { start = Math.Max(0, i - _virtualizationBufferRows); break; }
+                    yAccum += estH;
+                }
+                end = Math.Min(_visibleNodes.Count - 1, start + (DrawingRect.Height / Math.Max(1, GetScaledMinRowHeight())) + 2 * _virtualizationBufferRows);
+            }
+
+            int y = 0;
+            for (int i = 0; i < _visibleNodes.Count; i++)
+            {
+                var n = _visibleNodes[i];
+                // Keep Y continuously increasing for fast viewport intersection
+                int prevH = n.RowHeight > 0 ? n.RowHeight : GetScaledMinRowHeight();
+                n.Y = y;
+
+                if (i >= start && i <= end)
+                {
+                    string text = n.Item?.Text ?? string.Empty;
+                    // Use TextRenderer to measure text once per node
+                    Size textSize = TextRenderer.MeasureText(text, _textFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding);
+
+                    int rowHeight = Math.Max(GetScaledMinRowHeight(), Math.Max(textSize.Height, Math.Max(GetScaledBoxSize(), GetScaledImageSize())) + 2 * GetScaledVerticalPadding());
+                    int baseIndent = n.Level * GetScaledIndentWidth();
+
+                    // Content-space rectangles (no DrawingRect or offsets)
+                    int toggleX = baseIndent;
+                    int toggleY = n.Y + (rowHeight - GetScaledBoxSize()) / 2;
+                    Rectangle toggleRect = new Rectangle(toggleX, toggleY, GetScaledBoxSize(), GetScaledBoxSize());
+
+                    int xAfterToggle = toggleRect.Right + 4;
+                    Rectangle checkRect = Rectangle.Empty;
+                    if (_showCheckBox)
+                    {
+                        checkRect = new Rectangle(xAfterToggle, n.Y + (rowHeight - GetScaledBoxSize()) / 2, GetScaledBoxSize(), GetScaledBoxSize());
+                        xAfterToggle = checkRect.Right + 4;
+                    }
+
+                    int iconX = xAfterToggle;
+                    int iconY = n.Y + (rowHeight - GetScaledImageSize()) / 2;
+                    Rectangle iconRect = new Rectangle(iconX, iconY, GetScaledImageSize(), GetScaledImageSize());
+
+                    int textX = iconRect.Right + 8;
+                    Rectangle textRect = new Rectangle(textX, n.Y + GetScaledVerticalPadding(), textSize.Width, textSize.Height);
+                    Rectangle rowRect = new Rectangle(0, n.Y, baseIndent + (textRect.Right - baseIndent), rowHeight);
+
+                    n.TextSize = textSize;
+                    n.RowHeight = rowHeight;
+                    // base indent + toggle + 4 + optional checkbox + 4 + icon + 8 + text
+                    n.RowWidth = baseIndent + GetScaledBoxSize() + 4 + (_showCheckBox ? GetScaledBoxSize() + 4 : 0) + GetScaledImageSize() + 8 + textSize.Width;
+
+                    n.ToggleRectContent = toggleRect;
+                    n.CheckRectContent = checkRect;
+                    n.IconRectContent = iconRect;
+                    n.TextRectContent = textRect;
+                    n.RowRectContent = rowRect;
+
+                    prevH = rowHeight;
+                }
+
+                y += prevH;
+            }
+        }
 
     }
 }

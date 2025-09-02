@@ -73,12 +73,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region DPI Scaling Support
-        protected float DpiScaleFactor => _dpi.DpiScaleFactor;
+        [Browsable(true)]
+        [Category("DPI/Scaling")]
+        [Description("Disable all DPI/scaling logic for this control (AutoScale, DPI-based size/font scaling).")]
+    private bool _disableDpiAndScaling = true; // default opt-out of scaling
+        public bool DisableDpiAndScaling
+        {
+            get => _disableDpiAndScaling;
+            set
+            {
+                _disableDpiAndScaling = value;
+                try
+                {
+                    if (_disableDpiAndScaling)
+                    {
+                        // Turn off WinForms autoscaling for this control
+                        AutoScaleMode = AutoScaleMode.None;
+                        AutoScaleDimensions = new SizeF(96f, 96f);
+                    }
+                }
+                catch { /* ignore if design-time constraints */ }
+                Invalidate();
+            }
+        }
 
-        protected virtual void UpdateDpiScaling(Graphics g) => _dpi.UpdateDpiScaling(g);
-        protected int ScaleValue(int value) => _dpi.ScaleValue(value);
-        protected Size ScaleSize(Size size) => _dpi.ScaleSize(size);
-        protected Font ScaleFont(Font font) => _dpi.ScaleFont(font);
+        protected float DpiScaleFactor => DisableDpiAndScaling || _dpi == null ? 1.0f : _dpi.DpiScaleFactor;
+
+        protected virtual void UpdateDpiScaling(Graphics g)
+        {
+            if (DisableDpiAndScaling || _dpi == null) return;
+            _dpi.UpdateDpiScaling(g);
+        }
+        protected int ScaleValue(int value) => (DisableDpiAndScaling || _dpi == null) ? value : _dpi.ScaleValue(value);
+        protected Size ScaleSize(Size size) => (DisableDpiAndScaling || _dpi == null) ? size : _dpi.ScaleSize(size);
+        protected Font ScaleFont(Font font) => (DisableDpiAndScaling || _dpi == null) ? font : _dpi.ScaleFont(font);
         #endregion
 
         #region Theme Management

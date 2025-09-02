@@ -446,12 +446,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (navRect == Rectangle.Empty || !navRect.Contains(p)) return false;
 
             // Use the centralized hit test system
-            if (_grid._hitTest.HitTest(p))
+            if (_grid.HitTest(p))
             {
                 // Execute the hit action if one exists
-                if (_grid._hitTest.HitTestControl?.HitAction != null)
+                if (_grid.HitTestControl?.HitAction != null)
                 {
-                    _grid._hitTest.HitTestControl.HitAction.Invoke();
+                    _grid.HitTestControl.HitAction.Invoke();
                 }
                 return true;
             }

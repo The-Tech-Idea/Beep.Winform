@@ -53,8 +53,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // MainTemplatePanel
             // 
             MainTemplatePanel.Controls.Add(beepPanel1);
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 497, 455);
-            MainTemplatePanel.Size = new Size(497, 455);
+            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 611, 465);
+            MainTemplatePanel.Size = new Size(611, 465);
             // 
             // beepPanel1
             // 
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.DisabledBorderColor = Color.Empty;
             beepPanel1.DisabledForeColor = Color.Black;
             beepPanel1.Dock = DockStyle.Fill;
-            beepPanel1.DrawingRect = new Rectangle(10, 10, 477, 435);
+            beepPanel1.DrawingRect = new Rectangle(10, 10, 591, 445);
             beepPanel1.Easing = EasingType.Linear;
             beepPanel1.EnableRippleEffect = false;
             beepPanel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
@@ -186,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.ShowTitleLine = true;
             beepPanel1.ShowTitleLineinFullWidth = true;
             beepPanel1.ShowTopBorder = false;
-            beepPanel1.Size = new Size(497, 455);
+            beepPanel1.Size = new Size(611, 465);
             beepPanel1.SlideFrom = SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 0;
@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.BlockID = null;
             beepButton1.BorderColor = Color.FromArgb(33, 150, 243);
             beepButton1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepButton1.BorderRadius = 3;
+            beepButton1.BorderRadius = 6;
             beepButton1.BorderSize = 1;
             beepButton1.BorderStyle = BorderStyle.FixedSingle;
             beepButton1.BorderThickness = 1;
@@ -252,9 +252,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepButton1.DisabledBorderColor = Color.Gray;
             beepButton1.DisabledForeColor = Color.Gray;
-            beepButton1.DrawingRect = new Rectangle(24, 12, 23, 19);
+            beepButton1.DrawingRect = new Rectangle(24, 8, 22, 44);
             beepButton1.Easing = EasingType.Linear;
-            beepButton1.EmbeddedImagePath = null;
+            beepButton1.EmbeddedImagePath = "H:\\dev\\iconPacks\\1828624-basic-ui\\1828624-basic-ui\\svg\\004-arrow up.svg";
             beepButton1.EnableRippleEffect = false;
             beepButton1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepButton1.ErrorText = "";
@@ -292,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ImageAlign = ContentAlignment.MiddleLeft;
             beepButton1.ImageClicked = null;
             beepButton1.ImageEmbededin = ImageEmbededin.Button;
-            beepButton1.ImagePath = null;
+            beepButton1.ImagePath = "H:\\dev\\iconPacks\\1828624-basic-ui\\1828624-basic-ui\\svg\\004-arrow up.svg";
             beepButton1.InactiveBorderColor = Color.Gray;
             beepButton1.IsAcceptButton = false;
             beepButton1.IsBorderAffectedByTheme = true;
@@ -327,15 +327,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.LeadingImagePath = "";
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
-            beepButton1.Location = new Point(426, 246);
+            beepButton1.Location = new Point(475, 242);
             beepButton1.Margin = new Padding(0);
-            beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepButton1.MaterialBorderRadius = 6;
+            beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             beepButton1.MaterialFillColor = Color.FromArgb(245, 245, 245);
             beepButton1.MaterialIconPadding = 8;
             beepButton1.MaterialIconSize = 20;
             beepButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
-            beepButton1.MaterialVariant = MaterialTextFieldVariant.Filled;
             beepButton1.MaxImageSize = new Size(19, 19);
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
@@ -369,22 +369,22 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ShowRightBorder = false;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = false;
-            beepButton1.Size = new Size(71, 43);
+            beepButton1.Size = new Size(98, 60);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = null;
             beepButton1.StaticNotMoving = false;
+            beepButton1.StylePreset = MaterialTextFieldStylePreset.DenseOutlined;
             beepButton1.TabIndex = 6;
             beepButton1.Tag = beepPanel1;
             beepButton1.TempBackColor = Color.White;
-            beepButton1.Text = "+";
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Arial", 12F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
             beepButton1.Theme = "DefaultTheme";
             beepButton1.ToolTipText = "";
             beepButton1.TopoffsetForDrawingRect = 0;
-            beepButton1.TrailingIconPath = "";
+            beepButton1.TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cockroachdb.svg";
             beepButton1.TrailingImagePath = "";
             beepButton1.UIAnimation = ReactUIAnimation.None;
             beepButton1.UIColor = ReactUIColor.Primary;
@@ -500,7 +500,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.LeadingImagePath = "";
             SystemFolderbeepComboBox.LeftoffsetForDrawingRect = 0;
             SystemFolderbeepComboBox.LinkedProperty = null;
-            SystemFolderbeepComboBox.Location = new Point(188, 179);
+            SystemFolderbeepComboBox.Location = new Point(245, 184);
             SystemFolderbeepComboBox.MaterialBorderRadius = 4;
             SystemFolderbeepComboBox.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             SystemFolderbeepComboBox.MaterialFillColor = Color.White;
@@ -669,7 +669,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel3.LeadingImagePath = "";
             beepLabel3.LeftoffsetForDrawingRect = 0;
             beepLabel3.LinkedProperty = null;
-            beepLabel3.Location = new Point(47, 53);
+            beepLabel3.Location = new Point(104, 58);
             beepLabel3.Margin = new Padding(0);
             beepLabel3.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             beepLabel3.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -849,7 +849,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.LineNumberFont = new Font("Arial", 11F);
             databaseTextBox.LineNumberForeColor = Color.Gray;
             databaseTextBox.LinkedProperty = null;
-            databaseTextBox.Location = new Point(188, 48);
+            databaseTextBox.Location = new Point(245, 53);
             databaseTextBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             databaseTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
             databaseTextBox.MaterialIconPadding = 8;
@@ -1036,7 +1036,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel5.LeadingImagePath = "";
             beepLabel5.LeftoffsetForDrawingRect = 0;
             beepLabel5.LinkedProperty = null;
-            beepLabel5.Location = new Point(47, 300);
+            beepLabel5.Location = new Point(104, 305);
             beepLabel5.Margin = new Padding(0);
             beepLabel5.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             beepLabel5.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1145,9 +1145,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
             SavebeepButton.DisabledBorderColor = Color.Gray;
             SavebeepButton.DisabledForeColor = Color.Gray;
-            SavebeepButton.DrawingRect = new Rectangle(24, 8, 88, 44);
+            SavebeepButton.DrawingRect = new Rectangle(24, 8, 43, 44);
             SavebeepButton.Easing = EasingType.Linear;
-            SavebeepButton.EmbeddedImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.createlocaldbbutton.svg";
+            SavebeepButton.EmbeddedImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.alarmclock.svg";
             SavebeepButton.EnableRippleEffect = false;
             SavebeepButton.ErrorColor = Color.FromArgb(176, 0, 32);
             SavebeepButton.ErrorText = "";
@@ -1185,7 +1185,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             SavebeepButton.ImageClicked = null;
             SavebeepButton.ImageEmbededin = ImageEmbededin.Button;
-            SavebeepButton.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.createlocaldbbutton.svg";
+            SavebeepButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.alarmclock.svg";
             SavebeepButton.InactiveBorderColor = Color.Gray;
             SavebeepButton.IsAcceptButton = false;
             SavebeepButton.IsBorderAffectedByTheme = true;
@@ -1220,7 +1220,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.LeadingImagePath = "";
             SavebeepButton.LeftoffsetForDrawingRect = 0;
             SavebeepButton.LinkedProperty = null;
-            SavebeepButton.Location = new Point(304, 359);
+            SavebeepButton.Location = new Point(361, 364);
             SavebeepButton.Margin = new Padding(0);
             SavebeepButton.MaterialBorderRadius = 30;
             SavebeepButton.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
@@ -1262,7 +1262,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.ShowRightBorder = true;
             SavebeepButton.ShowShadow = false;
             SavebeepButton.ShowTopBorder = true;
-            SavebeepButton.Size = new Size(136, 60);
+            SavebeepButton.Size = new Size(119, 60);
             SavebeepButton.SlideFrom = SlideDirection.Left;
             SavebeepButton.SplashColor = Color.Gray;
             SavebeepButton.StandardImages = null;
@@ -1277,7 +1277,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.Theme = "DefaultTheme";
             SavebeepButton.ToolTipText = "";
             SavebeepButton.TopoffsetForDrawingRect = 0;
-            SavebeepButton.TrailingIconPath = "";
+            SavebeepButton.TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.about.svg";
             SavebeepButton.TrailingImagePath = "";
             SavebeepButton.UIAnimation = ReactUIAnimation.None;
             SavebeepButton.UIColor = ReactUIColor.Primary;
@@ -1331,9 +1331,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
             CancelbeepButton.DisabledBorderColor = Color.Gray;
             CancelbeepButton.DisabledForeColor = Color.Gray;
-            CancelbeepButton.DrawingRect = new Rectangle(24, 8, 88, 44);
+            CancelbeepButton.DrawingRect = new Rectangle(24, 8, 44, 44);
             CancelbeepButton.Easing = EasingType.Linear;
-            CancelbeepButton.EmbeddedImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.cancel.svg";
+            CancelbeepButton.EmbeddedImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.abort.svg";
             CancelbeepButton.EnableRippleEffect = false;
             CancelbeepButton.ErrorColor = Color.FromArgb(176, 0, 32);
             CancelbeepButton.ErrorText = "";
@@ -1371,7 +1371,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ImageAlign = ContentAlignment.MiddleLeft;
             CancelbeepButton.ImageClicked = null;
             CancelbeepButton.ImageEmbededin = ImageEmbededin.Button;
-            CancelbeepButton.ImagePath = "TheTechIdea.Beep.Winform.Default.Views.GFX.SVG.cancel.svg";
+            CancelbeepButton.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.abort.svg";
             CancelbeepButton.InactiveBorderColor = Color.Gray;
             CancelbeepButton.IsAcceptButton = false;
             CancelbeepButton.IsBorderAffectedByTheme = true;
@@ -1406,7 +1406,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.LeadingImagePath = "";
             CancelbeepButton.LeftoffsetForDrawingRect = 0;
             CancelbeepButton.LinkedProperty = null;
-            CancelbeepButton.Location = new Point(184, 359);
+            CancelbeepButton.Location = new Point(241, 364);
             CancelbeepButton.Margin = new Padding(0);
             CancelbeepButton.MaterialBorderRadius = 30;
             CancelbeepButton.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
@@ -1448,7 +1448,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ShowRightBorder = true;
             CancelbeepButton.ShowShadow = false;
             CancelbeepButton.ShowTopBorder = true;
-            CancelbeepButton.Size = new Size(136, 60);
+            CancelbeepButton.Size = new Size(120, 60);
             CancelbeepButton.SlideFrom = SlideDirection.Left;
             CancelbeepButton.SplashColor = Color.Gray;
             CancelbeepButton.StandardImages = null;
@@ -1463,7 +1463,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.Theme = "DefaultTheme";
             CancelbeepButton.ToolTipText = "";
             CancelbeepButton.TopoffsetForDrawingRect = 0;
-            CancelbeepButton.TrailingIconPath = "";
+            CancelbeepButton.TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg";
             CancelbeepButton.TrailingImagePath = "";
             CancelbeepButton.UIAnimation = ReactUIAnimation.None;
             CancelbeepButton.UIColor = ReactUIColor.Primary;
@@ -1588,7 +1588,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.LineNumberFont = new Font("Arial", 11F);
             PasswordbeepTextBox.LineNumberForeColor = Color.Gray;
             PasswordbeepTextBox.LinkedProperty = null;
-            PasswordbeepTextBox.Location = new Point(188, 295);
+            PasswordbeepTextBox.Location = new Point(245, 300);
             PasswordbeepTextBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             PasswordbeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
             PasswordbeepTextBox.MaterialIconPadding = 8;
@@ -1779,7 +1779,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.LineNumberFont = new Font("Arial", 11F);
             OtherFolderbeepTextBox.LineNumberForeColor = Color.Gray;
             OtherFolderbeepTextBox.LinkedProperty = null;
-            OtherFolderbeepTextBox.Location = new Point(188, 241);
+            OtherFolderbeepTextBox.Location = new Point(245, 246);
             OtherFolderbeepTextBox.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             OtherFolderbeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
             OtherFolderbeepTextBox.MaterialIconPadding = 8;
@@ -1966,7 +1966,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.LeadingImagePath = "";
             beepLabel2.LeftoffsetForDrawingRect = 0;
             beepLabel2.LinkedProperty = null;
-            beepLabel2.Location = new Point(47, 246);
+            beepLabel2.Location = new Point(104, 251);
             beepLabel2.Margin = new Padding(0);
             beepLabel2.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             beepLabel2.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -2142,7 +2142,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.LeadingImagePath = "";
             beepLabel1.LeftoffsetForDrawingRect = 0;
             beepLabel1.LinkedProperty = null;
-            beepLabel1.Location = new Point(47, 115);
+            beepLabel1.Location = new Point(104, 120);
             beepLabel1.Margin = new Padding(0);
             beepLabel1.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             beepLabel1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -2313,7 +2313,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.LeadingImagePath = "";
             LocalDbTypebeepComboBox.LeftoffsetForDrawingRect = 0;
             LocalDbTypebeepComboBox.LinkedProperty = null;
-            LocalDbTypebeepComboBox.Location = new Point(188, 110);
+            LocalDbTypebeepComboBox.Location = new Point(245, 115);
             LocalDbTypebeepComboBox.MaterialBorderRadius = 4;
             LocalDbTypebeepComboBox.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             LocalDbTypebeepComboBox.MaterialFillColor = Color.White;
@@ -2384,7 +2384,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_CreateLocalDB";
-            Size = new Size(497, 455);
+            Size = new Size(611, 465);
             MainTemplatePanel.ResumeLayout(false);
             beepPanel1.ResumeLayout(false);
             ResumeLayout(false);

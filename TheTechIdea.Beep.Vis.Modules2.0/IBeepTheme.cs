@@ -81,6 +81,23 @@ namespace TheTechIdea.Beep.Vis.Modules
         TypographyStyle ButtonFont { get; set; }
         TypographyStyle ButtonHoverFont { get; set; }
         TypographyStyle ButtonSelectedFont { get; set; }
+        // New explicit tokens for primary (filled) buttons
+        // Default implementations map to legacy tokens to preserve backward compatibility
+        Color ButtonPrimaryBackColor { get { return ButtonBackColor; } set { ButtonBackColor = value; } }
+        Color ButtonPrimaryForeColor { get { return ButtonForeColor; } set { ButtonForeColor = value; } }
+        Color ButtonPrimaryBorderColor { get { return ButtonBorderColor; } set { ButtonBorderColor = value; } }
+        Color ButtonPrimaryHoverBackColor { get { return ButtonHoverBackColor; } set { ButtonHoverBackColor = value; } }
+        Color ButtonPrimaryHoverForeColor { get { return ButtonHoverForeColor; } set { ButtonHoverForeColor = value; } }
+        Color ButtonPrimaryPressedBackColor { get { return ButtonPressedBackColor; } set { ButtonPressedBackColor = value; } }
+        // New explicit tokens for outline/default button variant
+        Color ButtonOutlineBackColor { get { return ButtonBackColor; } set { ButtonBackColor = value; } }
+        Color ButtonOutlineForeColor { get { return ButtonForeColor; } set { ButtonForeColor = value; } }
+        Color ButtonOutlineBorderColor { get { return ButtonBorderColor; } set { ButtonBorderColor = value; } }
+        Color ButtonOutlineHoverBackColor { get { return ButtonHoverBackColor; } set { ButtonHoverBackColor = value; } }
+        Color ButtonOutlineHoverForeColor { get { return ButtonHoverForeColor; } set { ButtonHoverForeColor = value; } }
+        Color ButtonOutlineHoverBorderColor { get { return ButtonHoverBorderColor; } set { ButtonHoverBorderColor = value; } }
+
+        // Legacy/backwards-compatible tokens
         Color ButtonHoverBackColor { get; set; }
         Color ButtonHoverForeColor { get; set; }
         Color ButtonHoverBorderColor { get; set; }
@@ -773,7 +790,7 @@ namespace TheTechIdea.Beep.Vis.Modules
        TypographyStyle GetQuestionFont();
 
        TypographyStyle GetAnswerFont();
-      
+     
 
        TypographyStyle GetCaptionFont();
      

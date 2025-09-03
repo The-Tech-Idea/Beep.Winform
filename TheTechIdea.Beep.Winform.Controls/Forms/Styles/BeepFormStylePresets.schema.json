@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "BeepFormStylePresets",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "Presets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "BorderRadius": { "type": "integer", "minimum": 0 },
+          "BorderThickness": { "type": "integer", "minimum": 0 },
+          "ShadowDepth": { "type": "integer", "minimum": 0 },
+          "EnableGlow": { "type": "boolean" },
+          "GlowSpread": { "type": "number", "minimum": 0 },
+          "CaptionHeight": { "type": "integer", "minimum": 0 },
+          "RibbonHeight": { "type": "integer", "minimum": 0 },
+          "CaptionButtonSize": { "type": "integer", "minimum": 0 }
+        },
+        "required": ["BorderRadius", "BorderThickness"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["Presets"]
+}

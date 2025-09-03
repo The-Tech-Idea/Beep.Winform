@@ -232,7 +232,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _isItemChilds = value;
-                _isControlinvalidated = true;
+               
                 Invalidate();
             }
         }

@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 combo.ForeColor = Color.Black;
                 combo.BorderStyle = BorderStyle.FixedSingle; // Ensure visible border
             }
-            else if (_editorControl is BeepListBox listBox)
+            else if (_currenteditorUIcomponent is BeepListBox listBox)
             {
                 listBox.ListItems.Clear();
                 foreach (var item in itemsToUse) listBox.ListItems.Add(item);

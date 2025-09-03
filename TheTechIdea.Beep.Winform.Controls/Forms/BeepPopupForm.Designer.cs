@@ -28,10 +28,31 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "BeepPopupForm";
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BeepPopupForm));
+            SuspendLayout();
+            // 
+            // beepuiManager1
+            // 
+            beepuiManager1.BeepiForm = this;
+            // 
+            // BeepPopupForm
+            // 
+            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BorderColor = Color.FromArgb(200, 200, 200);
+            ClientSize = new Size(800, 450);
+            FormBorderStyle = FormBorderStyle.SizableToolWindow;
+            Name = "BeepPopupForm";
+            ShowCaptionBar = false;
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            ShowQuickAccess = false;
+            ShowSnapHints = false;
+            ShowSystemButtons = false;
+            StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepPopupForm.StylePresets.Presets");
+            Text = "BeepPopupForm";
+            Theme = "DefaultTheme";
+            ResumeLayout(false);
         }
 
         #endregion

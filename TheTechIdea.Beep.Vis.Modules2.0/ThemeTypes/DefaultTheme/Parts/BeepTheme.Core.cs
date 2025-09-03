@@ -9,7 +9,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Core UI Elements
         public string ThemeGuid { get; set; } = Guid.NewGuid().ToString();
         public string ThemeName => this.GetType().Name;
-        public Color ForeColor { get; set; } = Color.White;
+        // DefaultTheme: use a dark ForeColor by default so text is visible on light backgrounds
+        public Color ForeColor { get; set; } = Color.FromArgb(33, 33, 33);
         public Color BackColor { get; set; } = Color.White;
         public Color PanelBackColor { get; set; } = Color.FromArgb(245, 245, 245); // Light gray panel background
         public Color PanelGradiantStartColor { get; set; } = Color.FromArgb(255, 255, 255);

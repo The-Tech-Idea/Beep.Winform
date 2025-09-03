@@ -76,23 +76,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)]
         [Category("DPI/Scaling")]
         [Description("Disable all DPI/scaling logic for this control (AutoScale, DPI-based size/font scaling).")]
-    private bool _disableDpiAndScaling = true; // default opt-out of scaling
+    private bool _disableDpiAndScaling = true; // default opt-out of custom scaling
         public bool DisableDpiAndScaling
         {
             get => _disableDpiAndScaling;
             set
             {
                 _disableDpiAndScaling = value;
-                try
-                {
-                    if (_disableDpiAndScaling)
-                    {
-                        // Turn off WinForms autoscaling for this control
-                        AutoScaleMode = AutoScaleMode.None;
-                        AutoScaleDimensions = new SizeF(96f, 96f);
-                    }
-                }
-                catch { /* ignore if design-time constraints */ }
+                // Do not force AutoScale changes; let the framework/parent form handle scaling
                 Invalidate();
             }
         }

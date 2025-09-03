@@ -91,7 +91,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         // Internal access to paint helper for helpers within the same assembly
         internal ControlPaintHelper PaintHelper => _paint;
-       
+        
+        // Track theme change subscription
+        private bool _subscribedToThemeChanged = false;
+        
     // Performance toggles
     [Category("Performance")]
     [Description("If true, uses an extra BufferedGraphics layer in OnPaint. When false, relies on built-in DoubleBuffered drawing.")]
@@ -141,9 +144,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            // Respect DisableDpiAndScaling at runtime; default remains DPI unless disabled later
-            AutoScaleMode = AutoScaleMode.Dpi;
-            AutoScaleDimensions = new SizeF(96f, 96f); // ensure design baseline
+            // Let WinForms (parent form) handle scaling; do not force a baseline here
+            AutoScaleMode = AutoScaleMode.Inherit;
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
 
@@ -162,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 // 1. Initialize core helpers first (no dependencies)
-                // Create DPI helper only if scaling isn't disabled
+                // IMPORTANT: Do not create DPI helper by default; let framework scale.
                 if (!DisableDpiAndScaling)
                     _dpi = new ControlDpiHelper(this);
                 _paint = new ControlPaintHelper(this);
@@ -229,6 +231,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     }
                 }
             }
+            
+            // Subscribe to global theme changes at runtime
+            TrySubscribeThemeChanged(isDesignMode);
             
             _isInitializing = false;
         }
@@ -300,6 +305,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (Parent is BaseControl parentBeepControl)
                 {
                     parentBeepControl.ClearChildExternalDrawing(this);
+                }
+
+                // Unsubscribe from theme changes
+                if (_subscribedToThemeChanged)
+                {
+                    try { BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged; } catch { }
+                    _subscribedToThemeChanged = false;
                 }
 
                 // Dispose helpers
@@ -393,6 +405,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 base.OnHandleCreated(e);
                 
+                // Ensure we are subscribed when a handle is created at runtime
+                TrySubscribeThemeChanged(isDesignMode);
+                
                 // Only perform complex operations if not in design mode
                 if (!isDesignMode)
                 {
@@ -413,6 +428,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     throw;
                 }
+            }
+        }
+
+        // Subscribe to BeepThemesManager to auto-apply theme changes
+        private void TrySubscribeThemeChanged(bool isDesignMode)
+        {
+            if (_subscribedToThemeChanged || isDesignMode) return;
+            try
+            {
+                BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
+                BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
+                _subscribedToThemeChanged = true;
+            }
+            catch { /* best-effort */ }
+        }
+
+        private void OnGlobalThemeChanged(object? sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+            try
+            {
+                var newThemeName = BeepThemesManager.CurrentThemeName;
+                _themeName = newThemeName;
+                _currentTheme = BeepThemesManager.GetTheme(newThemeName) ?? BeepThemesManager.GetDefaultTheme();
+                ApplyTheme();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl: OnGlobalThemeChanged error: {ex.Message}");
             }
         }
     }

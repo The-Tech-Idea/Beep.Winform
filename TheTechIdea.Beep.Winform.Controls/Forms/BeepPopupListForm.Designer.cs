@@ -42,11 +42,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // _beepListBox
             // 
-        
             _beepListBox.AnimationDuration = 500;
             _beepListBox.AnimationType = DisplayAnimationType.None;
             _beepListBox.ApplyThemeToChilds = true;
             _beepListBox.BackColor = Color.FromArgb(240, 240, 240);
+            // Disable control borders (use form border only)
+            _beepListBox.BorderStyle = BorderStyle.None;
+            _beepListBox.BorderThickness = 0;
+            _beepListBox.ShowAllBorders = false;
+            _beepListBox.ShowTopBorder = false;
+            _beepListBox.ShowBottomBorder = false;
+            _beepListBox.ShowLeftBorder = false;
+            _beepListBox.ShowRightBorder = false;
+            _beepListBox.IsBorderAffectedByTheme = false;
+            // 
             _beepListBox.BadgeBackColor = Color.Red;
             _beepListBox.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             _beepListBox.BadgeForeColor = Color.White;
@@ -56,8 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.BorderColor = Color.Black;
             _beepListBox.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             _beepListBox.BorderRadius = 1;
-            _beepListBox.BorderStyle = BorderStyle.FixedSingle;
-            _beepListBox.BorderThickness = 1;
+            // removed FixedSingle to None above
             _beepListBox.BottomoffsetForDrawingRect = 0;
             _beepListBox.BoundProperty = "SelectedMenuItem";
             _beepListBox.CanBeFocused = true;
@@ -91,9 +99,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.HoverForeColor = Color.Black;
             _beepListBox.Id = -1;
             _beepListBox.ImageSize = 18;
-        //    _beepListBox.Info = (SimpleItem)resources.GetObject("_beepListBox.Info");
+            //    _beepListBox.Info = (SimpleItem)resources.GetObject("_beepListBox.Info");
             _beepListBox.IsAcceptButton = false;
-            _beepListBox.IsBorderAffectedByTheme = true;
+            // IsBorderAffectedByTheme already set false
             _beepListBox.IsCancelButton = false;
             _beepListBox.IsChild = false;
             _beepListBox.IsCustomeBorder = false;
@@ -111,9 +119,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.IsRequired = false;
             _beepListBox.IsRounded = true;
             _beepListBox.IsRoundedAffectedByTheme = true;
-            _beepListBox.IsSelected = false;
             _beepListBox.IsShadowAffectedByTheme = true;
-            _beepListBox.IsVisible = false;
+            _beepListBox.IsVisible = true;
+            _beepListBox.Visible = true;
             _beepListBox.Items = (List<object>)resources.GetObject("_beepListBox.Items");
             _beepListBox.LeftoffsetForDrawingRect = 0;
             _beepListBox.LinkedProperty = null;
@@ -134,19 +142,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShadowColor = Color.Black;
             _beepListBox.ShadowOffset = 0;
             _beepListBox.ShadowOpacity = 0.5F;
-            _beepListBox.ShowAllBorders = true;
-            _beepListBox.ShowBottomBorder = true;
+            // borders are disabled above; keep these false
             _beepListBox.ShowCheckBox = false;
             _beepListBox.ShowFocusIndicator = false;
             _beepListBox.ShowHilightBox = true;
             _beepListBox.ShowImage = false;
-            _beepListBox.ShowLeftBorder = true;
-            _beepListBox.ShowRightBorder = true;
-            _beepListBox.ShowShadow = false;
             _beepListBox.ShowTitle = false;
             _beepListBox.ShowTitleLine = false;
             _beepListBox.ShowTitleLineinFullWidth = true;
-            _beepListBox.ShowTopBorder = true;
             _beepListBox.Size = new Size(631, 765);
             _beepListBox.SlideFrom = SlideDirection.Left;
             _beepListBox.StaticNotMoving = false;

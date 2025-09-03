@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPopupListForm(List<SimpleItem> items)
         {
             InitializeComponent();
-
+         //   _beepListBox.EnableMaterialStyle= false;
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;
        //     OnLeave += BeepPopupListForm_OnLeave;

@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void InitializeControl()
         {
-            _isControlinvalidated = true;
+            
             if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
             {
                 Width = 150;

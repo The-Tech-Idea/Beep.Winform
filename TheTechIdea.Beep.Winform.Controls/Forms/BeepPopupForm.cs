@@ -53,14 +53,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _autoclose = value;
-                //if (_autoclose)
-                //{
-                //    _closeTimer.Start();
-                //}
-                //else
-                //{
-                //    _closeTimer.Stop();
-                //}
             }
         }
 
@@ -75,12 +67,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
+            FormBorderStyle = FormBorderStyle.None;
+
+            // Ensure popup is truly borderless and captionless
+            ShowCaptionBar = false;
+            ShowSystemButtons = false;
+            EnableCaptionGradient = false;
+            BorderThickness = 0;
 
             // Initialize DPI scaling first
             //UpdateDpiScaling();
-            Padding = new Padding(4);
+            Padding = new Padding(0);
             BorderRadius = 3;
-            BorderThickness = 2;
             _closeTimer = new System.Windows.Forms.Timer { Interval = _closeTimeout };
             _closeTimer.Tick += CloseTimer_Tick;
 
@@ -519,7 +517,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         public  async void SetChildPopupForm(BeepPopupForm childPopupForm)
         {
             _isOpeningChild = true; // Set flag to prevent closing during child creation
-            SetChildPopupForm(childPopupForm);
+            // Assign to property (wire parent/handlers in setter)
+            ChildPopupForm = childPopupForm;
             // Ensure the child is fully shown before resetting the flag
             if (childPopupForm != null)
             {
@@ -529,48 +528,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         #endregion
-        //#region "DPI Scaling Support"
-        //protected float DpiScaleFactor { get; private set; } = 1.0f;
-
-        //protected virtual void UpdateDpiScaling()
-        //{
-        //    if (IsHandleCreated)
-        //    {
-        //        DpiScaleFactor = DpiScalingHelper.GetDpiScaleFactor(this);
-        //    }
-        //}
-
-        //protected int ScaleValue(int value)
-        //{
-        //    return DpiScalingHelper.ScaleValue(value, DpiScaleFactor);
-        //}
-
-        //protected Size ScaleSize(Size size)
-        //{
-        //    return DpiScalingHelper.ScaleSize(size, DpiScaleFactor);
-        //}
-
-        //// Add DPI change handling
-        //protected override void OnDpiChangedAfterParent(EventArgs e)
-        //{
-        //    base.OnDpiChangedAfterParent(e);
-        //    UpdateDpiScaling();
-
-        //    // Recalculate size if needed
-        //    if (TriggerControl != null && Visible)
-        //    {
-        //        RecalculatePopupSize();
-        //    }
-
-        //    Invalidate();
-        //}
-
-        //private void RecalculatePopupSize()
-        //{
-        //    // This method recalculates the popup size based on new DPI
-        //    // The specific implementation depends on the popup content
-        //    Invalidate();
-        //}
-        //#endregion
     }
 }

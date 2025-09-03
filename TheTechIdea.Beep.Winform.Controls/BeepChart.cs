@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -12,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DefaultProperty("DataSeries")]
     [DisplayName("BeepChart")]
     [Category("Beep Controls")]
-    public class BeepChart : BeepControl
+    public class BeepChart : BaseControl
     {
         #region Fields and Properties
         private bool _showtitle= true;
@@ -188,12 +189,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Constructor and Initialization
-        public BeepChart()
+        public BeepChart():base()
         {
             try
             {
-                SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer, true);
-                UpdateStyles();
+               
 
                 InitializeDefaultSettings();
                 InitializeDesignTimeSampleData();

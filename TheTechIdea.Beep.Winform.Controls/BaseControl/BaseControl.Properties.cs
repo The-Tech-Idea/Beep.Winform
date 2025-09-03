@@ -473,6 +473,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public EasingType Easing { get => _effects.Easing; set { _effects.Easing = value; Invalidate(); } }
         [Browsable(true)] public SlideDirection SlideFrom { get => _effects.SlideFrom; set { _effects.SlideFrom = value; Invalidate(); } }
 
+        #region Material Design Properties
+
+        public enum MaterialOutsideBackgroundMode
+        {
+            ControlBackColor,
+            ParentBackColor,
+            Transparent
+        }
+
+        [Browsable(true)]
+        [Category("Material Design")]
+        [Description("Determines how the area outside the material field is painted when Material Style is enabled.")]
+        [DefaultValue(MaterialOutsideBackgroundMode.ParentBackColor)]
+        public MaterialOutsideBackgroundMode MaterialOutsideBackground { get; set; } = MaterialOutsideBackgroundMode.ParentBackColor;
+
         // Additional BeepControl parity properties
         [Browsable(true)] public bool CanBeHovered { get; set; } = true;
         [Browsable(true)] public bool CanBePressed { get; set; } = true;
@@ -627,6 +642,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             add => _input.DialogKeyDetected += value;
             remove => _input.DialogKeyDetected -= value;
         }
+        #endregion
         #endregion
     }
 }

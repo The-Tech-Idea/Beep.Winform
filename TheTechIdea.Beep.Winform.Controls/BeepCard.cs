@@ -7,6 +7,7 @@ using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Card")]
     [Category("Beep Controls")]
     [Description("A card control that displays an image, header, paragraph, and action button with multiple views.")]
-    public class BeepCard : BeepControl
+    public class BeepCard : BaseControl
     {
         #region "Fields"
         private BeepImage imageBox;
@@ -48,11 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         // Constructor
-        public BeepCard()
+        public BeepCard():base()
         {
-            DoubleBuffered = true;
-            SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint, true);
-            IsChild = false;
+             IsChild = false;
             Padding = new Padding(0);
             BoundProperty = "ParagraphText";
             InitializeComponents();

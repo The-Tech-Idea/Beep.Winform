@@ -104,12 +104,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Don't call base.OnPaintBackground(e) to prevent double background drawing
-            // Background is handled in OnPaint through DrawContent
+            
         }
 
         protected override void OnPaint(PaintEventArgs e)
-        {
+        {// When material style is enabled, we control background painting explicitly
+            if (EnableMaterialStyle)
+            {
+                // Decide outside background treatment
+                switch (MaterialOutsideBackground)
+                {
+                    case MaterialOutsideBackgroundMode.ParentBackColor:
+                        e.Graphics.Clear(Parent?.BackColor ?? BackColor);
+                        break;
+                    case MaterialOutsideBackgroundMode.Transparent:
+                        // Simulate transparency by painting parent's BackColor; true transparency is not supported by WinForms for all cases
+                        e.Graphics.Clear(Parent?.BackColor ?? Color.Transparent);
+                        break;
+                    case MaterialOutsideBackgroundMode.ControlBackColor:
+                    default:
+                        e.Graphics.Clear(BackColor);
+                        break;
+                }
+               
+            }
+
+         
             if (UseExternalBufferedGraphics)
             {
                 BufferedGraphicsContext context = BufferedGraphicsManager.Current;
@@ -120,7 +140,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     {
                         BackColor = ParentBackColor;
                     }
-                    g.Clear(BackColor);
+
+
+                    // instead of clearing, we fill with BackColor using a solid brush
+                    using (Brush backBrush = new SolidBrush(BackColor))
+                    {
+                        g.FillRectangle(backBrush, this.DrawingRect);
+                    }
                     _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
                     DrawContent(g);
                     DrawHitListIfNeeded(g);
@@ -135,7 +161,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     BackColor = ParentBackColor;
                 }
-                g.Clear(BackColor);
+                // instead of clearing, we fill with BackColor using a solid brush
+                using (Brush backBrush = new SolidBrush(BackColor))
+                {
+                    g.FillRectangle(backBrush, this.DrawingRect);
+                }
                 _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
                 DrawContent(g);
                 DrawHitListIfNeeded(g);

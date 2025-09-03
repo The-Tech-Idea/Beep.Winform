@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private Rectangle _fieldRect;
         private Rectangle _contentRect;
 
-        // Material Design 3 color tokens
+        // Material Design 3 color tokens (kept in sync with owner at draw time)
         private Color _surfaceColor;
         private Color _onSurfaceColor;
         private Color _surfaceVariantColor;
@@ -41,11 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _icons = new BaseControlIconsHelper(owner);
-            Console.WriteLine("BaseControlMaterialHelper initialized.");
             UpdateColors();
-            Console.WriteLine("Material colors updated.");
             UpdateLayout();
-            Console.WriteLine("Material layout updated.");
         }
 
         public void UpdateLayout()
@@ -80,6 +77,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     verticalPadding = 8;
                     break;
             }
+
+            // Allow host to disable variant padding or override it
+            try
+            {
+                if (!_owner.MaterialUseVariantPadding)
+                {
+                    horizontalPadding = 0;
+                    verticalPadding = 0;
+                }
+
+                if (_owner.MaterialCustomPadding != Padding.Empty)
+                {
+                    horizontalPadding = Math.Max(0, _owner.MaterialCustomPadding.Left);
+                    // use symmetric horizontal by left+right later
+                    // vertical uses Top padding
+                    verticalPadding = Math.Max(0, _owner.MaterialCustomPadding.Top);
+                }
+            }
+            catch { /* ignore if not available in design mode */ }
             
             // Input area (the full drawable area for this control)
             _inputRect = new Rectangle(0, 0, drawingRect.Width, drawingRect.Height);
@@ -98,22 +114,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             // Content rectangle is the adjusted area that excludes icon spaces
             _contentRect = _icons.AdjustedContentRect;
             
-            // If no icons or invalid content rect, use the full field area with minimal padding
+            // If no icons or invalid content rect, use the field area with minimal or zero padding based on settings
             if (_contentRect.IsEmpty || _contentRect.Width <= 0 || _contentRect.Height <= 0)
             {
-                _contentRect = new Rectangle(
-                    _fieldRect.X + 4,
-                    _fieldRect.Y + 4,
-                    Math.Max(0, _fieldRect.Width - 8),
-                    Math.Max(0, _fieldRect.Height - 8)
-                );
+                bool noVariantPadding = false;
+                try { noVariantPadding = !_owner.MaterialUseVariantPadding && _owner.MaterialCustomPadding == Padding.Empty; } catch { }
+
+                if (noVariantPadding)
+                {
+                    // Use full field area without extra inset
+                    _contentRect = _fieldRect;
+                }
+                else
+                {
+                    _contentRect = new Rectangle(
+                        _fieldRect.X + 4,
+                        _fieldRect.Y + 4,
+                        Math.Max(0, _fieldRect.Width - 8),
+                        Math.Max(0, _fieldRect.Height - 8)
+                    );
+                }
             }
         }
 
         public void UpdateColors()
         {
-            // Material Design 3 color scheme
-            _surfaceColor = _owner.MaterialFillColor;
+            // Refresh tokens from owner every time to reflect live property changes
+            // Surface (background) color: show fill only for Filled variant or when explicitly requested
+            bool shouldFill = _owner.MaterialVariant == MaterialTextFieldVariant.Filled || _owner.MaterialShowFill;
+            _surfaceColor = shouldFill ? _owner.MaterialFillColor : _owner.BackColor;
+
             _onSurfaceColor = _owner.ForeColor;
             _surfaceVariantColor = Color.FromArgb(0xEE, 0xEA, 0xF0); // Surface Variant
             _outlineColor = _owner.MaterialOutlineColor;
@@ -129,6 +159,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             if (!_owner.EnableMaterialStyle) return;
 
+            // Always sync with latest owner properties
+            UpdateColors();
+
             // Set high quality rendering
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -140,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 DrawElevation(g);
             }
 
-            // 2. Draw field background
+            // 2. Draw field background (only visible for Filled or when MaterialShowFill=true)
             DrawFieldBackground(g);
 
             // 3. Draw state layer (hover/press effects)
@@ -162,6 +195,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private void DrawFieldBackground(Graphics g)
         {
             if (_fieldRect.Width <= 0 || _fieldRect.Height <= 0) return;
+
+            // Skip drawing a fill if variant is not Filled and MaterialShowFill is false
+            bool shouldFill = _owner.MaterialVariant == MaterialTextFieldVariant.Filled || _owner.MaterialShowFill;
+            if (!shouldFill) return;
 
             using var brush = new SolidBrush(_surfaceColor);
             int radius = _owner.MaterialBorderRadius;
@@ -234,44 +271,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             using var pen = new Pen(borderColor, borderWidth);
             int radius = _owner.MaterialBorderRadius;
 
-            if (radius > 0)
+            switch (_owner.MaterialVariant)
             {
-                using var path = CreateRoundPath(_fieldRect, radius);
-                g.DrawPath(pen, path);
-            }
-            else
-            {
-                g.DrawRectangle(pen, _fieldRect);
+                case MaterialTextFieldVariant.Standard:
+                case MaterialTextFieldVariant.Filled:
+                    // bottom line only
+                    g.DrawLine(pen, _fieldRect.Left, _fieldRect.Bottom, _fieldRect.Right, _fieldRect.Bottom);
+                    break;
+                case MaterialTextFieldVariant.Outlined:
+                    if (radius > 0)
+                    {
+                        using var path = CreateRoundPath(_fieldRect, radius);
+                        g.DrawPath(pen, path);
+                    }
+                    else
+                    {
+                        g.DrawRectangle(pen, _fieldRect);
+                    }
+                    break;
             }
         }
 
         private void DrawFocusIndicator(Graphics g)
         {
-            if (_fieldRect.Width <= 0 || _fieldRect.Height <= 0) return;
-
-            // Material Design 3.0 focus ring
-            int focusRingWidth = 2;
-            Rectangle focusRect = new Rectangle(
-                _fieldRect.X - focusRingWidth,
-                _fieldRect.Y - focusRingWidth,
-                _fieldRect.Width + (focusRingWidth * 2),
-                _fieldRect.Height + (focusRingWidth * 2)
-            );
-
-            using var pen = new Pen(_primaryColor, focusRingWidth);
-            pen.DashStyle = DashStyle.Solid;
-
-            int radius = _owner.MaterialBorderRadius + focusRingWidth;
-
-            if (radius > 0)
-            {
-                using var path = CreateRoundPath(focusRect, radius);
-                g.DrawPath(pen, path);
-            }
-            else
-            {
-                g.DrawRectangle(pen, focusRect);
-            }
+            // MD3 text fields do not use an outer focus ring. Focus is indicated by:
+            // - Outlined: border color switches to Primary and width increases (handled in DrawBorder)
+            // - Filled/Standard: bottom indicator becomes thicker (handled in DrawBorder)
+            // Keep method as no-op to avoid extra halo around the field.
+            return;
         }
 
         /// <summary>

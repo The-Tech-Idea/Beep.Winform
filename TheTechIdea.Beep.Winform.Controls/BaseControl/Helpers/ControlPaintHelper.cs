@@ -101,15 +101,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public void Draw(Graphics g)
         {
             if (g == null) return;
-            //g.SmoothingMode = SmoothingMode.AntiAlias;
-            //g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            //g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             EnsureUpdated();
             if (_owner.UIVariant != ReactUIVariant.Default)
             {
                 ApplyReactUIStyles();
                 UpdateRects();
             }
+
+            // Paint outer padding area first to match parent (prevents white gutters)
+            try
+            {
+                var parentBack = (_owner.Parent as Control)?.BackColor ?? _owner.BackColor;
+                if (parentBack.A > 0) // not fully transparent
+                {
+                    using var padBrush = new SolidBrush(parentBack);
+                    g.FillRectangle(padBrush, new Rectangle(0, 0, _owner.Width, _owner.Height));
+                }
+            }
+            catch { }
+
             DrawBackground(g);
 
             if (_owner.ShowShadow)

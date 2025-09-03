@@ -661,6 +661,7 @@
     <Folder Include="BaseImage\Helpers\" />
     <Folder Include="Containers\" />
     <Folder Include="Forms\Adapters\" />
+    <Folder Include="Forms\Helpers\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="Icons\" />
     <Folder Include="DialogsManagers\" />

@@ -1004,7 +1004,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             TabStop = true;
-            
+            EnableMaterialStyle=true;
+            StylePreset = Models.MaterialTextFieldStylePreset.MaterialStandard;
             // Modern defaults
             Font = new Font("Segoe UI", 10);
             _textFont = Font;

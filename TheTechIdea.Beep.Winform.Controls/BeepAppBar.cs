@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Drawing components instead of actual controls
         private BeepImage _logo;
         private BeepLabel _titleLabel;
-        private BeepMaterialTextField _searchBox;
+        private BeepTextBox _searchBox;
         private BeepButton _profileButton;
         private BeepButton _notificationButton;
         private BeepButton _closeButton;
@@ -496,10 +496,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             };
 
             // Initialize search box as an actual control now
-            _searchBox = new BeepMaterialTextField
+            _searchBox = new BeepTextBox
             {
                 Width = 200,
-                Height = 30,
+                Height = 24, // match CalculateLayout searchHeight
                 Margin = new Padding(0),
                 Padding = new Padding(0),
                 Theme = this.Theme,
@@ -509,17 +509,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 PlaceholderText = "Search...",
                 Anchor = AnchorStyles.Right,
                 ApplyThemeToChilds = true,
+                EnableMaterialStyle = true,
+                // Keep the field compact inside AppBar
+                MaterialAutoSizeCompensation = false,
+                MaterialPreserveContentArea = true,
+                MaterialUseVariantPadding = false,
                 IsFrameless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-               StylePreset= MaterialTextFieldStylePreset.MaterialOutlined,
-                MaxImageSize = new Size(ScaledWindowIconsHeight - imageoffset, ScaledWindowIconsHeight - imageoffset),
+                StylePreset = MaterialTextFieldStylePreset.DenseOutlined,
                 Tag = "Search",
                 Visible = false // Start invisible until needed
             };
             _searchBox.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
             _searchBox.AutoCompleteSource = AutoCompleteSource.CustomSource;
-            _searchBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg";
+            _searchBox.TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg";
 
             // Apply auto-complete settings
             ApplyAutoCompleteSetting();
@@ -1326,6 +1330,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Add the actual search box control at the right position
                 _searchBox.Location = searchRect.Location;
                 _searchBox.Size = searchRect.Size;
+                // Make it compact inside the AppBar
+             
+                _searchBox.MaterialUseVariantPadding = true;
                 _searchBox.Visible = true;
                 Controls.Add(_searchBox);
                 _searchBoxAddedToControls = true;
@@ -1557,6 +1564,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_searchBox != null)
             {
                 _searchBox.Theme = Theme;
+
                 _searchBox.BackColor = _currentTheme.AppBarTextBoxBackColor != Color.Empty
                     ? _currentTheme.AppBarTextBoxBackColor : _currentTheme.TextBoxBackColor;
                 _searchBox.ForeColor = _currentTheme.AppBarTextBoxForeColor != Color.Empty
@@ -1568,6 +1576,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _searchBox.TextFont = BeepThemesManager.ToFont(_currentTheme.AppBarTextStyle);
                 }
+                _searchBox.ParentBackColor = _searchBox.BackColor;
+                _searchBox.IsChild=true;
             }
 
             // --- Buttons ---

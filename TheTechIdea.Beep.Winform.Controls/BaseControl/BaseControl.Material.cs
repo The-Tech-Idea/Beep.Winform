@@ -23,6 +23,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private Color _bcFillColor = Color.FromArgb(245, 245, 245);
         private Color _bcOutlineColor = Color.FromArgb(140, 140, 140);
         private Color _bcPrimaryColor = Color.FromArgb(25, 118, 210);
+        private bool _bcUseVariantPadding = true;
+        private Padding _bcCustomMaterialPadding = Padding.Empty;
 
         private string _bcLeadingIconPath = string.Empty;
         private string _bcTrailingIconPath = string.Empty;
@@ -45,6 +47,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region Material properties
+
+        [Browsable(true), Category("Material Style"), DefaultValue(true)]
+        public bool MaterialUseVariantPadding
+        {
+            get => _bcUseVariantPadding;
+            set
+            {
+                if (_bcUseVariantPadding != value)
+                {
+                    _bcUseVariantPadding = value;
+                    IsCustomeBorder = false; // keep ControlPaintHelper drawing borders
+                    OnMaterialPropertyChanged();
+                    Invalidate();
+                }
+            }
+        }
         [Browsable(true), Category("Material Style"), DefaultValue(true)]
         public bool EnableMaterialStyle
         {
@@ -292,6 +310,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     break;
                 case MaterialTextFieldStylePreset.Default:
                 default:
+                    // Apply a sane baseline instead of doing nothing
+                    MaterialVariant = MaterialTextFieldVariant.Outlined;
+                    MaterialBorderRadius = 8;
+                    MaterialShowFill = false;
                     break;
             }
 
@@ -388,5 +410,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _materialHelper?.UpdateLayout();
         }
         #endregion
+
+        [Browsable(true), Category("Material Style")]
+        [Description("Override Material internal content padding. When not empty, this padding is used instead of variant defaults.")]
+        public Padding MaterialCustomPadding
+        {
+            get => _bcCustomMaterialPadding;
+            set
+            {
+                _bcCustomMaterialPadding = value;
+                UpdateMaterialLayout();
+                Invalidate();
+            }
+        }
     }
 }

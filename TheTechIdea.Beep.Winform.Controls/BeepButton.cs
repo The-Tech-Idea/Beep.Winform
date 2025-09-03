@@ -725,9 +725,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Enable material style for modern button appearance
             EnableMaterialStyle = true;
-            MaterialVariant = MaterialTextFieldVariant.Filled; // Buttons work well with filled variant
-            MaterialBorderRadius = 8;
             
+            EnableMaterialStyle = true;
+            StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
             // Enable modern gradient background for stylish look
             UseGradientBackground = false;
             ModernGradientType = ModernGradientType.None;

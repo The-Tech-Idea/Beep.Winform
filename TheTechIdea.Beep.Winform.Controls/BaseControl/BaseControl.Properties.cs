@@ -299,6 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                         _parentBackColor = this.Parent.BackColor;
                         _tempBackColor = BackColor;
                         BackColor = _parentBackColor;
+                        
                     }
                     else
                     {

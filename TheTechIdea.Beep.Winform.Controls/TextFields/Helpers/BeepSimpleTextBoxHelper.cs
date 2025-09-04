@@ -31,6 +31,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         int LineNumberMarginWidth { get; set; }
         Color LineNumberForeColor { get; set; }
         Color LineNumberBackColor { get; set; }
+        Color BackColor { get; set; }
+        Color ForeColor { get; set; }
+        string Theme { get; set; }
         Font LineNumberFont { get; set; }
         
         // Image Properties

@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     break;
                 case MaterialTextFieldVariant.Standard:
                     horizontalPadding = 0;
-                    verticalPadding = 8;
+                    verticalPadding = 0;
                     break;
             }
 

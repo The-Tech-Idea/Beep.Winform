@@ -71,6 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 {
                     _leadingimage = new BeepImage();
                 }
+                _leadingimage.BackColor = _owner.BackColor;
                 _leadingimage.ImagePath = path;
                 _leadingimage.Size = _leadingRect.Size;
                 _leadingimage.IsChild = true;
@@ -85,6 +86,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 {
                     _trailingimage = new BeepImage();
                 }
+                Console.WriteLine(_trailingimage.BackColor + " " + _owner.BackColor);
+                _trailingimage.BackColor = _owner.BackColor;
+                
                 _trailingimage.ImagePath = path;
                 _trailingimage.Size = _trailingRect.Size;
                 _trailingimage.IsChild = true;

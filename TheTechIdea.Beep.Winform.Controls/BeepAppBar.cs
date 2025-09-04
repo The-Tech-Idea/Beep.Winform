@@ -1330,8 +1330,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Add the actual search box control at the right position
                 _searchBox.Location = searchRect.Location;
                 _searchBox.Size = searchRect.Size;
+                _searchBox.MaterialVariant= MaterialTextFieldVariant.Standard;
+
                 // Make it compact inside the AppBar
-             
+
                 _searchBox.MaterialUseVariantPadding = true;
                 _searchBox.Visible = true;
                 Controls.Add(_searchBox);

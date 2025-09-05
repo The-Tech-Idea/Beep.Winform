@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using Timer = System.Windows.Forms.Timer;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Chevron Button")]
     [Description("A chevron-shaped button control with text, image, animation, and direction support.")]
-    public class BeepChevronButton : BeepControl
+    public class BeepChevronButton : BaseControl
     {
         private string _imagePath;
         private BeepImage beepImage;
@@ -181,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 using (SolidBrush brush = new SolidBrush(fillColor))
                     graphics.FillPath(brush, path);
 
-                using (Pen pen = new Pen(_currentTheme.ShadowColor, _borderThickness))
+                using (Pen pen = new Pen(_currentTheme.ShadowColor, BorderThickness))
                     graphics.DrawPath(pen, path);
 
                 // Ripple

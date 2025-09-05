@@ -3,17 +3,18 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Dual Percentage Widget")]
     [Description("A themed control to display two labeled percentages with an icon on the left section.")]
-    public class BeepDualPercentageControl : BeepControl
+    public class BeepDualPercentageControl : BaseControl
     {
         private BeepLabel lblLeftIcon;
         private BeepLabel lblLeftLabel;

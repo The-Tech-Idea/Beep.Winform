@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     [Category("Beep Controls")]
     [DisplayName("Beep Control Advanced")]
     [Description("Advanced Beep control with full feature parity to BeepControl but using helper architecture.")]
-    public partial class BaseControl : ContainerControl, IBeepUIComponent
+    public partial class BaseControl : ContainerControl, IBeepUIComponent, IDisposable
     {
         #region Private Fields
         private string _themeName;

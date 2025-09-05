@@ -128,25 +128,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
                
             }
+            if (IsChild && ParentBackColor != Color.Empty)
+            {
+                BackColor = ParentBackColor;
+            }
 
-         
             if (UseExternalBufferedGraphics)
             {
                 BufferedGraphicsContext context = BufferedGraphicsManager.Current;
                 using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
                 {
                     Graphics g = buffer.Graphics;
-                    if (IsChild && ParentBackColor != Color.Empty)
-                    {
-                        BackColor = ParentBackColor;
-                    }
+                
 
-
-                    // instead of clearing, we fill with BackColor using a solid brush
-                    using (Brush backBrush = new SolidBrush(BackColor))
-                    {
-                        g.FillRectangle(backBrush, this.DrawingRect);
-                    }
+                    // Paint the inner area using the new PaintInnerShape method
+                   
+                    PaintInnerShape(g, BackColor);
+                    
                     _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
                     DrawContent(g);
                     DrawHitListIfNeeded(g);
@@ -157,15 +155,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             else
             {
                 Graphics g = e.Graphics;
-                if (IsChild && ParentBackColor != Color.Empty)
-                {
-                    BackColor = ParentBackColor;
-                }
-                // instead of clearing, we fill with BackColor using a solid brush
-                using (Brush backBrush = new SolidBrush(BackColor))
-                {
-                    g.FillRectangle(backBrush, this.DrawingRect);
-                }
+             
+                // Paint the inner area using the new PaintInnerShape method
+
+                PaintInnerShape(g, BackColor);
+
+
                 _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
                 DrawContent(g);
                 DrawHitListIfNeeded(g);

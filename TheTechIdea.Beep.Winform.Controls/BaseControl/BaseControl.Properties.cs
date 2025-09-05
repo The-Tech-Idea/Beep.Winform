@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 
 
+
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {
     public partial class BaseControl
@@ -513,6 +514,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Invalidate(); 
             }
         }
+        private GraphicsPath _innerShape;
+        // Drawing rect and offsets
+        [Browsable(false)]
+        public GraphicsPath InnerShape
+        {
+          get { return _innerShape; }
+            set
+            {
+                _innerShape = value;
+                //Invalidate();
+            }
+        }
+
         [Browsable(false)] public int LeftoffsetForDrawingRect { get; set; } = 0;
         [Browsable(false)] public int TopoffsetForDrawingRect { get; set; } = 0;
         [Browsable(false)] public int RightoffsetForDrawingRect { get; set; } = 0;

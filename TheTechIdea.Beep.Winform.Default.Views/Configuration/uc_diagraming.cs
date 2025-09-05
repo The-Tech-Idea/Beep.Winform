@@ -1,21 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿
 using TheTechIdea.Beep.Addin;
-using TheTechIdea.Beep.Container.Services;
-using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 

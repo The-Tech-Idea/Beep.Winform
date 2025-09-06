@@ -369,16 +369,7 @@
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.TrailingIconPath = "";
             beepButton1.TrailingImagePath = "";
-            beepButton1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepButton1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepButton1.UICustomElevation = 0;
-            beepButton1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepButton1.UIDisabled = false;
-            beepButton1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepButton1.UIFullWidth = false;
-            beepButton1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepButton1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepButton1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+         
             beepButton1.UseExternalBufferedGraphics = false;
             beepButton1.UseGlassmorphism = false;
             beepButton1.UseGradientBackground = false;

@@ -256,9 +256,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             if (HitTest(location) && HitTestControl != null && HitTestControl.uIComponent != null)
             {
-                HitTestControl.IsHovered = true;
-                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseEnter, _owner.PointToScreen(location));
-                HitTestControl.HitAction?.Invoke();
+                if (!HitTestControl.IsHovered)
+                {
+                    HitTestControl.IsHovered = true;
+                    SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseEnter, _owner.PointToScreen(location));
+                    HitTestControl.HitAction?.Invoke();
+                }
+       
             }
         }
 
@@ -268,8 +272,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             {
                 if (HitTestControl != null && HitTestControl.uIComponent != null)
                 {
-                    HitTestControl.IsHovered = true;
-                    SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseMove, _owner.PointToScreen(location));
+                    if (!HitTestControl.IsHovered)
+                    {
+                        HitTestControl.IsHovered = true;
+                        SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseMove, _owner.PointToScreen(location));
+                        
+                    }
+                  
+                   
                 }
             }
             else

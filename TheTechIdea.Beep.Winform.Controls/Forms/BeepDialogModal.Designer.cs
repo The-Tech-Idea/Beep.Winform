@@ -494,16 +494,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.Theme = "DefaultTheme";
             CloseButton.ToolTipText = "";
             CloseButton.TopoffsetForDrawingRect = 0;
-            CloseButton.UIAnimation = ReactUIAnimation.None;
-            CloseButton.UIColor = ReactUIColor.Primary;
-            CloseButton.UICustomElevation = 0;
-            CloseButton.UIDensity = ReactUIDensity.Standard;
-            CloseButton.UIDisabled = false;
-            CloseButton.UIElevation = ReactUIElevation.None;
-            CloseButton.UIFullWidth = false;
-            CloseButton.UIShape = ReactUIShape.Rounded;
-            CloseButton.UISize = ReactUISize.Medium;
-            CloseButton.UIVariant = ReactUIVariant.Default;
+          
             CloseButton.UseGradientBackground = false;
             CloseButton.UseScaledFont = false;
             CloseButton.UseThemeFont = true;
@@ -643,16 +634,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.Theme = "DefaultTheme";
             TitleLabel.ToolTipText = "";
             TitleLabel.TopoffsetForDrawingRect = 0;
-            TitleLabel.UIAnimation = ReactUIAnimation.None;
-            TitleLabel.UIColor = ReactUIColor.Primary;
-            TitleLabel.UICustomElevation = 0;
-            TitleLabel.UIDensity = ReactUIDensity.Standard;
-            TitleLabel.UIDisabled = false;
-            TitleLabel.UIElevation = ReactUIElevation.None;
-            TitleLabel.UIFullWidth = false;
-            TitleLabel.UIShape = ReactUIShape.Rounded;
-            TitleLabel.UISize = ReactUISize.Medium;
-            TitleLabel.UIVariant = ReactUIVariant.Default;
+         
             TitleLabel.UseGradientBackground = false;
             TitleLabel.UseScaledFont = false;
             TitleLabel.UseThemeFont = false;
@@ -945,16 +927,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.Theme = "DefaultTheme";
             MiddleButton.ToolTipText = "";
             MiddleButton.TopoffsetForDrawingRect = 0;
-            MiddleButton.UIAnimation = ReactUIAnimation.None;
-            MiddleButton.UIColor = ReactUIColor.Primary;
-            MiddleButton.UICustomElevation = 0;
-            MiddleButton.UIDensity = ReactUIDensity.Standard;
-            MiddleButton.UIDisabled = false;
-            MiddleButton.UIElevation = ReactUIElevation.None;
-            MiddleButton.UIFullWidth = false;
-            MiddleButton.UIShape = ReactUIShape.Rounded;
-            MiddleButton.UISize = ReactUISize.Medium;
-            MiddleButton.UIVariant = ReactUIVariant.Default;
+          
             MiddleButton.UseGradientBackground = false;
             MiddleButton.UseScaledFont = false;
             MiddleButton.UseThemeFont = true;
@@ -1101,16 +1074,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.Theme = "DefaultTheme";
             RightButton.ToolTipText = "";
             RightButton.TopoffsetForDrawingRect = 0;
-            RightButton.UIAnimation = ReactUIAnimation.None;
-            RightButton.UIColor = ReactUIColor.Primary;
-            RightButton.UICustomElevation = 0;
-            RightButton.UIDensity = ReactUIDensity.Standard;
-            RightButton.UIDisabled = false;
-            RightButton.UIElevation = ReactUIElevation.None;
-            RightButton.UIFullWidth = false;
-            RightButton.UIShape = ReactUIShape.Rounded;
-            RightButton.UISize = ReactUISize.Medium;
-            RightButton.UIVariant = ReactUIVariant.Default;
+         
             RightButton.UseGradientBackground = false;
             RightButton.UseScaledFont = false;
             RightButton.UseThemeFont = true;
@@ -1257,16 +1221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.Theme = "DefaultTheme";
             LeftButton.ToolTipText = "";
             LeftButton.TopoffsetForDrawingRect = 0;
-            LeftButton.UIAnimation = ReactUIAnimation.None;
-            LeftButton.UIColor = ReactUIColor.Primary;
-            LeftButton.UICustomElevation = 0;
-            LeftButton.UIDensity = ReactUIDensity.Standard;
-            LeftButton.UIDisabled = false;
-            LeftButton.UIElevation = ReactUIElevation.None;
-            LeftButton.UIFullWidth = false;
-            LeftButton.UIShape = ReactUIShape.Rounded;
-            LeftButton.UISize = ReactUISize.Medium;
-            LeftButton.UIVariant = ReactUIVariant.Default;
+         
             LeftButton.UseGradientBackground = false;
             LeftButton.UseScaledFont = false;
             LeftButton.UseThemeFont = true;
@@ -1418,16 +1373,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.TimeFormat = "HH:mm:ss";
             CaptionTextBox.ToolTipText = "";
             CaptionTextBox.TopoffsetForDrawingRect = 0;
-            CaptionTextBox.UIAnimation = ReactUIAnimation.None;
-            CaptionTextBox.UIColor = ReactUIColor.Primary;
-            CaptionTextBox.UICustomElevation = 0;
-            CaptionTextBox.UIDensity = ReactUIDensity.Standard;
-            CaptionTextBox.UIDisabled = false;
-            CaptionTextBox.UIElevation = ReactUIElevation.None;
-            CaptionTextBox.UIFullWidth = false;
-            CaptionTextBox.UIShape = ReactUIShape.Rounded;
-            CaptionTextBox.UISize = ReactUISize.Medium;
-            CaptionTextBox.UIVariant = ReactUIVariant.Default;
+        
             CaptionTextBox.UseGradientBackground = false;
             CaptionTextBox.UseSystemPasswordChar = false;
             CaptionTextBox.UseThemeFont = true;
@@ -1557,16 +1503,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.Theme = "DefaultTheme";
             SelectFromListComboBox.ToolTipText = "";
             SelectFromListComboBox.TopoffsetForDrawingRect = 0;
-            SelectFromListComboBox.UIAnimation = ReactUIAnimation.None;
-            SelectFromListComboBox.UIColor = ReactUIColor.Primary;
-            SelectFromListComboBox.UICustomElevation = 0;
-            SelectFromListComboBox.UIDensity = ReactUIDensity.Standard;
-            SelectFromListComboBox.UIDisabled = false;
-            SelectFromListComboBox.UIElevation = ReactUIElevation.None;
-            SelectFromListComboBox.UIFullWidth = false;
-            SelectFromListComboBox.UIShape = ReactUIShape.Rounded;
-            SelectFromListComboBox.UISize = ReactUISize.Medium;
-            SelectFromListComboBox.UIVariant = ReactUIVariant.Default;
+           
             SelectFromListComboBox.UseGradientBackground = false;
             SelectFromListComboBox.UseThemeFont = true;
             // 
@@ -1717,16 +1654,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.TimeFormat = "HH:mm:ss";
             InputTextBox.ToolTipText = "";
             InputTextBox.TopoffsetForDrawingRect = 0;
-            InputTextBox.UIAnimation = ReactUIAnimation.None;
-            InputTextBox.UIColor = ReactUIColor.Primary;
-            InputTextBox.UICustomElevation = 0;
-            InputTextBox.UIDensity = ReactUIDensity.Standard;
-            InputTextBox.UIDisabled = false;
-            InputTextBox.UIElevation = ReactUIElevation.None;
-            InputTextBox.UIFullWidth = false;
-            InputTextBox.UIShape = ReactUIShape.Rounded;
-            InputTextBox.UISize = ReactUISize.Medium;
-            InputTextBox.UIVariant = ReactUIVariant.Default;
+        
             InputTextBox.UseGradientBackground = false;
             InputTextBox.UseSystemPasswordChar = false;
             InputTextBox.UseThemeFont = true;

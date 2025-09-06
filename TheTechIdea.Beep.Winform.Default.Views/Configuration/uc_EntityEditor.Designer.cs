@@ -743,16 +743,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.Theme = "DefaultTheme";
             beepButton1.ToolTipText = "";
             beepButton1.TopoffsetForDrawingRect = 0;
-            beepButton1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepButton1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepButton1.UICustomElevation = 0;
-            beepButton1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepButton1.UIDisabled = false;
-            beepButton1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepButton1.UIFullWidth = false;
-            beepButton1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepButton1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepButton1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+          
             beepButton1.UseGlassmorphism = false;
             beepButton1.UseGradientBackground = false;
             beepButton1.UseScaledFont = false;
@@ -898,16 +889,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.Theme = "DefaultTheme";
             beepLabel2.ToolTipText = "";
             beepLabel2.TopoffsetForDrawingRect = 0;
-            beepLabel2.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepLabel2.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepLabel2.UICustomElevation = 0;
-            beepLabel2.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepLabel2.UIDisabled = false;
-            beepLabel2.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepLabel2.UIFullWidth = false;
-            beepLabel2.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepLabel2.UISize = Vis.Modules.ReactUISize.Medium;
-            beepLabel2.UIVariant = Vis.Modules.ReactUIVariant.Default;
+         
             beepLabel2.UseGlassmorphism = false;
             beepLabel2.UseGradientBackground = false;
             beepLabel2.UseScaledFont = false;
@@ -1042,16 +1024,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.Theme = "DefaultTheme";
             EntitiesbeepComboBox.ToolTipText = "";
             EntitiesbeepComboBox.TopoffsetForDrawingRect = 0;
-            EntitiesbeepComboBox.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            EntitiesbeepComboBox.UIColor = Vis.Modules.ReactUIColor.Primary;
-            EntitiesbeepComboBox.UICustomElevation = 0;
-            EntitiesbeepComboBox.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            EntitiesbeepComboBox.UIDisabled = false;
-            EntitiesbeepComboBox.UIElevation = Vis.Modules.ReactUIElevation.None;
-            EntitiesbeepComboBox.UIFullWidth = false;
-            EntitiesbeepComboBox.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            EntitiesbeepComboBox.UISize = Vis.Modules.ReactUISize.Medium;
-            EntitiesbeepComboBox.UIVariant = Vis.Modules.ReactUIVariant.Default;
+         
             EntitiesbeepComboBox.UseGlassmorphism = false;
             EntitiesbeepComboBox.UseGradientBackground = false;
             EntitiesbeepComboBox.UseThemeFont = true;
@@ -1196,16 +1169,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.Theme = "DefaultTheme";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
-            beepLabel1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepLabel1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepLabel1.UICustomElevation = 0;
-            beepLabel1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepLabel1.UIDisabled = false;
-            beepLabel1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepLabel1.UIFullWidth = false;
-            beepLabel1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepLabel1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepLabel1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+         
             beepLabel1.UseGlassmorphism = false;
             beepLabel1.UseGradientBackground = false;
             beepLabel1.UseScaledFont = false;
@@ -1340,16 +1304,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.Theme = "DefaultTheme";
             DatasourcebeepComboBox.ToolTipText = "";
             DatasourcebeepComboBox.TopoffsetForDrawingRect = 0;
-            DatasourcebeepComboBox.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            DatasourcebeepComboBox.UIColor = Vis.Modules.ReactUIColor.Primary;
-            DatasourcebeepComboBox.UICustomElevation = 0;
-            DatasourcebeepComboBox.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            DatasourcebeepComboBox.UIDisabled = false;
-            DatasourcebeepComboBox.UIElevation = Vis.Modules.ReactUIElevation.None;
-            DatasourcebeepComboBox.UIFullWidth = false;
-            DatasourcebeepComboBox.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            DatasourcebeepComboBox.UISize = Vis.Modules.ReactUISize.Medium;
-            DatasourcebeepComboBox.UIVariant = Vis.Modules.ReactUIVariant.Default;
+         
             DatasourcebeepComboBox.UseGlassmorphism = false;
             DatasourcebeepComboBox.UseGradientBackground = false;
             DatasourcebeepComboBox.UseThemeFont = true;

@@ -1,4 +1,5 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -34,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm));
             beepDisplayContainer1 = new TheTechIdea.Beep.Winform.Controls.BeepDisplayContainer();
             beepMenuAppBar1 = new TheTechIdea.Beep.Winform.Controls.MenuBar.BeepMenuAppBar();
-            beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.BeepAppBar();
+            beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.AppBars.BeepAppBar();
             beepAppTree1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
             SuspendLayout();
             // 
@@ -703,7 +704,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         #endregion
         private Controls.BeepDisplayContainer beepDisplayContainer1;
         private Controls.MenuBar.BeepMenuAppBar beepMenuAppBar1;
-        private Controls.BeepAppBar beepAppBar1;
+        private BeepAppBar beepAppBar1;
         private Controls.ITrees.BeepTreeView.BeepAppTree beepAppTree1;
     }
 }

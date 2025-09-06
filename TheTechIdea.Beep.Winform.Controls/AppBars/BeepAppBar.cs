@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.AppBars
 {
     [ToolboxItem(true)]
     [DisplayName("Beep AppBar")]
@@ -379,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private static extern bool ReleaseCapture();
 
         [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        private static extern int SendMessage(nint hWnd, int Msg, int wParam, int lParam);
 
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HTCAPTION = 0x2;
@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeDrawingComponents();
 
             // Defer DPI-dependent initialization
-            this.HandleCreated += BeepAppBar_HandleCreated;
+            HandleCreated += BeepAppBar_HandleCreated;
             // Populate theme menu safely
             if (!IsDesignTime)
             {
@@ -502,7 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Height = 24, // match CalculateLayout searchHeight
                 Margin = new Padding(0),
                 Padding = new Padding(0),
-                Theme = this.Theme,
+                Theme = Theme,
                 Text = string.Empty,
                 ApplyThemeOnImage = true,
               //  IsChild = true, // Mark as child to handle properly in drawing
@@ -1178,13 +1178,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Only start dragging if we're not clicking on interactive elements
                 bool isClickingInteractiveElement =
-                    (_showSearchBox && !_searchBoxAddedToControls && searchRect.Contains(e.Location)) ||
-                    (_showNotificationIcon && notificationRect.Contains(e.Location)) ||
-                    (_showProfileIcon && profileRect.Contains(e.Location)) ||
-                    (_showThemeIcon && themeRect.Contains(e.Location)) ||
-                    (_showMinimizeIcon && minimizeRect.Contains(e.Location)) ||
-                    (_showMaximizeIcon && maximizeRect.Contains(e.Location)) ||
-                    (_showCloseIcon && closeRect.Contains(e.Location));
+                    _showSearchBox && !_searchBoxAddedToControls && searchRect.Contains(e.Location) ||
+                    _showNotificationIcon && notificationRect.Contains(e.Location) ||
+                    _showProfileIcon && profileRect.Contains(e.Location) ||
+                    _showThemeIcon && themeRect.Contains(e.Location) ||
+                    _showMinimizeIcon && minimizeRect.Contains(e.Location) ||
+                    _showMaximizeIcon && maximizeRect.Contains(e.Location) ||
+                    _showCloseIcon && closeRect.Contains(e.Location);
 
                 if (!isClickingInteractiveElement)
                 {
@@ -1812,7 +1812,7 @@ namespace TheTechIdea.Beep.Winform.Controls
            
 
             // Calculate the position directly below the theme button
-            Point screenLocation = this.PointToScreen(new Point(themeRect.Left, themeRect.Bottom + 2));
+            Point screenLocation = PointToScreen(new Point(themeRect.Left, themeRect.Bottom + 2));
             menuDialog.StartPosition = FormStartPosition.Manual;
             menuDialog.Location = screenLocation;
             menuDialog.SetSizeBasedonItems();
@@ -1954,13 +1954,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Check if mouse is in empty space (not over any interactive elements)
             bool isOverInteractiveElement =
-                (_showSearchBox && searchRect.Contains(mousePoint)) ||
-                (_showNotificationIcon && notificationRect.Contains(mousePoint)) ||
-                (_showProfileIcon && profileRect.Contains(mousePoint)) ||
-                (_showThemeIcon && themeRect.Contains(mousePoint)) ||
-                (_showMinimizeIcon && minimizeRect.Contains(mousePoint)) ||
-                (_showMaximizeIcon && maximizeRect.Contains(mousePoint)) ||
-                (_showCloseIcon && closeRect.Contains(mousePoint));
+                _showSearchBox && searchRect.Contains(mousePoint) ||
+                _showNotificationIcon && notificationRect.Contains(mousePoint) ||
+                _showProfileIcon && profileRect.Contains(mousePoint) ||
+                _showThemeIcon && themeRect.Contains(mousePoint) ||
+                _showMinimizeIcon && minimizeRect.Contains(mousePoint) ||
+                _showMaximizeIcon && maximizeRect.Contains(mousePoint) ||
+                _showCloseIcon && closeRect.Contains(mousePoint);
 
             // If DraggableAreas contains "empty" and mouse is not over interactive elements
             if (DraggableAreas.Contains("empty", StringComparer.OrdinalIgnoreCase) && !isOverInteractiveElement)

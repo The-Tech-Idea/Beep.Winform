@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-            //  base.ApplyTheme();
+              base.ApplyTheme();
             if (_currentTheme == null) return;
             if (_spinnerImage == null) return;
          
@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Theme = Theme;
             LogopictureBox.Theme = Theme;
             beepLabel1.Theme = Theme;
-            beepLabel2.Theme = Theme;
+          
 
         }
         public static void InvokeAction(Control control, MethodInvoker action)

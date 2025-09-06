@@ -992,7 +992,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.ContainerControl, false);
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+         
         }
         
         private void InitializeProperties()

@@ -334,7 +334,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <summary>
         /// Property to enable automatic size compensation for Material Design
         /// </summary>
-        [Browsable(true)]
+        [Browsable(false)] // Hidden - use StylePreset instead
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Category("Material Design")]
         [Description("Automatically adjusts control size to accommodate Material Design spacing requirements")]
         [DefaultValue(true)]
@@ -367,7 +368,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <summary>
         /// Alternative sizing mode for Material Design - preserves content area instead of following Material specs
         /// </summary>
-        [Browsable(true)]
+        [Browsable(true)] // Hidden - use StylePreset instead
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Category("Material Design")]
         [Description("When enabled, preserves the original content area size instead of following Material Design size specifications")]
         [DefaultValue(false)]
@@ -399,36 +401,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         // Modern gradients
         [Browsable(true)] public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.None;
-        [Browsable(false)] public List<GradientStop> GradientStops { get; set; } = new List<GradientStop>();
+        [Browsable(true)] public List<GradientStop> GradientStops { get; set; } = new List<GradientStop>();
         [Browsable(true)] public PointF RadialCenter { get; set; } = new PointF(0.5f, 0.5f);
         [Browsable(true)] public float GradientAngle { get; set; } = 0f;
         [Browsable(true)] public bool UseGlassmorphism { get; set; } = false;
         [Browsable(true)] public float GlassmorphismBlur { get; set; } = 10f;
         [Browsable(true)] public float GlassmorphismOpacity { get; set; } = 0.1f;
 
-        // Material UI
-        [Browsable(true)] public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
+        // Material UI - Hide specific Material Design properties to avoid conflicts with StylePreset
+        [Browsable(false)] // Hidden - use StylePreset instead 
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
+        
         [Browsable(true)] public bool FloatingLabel { get; set; } = true;
         [Browsable(true)] public string LabelText { get; set; } = string.Empty;
         [Browsable(true)] public string HelperText { get; set; } = string.Empty;
         [Browsable(true)] public Color FocusBorderColor { get; set; } = Color.RoyalBlue;
         [Browsable(true)] public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
 
-        // React UI
-        [Browsable(true)] public ReactUIVariant UIVariant { get; set; } = ReactUIVariant.Default;
-        [Browsable(true)] public ReactUISize UISize { get; set; } = ReactUISize.Medium;
-        [Browsable(true)] public ReactUIColor UIColor { get; set; } = ReactUIColor.Primary;
-        [Browsable(true)] public ReactUIDensity UIDensity { get; set; } = ReactUIDensity.Standard;
-        [Browsable(true)] public ReactUIElevation UIElevation { get; set; } = ReactUIElevation.None;
-        [Browsable(true)] public ReactUIShape UIShape { get; set; } = ReactUIShape.Rounded;
-        [Browsable(true)] public ReactUIAnimation UIAnimation { get; set; } = ReactUIAnimation.None;
-        [Browsable(true)] public bool UIFullWidth { get; set; } = false;
-        [Browsable(true)] public int UICustomElevation { get; set; } = 0;
-        [Browsable(true)] public bool UIDisabled 
-        { 
-            get => !Enabled; 
-            set => Enabled = !value; 
-        }
+ 
 
         // Badge
         private string _badgeText = "";
@@ -484,7 +475,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             Transparent
         }
 
-        [Browsable(true)]
+        [Browsable(false)] // Hidden - use StylePreset instead
+        [EditorBrowsable(EditorBrowsableState.Never)]
         [Category("Material Design")]
         [Description("Determines how the area outside the material field is painted when Material Style is enabled.")]
         [DefaultValue(MaterialOutsideBackgroundMode.ParentBackColor)]

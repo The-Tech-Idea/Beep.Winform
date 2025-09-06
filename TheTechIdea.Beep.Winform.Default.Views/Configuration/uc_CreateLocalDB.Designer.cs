@@ -400,16 +400,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.TopoffsetForDrawingRect = 0;
             SavebeepButton.TrailingIconPath = "";
             SavebeepButton.TrailingImagePath = "";
-            SavebeepButton.UIAnimation = ReactUIAnimation.None;
-            SavebeepButton.UIColor = ReactUIColor.Primary;
-            SavebeepButton.UICustomElevation = 0;
-            SavebeepButton.UIDensity = ReactUIDensity.Standard;
-            SavebeepButton.UIDisabled = false;
-            SavebeepButton.UIElevation = ReactUIElevation.None;
-            SavebeepButton.UIFullWidth = false;
-            SavebeepButton.UIShape = ReactUIShape.Rounded;
-            SavebeepButton.UISize = ReactUISize.Medium;
-            SavebeepButton.UIVariant = ReactUIVariant.Default;
+           
             SavebeepButton.UseExternalBufferedGraphics = false;
             SavebeepButton.UseGlassmorphism = false;
             SavebeepButton.UseGradientBackground = false;
@@ -593,16 +584,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.TrailingIconPath = "";
             beepButton1.TrailingImagePath = "";
-            beepButton1.UIAnimation = ReactUIAnimation.None;
-            beepButton1.UIColor = ReactUIColor.Primary;
-            beepButton1.UICustomElevation = 0;
-            beepButton1.UIDensity = ReactUIDensity.Standard;
-            beepButton1.UIDisabled = false;
-            beepButton1.UIElevation = ReactUIElevation.None;
-            beepButton1.UIFullWidth = false;
-            beepButton1.UIShape = ReactUIShape.Rounded;
-            beepButton1.UISize = ReactUISize.Medium;
-            beepButton1.UIVariant = ReactUIVariant.Default;
+       
             beepButton1.UseExternalBufferedGraphics = false;
             beepButton1.UseGlassmorphism = false;
             beepButton1.UseGradientBackground = false;
@@ -765,16 +747,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.TopoffsetForDrawingRect = 0;
             SystemFolderbeepComboBox.TrailingIconPath = "";
             SystemFolderbeepComboBox.TrailingImagePath = "";
-            SystemFolderbeepComboBox.UIAnimation = ReactUIAnimation.None;
-            SystemFolderbeepComboBox.UIColor = ReactUIColor.Primary;
-            SystemFolderbeepComboBox.UICustomElevation = 0;
-            SystemFolderbeepComboBox.UIDensity = ReactUIDensity.Standard;
-            SystemFolderbeepComboBox.UIDisabled = false;
-            SystemFolderbeepComboBox.UIElevation = ReactUIElevation.None;
-            SystemFolderbeepComboBox.UIFullWidth = false;
-            SystemFolderbeepComboBox.UIShape = ReactUIShape.Rounded;
-            SystemFolderbeepComboBox.UISize = ReactUISize.Medium;
-            SystemFolderbeepComboBox.UIVariant = ReactUIVariant.Default;
+           
             SystemFolderbeepComboBox.UseExternalBufferedGraphics = false;
             SystemFolderbeepComboBox.UseGlassmorphism = false;
             SystemFolderbeepComboBox.UseGradientBackground = false;
@@ -946,16 +919,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel3.TopoffsetForDrawingRect = 0;
             beepLabel3.TrailingIconPath = "";
             beepLabel3.TrailingImagePath = "";
-            beepLabel3.UIAnimation = ReactUIAnimation.None;
-            beepLabel3.UIColor = ReactUIColor.Primary;
-            beepLabel3.UICustomElevation = 0;
-            beepLabel3.UIDensity = ReactUIDensity.Standard;
-            beepLabel3.UIDisabled = false;
-            beepLabel3.UIElevation = ReactUIElevation.None;
-            beepLabel3.UIFullWidth = false;
-            beepLabel3.UIShape = ReactUIShape.Rounded;
-            beepLabel3.UISize = ReactUISize.Medium;
-            beepLabel3.UIVariant = ReactUIVariant.Default;
+        
             beepLabel3.UseExternalBufferedGraphics = false;
             beepLabel3.UseGlassmorphism = false;
             beepLabel3.UseGradientBackground = false;
@@ -1145,16 +1109,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.TopoffsetForDrawingRect = 0;
             databaseTextBox.TrailingIconPath = "";
             databaseTextBox.TrailingImagePath = "";
-            databaseTextBox.UIAnimation = ReactUIAnimation.None;
-            databaseTextBox.UIColor = ReactUIColor.Primary;
-            databaseTextBox.UICustomElevation = 0;
-            databaseTextBox.UIDensity = ReactUIDensity.Standard;
-            databaseTextBox.UIDisabled = false;
-            databaseTextBox.UIElevation = ReactUIElevation.None;
-            databaseTextBox.UIFullWidth = false;
-            databaseTextBox.UIShape = ReactUIShape.Rounded;
-            databaseTextBox.UISize = ReactUISize.Medium;
-            databaseTextBox.UIVariant = ReactUIVariant.Default;
+          
             databaseTextBox.UseExternalBufferedGraphics = false;
             databaseTextBox.UseGlassmorphism = false;
             databaseTextBox.UseGradientBackground = false;
@@ -1328,16 +1283,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel5.TopoffsetForDrawingRect = 0;
             beepLabel5.TrailingIconPath = "";
             beepLabel5.TrailingImagePath = "";
-            beepLabel5.UIAnimation = ReactUIAnimation.None;
-            beepLabel5.UIColor = ReactUIColor.Primary;
-            beepLabel5.UICustomElevation = 0;
-            beepLabel5.UIDensity = ReactUIDensity.Standard;
-            beepLabel5.UIDisabled = false;
-            beepLabel5.UIElevation = ReactUIElevation.None;
-            beepLabel5.UIFullWidth = false;
-            beepLabel5.UIShape = ReactUIShape.Rounded;
-            beepLabel5.UISize = ReactUISize.Medium;
-            beepLabel5.UIVariant = ReactUIVariant.Default;
+          
             beepLabel5.UseExternalBufferedGraphics = false;
             beepLabel5.UseGlassmorphism = false;
             beepLabel5.UseGradientBackground = false;
@@ -1523,16 +1469,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.TopoffsetForDrawingRect = 0;
             CancelbeepButton.TrailingIconPath = "";
             CancelbeepButton.TrailingImagePath = "";
-            CancelbeepButton.UIAnimation = ReactUIAnimation.None;
-            CancelbeepButton.UIColor = ReactUIColor.Primary;
-            CancelbeepButton.UICustomElevation = 0;
-            CancelbeepButton.UIDensity = ReactUIDensity.Standard;
-            CancelbeepButton.UIDisabled = false;
-            CancelbeepButton.UIElevation = ReactUIElevation.None;
-            CancelbeepButton.UIFullWidth = false;
-            CancelbeepButton.UIShape = ReactUIShape.Rounded;
-            CancelbeepButton.UISize = ReactUISize.Medium;
-            CancelbeepButton.UIVariant = ReactUIVariant.Default;
+           
             CancelbeepButton.UseExternalBufferedGraphics = false;
             CancelbeepButton.UseGlassmorphism = false;
             CancelbeepButton.UseGradientBackground = false;
@@ -1722,16 +1659,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.TopoffsetForDrawingRect = 0;
             PasswordbeepTextBox.TrailingIconPath = "";
             PasswordbeepTextBox.TrailingImagePath = "";
-            PasswordbeepTextBox.UIAnimation = ReactUIAnimation.None;
-            PasswordbeepTextBox.UIColor = ReactUIColor.Primary;
-            PasswordbeepTextBox.UICustomElevation = 0;
-            PasswordbeepTextBox.UIDensity = ReactUIDensity.Standard;
-            PasswordbeepTextBox.UIDisabled = false;
-            PasswordbeepTextBox.UIElevation = ReactUIElevation.None;
-            PasswordbeepTextBox.UIFullWidth = false;
-            PasswordbeepTextBox.UIShape = ReactUIShape.Rounded;
-            PasswordbeepTextBox.UISize = ReactUISize.Medium;
-            PasswordbeepTextBox.UIVariant = ReactUIVariant.Default;
+        
             PasswordbeepTextBox.UseExternalBufferedGraphics = false;
             PasswordbeepTextBox.UseGlassmorphism = false;
             PasswordbeepTextBox.UseGradientBackground = false;
@@ -1923,16 +1851,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.TopoffsetForDrawingRect = 0;
             OtherFolderbeepTextBox.TrailingIconPath = "";
             OtherFolderbeepTextBox.TrailingImagePath = "";
-            OtherFolderbeepTextBox.UIAnimation = ReactUIAnimation.None;
-            OtherFolderbeepTextBox.UIColor = ReactUIColor.Primary;
-            OtherFolderbeepTextBox.UICustomElevation = 0;
-            OtherFolderbeepTextBox.UIDensity = ReactUIDensity.Standard;
-            OtherFolderbeepTextBox.UIDisabled = false;
-            OtherFolderbeepTextBox.UIElevation = ReactUIElevation.None;
-            OtherFolderbeepTextBox.UIFullWidth = false;
-            OtherFolderbeepTextBox.UIShape = ReactUIShape.Rounded;
-            OtherFolderbeepTextBox.UISize = ReactUISize.Medium;
-            OtherFolderbeepTextBox.UIVariant = ReactUIVariant.Default;
+          
             OtherFolderbeepTextBox.UseExternalBufferedGraphics = false;
             OtherFolderbeepTextBox.UseGlassmorphism = false;
             OtherFolderbeepTextBox.UseGradientBackground = false;
@@ -2106,16 +2025,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.TopoffsetForDrawingRect = 0;
             beepLabel2.TrailingIconPath = "";
             beepLabel2.TrailingImagePath = "";
-            beepLabel2.UIAnimation = ReactUIAnimation.None;
-            beepLabel2.UIColor = ReactUIColor.Primary;
-            beepLabel2.UICustomElevation = 0;
-            beepLabel2.UIDensity = ReactUIDensity.Standard;
-            beepLabel2.UIDisabled = false;
-            beepLabel2.UIElevation = ReactUIElevation.None;
-            beepLabel2.UIFullWidth = false;
-            beepLabel2.UIShape = ReactUIShape.Rounded;
-            beepLabel2.UISize = ReactUISize.Medium;
-            beepLabel2.UIVariant = ReactUIVariant.Default;
+         
             beepLabel2.UseExternalBufferedGraphics = false;
             beepLabel2.UseGlassmorphism = false;
             beepLabel2.UseGradientBackground = false;
@@ -2288,16 +2198,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.TrailingIconPath = "";
             beepLabel1.TrailingImagePath = "";
-            beepLabel1.UIAnimation = ReactUIAnimation.None;
-            beepLabel1.UIColor = ReactUIColor.Primary;
-            beepLabel1.UICustomElevation = 0;
-            beepLabel1.UIDensity = ReactUIDensity.Standard;
-            beepLabel1.UIDisabled = false;
-            beepLabel1.UIElevation = ReactUIElevation.None;
-            beepLabel1.UIFullWidth = false;
-            beepLabel1.UIShape = ReactUIShape.Rounded;
-            beepLabel1.UISize = ReactUISize.Medium;
-            beepLabel1.UIVariant = ReactUIVariant.Default;
+         
             beepLabel1.UseExternalBufferedGraphics = false;
             beepLabel1.UseGlassmorphism = false;
             beepLabel1.UseGradientBackground = false;
@@ -2460,16 +2361,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.TopoffsetForDrawingRect = 0;
             LocalDbTypebeepComboBox.TrailingIconPath = "";
             LocalDbTypebeepComboBox.TrailingImagePath = "";
-            LocalDbTypebeepComboBox.UIAnimation = ReactUIAnimation.None;
-            LocalDbTypebeepComboBox.UIColor = ReactUIColor.Primary;
-            LocalDbTypebeepComboBox.UICustomElevation = 0;
-            LocalDbTypebeepComboBox.UIDensity = ReactUIDensity.Standard;
-            LocalDbTypebeepComboBox.UIDisabled = false;
-            LocalDbTypebeepComboBox.UIElevation = ReactUIElevation.None;
-            LocalDbTypebeepComboBox.UIFullWidth = false;
-            LocalDbTypebeepComboBox.UIShape = ReactUIShape.Rounded;
-            LocalDbTypebeepComboBox.UISize = ReactUISize.Medium;
-            LocalDbTypebeepComboBox.UIVariant = ReactUIVariant.Default;
+           
             LocalDbTypebeepComboBox.UseExternalBufferedGraphics = false;
             LocalDbTypebeepComboBox.UseGlassmorphism = false;
             LocalDbTypebeepComboBox.UseGradientBackground = false;

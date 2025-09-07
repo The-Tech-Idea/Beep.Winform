@@ -382,7 +382,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 HideText = true,
                 BorderRadius = 0,
-                UIShape = ReactUIShape.Square,
+               
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.ImageBeforeText

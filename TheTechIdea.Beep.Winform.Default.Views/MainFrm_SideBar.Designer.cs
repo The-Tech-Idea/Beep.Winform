@@ -1,4 +1,5 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -32,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainFrm_SideBar));
-            beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.BeepAppBar();
+            beepAppBar1 = new TheTechIdea.Beep.Winform.Controls.AppBars.BeepAppBar();
             beepSideMenu1 = new TheTechIdea.Beep.Winform.Controls.BeepSideMenu();
             beepDisplayContainer1 = new TheTechIdea.Beep.Winform.Controls.BeepDisplayContainer();
             beepMenuBar1 = new TheTechIdea.Beep.Winform.Controls.BeepMenuBar();
@@ -631,7 +632,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
         #endregion
 
-        private Controls.BeepAppBar beepAppBar1;
+        private BeepAppBar beepAppBar1;
         private Controls.BeepDisplayContainer beepDisplayContainer1;
         private Controls.BeepSideMenu beepSideMenu1;
         private Controls.BeepMenuBar beepMenuBar1;

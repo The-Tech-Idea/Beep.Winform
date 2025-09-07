@@ -182,16 +182,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.Theme = null;
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
-            beepLabel1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepLabel1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepLabel1.UICustomElevation = 0;
-            beepLabel1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepLabel1.UIDisabled = false;
-            beepLabel1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepLabel1.UIFullWidth = false;
-            beepLabel1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepLabel1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepLabel1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+          
             beepLabel1.UseGlassmorphism = false;
             beepLabel1.UseGradientBackground = true;
             beepLabel1.UseScaledFont = false;
@@ -487,16 +478,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.Theme = null;
             CancelbeepButton.ToolTipText = "";
             CancelbeepButton.TopoffsetForDrawingRect = 0;
-            CancelbeepButton.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            CancelbeepButton.UIColor = Vis.Modules.ReactUIColor.Primary;
-            CancelbeepButton.UICustomElevation = 0;
-            CancelbeepButton.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            CancelbeepButton.UIDisabled = false;
-            CancelbeepButton.UIElevation = Vis.Modules.ReactUIElevation.None;
-            CancelbeepButton.UIFullWidth = false;
-            CancelbeepButton.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            CancelbeepButton.UISize = Vis.Modules.ReactUISize.Medium;
-            CancelbeepButton.UIVariant = Vis.Modules.ReactUIVariant.Default;
+           
             CancelbeepButton.UseGlassmorphism = false;
             CancelbeepButton.UseGradientBackground = false;
             CancelbeepButton.UseScaledFont = false;

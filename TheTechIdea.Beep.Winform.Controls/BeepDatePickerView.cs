@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -11,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Date Picker View")]
     [Description("A modern calendar view control optimized for date selection with clean design.")]
-    public class BeepDatePickerView : BeepControl
+    public class BeepDatePickerView : BaseControl
     {
         #region Fields
         private DateTime _currentMonth;

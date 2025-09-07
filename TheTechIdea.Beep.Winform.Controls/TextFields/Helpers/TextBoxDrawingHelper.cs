@@ -324,7 +324,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private void DrawImage(Graphics g, Rectangle imageRect)
         {
             if (_textBox.BeepImage == null || !HasImage()) return;
-            
+            _textBox.BeepImage.BackColor= _textBox.BackColor;
             // Constrain to MaxImageSize
             Size maxSize = _textBox.MaxImageSize;
             if (imageRect.Width > maxSize.Width || imageRect.Height > maxSize.Height)

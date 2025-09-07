@@ -273,6 +273,96 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         // Parity wrappers
         public virtual void UpdateDrawingRect() => _paint.UpdateRects();
 
+        /// <summary>
+        /// Paints the inner shape of the control (content area excluding borders)
+        /// </summary>
+        /// <param name="g">Graphics context to draw on</param>
+        /// <param name="fillColor">Color to fill the inner area with</param>
+        protected virtual void PaintInnerShape(Graphics g, Color fillColor)
+        {
+            // Ensure the InnerShape is up to date
+            _paint?.EnsureUpdated();
+            if (EnableMaterialStyle && _materialHelper != null)
+            {
+                _materialHelper.UpdateLayout();
+            }
+
+            // Use the InnerShape if available, otherwise fallback to InnerArea rectangle
+            if (InnerShape != null && InnerShape.PointCount > 0)
+            {
+                // Paint using the shape path (handles complex borders like Material Design)
+                PaintInnerShapeUsingPath(g, InnerShape, fillColor);
+            }
+            else
+            {
+                // Fallback to rectangle-based painting using DrawingRect
+                Rectangle innerArea = this.DrawingRect;
+                if (innerArea.Width > 0 && innerArea.Height > 0)
+                {
+                    using (Brush backBrush = new SolidBrush(fillColor))
+                    {
+                        if (IsRounded && BorderRadius > 0)
+                        {
+                            // For rounded controls, clip the fill to the rounded inner area
+                            int innerRadius = Math.Max(0, BorderRadius - BorderThickness);
+                            using (var innerPath = ControlPaintHelper.GetRoundedRectPath(innerArea, innerRadius))
+                            {
+                                g.FillPath(backBrush, innerPath);
+                            }
+                        }
+                        else
+                        {
+                            g.FillRectangle(backBrush, innerArea);
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Paints the inner area using a GraphicsPath shape
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="innerShape">The shape path to fill</param>
+        /// <param name="fillColor">Color to fill with</param>
+        protected virtual void PaintInnerShapeUsingPath(Graphics g, GraphicsPath innerShape, Color fillColor)
+        {
+            // For Material Design, respect variant-specific fill rules
+            if (EnableMaterialStyle)
+            {
+                bool shouldShowFill = MaterialVariant == MaterialTextFieldVariant.Filled || MaterialShowFill;
+                
+                if (shouldShowFill)
+                {
+                    // Use Material fill color if specified, otherwise use the provided fillColor
+                    Color materialFillColor = MaterialShowFill ? MaterialFillColor : fillColor;
+                    using (Brush backBrush = new SolidBrush(materialFillColor))
+                    {
+                        g.FillPath(backBrush, innerShape);
+                    }
+                }
+                else
+                {
+                    // For Outlined and Standard variants, only fill if color is different from parent
+                    if (fillColor != Color.Transparent && fillColor != Parent?.BackColor)
+                    {
+                        using (Brush backBrush = new SolidBrush(fillColor))
+                        {
+                            g.FillPath(backBrush, innerShape);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                // Standard controls - always fill the shape
+                using (Brush backBrush = new SolidBrush(fillColor))
+                {
+                    g.FillPath(backBrush, innerShape);
+                }
+            }
+        }
+
         protected virtual void DrawContent(Graphics g)
         {
             if (EnableHighQualityRendering)

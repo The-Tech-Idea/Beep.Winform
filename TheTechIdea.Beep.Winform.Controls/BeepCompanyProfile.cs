@@ -5,9 +5,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -25,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("UI")]
     [Description("A control that displays a company profile.")]
     [DisplayName("Beep Company Profile")]
-    public class BeepCompanyProfile : BeepControl
+    public class BeepCompanyProfile : BaseControl
     {
         #region Private Fields
         private BeepLabel lblCompanyName;

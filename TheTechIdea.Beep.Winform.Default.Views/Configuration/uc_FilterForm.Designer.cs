@@ -195,16 +195,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.Theme = "DefaultTheme";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
-            beepLabel1.UIAnimation = ReactUIAnimation.None;
-            beepLabel1.UIColor = ReactUIColor.Primary;
-            beepLabel1.UICustomElevation = 0;
-            beepLabel1.UIDensity = ReactUIDensity.Standard;
-            beepLabel1.UIDisabled = false;
-            beepLabel1.UIElevation = ReactUIElevation.None;
-            beepLabel1.UIFullWidth = false;
-            beepLabel1.UIShape = ReactUIShape.Rounded;
-            beepLabel1.UISize = ReactUISize.Medium;
-            beepLabel1.UIVariant = ReactUIVariant.Default;
+          
             beepLabel1.UseGlassmorphism = false;
             beepLabel1.UseGradientBackground = false;
             beepLabel1.UseScaledFont = false;
@@ -502,16 +493,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.TimeFormat = "HH:mm:ss";
             beepTextBox1.ToolTipText = "";
             beepTextBox1.TopoffsetForDrawingRect = 0;
-            beepTextBox1.UIAnimation = ReactUIAnimation.None;
-            beepTextBox1.UIColor = ReactUIColor.Primary;
-            beepTextBox1.UICustomElevation = 0;
-            beepTextBox1.UIDensity = ReactUIDensity.Standard;
-            beepTextBox1.UIDisabled = false;
-            beepTextBox1.UIElevation = ReactUIElevation.None;
-            beepTextBox1.UIFullWidth = false;
-            beepTextBox1.UIShape = ReactUIShape.Rounded;
-            beepTextBox1.UISize = ReactUISize.Medium;
-            beepTextBox1.UIVariant = ReactUIVariant.Default;
+         
             beepTextBox1.UseGlassmorphism = false;
             beepTextBox1.UseGradientBackground = false;
             beepTextBox1.UseSystemPasswordChar = false;

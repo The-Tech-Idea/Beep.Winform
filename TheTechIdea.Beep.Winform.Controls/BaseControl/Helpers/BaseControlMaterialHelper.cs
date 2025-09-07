@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     break;
                 case MaterialTextFieldVariant.Standard:
                     horizontalPadding = 0;
-                    verticalPadding = 8;
+                    verticalPadding = 0;
                     break;
             }
 
@@ -274,11 +274,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             switch (_owner.MaterialVariant)
             {
                 case MaterialTextFieldVariant.Standard:
+
                 case MaterialTextFieldVariant.Filled:
                     // bottom line only
                     g.DrawLine(pen, _fieldRect.Left, _fieldRect.Bottom, _fieldRect.Right, _fieldRect.Bottom);
+                    
+
                     break;
+                    
                 case MaterialTextFieldVariant.Outlined:
+                    // Draw the border first
                     if (radius > 0)
                     {
                         using var path = CreateRoundPath(_fieldRect, radius);
@@ -288,8 +293,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     {
                         g.DrawRectangle(pen, _fieldRect);
                     }
+                    
+               
                     break;
             }
+            // Calculate inner shape that's INSIDE the border
+            _owner.InnerShape?.Dispose();
+            _owner.InnerShape = new GraphicsPath();
+
+            // Inner area is inset by border width on all sides
+            var innerRectOutlined = new Rectangle(
+                _fieldRect.X + borderWidth,
+                _fieldRect.Y + borderWidth,
+                Math.Max(0, _fieldRect.Width - (borderWidth * 2)),
+                Math.Max(0, _fieldRect.Height - (borderWidth * 2)));
+
+            if (innerRectOutlined.Width > 0 && innerRectOutlined.Height > 0)
+            {
+                if (radius > 0)
+                {
+                    // Inner radius should be reduced by border width to create proper inner curve
+                    int innerRadius = Math.Max(0, radius - borderWidth);
+                    _owner.InnerShape.AddPath(CreateRoundPath(innerRectOutlined, innerRadius), false);
+                }
+                else
+                {
+                    _owner.InnerShape.AddRectangle(innerRectOutlined);
+                }
+            }
+            // InnerShape is already correctly set above in the switch statement as GraphicsPath
+            // No need to do anything else here
         }
 
         private void DrawFocusIndicator(Graphics g)

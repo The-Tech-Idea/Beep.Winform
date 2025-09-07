@@ -992,7 +992,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw, true);
             SetStyle(ControlStyles.ContainerControl, false);
-            SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+         
         }
         
         private void InitializeProperties()
@@ -1598,29 +1598,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
             
             base.OnPaint(e);
-            
+          
+        }
+        protected override void DrawContent(Graphics g)
+        {
+            base.DrawContent(g);
+
             // Draw focus animation border
             if (Focused && _enableFocusAnimation && _focusAnimationProgress > 0)
             {
-                DrawFocusAnimation(e.Graphics);
+                DrawFocusAnimation(g);
             }
-            
+
             // Draw character count if enabled
             if (_showCharacterCount && _maxLength > 0)
             {
-                DrawCharacterCount(e.Graphics);
+                DrawCharacterCount(g);
             }
-            
+
             // Draw typing indicator
             if (_isTyping && _enableTypingIndicator && _enableSmartFeatures)
             {
-                DrawTypingIndicator(e.Graphics);
+                DrawTypingIndicator(g);
             }
-            
+
             // Let helper draw the main content
-            _helper?.DrawAll(e.Graphics, ClientRectangle, _textRect);
+            _helper?.DrawAll(g, ClientRectangle, _textRect);
         }
-        
         private void DrawFocusAnimation(Graphics g)
         {
             if (_focusAnimationProgress <= 0) return;
@@ -2146,7 +2150,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _beepImage.IsBorderAffectedByTheme = false;
                 _beepImage.IsShadowAffectedByTheme = false;
                 _beepImage.BorderColor = _currentTheme.TextBoxBorderColor;
-                
+                 
                 if (ApplyThemeOnImage)
                 {
                     _beepImage.ApplyThemeOnImage = ApplyThemeOnImage;

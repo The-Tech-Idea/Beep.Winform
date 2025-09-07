@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Material properties
 
-        [Browsable(true), Category("Material Style"), DefaultValue(true)]
+        [Browsable(false), Category("Material Style"), DefaultValue(true)]
         public bool MaterialUseVariantPadding
         {
             get => _bcUseVariantPadding;
@@ -411,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        [Browsable(true), Category("Material Style")]
+        [Browsable(false), Category("Material Style")]
         [Description("Override Material internal content padding. When not empty, this padding is used instead of variant defaults.")]
         public Padding MaterialCustomPadding
         {

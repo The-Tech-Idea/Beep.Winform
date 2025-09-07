@@ -1,9 +1,10 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using System.Collections.Generic;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -11,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Feature Card")]
     [Category("Beep Controls")]
     [Description("A card control that displays a list of features with a logo and title using BeepListBox.")]
-    public class BeepFeatureCard : BeepControl
+    public class BeepFeatureCard : BaseControl
     {
         #region "Fields"
         private BeepImage logoImage;

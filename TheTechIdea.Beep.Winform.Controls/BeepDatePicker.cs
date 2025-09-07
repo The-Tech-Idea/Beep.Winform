@@ -4,9 +4,10 @@ using System.Drawing;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -14,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Date Picker")]
     [Description("A comprehensive date and time picker control with format masking, calendar popup, and business application features.")]
-    public class BeepDatePicker : BeepControl
+    public class BeepDatePicker : BaseControl
     {
         #region Fields
         private TextBox _textBox;

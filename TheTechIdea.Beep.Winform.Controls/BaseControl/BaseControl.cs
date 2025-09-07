@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     {
         #region Private Fields
         private string _themeName;
-        protected IBeepTheme _currentTheme; // defer initialization to runtime-safe paths
+        internal IBeepTheme _currentTheme; // defer initialization to runtime-safe paths
         private string _guidId = Guid.NewGuid().ToString();
         private string _blockId;
         private string _fieldId;
@@ -179,7 +179,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _input = new ControlInputHelper(this, _effects, _hitTest);
                 
                 // 4. Initialize Material helper last (depends on many others)
-                _materialHelper = new BaseControlMaterialHelper(this);
+                // Initialize material helper only if material style is enabled to avoid
+                // material layout side-effects when feature is toggled off.
+                if (_bcEnableMaterialStyle)
+                {
+                    _materialHelper = new BaseControlMaterialHelper(this);
+                }
                 
             }
             catch (Exception ex)

@@ -49,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
-            viewModel.LoadData();
-            beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
+       //     viewModel.LoadData();
+       //     beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
 
 
         }

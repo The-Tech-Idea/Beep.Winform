@@ -393,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             string text = column.ColumnCaption ?? column.ColumnName ?? string.Empty;
 
             // Create font with bold support
-            var baseFont = _grid?.Font ?? SystemFonts.DefaultFont;
+            var baseFont = BeepThemesManager.ToFont(_grid._currentTheme.GridHeaderFont) ?? SystemFonts.DefaultFont;
             var font = UseBoldHeaderText ?
                 new Font(baseFont.FontFamily, baseFont.Size, FontStyle.Bold) :
                 baseFont;
@@ -719,7 +719,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             }
                             else if (st.Col.IsRowNumColumn)
                             {
-                                var font = _grid?.Font ?? SystemFonts.DefaultFont;
+                                var font = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
                                 TextRenderer.DrawText(g, cell.CellValue?.ToString() ?? string.Empty, font, rect, fore,
                                     TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
                             }
@@ -1041,7 +1041,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             string recordCounter = (_grid.Rows.Count > 0 && _grid.Selection?.RowIndex >= 0)
                 ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
                 : "0 - 0";
-            var headerFont = _grid?.Font ?? SystemFonts.DefaultFont;
+            var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
             Size textSize = TextRenderer.MeasureText(recordCounter, headerFont);
 
             // Calculate center position. There are 4 nav buttons and 4 internal spacings between items.
@@ -1125,7 +1125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             string recordCounter = (_grid.Rows.Count > 0 && _grid.Selection?.RowIndex >= 0)
                 ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
                 : "0 - 0";
-            var headerFont = _grid?.Font ?? SystemFonts.DefaultFont;
+            var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
             Size textSize = TextRenderer.MeasureText(recordCounter, headerFont);
 
             // Reserve space used by left CRUD (we already placed them) and compute their right edge

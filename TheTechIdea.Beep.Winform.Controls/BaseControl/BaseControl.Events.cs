@@ -159,8 +159,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Paint the inner area using the new PaintInnerShape method
 
                 PaintInnerShape(g, BackColor);
-
-
                 _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
                 DrawContent(g);
                 DrawHitListIfNeeded(g);

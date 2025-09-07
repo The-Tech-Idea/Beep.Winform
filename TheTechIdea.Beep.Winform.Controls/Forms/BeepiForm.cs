@@ -7,10 +7,15 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
+using System.Windows.Forms;
+
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepiForm : Form
     {
+        private System.Windows.Forms.Timer resizeDebounceTimer;
+        private bool isResizing = false;
+
         #region Fields
         protected int _resizeMargin = 8;
         protected int _borderRadius = 0;
@@ -123,6 +128,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepiForm()
         {
             InitializeComponent();
+            InitializeResizeDebounceTimer();
             AutoScaleMode = AutoScaleMode.Dpi;
             SetStyle(ControlStyles.UserPaint |
                      ControlStyles.ResizeRedraw |
@@ -142,6 +148,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeAnimationsFeature();
             InitializeAcrylicFeature();
          
+        }
+        private void InitializeResizeDebounceTimer()
+        {
+            resizeDebounceTimer = new System.Windows.Forms.Timer();
+            resizeDebounceTimer.Interval = 100; // Adjust interval as needed (e.g., 100ms)
+            resizeDebounceTimer.Tick += ResizeDebounceTimer_Tick;
+        }
+
+        private void ResizeDebounceTimer_Tick(object sender, EventArgs e)
+        {
+            resizeDebounceTimer.Stop();
+            isResizing = false;
+            // Perform the actual layout and invalidation logic here
+            
+            Invalidate(true); // Invalidate the entire control to force a redraw
         }
         #endregion
 
@@ -200,26 +221,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Layout
-        protected override void OnResize(EventArgs e)
-        {
-            SuspendLayout();
-            base.OnResize(e);
-            ApplyMaximizedWindowFix();
-            if (ClientSize.Width > 0 && ClientSize.Height > 0)
-            {
-                UpdateFormRegion();
-                Invalidate();
-            }
-            ResumeLayout(true);
-        }
-
-        protected override void OnResizeEnd(EventArgs e)
-        {
-            base.OnResizeEnd(e);
-            Invalidate(true);
-            try { _ = AnimateOpacityAsync(0.92, 1.0, 120); } catch { }
-        }
-
+      
+        
         protected override void OnLayout(LayoutEventArgs e)
         {
             base.OnLayout(e);

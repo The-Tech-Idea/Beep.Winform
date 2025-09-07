@@ -520,74 +520,46 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
-        public void SuspendFormLayout()
-        {
-            return;
-            this.SuspendLayout();
-            // suspend the layout of the controls in the container
-            foreach (Control control in this.Controls)
-            {
-                control.SuspendLayout();
-            }
-            currenttab = TabContainerPanel.SelectedTab;
-            TabContainerPanel.SuspendFormLayout();
-           
-
-        }
-        public void ResumeFormLayout()
-        {
-            return;
-            this.ResumeLayout();
-            // resume the layout of the controls in the container
-            foreach (Control control in this.Controls)
-            {
-                control.ResumeLayout();
-            }
-
-            TabContainerPanel.ResumeFormLayout();
-            TabContainerPanel.PerformLayout();
-            Invalidate();
-          //  TabContainerPanel.SelectedTab = currenttab;
-        }
+       
         protected override void OnResize(EventArgs e)
         {
-            this.SuspendLayout();
+            //this.SuspendLayout();
             base.OnResize(e);
 
-            try
-            {
-                // Invalidate and update the entire client region to force a full redraw cascade
-                this.Invalidate(true);
-                this.Update();
+            //try
+            //{
+            //    // Invalidate and update the entire client region to force a full redraw cascade
+            //    this.Invalidate(true);
+            //    this.Update();
 
-                if (ContainerPanel != null && ContainerPanel.Visible)
-                {
-                    ContainerPanel.PerformLayout();
-                    ContainerPanel.Invalidate(true);
-                    ContainerPanel.Update();
-                }
-                if (TabContainerPanel != null && TabContainerPanel.Visible)
-                {
-                    TabContainerPanel.PerformLayout();
-                    TabContainerPanel.Invalidate(true);
-                    TabContainerPanel.Update();
-                    var sel = TabContainerPanel.SelectedTab;
-                    if (sel != null)
-                    {
-                        sel.Invalidate(true);
-                        sel.Update();
-                        foreach (Control child in sel.Controls)
-                        {
-                            child.Invalidate(true);
-                            child.Update();
-                        }
-                    }
-                }
-            }
-            finally
-            {
-                this.ResumeLayout(true);
-            }
+            //    if (ContainerPanel != null && ContainerPanel.Visible)
+            //    {
+            //        ContainerPanel.PerformLayout();
+            //        ContainerPanel.Invalidate(true);
+            //        ContainerPanel.Update();
+            //    }
+            //    if (TabContainerPanel != null && TabContainerPanel.Visible)
+            //    {
+            //        TabContainerPanel.PerformLayout();
+            //        TabContainerPanel.Invalidate(true);
+            //        TabContainerPanel.Update();
+            //        var sel = TabContainerPanel.SelectedTab;
+            //        if (sel != null)
+            //        {
+            //            sel.Invalidate(true);
+            //            sel.Update();
+            //            foreach (Control child in sel.Controls)
+            //            {
+            //                child.Invalidate(true);
+            //                child.Update();
+            //            }
+            //        }
+            //    }
+            //}
+            //finally
+            //{
+            //    this.ResumeLayout(true);
+            //}
         }
 
         //protected override void OnPaint(PaintEventArgs e)

@@ -32,10 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             _rectsDirty = false;
             int shadow = _owner.ShowShadow ? _owner.ShadowOffset : 0;
             int border = 0;
-            if (_owner.ShowAllBorders || _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined)
-            {
-                border = _owner.BorderThickness;
-            }
+            // Only consider MaterialBorderVariant when material style is enabled.
+            if (_owner.ShowAllBorders || (_owner.EnableMaterialStyle && _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined))
+             {
+                 border = _owner.BorderThickness;
+             }
             var padding = _owner.Padding;
 
             // Include custom offsets like base BeepControl
@@ -65,6 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
             
             // Standard layout (like BeepControl)
+            // Do not let MaterialVariant implicitly affect standard layout when material style is disabled
             int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
             int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
 
@@ -165,12 +167,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
             else
             {
-                // Material UI Filled variant background
-                if (_owner.MaterialBorderVariant == MaterialTextFieldVariant.Filled)
-                {
-                    backColor = _owner.FilledBackgroundColor;
-                }
-
+                // Respect FilledBackgroundColor only when Material style is enabled.
+                // If material is disabled, always use the control's effective back color.
                 using (var brush = new SolidBrush(backColor))
                 {
                     FillShape(g, brush, DrawingRect);
@@ -240,7 +238,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private void DrawBorders(Graphics g)
         {
             // Material UI borders take priority
-            if (_owner.MaterialBorderVariant != MaterialTextFieldVariant.Standard)
+            if (_owner.EnableMaterialStyle)
             {
                 DrawMaterialBorder(g);
                 return;

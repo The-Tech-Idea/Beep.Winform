@@ -72,6 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_bcEnableMaterialStyle != value)
                 {
                     _bcEnableMaterialStyle = value;
+                 
+                    MaterialVariant = MaterialTextFieldVariant.Standard;
                     IsCustomeBorder = false; // keep ControlPaintHelper drawing borders
                     OnMaterialPropertyChanged();
                     Invalidate();
@@ -138,7 +140,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcLeadingIconPath = value ?? string.Empty;
-                _materialHelper?.UpdateLayout(); // Recalculate icon positions
+                if (EnableMaterialStyle)
+                    _materialHelper?.UpdateLayout(); // Recalculate icon positions only when material is enabled
                 Invalidate();
             }
         }
@@ -152,22 +155,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcTrailingIconPath = value ?? string.Empty;
-                _materialHelper?.UpdateLayout(); // Recalculate icon positions
+                if (EnableMaterialStyle)
+                    _materialHelper?.UpdateLayout(); // Recalculate icon positions only when material is enabled
                 Invalidate();
             }
         }
         [Browsable(true), Category("Icons")]
         [Description("Image path for the leading (left) icon - alternative to SVG path.")]
-        public string LeadingImagePath { get => _bcLeadingImagePath; set { _bcLeadingImagePath = value ?? string.Empty; _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public string LeadingImagePath { get => _bcLeadingImagePath; set { _bcLeadingImagePath = value ?? string.Empty; if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Image path for the trailing (right) icon - alternative to SVG path.")]
-        public string TrailingImagePath { get => _bcTrailingImagePath; set { _bcTrailingImagePath = value ?? string.Empty; _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public string TrailingImagePath { get => _bcTrailingImagePath; set { _bcTrailingImagePath = value ?? string.Empty; if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Show clear button when field has content.")]
         [DefaultValue(false)]
-        public bool ShowClearButton { get => _bcShowClearButton; set { _bcShowClearButton = value; _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public bool ShowClearButton { get => _bcShowClearButton; set { _bcShowClearButton = value; if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Enable click events for the leading icon.")]
@@ -182,12 +186,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true), Category("Icons")]
         [Description("Size of the icons in pixels.")]
         [DefaultValue(24)]
-        public int IconSize { get => _bcIconSize; set { _bcIconSize = Math.Max(12, value); _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public int IconSize { get => _bcIconSize; set { _bcIconSize = Math.Max(12, value); if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Padding between icons and text.")]
         [DefaultValue(8)]
-        public int IconPadding { get => _bcIconPadding; set { _bcIconPadding = Math.Max(0, value); _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public int IconPadding { get => _bcIconPadding; set { _bcIconPadding = Math.Max(0, value); if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
 
         // Material Design specific icon properties (aliases for compatibility)
         [Browsable(false)]
@@ -234,24 +238,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcElevationLevel = Math.Max(0, Math.Min(value, 5));
-                _materialHelper?.SetElevation(_bcElevationLevel);
+                if (EnableMaterialStyle)
+                    _materialHelper?.SetElevation(_bcElevationLevel);
                 Invalidate();
             }
         }
 
         [Browsable(true), Category("Material Design 3.0")]
-        [Description("Enable or disable elevation shadow effects.")]
-        [DefaultValue(true)]
-        public bool MaterialUseElevation
-        {
-            get => _bcUseElevation;
-            set
-            {
-                _bcUseElevation = value;
-                _materialHelper?.SetElevationEnabled(_bcUseElevation);
-                Invalidate();
-            }
-        }
+         [Description("Enable or disable elevation shadow effects.")]
+         [DefaultValue(true)]
+         public bool MaterialUseElevation
+         {
+             get => _bcUseElevation;
+             set
+             {
+                 _bcUseElevation = value;
+                 if (EnableMaterialStyle)
+                    _materialHelper?.SetElevationEnabled(_bcUseElevation);
+                 Invalidate();
+             }
+         }
         #endregion
 
         #region Preset application
@@ -321,8 +327,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             MaterialBorderVariant = MaterialVariant;
             FilledBackgroundColor = MaterialFillColor;
             BorderRadius = MaterialBorderRadius;
-            _materialHelper?.UpdateLayout();
-            Invalidate();
+            if (EnableMaterialStyle)
+                _materialHelper?.UpdateLayout();
+             Invalidate();
         }
 
         /// <summary>

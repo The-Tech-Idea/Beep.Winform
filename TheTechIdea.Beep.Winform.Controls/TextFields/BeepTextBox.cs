@@ -192,7 +192,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showCharacterCount = value;
-                Invalidate();
+                // Layout is affected when character count visibility changes
+                InvalidateLayout();
             }
         }
         
@@ -921,6 +922,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)]
         [Category("Behavior")]
         public bool Modified { get; set; } = false;
+
+        // Allow callers to bypass Material size constraints when measuring preferred size
+        [Browsable(false)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool DisableMaterialConstraints { get; set; } = false;
         
         #endregion
         
@@ -1004,11 +1010,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             TabStop = true;
-            EnableMaterialStyle=true;
-            StylePreset = Models.MaterialTextFieldStylePreset.MaterialStandard;
+            EnableMaterialStyle=false;
+         //   StylePreset = Models.MaterialTextFieldStylePreset.MaterialStandard;
             // Modern defaults
-            Font = new Font("Segoe UI", 10);
-            _textFont = Font;
+          //  Font = new Font("Segoe UI", 10);
+          //  _textFont = Font;
         }
         
         private void InitializeTimers()
@@ -1158,6 +1164,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             _needsLayoutUpdate = true;
             _delayedUpdateTimer?.Stop();
             _delayedUpdateTimer?.Start();
+
+            // Ensure single-line controls are not shorter than the font height + padding/border.
+            try
+            {
+                if (!_multiline)
+                {
+                    using (Graphics g = CreateGraphics())
+                    {
+                        int textHeight = (int)Math.Ceiling(g.MeasureString("Aj", _textFont).Height);
+                        int minHeight = textHeight + Padding.Vertical + (_borderWidth * 2);
+                        // Don't force the Height; enforce minimum via MinimumSize so user-defined size is respected
+                        if (MinimumSize.Height < minHeight)
+                        {
+                            MinimumSize = new Size(MinimumSize.Width, minHeight);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore measurement errors in design-time or without a device context
+            }
         }
         
         #endregion
@@ -1386,7 +1414,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateSelection(newPosition);
             }
         }
+        // Override GetPreferredSize to bypass Material constraints when needed
+        public override Size GetPreferredSize(Size proposedSize)
+        {
+            if (DisableMaterialConstraints)
+            {
+                // Use a simple text measurement for preferred size
+                using (Graphics g = CreateGraphics())
+                {
+                    var textSize = g.MeasureString(string.IsNullOrEmpty(Text) ? PlaceholderText : Text, TextFont);
+                    int width = (int)Math.Ceiling(textSize.Width) + Padding.Horizontal + (BorderWidth * 2);
+                    int height = (int)Math.Ceiling(textSize.Height) + Padding.Vertical + (BorderWidth * 2);
+                    return new Size(width, height);
+                }
+            }
+
+            return base.GetPreferredSize(proposedSize);
+        }
+
         
+
+      
         private void HandleEndKey(bool control, bool shift)
         {
             if (_helper?.Caret == null) return;
@@ -1719,7 +1767,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Reserve space for character count
             if (_showCharacterCount && _maxLength > 0)
             {
-                _textRect.Height = Math.Max(1, _textRect.Height - 15);
+                // Compute character count height dynamically so layout respects DPI and font size
+                try
+                {
+                    using (var g = CreateGraphics())
+                    using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
+                    {
+                        var countText = $"{_text.Length}/{_maxLength}";
+                        var size = g.MeasureString(countText, font);
+                        int reserve = Math.Max(12, (int)Math.Ceiling(size.Height) + 4);
+                        _textRect.Height = Math.Max(1, _textRect.Height - reserve);
+                    }
+                }
+                catch
+                {
+                    _textRect.Height = Math.Max(1, _textRect.Height - 15);
+                }
             }
         }
         
@@ -2225,7 +2288,21 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (_showCharacterCount && _maxLength > 0)
             {
-                textRect.Height = Math.Max(1, textRect.Height - 15);
+                // Measure using the provided graphics so drawing-mode layout matches runtime layout
+                using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
+                {
+                    try
+                    {
+                        var countText = $"{_text.Length}/{_maxLength}";
+                        var size = graphics.MeasureString(countText, font);
+                        int reserve = Math.Max(12, (int)Math.Ceiling(size.Height) + 4);
+                        textRect.Height = Math.Max(1, textRect.Height - reserve);
+                    }
+                    catch
+                    {
+                        textRect.Height = Math.Max(1, textRect.Height - 15);
+                    }
+                }
             }
 
             _helper?.DrawAll(graphics, rectangle, textRect);

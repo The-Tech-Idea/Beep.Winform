@@ -22,12 +22,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // nothing
         }
-
         protected override void OnResizeBegin(EventArgs e)
         {
             base.OnResizeBegin(e);
+            isResizing = true;
             _animationOpacityFrom = Opacity;
+            // Optional: Suspend layout to prevent flickering during resize
+            this.SuspendLayout();
+
         }
+
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            base.OnResizeEnd(e);
+            isResizing = false;
+            resizeDebounceTimer.Stop(); // Stop any pending timer ticks
+                                        // Immediately perform layout on resize end
+
+            this.ResumeLayout(true);
+
+            Invalidate(true);
+        }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if (IsHandleCreated && !DesignMode)
+            {
+                // Instead of doing heavy work here, just restart the timer
+                resizeDebounceTimer.Stop();
+                resizeDebounceTimer.Start();
+            }
+        }
+
+     
 
         private async Task AnimateOpacityAsync(double from, double to, int durationMs)
         {

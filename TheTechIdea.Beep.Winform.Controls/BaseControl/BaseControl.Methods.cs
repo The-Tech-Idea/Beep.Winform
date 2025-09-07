@@ -397,6 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         private void DrawMaterialContent(Graphics g)
         {
+            if (!EnableMaterialStyle) return;
             // Create material helper if it doesn't exist
             if (_materialHelper == null)
             {
@@ -417,6 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         protected void UpdateMaterialLayout()
         {
+            if (!EnableMaterialStyle) return;
             // Add null check to prevent NullReferenceException during initialization
             if (_materialHelper != null)
             {

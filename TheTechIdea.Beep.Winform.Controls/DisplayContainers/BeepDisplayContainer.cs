@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A container control for displaying addins.")]
     public partial class BeepDisplayContainer : BeepControl, IDisplayContainer
     {
-        public TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum _containerType = TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel;
+        public ContainerTypeEnum _containerType = ContainerTypeEnum.TabbedPanel;
         private Panel ContainerPanel;
         private BeepTabs TabContainerPanel;
         private Dictionary<string, (IDM_Addin Addin, TabPage TabPage)> _controls = new Dictionary<string, (IDM_Addin, TabPage)>();
@@ -40,10 +40,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepDisplayContainer()
         {
             InitializeComponent();
-            this.DoubleBuffered = true;
+            DoubleBuffered = true;
             // Ensure the container can receive focus and events
-            this.TabStop = true;
-            this.Enabled = true;
+            TabStop = true;
+            Enabled = true;
             //this.Click += (s, e) =>////MiscFunctions.SendLog("BeepDisplayContainer clicked!");
             
             
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateContainerLayoutForDpi()
         {
             // Update paddings and sizes based on current DPI
-            this.Padding = new Padding(ScaleValue(2));
+            Padding = new Padding(ScaleValue(2));
 
             // Update any other hard-coded sizes
             if (ContainerPanel != null)
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void InitializeComponent()
         {
-            this.SuspendLayout();
+            SuspendLayout();
 
             // Initialize the container controls
             ContainerPanel = new Panel
@@ -121,16 +121,16 @@ namespace TheTechIdea.Beep.Winform.Controls
 
           
             // Add controls to the user control
-            this.Controls.Add(ContainerPanel);
-            this.Controls.Add(TabContainerPanel);
+            Controls.Add(ContainerPanel);
+            Controls.Add(TabContainerPanel);
 
             TabContainerPanel.TabRemoved += TabContainerPanel_TabRemoved;
             // Use DPI-scaled padding and size
-            this.Padding = new Padding(ScaleValue(2));
-            this.Name = "BeepDisplayContainer";
-            this.Size = ScaleSize(new Size(400, 300));
+            Padding = new Padding(ScaleValue(2));
+            Name = "BeepDisplayContainer";
+            Size = ScaleSize(new Size(400, 300));
 
-            this.ResumeLayout(false);
+            ResumeLayout(false);
         }
         private void TabContainerPanel_TabRemoved(object sender, TabRemovedEventArgs e)
         {
@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void UpdateContainerLayout()
         {
             // Toggle visibility based on ContainerType
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.SinglePanel)
+            if (ContainerType == ContainerTypeEnum.SinglePanel)
             {
                 TabContainerPanel.Visible = false;
                 ContainerPanel.Visible = true;
@@ -180,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Move single panel control to tabs
                 if (_singlePanelAddin != null)
                 {
-                    AddControl(_singlePanelAddin.Details?.AddinName ?? "Default", _singlePanelAddin, TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel);
+                    AddControl(_singlePanelAddin.Details?.AddinName ?? "Default", _singlePanelAddin, ContainerTypeEnum.TabbedPanel);
                     ShowControl(_singlePanelAddin.Details?.AddinName ?? "Default", _singlePanelAddin);
                     _singlePanelAddin = null;
                 }
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<IPassedArgs> PreShowItem;
         public event EventHandler<KeyCombination> KeyPressed;
 
-        public bool AddControl(string TitleText, IDM_Addin control, TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum pcontainerType)
+        public bool AddControl(string TitleText, IDM_Addin control, ContainerTypeEnum pcontainerType)
         {
             if (control == null || string.IsNullOrWhiteSpace(TitleText))
                 return false;
@@ -223,12 +223,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return false;
                 }
 
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.SinglePanel)
+            if (ContainerType == ContainerTypeEnum.SinglePanel)
             {
                 // Single panel mode: replace the existing control
                 if (_singlePanelAddin != null)
                 {
-                    string existingTitle = _controls.FirstOrDefault(x => x.Value.Addin == _singlePanelAddin).Key ?? (_singlePanelAddin.Details?.AddinName ?? "Default");
+                    string existingTitle = _controls.FirstOrDefault(x => x.Value.Addin == _singlePanelAddin).Key ?? _singlePanelAddin.Details?.AddinName ?? "Default";
                     RemoveControl(existingTitle, _singlePanelAddin);
                 }
 
@@ -341,7 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.SinglePanel)
+            if (ContainerType == ContainerTypeEnum.SinglePanel)
             {
                 ContainerPanel.Controls.Clear();
                 ContainerPanel.Controls.Add(_testButton); // Re-add the test button
@@ -359,7 +359,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 TitleText = TitleText,
                 Control = control,
-                ContainerType = TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel,
+                ContainerType = ContainerTypeEnum.TabbedPanel,
                 Guidid = control?.GuidID
             });
 
@@ -420,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.SinglePanel)
+            if (ContainerType == ContainerTypeEnum.SinglePanel)
             {
                 if (_singlePanelAddin != control)
                 {
@@ -502,7 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseDown(e);
        //    ////MiscFunctions.SendLog($"MouseDown in BeepDisplayContainer at {e.Location}");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            if (ContainerType == ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
                 TabContainerPanel.Focus();
             }
@@ -512,7 +512,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseUp(e);
             //  ////MiscFunctions.SendLog($"MouseUp in BeepDisplayContainer at {e.Location}");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            if (ContainerType == ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
                 TabContainerPanel.Focus();
                 TabContainerPanel.ReceiveMouseMove(e.Location); // Use instance method
@@ -590,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseClick(e);
          //  ////MiscFunctions.SendLog($"MouseClick in BeepDisplayContainer at {e.Location}");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            if (ContainerType == ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
               //  TabContainerPanel.Focus();
                 TabContainerPanel.ReceiveMouseClick(e.Location); // Use instance method
@@ -620,7 +620,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseMove(e);
             //   ////MiscFunctions.SendLog($"MouseMove in BeepDisplayContainer at {e.Location}");
-            if (ContainerType == TheTechIdea.Beep.Vis.Modules.ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
+            if (ContainerType == ContainerTypeEnum.TabbedPanel && TabContainerPanel.Visible)
             {
               //  TabContainerPanel.Focus();
                 TabContainerPanel.ReceiveMouseMove(e.Location); // Use instance method

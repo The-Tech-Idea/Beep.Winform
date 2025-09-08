@@ -1,5 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
+using TheTechIdea.Beep.Winform.Controls.DisplayContainers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -645,7 +647,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         #endregion
 
         private BeepAppBar beepAppBar1;
-        private Controls.BeepDisplayContainer beepDisplayContainer1;
+        private BeepDisplayContainer beepDisplayContainer1;
         private Controls.ITrees.BeepTreeView.BeepAppTree beepAppTree1;
         private Controls.MenuBar.BeepMenuAppBar beepMenuAppBar1;
     }

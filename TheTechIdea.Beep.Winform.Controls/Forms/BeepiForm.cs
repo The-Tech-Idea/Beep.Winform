@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepiForm : Form
     {
-        private System.Windows.Forms.Timer resizeDebounceTimer;
+        //private System.Windows.Forms.Timer resizeDebounceTimer;
         private bool isResizing = false;
 
         #region Fields
@@ -23,6 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Color _borderColor = Color.Red;
         private bool _inpopupmode = false;
         private string _title = "BeepiForm";
+        private bool _inMoveOrResize = false;
 
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private bool _applythemetochilds = true;
@@ -128,41 +129,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepiForm()
         {
             InitializeComponent();
-            InitializeResizeDebounceTimer();
             AutoScaleMode = AutoScaleMode.Dpi;
-            SetStyle(ControlStyles.UserPaint |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.SupportsTransparentBackColor,
-                     true);
+
+            // Use only essential control styles for optimal rendering
+            SetStyle(
+                ControlStyles.UserPaint |
+                ControlStyles.ResizeRedraw |
+                ControlStyles.OptimizedDoubleBuffer |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.SupportsTransparentBackColor,
+                true);
             UpdateStyles();
             DoubleBuffered = true;
+
             BackColor = SystemColors.Control;
             FormBorderStyle = FormBorderStyle.None;
 
-            // Initialize feature partials (defined in partial files)
+            // Initialize feature partials
             InitializeCaptionFeature();
             InitializeRibbonFeature();
             InitializeSnapHintsFeature();
             InitializeAnimationsFeature();
             InitializeAcrylicFeature();
-         
-        }
-        private void InitializeResizeDebounceTimer()
-        {
-            resizeDebounceTimer = new System.Windows.Forms.Timer();
-            resizeDebounceTimer.Interval = 100; // Adjust interval as needed (e.g., 100ms)
-            resizeDebounceTimer.Tick += ResizeDebounceTimer_Tick;
-        }
-
-        private void ResizeDebounceTimer_Tick(object sender, EventArgs e)
-        {
-            resizeDebounceTimer.Stop();
-            isResizing = false;
-            // Perform the actual layout and invalidation logic here
-            
-            Invalidate(true); // Invalidate the entire control to force a redraw
         }
         #endregion
 
@@ -204,10 +192,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnLoad(e);
             // Legacy manual DPI awareness forced the process into System DPI mode.
             // When DpiMode == Framework (default), do NOT call SetProcessDPIAware; let WinForms manage scaling.
-            if (DpiMode == DpiHandlingMode.Manual && Environment.OSVersion.Version.Major >= 6)
-            {
-                try { SetProcessDPIAware(); } catch { }
-            }
+            //if (DpiMode == DpiHandlingMode.Manual && Environment.OSVersion.Version.Major >= 6)
+            //{
+            //    try { SetProcessDPIAware(); } catch { }
+            //}
         }
 
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
@@ -242,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Native/HitTest
-        private bool _inMoveOrResize = false;
+      
 
         private const int WM_NCHITTEST = 0x84;
         private const int WM_ENTERSIZEMOVE = 0x0231;
@@ -259,6 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int HTBOTTOMLEFT = 16;
         private const int HTBOTTOMRIGHT = 17;
         private const int WM_DPICHANGED = 0x02E0;
+      
 
         private bool IsOverChildControl(Point clientPos)
         {
@@ -291,34 +280,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (m.Msg)
             {
                 case WM_DPICHANGED:
+                    if (DpiMode == DpiHandlingMode.Manual)
                     {
-                        if (DpiMode == DpiHandlingMode.Manual)
-                        {
-                            var suggested = Marshal.PtrToStructure<RECT>(m.LParam);
-                            var suggestedBounds = Rectangle.FromLTRB(suggested.left, suggested.top, suggested.right, suggested.bottom);
-                            this.Bounds = suggestedBounds;
-                            uint dpi = GetDpiForWindow(this.Handle);
-                            _ = dpi; // reserved for scaling logic
-                        }
-                        // When Framework mode, do nothing here and let WinForms handle it.
+                        var suggested = Marshal.PtrToStructure<RECT>(m.LParam);
+                        var suggestedBounds = Rectangle.FromLTRB(suggested.left, suggested.top, suggested.right, suggested.bottom);
+                        this.Bounds = suggestedBounds;
+                        uint dpi = GetDpiForWindow(this.Handle);
+                        // Reserved for scaling logic
                     }
+                    // When Framework mode, let WinForms handle it
                     break;
+            
                 case WM_ENTERSIZEMOVE:
                     _inMoveOrResize = true;
                     break;
+
                 case WM_EXITSIZEMOVE:
                     _inMoveOrResize = false;
                     UpdateFormRegion();
                     Invalidate();
                     break;
+            
                 case WM_GETMINMAXINFO:
                     AdjustMaximizedBounds(m.LParam);
                     break;
+            
                 case WM_NCHITTEST when !_inpopupmode:
                     {
                         Point pos = PointToClient(new Point(m.LParam.ToInt32()));
                         int margin = _resizeMargin;
 
+                        // Determine where the hit is occurring
                         if (pos.X <= margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPLEFT; return; }
                         if (pos.X >= ClientSize.Width - margin && pos.Y <= margin) { m.Result = (IntPtr)HTTOPRIGHT; return; }
                         if (pos.X <= margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOMLEFT; return; }
@@ -326,14 +318,27 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (pos.X <= margin) { m.Result = (IntPtr)HTLEFT; return; }
                         if (pos.X >= ClientSize.Width - margin) { m.Result = (IntPtr)HTRIGHT; return; }
                         if (pos.Y <= margin) { m.Result = (IntPtr)HTTOP; return; }
-                        if (pos.Y >= margin && pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOM; return; }
+                        if (pos.Y >= ClientSize.Height - margin) { m.Result = (IntPtr)HTBOTTOM; return; }
 
+                        // Handle caption area and children
                         if (IsOverChildControl(pos)) { m.Result = (IntPtr)HTCLIENT; return; }
                         m.Result = IsInDraggableArea(pos) ? (IntPtr)HTCAPTION : (IntPtr)HTCLIENT;
                         return;
                     }
             }
             base.WndProc(ref m);
+        }
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.Style &= ~0xC00000; // Remove WS_CAPTION
+                // We don't add WS_EX_COMPOSITED since it's deprecated
+                // Use proper invalidation and redraw instead
+                return cp;
+            }
         }
 
         private void AdjustMaximizedBounds(IntPtr lParam)
@@ -565,20 +570,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected void ComputeExtraNonClientPadding(ref Padding padding)
         {
             foreach (var p in _paddingProviders) p(ref padding);
-        }
-        #endregion
-
-        #region Interop
-        [DllImport("gdi32.dll", EntryPoint = "CreateRoundRectRgn")] private static extern IntPtr CreateRoundRectRgn(int nLeftRect, int nTopRect, int nRightRect, int nBottomRect, int nWidthEllipse, int nHeightEllipse);
-        [DllImport("user32.dll")] private static extern bool SetProcessDPIAware();
-        protected override CreateParams CreateParams
-        {
-            get
-            {
-                CreateParams cp = base.CreateParams;
-                cp.Style &= ~0xC00000; // WS_CAPTION | WS_BORDER
-                return cp;
-            }
         }
         #endregion
 

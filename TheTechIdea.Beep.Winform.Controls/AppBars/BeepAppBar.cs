@@ -1284,32 +1284,36 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         {
             if (!_searchBoxAddedToControls)
             {
-                // Add the actual search box control at the right position
-               // _searchBox.Location = searchRect.Location;
-               
-                
-                // CRITICAL: Force size and prevent Material Design from overriding it
-                _searchBox.EnableMaterialStyle = false;
-  
+                // Ensure the search box is positioned correctly before adding it to the controls
+                _searchBox.SetBounds(searchRect.Left, searchRect.Top, searchRect.Width, searchRect.Height);
 
+                // Reset anchor to avoid unexpected movement in design/runtime
+                _searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+
+                // Disable Material Design to prevent size constraints
+                _searchBox.EnableMaterialStyle = false;
+
+                // Add the search box to the controls and make it visible
                 _searchBox.Visible = true;
                 Controls.Add(_searchBox);
                 _searchBoxAddedToControls = true;
 
-                // Focus the search box and select all text if any
+                // Focus the search box and select all text
                 _searchBox.Focus();
                 _searchBox.SelectAll();
 
-                // Register for lost focus to switch back to drawing mode
+                // Register for lost focus to remove the search box when it loses focus
                 _searchBox.LostFocus += SearchBox_LostFocus;
             }
             else
             {
-                // If already added, just focus it
+                // If already added, reposition it and focus
+                _searchBox.SetBounds(searchRect.Left, searchRect.Top, searchRect.Width, searchRect.Height);
                 _searchBox.Focus();
                 _searchBox.SelectAll();
             }
 
+            // Trigger the OnSearchBoxSelected event
             var arg = new BeepAppBarEventsArgs("Search");
             arg.Selectedstring = _searchBox.Text;
             OnSearchBoxSelected?.Invoke(this, arg);

@@ -5,12 +5,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 {
     public partial class BeepiForm
     {
-        // Cached path for rendering performance
-        private GraphicsPath? _cachedPath;
-        private Size _lastSize;
-        private int _lastBorderRadius;
-        private bool _graphicsPathDirty = true;
-
         // Style properties
         private BeepFormStyle _formStyle = BeepFormStyle.Modern;
         private Color _shadowColor = Color.FromArgb(50, 0, 0, 0);
@@ -89,13 +83,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         protected override void OnSizeChanged(EventArgs e)
         {
-            _graphicsPathDirty = true;
+            // Just invalidate - we'll always regenerate the path when painting
             base.OnSizeChanged(e);
+            Invalidate();
         }
 
         protected override void OnPaint(PaintEventArgs e)
-        {
+        { 
+            // Simple drawing during active resize/move
+          
+
             base.OnPaint(e);
+            
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -137,42 +136,45 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private GraphicsPath GetFormPath()
         {
-            // Rebuild cache if needed
-            if (_graphicsPathDirty || _cachedPath == null || _lastSize != Size || _lastBorderRadius != _borderRadius)
+            // Always create a fresh path - no caching
+            // This ensures we always draw with current dimensions
+            var path = new GraphicsPath();
+            
+            // Use current client dimensions directly
+            int currentWidth = ClientSize.Width;
+            int currentHeight = ClientSize.Height;
+            
+            // Safety check
+            if (currentWidth <= 0 || currentHeight <= 0)
             {
-                _cachedPath?.Dispose();
-                _cachedPath = new GraphicsPath();
-                _lastSize = Size;
-                _lastBorderRadius = _borderRadius;
-                _graphicsPathDirty = false;
+                return path; // Empty path
+            }
 
-                var rect = new Rectangle(0, 0, Math.Max(1, Width) - 1, Math.Max(1, Height) - 1);
+            var rect = new Rectangle(0, 0, currentWidth, currentHeight);
 
-                if (_borderRadius > 0 && WindowState != FormWindowState.Maximized)
+            if (_borderRadius > 0 && WindowState != FormWindowState.Maximized)
+            {
+                int diameter = Math.Min(_borderRadius * 2, Math.Min(rect.Width, rect.Height));
+                if (diameter > 0)
                 {
-                    int diameter = Math.Min(_borderRadius * 2, Math.Min(rect.Width, rect.Height));
-                    if (diameter > 0)
-                    {
-                        var arcRect = new Rectangle(rect.Location, new Size(diameter, diameter));
-                        _cachedPath.AddArc(arcRect, 180, 90);
-                        arcRect.X = rect.Right - diameter; _cachedPath.AddArc(arcRect, 270, 90);
-                        arcRect.Y = rect.Bottom - diameter; _cachedPath.AddArc(arcRect, 0, 90);
-                        arcRect.X = rect.Left; _cachedPath.AddArc(arcRect, 90, 90);
-                        _cachedPath.CloseFigure();
-                    }
-                    else
-                    {
-                        _cachedPath.AddRectangle(rect);
-                    }
+                    var arcRect = new Rectangle(rect.Location, new Size(diameter, diameter));
+                    path.AddArc(arcRect, 180, 90);
+                    arcRect.X = rect.Right - diameter; path.AddArc(arcRect, 270, 90);
+                    arcRect.Y = rect.Bottom - diameter; path.AddArc(arcRect, 0, 90);
+                    arcRect.X = rect.Left; path.AddArc(arcRect, 90, 90);
+                    path.CloseFigure();
                 }
                 else
                 {
-                    _cachedPath.AddRectangle(rect);
+                    path.AddRectangle(rect);
                 }
             }
+            else
+            {
+                path.AddRectangle(rect);
+            }
 
-            // Return a clone so callers can dispose safely
-            return (GraphicsPath)_cachedPath!.Clone();
+            return path;
         }
 
         private void ApplyMetrics(BeepFormStyle style)
@@ -238,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ApplyThemeMapping();
                     break;
             }
-            _graphicsPathDirty = true;
+            Invalidate();
             ApplyAcrylicEffectIfNeeded();
             OnApplyFormStyleAnimated();
         }

@@ -192,8 +192,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
       protected override void OnResize(EventArgs e)
         {
-           // base.OnResize(e);
-            ArrangeFunctionButtons();
+             base.OnResize(e);
+            if (IsHandleCreated) // Check if handle is created
+            {
+                ArrangeFunctionButtons();
+            }
             Invalidate();
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -203,18 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw title text if enabled
             
         }
-        protected override void OnMouseEnter(EventArgs e)
-        {
-            
-        }
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-           
-        }
-        protected override void OnMouseLeave(EventArgs e)
-        {
-
-        }
+     
         //protected override void OnPaintBackground(PaintEventArgs e)
         //{
         //    // Do not call base.OnPaintBackground(e);

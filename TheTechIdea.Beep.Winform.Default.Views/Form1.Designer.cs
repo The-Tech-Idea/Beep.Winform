@@ -37,7 +37,7 @@
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
             BorderRadius = 8;
-            ClientSize = new Size(738, 325);
+            ClientSize = new Size(786, 583);
             Name = "Form1";
             StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("Form1.StylePresets.Presets");
             Text = "Form1";

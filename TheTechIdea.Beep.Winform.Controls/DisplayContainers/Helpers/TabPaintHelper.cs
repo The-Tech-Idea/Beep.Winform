@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
@@ -24,27 +25,76 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
             bool isActive, bool isHovered, bool showCloseButton, bool isCloseHovered, 
             float animationProgress = 0f)
         {
-            // Get theme colors
-            var colors = GetTabColors(isActive, isHovered, animationProgress);
-            
-            // Draw tab background with gradient
-            DrawTabBackground(g, bounds, colors, isActive, isHovered);
-            
-            // Draw tab border
-            DrawTabBorder(g, bounds, colors.BorderColor, isActive);
-            
-            // Draw tab text
-            var textBounds = showCloseButton ? 
-                new Rectangle(bounds.X + 8, bounds.Y, bounds.Width - 28, bounds.Height) :
-                new Rectangle(bounds.X + 8, bounds.Y, bounds.Width - 16, bounds.Height);
-            
-            DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
-            
-            // Draw close button if needed
-            if (showCloseButton)
+            // Validate input parameters
+            if (g == null || bounds.Width <= 0 || bounds.Height <= 0 || font == null)
+                return;
+
+            // Ensure title is not null
+            if (string.IsNullOrEmpty(title))
+                title = "Tab";
+
+            // Clamp animation progress
+            animationProgress = Math.Max(0f, Math.Min(1f, animationProgress));
+
+            try
             {
-                var closeRect = new Rectangle(bounds.Right - 20, bounds.Y + 8, 12, 12);
-                DrawCloseButton(g, closeRect, isCloseHovered, colors.TextColor);
+                // Get theme colors
+                var colors = GetTabColors(isActive, isHovered, animationProgress);
+                
+                // Draw tab background with gradient
+                DrawTabBackground(g, bounds, colors, isActive, isHovered);
+                
+                // Draw tab border
+                DrawTabBorder(g, bounds, colors.BorderColor, isActive);
+                
+                // Calculate text bounds with proper margins
+                var textBounds = showCloseButton ? 
+                    new Rectangle(bounds.X + 8, bounds.Y + 2, Math.Max(0, bounds.Width - 36), Math.Max(0, bounds.Height - 4)) :
+                    new Rectangle(bounds.X + 8, bounds.Y + 2, Math.Max(0, bounds.Width - 16), Math.Max(0, bounds.Height - 4));
+                
+                // Draw tab text only if there's space
+                if (textBounds.Width > 10 && textBounds.Height > 10)
+                {
+                    DrawTabText(g, textBounds, title, font, colors.TextColor, isActive);
+                }
+                
+                // Draw close button if needed and there's space
+                if (showCloseButton && bounds.Width > 30 && bounds.Height > 16)
+                {
+                    var closeRect = new Rectangle(bounds.Right - 20, bounds.Y + (bounds.Height - 12) / 2, 12, 12);
+                    DrawCloseButton(g, closeRect, isCloseHovered, colors.TextColor);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log error for debugging
+                System.Diagnostics.Debug.WriteLine($"DrawProfessionalTab error: {ex.Message}");
+                
+                // Fallback to simple rectangle drawing
+                try
+                {
+                    using (var brush = new SolidBrush(isActive ? SystemColors.ControlLight : SystemColors.Control))
+                    {
+                        g.FillRectangle(brush, bounds);
+                    }
+                    using (var pen = new Pen(SystemColors.ControlDark))
+                    {
+                        g.DrawRectangle(pen, bounds);
+                    }
+                    
+                    // Simple text rendering as fallback
+                    if (!string.IsNullOrEmpty(title) && bounds.Width > 20 && bounds.Height > 10)
+                    {
+                        var textRect = new Rectangle(bounds.X + 4, bounds.Y + 2, bounds.Width - 8, bounds.Height - 4);
+                        TextRenderer.DrawText(g, title, font, textRect, SystemColors.ControlText, 
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | 
+                            TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                    }
+                }
+                catch
+                {
+                    // If even the fallback fails, give up gracefully
+                }
             }
         }
 
@@ -130,32 +180,73 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
         private void DrawTabText(Graphics g, Rectangle textBounds, string title, Font font, Color textColor, bool isActive)
         {
+            // Validate parameters before drawing
+            if (g == null || string.IsNullOrEmpty(title) || font == null || textBounds.Width <= 0 || textBounds.Height <= 0)
+                return;
+
             using (var brush = new SolidBrush(textColor))
             {
-                var actualFont = isActive ? new Font(font, FontStyle.Bold) : font;
-                
-                using (actualFont)
+                Font actualFont = null;
+                try
                 {
-                    var stringFormat = new StringFormat
+                    // Create font safely - don't dispose the original font
+                    actualFont = isActive ? new Font(font, FontStyle.Bold) : font;
+                    
+                    using (var stringFormat = new StringFormat
                     {
                         Alignment = StringAlignment.Center,
                         LineAlignment = StringAlignment.Center,
                         Trimming = StringTrimming.EllipsisCharacter,
                         FormatFlags = StringFormatFlags.NoWrap
-                    };
-
-                    // Add subtle text shadow for better readability
-                    if (isActive)
+                    })
                     {
-                        using (var shadowBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
+                        // Add subtle text shadow for better readability
+                        if (isActive)
                         {
-                            var shadowBounds = new Rectangle(textBounds.X + 1, textBounds.Y + 1, 
-                                                           textBounds.Width, textBounds.Height);
-                            g.DrawString(title, actualFont, shadowBrush, shadowBounds, stringFormat);
+                            using (var shadowBrush = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
+                            {
+                                var shadowBounds = new Rectangle(textBounds.X + 1, textBounds.Y + 1, 
+                                                               textBounds.Width, textBounds.Height);
+                                
+                                // Validate shadow bounds
+                                if (shadowBounds.Width > 0 && shadowBounds.Height > 0)
+                                {
+                                    g.DrawString(title, actualFont, shadowBrush, shadowBounds, stringFormat);
+                                }
+                            }
                         }
+                        
+                        // Draw main text
+                        g.DrawString(title, actualFont, brush, textBounds, stringFormat);
                     }
-
-                    g.DrawString(title, actualFont, brush, textBounds, stringFormat);
+                }
+                catch (ArgumentException ex)
+                {
+                    // Log the error details for debugging
+                    System.Diagnostics.Debug.WriteLine($"DrawTabText error: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"TextBounds: {textBounds}");
+                    System.Diagnostics.Debug.WriteLine($"Title: '{title}'");
+                    System.Diagnostics.Debug.WriteLine($"Font: {font?.Name}, Size: {font?.Size}");
+                    
+                    // Fallback to simple text drawing without formatting
+                    try
+                    {
+                        TextRenderer.DrawText(g, title, font, textBounds, textColor, 
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | 
+                            TextFormatFlags.EndEllipsis | TextFormatFlags.SingleLine);
+                    }
+                    catch
+                    {
+                        // If all else fails, skip drawing this text
+                    }
+                }
+                finally
+                {
+                    // Only dispose the font if we created it (i.e., for bold active tabs)
+                    if (actualFont != null && actualFont != font)
+                    {
+                        actualFont.Dispose();
+                    }
                 }
             }
         }
@@ -192,15 +283,25 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
         {
             var path = new GraphicsPath();
             
+            // Validate rectangle
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                return path; // Return empty path for invalid rectangles
+            }
+            
             if (radius <= 0)
             {
                 path.AddRectangle(rect);
                 return path;
             }
 
-            int diameter = Math.Min(radius * 2, Math.Min(rect.Width, rect.Height));
+            // Ensure radius doesn't exceed rectangle dimensions
+            int maxRadius = Math.Min(rect.Width / 2, rect.Height / 2);
+            radius = Math.Min(radius, maxRadius);
             
-            if (diameter <= 0)
+            int diameter = radius * 2;
+            
+            if (diameter <= 0 || diameter > Math.Min(rect.Width, rect.Height))
             {
                 path.AddRectangle(rect);
                 return path;
@@ -208,24 +309,42 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers
 
             try
             {
+                // Create rounded rectangle path
                 var arc = new Rectangle(rect.X, rect.Y, diameter, diameter);
+                
+                // Top-left arc
                 path.AddArc(arc, 180, 90);
                 
+                // Top-right arc
                 arc.X = rect.Right - diameter;
                 path.AddArc(arc, 270, 90);
                 
+                // Bottom-right arc
                 arc.Y = rect.Bottom - diameter;
                 path.AddArc(arc, 0, 90);
                 
+                // Bottom-left arc
                 arc.X = rect.Left;
                 path.AddArc(arc, 90, 90);
                 
                 path.CloseFigure();
             }
-            catch
+            catch (ArgumentException ex)
             {
+                // If arc creation fails, fall back to rectangle
+                System.Diagnostics.Debug.WriteLine($"CreateRoundedPath error: {ex.Message}");
                 path.Reset();
                 path.AddRectangle(rect);
+            }
+            catch (Exception ex)
+            {
+                // Handle any other unexpected errors
+                System.Diagnostics.Debug.WriteLine($"CreateRoundedPath unexpected error: {ex.Message}");
+                path.Reset();
+                if (rect.Width > 0 && rect.Height > 0)
+                {
+                    path.AddRectangle(rect);
+                }
             }
 
             return path;

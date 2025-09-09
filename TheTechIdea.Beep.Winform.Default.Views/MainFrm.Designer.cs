@@ -228,17 +228,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.CanBePressed = true;
             beepAppBar1.Category = Utilities.DbFieldCategory.String;
             beepAppBar1.ComponentName = "beepAppBar1";
-            beepAppBar1.CurrentMenutems = (System.ComponentModel.BindingList<SimpleItem>)resources.GetObject("beepAppBar1.CurrentMenutems");
+      
             beepAppBar1.DataSourceProperty = null;
             beepAppBar1.DisabledBackColor = Color.Gray;
             beepAppBar1.DisabledBorderColor = Color.Empty;
             beepAppBar1.DisabledForeColor = Color.Empty;
             beepAppBar1.DisableDpiAndScaling = true;
             beepAppBar1.Dock = DockStyle.Top;
-            beepAppBar1.DraggableAreas = (List<string>)resources.GetObject("beepAppBar1.DraggableAreas");
-            beepAppBar1.DrawingRect = new Rectangle(0, 0, 1200, 48);
-            beepAppBar1.Easing = EasingType.Linear;
-            beepAppBar1.EnableFormDragging = true;
+         beepAppBar1.Easing = EasingType.Linear;
+         
             beepAppBar1.EnableHighQualityRendering = true;
             beepAppBar1.EnableRippleEffect = true;
             beepAppBar1.EnableSplashEffect = true;
@@ -304,7 +302,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppBar1.ParentBackColor = Color.Empty;
             beepAppBar1.ParentControl = null;
-            beepAppBar1.PopupListForm = null;
+
             beepAppBar1.PressedBackColor = Color.Gray;
             beepAppBar1.PressedBorderColor = Color.Black;
             beepAppBar1.PressedForeColor = Color.Black;

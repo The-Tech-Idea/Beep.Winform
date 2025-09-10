@@ -37,8 +37,8 @@
 	</Target>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="9.0.8" />
-    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.83" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.9" />
+    <PackageReference Include="TheTechIdea.Beep.DataManagementModels" Version="2.0.86" />
   </ItemGroup>
 
 

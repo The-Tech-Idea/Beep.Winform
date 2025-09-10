@@ -676,7 +676,7 @@
     <EmbeddedResource Include="GFX\SVG\NAV\005-back arrow.svg" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
   </ItemGroup>

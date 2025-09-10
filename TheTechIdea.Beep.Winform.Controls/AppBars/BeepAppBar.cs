@@ -1473,7 +1473,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
                 // Apply theme to this control
                 Theme = selectedThemeName;
-                ApplyTheme();
+               // ApplyTheme();
             }
         }
         #endregion "Event Handling"

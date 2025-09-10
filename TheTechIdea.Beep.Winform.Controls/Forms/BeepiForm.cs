@@ -387,12 +387,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             try 
             { 
                 // Update BeepFormUIManager theme
-                try 
-                { 
-                    if (beepuiManager1.Theme != Theme) 
-                        beepuiManager1.Theme = Theme; 
-                } 
-                catch { }
+                //try 
+                //{ 
+                //    if (beepuiManager1.Theme != Theme) 
+                //        beepuiManager1.Theme = Theme; 
+                //} 
+                //catch { }
                 
                 // Apply background color from theme
                 Color newBackColor = _currentTheme?.BackColor ?? SystemColors.Control; 

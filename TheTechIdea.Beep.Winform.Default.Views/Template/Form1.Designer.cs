@@ -28,29 +28,25 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            beepMdiManager1 = new TheTechIdea.Beep.Winform.Controls.MDI.BeepMdiManager(components);
             SuspendLayout();
-            // 
-            // beepMdiManager1
-            // 
-            beepMdiManager1.AllowTabReorder = true;
-            beepMdiManager1.EnableMenuMerge = false;
-            beepMdiManager1.EnableTabbedMdi = true;
-            beepMdiManager1.HideChildCaptions = true;
-            beepMdiManager1.HostForm = null;
-            beepMdiManager1.MergeTargetMenuStrip = null;
-            beepMdiManager1.TabHeight = 30;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            BorderColor = Color.FromArgb(200, 200, 200);
+            BorderRadius = 4;
+            ClientSize = new Size(859, 794);
+            EnableGlow = false;
+            FormStyle = Winform.Controls.BeepFormStyle.Office;
+            GlowColor = Color.FromArgb(90, 50, 100, 200);
+            GlowSpread = 0F;
             Name = "Form1";
+            ShadowDepth = 4;
             StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("Form1.StylePresets.Presets");
             Text = "Form1";
+            Theme = "DefaultTheme";
             ResumeLayout(false);
         }
 

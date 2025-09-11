@@ -37,7 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch { return false; }
         }
-        private bool InDesignHost => LicenseManager.UsageMode == LicenseUsageMode.Designtime || DesignMode || IsDesignProcess();
+        // Force runtime behavior even in designer (user request to remove any check for design host)
+        private bool InDesignHost => false;
 
         // UI manager (restored from designer removal)
         public BeepFormUIManager beepuiManager1; // made public for derived designer forms
@@ -58,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private FormHitTestHelper _hitTestHelper;
         private FormCaptionBarHelper _captionHelper;
         // Helpers (add this near the other helpers)
-        private FormMdiHelper _mdiHelper;
+       
 
 
         // IBeepModernFormHost implementation
@@ -97,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _glowSpread = 8f;
         private int _shadowDepth = 6;
 
-        [Category("Beep Style")][DefaultValue(BeepFormStyle.Modern)] public BeepFormStyle FormStyle { get => _formStyle; set { if (_formStyle != value) { _formStyle = value; if (!InDesignHost) ApplyFormStyle(); Invalidate(); } } }
+        [Category("Beep Style")][DefaultValue(BeepFormStyle.Modern)] public BeepFormStyle FormStyle { get => _formStyle; set { if (_formStyle == value) return; _formStyle = value; try { ApplyFormStyle(); } catch (Exception ex) { Debug.WriteLine($"FormStyle apply error: {ex.Message}"); } Invalidate(); } }
         [Category("Beep Style")] public Color ShadowColor { get => _shadowColor; set { if (_shadowColor != value) { _shadowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
         [Category("Beep Style"), DefaultValue(6)] public int ShadowDepth { get => _shadowDepth; set { if (_shadowDepth != value) { _shadowDepth = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
         [Category("Beep Style"), DefaultValue(true)] public bool EnableGlow { get => _enableGlow; set { if (_enableGlow != value) { _enableGlow = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
@@ -111,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string LogoImagePath
         {
             get => _captionHelper?.LogoImagePath ?? string.Empty;
-            set { if (_captionHelper != null) _captionHelper.LogoImagePath = value; }
+            set { if (_captionHelper != null) { _captionHelper.LogoImagePath = value; Invalidate(); } }
         }
 
         [Category("Beep Logo"), DefaultValue(false)]
@@ -148,80 +149,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         // MDI properties-----------------------------------------
 
-// -------------------- MDI (Designer Properties) --------------------
-#region Tabbed MDI (Designer)
-[Category("MDI"), Description("Enable a DevExpress-like tabbed MDI strip.")]
-    [DefaultValue(false), Browsable(true)]
-    public bool TabbedMdiEnabled
-    {
-        get => _mdiHelper != null && _mdiHelper.Enabled;
-        set { if (_mdiHelper != null) { _mdiHelper.Enabled = value; Invalidate(); } }
-    }
-
-    [Category("MDI"), Description("Where to draw the MDI tabs (Top/Bottom).")]
-    [DefaultValue(TabAlignment.Top), Browsable(true)]
-    public TabAlignment TabbedMdiAlignment
-    {
-        get => _mdiHelper?.Alignment ?? TabAlignment.Top;
-        set { if (_mdiHelper != null) { _mdiHelper.Alignment = value; Invalidate(); } }
-    }
-
-    [Category("MDI"), Description("Tab strip height in pixels.")]
-    [DefaultValue(32), Browsable(true)]
-    public int TabbedMdiHeight
-    {
-        get => _mdiHelper?.TabHeight ?? 32;
-        set { if (_mdiHelper != null) { _mdiHelper.TabHeight = value; Invalidate(); } }
-    }
-
-    [Category("MDI"), Description("Show close (X) button on tabs.")]
-    [DefaultValue(true), Browsable(true)]
-    public bool TabbedMdiShowCloseButtons
-    {
-        get => _mdiHelper?.ShowCloseButtons ?? true;
-        set { if (_mdiHelper != null) { _mdiHelper.ShowCloseButtons = value; Invalidate(); } }
-    }
-
-    [Category("MDI"), Description("Allow middle-click to close a tab.")]
-    [DefaultValue(true), Browsable(true)]
-    public bool TabbedMdiMiddleClickClose
-    {
-        get => _mdiHelper?.MiddleClickToClose ?? true;
-        set { if (_mdiHelper != null) { _mdiHelper.MiddleClickToClose = value; } }
-    }
-
-    [Category("MDI"), Description("Show a “+” button to create a new tab.")]
-    [DefaultValue(true), Browsable(true)]
-    public bool TabbedMdiShowNewButton
-    {
-        get => _mdiHelper?.ShowNewTabButton ?? true;
-        set { if (_mdiHelper != null) { _mdiHelper.ShowNewTabButton = value; Invalidate(); } }
-    }
-
-    [Category("MDI"), Description("Allow dragging tabs to reorder.")]
-    [DefaultValue(true), Browsable(true)]
-    public bool TabbedMdiAllowDragReorder
-    {
-        get => _mdiHelper?.AllowDragReorder ?? true;
-        set { if (_mdiHelper != null) { _mdiHelper.AllowDragReorder = value; } }
-    }
-
-    [Category("MDI"), Description("Allow pinning tabs to the left.")]
-    [DefaultValue(true), Browsable(true)]
-    public bool TabbedMdiAllowPinning
-    {
-        get => _mdiHelper?.AllowPinning ?? true;
-        set { if (_mdiHelper != null) { _mdiHelper.AllowPinning = value; Invalidate(); } }
-    }
-
-    [Category("MDI"), Description("Show numeric badges on tabs when set via API.")]
-    [DefaultValue(true), Browsable(true)]
-    public bool TabbedMdiShowBadges
-    {
-        get => _mdiHelper?.ShowBadges ?? true;
-        set { if (_mdiHelper != null) { _mdiHelper.ShowBadges = value; Invalidate(); } }
-    }
-    #endregion
 
     // End MDI properties-----------------------------------------
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)] public BeepFormStylePresets StylePresets { get; } = new();
@@ -264,7 +191,33 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Ribbon (merged)
         private bool _showRibbonPlaceholder = false; private int _ribbonHeight = 80; private bool _showQuickAccess = true; private BeepRibbonControl? _ribbon;
-        [Category("Beep Ribbon"), DefaultValue(false)] public bool ShowRibbonPlaceholder { get => _showRibbonPlaceholder; set { _showRibbonPlaceholder = value; if (!InDesignHost && value) EnsureRibbon(); Invalidate(); } }
+        [Category("Beep Ribbon"), DefaultValue(false)]
+        public bool ShowRibbonPlaceholder
+        {
+            get => _showRibbonPlaceholder;
+            set
+            {
+                _showRibbonPlaceholder = value;
+                if (InDesignHost) { Invalidate(); return; }
+
+                if (value)
+                {
+                    EnsureRibbon();
+                    if (_ribbon != null) _ribbon.Visible = true;
+                }
+                else
+                {
+                    if (_ribbon != null)
+                    {
+                        Controls.Remove(_ribbon);
+                        _ribbon.Dispose();
+                        _ribbon = null;
+                    }
+                }
+                Invalidate();
+            }
+        }
+
         [Browsable(false)] public BeepRibbonControl? Ribbon => _ribbon;
         [Category("Beep Ribbon"), DefaultValue(80)] public int RibbonHeight { get => _ribbonHeight; set { _ribbonHeight = Math.Max(40, value); if (_ribbon != null) _ribbon.Height = _ribbonHeight; Invalidate(); } }
         [Category("Beep Ribbon"), DefaultValue(true)] public bool ShowQuickAccess { get => _showQuickAccess; set { _showQuickAccess = value; if (_ribbon != null) _ribbon.QuickAccess.Visible = value; Invalidate(); } }
@@ -351,19 +304,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _themeHelper = new FormThemeHelper(this);
                     _styleHelper = new FormStyleHelper(this, _shadowGlow);
                     _captionHelper = new FormCaptionBarHelper(this, _overlayRegistry, padAdj => RegisterPaddingProvider((ref Padding p) => padAdj(ref p)));
-                    // MDI helper----------------------
-                    _mdiHelper = new FormMdiHelper(this, _overlayRegistry, padAdj => RegisterPaddingProvider((ref Padding p) => padAdj(ref p)));
-
-                    // forward mouse to MDI helper (like caption helper)
-                    RegisterMouseMoveHandler(e => _mdiHelper.OnMouseMove(e));
-                    RegisterMouseLeaveHandler(() => _mdiHelper.OnMouseLeave());
-                    RegisterMouseDownHandler(e => _mdiHelper.OnMouseDown(e));
-                    // optional: wheel scroll to navigate overflowed tabs
-                    MouseWheel += (s, e) => _mdiHelper.OnMouseWheel(e);
-
-                    // Enable it by default if you want
-                    _mdiHelper.Enabled = true;
-
+                   
                     //-------------
                     InitializeCaptionHelperWithLegacyState();
                     _hitTestHelper = new FormHitTestHelper(this,
@@ -477,6 +418,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Paint Override
         protected override void OnPaint(PaintEventArgs e)
         {
+            base.OnPaint(e);
             if (InDesignHost)
             {
                 // Simple design-time representation (avoid heavy effects / PInvoke)
@@ -514,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 PaintDirectly(g);
             }
-            base.OnPaint(e);
+          
         }
         private void PaintDirectly(Graphics g)
         {

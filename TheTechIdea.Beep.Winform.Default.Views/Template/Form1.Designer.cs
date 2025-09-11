@@ -28,8 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            beepMdiManager1 = new TheTechIdea.Beep.Winform.Controls.MDI.BeepMdiManager(components);
             SuspendLayout();
+            // 
+            // beepMdiManager1
+            // 
+            beepMdiManager1.AllowTabReorder = true;
+            beepMdiManager1.EnableMenuMerge = false;
+            beepMdiManager1.EnableTabbedMdi = true;
+            beepMdiManager1.HideChildCaptions = true;
+            beepMdiManager1.HostForm = null;
+            beepMdiManager1.MergeTargetMenuStrip = null;
+            beepMdiManager1.TabHeight = 30;
             // 
             // Form1
             // 
@@ -43,5 +55,7 @@
         }
 
         #endregion
+
+        private Controls.MDI.BeepMdiManager beepMdiManager1;
     }
 }

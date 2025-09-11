@@ -1,10 +1,12 @@
-﻿using Svg;
-using System.ComponentModel;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel; // added for DesignerAttribute
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Text.RegularExpressions;
+using Svg;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
@@ -17,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Image")]
     [Description("A control that displays an image (SVG, PNG, JPG, BMP).")]
-    //[Designer(typeof(TheTechIdea.Beep.Winform.Controls.Design.BeepImageDesigner))]
+    [Designer("TheTechIdea.Beep.Winform.Controls.MDI.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")] // string-based design-time reference
     public class BeepImage : BeepControl
     {
         #region "Fields"

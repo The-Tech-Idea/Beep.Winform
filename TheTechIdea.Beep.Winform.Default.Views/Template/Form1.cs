@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
 
-namespace TheTechIdea.Beep.Winform.Default.Views
+namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
-    public partial class Form2 : BeepiForm
+    public partial class Form1 : BeepiForm
     {
-        public Form2()
+        public Form1()
         {
             InitializeComponent();
         }

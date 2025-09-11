@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
     partial class Form1
     {
@@ -35,13 +35,10 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BorderColor = Color.FromArgb(200, 200, 200);
-            BorderRadius = 8;
-            ClientSize = new Size(786, 583);
+            ClientSize = new Size(800, 450);
             Name = "Form1";
             StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("Form1.StylePresets.Presets");
             Text = "Form1";
-            Theme = "DefaultTheme";
             ResumeLayout(false);
         }
 

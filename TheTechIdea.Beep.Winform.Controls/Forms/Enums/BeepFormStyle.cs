@@ -1,5 +1,6 @@
 namespace TheTechIdea.Beep.Winform.Controls
 {
+
     public enum BeepFormStyle
     {
         /// <summary>

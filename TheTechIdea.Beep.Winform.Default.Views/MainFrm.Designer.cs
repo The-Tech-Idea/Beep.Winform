@@ -667,17 +667,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Text = "beepDisplayContainer21";
             beepDisplayContainer1.Theme = "DefaultTheme";
             beepDisplayContainer1.ToolTipText = "";
-            beepDisplayContainer1.TopoffsetForDrawingRect = 0;
-            beepDisplayContainer1.UIAnimation = ReactUIAnimation.None;
-            beepDisplayContainer1.UIColor = ReactUIColor.Primary;
-            beepDisplayContainer1.UICustomElevation = 0;
-            beepDisplayContainer1.UIDensity = ReactUIDensity.Standard;
-            beepDisplayContainer1.UIDisabled = false;
-            beepDisplayContainer1.UIElevation = ReactUIElevation.None;
-            beepDisplayContainer1.UIFullWidth = false;
-            beepDisplayContainer1.UIShape = ReactUIShape.Rounded;
-            beepDisplayContainer1.UISize = ReactUISize.Medium;
-            beepDisplayContainer1.UIVariant = ReactUIVariant.Default;
+        
             beepDisplayContainer1.UseExternalBufferedGraphics = false;
             beepDisplayContainer1.UseGlassmorphism = false;
             beepDisplayContainer1.UseGradientBackground = false;

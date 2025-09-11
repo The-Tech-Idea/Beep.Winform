@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
@@ -136,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         #region Constructor
 
-        public BeepDisplayContainer2()
+        public BeepDisplayContainer2():base()
         {
             InitializeComponent();
             InitializeContainer();
@@ -144,10 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         private void InitializeComponent()
         {
-            SetStyle(ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.OptimizedDoubleBuffer | 
-                     ControlStyles.ResizeRedraw | 
-                     ControlStyles.UserPaint, true);
+          
             
             BackColor = Color.White;
             Font = new Font("Segoe UI", 9F, FontStyle.Regular);
@@ -284,33 +282,18 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
         #region Painting
 
-        protected override void OnPaint(PaintEventArgs e)
+        protected override void DrawContent(Graphics g)
         {
-            base.OnPaint(e);
+            base.DrawContent(g);
 
-            var g = e.Graphics;
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            // Clear background
-            using (var brush = new SolidBrush(_contentBackColor))
-            {
-                g.FillRectangle(brush, ClientRectangle);
-            }
 
             if (_displayMode == ContainerDisplayMode.Tabbed)
             {
                 DrawTabs(g);
                 DrawScrollButtons(g);
             }
-
-            // Draw border
-            using (var pen = new Pen(_borderColor))
-            {
-                g.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
-            }
         }
-
         private void DrawTabs(Graphics g)
         {
             if (_paintHelper == null) return;

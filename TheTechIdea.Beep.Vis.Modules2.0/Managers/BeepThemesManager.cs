@@ -138,11 +138,53 @@ namespace TheTechIdea.Beep.Vis.Modules.Managers
             // After loading standard themes, call AddPredefinedThemes for specialized themes
             AddPredefinedThemes();
 
+            // Ensure fallback (DefaultBeepTheme) exists if no themes or no default themes found
+            EnsureFallbackTheme();
+
             // Log the discovered themes
             System.Diagnostics.Debug.WriteLine($"Initialized {_themes.Count} themes:");
             foreach (var theme in _themes)
             {
                 System.Diagnostics.Debug.WriteLine($"- {theme.ThemeName} ({theme.GetType().FullName})");
+            }
+        }
+
+        // Add or create fallback DefaultBeepTheme if needed
+        private static void EnsureFallbackTheme()
+        {
+            // If we already have either a "DefaultTheme" or "DefaultBeepTheme" we are fine
+            if (_themes.Any(t => t.ThemeName == "DefaultTheme" || t.ThemeName == "DefaultBeepTheme"))
+                return;
+
+            try
+            {
+                // Try to find the DefaultBeepTheme type (internal in Winform.Controls assembly) via reflection
+                var fallbackType = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(a => !a.IsDynamic)
+                    .SelectMany(a =>
+                    {
+                        try { return a.GetTypes(); } catch { return Array.Empty<Type>(); }
+                    })
+                    .FirstOrDefault(t => t.FullName == "TheTechIdea.Beep.Winform.Controls.Themes.DefaultBeepTheme");
+
+                if (fallbackType != null && typeof(IBeepTheme).IsAssignableFrom(fallbackType))
+                {
+                    if (Activator.CreateInstance(fallbackType, true) is IBeepTheme fallbackTheme)
+                    {
+                        if (string.IsNullOrEmpty(fallbackTheme.ThemeGuid))
+                            fallbackTheme.ThemeGuid = Guid.NewGuid().ToString();
+                        _themes.Add(fallbackTheme);
+                        // Point current theme name to it if current referenced default does not exist
+                        if (!_themes.Any(t => t.ThemeName == _currentThemeName))
+                            _currentThemeName = fallbackTheme.ThemeName;
+                        System.Diagnostics.Debug.WriteLine("Fallback DefaultBeepTheme added to themes list.");
+                        return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to instantiate DefaultBeepTheme via reflection: {ex.Message}");
             }
         }
 
@@ -218,13 +260,29 @@ namespace TheTechIdea.Beep.Vis.Modules.Managers
         // Get the default theme
         public static IBeepTheme GetDefaultTheme()
         {
-            return _themes.FirstOrDefault(t => t.ThemeName == "DefaultTheme") ?? _themes.FirstOrDefault();
+            // Prefer explicit "DefaultTheme" if present
+            var def = _themes.FirstOrDefault(t => t.ThemeName == "DefaultTheme");
+            if (def != null) return def;
+
+            // Then look for the provided fallback class name
+            var fallback = _themes.FirstOrDefault(t => t.ThemeName == "DefaultBeepTheme");
+            if (fallback != null) return fallback;
+
+            // Ensure we attempted to load fallback if not already
+            EnsureFallbackTheme();
+
+            // Try again after ensuring
+            fallback = _themes.FirstOrDefault(t => t.ThemeName == "DefaultBeepTheme");
+            if (fallback != null) return fallback;
+
+            // Last resort: any available theme
+            return _themes.FirstOrDefault();
         }
 
         // Get theme name
         public static string GetThemeName(IBeepTheme theme)
         {
-            return theme?.ThemeName ?? "DefaultTheme";
+            return theme?.ThemeName ?? "DefaultBeepTheme";
         }
 
         // Get list of theme names

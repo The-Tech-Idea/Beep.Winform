@@ -405,7 +405,13 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         //}
         public BeepAppBar() : base()
         {
-          
+            // IMPORTANT: enable proper redraw & flicker-free resizing
+            SetStyle(ControlStyles.AllPaintingInWmPaint
+                     | ControlStyles.UserPaint
+                     | ControlStyles.OptimizedDoubleBuffer
+                     | ControlStyles.ResizeRedraw, true);
+            UpdateStyles();
+
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
@@ -415,12 +421,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
             IsRounded = false;
             ApplyThemeToChilds = false;
 
-            // Initialize drawing components
             InitializeDrawingComponents();
 
-            // Defer DPI-dependent initialization
             HandleCreated += BeepAppBar_HandleCreated;
-            // Populate theme menu safely
+
             if (!IsDesignTime)
             {
                 try
@@ -430,10 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                         _themeButton.ListItems.Add(new SimpleItem { Text = themeName });
                     }
                 }
-                catch
-                {
-                    // Ignore in designer
-                }
+                catch { }
             }
             EnableFormDragging = true;
             SetDraggableAreas("Empty");
@@ -453,6 +454,21 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 Width = 200;
                 Height = ScaledDefaultHeight;
             }
+        }
+        protected override void OnParentChanged(EventArgs e)
+        {
+            base.OnParentChanged(e);
+            if (Parent != null)
+            {
+                Parent.Resize -= Parent_Resize;
+                Parent.Resize += Parent_Resize;
+            }
+        }
+      
+        private void Parent_Resize(object? sender, EventArgs e)
+        {
+            // Force a full redraw when the host form resizes
+            Invalidate();
         }
         protected override void InitLayout()
         {
@@ -1663,12 +1679,20 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
         {
             base.OnResize(e);
 
-            // Remove search box control during resize to avoid layout conflicts.
-            RemoveSearchBoxControl();
+            // Avoid removing the control during live resize (this caused transient blank/transparent areas)
+            if (_searchBoxAddedToControls && _searchBox != null)
+            {
+                // Just keep it hidden & reposition later in DrawContent
+                _searchBox.Visible = false;
+            }
 
-            // The layout of components is recalculated in the DrawContent method,
-            // so we just need to trigger a repaint.
-            Invalidate();
+            // Ensure our height stays consistent (prevents partial invalid paints if parent shrinks/grows quickly)
+            if (Height != ScaledDefaultHeight)
+            {
+                Height = ScaledDefaultHeight;
+            }
+
+            Invalidate(); // triggers redraw (ResizeRedraw style alrea
         }
         #endregion "Overrides"
         /// <summary>

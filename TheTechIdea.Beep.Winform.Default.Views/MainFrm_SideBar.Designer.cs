@@ -603,16 +603,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.Theme = "DefaultTheme";
             beepMenuBar1.ToolTipText = "";
             beepMenuBar1.TopoffsetForDrawingRect = 0;
-            beepMenuBar1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepMenuBar1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepMenuBar1.UICustomElevation = 0;
-            beepMenuBar1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepMenuBar1.UIDisabled = false;
-            beepMenuBar1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepMenuBar1.UIFullWidth = false;
-            beepMenuBar1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepMenuBar1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepMenuBar1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+       
             beepMenuBar1.UseGradientBackground = false;
             beepMenuBar1.UseThemeFont = true;
             // 

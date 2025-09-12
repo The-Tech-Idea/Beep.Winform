@@ -1277,18 +1277,71 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion "Paint"
         #region "Mouse and Click"
-        //private void BeepImage_MouseHover(object? sender, EventArgs e)
-        //{
-        //   IsHovered = true;
-        //    base.OnMouseHover(e);
+        /// <summary>
+        /// Programmatically triggers the Click event on this button.
+        /// Simulates a press state and starts the splash ripple (if enabled).
+        /// </summary>
+        public void PerformClick()
+        {
+            if (!Enabled || !Visible)
+                return;
 
-        //}
-        //private void BeepImage_MouseEnter(object? sender, EventArgs e)
-        //{
+            // Simulate press state
+            IsPressed = true;
+            Invalidate();
 
-        //    IsHovered = true;
-        //    base.OnMouseEnter(e);
-        //}
+            try
+            {
+                // Optional ripple from center
+                if (EnableSplashEffect && splashTimer != null)
+                {
+                    splashActive = true;
+                    splashCenter = new Point(Width / 2, Height / 2);
+                    splashProgress = 0f;
+                    splashTimer.Start();
+                }
+
+                // Raise Click
+                OnClick(EventArgs.Empty);
+            }
+            finally
+            {
+                // Release press state
+                IsPressed = false;
+                Invalidate();
+            }
+        }
+
+        /// <summary>
+        /// Programmatically triggers the Click event and shows splash ripple at a custom center.
+        /// </summary>
+        /// <param name="rippleCenter">Ripple origin; ignored if splash effect is disabled.</param>
+        public void PerformClick(Point rippleCenter)
+        {
+            if (!Enabled || !Visible)
+                return;
+
+            IsPressed = true;
+            Invalidate();
+
+            try
+            {
+                if (EnableSplashEffect && splashTimer != null)
+                {
+                    splashActive = true;
+                    splashCenter = rippleCenter;
+                    splashProgress = 0f;
+                    splashTimer.Start();
+                }
+
+                OnClick(EventArgs.Empty);
+            }
+            finally
+            {
+                IsPressed = false;
+                Invalidate();
+            }
+        }
         private void BeepImage_MouseDown(object? sender, MouseEventArgs e)
         {
             base.OnMouseDown(e);

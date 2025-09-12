@@ -478,22 +478,78 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Override to provide combo box specific minimum dimensions
         /// </summary>
         /// <returns>Minimum height for Material Design combo box</returns>
+        // 1) Align Material min heights
         protected override int GetMaterialMinimumHeight()
         {
-            // ComboBox specific Material Design heights
+            // Align with BeepDatePicker
             switch (MaterialVariant)
             {
                 case MaterialTextFieldVariant.Outlined:
-                    return 56; // Standard Material outlined combo box height
+                    return 56;
                 case MaterialTextFieldVariant.Filled:
-                    return 64; // Filled combo boxes need more height
+                    return 56;
                 case MaterialTextFieldVariant.Standard:
-                    return 48; // Standard variant is more compact
+                    return 40;
                 default:
                     return 56;
             }
         }
+        // 2) Add a DatePicker-like minimum-size computation
+        private void UpdateMinimumSize()
+        {
+            try
+            {
+                // Determine sample text
+                string sample = !string.IsNullOrEmpty(_inputText)
+                    ? _inputText
+                    : (SelectedItem?.Text ?? (PlaceholderText ?? "Select"));
 
+                if (string.IsNullOrWhiteSpace(sample))
+                    sample = "Select";
+
+                Size textSize;
+                using (var g = CreateGraphics())
+                {
+                    textSize = TextRenderer.MeasureText(
+                        g,
+                        sample + "  ",
+                        _textFont,
+                        new Size(int.MaxValue, int.MaxValue),
+                        TextFormatFlags.SingleLine);
+                }
+
+                int textPrefH = Math.Max(_textFont.Height + 6, 16);
+                int buttonWidth = Math.Max(_buttonWidth, Math.Max(16, textPrefH));
+
+                int baseContentW = textSize.Width + buttonWidth + (_padding * 2);
+                int baseContentH = textPrefH;
+
+                Size baseContentMin = new Size(Math.Max(_minWidth, baseContentW), Math.Max(20, baseContentH));
+
+                Size effectiveMin = EnableMaterialStyle
+                    ? GetEffectiveMaterialMinimum(baseContentMin)
+                    : new Size(
+                        baseContentMin.Width + (BorderThickness + 2) * 2,
+                        baseContentMin.Height + (BorderThickness + 2) * 2);
+
+                // Safety clamps
+                effectiveMin.Width = Math.Max(effectiveMin.Width, _minWidth);
+                effectiveMin.Height = Math.Max(effectiveMin.Height, 24);
+
+                MinimumSize = effectiveMin;
+
+                // Enforce height like DatePicker
+                if (Height < effectiveMin.Height)
+                {
+                    Height = effectiveMin.Height;
+                    _collapsedHeight = Height;
+                }
+            }
+            catch
+            {
+                MinimumSize = new Size(120, 28);
+            }
+        }
         /// <summary>
         /// Override to provide combo box specific minimum width
         /// </summary>
@@ -514,22 +570,22 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
 
-            // Enforce minimum dimensions
             if (EnableMaterialStyle)
             {
-                // Use Material Design size enforcement
                 EnforceMaterialSizing();
             }
             else
             {
-                // Original non-Material logic
                 if (Width < _minWidth)
                     Width = _minWidth;
             }
 
+            // Recompute min and enforce like DatePicker
+            UpdateMinimumSize();
+
             GetControlHeight();
-            if (!_isPopupOpen && Height != _collapsedHeight)
-                Height = _collapsedHeight;
+            if (!_isPopupOpen && Height < MinimumSize.Height)
+                Height = Math.Max(_collapsedHeight, MinimumSize.Height);
 
             PositionControls();
             Invalidate();
@@ -875,7 +931,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Non-material: use DrawingRect area
                 Rectangle workingRect = DrawingRect;
 
-                int dividerX = workingRect.Right - _buttonWidth - _padding;
+                // Compute a trailing button rect (align with PositionControls logic)
+                int buttonX = workingRect.Right - _buttonWidth - _padding;
+                int buttonY = workingRect.Y + _padding;
+                int buttonH = Math.Max(0, workingRect.Height - (2 * _padding));
+                var buttonRect = new Rectangle(buttonX, buttonY, _buttonWidth, buttonH);
+
+                // Divider at the left edge of the button area
+                int dividerX = buttonRect.Left - _padding;
                 using (Pen dividerPen = new Pen(Color.FromArgb(40, ForeColor), 1))
                 {
                     g.DrawLine(
@@ -884,7 +947,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         new Point(dividerX, workingRect.Bottom - _padding));
                 }
 
-                DrawMaterialDropdownArrow(g, workingRect);
+                // Draw arrow centered within the button area (not whole workingRect)
+                DrawMaterialDropdownArrow(g, buttonRect);
             }
         }
 
@@ -1368,11 +1432,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
-            
-            // Update font reference
+
             _textFont = Font;
-            
-            // Recalculate size requirements for new font
+
             if (EnableMaterialStyle && ComboBoxAutoSizeForMaterial)
             {
                 ApplyMaterialSizeCompensation();
@@ -1382,8 +1444,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 GetControlHeight();
                 Height = _collapsedHeight;
             }
-            
-            // Recalculate icon layout when font changes
+
+            // Recompute min after font changes
+            UpdateMinimumSize();
+
             _materialHelper?.UpdateLayout();
         }
 

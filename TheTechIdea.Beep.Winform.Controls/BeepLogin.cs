@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 
@@ -53,13 +54,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Basic control settings with modern defaults
             this.Size = new Size(300, 200);
-            this.Padding = new Padding(2);
+            this.Padding = new Padding(5);
 
             // Set modern gradient defaults
             UseGradientBackground = true;
             ModernGradientType = ModernGradientType.Subtle;
             IsRounded = true;
-          //  BorderRadius = 12;
+             BorderRadius = 12;
           //  ShowShadow = true;
 
             // Main panel
@@ -219,6 +220,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "Remember Me",
                 AutoSize = false,
                 IsChild = true,
+                EnableMaterialStyle=false,
+                IsFrameless=true,
                 Font = new Font("Segoe UI", 11, FontStyle.Regular), // Increased from 9
                 Anchor = AnchorStyles.None
             };

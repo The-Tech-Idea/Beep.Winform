@@ -14,7 +14,6 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {
     [ToolboxItem(true)]
-    [DesignerCategory("Control")]
     [Category("Beep Controls")]
     [DisplayName("Beep Control Advanced")]
     [Description("Advanced Beep control with full feature parity to BeepControl but using helper architecture.")]
@@ -364,7 +363,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             ShowToolTip("Title", "Test");
         }
         #endregion
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                var cp = base.CreateParams;
+                const int WS_CLIPCHILDREN = 0x02000000;
+                const int WS_CLIPSIBLINGS = 0x04000000;
 
+                // Prevent painting over child windows and sibling overlap artifacts
+                cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+
+                return cp;
+            }
+        }
         protected override void InitLayout()
         {
             // Add design-time safety

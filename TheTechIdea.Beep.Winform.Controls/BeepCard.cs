@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepCard():base()
         {
              IsChild = false;
-            Padding = new Padding(0);
+            Padding = new Padding(5);
             BoundProperty = "ParagraphText";
             InitializeComponents();
             this.Size = new Size(400, 300);

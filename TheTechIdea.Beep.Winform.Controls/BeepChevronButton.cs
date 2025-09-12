@@ -42,7 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsShadowAffectedByTheme = false;
             IsRoundedAffectedByTheme = false;
             IsCustomeBorder = true;
-
+            IsFrameless=true;
+            Padding = new Padding(5);
             ApplyTheme();
 
             beepImage.MouseHover += (s, e) => { IsHovered = true; Invalidate(); };

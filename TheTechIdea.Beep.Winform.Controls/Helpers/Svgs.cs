@@ -103,6 +103,8 @@ namespace TheTechIdea.Beep.Icons
         #endregion
 
         #region "Information & Status"
+        //fi-tr-calendar
+        public static readonly string fi_tr_calendar = $"{BaseNamespace}.fi-tr-calendar.svg";
         public static readonly string Error = $"{BaseNamespace}.error.svg";
         public static readonly string Information = $"{BaseNamespace}.information.svg";
         public static readonly string Notice = $"{BaseNamespace}.notice.svg";

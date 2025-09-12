@@ -364,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
             }
         }
-
+        // Need to have private value for each property to and rewrite each property to have invalidate() call
         /// <summary>
         /// Alternative sizing mode for Material Design - preserves content area instead of following Material specs
         /// </summary>
@@ -373,54 +373,301 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Category("Material Design")]
         [Description("When enabled, preserves the original content area size instead of following Material Design size specifications")]
         [DefaultValue(false)]
-        public bool MaterialPreserveContentArea { get; set; } = false;
+        public bool MaterialPreserveContentArea
+        {
+            get => _materialPreserveContentArea;
+            set
+            {
+                if (_materialPreserveContentArea == value) return;
+                _materialPreserveContentArea = value;
+                OnMaterialPropertyChanged();
+                UpdateMaterialLayout();
+                Invalidate();
+            }
+        }
+        private bool _materialPreserveContentArea = false;
 
         // Basic appearance
-        [Browsable(true)] public bool ShowAllBorders { get; set; } = false;
-        [Browsable(true)] public bool ShowTopBorder { get; set; } = false;
-        [Browsable(true)] public bool ShowBottomBorder { get; set; } = false;
-        [Browsable(true)] public bool ShowLeftBorder { get; set; } = false;
-        [Browsable(true)] public bool ShowRightBorder { get; set; } = false;
-        [Browsable(true)] public int BorderThickness { get; set; } = 1;
-        [Browsable(true)] public int BorderRadius { get; set; } = 8;
-        [Browsable(true)] public bool IsRounded { get; set; } = true;
-        [Browsable(true)] public DashStyle BorderDashStyle { get; set; } = DashStyle.Solid;
-        [Browsable(true)] public Color InactiveBorderColor { get; set; } = Color.Gray;
+        [Browsable(true)]
+        public bool ShowAllBorders
+        {
+            get => _showAllBorders;
+            set { if (_showAllBorders == value) return; _showAllBorders = value; _paint?.InvalidateRects(); Invalidate(); }
+        }
+        private bool _showAllBorders = false;
+
+        [Browsable(true)]
+        public bool ShowTopBorder
+        {
+            get => _showTopBorder;
+            set { if (_showTopBorder == value) return; _showTopBorder = value; Invalidate(); }
+        }
+        private bool _showTopBorder = false;
+
+        [Browsable(true)]
+        public bool ShowBottomBorder
+        {
+            get => _showBottomBorder;
+            set { if (_showBottomBorder == value) return; _showBottomBorder = value; Invalidate(); }
+        }
+        private bool _showBottomBorder = false;
+
+        [Browsable(true)]
+        public bool ShowLeftBorder
+        {
+            get => _showLeftBorder;
+            set { if (_showLeftBorder == value) return; _showLeftBorder = value; Invalidate(); }
+        }
+        private bool _showLeftBorder = false;
+
+        [Browsable(true)]
+        public bool ShowRightBorder
+        {
+            get => _showRightBorder;
+            set { if (_showRightBorder == value) return; _showRightBorder = value; Invalidate(); }
+        }
+        private bool _showRightBorder = false;
+
+        [Browsable(true)]
+        public int BorderThickness
+        {
+            get => _borderThickness;
+            set
+            {
+                if (_borderThickness == value) return;
+                _borderThickness = Math.Max(0, value);
+                _paint?.InvalidateRects();
+                UpdateControlRegion();
+                Invalidate();
+            }
+        }
+        private int _borderThickness = 1;
+
+        [Browsable(true)]
+        public int BorderRadius
+        {
+            get => _borderRadius;
+            set
+            {
+                if (_borderRadius == value) return;
+                _borderRadius = Math.Max(0, value);
+                _paint?.InvalidateRects();
+                UpdateControlRegion();
+                Invalidate();
+            }
+        }
+        private int _borderRadius = 8;
+
+        [Browsable(true)]
+        public bool IsRounded
+        {
+            get => _isRounded;
+            set
+            {
+                if (_isRounded == value) return;
+                _isRounded = value;
+                _paint?.InvalidateRects();
+                UpdateControlRegion();
+                Invalidate();
+            }
+        }
+        private bool _isRounded = true;
+
+        [Browsable(true)]
+        public DashStyle BorderDashStyle
+        {
+            get => _borderDashStyle;
+            set { if (_borderDashStyle == value) return; _borderDashStyle = value; Invalidate(); }
+        }
+        private DashStyle _borderDashStyle = DashStyle.Solid;
+
+        [Browsable(true)]
+        public Color InactiveBorderColor
+        {
+            get => _inactiveBorderColor;
+            set { if (_inactiveBorderColor == value) return; _inactiveBorderColor = value; Invalidate(); }
+        }
+        private Color _inactiveBorderColor = Color.Gray;
 
         // Shadow
-        [Browsable(true)] public bool ShowShadow { get; set; } = false;
-        [Browsable(true)] public Color ShadowColor { get; set; } = Color.Black;
-        [Browsable(true)] public float ShadowOpacity { get; set; } = 0.25f;
-        [Browsable(true)] public int ShadowOffset { get; set; } = 3;
+        [Browsable(true)]
+        public bool ShowShadow
+        {
+            get => _showShadow;
+            set { if (_showShadow == value) return; _showShadow = value; Invalidate(); }
+        }
+        private bool _showShadow = false;
+
+        [Browsable(true)]
+        public Color ShadowColor
+        {
+            get => _shadowColor;
+            set { if (_shadowColor == value) return; _shadowColor = value; Invalidate(); }
+        }
+        private Color _shadowColor = Color.Black;
+
+        [Browsable(true)]
+        public float ShadowOpacity
+        {
+            get => _shadowOpacity;
+            set { if (Math.Abs(_shadowOpacity - value) < float.Epsilon) return; _shadowOpacity = Math.Max(0f, Math.Min(1f, value)); Invalidate(); }
+        }
+        private float _shadowOpacity = 0.25f;
+
+        [Browsable(true)]
+        public int ShadowOffset
+        {
+            get => _shadowOffset;
+            set { if (_shadowOffset == value) return; _shadowOffset = Math.Max(0, value); Invalidate(); }
+        }
+        private int _shadowOffset = 3;
 
         // Gradients
-        [Browsable(true)] public bool UseGradientBackground { get; set; } = false;
-        [Browsable(true)] public LinearGradientMode GradientDirection { get; set; } = LinearGradientMode.Horizontal;
-        [Browsable(true)] public Color GradientStartColor { get; set; } = Color.LightGray;
-        [Browsable(true)] public Color GradientEndColor { get; set; } = Color.Gray;
+        [Browsable(true)]
+        public bool UseGradientBackground
+        {
+            get => _useGradientBackground;
+            set { if (_useGradientBackground == value) return; _useGradientBackground = value; Invalidate(); }
+        }
+        private bool _useGradientBackground = false;
+
+        [Browsable(true)]
+        public LinearGradientMode GradientDirection
+        {
+            get => _gradientDirection;
+            set { if (_gradientDirection == value) return; _gradientDirection = value; Invalidate(); }
+        }
+        private LinearGradientMode _gradientDirection = LinearGradientMode.Horizontal;
+
+        [Browsable(true)]
+        public Color GradientStartColor
+        {
+            get => _gradientStartColor;
+            set { if (_gradientStartColor == value) return; _gradientStartColor = value; Invalidate(); }
+        }
+        private Color _gradientStartColor = Color.LightGray;
+
+        [Browsable(true)]
+        public Color GradientEndColor
+        {
+            get => _gradientEndColor;
+            set { if (_gradientEndColor == value) return; _gradientEndColor = value; Invalidate(); }
+        }
+        private Color _gradientEndColor = Color.Gray;
 
         // Modern gradients
-        [Browsable(true)] public ModernGradientType ModernGradientType { get; set; } = ModernGradientType.None;
-        [Browsable(true)] public List<GradientStop> GradientStops { get; set; } = new List<GradientStop>();
-        [Browsable(true)] public PointF RadialCenter { get; set; } = new PointF(0.5f, 0.5f);
-        [Browsable(true)] public float GradientAngle { get; set; } = 0f;
-        [Browsable(true)] public bool UseGlassmorphism { get; set; } = false;
-        [Browsable(true)] public float GlassmorphismBlur { get; set; } = 10f;
-        [Browsable(true)] public float GlassmorphismOpacity { get; set; } = 0.1f;
+        [Browsable(true)]
+        public ModernGradientType ModernGradientType
+        {
+            get => _modernGradientType;
+            set { if (_modernGradientType == value) return; _modernGradientType = value; Invalidate(); }
+        }
+        private ModernGradientType _modernGradientType = ModernGradientType.None;
+
+        [Browsable(true)]
+        public List<GradientStop> GradientStops
+        {
+            get => _gradientStops;
+            set { _gradientStops = value ?? new List<GradientStop>(); Invalidate(); }
+        }
+        private List<GradientStop> _gradientStops = new List<GradientStop>();
+
+        [Browsable(true)]
+        public PointF RadialCenter
+        {
+            get => _radialCenter;
+            set { if (_radialCenter == value) return; _radialCenter = value; Invalidate(); }
+        }
+        private PointF _radialCenter = new PointF(0.5f, 0.5f);
+
+        [Browsable(true)]
+        public float GradientAngle
+        {
+            get => _gradientAngle;
+            set { if (Math.Abs(_gradientAngle - value) < float.Epsilon) return; _gradientAngle = value; Invalidate(); }
+        }
+        private float _gradientAngle = 0f;
+
+        [Browsable(true)]
+        public bool UseGlassmorphism
+        {
+            get => _useGlassmorphism;
+            set { if (_useGlassmorphism == value) return; _useGlassmorphism = value; Invalidate(); }
+        }
+        private bool _useGlassmorphism = false;
+
+        [Browsable(true)]
+        public float GlassmorphismBlur
+        {
+            get => _glassmorphismBlur;
+            set { if (Math.Abs(_glassmorphismBlur - value) < float.Epsilon) return; _glassmorphismBlur = Math.Max(0f, value); Invalidate(); }
+        }
+        private float _glassmorphismBlur = 10f;
+
+        [Browsable(true)]
+        public float GlassmorphismOpacity
+        {
+            get => _glassmorphismOpacity;
+            set { if (Math.Abs(_glassmorphismOpacity - value) < float.Epsilon) return; _glassmorphismOpacity = Math.Max(0f, Math.Min(1f, value)); Invalidate(); }
+        }
+        private float _glassmorphismOpacity = 0.1f;
 
         // Material UI - Hide specific Material Design properties to avoid conflicts with StylePreset
         [Browsable(false)] // Hidden - use StylePreset instead 
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public MaterialTextFieldVariant MaterialBorderVariant { get; set; } = MaterialTextFieldVariant.Standard;
-        
-        [Browsable(true)] public bool FloatingLabel { get; set; } = true;
-        [Browsable(true)] public string LabelText { get; set; } = string.Empty;
-        [Browsable(true)] public string HelperText { get; set; } = string.Empty;
-        [Browsable(true)] public Color FocusBorderColor { get; set; } = Color.RoyalBlue;
-        [Browsable(true)] public Color FilledBackgroundColor { get; set; } = Color.FromArgb(20, 0, 0, 0);
+        public MaterialTextFieldVariant MaterialBorderVariant
+        {
+            get => _materialBorderVariant;
+            set
+            {
+                if (_materialBorderVariant == value) return;
+                _materialBorderVariant = value;
+                OnMaterialPropertyChanged();
+                UpdateMaterialLayout();
+                Invalidate();
+            }
+        }
+        private MaterialTextFieldVariant _materialBorderVariant = MaterialTextFieldVariant.Standard;
 
- 
+        [Browsable(true)]
+        public bool FloatingLabel
+        {
+            get => _floatingLabel;
+            set { if (_floatingLabel == value) return; _floatingLabel = value; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+        }
+        private bool _floatingLabel = true;
 
+        [Browsable(true)]
+        public string LabelText
+        {
+            get => _labelText;
+            set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+        }
+        private string _labelText = string.Empty;
+
+        [Browsable(true)]
+        public string HelperText
+        {
+            get => _helperText;
+            set { if (string.Equals(_helperText, value, StringComparison.Ordinal)) return; _helperText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+        }
+        private string _helperText = string.Empty;
+
+        [Browsable(true)]
+        public Color FocusBorderColor
+        {
+            get => _focusBorderColor;
+            set { if (_focusBorderColor == value) return; _focusBorderColor = value; Invalidate(); }
+        }
+        private Color _focusBorderColor = Color.RoyalBlue;
+
+        [Browsable(true)]
+        public Color FilledBackgroundColor
+        {
+            get => _filledBackgroundColor;
+            set { if (_filledBackgroundColor == value) return; _filledBackgroundColor = value; Invalidate(); }
+        }
+        private Color _filledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
         // Badge
         private string _badgeText = "";
         [Browsable(true)]
@@ -481,15 +728,109 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Description("Determines how the area outside the material field is painted when Material Style is enabled.")]
         [DefaultValue(MaterialOutsideBackgroundMode.ParentBackColor)]
         public MaterialOutsideBackgroundMode MaterialOutsideBackground { get; set; } = MaterialOutsideBackgroundMode.ParentBackColor;
-
         // Additional BeepControl parity properties
-        [Browsable(true)] public bool CanBeHovered { get; set; } = true;
-        [Browsable(true)] public bool CanBePressed { get; set; } = true;
-        [Browsable(true)] public bool CanBeFocused { get; set; } = true;
-        [Browsable(true)] public bool IsBorderAffectedByTheme { get; set; } = true;
-        [Browsable(true)] public bool IsShadowAffectedByTheme { get; set; } = true;
-        [Browsable(true)] public bool IsRoundedAffectedByTheme { get; set; } = true;
-        [Browsable(true)] public new BorderStyle BorderStyle { get; set; } = BorderStyle.FixedSingle;
+        private bool _canBeHovered = true;
+        [Browsable(true)]
+        public bool CanBeHovered
+        {
+            get => _canBeHovered;
+            set
+            {
+                if (_canBeHovered == value) return;
+                _canBeHovered = value;
+                if (!value && IsHovered) IsHovered = false;
+                Invalidate();
+            }
+        }
+
+        private bool _canBePressed = true;
+        [Browsable(true)]
+        public bool CanBePressed
+        {
+            get => _canBePressed;
+            set
+            {
+                if (_canBePressed == value) return;
+                _canBePressed = value;
+                if (!value && IsPressed) IsPressed = false;
+                Invalidate();
+            }
+        }
+
+        // Note: BaseControl.cs has a private field `_canBeFocused` and CanFocus() uses it.
+        // Keep them in sync here.
+        [Browsable(true)]
+        public bool CanBeFocused
+        {
+            get => _canBeFocused;
+            set
+            {
+                if (_canBeFocused == value) return;
+                _canBeFocused = value;
+                try
+                {
+                    // Allow keyboard focus/tab navigation when true
+                    this.SetStyle(ControlStyles.Selectable, value);
+                    this.TabStop = value;
+                }
+                catch { /* design-time safe */ }
+                Invalidate();
+            }
+        }
+
+        private bool _isBorderAffectedByTheme = true;
+        [Browsable(true)]
+        public bool IsBorderAffectedByTheme
+        {
+            get => _isBorderAffectedByTheme;
+            set
+            {
+                if (_isBorderAffectedByTheme == value) return;
+                _isBorderAffectedByTheme = value;
+                Invalidate();
+            }
+        }
+
+        private bool _isShadowAffectedByTheme = true;
+        [Browsable(true)]
+        public bool IsShadowAffectedByTheme
+        {
+            get => _isShadowAffectedByTheme;
+            set
+            {
+                if (_isShadowAffectedByTheme == value) return;
+                _isShadowAffectedByTheme = value;
+                Invalidate();
+            }
+        }
+
+        private bool _isRoundedAffectedByTheme = true;
+        [Browsable(true)]
+        public bool IsRoundedAffectedByTheme
+        {
+            get => _isRoundedAffectedByTheme;
+            set
+            {
+                if (_isRoundedAffectedByTheme == value) return;
+                _isRoundedAffectedByTheme = value;
+                _paint?.InvalidateRects();
+                UpdateControlRegion();
+                Invalidate();
+            }
+        }
+
+        private BorderStyle _borderStyle = BorderStyle.FixedSingle;
+        [Browsable(true)]
+        public new BorderStyle BorderStyle
+        {
+            get => _borderStyle;
+            set
+            {
+                if (_borderStyle == value) return;
+                _borderStyle = value;
+                Invalidate();
+            }
+        }
 
         // Drawing rect and offsets
         [Browsable(false)] 

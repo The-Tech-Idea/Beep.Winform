@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Menu Bar")]
     [Category("Beep Controls")]
     [Description("A menu bar control that displays a list of items.")]
-    public class BeepMenuBar : BeepControl
+    public class BeepMenuBar : BaseControl
     {
         #region "Fields and Properties"
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
@@ -199,6 +200,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = ScaledMenuItemHeight + ScaleValue(2);
             }
+            EnableMaterialStyle = false;
 
             ApplyThemeToChilds = true;
             BoundProperty = "SelectedMenuItem";

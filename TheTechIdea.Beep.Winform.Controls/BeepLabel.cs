@@ -47,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _subHeaderText = value;
                 Invalidate();
+                UpdateMinimumSize();
                 if (AutoSize)
                 {
                     this.Size = GetPreferredSize(new Size(this.Width, 0));
@@ -410,7 +411,93 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return 32;
             }
         }
+        // Compute and enforce a DatePicker-like minimum size
+        private void UpdateMinimumSize()
+        {
+            try
+            {
+                using var g = CreateGraphics();
 
+                // 1) Measure header text
+                var headerFont = _textFont ?? Font;
+                string headerSample = string.IsNullOrEmpty(Text) ? "A" : Text;
+
+                // Use single-line for intrinsic minimum; multiline will expand at layout time
+                Size headerSize = TextRenderer.MeasureText(
+                    g,
+                    headerSample,
+                    headerFont,
+                    new Size(int.MaxValue, int.MaxValue),
+                    TextFormatFlags.SingleLine);
+
+                // 2) Measure subheader (if any)
+                bool hasSub = !string.IsNullOrEmpty(SubHeaderText);
+                var subFont = SubHeaderFont ?? headerFont;
+                Size subSize = Size.Empty;
+                if (hasSub)
+                {
+                    subSize = TextRenderer.MeasureText(
+                        g,
+                        SubHeaderText,
+                        subFont,
+                        new Size(int.MaxValue, int.MaxValue),
+                        TextFormatFlags.SingleLine);
+                }
+
+                int textWidth = Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
+                int textHeight = headerSize.Height + (hasSub ? HeaderSubheaderSpacing + subSize.Height : 0);
+
+                // 3) Image size (if any) limited by MaxImageSize
+                Size imgSize = Size.Empty;
+                if (beepImage?.HasImage == true)
+                {
+                    imgSize = beepImage.GetImageSize();
+                    if (imgSize.Width > _maxImageSize.Width || imgSize.Height > _maxImageSize.Height)
+                    {
+                        float scale = Math.Min(
+                            (float)_maxImageSize.Width / Math.Max(1, imgSize.Width),
+                            (float)_maxImageSize.Height / Math.Max(1, imgSize.Height));
+                        imgSize = new Size(
+                            Math.Max(1, (int)(imgSize.Width * scale)),
+                            Math.Max(1, (int)(imgSize.Height * scale)));
+                    }
+                }
+
+                // 4) Combine content sizes; account for image+text spacing if both exist
+                int contentW = textWidth + (imgSize != Size.Empty ? (offset + imgSize.Width) : 0);
+                int contentH = Math.Max(textHeight, imgSize.Height);
+
+                // Include control padding
+                contentW += Padding.Left + Padding.Right;
+                contentH += Padding.Top + Padding.Bottom;
+
+                // Base content minimums
+                Size baseContentMin = new Size(Math.Max(80, contentW), Math.Max(20, contentH));
+
+                // 5) Effective minimum: material vs non-material
+                Size effectiveMin = EnableMaterialStyle
+                    ? GetEffectiveMaterialMinimum(baseContentMin)
+                    : new Size(
+                        baseContentMin.Width + (BorderThickness + 2) * 2,
+                        baseContentMin.Height + (BorderThickness + 2) * 2);
+
+                // Safety clamps
+                effectiveMin.Width = Math.Max(effectiveMin.Width, 60);
+                effectiveMin.Height = Math.Max(effectiveMin.Height, 24);
+
+                MinimumSize = effectiveMin;
+
+                // 6) Enforce height like other controls
+                if (Height < effectiveMin.Height)
+                {
+                    Height = effectiveMin.Height;
+                }
+            }
+            catch
+            {
+                MinimumSize = new Size(120, 28);
+            }
+        }
         /// <summary>
         /// Override to provide label specific minimum width
         /// </summary>
@@ -458,20 +545,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateDrawingRect();
         }
 
+        // Ensure min updates on font changes
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
             _textFont = Font;
-            
-            // Apply Material Design size compensation if enabled
+
             if (EnableMaterialStyle && LabelAutoSizeForMaterial)
             {
                 ApplyMaterialSizeCompensation();
             }
-            
+
+            UpdateMinimumSize();
+
             if (AutoSize)
             {
-                this.Size = GetPreferredSize(new Size(this.Width, 0));
+                Size = GetPreferredSize(new Size(Width, 0));
             }
         }
 
@@ -495,14 +584,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Constructors"
 
         #region "Painting"
+        // Ensure min updates on text changes
         protected override void OnTextChanged(EventArgs e)
         {
             base.OnTextChanged(e);
-            //if (AutoSize)
-            //{
-            //    Size newPreferred = GetPreferredSize(new Size(this.Width, 0));
-            //    this.Size = newPreferred;
-            //}
+            UpdateMinimumSize();
+            Invalidate();
+        }
+        // Track material-related property changes
+        protected override void OnMaterialPropertyChanged()
+        {
+            base.OnMaterialPropertyChanged();
+            UpdateMinimumSize();
             Invalidate();
         }
 
@@ -816,7 +909,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             return new Size(width, height);
         }
 
+        // Recompute min on resize
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            UpdateMinimumSize();
+            if (Height < MinimumSize.Height)
+                Height = MinimumSize.Height;
+            Invalidate();
+        }
 
+      
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;

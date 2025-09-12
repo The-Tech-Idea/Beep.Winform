@@ -34,11 +34,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.BackColor = Color.Black;
             beepAppTree1.init(beepService);
             beepAppTree1.CreateRootTree();
-            beepAppBar1.ShowBadgeOnNotificationIcon("5");
-           
+            //    beepAppBar1.ShowBadgeOnNotificationIcon("5");
+
             beepMenuAppBar1.beepServices = beepService;
             beepMenuAppBar1.CreateMenuItems();
-           
+
 
         }
 

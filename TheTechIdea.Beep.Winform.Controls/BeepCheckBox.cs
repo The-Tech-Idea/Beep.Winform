@@ -810,12 +810,12 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     // Get font from button style or fall back to default style
                     _textFont = _currentTheme.ButtonStyle != null
-                        ? BeepThemesManager.ToFont(_currentTheme.ButtonStyle)
+                        ? BeepThemesManager.ToFont(_currentTheme.CheckBoxFont)
                         : new Font("Segoe UI", 9f);
 
                     
                 }
-                SafeApplyFont(TextFont ?? _textFont);
+            //    SafeApplyFont(TextFont ?? _textFont);
                 Invalidate();
             }
         }

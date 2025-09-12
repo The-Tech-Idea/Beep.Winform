@@ -180,7 +180,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             DrawStateLayer(g);
 
             // 4. Draw border/outline
-            DrawBorder(g);
+            if (!_owner.IsFrameless && _owner.ShowAllBorders)
+            {
+                DrawBorder(g);
+            }
 
             // 5. Draw icons
             _icons.Draw(g);

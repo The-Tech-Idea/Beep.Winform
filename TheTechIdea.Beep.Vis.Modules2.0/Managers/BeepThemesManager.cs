@@ -14,8 +14,7 @@ namespace TheTechIdea.Beep.Vis.Modules.Managers
     {
         public static readonly Guid DefaultThemeGuid = Guid.Parse("00000000-0000-0000-0000-000000000000");
         private static string _currentThemeName = "DefaultTheme";
-        private static event EventHandler<ThemeChangeEventArgs> _themeChangedEvent;
-        // Event for theme changes
+  
         public static event EventHandler<ThemeChangeEventArgs> ThemeChanged;
         // Static themes collection
         public static readonly List<IBeepTheme> _themes = new List<IBeepTheme>();
@@ -237,14 +236,7 @@ namespace TheTechIdea.Beep.Vis.Modules.Managers
                 };
                 ThemeChanged?.Invoke(null, x);
                 
-                // Notify subscribers about theme change
-                _themeChangedEvent?.Invoke(null, new ThemeChangeEventArgs
-                {
-                    OldThemeName = oldThemeName,
-                    NewThemeName = _currentThemeName,
-                    OldTheme = GetTheme(oldThemeName),
-                    NewTheme = GetTheme(_currentThemeName)
-                });
+             
             }
         }
 

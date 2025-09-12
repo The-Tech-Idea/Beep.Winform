@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
@@ -86,6 +87,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 beepComboBox1.ListItems.Add(item1);
             }
           
+        }
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            var mgr = BeepDialogManager.For(this);
+            var res = mgr.ConfirmAsync(
+                title: "Delete",
+                message: "Are you sure you want to delete this item?",
+                okText: "Delete",
+                cancelText: "Cancel",
+                options: new BeepDialogOptions { Kind = BeepDialogKind.Centered, DismissOnOverlayClick = false }
+            );
+           
         }
     }
 }

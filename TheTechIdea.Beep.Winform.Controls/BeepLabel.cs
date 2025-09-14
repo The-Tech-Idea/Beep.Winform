@@ -522,13 +522,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeComponents();
             beepImage.ImageEmbededin = ImageEmbededin.Label;
             BoundProperty = "Text";
-            BorderRadius = 3;
-            
-            // Enable Material Design styling by default for labels
-            EnableMaterialStyle = false; // Start with Material Design disabled for backward compatibility
-            MaterialVariant = MaterialTextFieldVariant.Standard; // Labels work well with standard variant
-            MaterialBorderRadius = 4;
-            
+
             // Apply Material Design size compensation if enabled
             if (EnableMaterialStyle && LabelAutoSizeForMaterial)
             {

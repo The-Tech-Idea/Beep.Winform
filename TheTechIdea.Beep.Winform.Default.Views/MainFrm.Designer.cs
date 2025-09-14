@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1 = new TheTechIdea.Beep.Winform.Controls.MenuBar.BeepMenuAppBar();
             splitContainer1 = new SplitContainer();
             beepAppTree1 = new TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView.BeepAppTree();
-            beepDisplayContainer1 = new BeepDisplayContainer2();
+            beepDisplayContainer1 = new BeepDisplayContainer();
             ((System.ComponentModel.ISupportInitialize)splitContainer2).BeginInit();
             splitContainer2.Panel1.SuspendLayout();
             splitContainer2.Panel2.SuspendLayout();
@@ -607,7 +607,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
         #endregion
         private Controls.ITrees.BeepTreeView.BeepAppTree beepAppTree1;
-        private BeepDisplayContainer2 beepDisplayContainer1;
+        private BeepDisplayContainer beepDisplayContainer1;
         private SplitContainer splitContainer1;
         private SplitContainer splitContainer2;
         private Controls.MenuBar.BeepMenuAppBar beepMenuAppBar1;

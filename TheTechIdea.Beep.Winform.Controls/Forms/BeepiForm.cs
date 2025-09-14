@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private FormShadowGlowPainter _shadowGlow;
         private FormOverlayPainterRegistry _overlayRegistry;
         private FormThemeHelper _themeHelper;
-        private FormStyleHelper _styleHelper;
+       // private FormStyleHelper _styleHelper;
         private FormHitTestHelper _hitTestHelper;
         private FormCaptionBarHelper _captionHelper;
         // Helpers (add this near the other helpers)
@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _regionHelper = new FormRegionHelper(this);
                     _layoutHelper = new FormLayoutHelper(this);
                     _themeHelper = new FormThemeHelper(this);
-                    _styleHelper = new FormStyleHelper(this, _shadowGlow);
+                //    _styleHelper = new FormStyleHelper(this, _shadowGlow);
                     _captionHelper = new FormCaptionBarHelper(this, _overlayRegistry, padAdj => RegisterPaddingProvider((ref Padding p) => padAdj(ref p)));
                    
                     //-------------
@@ -390,29 +390,76 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected void ApplyFormStyle()
         {
             if (InDesignHost) { Invalidate(); return; }
+
+            // 1) Pull all structural metrics (including BorderRadius/BorderThickness) from defaults
             ApplyMetrics(_formStyle);
+
+            // 2) Apply style-specific visual tweaks (no radius/thickness overrides here)
             switch (_formStyle)
             {
-                case BeepFormStyle.Modern: ApplyThemeMapping(); _glowColor = Color.FromArgb(100, 72, 170, 255); break;
-                case BeepFormStyle.Metro: ApplyThemeMapping(); _glowColor = Color.FromArgb(80, 0, 100, 200); break;
-                case BeepFormStyle.Glass: ApplyThemeMapping(); _glowColor = Color.FromArgb(120, 255, 255, 255); break;
-                case BeepFormStyle.Office: ApplyThemeMapping(); _glowColor = Color.FromArgb(90, 50, 100, 200); break;
+                case BeepFormStyle.Modern:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(100, 72, 170, 255);
+                    break;
+
+                case BeepFormStyle.Metro:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(80, 0, 100, 200);
+                    break;
+
+                case BeepFormStyle.Glass:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(120, 255, 255, 255);
+                    break;
+
+                case BeepFormStyle.Office:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(90, 50, 100, 200);
+                    break;
+
                 case BeepFormStyle.ModernDark:
-                    _borderRadius = 8; _borderThickness = 1; _shadowDepth = 8; _enableGlow = true; _glowColor = Color.FromArgb(80, 0, 0, 0); _glowSpread = 10f;
-                    BackColor = Color.FromArgb(32, 32, 32); BorderColor = Color.FromArgb(64, 64, 64); break;
+                    // Metrics (radius/thickness/etc.) already come from ApplyMetrics
+                    _glowColor = Color.FromArgb(80, 0, 0, 0);
+                    BackColor = Color.FromArgb(32, 32, 32);
+                    BorderColor = Color.FromArgb(64, 64, 64);
+                    break;
+
                 case BeepFormStyle.Material:
-                    ApplyThemeMapping(); _borderThickness = 0; _shadowDepth = 5; _enableGlow = true; _glowColor = Color.FromArgb(60, 0, 0, 0); _glowSpread = 15f; BorderColor = Color.Transparent; break;
+                    // Metrics already applied (thickness=0, radius=4); keep transparent border and glow color
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(60, 0, 0, 0);
+                    BorderColor = Color.Transparent;
+                    break;
+
                 case BeepFormStyle.Minimal:
-                    ApplyThemeMapping(); _shadowDepth = 0; _enableGlow = false; _glowSpread = 0f; break;
+                    // Rely on metrics; nothing structural to override
+                    ApplyThemeMapping();
+                    break;
+
                 case BeepFormStyle.Classic:
-                    BackColor = SystemColors.Control; BorderColor = SystemColors.ActiveBorder; _shadowDepth = 0; _enableGlow = false; _glowSpread = 0f; break;
-                case BeepFormStyle.Custom: ApplyThemeMapping(); break;
+                    // Rely on metrics; apply classic system colors
+                    BackColor = SystemColors.Control;
+                    BorderColor = SystemColors.ActiveBorder;
+                    break;
+
+                case BeepFormStyle.Custom:
+                    ApplyThemeMapping();
+                    break;
             }
+
+            // 3) Push to helpers and region
             SyncStyleToHelpers();
             UpdateLogoPainterTheme();
             ApplyAcrylicEffectIfNeeded();
-            if (UseHelperInfrastructure && _regionHelper != null) _regionHelper.InvalidateRegion(); else UpdateFormRegion();
-            if (IsHandleCreated && _animateStyleChange) _ = AnimateOpacityAsync(0.8, 1.0, 200);
+
+            if (UseHelperInfrastructure && _regionHelper != null)
+                _regionHelper.InvalidateRegion();
+            else
+                UpdateFormRegion();
+
+            if (IsHandleCreated && _animateStyleChange)
+                _ = AnimateOpacityAsync(0.8, 1.0, 200);
+
             Invalidate();
         }
         private void UpdateLogoPainterTheme() { if (_captionHelper != null && !string.IsNullOrEmpty(_captionHelper.LogoImagePath)) { try { _captionHelper.LogoImagePath = _captionHelper.LogoImagePath; } catch { } } }

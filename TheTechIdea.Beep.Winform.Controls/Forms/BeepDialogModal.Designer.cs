@@ -183,16 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.TitleText = "Panel Title";
             panel1.ToolTipText = "";
             panel1.TopoffsetForDrawingRect = 0;
-            panel1.UIAnimation = ReactUIAnimation.None;
-            panel1.UIColor = ReactUIColor.Primary;
-            panel1.UICustomElevation = 0;
-            panel1.UIDensity = ReactUIDensity.Standard;
-            panel1.UIDisabled = false;
-            panel1.UIElevation = ReactUIElevation.None;
-            panel1.UIFullWidth = false;
-            panel1.UIShape = ReactUIShape.Rounded;
-            panel1.UISize = ReactUISize.Medium;
-            panel1.UIVariant = ReactUIVariant.Default;
+          
             panel1.UseGradientBackground = false;
             panel1.UseThemeFont = true;
             // 
@@ -772,16 +763,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.TitleText = "Panel Title";
             panel3.ToolTipText = "";
             panel3.TopoffsetForDrawingRect = 0;
-            panel3.UIAnimation = ReactUIAnimation.None;
-            panel3.UIColor = ReactUIColor.Primary;
-            panel3.UICustomElevation = 0;
-            panel3.UIDensity = ReactUIDensity.Standard;
-            panel3.UIDisabled = false;
-            panel3.UIElevation = ReactUIElevation.None;
-            panel3.UIFullWidth = false;
-            panel3.UIShape = ReactUIShape.Rounded;
-            panel3.UISize = ReactUISize.Medium;
-            panel3.UIVariant = ReactUIVariant.Default;
+          
             panel3.UseGradientBackground = false;
             panel3.UseThemeFont = true;
             // 

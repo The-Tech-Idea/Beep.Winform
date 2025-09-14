@@ -88,18 +88,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             }
           
         }
-        protected override void OnHandleCreated(EventArgs e)
-        {
-            base.OnHandleCreated(e);
-            var mgr = BeepDialogManager.For(this);
-            var res = mgr.ConfirmAsync(
-                title: "Delete",
-                message: "Are you sure you want to delete this item?",
-                okText: "Delete",
-                cancelText: "Cancel",
-                options: new BeepDialogOptions { Kind = BeepDialogKind.Centered, DismissOnOverlayClick = false }
-            );
-           
-        }
+    
     }
 }

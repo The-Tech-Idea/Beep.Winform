@@ -215,17 +215,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 
         public void ApplyStyle(BeepFormStyle style)
         {
-            // Map BeepFormStyle to BasicFormStyle for now
-            var basicStyle = style switch
-            {
-                BeepFormStyle.Modern => BasicFormStyle.Modern,
-                BeepFormStyle.Material => BasicFormStyle.MaterialLike,
-                BeepFormStyle.Minimal => BasicFormStyle.Minimal,
-                BeepFormStyle.Classic => BasicFormStyle.Classic,
-                _ => BasicFormStyle.Modern
-            };
+         
             
-            _styleHelper?.Apply(basicStyle, _adapter.CurrentTheme);
+            _styleHelper?.ApplyFormStyle(style);
         }
 
         public void RegisterOverlayPainter(Action<Graphics> painter)

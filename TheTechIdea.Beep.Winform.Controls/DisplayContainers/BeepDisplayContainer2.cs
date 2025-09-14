@@ -616,6 +616,70 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         #endregion
 
         #region IDisplayContainer Implementation
+        public async Task<bool> ShowPopup(IDM_Addin view)
+        {
+            try
+            {
+
+
+                if (view is Form form)
+                {
+
+                    if (!form.IsDisposed)
+                    {
+                        IBeepUIComponent beepUIComponent = (IBeepUIComponent)view;
+                        form.Load += (s, e) =>
+                        {
+                            //MiscFunctions.SetThemePropertyinControlifexist( form, Theme);
+                        };
+                        // Ensure this runs on the UI thread
+                        if (form.InvokeRequired)
+                        {
+                            form.Invoke(new Action(() =>
+                            {
+                                form.StartPosition = FormStartPosition.CenterParent;
+
+                                form.Show();
+                            }));
+                        }
+                        else
+                        {
+                            form.StartPosition = FormStartPosition.CenterParent;
+                            beepUIComponent.Theme = Theme;
+                            form.Show();
+                        }
+                    }
+                    else
+                    {
+                       return false;
+                    }
+                }
+                else if (view is Control control)
+                {
+                    var popupForm = new Form
+                    {
+                        StartPosition = FormStartPosition.CenterParent,
+                        AutoSize = true
+                    };
+
+                    popupForm.Controls.Add(control);
+                    control.Dock = DockStyle.Fill;
+
+                    // Ensure the dialog is shown on the UI thread
+                    popupForm.Show(this.ParentForm);
+                }
+                else
+                {
+                    return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+              return false;
+            }
+        }
 
         public bool AddControl(string titleText, IDM_Addin control, ContainerTypeEnum pcontainerType)
         {

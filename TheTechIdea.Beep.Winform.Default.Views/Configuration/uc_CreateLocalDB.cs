@@ -25,7 +25,7 @@ using TheTechIdea.Beep.Logger;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
-    [AddinAttribute(Caption = "Create Local DB", Name = "uc_CreateLocalDB", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.InControl, ObjectType = "Beep")]
+    [AddinAttribute(Caption = "Create Local DB",ScopeCreateType = AddinScopeCreateType.Multiple , Name = "uc_CreateLocalDB", misc = "Config", menu = "Configuration", addinType = AddinType.Control, displayType = DisplayType.Popup, ObjectType = "Beep")]
     [AddinVisSchema(BranchID = 1, RootNodeName = "Configuration", Order = 1, ID = 1, BranchText = "Create Local DB", BranchType = EnumPointType.Function, IconImageName = "localconnections.svg", BranchClass = "ADDIN", BranchDescription = "Create Local DB Screen")]
 
     public partial class uc_CreateLocalDB : TemplateUserControl, IAddinVisSchema
@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private DataConnectionViewModel viewModel;
         public void SetConfig(IDMEEditor pDMEEditor, IDMLogger plogger, IUtil putil, string[] args, IPassedArgs e, IErrorsInfo per)
         {
-
+            
         }
         public override void Configure(Dictionary<string, object> settings)
         {

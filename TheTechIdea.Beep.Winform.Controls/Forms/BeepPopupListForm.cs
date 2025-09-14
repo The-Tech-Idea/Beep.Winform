@@ -128,12 +128,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPopupListForm() : base()
         {
             InitializeComponent();
-
+            _beepListBox.EnableMaterialStyle = false;
+            _beepListBox.IsFocusedOn = false;
+            _beepListBox.IsSelectedOn = false;
+            _beepListBox.IsHoveringOn = false;
+            _beepListBox.IsPressedOn = false;
         }
         public BeepPopupListForm(List<SimpleItem> items)
         {
             InitializeComponent();
-         //   _beepListBox.EnableMaterialStyle= false;
+            _beepListBox.EnableMaterialStyle = false;
+            _beepListBox.IsFocusedOn = false;
+            _beepListBox.IsSelectedOn = false;
+            _beepListBox.IsHoveringOn = false;
+            _beepListBox.IsPressedOn = false;
+            //   _beepListBox.EnableMaterialStyle= false;
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;
        //     OnLeave += BeepPopupListForm_OnLeave;
@@ -156,8 +165,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShowShadow = false;
             _beepListBox.IsBorderAffectedByTheme = false;
             _beepListBox.ShowAllBorders = false;
+            _beepListBox.EnableMaterialStyle = false;
             _beepListBox.IsFrameless = true;
-
+            _beepListBox.IsFocusedOn = false;
+            _beepListBox.IsSelectedOn = false;
+            _beepListBox.IsHoveringOn = false;
+            _beepListBox.IsPressedOn = false;
             _beepListBox.ShowHilightBox = false;
            // _beepListBox.MenuItemHeight = Math.Max(Menuitemheight, 20); // Ensure minimum height
 

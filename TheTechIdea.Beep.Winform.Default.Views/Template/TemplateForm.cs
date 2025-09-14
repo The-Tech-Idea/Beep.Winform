@@ -53,7 +53,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public AddinDetails Details { get; set; } = new AddinDetails();
         public Dependencies Dependencies { get; set; } = new Dependencies();
         public string GuidID { get; set; }
-
+        public bool IsConfigured { get ; set ; }
+        public bool IsRunning { get ; set ; }
+        public bool IsSuspended { get ; set ; }
+        public bool IsStarted { get ; set ; }
 
         public virtual void Initialize()
         {

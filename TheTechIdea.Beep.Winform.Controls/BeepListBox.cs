@@ -275,7 +275,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int ScaledCalculatedHeight = 0;
         #endregion "Properties"
         #region "Constructor"
-        public BeepListBox()
+        public BeepListBox():base()
         {
             // Initialize the GDI drawing components
             _image = new BeepImage();
@@ -295,6 +295,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderRadius = ScaleValue(3); // Scale border radius
             items.ListChanged += Items_ListChanged;
             ApplyThemeToChilds = false;
+            IsFocusedOn = false;
+            IsSelectedOn= false;
+            IsHoveringOn= false;
+            IsPressedOn= false;
             InitLayout();
             BoundProperty = "SelectedMenuItem";
             InitializeSearchBox();

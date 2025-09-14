@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
+using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -14,9 +15,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         bool ShowControl(string TitleText, IDM_Addin control);
         bool IsControlExit(IDM_Addin control);
         ContainerTypeEnum ContainerType { get; set; }
-
-        //IAppManager VisManager { get; set; }
-        //IDMEEditor Editor { get; set; }
+        Task<bool> ShowPopup(IDM_Addin control);
         void Clear();
         event EventHandler<ContainerEvents> AddinAdded;
         event EventHandler<ContainerEvents> AddinRemoved;

@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -147,7 +148,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _dateFormatStyle = value;
                 _inputText = SelectedDate;
-                UpdateMinimumSize();
+                UpdateMinimumSize(); // Recalculate size when format changes
+                
+                // Apply size compensation if Material Design is enabled
+                if (EnableMaterialStyle && DatePickerAutoSizeForMaterial)
+                {
+                    ApplyMaterialSizeCompensation();
+                }
+                
                 if (_autoSize)
                 {
                     Size pref = GetPreferredSize(Size.Empty);
@@ -170,7 +178,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_dateFormatStyle == DateFormatStyle.Custom)
                 {
                     _inputText = SelectedDate;
-                    UpdateMinimumSize();
+                    UpdateMinimumSize(); // Recalculate size when custom format changes
+                    
+                    // Apply size compensation if Material Design is enabled
+                    if (EnableMaterialStyle && DatePickerAutoSizeForMaterial)
+                    {
+                        ApplyMaterialSizeCompensation();
+                    }
+                    
                     if (_autoSize)
                     {
                         Size pref = GetPreferredSize(Size.Empty);
@@ -191,7 +206,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _culture = value ?? CultureInfo.CurrentCulture;
                 _inputText = SelectedDate;
-                UpdateMinimumSize();
+                UpdateMinimumSize(); // Recalculate size when culture changes
+                
+                // Apply size compensation if Material Design is enabled
+                if (EnableMaterialStyle && DatePickerAutoSizeForMaterial)
+                {
+                    ApplyMaterialSizeCompensation();
+                }
+                
                 if (_autoSize)
                 {
                     Size pref = GetPreferredSize(Size.Empty);
@@ -451,16 +473,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyMaterialSizeCompensation()
         {
             if (!EnableMaterialStyle || !DatePickerAutoSizeForMaterial) return;
+            
             Size contentSize;
             using (Graphics g = CreateGraphics())
             {
-                string sample = _selectedDateTime != DateTime.MinValue ? FormatDate(_selectedDateTime) : GetPlaceholderText();
-                if (string.IsNullOrEmpty(sample)) sample = "00/00/0000";
+                // Use the same sample text logic as UpdateMinimumSize for consistency
+                string sample = GetSampleTextForFormat(GetCurrentFormat());
+                if (string.IsNullOrEmpty(sample)) 
+                    sample = GetPlaceholderText();
+                
                 var measured = g.MeasureString(sample + "  ", _textFont);
-                contentSize = new Size((int)Math.Ceiling(measured.Width) + (_showDropDown ? _buttonWidth + (_padding * 2) : 0), (int)Math.Ceiling(measured.Height));
+                
+                // Include dropdown button space in the calculation
+                int buttonSpace = _showDropDown ? _buttonWidth + (_padding * 2) : 0;
+                
+                contentSize = new Size(
+                    (int)Math.Ceiling(measured.Width) + buttonSpace, 
+                    (int)Math.Ceiling(measured.Height));
             }
+            
             AdjustSizeForMaterial(contentSize, true);
         }
+        
         protected override int GetMaterialMinimumHeight()
         {
             return MaterialVariant switch
@@ -469,12 +503,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _ => 56
             };
         }
-        protected override int GetMaterialMinimumWidth()
-        {
-            int baseMinWidth = 120;
-            var iconSpace = GetMaterialIconSpace();
-            return baseMinWidth + iconSpace.Width;
-        }
+        
         public override Size GetMaterialIconSpace()
         {
             var baseIcons = base.GetMaterialIconSpace();
@@ -812,7 +841,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 calendarIcon.Theme = Theme;
                 calendarIcon.ApplyThemeOnImage = true;
+                
             }
+            _textFont = BeepThemesManager.ToFont(_currentTheme.DateFont);
             Invalidate();
         }
         public override void SetValue(object value)
@@ -831,25 +862,105 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             try
             {
-                string sample = _selectedDateTime != DateTime.MinValue ? FormatDate(_selectedDateTime) : GetPlaceholderText();
-                if (string.IsNullOrWhiteSpace(sample)) sample = "00/00/0000 00:00";
+                // Get the actual format that will be displayed
+                string currentFormat = GetCurrentFormat();
+                
+                // Create a representative sample text that shows the maximum width needed
+                string sample = GetSampleTextForFormat(currentFormat);
+                
                 Size textSize;
                 using (var g = CreateGraphics())
                 {
-                    textSize = TextRenderer.MeasureText(g, sample + "  ", _textFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
+                    // Measure the actual text that will be displayed, adding some padding
+                    textSize = TextRenderer.MeasureText(g, sample + "  ", _textFont, 
+                        new Size(int.MaxValue, int.MaxValue), TextFormatFlags.SingleLine);
                 }
+
+                // Calculate minimum dimensions based on content
                 int textPrefH = Math.Max(_textFont.Height + 6, 16);
-                int buttonWidth = _showDropDown ? Math.Max(16, textPrefH) : 0;
-                int baseContentW = textSize.Width + buttonWidth + (_padding * 2);
+                int buttonWidth = _showDropDown ? Math.Max(_buttonWidth, Math.Max(16, textPrefH)) : 0;
+                
+                // Add padding for comfortable text display
+                int horizontalPadding = (_padding * 4); // Extra padding for comfortable reading
+                int baseContentW = textSize.Width + buttonWidth + horizontalPadding;
                 int baseContentH = textPrefH;
-                Size baseContentMin = new Size(Math.Max(80, baseContentW), Math.Max(20, baseContentH));
-                Size effectiveMin = EnableMaterialStyle ? GetEffectiveMaterialMinimum(baseContentMin) : new Size(baseContentMin.Width + (BorderThickness + 2) * 2, baseContentMin.Height + (BorderThickness + 2) * 2);
-                effectiveMin.Width = Math.Max(effectiveMin.Width, 80);
+
+                // Ensure reasonable minimums
+                Size baseContentMin = new Size(Math.Max(120, baseContentW), Math.Max(20, baseContentH));
+
+                // Apply Material Design calculations if enabled
+                Size effectiveMin = EnableMaterialStyle 
+                    ? GetEffectiveMaterialMinimum(baseContentMin)
+                    : new Size(
+                        baseContentMin.Width + (BorderThickness + 2) * 2,
+                        baseContentMin.Height + (BorderThickness + 2) * 2);
+
+                // Safety clamps
+                effectiveMin.Width = Math.Max(effectiveMin.Width, 120);
                 effectiveMin.Height = Math.Max(effectiveMin.Height, 24);
+
                 this.MinimumSize = effectiveMin;
-                if (_autoHeight || Height < effectiveMin.Height) Height = effectiveMin.Height;
+
+                // Auto-adjust height if enabled
+                if (_autoHeight || Height < effectiveMin.Height) 
+                    Height = effectiveMin.Height;
             }
-            catch { this.MinimumSize = new Size(120, 28); }
+            catch 
+            { 
+                this.MinimumSize = new Size(150, 28); 
+            }
+        }
+
+        /// <summary>
+        /// Gets a sample text that represents the maximum width needed for the current format
+        /// </summary>
+        /// <param name="format">The date format string</param>
+        /// <returns>Sample text for width calculation</returns>
+        private string GetSampleTextForFormat(string format)
+        {
+            // Create a sample date that will likely be the widest possible
+            DateTime sampleDate = new DateTime(2023, 12, 28, 23, 59, 59); // Wide date with long month/day names
+            
+            try
+            {
+                // First try with the sample date to get realistic width
+                string formattedSample = sampleDate.ToString(format, _culture);
+                
+                // For certain formats, we want to ensure we account for the widest possible text
+                switch (_dateFormatStyle)
+                {
+                    case DateFormatStyle.LongDate:
+                        // Use a date with the longest month and day names
+                        var longSample = new DateTime(2023, 9, 28); // September + Wednesday
+                        return longSample.ToString(format, _culture);
+                        
+                    case DateFormatStyle.FullDateTime:
+                        // Use the longest possible full date time
+                        var fullSample = new DateTime(2023, 12, 28, 23, 59, 59);
+                        return fullSample.ToString(format, _culture);
+                        
+                    case DateFormatStyle.DayMonthYear:
+                        // Use longest month name
+                        var dayMonthSample = new DateTime(2023, 9, 28); // September
+                        return dayMonthSample.ToString(format, _culture);
+                        
+                    case DateFormatStyle.MonthDay:
+                        var monthDaySample = new DateTime(2023, 9, 28);
+                        return monthDaySample.ToString(format, _culture);
+                        
+                    case DateFormatStyle.DayOfWeek:
+                        var dayOfWeekSample = new DateTime(2023, 9, 27); // Wednesday (typically longest)
+                        return dayOfWeekSample.ToString(format, _culture);
+                        
+                    default:
+                        return formattedSample;
+                }
+            }
+            catch
+            {
+                // Fallback to a reasonable placeholder if formatting fails
+                return GetPlaceholderText();
+            }
         }
         #endregion
     }

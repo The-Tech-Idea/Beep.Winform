@@ -25,64 +25,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public Rectangle DrawingRect { get; set; }
         public Rectangle BorderRectangle { get; set; }
-    private bool _rectsDirty = true;
+        private bool _rectsDirty = true;
 
         public void UpdateRects()
         {
             _rectsDirty = false;
             int shadow = _owner.ShowShadow ? _owner.ShadowOffset : 0;
             int border = 0;
-            // Only consider MaterialBorderVariant when material style is enabled.
-            if (_owner.ShowAllBorders || (_owner.EnableMaterialStyle && _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined))
-             {
-                 border = _owner.BorderThickness;
-             }
+
+            // Calculate border thickness needed for rectangle calculations
+            if (_owner.ShowAllBorders ||
+                (_owner.EnableMaterialStyle && _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined))
+            {
+                border = _owner.BorderThickness;
+            }
+            else if (!_owner.EnableMaterialStyle && _owner.BorderThickness > 0)
+            {
+                // For non-material style, account for border thickness if any individual borders are shown
+                if (_owner.ShowTopBorder || _owner.ShowBottomBorder || _owner.ShowLeftBorder || _owner.ShowRightBorder)
+                {
+                    border = _owner.BorderThickness;
+                }
+            }
+
             var padding = _owner.Padding;
 
-            // Include custom offsets like base BeepControl
             int leftPad = padding.Left + _owner.LeftoffsetForDrawingRect;
             int topPad = padding.Top + _owner.TopoffsetForDrawingRect;
             int rightPad = padding.Right + _owner.RightoffsetForDrawingRect;
             int bottomPad = padding.Bottom + _owner.BottomoffsetForDrawingRect;
-            
-            // If Material style is enabled and helper exists, use it
+
             if (_owner.EnableMaterialStyle && _owner._materialHelper != null)
             {
                 try
                 {
                     _owner._materialHelper.UpdateLayout();
                     var materialContentRect = _owner._materialHelper.GetContentRect();
-                    
                     if (materialContentRect.Width > 0 && materialContentRect.Height > 0)
                     {
+                        // Translate material content rect to control coordinates
                         DrawingRect = materialContentRect;
+                        // Border rectangle should still wrap whole control interior for non-material borders
+                        int halfPen = (int)Math.Ceiling(_owner.BorderThickness / 2f);
+                        BorderRectangle = new Rectangle(
+                            shadow + halfPen,
+                            shadow + halfPen,
+                            Math.Max(0, _owner.Width - (shadow + halfPen) * 2),
+                            Math.Max(0, _owner.Height - (shadow + halfPen) * 2)
+                        );
                         return;
                     }
                 }
-                catch
-                {
-                    // Fall through to standard layout
-                }
+                catch { /* fall through to standard calculation */ }
             }
-            
-            // Standard layout (like BeepControl)
-            // Do not let MaterialVariant implicitly affect standard layout when material style is disabled
-            int w = Math.Max(0, _owner.Width - (shadow * 2 + border * 2 + leftPad + rightPad));
-            int h = Math.Max(0, _owner.Height - (shadow * 2 + border * 2 + topPad + bottomPad));
+
+            // EXACT BeepControl's calculation for EnableMaterialStyle=false
+            // Initialize offsets for shadow and border
+            int shadowOffsetValue = _owner.ShowShadow ? _owner.ShadowOffset : 0;
+            int borderOffsetValue = _owner.ShowAllBorders ? _owner.BorderThickness : 0;
+
+            // Account for padding and offsets
+            int leftPadding = _owner.Padding.Left + _owner.LeftoffsetForDrawingRect;
+            int topPadding = _owner.Padding.Top + _owner.TopoffsetForDrawingRect;
+            int rightPadding = _owner.Padding.Right + _owner.RightoffsetForDrawingRect;
+            int bottomPadding = _owner.Padding.Bottom + _owner.BottomoffsetForDrawingRect;
+
+            // Calculate the DrawingRect as the inner rectangle avoiding borders, shadows, and padding
+            int calculatedWidth = _owner.Width - (shadowOffsetValue * 2 + borderOffsetValue * 2 + leftPadding + rightPadding);
+            int calculatedHeight = _owner.Height - (shadowOffsetValue * 2 + borderOffsetValue * 2 + topPadding + bottomPadding);
 
             DrawingRect = new Rectangle(
-                shadow + border + leftPad,
-                shadow + border + topPad,
-                w,
-                h);
+                shadowOffsetValue + borderOffsetValue + leftPadding,
+                shadowOffsetValue + borderOffsetValue + topPadding,
+                Math.Max(0, calculatedWidth),  // Prevent negative dimensions
+                Math.Max(0, calculatedHeight) // Prevent negative dimensions
+            );
 
-            // Update border rectangle
-            int halfPen = (int)Math.Ceiling(_owner.BorderThickness / 2f);
+            // UpdateBorderRectangle exactly like BeepControl
+            int halfPen2 = (int)Math.Ceiling(_owner.BorderThickness / 2f);
             BorderRectangle = new Rectangle(
-                shadow + halfPen,
-                shadow + halfPen,
-                Math.Max(0, _owner.Width - (shadow + halfPen) * 2),
-                Math.Max(0, _owner.Height - (shadow + halfPen) * 2)
+                shadowOffsetValue + halfPen2,
+                shadowOffsetValue + halfPen2,
+                Math.Max(0, _owner.Width - (shadowOffsetValue + halfPen2) * 2),
+                Math.Max(0, _owner.Height - (shadowOffsetValue + halfPen2) * 2)
             );
         }
 
@@ -182,10 +207,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             if (ownerAdv != null)
             {
                 if (!_owner.Enabled) return _owner.DisabledBackColor;
-                if (ownerAdv.IsPressed) return _owner.PressedBackColor;
-                if (ownerAdv.IsHovered) return _owner.HoverBackColor;
-                if (_owner.Focused) return _owner.FocusBackColor;
-                if (ownerAdv.IsSelected) return _owner.SelectedBackColor;
+                if (ownerAdv.IsPressed && _owner.IsPressedOn) return _owner.PressedBackColor;
+                if (ownerAdv.IsHovered && _owner.IsHoveringOn) return _owner.HoverBackColor;
+                if (_owner.Focused && _owner.IsFocusedOn) return _owner.FocusBackColor;
+                if (ownerAdv.IsSelected && _owner.IsSelectedOn) return _owner.SelectedBackColor;
             }
             return _owner.BackColor;
         }

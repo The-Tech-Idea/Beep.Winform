@@ -31,17 +31,14 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BeepPopupForm));
             SuspendLayout();
             // 
-            // beepuiManager1
-            // 
-            beepuiManager1.BeepiForm = this;
-            // 
             // BeepPopupForm
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
+            BorderRadius = 20;
+            BorderThickness = 3;
             ClientSize = new Size(800, 450);
-            FormBorderStyle = FormBorderStyle.SizableToolWindow;
             Name = "BeepPopupForm";
             ShowCaptionBar = false;
             ShowIcon = false;

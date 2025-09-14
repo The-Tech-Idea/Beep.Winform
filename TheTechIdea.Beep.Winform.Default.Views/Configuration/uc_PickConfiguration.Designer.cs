@@ -28,8 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            SuspendLayout();
+            // 
+            // MainTemplatePanel
+            // 
+            MainTemplatePanel.Dock = DockStyle.Fill;
+            // 
+            // uc_PickConfiguration
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            Name = "uc_PickConfiguration";
+            ResumeLayout(false);
         }
 
         #endregion

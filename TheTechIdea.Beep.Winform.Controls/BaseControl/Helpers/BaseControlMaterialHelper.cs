@@ -33,10 +33,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private int _elevationLevel = 0;
         private bool _useElevation = true;
 
-        // Icon offset tracking to prevent accumulation
-        private int _previousLeftIconOffset = 0;
-        private int _previousRightIconOffset = 0;
-
         public BaseControlMaterialHelper(BaseControl owner)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
@@ -56,32 +52,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 _contentRect = Rectangle.Empty;
                 return;
             }
-            
-            // Calculate padding based on Material Design variant
-            int horizontalPadding = 16; // Standard Material Design padding
+
+            // Default MD paddings
+            int horizontalPadding = 16;
             int verticalPadding = 8;
-            
-            // Adjust padding based on variant
             switch (_owner.MaterialVariant)
             {
                 case MaterialTextFieldVariant.Outlined:
-                    horizontalPadding = 16;
-                    verticalPadding = 8;
-                    break;
+                    horizontalPadding = 16; verticalPadding = 8; break;
                 case MaterialTextFieldVariant.Filled:
-                    horizontalPadding = 16;
-                    verticalPadding = 12;
-                    break;
+                    horizontalPadding = 16; verticalPadding = 12; break;
                 case MaterialTextFieldVariant.Standard:
-                    horizontalPadding = 0;
-                    verticalPadding = 0;
-                    break;
+                    horizontalPadding = 0; verticalPadding = 0; break;
             }
 
-            // Allow host to disable variant padding or override it
+            // For pill styles we want the outline to hug the control bounds (no inner inset)
+            bool isPillPreset = _owner.StylePreset == MaterialTextFieldStylePreset.PillOutlined
+                                || _owner.StylePreset == MaterialTextFieldStylePreset.PillFilled
+                                || (_owner.MaterialBorderRadius >= Math.Min(_owner.Width, _owner.Height) / 2);
+
             try
             {
-                if (!_owner.MaterialUseVariantPadding)
+                if (!_owner.MaterialUseVariantPadding || isPillPreset)
                 {
                     horizontalPadding = 0;
                     verticalPadding = 0;
@@ -90,50 +82,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 if (_owner.MaterialCustomPadding != Padding.Empty)
                 {
                     horizontalPadding = Math.Max(0, _owner.MaterialCustomPadding.Left);
-                    // use symmetric horizontal by left+right later
-                    // vertical uses Top padding
                     verticalPadding = Math.Max(0, _owner.MaterialCustomPadding.Top);
                 }
             }
-            catch { /* ignore if not available in design mode */ }
-            
-            // Input area (the full drawable area for this control)
+            catch { }
+
             _inputRect = new Rectangle(0, 0, drawingRect.Width, drawingRect.Height);
-            
-            // Field area (input area minus padding)
+
             _fieldRect = new Rectangle(
                 _inputRect.X + horizontalPadding,
                 _inputRect.Y + verticalPadding,
                 Math.Max(0, _inputRect.Width - (horizontalPadding * 2)),
                 Math.Max(0, _inputRect.Height - (verticalPadding * 2))
             );
-            
-            // Update icons layout within the field area
+
+            // Layout icons inside the field area
             _icons.UpdateLayout(_fieldRect);
-            
-            // Content rectangle is the adjusted area that excludes icon spaces
             _contentRect = _icons.AdjustedContentRect;
-            
-            // If no icons or invalid content rect, use the field area with minimal or zero padding based on settings
             if (_contentRect.IsEmpty || _contentRect.Width <= 0 || _contentRect.Height <= 0)
             {
-                bool noVariantPadding = false;
-                try { noVariantPadding = !_owner.MaterialUseVariantPadding && _owner.MaterialCustomPadding == Padding.Empty; } catch { }
-
-                if (noVariantPadding)
-                {
-                    // Use full field area without extra inset
-                    _contentRect = _fieldRect;
-                }
-                else
-                {
-                    _contentRect = new Rectangle(
-                        _fieldRect.X + 4,
-                        _fieldRect.Y + 4,
-                        Math.Max(0, _fieldRect.Width - 8),
-                        Math.Max(0, _fieldRect.Height - 8)
-                    );
-                }
+                _contentRect = _fieldRect;
             }
         }
 
@@ -180,12 +148,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             DrawStateLayer(g);
 
             // 4. Draw border/outline
-            if (!_owner.IsFrameless && _owner.ShowAllBorders)
+            if (!_owner.IsFrameless)
             {
                 DrawBorder(g);
             }
 
-            // 5. Draw icons
+            // Draw icons after background/border so backgrounds embedded in SVGs are visible
             _icons.Draw(g);
 
             // 6. Draw focus indicator
@@ -277,16 +245,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             switch (_owner.MaterialVariant)
             {
                 case MaterialTextFieldVariant.Standard:
-
                 case MaterialTextFieldVariant.Filled:
-                    // bottom line only
+                    // Text-button style underline
                     g.DrawLine(pen, _fieldRect.Left, _fieldRect.Bottom, _fieldRect.Right, _fieldRect.Bottom);
-                    
-
                     break;
-                    
+
                 case MaterialTextFieldVariant.Outlined:
-                    // Draw the border first
                     if (radius > 0)
                     {
                         using var path = CreateRoundPath(_fieldRect, radius);
@@ -296,15 +260,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     {
                         g.DrawRectangle(pen, _fieldRect);
                     }
-                    
-               
                     break;
             }
-            // Calculate inner shape that's INSIDE the border
+
+            // Maintain InnerShape for other helpers (shadow/ink etc.)
             _owner.InnerShape?.Dispose();
             _owner.InnerShape = new GraphicsPath();
 
-            // Inner area is inset by border width on all sides
             var innerRectOutlined = new Rectangle(
                 _fieldRect.X + borderWidth,
                 _fieldRect.Y + borderWidth,
@@ -315,7 +277,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             {
                 if (radius > 0)
                 {
-                    // Inner radius should be reduced by border width to create proper inner curve
                     int innerRadius = Math.Max(0, radius - borderWidth);
                     _owner.InnerShape.AddPath(CreateRoundPath(innerRectOutlined, innerRadius), false);
                 }
@@ -324,8 +285,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     _owner.InnerShape.AddRectangle(innerRectOutlined);
                 }
             }
-            // InnerShape is already correctly set above in the switch statement as GraphicsPath
-            // No need to do anything else here
         }
 
         private void DrawFocusIndicator(Graphics g)

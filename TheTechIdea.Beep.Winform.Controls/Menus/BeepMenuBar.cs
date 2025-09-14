@@ -210,6 +210,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             IsRoundedAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
             IsShadowAffectedByTheme = false;
+            EnableSplashEffect=false;
+            EnableRippleEffect=false;
+            IsHoveringOn = false;
+            IsPressedOn = false;
+            IsFocusedOn = false;
+            IsSelectedOn = false;
             ListForms = new LinkedList<MenuitemTracking>();
 
             InitializeDrawingComponents();

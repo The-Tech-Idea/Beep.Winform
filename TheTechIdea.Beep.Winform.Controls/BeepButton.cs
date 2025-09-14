@@ -265,7 +265,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
-     
+        private Size _buttonminsize = new Size(32, 32);
+        [Browsable(true)]
+        [Category("Appearance")]
+        public Size ButtonMinSize
+        {
+            get => _buttonminsize;
+            set
+            {
+                _buttonminsize = value;
+                UpdateMinSizeForMode();
+                Invalidate();
+            }
+        }
+
         [Browsable(true)]
         [Category("Appearance")]
         public int BorderSize
@@ -404,6 +417,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();  // Trigger repaint
             }
         }
+        private bool IsImageOnly =>
+    (string.IsNullOrEmpty(Text) || _hideText) &&
+     !string.IsNullOrEmpty(beepImage?.ImagePath) ;
+
         //[Browsable(true)]
         //[Category("Behavior")]
         //public bool IsSelected
@@ -414,7 +431,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         //        _isSelected = value;
         //        if (_isSelected)
         //        {
-                    
+
         //            BackColor = _currentTheme.ButtonSelectedBackColor;
         //            ForeColor = _currentTheme.ButtonPressedForeColor;
         //        }
@@ -459,24 +476,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _hideText = value;
-                Invalidate(); // Trigger repaint when the state changes
+                UpdateMinSizeForMode();
+                Invalidate();
             }
         }
         private bool _autoSize = false;
+        // Recommended: rename to avoid surprises
         [Browsable(true)]
         [Category("Behavior")]
-        public bool AutoSize
+        public bool AutoSizeContent
         {
             get => _autoSize;
-            set
-            {
-                _autoSize = value;
-                Invalidate(); // Trigger repaint when the state changes
-                PerformLayout();
-            }
+            set { _autoSize = value; Invalidate(); PerformLayout(); }
         }
 
-           
+
+
         private Font _textFont = new Font("Arial", 10);
         [Browsable(true)]
         [MergableProperty(true)]
@@ -590,32 +605,16 @@ namespace TheTechIdea.Beep.Winform.Controls
         public bool ButtonAutoSizeForMaterial { get; set; } = true;
 
         /// <summary>
-        /// Override the base Material size compensation to handle Button-specific logic
+        /// Override to provide button specific minimum dimensions
         /// </summary>
-        public override void ApplyMaterialSizeCompensation()
+        /// <returns>Minimum height for Material Design button</returns>
+        protected override int GetMaterialMinimumHeight()
         {
-            if (!EnableMaterialStyle || !ButtonAutoSizeForMaterial)
-                return;
-
-            Console.WriteLine($"BeepButton: Applying Material size compensation. Current size: {Width}x{Height}");
-
-            // Calculate current text size if we have content
-            Size textSize = Size.Empty;
-            if (!string.IsNullOrEmpty(Text))
+            // If this is an image-only button (no text), allow much smaller height
+            if ((string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true)
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    var measuredSize = g.MeasureString(Text, _textFont ?? Font);
-                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
-                }
-            }
-            
-            // Add image size if present
-            if (beepImage?.HasImage == true || beepImage?.ImagePath!=string.Empty)
-            {
+                // For image-only buttons, minimum height should be just the image size + minimal padding
                 Size imageSize = beepImage.GetImageSize();
-                
-                // Limit image size to MaxImageSize
                 if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
                 {
                     float scaleFactor = Math.Min(
@@ -625,49 +624,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         (int)(imageSize.Width * scaleFactor),
                         (int)(imageSize.Height * scaleFactor));
                 }
-                
-                // Combine text and image sizes based on layout
-                switch (TextImageRelation)
-                {
-                    case TextImageRelation.ImageBeforeText:
-                    case TextImageRelation.TextBeforeImage:
-                        textSize.Width += imageSize.Width + 8; // Add spacing
-                        textSize.Height = Math.Max(textSize.Height, imageSize.Height);
-                        break;
-                    case TextImageRelation.ImageAboveText:
-                    case TextImageRelation.TextAboveImage:
-                        textSize.Width = Math.Max(textSize.Width, imageSize.Width);
-                        textSize.Height += imageSize.Height + 8; // Add spacing
-                        break;
-                    case TextImageRelation.Overlay:
-                        textSize.Width = Math.Max(textSize.Width, imageSize.Width);
-                        textSize.Height = Math.Max(textSize.Height, imageSize.Height);
-                        break;
-                }
+                return imageSize.Height + 8; // Just image height + 4px padding each side
             }
-            
-            // Use a reasonable default content size if no text or image
-            if (textSize.IsEmpty)
-            {
-                textSize = new Size(100, 32);
-            }
-            
-            Console.WriteLine($"BeepButton: Base content size: {textSize}");
-            Console.WriteLine($"BeepButton: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
-            
-            // Apply Material size compensation using base method
-            AdjustSizeForMaterial(textSize, true);
-            
-            Console.WriteLine($"BeepButton: Final size after compensation: {Width}x{Height}");
-        }
 
-        /// <summary>
-        /// Override to provide button specific minimum dimensions
-        /// </summary>
-        /// <returns>Minimum height for Material Design button</returns>
-        protected override int GetMaterialMinimumHeight()
-        {
-            // Button specific Material Design heights based on variant
+            // Button specific Material Design heights based on variant for text buttons
             switch (MaterialVariant)
             {
                 case MaterialTextFieldVariant.Outlined:
@@ -687,16 +647,33 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <returns>Minimum width for Material Design button</returns>
         protected override int GetMaterialMinimumWidth()
         {
-            // Base minimum width for button
+            // If this is an image-only button (no text), allow much smaller width
+            if ((string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true)
+            {
+                // For image-only buttons, minimum width should be just the image size + minimal padding
+                Size imageSize = beepImage.GetImageSize();
+                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+                {
+                    float scaleFactor = Math.Min(
+                        (float)_maxImageSize.Width / imageSize.Width,
+                        (float)_maxImageSize.Height / imageSize.Height);
+                    imageSize = new Size(
+                        (int)(imageSize.Width * scaleFactor),
+                        (int)(imageSize.Height * scaleFactor));
+                }
+                return imageSize.Width + 8; // Just image width + 4px padding each side
+            }
+
+            // Base minimum width for button with text
             int baseMinWidth = 64; // Material Design minimum touch target
-            
+
             // Add space for padding (Material Design buttons have significant horizontal padding)
             baseMinWidth += 32; // 16px padding on each side
-            
+
             // Add space for icons if present
             var iconSpace = GetMaterialIconSpace();
             baseMinWidth += iconSpace.Width;
-            
+
             return baseMinWidth;
         }
         #endregion "Properties"
@@ -726,26 +703,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Enable material style for modern button appearance
             EnableMaterialStyle = true;
             
-            EnableMaterialStyle = true;
+      
             StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
-            // Enable modern gradient background for stylish look
-            UseGradientBackground = false;
-            ModernGradientType = ModernGradientType.None;
-          //  ShowShadow = true;
-            IsRounded = true; // Enable rounded corners for Material Design
+         
             
-            // CRITICAL: Set border thickness to 0 for modern flat button look
-            BorderThickness = 0;
-            ShowAllBorders = false;
-            
-            // Apply Material Design size compensation if enabled
-            if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
-            {
+           
                 // Apply size compensation when handle is created
                 this.HandleCreated += (s, e) => {
-                    ApplyMaterialSizeCompensation();
+                    // Apply Material Design size compensation if enabled
+                    if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
+                    {
+                        ApplyMaterialSizeCompensation();
+                    }
                 };
-            }
+          
             
             // DON'T set hardcoded gradient colors - let ApplyTheme() handle them from the theme
             
@@ -1013,11 +984,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.DrawContent(g);
 
             UpdateDrawingRect();
-         
             contentRect = DrawingRect;
+
+            DrawStateOverlays(g);   // <— subtle hover/press glaze
             DrawImageAndText(g);
-            // Overlay splash effect last
-            DrawSplashEffect(g);
+            DrawSplashEffect(g);    // ripple on top
 
         }
 
@@ -1097,7 +1068,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-    
+      
         private void CalculateLayout(Rectangle contentRect, Size imageSize, Size textSize, out Rectangle imageRect, out Rectangle textRect)
         {
             imageRect = Rectangle.Empty;
@@ -1238,42 +1209,74 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override Size GetPreferredSize(Size proposedSize)
         {
-            //if (!SetFont() && UseThemeFont)
-            //{
-            //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
-            //};
-            // Measure and scale the font to fit within the control bounds
+            Size textSize = Size.Empty;
+            Size imageSize = Size.Empty;
+            var pref = base.GetPreferredSize(proposedSize);
 
-            Size textSize = TextRenderer.MeasureText(Text, _textFont);
-            Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
-
-            // Scale the image to respect MaxImageSize if needed
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+            if (IsImageOnly)
             {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
+                return new Size(
+                    Math.Max(_buttonminsize.Width, pref.Width),
+                    Math.Max(_buttonminsize.Height, pref.Height));
+
             }
-            // Use a large enough virtual container for layout testing
-            //  Rectangle virtualContent = new Rectangle(0, 0, 1000, 1000);
+            // Only measure text if we have text and it's not hidden
+            if (!string.IsNullOrEmpty(Text) && !HideText)
+            {
+                textSize = TextRenderer.MeasureText(Text, _textFont ?? Font);
+            }
+
+            // Get image size if available
+            if (beepImage?.HasImage == true)
+            {
+                imageSize = beepImage.GetImageSize();
+
+                // Scale the image to respect MaxImageSize if needed
+                if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
+                {
+                    float scaleFactor = Math.Min(
+                        (float)_maxImageSize.Width / imageSize.Width,
+                        (float)_maxImageSize.Height / imageSize.Height);
+                    imageSize = new Size(
+                        (int)(imageSize.Width * scaleFactor),
+                        (int)(imageSize.Height * scaleFactor));
+                }
+            }
+
+            // If we have neither text nor image, return a minimal default size
+            if (textSize.IsEmpty && imageSize.IsEmpty)
+            {
+                return new Size(32, 32); // Minimal button size
+            }
+
+            // IMAGE-ONLY BUTTON: For image-only buttons, return just the image size plus minimal padding
+            if (textSize.IsEmpty && !imageSize.IsEmpty)
+            {
+                // Image only - minimal size, just image + small padding
+                int width = imageSize.Width + 8; // Just 4px padding on each side
+                int height = imageSize.Height + 8; // Just 4px padding on each side
+                return new Size(width, height);
+            }
+
+            // TEXT-ONLY BUTTON: For text-only buttons, use standard padding
+            if (!textSize.IsEmpty && imageSize.IsEmpty)
+            {
+                int width = textSize.Width + Padding.Left + Padding.Right + 16;
+                int height = textSize.Height + Padding.Top + Padding.Bottom + 12;
+                return new Size(Math.Max(width, 24), Math.Max(height, 24));
+            }
+
+            // For buttons with both text and image, calculate total space needed
             Rectangle textRect, imageRect;
-            CalculateLayout(DrawingRect, imageSize, textSize, out imageRect, out textRect);
-            // Clip text rectangle to control bounds to prevent overflow
-            //  textRect.Intersect(DrawingRect);
-            // Calculate the total width and height required for text and image with padding
-            // Calculate bounding size (not offset-based!)
-            Rectangle bounds = Rectangle.Union(imageRect, textRect);
-            int width = bounds.Width + Padding.Left + Padding.Right;
-            int height = bounds.Height + Padding.Top + Padding.Bottom;
+            Rectangle virtualContentRect = new Rectangle(0, 0, 1000, 1000);
+            CalculateLayout(virtualContentRect, imageSize, textSize, out imageRect, out textRect);
 
-            return new Size(width, height);
-            //  }
+            Rectangle totalBounds = Rectangle.Union(imageRect, textRect);
 
-            // Return the control's current size if AutoSize is disabled
-            //return base.Value;
+            int finalWidth = totalBounds.Width + Padding.Left + Padding.Right + 16;
+            int finalHeight = totalBounds.Height + Padding.Top + Padding.Bottom + 12;
+
+            return new Size(Math.Max(finalWidth, 24), Math.Max(finalHeight, 24));
         }
         #endregion "Paint"
         #region "Mouse and Click"
@@ -1483,6 +1486,19 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion "Badge"
         #region "Draw Image and text"
+        private void UpdateMinSizeForMode()
+        {
+            if (!EnableMaterialStyle)
+            {
+                // Image-only? keep the floor at ButtonMinSize; otherwise no clamp.
+                bool imageOnly = (string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true;
+                MinimumSize = imageOnly ? ButtonMinSize : Size.Empty;
+            }
+            if (IsImageOnly)
+                MinimumSize = _buttonminsize;     // allow small image-only buttons
+            else
+                MinimumSize = Size.Empty;         // let Material/Base logic handle text buttons
+        }
 
         public override void Draw(Graphics g, Rectangle rectangle)
         {
@@ -1620,7 +1636,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Draw Button From Html source"
         // all image and svg drawing is done in the BeepImage control
         // all functions will be similar to the orginal DrawImageAndText control but will have different style based on html .
-      
+        protected override void OnTextChanged(EventArgs e)
+        {
+            base.OnTextChanged(e);
+            UpdateMinSizeForMode();
+        }
         public void DrawButtonAndImage1(Graphics g)
         {
             Color textColor;
@@ -2407,6 +2427,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Force layout update
             UpdateMaterialLayout();
             Invalidate();
+        }
+        protected override void OnClick(EventArgs e)
+        {
+            if (isLongPressTriggered)
+            {
+                // swallow the click that follows a long press
+                isLongPressTriggered = false;
+                return;
+            }
+            base.OnClick(e);
         }
 
         /// <summary>

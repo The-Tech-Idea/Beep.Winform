@@ -1005,12 +1005,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             _text = string.Empty;
             BoundProperty = "Text";
-            BorderRadius = 4;
+         
             ShowAllBorders = true;
-            IsShadowAffectedByTheme = false;
-            IsBorderAffectedByTheme = false;
+        
             TabStop = true;
-            EnableMaterialStyle=false;
+          
          //   StylePreset = Models.MaterialTextFieldStylePreset.MaterialStandard;
             // Modern defaults
           //  Font = new Font("Segoe UI", 10);

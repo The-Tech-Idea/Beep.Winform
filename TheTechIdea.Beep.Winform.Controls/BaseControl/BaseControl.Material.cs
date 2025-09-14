@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Material properties
 
-        [Browsable(false), Category("Material Style"), DefaultValue(true)]
+        [Browsable(true), Category("Material Style"), DefaultValue(true)]
         public bool MaterialUseVariantPadding
         {
             get => _bcUseVariantPadding;
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_bcUseVariantPadding != value)
                 {
                     _bcUseVariantPadding = value;
-                    IsCustomeBorder = false; // keep ControlPaintHelper drawing borders
+                    IsCustomeBorder = value; // keep ControlPaintHelper drawing borders
                     OnMaterialPropertyChanged();
                     Invalidate();
                 }
@@ -72,9 +72,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 if (_bcEnableMaterialStyle != value)
                 {
                     _bcEnableMaterialStyle = value;
-                 
+
+                    if (!value)
+                    {
+                        // We are disabling Material: drop the Material min-size clamp
+                        // so derived controls can choose their own minimums.
+                        MinimumSize = Size.Empty;
+                    }
+
                     MaterialVariant = MaterialTextFieldVariant.Standard;
-                    IsCustomeBorder = false; // keep ControlPaintHelper drawing borders
+                    IsCustomeBorder = false;
                     OnMaterialPropertyChanged();
                     Invalidate();
                 }

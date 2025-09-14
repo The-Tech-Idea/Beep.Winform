@@ -30,9 +30,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public TemplateUserControl()
         {
             InitializeComponent();
-
             Details = new AddinDetails { ObjectType = "UserControl" };
             Dependencies = new Dependencies();
+            MainTemplatePanel.EnableMaterialStyle = false;
+
+            // Safety: ensure visible at runtime
+            MainTemplatePanel.IsVisible = true;
+            MainTemplatePanel.Visible = true;
+            MainTemplatePanel.IsFocusedOn = false;
+            MainTemplatePanel.IsSelectedOn = false;
+            MainTemplatePanel.IsHoveringOn = false;
+            MainTemplatePanel.IsPressedOn = false;
         }
 
         public TemplateUserControl(IServiceProvider services) : this()
@@ -47,6 +55,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
 
                 BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
                 Theme = BeepThemesManager.CurrentThemeName;
+                MainTemplatePanel.EnableMaterialStyle = false;
+                MainTemplatePanel.IsFocusedOn = false;
+                MainTemplatePanel.IsSelectedOn = false;
+                MainTemplatePanel.IsHoveringOn = false;
+                MainTemplatePanel.IsPressedOn = false;
             }
         }
 
@@ -77,8 +90,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
         public AddinDetails Details { get; set; }
         public Dependencies Dependencies { get; set; }
         public string GuidID { get; set; } = string.Empty;
+        public bool IsConfigured { get ; set ; }=false;
+        public bool IsRunning { get ; set ; }=false;
+        public bool IsSuspended { get ; set ; }=false;
+        public bool IsStarted { get ; set ; }=false;
 
-    public event EventHandler? OnStart;
+        public event EventHandler? OnStart;
     public event EventHandler? OnStop;
     public event EventHandler<ErrorEventArgs>? OnError;
 

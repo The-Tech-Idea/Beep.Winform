@@ -67,18 +67,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowInTaskbar = false;
             TopMost = true;
             InPopMode = true;
-            FormBorderStyle = FormBorderStyle.None;
 
+            FormStyle = BeepFormStyle.Modern;
+          
             // Ensure popup is truly borderless and captionless
             ShowCaptionBar = false;
             ShowSystemButtons = false;
             EnableCaptionGradient = false;
-            BorderThickness = 0;
+          //  BorderThickness = 0;
 
             // Initialize DPI scaling first
             //UpdateDpiScaling();
-            Padding = new Padding(0);
-            BorderRadius = 3;
+           // Padding = new Padding(10);
+            //BorderRadius = 3;
             _closeTimer = new System.Windows.Forms.Timer { Interval = _closeTimeout };
             _closeTimer.Tick += CloseTimer_Tick;
 

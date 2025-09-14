@@ -3,6 +3,7 @@ using System.ComponentModel;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -10,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Containers")]
     [Description("A panel with a title and optional line below the title.")]
     [DisplayName("Beep Panel")]
-    public class BeepPanel : BeepControl
+    public class BeepPanel : BaseControl
     {
         // We'll keep everything the same, only adjusting the logic in DrawTitle and DrawTitleLine
         const int startyoffset = 0;
@@ -170,8 +171,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region "Constructor"
-        public BeepPanel()
+        public BeepPanel() : base()
         {
+            IsFocusedOn = false;
+            IsSelectedOn= false;
+            IsPressedOn= false;
+            IsHoveringOn= false;
             ApplyTheme();
             this.Size = new Size(400, 300);
         }
@@ -208,15 +213,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderColor = _currentTheme.BorderColor;
 
                 // Apply gradient properties if enabled
-                if (_useGradientBackground)
+                if (UseGradientBackground)
                 {
-                    _gradientStartColor = _currentTheme.PanelGradiantStartColor != Color.Empty ?
+                    GradientStartColor = _currentTheme.PanelGradiantStartColor != Color.Empty ?
                         _currentTheme.PanelGradiantStartColor : _currentTheme.GradientStartColor;
 
-                    _gradientEndColor = _currentTheme.PanelGradiantEndColor != Color.Empty ?
+                    GradientEndColor = _currentTheme.PanelGradiantEndColor != Color.Empty ?
                         _currentTheme.PanelGradiantEndColor : _currentTheme.GradientEndColor;
 
-                    _gradientDirection = _currentTheme.GradientDirection;
+                    GradientDirection = _currentTheme.GradientDirection;
                 }
 
                 // Apply title-specific properties
@@ -270,12 +275,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BorderThickness = _currentTheme.BorderSize;
                 }
 
-                // Apply shadow properties if enabled
-                if (_showShadow)
-                {
-                    _shadowColor = _currentTheme.ShadowColor;
-                    _shadowOpacity = _currentTheme.ShadowOpacity;
-                }
+             
+                    ShadowColor = _currentTheme.ShadowColor;
+                    ShadowOpacity = _currentTheme.ShadowOpacity;
+               
             }
             finally
             {

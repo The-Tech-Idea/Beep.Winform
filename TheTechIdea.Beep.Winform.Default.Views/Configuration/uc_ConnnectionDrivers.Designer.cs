@@ -71,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // MainTemplatePanel
             // 
             MainTemplatePanel.Controls.Add(beepSimpleGrid1);
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 1154, 724);
+            MainTemplatePanel.Dock = DockStyle.Fill;
             MainTemplatePanel.Size = new Size(1154, 724);
             // 
             // driversConfigViewModelBindingSource
@@ -106,6 +106,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.AnimationDuration = 500;
             beepSimpleGrid1.AnimationType = DisplayAnimationType.None;
             beepSimpleGrid1.ApplyThemeToChilds = false;
+            beepSimpleGrid1.AutoDrawHitListComponents = true;
             beepSimpleGrid1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             beepSimpleGrid1.BackColor = Color.White;
             beepSimpleGrid1.BadgeBackColor = Color.Red;
@@ -1374,11 +1375,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DisabledBackColor = Color.Gray;
             beepSimpleGrid1.DisabledBorderColor = Color.Empty;
             beepSimpleGrid1.DisabledForeColor = Color.Empty;
+            beepSimpleGrid1.DisableDpiAndScaling = true;
             beepSimpleGrid1.Dock = DockStyle.Fill;
             beepSimpleGrid1.DrawInBlackAndWhite = false;
             beepSimpleGrid1.DrawingRect = new Rectangle(1, 1, 1152, 722);
             beepSimpleGrid1.Easing = EasingType.Linear;
+            beepSimpleGrid1.EnableHighQualityRendering = true;
             beepSimpleGrid1.EnableRippleEffect = false;
+            beepSimpleGrid1.EnableSplashEffect = true;
             beepSimpleGrid1.EntityName = "ConnectionDriversConfig";
             beepSimpleGrid1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepSimpleGrid1.FieldID = null;
@@ -1438,6 +1442,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.LinkedProperty = null;
             beepSimpleGrid1.Location = new Point(0, 0);
             beepSimpleGrid1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepSimpleGrid1.MaxHitListDrawPerFrame = 0;
             beepSimpleGrid1.ModernGradientType = ModernGradientType.Subtle;
             beepSimpleGrid1.Name = "beepSimpleGrid1";
             beepSimpleGrid1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1514,6 +1519,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.UISize = ReactUISize.Medium;
             beepSimpleGrid1.UIVariant = ReactUIVariant.Default;
             beepSimpleGrid1.UpdateLog = null;
+            beepSimpleGrid1.UseExternalBufferedGraphics = false;
             beepSimpleGrid1.UseGlassmorphism = false;
             beepSimpleGrid1.UseGradientBackground = true;
             beepSimpleGrid1.UseThemeFont = true;

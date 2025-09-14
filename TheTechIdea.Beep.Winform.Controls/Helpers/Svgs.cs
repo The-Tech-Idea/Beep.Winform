@@ -104,6 +104,10 @@ namespace TheTechIdea.Beep.Icons
 
         #region "Information & Status"
         //fi-tr-calendar
+        //
+        public static readonly string drop_down = $"{BaseNamespace}.NAV.dropdown-select.svg";
+        public static readonly string drop_up = $"{BaseNamespace}.NAV.dropdown-selectup.svg";
+        public static readonly string drop_downicon = $"{BaseNamespace}.NAV.drop-down.svg";
         public static readonly string fi_tr_calendar = $"{BaseNamespace}.fi-tr-calendar.svg";
         public static readonly string Error = $"{BaseNamespace}.error.svg";
         public static readonly string Information = $"{BaseNamespace}.information.svg";

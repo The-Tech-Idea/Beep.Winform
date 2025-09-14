@@ -267,6 +267,9 @@
     <None Remove="GFX\SVG\NAV\083-share.svg" />
     <None Remove="GFX\SVG\NAV\089-trash.svg" />
     <None Remove="GFX\SVG\NAV\093-waving.svg" />
+    <None Remove="GFX\SVG\NAV\drop-down.svg" />
+    <None Remove="GFX\SVG\NAV\dropdown-select.svg" />
+    <None Remove="GFX\SVG\NAV\dropdown-selectup.svg" />
     <None Remove="GFX\SVG\next.svg" />
     <None Remove="GFX\SVG\No.svg" />
     <None Remove="GFX\SVG\notice.svg" />
@@ -446,6 +449,9 @@
     <EmbeddedResource Include="GFX\SVG\NAV\angle-double-small-right.svg" />
     <EmbeddedResource Include="GFX\SVG\NAV\angle-small-left.svg" />
     <EmbeddedResource Include="GFX\SVG\NAV\angle-small-right.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\drop-down.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\dropdown-select.svg" />
+    <EmbeddedResource Include="GFX\SVG\NAV\dropdown-selectup.svg" />
     <EmbeddedResource Include="GFX\SVG\paperclip.svg" />
     <EmbeddedResource Include="GFX\SVG\person-circle-check.svg" />
     <EmbeddedResource Include="GFX\SVG\person-circle-plus.svg" />

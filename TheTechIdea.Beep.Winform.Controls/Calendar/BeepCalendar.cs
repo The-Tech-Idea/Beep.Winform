@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.Calendar
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
@@ -49,7 +49,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         // Constants
         private const int HeaderHeight = 60;
-        private const int ViewSelectorHeight = 40;
+        private const int BaseViewSelectorHeight = 40; // base; actual is dynamic
+        private const int SelectorVerticalPadding = 8; // extra padding around buttons
+        private const int SectionSpacing = 4; // spacing between rows/lines
         private const int SidebarWidth = 300;
         private const int MinCellHeight = 120;
         private const int DayHeaderHeight = 30;
@@ -201,7 +203,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "◀",
                 Size = new Size(30, 30),
                 IsChild = true,
-                Theme = Theme
+                Theme = Theme,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left
             };
             _prevButton.Click += (s, e) => NavigatePrevious();
 
@@ -210,37 +213,40 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "▶",
                 Size = new Size(30, 30),
                 IsChild = true,
-                Theme = Theme
+                Theme = Theme,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left
             };
             _nextButton.Click += (s, e) => NavigateNext();
 
             _todayButton = new BeepButton
             {
                 Text = "Today",
-                Size = new Size(60, 30),
+                Size = new Size(70, 30),
                 IsChild = true,
-                Theme = Theme
+                Theme = Theme,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left
             };
             _todayButton.Click += (s, e) => NavigateToday();
 
             // View mode buttons
-            _monthViewButton = new BeepButton { Text = "Month", Size = new Size(60, 30), IsChild = true, Theme = Theme };
-            _weekViewButton = new BeepButton { Text = "Week", Size = new Size(60, 30), IsChild = true, Theme = Theme };
-            _dayViewButton = new BeepButton { Text = "Day", Size = new Size(60, 30), IsChild = true, Theme = Theme };
-            _listViewButton = new BeepButton { Text = "List", Size = new Size(60, 30), IsChild = true, Theme = Theme };
+            _monthViewButton = new BeepButton { Text = "Month", Size = new Size(70, 30), IsChild = true, Theme = Theme, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            _weekViewButton  = new BeepButton { Text = "Week",  Size = new Size(70, 30), IsChild = true, Theme = Theme, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            _dayViewButton   = new BeepButton { Text = "Day",   Size = new Size(70, 30), IsChild = true, Theme = Theme, Anchor = AnchorStyles.Top | AnchorStyles.Right };
+            _listViewButton  = new BeepButton { Text = "List",  Size = new Size(70, 30), IsChild = true, Theme = Theme, Anchor = AnchorStyles.Top | AnchorStyles.Right };
 
             _monthViewButton.Click += (s, e) => ViewMode = CalendarViewMode.Month;
-            _weekViewButton.Click += (s, e) => ViewMode = CalendarViewMode.Week;
-            _dayViewButton.Click += (s, e) => ViewMode = CalendarViewMode.Day;
-            _listViewButton.Click += (s, e) => ViewMode = CalendarViewMode.List;
+            _weekViewButton.Click  += (s, e) => ViewMode = CalendarViewMode.Week;
+            _dayViewButton.Click   += (s, e) => ViewMode = CalendarViewMode.Day;
+            _listViewButton.Click  += (s, e) => ViewMode = CalendarViewMode.List;
 
             // Create event button
             _createEventButton = new BeepButton
             {
                 Text = "+ Create Event",
-                Size = new Size(100, 30),
+                Size = new Size(120, 30),
                 IsChild = true,
-                Theme = Theme
+                Theme = Theme,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left
             };
             _createEventButton.Click += (s, e) => OnCreateEventRequested(_selectedDate);
 
@@ -277,39 +283,53 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Header area
             _headerRect = new Rectangle(0, 0, Width, HeaderHeight);
 
+            // Determine dynamic selector height based on current buttons
+            int tallestBtn = 30;
+            if (_createEventButton != null)
+                tallestBtn = Math.Max(tallestBtn, _createEventButton.Height);
+            if (_monthViewButton != null)
+                tallestBtn = Math.Max(tallestBtn, Math.Max(Math.Max(_monthViewButton.Height, _weekViewButton.Height), Math.Max(_dayViewButton.Height, _listViewButton.Height)));
+            int selectorHeight = Math.Max(BaseViewSelectorHeight, tallestBtn + SelectorVerticalPadding * 2);
+
             // View selector area
-            _viewSelectorRect = new Rectangle(0, HeaderHeight, Width, ViewSelectorHeight);
+            _viewSelectorRect = new Rectangle(0, HeaderHeight, Width, selectorHeight);
 
             // Sidebar area (if enabled)
             int sidebarWidth = _showSidebar ? SidebarWidth : 0;
-            _sidebarRect = new Rectangle(Width - sidebarWidth, HeaderHeight + ViewSelectorHeight, 
-                                       sidebarWidth, Height - HeaderHeight - ViewSelectorHeight);
+            int gridTop = HeaderHeight + selectorHeight + SectionSpacing; // add small spacing so buttons never overlap
+            _sidebarRect = new Rectangle(Width - sidebarWidth, gridTop,
+                                       sidebarWidth, Height - gridTop);
 
             // Main calendar area
-            _calendarGridRect = new Rectangle(0, HeaderHeight + ViewSelectorHeight,
-                                            Width - sidebarWidth, Height - HeaderHeight - ViewSelectorHeight);
+            _calendarGridRect = new Rectangle(0, gridTop,
+                                            Width - sidebarWidth, Height - gridTop);
 
             PositionControls();
         }
 
         private void PositionControls()
         {
-            // Navigation controls
-            _prevButton.Location = new Point(10, (_headerRect.Height - 30) / 2);
-            _nextButton.Location = new Point(50, (_headerRect.Height - 30) / 2);
-            _todayButton.Location = new Point(90, (_headerRect.Height - 30) / 2);
+            int spacing = 8;
+            int margin = 10;
 
-            // View mode buttons
-            int viewButtonsStartX = _viewSelectorRect.Right - 260;
-            _monthViewButton.Location = new Point(viewButtonsStartX, _viewSelectorRect.Y + 5);
-            _weekViewButton.Location = new Point(viewButtonsStartX + 65, _viewSelectorRect.Y + 5);
-            _dayViewButton.Location = new Point(viewButtonsStartX + 130, _viewSelectorRect.Y + 5);
-            _listViewButton.Location = new Point(viewButtonsStartX + 195, _viewSelectorRect.Y + 5);
+            // Navigation group on header's left
+            int navY = _headerRect.Y + (_headerRect.Height - _prevButton.Height) / 2;
+            _prevButton.Location = new Point(margin, navY);
+            _nextButton.Location = new Point(_prevButton.Right + spacing, navY);
+            _todayButton.Location = new Point(_nextButton.Right + spacing, navY);
 
-            // Create event button
-            _createEventButton.Location = new Point(10, _viewSelectorRect.Y + 5);
+            // View selector row
+            int createY = _viewSelectorRect.Y + (_viewSelectorRect.Height - _createEventButton.Height) / 2;
+            _createEventButton.Location = new Point(margin, createY);
 
-            // Update button states
+            int totalViewButtonsWidth = _monthViewButton.Width + _weekViewButton.Width + _dayViewButton.Width + _listViewButton.Width + spacing * 3;
+            int startX = Math.Max(_calendarGridRect.Left + margin, _viewSelectorRect.Right - totalViewButtonsWidth - margin);
+            int viewY = _viewSelectorRect.Y + (_viewSelectorRect.Height - _monthViewButton.Height) / 2;
+            _monthViewButton.Location = new Point(startX, viewY);
+            _weekViewButton.Location  = new Point(_monthViewButton.Right + spacing, viewY);
+            _dayViewButton.Location   = new Point(_weekViewButton.Right + spacing, viewY);
+            _listViewButton.Location  = new Point(_dayViewButton.Right + spacing, viewY);
+
             UpdateViewButtonStates();
         }
 
@@ -319,9 +339,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             Color normalColor = _currentTheme?.CalendarBackColor ?? Color.LightGray;
 
             _monthViewButton.BackColor = _viewMode == CalendarViewMode.Month ? selectedColor : normalColor;
-            _weekViewButton.BackColor = _viewMode == CalendarViewMode.Week ? selectedColor : normalColor;
-            _dayViewButton.BackColor = _viewMode == CalendarViewMode.Day ? selectedColor : normalColor;
-            _listViewButton.BackColor = _viewMode == CalendarViewMode.List ? selectedColor : normalColor;
+            _weekViewButton.BackColor  = _viewMode == CalendarViewMode.Week  ? selectedColor : normalColor;
+            _dayViewButton.BackColor   = _viewMode == CalendarViewMode.Day   ? selectedColor : normalColor;
+            _listViewButton.BackColor  = _viewMode == CalendarViewMode.List  ? selectedColor : normalColor;
         }
 
         protected override void OnResize(EventArgs e)
@@ -373,11 +393,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 g.FillRectangle(brush, _headerRect);
             }
 
-            // Header text
+            // Header text centered between left nav and right margin
+            int leftMargin = Math.Max(_todayButton.Right + 20, 160);
+            int rightMargin = 20; // no right-side header buttons; keep small margin
+            var textRect = new Rectangle(leftMargin, _headerRect.Y, Math.Max(10, _headerRect.Width - leftMargin - rightMargin), _headerRect.Height);
             string headerText = GetHeaderText();
             using (var brush = new SolidBrush(_currentTheme?.CalendarTitleForColor ?? ForeColor))
             {
-                var textRect = new Rectangle(_headerRect.X + 160, _headerRect.Y, _headerRect.Width - 320, _headerRect.Height);
                 g.DrawString(headerText, HeaderFont, brush, textRect,
                            new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
@@ -385,16 +407,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawViewSelector(Graphics g)
         {
-            // Background
             using (var brush = new SolidBrush(_currentTheme?.CalendarBackColor ?? Color.FromArgb(248, 249, 250)))
             {
                 g.FillRectangle(brush, _viewSelectorRect);
             }
 
-            // Border
             using (var pen = new Pen(_currentTheme?.CalendarBorderColor ?? Color.FromArgb(218, 220, 224)))
             {
-                g.DrawLine(pen, _viewSelectorRect.X, _viewSelectorRect.Bottom - 1, 
+                // draw bottom border line for separation
+                g.DrawLine(pen, _viewSelectorRect.X, _viewSelectorRect.Bottom - 1,
                           _viewSelectorRect.Right, _viewSelectorRect.Bottom - 1);
             }
         }
@@ -566,9 +587,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool isSelected = cellDate.Date == _selectedDate.Date;
 
             // Cell background using theme colors
-            Color bgColor = isSelected ? (_currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244)) :
-                           isToday ? (_currentTheme?.CalendarHoverBackColor ?? Color.FromArgb(230, 240, 255)) :
-                           isCurrentMonth ? (_currentTheme?.CalendarBackColor ?? Color.White) : 
+            Color bgColor = isSelected ? _currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244) :
+                           isToday ? _currentTheme?.CalendarHoverBackColor ?? Color.FromArgb(230, 240, 255) :
+                           isCurrentMonth ? _currentTheme?.CalendarBackColor ?? Color.White : 
                            Color.FromArgb(248, 249, 250);
 
             using (var brush = new SolidBrush(bgColor))
@@ -583,9 +604,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Day number using theme colors
-            Color textColor = isSelected ? (_currentTheme?.CalendarSelectedDateForColor ?? Color.White) : 
-                             isToday ? (_currentTheme?.CalendarTodayForeColor ?? Color.FromArgb(244, 67, 54)) :
-                             isCurrentMonth ? (_currentTheme?.CalendarForeColor ?? Color.Black) : Color.Gray;
+            Color textColor = isSelected ? _currentTheme?.CalendarSelectedDateForColor ?? Color.White : 
+                             isToday ? _currentTheme?.CalendarTodayForeColor ?? Color.FromArgb(244, 67, 54) :
+                             isCurrentMonth ? _currentTheme?.CalendarForeColor ?? Color.Black : Color.Gray;
             
             using (var brush = new SolidBrush(textColor))
             {

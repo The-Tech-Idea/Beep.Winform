@@ -245,7 +245,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     control.Dock = DockStyle.Fill;
                     popupForm.StartPosition = FormStartPosition.CenterParent;
                     popupForm.ShowCaptionBar=true;
+                    popupForm.Theme = Theme;
+                    popupForm.Title = view.Details?.AddinName ?? view.Details .ObjectName;
                     // Ensure the dialog is shown on the UI thread
+                  
+                    popupForm.OnFormClose += (s, e) =>
+                    {
+                        try
+                        {
+                            // remove view from  form without dispose
+                           popupForm.Controls.Remove(control);
+                          
+                        }
+                        catch (Exception)
+                        {
+                            // Addin should handle OnError internally
+                        }
+                    };
                     popupForm.Show(this.ParentForm);
                 }
                 else

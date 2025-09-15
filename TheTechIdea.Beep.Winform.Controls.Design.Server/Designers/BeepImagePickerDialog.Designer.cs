@@ -7,6 +7,7 @@
         private System.Windows.Forms.TextBox _txtSearch;
         private System.Windows.Forms.ListBox _lstEmbedded;
         private System.Windows.Forms.Button _btnBrowse;
+        private System.Windows.Forms.Button _btnEmbed; // explicit embed button
         private System.Windows.Forms.Button _btnOK;
         private System.Windows.Forms.Button _btnCancel;
         private System.Windows.Forms.CheckBox _chkLimit;
@@ -31,6 +32,7 @@
             _lblPath = new Label();
             _txtPath = new TextBox();
             _btnBrowse = new Button();
+            _btnEmbed = new Button();
             _lblSearch = new Label();
             _txtSearch = new TextBox();
             _chkLimit = new CheckBox();
@@ -54,63 +56,73 @@
             // _lblPath
             // 
             _lblPath.AutoSize = true;
-            _lblPath.Location = new Point(0, 4);
+            _lblPath.Location = new Point(45, 10);
             _lblPath.Name = "_lblPath";
-            _lblPath.Size = new Size(65, 32);
+            _lblPath.Size = new Size(34, 15);
             _lblPath.TabIndex = 0;
             _lblPath.Text = "Path:";
             // 
             // _txtPath
             // 
             _txtPath.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            _txtPath.Location = new Point(71, 0);
+            _txtPath.Location = new Point(105, 7);
             _txtPath.Name = "_txtPath";
-            _txtPath.Size = new Size(1075, 39);
+            _txtPath.Size = new Size(838, 23);
             _txtPath.TabIndex = 1;
             // 
             // _btnBrowse
             // 
             _btnBrowse.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            _btnBrowse.Location = new Point(1383, -1);
+            _btnBrowse.Location = new Point(949, 6);
             _btnBrowse.Name = "_btnBrowse";
             _btnBrowse.Size = new Size(90, 26);
             _btnBrowse.TabIndex = 2;
             _btnBrowse.Text = "Browse...";
             // 
+            // _btnEmbed
+            // 
+            _btnEmbed.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            _btnEmbed.Location = new Point(1045, 6);
+            _btnEmbed.Name = "_btnEmbed";
+            _btnEmbed.Size = new Size(90, 26);
+            _btnEmbed.TabIndex = 3;
+            _btnEmbed.Text = "Embed";
+            // 
             // _lblSearch
             // 
             _lblSearch.AutoSize = true;
-            _lblSearch.Location = new Point(0, 38);
+            _lblSearch.Location = new Point(34, 42);
             _lblSearch.Name = "_lblSearch";
-            _lblSearch.Size = new Size(90, 32);
-            _lblSearch.TabIndex = 3;
+            _lblSearch.Size = new Size(45, 15);
+            _lblSearch.TabIndex = 4;
             _lblSearch.Text = "Search:";
             // 
             // _txtSearch
             // 
             _txtSearch.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            _txtSearch.Location = new Point(85, 34);
+            _txtSearch.Location = new Point(105, 34);
             _txtSearch.Name = "_txtSearch";
-            _txtSearch.Size = new Size(1061, 39);
-            _txtSearch.TabIndex = 4;
+            _txtSearch.Size = new Size(838, 23);
+            _txtSearch.TabIndex = 5;
             // 
             // _chkLimit
             // 
             _chkLimit.AutoSize = true;
-            _chkLimit.Location = new Point(330, 36);
+            _chkLimit.Location = new Point(105, 63);
             _chkLimit.Name = "_chkLimit";
-            _chkLimit.Size = new Size(146, 36);
-            _chkLimit.TabIndex = 5;
+            _chkLimit.Size = new Size(75, 19);
+            _chkLimit.TabIndex = 6;
             _chkLimit.Text = "SVG Only";
             // 
             // _lstEmbedded
             // 
             _lstEmbedded.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             _lstEmbedded.IntegralHeight = false;
+            _lstEmbedded.ItemHeight = 15;
             _lstEmbedded.Location = new Point(3, 90);
             _lstEmbedded.Name = "_lstEmbedded";
             _lstEmbedded.Size = new Size(1129, 619);
-            _lstEmbedded.TabIndex = 6;
+            _lstEmbedded.TabIndex = 7;
             // 
             // _grpPreview
             // 
@@ -161,7 +173,7 @@
             _preview.DisabledForeColor = Color.Black;
             _preview.DisableDpiAndScaling = true;
             _preview.Dock = DockStyle.Fill;
-            _preview.DrawingRect = new Rectangle(0, 0, 254, 669);
+            _preview.DrawingRect = new Rectangle(0, 0, 254, 685);
             _preview.Easing = Vis.Modules.EasingType.Linear;
             _preview.EmbeddedImagePath = null;
             _preview.EnableHighQualityRendering = true;
@@ -231,7 +243,7 @@
             _preview.LabelText = "";
             _preview.LeftoffsetForDrawingRect = 0;
             _preview.LinkedProperty = null;
-            _preview.Location = new Point(8, 40);
+            _preview.Location = new Point(8, 24);
             _preview.ManualRotationAngle = 0F;
             _preview.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             _preview.MaxHitListDrawPerFrame = 0;
@@ -265,7 +277,7 @@
             _preview.ShowRightBorder = false;
             _preview.ShowShadow = false;
             _preview.ShowTopBorder = false;
-            _preview.Size = new Size(254, 669);
+            _preview.Size = new Size(254, 685);
             _preview.SlideFrom = Vis.Modules.SlideDirection.Left;
             _preview.SpinSpeed = 5F;
             _preview.StaticNotMoving = false;
@@ -306,20 +318,22 @@
             // _btnOK
             // 
             _btnOK.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _btnOK.Location = new Point(1897, 10);
+            _btnOK.Location = new Point(1223, 10);
             _btnOK.Name = "_btnOK";
             _btnOK.Size = new Size(90, 23);
             _btnOK.TabIndex = 0;
             _btnOK.Text = "OK";
+            _btnOK.DialogResult = DialogResult.OK;
             // 
             // _btnCancel
             // 
             _btnCancel.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            _btnCancel.Location = new Point(1997, 10);
+            _btnCancel.Location = new Point(1319, 10);
             _btnCancel.Name = "_btnCancel";
             _btnCancel.Size = new Size(90, 23);
             _btnCancel.TabIndex = 1;
             _btnCancel.Text = "Cancel";
+            _btnCancel.DialogResult = DialogResult.Cancel;
             // 
             // _split
             // 
@@ -343,6 +357,7 @@
             _leftPanel.Controls.Add(_lblPath);
             _leftPanel.Controls.Add(_txtPath);
             _leftPanel.Controls.Add(_btnBrowse);
+            _leftPanel.Controls.Add(_btnEmbed);
             _leftPanel.Controls.Add(_lblSearch);
             _leftPanel.Controls.Add(_txtSearch);
             _leftPanel.Controls.Add(_chkLimit);

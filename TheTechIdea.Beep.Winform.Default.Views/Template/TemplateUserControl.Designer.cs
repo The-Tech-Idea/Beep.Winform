@@ -55,9 +55,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.BorderThickness = 1;
             MainTemplatePanel.BottomoffsetForDrawingRect = 0;
             MainTemplatePanel.BoundProperty = null;
-            MainTemplatePanel.CanBeFocused = true;
+            MainTemplatePanel.CanBeFocused = false;
             MainTemplatePanel.CanBeHovered = false;
-            MainTemplatePanel.CanBePressed = true;
+            MainTemplatePanel.CanBePressed = false;
             MainTemplatePanel.Category = Utilities.DbFieldCategory.String;
             MainTemplatePanel.ComponentName = "beepPanel1";
             MainTemplatePanel.DataSourceProperty = null;
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.DisabledForeColor = Color.Gray;
             MainTemplatePanel.DisableDpiAndScaling = false;
             MainTemplatePanel.Dock = DockStyle.Fill;
-            MainTemplatePanel.DrawingRect = new Rectangle(24, 8, 352, 284);
+            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 770, 432);
             MainTemplatePanel.Easing = EasingType.Linear;
             MainTemplatePanel.EnableHighQualityRendering = true;
             MainTemplatePanel.EnableMaterialStyle = false;
@@ -106,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.InactiveBorderColor = Color.Gray;
             MainTemplatePanel.InnerShape = null;
             MainTemplatePanel.IsAcceptButton = false;
-            MainTemplatePanel.IsBorderAffectedByTheme = true;
+            MainTemplatePanel.IsBorderAffectedByTheme = false;
             MainTemplatePanel.IsCancelButton = false;
             MainTemplatePanel.IsChild = false;
             MainTemplatePanel.IsCustomeBorder = false;
@@ -124,12 +124,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.IsPressedOn = false;
             MainTemplatePanel.IsReadOnly = false;
             MainTemplatePanel.IsRequired = false;
-            MainTemplatePanel.IsRounded = true;
-            MainTemplatePanel.IsRoundedAffectedByTheme = true;
+            MainTemplatePanel.IsRounded = false;
+            MainTemplatePanel.IsRoundedAffectedByTheme = false;
             MainTemplatePanel.IsSelected = false;
             MainTemplatePanel.IsSelectedOn = false;
             MainTemplatePanel.IsSelectedOptionOn = false;
-            MainTemplatePanel.IsShadowAffectedByTheme = true;
+            MainTemplatePanel.IsShadowAffectedByTheme = false;
             MainTemplatePanel.IsValid = true;
             MainTemplatePanel.IsVisible = true;
             MainTemplatePanel.Items = (List<object>)resources.GetObject("MainTemplatePanel.Items");
@@ -182,6 +182,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.SlideFrom = SlideDirection.Left;
             MainTemplatePanel.StaticNotMoving = false;
             MainTemplatePanel.TabIndex = 0;
+            MainTemplatePanel.TabStop = false;
             MainTemplatePanel.Tag = this;
             MainTemplatePanel.TempBackColor = Color.Empty;
             MainTemplatePanel.Text = "beepPanel1";
@@ -191,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.TitleBottomY = 0;
             MainTemplatePanel.TitleLineColor = Color.Gray;
             MainTemplatePanel.TitleLineThickness = 2;
-            MainTemplatePanel.TitleText = "Panel Title";
+            MainTemplatePanel.TitleText = "";
             MainTemplatePanel.ToolTipText = "";
             MainTemplatePanel.TopoffsetForDrawingRect = 0;
             MainTemplatePanel.TrailingIconPath = "";

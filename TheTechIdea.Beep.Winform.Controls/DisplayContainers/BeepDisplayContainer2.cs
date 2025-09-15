@@ -656,7 +656,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
                 else if (view is Control control)
                 {
-                    var popupForm = new Form
+                    var popupForm = new BeepiForm
                     {
                         StartPosition = FormStartPosition.CenterParent,
                         AutoSize = true
@@ -664,7 +664,20 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
                     popupForm.Controls.Add(control);
                     control.Dock = DockStyle.Fill;
+                    popupForm.Title = view.Details.AddinName;
+                    popupForm.OnFormClose += (s, e) =>
+                    {
+                        try
+                        {
+                            // remove view from  form without dispose
+                            popupForm.Controls.Remove(control);
 
+                        }
+                        catch (Exception)
+                        {
+                            // Addin should handle OnError internally
+                        }
+                    };
                     // Ensure the dialog is shown on the UI thread
                     popupForm.Show(this.ParentForm);
                 }

@@ -18,8 +18,7 @@
 		<Title>TheTechIdea.Beep.Winform.Default.Views</Title>
 		<Product>TheTechIdea.Beep.Winform.Default.Views</Product>
 		<AssemblyName>TheTechIdea.Beep.Winform.Default.Views</AssemblyName>
-    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
-    <ForceDesignerDpiUnaware>true</ForceDesignerDpiUnaware>
+       
 		<Version>1.0.1</Version>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 	</PropertyGroup>

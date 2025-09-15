@@ -32,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         /// </summary>
         private void InitializeComponent()
         {
+            System.Drawing.Drawing2D.GraphicsPath graphicsPath9 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath2 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath3 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath4 = new System.Drawing.Drawing2D.GraphicsPath();
@@ -54,6 +55,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             // MainTemplatePanel
             // 
+            MainTemplatePanel.CanBeFocused = false;
+            MainTemplatePanel.CanBePressed = false;
+            MainTemplatePanel.IsPressedOn= false;
+            MainTemplatePanel.EnableMaterialStyle = false;
+            MainTemplatePanel.IsFocusedOn = false;
+            MainTemplatePanel.IsSelectedOn = false;
+            MainTemplatePanel.IsHoveringOn = false;
             MainTemplatePanel.Controls.Add(beepButton1);
             MainTemplatePanel.Controls.Add(CancelbeepButton);
             MainTemplatePanel.Controls.Add(SavebeepButton);
@@ -63,7 +71,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             MainTemplatePanel.Controls.Add(OtherFolderbeepTextBox);
             MainTemplatePanel.Controls.Add(LocalDbTypebeepComboBox);
             MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 353, 516);
+            graphicsPath9.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            MainTemplatePanel.InnerShape = graphicsPath9;
             MainTemplatePanel.Size = new Size(353, 516);
+            MainTemplatePanel.TabStop = false;
             // 
             // CancelbeepButton
             // 

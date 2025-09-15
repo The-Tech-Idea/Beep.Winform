@@ -62,6 +62,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         // create a public event for beepImage.onClick
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
 
+        // Prevent DPI scaling at control-level
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Disable DPI/auto-scaling for this control.")]
+        public bool DisableDpiAndScaling { get; set; } = true;
+
         private ButtonType _buttonType = ButtonType.Normal;
         [Browsable(true)]
         [Category("Appearance")]
@@ -323,64 +329,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
         }
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public Color BorderColor
-        //{
-        //    get => borderColor;
-        //    set
-        //    {
-        //        borderColor = value;
-        //        Invalidate();  // Trigger repaint
-        //    }
-        //}
-        //[Browsable(true)]
-        //[Category("Appearance")]
-        //public Color SelectedBorderColor
-        //{
-        //    get => selectedBorderColor;
-        //    set
-        //    {
-        //        selectedBorderColor = value;
-        //        Invalidate();  // Trigger repaint
-        //    }
-        //}
         [Browsable(true)]
         [Category("Appearance")]
-        public TextImageRelation TextImageRelation
-        {
-            get => textImageRelation;
-            set
-            {
-                textImageRelation = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public ContentAlignment ImageAlign
-        {
-            get => imageAlign;
-            set
-            {
-                imageAlign = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        public ContentAlignment TextAlign
-        {
-            get => textAlign;
-            set
-            {
-                textAlign = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Editor("TheTechIdea.Beep.Winform.Controls.Design.Server.Designers.BeepImagePathEditor, TheTechIdea.Beep.Winform.Controls.Design.Server", typeof(System.Drawing.Design.UITypeEditor))]
         [Description("Select the image file (SVG, PNG, JPG, etc.) to load.")]
         public string ImagePath
         {
@@ -403,6 +354,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+        // Expose alignment and relation as properties (needed by designer and drawing)
+        [Browsable(true)]
+        [Category("Appearance")]
+        public TextImageRelation TextImageRelation
+        {
+            get => textImageRelation;
+            set { textImageRelation = value; Invalidate(); }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ContentAlignment ImageAlign
+        {
+            get => imageAlign;
+            set { imageAlign = value; Invalidate(); }
+        }
+        [Browsable(true)]
+        [Category("Appearance")]
+        public ContentAlignment TextAlign
+        {
+            get => textAlign;
+            set { textAlign = value; Invalidate(); }
+        }
         // New Properties
         [Browsable(true)]
         [Category("Appearance")]
@@ -421,28 +394,6 @@ namespace TheTechIdea.Beep.Winform.Controls
     (string.IsNullOrEmpty(Text) || _hideText) &&
      !string.IsNullOrEmpty(beepImage?.ImagePath) ;
 
-        //[Browsable(true)]
-        //[Category("Behavior")]
-        //public bool IsSelected
-        //{
-        //    get => _isSelected;
-        //    set
-        //    {
-        //        _isSelected = value;
-        //        if (_isSelected)
-        //        {
-
-        //            BackColor = _currentTheme.ButtonSelectedBackColor;
-        //            ForeColor = _currentTheme.ButtonPressedForeColor;
-        //        }
-        //        else
-        //        {
-        //            BackColor = _currentTheme.ButtonBackColor;
-        //            ForeColor = _currentTheme.ButtonForeColor;
-        //        }
-        //        Invalidate(); // Repaint to reflect selection state
-        //    }
-        //}
         [Browsable(true)]
         [Category("Appearance")]
         public Size MaxImageSize
@@ -523,28 +474,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _isChild = value;
                 base.IsChild = value;
-                //Control parent = null;
-                //if (this.Parent != null)
-                //{
-                //    parent = this.Parent;
-                //}
-                //if (parent != null)
-                //{
-                //    if (value)
-                //    {
-                //        parentbackcolor = parent.BackColor;
-                //        _tempbackcolor = BackColor;
-                //        BackColor = parentbackcolor;
-                //        beepImage.BackColor = parentbackcolor;
-                //    }
-                //    else
-                //    {
-                       
-                //        beepImage.BackColor = _tempbackcolor;
-                //        BackColor = _tempbackcolor;
-                //        ApplyTheme();
-                //    }
-                //}
                
                 Invalidate();  // Trigger repaint
             }
@@ -702,26 +631,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Enable material style for modern button appearance
             EnableMaterialStyle = true;
-            
-      
             StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
-         
-            
-           
-                // Apply size compensation when handle is created
-                this.HandleCreated += (s, e) => {
-                    // Apply Material Design size compensation if enabled
-                    if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
-                    {
-                        ApplyMaterialSizeCompensation();
-                    }
-                };
-          
-            
+
+            // Apply size compensation when handle is created
+            this.HandleCreated += (s, e) => {
+                if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
+                {
+                    ApplyMaterialSizeCompensation();
+                }
+            };
+            // explicitly disable DPI scaling for this control
+            try { this.DisableDpiAndScaling = true; } catch { }
+
             // DON'T set hardcoded gradient colors - let ApplyTheme() handle them from the theme
-            
+
             #region "Popup List Initialization"
-            IsChild= false;
+            IsChild = false;
             // Initialize the popup form and beepListBox
             // 1) Create beepListBox
            
@@ -730,6 +655,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             splashTimer.Interval = 30; // Update every 30 ms (about 33 frames per second)
             splashTimer.Tick += SplashTimer_Tick;
 
+        }
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            // Block any scaling if disabled
+            if (this.DisableDpiAndScaling) return;
+            base.ScaleControl(factor, specified);
+        }
+        protected override void ScaleCore(float dx, float dy)
+        {
+            // Block any scaling if disabled
+            if (this.DisableDpiAndScaling) return;
+            base.ScaleCore(dx, dy);
         }
         private void InitializeComponents()
         {
@@ -743,9 +680,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size = _maxImageSize // Set the size based on the max image size
             };
             beepImage.ImageEmbededin= ImageEmbededin.Button;
-          //  beepImage.MouseHover += BeepImage_MouseHover;
-         //   beepImage.MouseEnter += BeepImage_MouseEnter;
-            //   beepImage.MouseLeave += BeepImage_MouseLeave;
+            // Mouse events for image
             beepImage.MouseDown += BeepImage_MouseDown;
             Padding = new Padding(0);
             Margin = new Padding(0);
@@ -859,6 +794,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
+     
         public override void ApplyTheme()
         {
             // CRITICAL: Call base.ApplyTheme() first to ensure proper DPI scaling handling

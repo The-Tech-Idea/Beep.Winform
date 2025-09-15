@@ -269,7 +269,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Properties
-        [Browsable(true)][Category("Appearance")] public string Title { get => _title; set => _title = value; }
+        [Browsable(true)][Category("Appearance")] public string Title 
+        { get => _title; 
+            set
+            {
+                _title = value; 
+                if (beepuiManager1 != null)
+                {
+                    beepuiManager1.Title = value;
+                }
+                Text = value;
+                if (!InDesignHost) Text = value; 
+                Invalidate();
+            }
+        }
         [Browsable(true)][Category("Appearance")] public bool ApplyThemeToChilds { get => _applythemetochilds; set => _applythemetochilds = value; }
         [Browsable(true)][Category("Appearance"), Description("The Thickness of the form's border."), DefaultValue(3), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] public int BorderThickness { get => _borderThickness; set { _borderThickness = value; if (!InDesignHost && UseHelperInfrastructure) _state.RegionDirty = true; Invalidate(); } }
         [Browsable(true)][Category("Appearance"), Description("The radius of the form's border."), DefaultValue(5), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] public int BorderRadius { get => _borderRadius; set { _borderRadius = Math.Max(0, value); if (!InDesignHost && UseHelperInfrastructure) { _state.RegionDirty = true; _regionHelper?.InvalidateRegion(); } if (!InDesignHost && IsHandleCreated && ClientSize.Width > 0 && ClientSize.Height > 0) UpdateFormRegion(); Invalidate(); } }

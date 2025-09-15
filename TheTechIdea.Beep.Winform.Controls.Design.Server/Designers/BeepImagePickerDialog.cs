@@ -3,16 +3,20 @@ using System.ComponentModel.Design;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using Svg;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Design.Server; // ProjectResourceEmbedder
+using TheTechIdea.Beep.Winform.Controls.Models; // SimpleItem
 
 namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 {
     public partial class BeepImagePickerDialog : Form
     {
         private readonly BeepImage _control;
-        private readonly bool _embed;
+        private readonly bool _embed; // no longer auto-embeds; only controls title/intent
         private readonly IServiceProvider _sp;
         private string[] _allResources = Array.Empty<string>();
 
@@ -34,7 +38,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
 
         private void WireEvents()
         {
-            _btnBrowse.Click += (s, e) => Browse();
+            _btnBrowse.Click += async (s, e) => await BrowseAsync();
+            if (_btnEmbed != null)
+                _btnEmbed.Click += async (s, e) => await ImportCurrentPathAsync();
+
             _lstEmbedded.SelectedIndexChanged += (s, e) => UpdatePreviewForSelected();
             _lstEmbedded.DoubleClick += (s, e) => { if (_lstEmbedded.SelectedItem != null) { SelectedResourcePath = _lstEmbedded.SelectedItem.ToString(); DialogResult = DialogResult.OK; } };
             _chkLimit.CheckedChanged += (s, e) => ApplyFilter();
@@ -43,18 +50,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             // Drag & Drop support
             _preview.AllowDrop = true;
             _preview.DragEnter += (s, e) => { if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy; };
-            _preview.DragDrop += (s, e) => OnFilesDropped((string[])e.Data.GetData(DataFormats.FileDrop));
+            _preview.DragDrop += async (s, e) => await OnFilesDroppedAsync((string[])e.Data.GetData(DataFormats.FileDrop));
             this.DragEnter += (s, e) => { if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy; };
-            this.DragDrop += (s, e) => OnFilesDropped((string[])e.Data.GetData(DataFormats.FileDrop));
+            this.DragDrop += async (s, e) => await OnFilesDroppedAsync((string[])e.Data.GetData(DataFormats.FileDrop));
         }
 
-        private void OnFilesDropped(string[] files)
+        private async Task OnFilesDroppedAsync(string[] files)
         {
             if (files == null || files.Length == 0) return;
             var first = files.First();
             if (!IsSupported(first)) return;
             _txtPath.Text = first;
-            if (_embed) TryEmbed(first); else SelectedFilePath = first;
+            // Do NOT auto-embed. User must click Embed explicitly.
+            SelectedFilePath = first;
             LoadPreviewFromFile(first);
         }
 
@@ -64,16 +72,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             return new[] { ".svg", ".png", ".jpg", ".jpeg", ".bmp" }.Contains(ext);
         }
 
-        private void Browse()
+        private async Task BrowseAsync()
         {
             using var ofd = new OpenFileDialog { Filter = "Images|*.svg;*.png;*.jpg;*.jpeg;*.bmp|All Files|*.*" };
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 _txtPath.Text = ofd.FileName;
-                if (_embed)
-                    TryEmbed(ofd.FileName);
-                else
-                    SelectedFilePath = ofd.FileName;
+                // Do NOT auto-embed. User must click Embed explicitly.
+                SelectedFilePath = ofd.FileName;
                 LoadPreviewFromFile(ofd.FileName);
             }
         }
@@ -101,8 +107,79 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
             catch { _preview.ClearImage(); }
         }
 
+        private async Task ImportCurrentPathAsync()
+        {
+            var path = _txtPath.Text?.Trim();
+            if (string.IsNullOrEmpty(path)) { MessageBox.Show("Select a file first."); return; }
+            if (!IsSupported(path)) { MessageBox.Show("Unsupported file type."); return; }
+            await ImportFileAsync(path);
+        }
+
+        private async Task ImportFileAsync(string filePath)
+        {
+            try
+            {
+                var projDir = FindProjectDirectory();
+                if (projDir == null)
+                {
+                    MessageBox.Show("Could not locate project directory to embed into.", "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    SelectedFilePath = filePath;
+                    return;
+                }
+
+                var dict = new System.Collections.Generic.Dictionary<string, SimpleItem>();
+                var result = await ProjectResourceEmbedder.CopyAndEmbedFileToProjectResourcesAsync(dict, filePath, projDir);
+                if (!result.IsSuccess)
+                {
+                    var err = string.Join(Environment.NewLine, result.Errors ?? System.Linq.Enumerable.Empty<string>());
+                    MessageBox.Show($"Embed failed: {err}", "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    SelectedFilePath = filePath;
+                    return;
+                }
+
+                // Compute manifest name and update selection/list
+                var asmName = GetProjectAssemblyName(projDir);
+                var rel = Path.GetRelativePath(projDir, result.FilePath).Replace("\\", "/");
+                var manifest = asmName + "." + rel.Replace('/', '.');
+
+                SelectedResourcePath = manifest;
+                SelectedFilePath = null; // since we're switching to embedded resource
+
+                // ensure it appears in the list for quick selection
+                if (!_lstEmbedded.Items.Contains(manifest))
+                    _lstEmbedded.Items.Add(manifest);
+                _lstEmbedded.SelectedItem = manifest;
+
+                // Preview from the embedded file path (physical file)
+                _preview.ImagePath = result.FilePath;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Embed failed: " + ex.Message, "Embed", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                SelectedFilePath = filePath;
+            }
+        }
+
+        private string GetProjectAssemblyName(string projectDirectory)
+        {
+            try
+            {
+                var csproj = Directory.GetFiles(projectDirectory, "*.csproj").FirstOrDefault();
+                if (csproj == null) return new DirectoryInfo(projectDirectory).Name;
+                var xml = XDocument.Load(csproj);
+                var asmName = xml.Root?.Elements("PropertyGroup").Elements("AssemblyName").FirstOrDefault()?.Value;
+                if (!string.IsNullOrWhiteSpace(asmName)) return asmName;
+                return Path.GetFileNameWithoutExtension(csproj);
+            }
+            catch
+            {
+                return new DirectoryInfo(projectDirectory).Name;
+            }
+        }
+
         private void TryEmbed(string filePath)
         {
+            // Legacy helper (no longer used automatically)
             try
             {
                 var projDir = FindProjectDirectory();
@@ -112,11 +189,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Design.Server.Designers
                 var fileName = Path.GetFileName(filePath);
                 var dest = Path.Combine(resourcesDir, fileName);
                 File.Copy(filePath, dest, true);
-                var asmName = _control?.GetType().Assembly.GetName().Name;
+                var asmName = GetProjectAssemblyName(projDir);
                 SelectedResourcePath = $"{asmName}.Resources.{fileName}";
-                _lstEmbedded.Items.Add(SelectedResourcePath);
+                if (!_lstEmbedded.Items.Contains(SelectedResourcePath))
+                    _lstEmbedded.Items.Add(SelectedResourcePath);
                 _lstEmbedded.SelectedItem = SelectedResourcePath;
-                _preview.ImagePath = filePath; // show preview from file; ImagePath can later be switched to resource string if needed
+                _preview.ImagePath = filePath; // show preview from file
             }
             catch (Exception ex)
             {

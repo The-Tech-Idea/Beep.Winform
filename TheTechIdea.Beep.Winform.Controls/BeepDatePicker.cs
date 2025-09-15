@@ -346,6 +346,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<DateValidationEventArgs> DateValidationFailed;
         public event EventHandler CalendarOpened;
         public event EventHandler CalendarClosed;
+
+        // Bubble up calendar OK/Cancel with payload
+        public event EventHandler<DateTimeDialogResultEventArgs> CalendarOkClicked;
+        public event EventHandler<DateTimeDialogResultEventArgs> CalendarCancelClicked;
         #endregion
 
         #region Constructor
@@ -747,36 +751,55 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ClosePopup()
         {
             if (!_isPopupOpen) return;
+
+            // Detach handlers to avoid multiple subscriptions after reopen
+            if (_calendarView != null)
+            {
+                _calendarView.OkClicked -= CalendarView_OkClicked;
+                _calendarView.CancelClicked -= CalendarView_CancelClicked;
+            }
+
             _calendarPopup?.CloseCascade();
+            _calendarPopup = null;
+            _calendarView = null;
             _isPopupOpen = false;
             CalendarClosed?.Invoke(this, EventArgs.Empty);
         }
         private void ShowCalendarPopup()
         {
             CalendarOpened?.Invoke(this, EventArgs.Empty);
-            // Create popup form
             _calendarPopup = new BeepPopupForm
             {
                 BorderThickness = 1,
                 BorderRadius = this.BorderRadius,
-                Size = new Size(350, 400),
                 Theme = Theme
             };
+
             _calendarView = new BeepDatePickerView { Dock = DockStyle.Fill, Theme = Theme };
+            _calendarView.Context = _dateContext;
             if (_selectedDateTime != DateTime.MinValue) _calendarView.SelectedDateTime = _selectedDateTime;
-            _calendarView.DateTimeSelected += CalendarView_DateTimeSelected;
-            _calendarView.Cancelled += CalendarView_Cancelled;
+
+            _calendarView.OkClicked += CalendarView_OkClicked;
+            _calendarView.CancelClicked += CalendarView_CancelClicked;
+
+            var min = _calendarView.MinimumSize;
+            int pad = 8;
+            int desiredW = Math.Max(350, min.Width + pad * 2);
+            int desiredH = Math.Max(400, min.Height + pad * 2);
+
+            _calendarPopup.Size = new Size(desiredW, desiredH);
             _calendarPopup.Controls.Add(_calendarView);
-            _calendarPopup.ShowPopup(this, BeepPopupFormPosition.Bottom);
+            _calendarPopup.ShowPopup(this, BeepPopupFormPosition.Bottom, desiredW, desiredH);
             _isPopupOpen = true;
         }
-        private void CalendarView_DateTimeSelected(object sender, DateTime? dateTime)
+
+        private void CalendarView_OkClicked(object sender, DateTimeDialogResultEventArgs e)
         {
-            if (dateTime.HasValue)
+            if (e.SelectedDateTime.HasValue)
             {
-                if (IsDateValid(dateTime.Value))
+                if (IsDateValid(e.SelectedDateTime.Value))
                 {
-                    SelectedDateTime = dateTime.Value;
+                    SelectedDateTime = e.SelectedDateTime.Value;
                     ClearValidationError();
                 }
                 else
@@ -786,9 +809,15 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return;
                 }
             }
+            CalendarOkClicked?.Invoke(this, e);
             ClosePopup();
         }
-        private void CalendarView_Cancelled(object sender, EventArgs e) => ClosePopup();
+
+        private void CalendarView_CancelClicked(object sender, DateTimeDialogResultEventArgs e)
+        {
+            CalendarCancelClicked?.Invoke(this, e);
+            ClosePopup();
+        }
         #endregion
 
         #region Format helpers
@@ -983,6 +1012,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         public DateTime InvalidDate { get; }
         public string ErrorMessage { get; }
         public DateValidationEventArgs(DateTime invalidDate, string errorMessage) { InvalidDate = invalidDate; ErrorMessage = errorMessage; }
+    }
+
+    public class DateTimeDialogResultEventArgs : EventArgs
+    {
+        public DateTime? SelectedDateTime { get; }
+        public string Context { get; }
+        public bool IsConfirmed { get; }
+
+        public DateTimeDialogResultEventArgs(DateTime? selectedDateTime, string context, bool isConfirmed)
+        {
+            SelectedDateTime = selectedDateTime;
+            Context = context;
+            IsConfirmed = isConfirmed;
+        }
     }
     #endregion
 }

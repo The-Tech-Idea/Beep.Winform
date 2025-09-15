@@ -321,11 +321,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             {
                 if (!HitTest(location)) return;
 
-                if (HitTestControl == null || HitTestControl.uIComponent == null) return;
+                if (HitTestControl == null) return;
 
-                if (HitTestControl.uIComponent is Control control && control.IsDisposed) return;
+                // If we have a UI component, forward the event; otherwise, just execute action
+                if (HitTestControl.uIComponent != null)
+                {
+                    if (HitTestControl.uIComponent is Control control && control.IsDisposed) return;
+                    SendMouseEvent(HitTestControl.uIComponent, MouseEventType.Click, _owner.PointToScreen(location));
+                }
 
-                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.Click, _owner.PointToScreen(location));
                 HitTestControl.HitAction?.Invoke();
             }
             catch (ObjectDisposedException)
@@ -334,27 +338,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
             catch (Exception ex)
             {
-                // Log exception if needed
                 System.Diagnostics.Debug.WriteLine($"Error in HandleClick: {ex.Message}");
             }
         }
 
         public void HandleMouseDown(Point location, MouseEventArgs e)
         {
-            if (HitTest(location) && HitTestControl != null && HitTestControl.uIComponent != null)
+            if (HitTest(location))
             {
-                HitTestControl.IsPressed = true;
-                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseDown, _owner.PointToScreen(location));
-                HitTestControl.HitAction?.Invoke();
+                if (HitTestControl != null)
+                {
+                    HitTestControl.IsPressed = true;
+                    if (HitTestControl.uIComponent != null)
+                    {
+                        SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseDown, _owner.PointToScreen(location));
+                        HitTestControl.HitAction?.Invoke();
+                    }
+                }
             }
         }
 
         public void HandleMouseUp(Point location, MouseEventArgs e)
         {
-            if (HitTest(location) && HitTestControl != null && HitTestControl.uIComponent != null)
+            if (HitTest(location))
             {
-                SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseUp, _owner.PointToScreen(location));
-                HitTestControl.HitAction?.Invoke();
+                if (HitTestControl != null)
+                {
+                    if (HitTestControl.uIComponent != null)
+                    {
+                        SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseUp, _owner.PointToScreen(location));
+                        HitTestControl.HitAction?.Invoke();
+                    }
+                }
             }
 
             if (HitList != null)

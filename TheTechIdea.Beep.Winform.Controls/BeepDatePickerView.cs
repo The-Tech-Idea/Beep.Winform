@@ -94,11 +94,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Appearance")]
         [Description("Show time in selected date display")]
         public bool ShowTime { get; set; } = true;
+
+        // Allow parent to pass a context (caption/purpose)
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("Context/label passed back with OK/Cancel events (e.g., 'Due Date').")]
+        public string Context { get; set; } = "Date Selection";
         #endregion
 
         #region Events
         public event EventHandler<DateTime?> DateTimeSelected;
         public event EventHandler Cancelled;
+        // New explicit events for OK/Cancel with payload
+        public event EventHandler<DateTimeDialogResultEventArgs> OkClicked;
+        public event EventHandler<DateTimeDialogResultEventArgs> CancelClicked;
 
         protected virtual void OnDateTimeSelected()
         {
@@ -109,11 +118,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             Cancelled?.Invoke(this, EventArgs.Empty);
         }
+
+        protected virtual void OnOkClicked()
+        {
+            OkClicked?.Invoke(this, new DateTimeDialogResultEventArgs(SelectedDateTime, Context, true));
+            // maintain backward compatibility
+            OnDateTimeSelected();
+        }
+
+        protected virtual void OnCancelClicked()
+        {
+            CancelClicked?.Invoke(this, new DateTimeDialogResultEventArgs(SelectedDateTime, Context, false));
+            // maintain backward compatibility
+            OnCancelled();
+        }
         #endregion
 
         #region Constructor
         public BeepDatePickerView()
         {
+            MaterialUseVariantPadding = true;
             InitializeModernCalendar();
         }
 
@@ -264,15 +288,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _timeDownRect = Rectangle.Empty;
             }
 
-            // Register/refresh hit areas using helper directly (rectangle overload)
-            _hitTest?.AddHitArea("PrevMonth", _prevMonthRect, null, () => { _currentMonth = _currentMonth.AddMonths(-1); Invalidate(); });
-            _hitTest?.AddHitArea("NextMonth", _nextMonthRect, null, () => { _currentMonth = _currentMonth.AddMonths(1); Invalidate(); });
-            _hitTest?.AddHitArea("Clear", _clearRect, null, () => { SelectedDateTime = null; OnCancelled(); Invalidate(); });
-            _hitTest?.AddHitArea("Done", _doneRect, null, () => { OnDateTimeSelected(); });
+            // Refresh hit areas using BaseControl helpers
+            ClearHitList();
+            AddHitArea("PrevMonth", _prevMonthRect, null, () => { _currentMonth = _currentMonth.AddMonths(-1); Invalidate(); });
+            AddHitArea("NextMonth", _nextMonthRect, null, () => { _currentMonth = _currentMonth.AddMonths(1); Invalidate(); });
+            AddHitArea("Clear", _clearRect, null, () => { SelectedDateTime = null; OnCancelClicked(); Invalidate(); });
+            AddHitArea("Done", _doneRect, null, () => { OnOkClicked(); });
             if (ShowTime && !_timeUpRect.IsEmpty)
             {
-                _hitTest?.AddHitArea("TimeUp", _timeUpRect, null, () => { if (_selectedDateTime.HasValue) { _selectedDateTime = _selectedDateTime.Value.AddMinutes(1); Invalidate(); } });
-                _hitTest?.AddHitArea("TimeDown", _timeDownRect, null, () => { if (_selectedDateTime.HasValue) { _selectedDateTime = _selectedDateTime.Value.AddMinutes(-1); Invalidate(); } });
+                AddHitArea("TimeUp", _timeUpRect, null, () => { if (_selectedDateTime.HasValue) { _selectedDateTime = _selectedDateTime.Value.AddMinutes(1); Invalidate(); } });
+                AddHitArea("TimeDown", _timeDownRect, null, () => { if (_selectedDateTime.HasValue) { _selectedDateTime = _selectedDateTime.Value.AddMinutes(-1); Invalidate(); } });
             }
         }
 
@@ -667,30 +692,66 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Mouse Interaction
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            // Use base helper to capture pressed state for hit areas
             _hitTest?.HandleMouseDown(e.Location, e);
-            base.OnMouseDown(e);
+
             if (e.Button == MouseButtons.Left)
             {
+                // Guarantee action for key rectangles even if helper misses
+                if (!_doneRect.IsEmpty && _doneRect.Contains(e.Location)) { OnOkClicked(); return; }
+                if (!_clearRect.IsEmpty && _clearRect.Contains(e.Location)) { SelectedDateTime = null; OnCancelClicked(); Invalidate(); return; }
+                if (!_prevMonthRect.IsEmpty && _prevMonthRect.Contains(e.Location)) { _currentMonth = _currentMonth.AddMonths(-1); Invalidate(); return; }
+                if (!_nextMonthRect.IsEmpty && _nextMonthRect.Contains(e.Location)) { _currentMonth = _currentMonth.AddMonths(1); Invalidate(); return; }
+
+                // Direct handling for time spinner clicks to guarantee detection
+                if (ShowTime)
+                {
+                    if (!_timeUpRect.IsEmpty && _timeUpRect.Contains(e.Location))
+                    {
+                        if (_selectedDateTime.HasValue)
+                        {
+                            _selectedDateTime = _selectedDateTime.Value.AddMinutes(1);
+                            Invalidate();
+                        }
+                        return;
+                    }
+                    if (!_timeDownRect.IsEmpty && _timeDownRect.Contains(e.Location))
+                    {
+                        if (_selectedDateTime.HasValue)
+                        {
+                            _selectedDateTime = _selectedDateTime.Value.AddMinutes(-1);
+                            Invalidate();
+                        }
+                        return;
+                    }
+                }
+
                 if (_datesGridRect.Contains(e.Location))
                 {
                     HandleDateSelection(e.Location);
+                    return;
                 }
             }
+
+            base.OnMouseDown(e);
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            // Release state and trigger click evaluation via helper
             _hitTest?.HandleMouseUp(e.Location, e);
+            _hitTest?.HandleClick(e.Location);
             base.OnMouseUp(e);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            // Keep helper in sync for hover and press visuals
             _hitTest?.HandleMouseMove(e.Location);
             base.OnMouseMove(e);
-            _mouseOverTimeArea = ShowTime && _timeSpinnerRect.Contains(e.Location);
+            _mouseOverTimeArea = ShowTime && (!_timeSpinnerRect.IsEmpty && _timeSpinnerRect.Contains(e.Location));
             Cursor = (_mouseOverTimeArea) ? Cursors.Hand : Cursors.Default;
-            Invalidate(); // repaint to reflect hover visuals
+            Invalidate();
         }
 
         protected override void OnMouseLeave(EventArgs e)
@@ -788,4 +849,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
     }
+
+    // New EventArgs that returns the selected date/time and whether it was OK or Cancel
+   
 }

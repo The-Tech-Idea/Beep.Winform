@@ -80,8 +80,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             MainTemplatePanel.Controls.Add(beepGridPro1);
             MainTemplatePanel.Controls.Add(beepComboBox1);
             MainTemplatePanel.Controls.Add(beepButton1);
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 1326, 718);
-            MainTemplatePanel.Size = new Size(1326, 718);
+            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 2463, 1532);
+            MainTemplatePanel.Margin = new Padding(11, 13, 11, 13);
+            MainTemplatePanel.Size = new Size(2463, 1532);
             // 
             // driversConfigViewModelBindingSource
             // 
@@ -122,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.DisabledBorderColor = Color.LightGray;
             beepComboBox1.DisabledForeColor = Color.Gray;
             beepComboBox1.DisableDpiAndScaling = true;
-            beepComboBox1.DrawingRect = new Rectangle(24, 8, 118, 40);
+            beepComboBox1.DrawingRect = new Rectangle(24, 8, 352, 160);
             beepComboBox1.Easing = EasingType.Linear;
             beepComboBox1.EnableHighQualityRendering = true;
             beepComboBox1.EnableRippleEffect = false;
@@ -194,7 +195,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.LeadingImagePath = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(86, 43);
+            beepComboBox1.Location = new Point(160, 92);
+            beepComboBox1.Margin = new Padding(6, 6, 6, 6);
             beepComboBox1.MaterialBorderRadius = 6;
             beepComboBox1.MaterialBorderVariant = MaterialTextFieldVariant.Outlined;
             beepComboBox1.MaterialCustomPadding = new Padding(0);
@@ -204,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
             beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
-            beepComboBox1.MinimumSize = new Size(150, 56);
+            beepComboBox1.MinimumSize = new Size(371, 122);
             beepComboBox1.ModernGradientType = ModernGradientType.Subtle;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = TypeStyleFontSize.None;
@@ -235,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.ShowRightBorder = true;
             beepComboBox1.ShowShadow = false;
             beepComboBox1.ShowTopBorder = true;
-            beepComboBox1.Size = new Size(304, 56);
+            beepComboBox1.Size = new Size(565, 122);
             beepComboBox1.SlideFrom = SlideDirection.Left;
             beepComboBox1.StaticNotMoving = false;
             beepComboBox1.StylePreset = MaterialTextFieldStylePreset.DenseOutlined;
@@ -294,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.DisabledBorderColor = Color.Empty;
             beepButton1.DisabledForeColor = Color.Gray;
             beepButton1.DisableDpiAndScaling = true;
-            beepButton1.DrawingRect = new Rectangle(24, 8, 88, 24);
+            beepButton1.DrawingRect = new Rectangle(24, 8, 52, 20);
             beepButton1.Easing = EasingType.Linear;
             beepButton1.EmbeddedImagePath = "";
             beepButton1.EnableHighQualityRendering = true;
@@ -376,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.LeadingImagePath = "";
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
-            beepButton1.Location = new Point(153, 339);
+            beepButton1.Location = new Point(284, 723);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = MaterialTextFieldVariant.Filled;
             beepButton1.MaterialCustomPadding = new Padding(0);
@@ -384,6 +386,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.MaterialIconPadding = 8;
             beepButton1.MaterialIconSize = 20;
             beepButton1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
+            beepButton1.MaterialPreserveContentArea = true;
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaterialVariant = MaterialTextFieldVariant.Filled;
             beepButton1.MaxHitListDrawPerFrame = 0;
@@ -420,7 +423,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ShowRightBorder = false;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = false;
-            beepButton1.Size = new Size(182, 71);
+            beepButton1.Size = new Size(338, 151);
             beepButton1.SlideFrom = SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = null;
@@ -1718,7 +1721,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DisabledBorderColor = Color.LightGray;
             beepGridPro1.DisabledForeColor = Color.Gray;
             beepGridPro1.DisableDpiAndScaling = true;
-            beepGridPro1.DrawingRect = new Rectangle(1, 1, 787, 413);
+            beepGridPro1.DrawingRect = new Rectangle(1, 1, 1463, 883);
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableHighQualityRendering = true;
             beepGridPro1.EnableMaterialStyle = false;
@@ -1791,7 +1794,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.LeadingImagePath = "";
             beepGridPro1.LeftoffsetForDrawingRect = 0;
             beepGridPro1.LinkedProperty = null;
-            beepGridPro1.Location = new Point(537, 303);
+            beepGridPro1.Location = new Point(997, 646);
+            beepGridPro1.Margin = new Padding(6, 6, 6, 6);
             beepGridPro1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepGridPro1.MaterialCustomPadding = new Padding(0);
             beepGridPro1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1802,7 +1806,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.MaterialShowFill = true;
             beepGridPro1.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepGridPro1.MaxHitListDrawPerFrame = 0;
-            beepGridPro1.MinimumSize = new Size(180, 56);
+            beepGridPro1.MinimumSize = new Size(334, 119);
             beepGridPro1.ModernGradientType = ModernGradientType.None;
             beepGridPro1.Name = "beepGridPro1";
             beepGridPro1.OverrideFontSize = TypeStyleFontSize.None;
@@ -1832,7 +1836,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ShowRightBorder = false;
             beepGridPro1.ShowShadow = false;
             beepGridPro1.ShowTopBorder = false;
-            beepGridPro1.Size = new Size(789, 415);
+            beepGridPro1.Size = new Size(1465, 885);
             beepGridPro1.SlideFrom = SlideDirection.Left;
             beepGridPro1.StaticNotMoving = false;
             beepGridPro1.TabIndex = 13;
@@ -1883,7 +1887,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarAdnvanced1.DisabledBorderColor = Color.LightGray;
             beepCalendarAdnvanced1.DisabledForeColor = Color.Gray;
             beepCalendarAdnvanced1.DisableDpiAndScaling = false;
-            beepCalendarAdnvanced1.DrawingRect = new Rectangle(24, 8, 766, 571);
+            beepCalendarAdnvanced1.DrawingRect = new Rectangle(24, 8, 1491, 1302);
             beepCalendarAdnvanced1.Easing = EasingType.Linear;
             beepCalendarAdnvanced1.EnableHighQualityRendering = true;
             beepCalendarAdnvanced1.EnableRippleEffect = false;
@@ -1893,7 +1897,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarAdnvanced1.EventFont = new Font("Arial", 10F, FontStyle.Bold);
             beepCalendarAdnvanced1.ExternalDrawingLayer = DrawingLayer.AfterAll;
             beepCalendarAdnvanced1.FieldID = null;
-            beepCalendarAdnvanced1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepCalendarAdnvanced1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepCalendarAdnvanced1.FloatingLabel = true;
             beepCalendarAdnvanced1.FocusBackColor = Color.LightYellow;
             beepCalendarAdnvanced1.FocusBorderColor = Color.RoyalBlue;
@@ -1958,7 +1962,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarAdnvanced1.LeadingImagePath = "";
             beepCalendarAdnvanced1.LeftoffsetForDrawingRect = 0;
             beepCalendarAdnvanced1.LinkedProperty = null;
-            beepCalendarAdnvanced1.Location = new Point(66, 91);
+            beepCalendarAdnvanced1.Location = new Point(96, 128);
+            beepCalendarAdnvanced1.Margin = new Padding(6, 6, 6, 6);
             beepCalendarAdnvanced1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepCalendarAdnvanced1.MaterialCustomPadding = new Padding(0);
             beepCalendarAdnvanced1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1995,7 +2000,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCalendarAdnvanced1.ShowShadow = false;
             beepCalendarAdnvanced1.ShowSidebar = false;
             beepCalendarAdnvanced1.ShowTopBorder = false;
-            beepCalendarAdnvanced1.Size = new Size(814, 587);
+            beepCalendarAdnvanced1.Size = new Size(1539, 1318);
             beepCalendarAdnvanced1.SlideFrom = SlideDirection.Left;
             beepCalendarAdnvanced1.StaticNotMoving = false;
             beepCalendarAdnvanced1.TabIndex = 14;
@@ -2017,11 +2022,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             // 
             // uc_diagraming
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(13F, 32F);
             AutoScaleMode = AutoScaleMode.Font;
-            Margin = new Padding(6);
+            Margin = new Padding(11, 13, 11, 13);
             Name = "uc_diagraming";
-            Size = new Size(1326, 718);
+            Size = new Size(2463, 1532);
             MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).EndInit();
             ResumeLayout(false);

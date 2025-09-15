@@ -365,6 +365,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
+            // Ensure DPI info stays updated when drawing on new monitor contexts
+            UpdateDpiScaling(g);
+
             if (EnableHighQualityRendering)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -798,5 +801,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             AdjustSizeForMaterial(textSize, true);
         }
         #endregion
+
+        // Handle runtime per-monitor DPI changes
+        private const int WM_DPICHANGED = 0x02E0;
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_DPICHANGED)
+            {
+                try
+                {
+                    if (!DisableDpiAndScaling && _dpi != null)
+                    {
+                        _dpi.UpdateDpiFromControl();
+                        // Refresh layout dependent on DPI
+                        _paint?.InvalidateRects();
+                        UpdateMaterialLayout();
+                        Invalidate();
+                    }
+                }
+                catch { /* best-effort */ }
+            }
+            base.WndProc(ref m);
+        }
     }
 }

@@ -1,17 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls; // BeepButton and other controls
-
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls; // BeepButton and other controls
 using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
-using System.Collections.Generic;
-using TheTechIdea.Beep.Icons;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup;
+using ContentAlignment = System.Drawing.ContentAlignment;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -98,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 BeepColumnType.Button => new BeepButton { IsChild = true, IsFrameless = true },
                 BeepColumnType.ProgressBar => new BeepProgressBar { IsChild = true },
                 BeepColumnType.NumericUpDown => new BeepNumericUpDown { IsChild = true, GridMode = true },
-                BeepColumnType.Radio => new BeepRadioButton { IsChild = true, GridMode = true },
+                BeepColumnType.Radio => new BeepRadioGroup { IsChild = true, GridMode = true },
                 BeepColumnType.ListBox => new BeepListBox { IsChild = true, GridMode = true },
                 BeepColumnType.ListOfValue => new BeepListofValuesBox { IsChild = true, GridMode = true },
                 BeepColumnType.Text => new BeepTextBox { IsChild = true, GridMode = true, IsFrameless = true, ShowAllBorders = false },
@@ -433,20 +434,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 Math.Max(1, cellRect.Height - HeaderCellPadding * 2)
             );
 
-            // Draw text
+            // Draw text honoring column header alignment
             if (!string.IsNullOrEmpty(text))
             {
-                TextRenderer.DrawText(
-                    g,
-                    text,
-                    font,
-                    textRect,
-                    textColor,
-                    TextFormatFlags.HorizontalCenter |
-                    TextFormatFlags.VerticalCenter |
-                    TextFormatFlags.EndEllipsis |
-                    TextFormatFlags.NoPrefix
-                );
+                var headerAlign = column.HeaderTextAlignment;
+                var flags = GetTextFormatFlagsForAlignment(headerAlign, true);
+                TextRenderer.DrawText(g, text, font, textRect, textColor, flags);
             }
 
             // Draw sort indicator if enabled and column is sorted
@@ -763,7 +756,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 {
                     var font = BeepThemesManager.ToFont(BeepThemesManager.CurrentTheme.GridCellFont);
                     var textRect = new Rectangle(rect.X + 2, rect.Y + 1, Math.Max(1, rect.Width - 4), Math.Max(1, rect.Height - 2));
-                    TextRenderer.DrawText(g, text, font, textRect, foreColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix);
+                    var flags = GetTextFormatFlagsForAlignment(column.CellTextAlignment, true);
+                    TextRenderer.DrawText(g, text, font, textRect, foreColor, flags);
                 }
                 return;
             }
@@ -1298,6 +1292,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Only wire the main navigation callbacks to the grid navigator
             // The main nav buttons are handled via hit test -> _grid.Navigator actions
             // Keep this method for API compatibility but avoid wiring removed controls.
+        }
+
+        private static TextFormatFlags GetTextFormatFlagsForAlignment(ContentAlignment alignment, bool endEllipsis)
+        {
+            TextFormatFlags flags = TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix | TextFormatFlags.PreserveGraphicsClipping;
+            if (endEllipsis) flags |= TextFormatFlags.EndEllipsis;
+
+            switch (alignment)
+            {
+                case ContentAlignment.TopLeft:
+                case ContentAlignment.MiddleLeft:
+                case ContentAlignment.BottomLeft:
+                    flags |= TextFormatFlags.Left;
+                    break;
+                case ContentAlignment.TopCenter:
+                case ContentAlignment.MiddleCenter:
+                case ContentAlignment.BottomCenter:
+                    flags |= TextFormatFlags.HorizontalCenter;
+                    break;
+                case ContentAlignment.TopRight:
+                case ContentAlignment.MiddleRight:
+                case ContentAlignment.BottomRight:
+                    flags |= TextFormatFlags.Right;
+                    break;
+            }
+            return flags;
         }
     }
 }

@@ -4,18 +4,19 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing.Design;
+using System.Drawing.Printing;
 using System.Globalization;
 using System.Reflection;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
-using Timer = System.Windows.Forms.Timer;
-using TheTechIdea.Beep.Desktop.Common.Util;
-using System.Drawing.Printing;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using Timer = System.Windows.Forms.Timer;
 
 
 
@@ -3828,7 +3829,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case BeepColumnType.NumericUpDown:
                     return new BeepNumericUpDown { Theme = Theme, IsChild = true, GridMode = true };
                 case BeepColumnType.Radio:
-                    return new BeepRadioButton { Theme = Theme, IsChild = true, GridMode = true };
+                    return new BeepRadioGroup { Theme = Theme, IsChild = true, GridMode = true };
                 case BeepColumnType.ListBox:
                     return new BeepListBox { Theme = Theme, IsChild = true, GridMode = true };
                 case BeepColumnType.ListOfValue:
@@ -3865,7 +3866,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 case BeepColumnType.NumericUpDown:
                     return new BeepNumericUpDown { Theme = Theme, IsChild = true };
                 case BeepColumnType.Radio:
-                    return new BeepRadioButton { Theme = Theme, IsChild = true};
+                    return new BeepRadioGroup { Theme = Theme, IsChild = true};
                 case BeepColumnType.ListBox:
                     return new BeepListBox { Theme = Theme, IsChild = true };
                 case BeepColumnType.ListOfValue:
@@ -3901,7 +3902,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     case BeepDatePicker datePicker:
                         datePicker.SelectedDate = null;
                         break;
-                    case BeepRadioButton radioButton:
+                    case BeepRadioGroup radioButton:
                         radioButton.Reset();
                         break;
                     case BeepListofValuesBox listBox:
@@ -4053,11 +4054,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     break;
 
-                case BeepRadioButton radioButton:
+                case BeepRadioGroup radioButton:
                     radioButton.Reset();
                     if (column?.Items != null)
                     {
-                        radioButton.Options = new List<SimpleItem>(column.Items);
+                        radioButton.Items = new List<SimpleItem>(column.Items);
                         if (value is SimpleItem simpleItem)
                         {
                             var item = column.Items.FirstOrDefault(i => i.Text == simpleItem.Text && i.ImagePath == simpleItem.ImagePath);

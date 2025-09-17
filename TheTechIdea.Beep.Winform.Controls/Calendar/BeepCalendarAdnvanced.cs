@@ -51,6 +51,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                      ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
 
+            // Enable Material Design styling
+            EnableMaterialStyle = true;
+            MaterialVariant = MaterialTextFieldVariant.Outlined;
+            MaterialBorderRadius = 8;
+            ShowAllBorders = true;
+
             try
             {
                 InitializeControls();
@@ -173,26 +179,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
         private void InitializeControls()
         {
-            // Use ASCII arrows to avoid font glyph issues showing '?'
-            _prevButton = MakeButton("<", new Size(30,30), (s,e)=> NavigatePrevious());
-            _nextButton = MakeButton(">", new Size(30,30), (s,e)=> NavigateNext());
-            _todayButton = MakeButton("Today", new Size(70,30), (s,e)=> NavigateToday());
+            // Create buttons with proper Material Design and auto-sizing based on content
+            _prevButton = MakeButton("<", (s,e)=> NavigatePrevious());
+            _nextButton = MakeButton(">", (s,e)=> NavigateNext());
+            _todayButton = MakeButton("Today", (s,e)=> NavigateToday());
 
-            _monthViewButton = MakeButton("Month", new Size(70,30), (s,e)=> ViewMode = CalendarViewMode.Month);
-            _weekViewButton  = MakeButton("Week",  new Size(70,30), (s,e)=> ViewMode = CalendarViewMode.Week);
-            _dayViewButton   = MakeButton("Day",   new Size(70,30), (s,e)=> ViewMode = CalendarViewMode.Day);
-            _listViewButton  = MakeButton("List",  new Size(70,30), (s,e)=> ViewMode = CalendarViewMode.List);
+            _monthViewButton = MakeButton("Month", (s,e)=> ViewMode = CalendarViewMode.Month);
+            _weekViewButton  = MakeButton("Week",  (s,e)=> ViewMode = CalendarViewMode.Week);
+            _dayViewButton   = MakeButton("Day",   (s,e)=> ViewMode = CalendarViewMode.Day);
+            _listViewButton  = MakeButton("List",  (s,e)=> ViewMode = CalendarViewMode.List);
 
-            _createEventButton = MakeButton("+ Create Event", new Size(120,30), (s,e)=> OnCreateEventRequested(_state.SelectedDate));
+            _createEventButton = MakeButton("+ Create Event", (s,e)=> OnCreateEventRequested(_state.SelectedDate));
 
             Controls.AddRange(new Control[] { _prevButton, _nextButton, _todayButton,
                 _monthViewButton, _weekViewButton, _dayViewButton, _listViewButton, _createEventButton });
         }
 
-        private BeepButton MakeButton(string text, Size size, EventHandler handler)
+        private BeepButton MakeButton(string text, EventHandler handler)
         {
-            var b = new BeepButton { Text = text, Size = size, IsChild = true, Theme = Theme, Anchor = AnchorStyles.Top | AnchorStyles.Left };
+            var b = new BeepButton 
+            { 
+                Text = text, 
+                IsChild = true, 
+                Theme = Theme, 
+                Anchor = AnchorStyles.Top | AnchorStyles.Left,
+                EnableMaterialStyle = true,
+                MaterialVariant = MaterialTextFieldVariant.Outlined,
+                MaterialBorderRadius = 4,
+                AutoSizeContent = true,  // Enable content-based auto-sizing
+                ButtonAutoSizeForMaterial = true,  // Enable Material Design auto-sizing
+                ButtonPreventAutoExpansion = false,  // Allow proper expansion for content
+                MaterialPreserveContentArea = false  // Use full Material Design sizing
+            };
             b.Click += handler;
+            
+            // Force Material Design size compensation after button creation
+            b.HandleCreated += (s, e) => {
+                var button = s as BeepButton;
+                if (button != null && button.ButtonAutoSizeForMaterial)
+                {
+                    button.ApplyMaterialSizeCompensation();
+                }
+            };
+            
             return b;
         }
 
@@ -287,6 +316,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             if (_currentTheme == null) return;
             BackColor = _currentTheme.CalendarBackColor;
             ForeColor = _currentTheme.CalendarForeColor;
+            
+            // Apply Material Design theme colors
+            if (EnableMaterialStyle)
+            {
+                MaterialOutlineColor = _currentTheme.CalendarBorderColor;
+                MaterialPrimaryColor = _currentTheme.CalendarSelectedDateBackColor;
+                MaterialFillColor = _currentTheme.CalendarBackColor;
+                if (_currentTheme.ErrorColor != Color.Empty)
+                    ErrorColor = _currentTheme.ErrorColor;
+            }
+            
             if (UseThemeFont)
             {
                 if (_currentTheme.CalendarTitleFont != null) HeaderFont = FontListHelper.CreateFontFromTypography(_currentTheme.CalendarTitleFont);

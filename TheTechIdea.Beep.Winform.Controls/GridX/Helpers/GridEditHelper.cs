@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using static TheTechIdea.Beep.Winform.Controls.BeepControl;
 
@@ -369,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 BeepColumnType.Button => new BeepButton { IsChild = true },
                 BeepColumnType.ProgressBar => new BeepProgressBar { IsChild = true },
                 BeepColumnType.NumericUpDown => new BeepNumericUpDown { IsChild = true, GridMode = true },
-                BeepColumnType.Radio => new BeepRadioButton { IsChild = true, GridMode = true },
+                BeepColumnType.Radio => new BeepRadioGroup { IsChild = true, GridMode = true },
                 BeepColumnType.ListBox => new BeepListBox { IsChild = true, GridMode = false },
                 BeepColumnType.ListOfValue => new BeepListofValuesBox { IsChild = true, GridMode = false },
                 _ => new BeepTextBox { IsChild = true, IsFrameless = true, ShowAllBorders = false, GridMode = true },

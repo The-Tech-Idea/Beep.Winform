@@ -1,0 +1,427 @@
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
+
+namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
+{
+    /// <summary>
+    /// Material Design 3 compliant radio group renderer
+    /// </summary>
+    public class MaterialRadioRenderer : IRadioGroupRenderer, IImageAwareRenderer
+    {
+        private BaseControl _owner;
+        private IBeepTheme _theme;
+        private BeepImage _imageRenderer;
+        private Font _textFont;
+        private Size _maxImageSize = new Size(24, 24);
+
+        #region Properties
+        public string StyleName => "Material";
+        public string DisplayName => "Material Design 3";
+        public bool SupportsMultipleSelection => true; // Changed from false to true
+
+        public Size MaxImageSize 
+        { 
+            get => _maxImageSize; 
+            set => _maxImageSize = value; 
+        }
+
+        // Material Design specifications
+        private const int RadioSize = 20;
+        private int IconSize => Math.Min(_maxImageSize.Width, _maxImageSize.Height);
+        private const int MinItemHeight = 40;
+        private const int ItemPadding = 16;
+        private const int ComponentSpacing = 12;
+        private const int StateLayerSize = 40;
+        #endregion
+
+        #region Initialization
+        public void Initialize(BaseControl owner, IBeepTheme theme)
+        {
+            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
+            _theme = theme;
+            _imageRenderer = new BeepImage();
+            UpdateTheme(theme);
+        }
+
+        public void UpdateTheme(IBeepTheme theme)
+        {
+            _theme = theme;
+            
+            if (_theme != null)
+            {
+                _textFont = _theme.BodyMedium != null ? 
+                    new Font(_theme.BodyMedium.FontFamily, _theme.BodyMedium.FontSize) :
+                    new Font("Segoe UI", 14f);
+            }
+            else
+            {
+                _textFont = new Font("Segoe UI", 14f);
+            }
+
+            // Note: BeepImage theme will be handled when drawing
+        }
+        #endregion
+
+        #region Rendering
+        public void RenderItem(Graphics graphics, SimpleItem item, Rectangle rectangle, RadioItemState state)
+        {
+            if (graphics == null || item == null) return;
+
+            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            // Get colors based on state
+            var colors = GetStateColors(state);
+
+            // Draw state layer (hover/focus background)
+            if (state.IsHovered || state.IsFocused)
+            {
+                DrawStateLayer(graphics, rectangle, colors);
+            }
+
+            // Calculate layout areas
+            var contentArea = GetContentArea(rectangle);
+            var radioArea = GetRadioArea(rectangle);
+            
+            // Draw radio button
+            DrawRadioButton(graphics, radioArea, state, colors);
+
+            // Draw content (icon + text)
+            DrawContent(graphics, item, contentArea, radioArea, state, colors);
+
+            // Draw ripple effect if pressed
+            if (state.IsPressed)
+            {
+                DrawRippleEffect(graphics, rectangle, colors);
+            }
+        }
+
+        private void DrawStateLayer(Graphics graphics, Rectangle rectangle, MaterialColors colors)
+        {
+            Color stateColor = Color.FromArgb(12, colors.Primary); // 12% opacity
+            
+            using (var brush = new SolidBrush(stateColor))
+            {
+                // Create rounded rectangle for state layer
+                using (var path = CreateRoundedRectanglePath(rectangle, 4))
+                {
+                    graphics.FillPath(brush, path);
+                }
+            }
+        }
+
+        private void DrawRadioButton(Graphics graphics, Rectangle radioArea, RadioItemState state, MaterialColors colors)
+        {
+            var center = new Point(
+                radioArea.X + radioArea.Width / 2,
+                radioArea.Y + radioArea.Height / 2
+            );
+
+            // Check if multiple selection is enabled
+            bool isMultipleSelection = _owner.GetType().GetProperty("AllowMultipleSelection")?.GetValue(_owner) as bool? == true;
+
+            if (isMultipleSelection)
+            {
+                // Draw Material checkbox
+                DrawMaterialCheckbox(graphics, radioArea, state, colors);
+            }
+            else
+            {
+                // Draw Material radio button
+                DrawMaterialRadio(graphics, center, state, colors);
+            }
+        }
+
+        private void DrawMaterialRadio(Graphics graphics, Point center, RadioItemState state, MaterialColors colors)
+        {
+            int outerRadius = RadioSize / 2;
+            int innerRadius = outerRadius - 2;
+
+            // Outer circle
+            using (var pen = new Pen(state.IsSelected ? colors.Primary : colors.Outline, 2f))
+            {
+                var outerRect = new Rectangle(
+                    center.X - outerRadius,
+                    center.Y - outerRadius,
+                    outerRadius * 2,
+                    outerRadius * 2
+                );
+                graphics.DrawEllipse(pen, outerRect);
+            }
+
+            // Inner filled circle (when selected)
+            if (state.IsSelected)
+            {
+                using (var brush = new SolidBrush(colors.Primary))
+                {
+                    int fillRadius = innerRadius - 4;
+                    var innerRect = new Rectangle(
+                        center.X - fillRadius,
+                        center.Y - fillRadius,
+                        fillRadius * 2,
+                        fillRadius * 2
+                    );
+                    graphics.FillEllipse(brush, innerRect);
+                }
+            }
+        }
+
+        private void DrawMaterialCheckbox(Graphics graphics, Rectangle checkboxArea, RadioItemState state, MaterialColors colors)
+        {
+            var checkboxRect = new Rectangle(
+                checkboxArea.X + 2,
+                checkboxArea.Y + 2,
+                checkboxArea.Width - 4,
+                checkboxArea.Height - 4
+            );
+
+            if (state.IsSelected)
+            {
+                // Filled checkbox with Material Design styling
+                using (var brush = new SolidBrush(colors.Primary))
+                {
+                    graphics.FillRectangle(brush, checkboxRect);
+                }
+
+                // Material Design checkmark
+                DrawMaterialCheckmark(graphics, checkboxRect, colors.OnPrimary);
+            }
+            else
+            {
+                // Outlined checkbox
+                using (var pen = new Pen(colors.Outline, 2f))
+                {
+                    graphics.DrawRectangle(pen, checkboxRect);
+                }
+            }
+        }
+
+        private void DrawMaterialCheckmark(Graphics graphics, Rectangle rect, Color color)
+        {
+            using (var pen = new Pen(color, 2f))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                // Material Design checkmark proportions
+                var points = new PointF[]
+                {
+                    new PointF(rect.X + rect.Width * 0.2f, rect.Y + rect.Height * 0.5f),
+                    new PointF(rect.X + rect.Width * 0.45f, rect.Y + rect.Height * 0.7f),
+                    new PointF(rect.X + rect.Width * 0.8f, rect.Y + rect.Height * 0.3f)
+                };
+
+                graphics.DrawLines(pen, points);
+            }
+        }
+
+        private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle radioArea, RadioItemState state, MaterialColors colors)
+        {
+            int currentX = radioArea.Right + ComponentSpacing;
+            
+            // Draw icon if present
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                var iconRect = new Rectangle(
+                    currentX,
+                    contentArea.Y + (contentArea.Height - IconSize) / 2,
+                    IconSize,
+                    IconSize
+                );
+
+                _imageRenderer.ImagePath = item.ImagePath;
+                _imageRenderer.Draw(graphics, iconRect);
+                
+                currentX += IconSize + ComponentSpacing;
+            }
+
+            // Draw text
+            if (!string.IsNullOrEmpty(item.Text))
+            {
+                var textRect = new Rectangle(
+                    currentX,
+                    contentArea.Y,
+                    Math.Max(0, contentArea.Right - currentX),
+                    contentArea.Height
+                );
+
+                Color textColor = state.IsEnabled ? 
+                    (state.IsSelected ? colors.OnSurface : colors.OnSurface) : 
+                    colors.OnSurfaceVariant;
+                
+                using (var brush = new SolidBrush(textColor))
+                {
+                    var stringFormat = new StringFormat
+                    {
+                        Alignment = StringAlignment.Near,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisCharacter
+                    };
+
+                    graphics.DrawString(item.Text, _textFont, brush, textRect, stringFormat);
+                }
+            }
+        }
+
+        private void DrawRippleEffect(Graphics graphics, Rectangle rectangle, MaterialColors colors)
+        {
+            // Simple ripple effect - could be enhanced with animation
+            Color rippleColor = Color.FromArgb(24, colors.Primary);
+            
+            using (var brush = new SolidBrush(rippleColor))
+            using (var path = CreateRoundedRectanglePath(rectangle, StateLayerSize))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+        #endregion
+
+        #region Measurement
+        public Size MeasureItem(SimpleItem item, Graphics graphics)
+        {
+            if (item == null) return new Size(120, MinItemHeight);
+
+            int width = ItemPadding; // Left padding
+            int height = MinItemHeight;
+
+            // Radio button width (includes state layer)
+            width += StateLayerSize + ComponentSpacing;
+
+            // Icon width - account for image if present
+            if (!string.IsNullOrEmpty(item.ImagePath))
+            {
+                width += IconSize + ComponentSpacing;
+                // Ensure minimum height accommodates the image
+                height = Math.Max(height, IconSize + ItemPadding);
+            }
+
+            // Text width
+            if (!string.IsNullOrEmpty(item.Text))
+            {
+                var textSize = graphics.MeasureString(item.Text, _textFont);
+                width += (int)Math.Ceiling(textSize.Width);
+                height = Math.Max(height, (int)Math.Ceiling(textSize.Height) + ItemPadding);
+            }
+
+            width += ItemPadding; // Right padding
+
+            return new Size(width, height);
+        }
+
+        public Rectangle GetContentArea(Rectangle itemRectangle)
+        {
+            return new Rectangle(
+                itemRectangle.X + ItemPadding / 2,
+                itemRectangle.Y + ItemPadding / 2,
+                itemRectangle.Width - ItemPadding,
+                itemRectangle.Height - ItemPadding
+            );
+        }
+
+        public Rectangle GetRadioArea(Rectangle itemRectangle)
+        {
+            var contentArea = GetContentArea(itemRectangle);
+            return new Rectangle(
+                contentArea.X,
+                contentArea.Y + (contentArea.Height - RadioSize) / 2,
+                RadioSize,
+                RadioSize
+            );
+        }
+        
+        public Rectangle GetSelectorArea(Rectangle itemRectangle)
+        {
+            var contentArea = GetContentArea(itemRectangle);
+            return new Rectangle(
+                contentArea.X,
+                contentArea.Y + (contentArea.Height - StateLayerSize) / 2,
+                StateLayerSize,
+                StateLayerSize
+            );
+        }
+        #endregion
+
+        #region Group Decorations
+        public void RenderGroupDecorations(Graphics graphics, Rectangle groupRectangle, List<SimpleItem> items, List<Rectangle> itemRectangles, List<RadioItemState> states)
+        {
+            // Material Design groups typically don't have additional decorations
+            // Could add subtle borders or backgrounds here if needed
+        }
+        #endregion
+
+        #region Helper Methods
+        private MaterialColors GetStateColors(RadioItemState state)
+        {
+            if (_theme == null)
+            {
+                return new MaterialColors
+                {
+                    Primary = Color.FromArgb(98, 0, 238),
+                    OnPrimary = Color.White,
+                    Surface = Color.White,
+                    OnSurface = Color.Black,
+                    OnSurfaceVariant = Color.FromArgb(96, 96, 96),
+                    Outline = Color.FromArgb(121, 116, 126)
+                };
+            }
+
+            return new MaterialColors
+            {
+                Primary = _theme.PrimaryColor,
+                OnPrimary = _theme.ButtonForeColor,
+                Surface = _theme.BackgroundColor,
+                OnSurface = _theme.ForeColor,
+                OnSurfaceVariant = _theme.SecondaryTextColor,
+                Outline = _theme.BorderColor
+            };
+        }
+
+        private GraphicsPath CreateRoundedRectanglePath(Rectangle rectangle, int cornerRadius)
+        {
+            var path = new GraphicsPath();
+            
+            if (cornerRadius <= 0)
+            {
+                path.AddRectangle(rectangle);
+                return path;
+            }
+
+            int diameter = cornerRadius * 2;
+            var arc = new Rectangle(rectangle.Location, new Size(diameter, diameter));
+
+            // Top left arc
+            path.AddArc(arc, 180, 90);
+
+            // Top right arc
+            arc.X = rectangle.Right - diameter;
+            path.AddArc(arc, 270, 90);
+
+            // Bottom right arc
+            arc.Y = rectangle.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+
+            // Bottom left arc
+            arc.X = rectangle.Left;
+            path.AddArc(arc, 90, 90);
+
+            path.CloseFigure();
+            return path;
+        }
+
+        private class MaterialColors
+        {
+            public Color Primary { get; set; }
+            public Color OnPrimary { get; set; }
+            public Color Surface { get; set; }
+            public Color OnSurface { get; set; }
+            public Color OnSurfaceVariant { get; set; }
+            public Color Outline { get; set; }
+        }
+        #endregion
+    }
+}

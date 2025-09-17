@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
@@ -367,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 BeepColumnType.Button => new BeepButton { IsChild = false },
                 BeepColumnType.ProgressBar => new BeepProgressBar { IsChild = false },
                 BeepColumnType.NumericUpDown => new BeepNumericUpDown { IsChild = false },
-                BeepColumnType.Radio => new BeepRadioButton { IsChild = false },
+                BeepColumnType.Radio => new BeepRadioGroup { IsChild = false },
                 BeepColumnType.ListBox => new BeepListBox { IsChild = false, ListItems = new System.ComponentModel.BindingList<SimpleItem>(column.Items ?? new List<SimpleItem>()) },
                 BeepColumnType.ListOfValue => new BeepListofValuesBox { IsChild = false, ListItems = column.Items ?? new List<SimpleItem>() },
                 _ => new BeepTextBox { IsChild = false, IsFrameless = false, ShowAllBorders = true }

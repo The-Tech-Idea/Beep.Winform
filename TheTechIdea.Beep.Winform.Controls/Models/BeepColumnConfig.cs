@@ -6,7 +6,6 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Desktop.Common.Util;
 
-
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
     [Serializable]
@@ -611,6 +610,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             get => _allowsortDirection;
             set { _allowsortDirection = value; OnPropertyChanged(nameof(AllowSort)); }
         }
+
+        public ContentAlignment CellTextAlignment { get; internal set; }
+        public ContentAlignment HeaderTextAlignment { get; internal set; }
 
         #endregion
 

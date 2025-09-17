@@ -1122,17 +1122,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override Size GetPreferredSize(Size proposedSize)
         {
-            Size textSize = Size.Empty;
-            Size imageSize = Size.Empty;
+            // Start with base preferred to let BaseControl add any baseline effects
             var pref = base.GetPreferredSize(proposedSize);
 
-            if (IsImageOnly)
-            {
-                return new Size(
-                    Math.Max(_buttonminsize.Width, pref.Width),
-                    Math.Max(_buttonminsize.Height, pref.Height));
+            // Measure content (text and/or image)
+            Size textSize = Size.Empty;
+            Size imageSize = Size.Empty;
 
-            }
             // Only measure text if we have text and it's not hidden
             if (!string.IsNullOrEmpty(Text) && !HideText)
             {
@@ -1156,40 +1152,78 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // If we have neither text nor image, return a minimal default size
+            // If no content, return a minimal default size
             if (textSize.IsEmpty && imageSize.IsEmpty)
             {
-                return new Size(32, 32); // Minimal button size
+                // Minimal button size
+                var minimal = new Size(32, 28);
+                return EnableMaterialStyle
+                    ? GetEffectiveMaterialMinimum(new Size(32, 16))
+                    : minimal;
             }
 
-            // IMAGE-ONLY BUTTON: For image-only buttons, return just the image size plus minimal padding
+            // Compute base content size (without Material paddings)
+            Size baseContentSize;
+
             if (textSize.IsEmpty && !imageSize.IsEmpty)
             {
-                // Image only - minimal size, just image + small padding
-                int width = imageSize.Width + 8; // Just 4px padding on each side
-                int height = imageSize.Height + 8; // Just 4px padding on each side
-                return new Size(width, height);
+                // Image only - minimal content area
+                baseContentSize = new Size(imageSize.Width, imageSize.Height);
+            }
+            else if (!textSize.IsEmpty && imageSize.IsEmpty)
+            {
+                // Text only - use measured text
+                baseContentSize = textSize;
+            }
+            else
+            {
+                // Both text and image: compute union per current relation using a virtual layout
+                Rectangle virtualContentRect = new Rectangle(0, 0, 1000, 1000);
+                CalculateLayout(virtualContentRect, imageSize, textSize, out var imageRect, out var textRect);
+                Rectangle totalBounds = Rectangle.Union(imageRect, textRect);
+                baseContentSize = totalBounds.Size;
             }
 
-            // TEXT-ONLY BUTTON: For text-only buttons, use standard padding
+            // If Material style is enabled, expand by Material paddings/effects properly
+            if (EnableMaterialStyle)
+            {
+                // Ask BaseControl to compute effective minimum including Material paddings, icons, effects, DPI, etc.
+                var materialMin = GetEffectiveMaterialMinimum(baseContentSize);
+
+                // Respect button-specific minimums
+                materialMin.Width = Math.Max(materialMin.Width, ButtonMinSize.Width);
+                materialMin.Height = Math.Max(materialMin.Height, ButtonMinSize.Height);
+
+                return materialMin;
+            }
+
+            // Non-material: add simple padding around content
+            int finalWidth;
+            int finalHeight;
+
             if (!textSize.IsEmpty && imageSize.IsEmpty)
             {
-                int width = textSize.Width + Padding.Left + Padding.Right + 16;
-                int height = textSize.Height + Padding.Top + Padding.Bottom + 12;
-                return new Size(Math.Max(width, 24), Math.Max(height, 24));
+                finalWidth = textSize.Width + Padding.Left + Padding.Right + 16;
+                finalHeight = textSize.Height + Padding.Top + Padding.Bottom + 12;
+            }
+            else if (textSize.IsEmpty && !imageSize.IsEmpty)
+            {
+                finalWidth = imageSize.Width + 8;  // small padding for image-only
+                finalHeight = imageSize.Height + 8;
+            }
+            else
+            {
+                Rectangle virtualContentRect = new Rectangle(0, 0, 1000, 1000);
+                CalculateLayout(virtualContentRect, imageSize, textSize, out var imageRect, out var textRect);
+                Rectangle totalBounds = Rectangle.Union(imageRect, textRect);
+                finalWidth = totalBounds.Width + Padding.Left + Padding.Right + 16;
+                finalHeight = totalBounds.Height + Padding.Top + Padding.Bottom + 12;
             }
 
-            // For buttons with both text and image, calculate total space needed
-            Rectangle textRect, imageRect;
-            Rectangle virtualContentRect = new Rectangle(0, 0, 1000, 1000);
-            CalculateLayout(virtualContentRect, imageSize, textSize, out imageRect, out textRect);
+            finalWidth = Math.Max(finalWidth, ButtonMinSize.Width);
+            finalHeight = Math.Max(finalHeight, ButtonMinSize.Height);
 
-            Rectangle totalBounds = Rectangle.Union(imageRect, textRect);
-
-            int finalWidth = totalBounds.Width + Padding.Left + Padding.Right + 16;
-            int finalHeight = totalBounds.Height + Padding.Top + Padding.Bottom + 12;
-
-            return new Size(Math.Max(finalWidth, 24), Math.Max(finalHeight, 24));
+            return new Size(finalWidth, finalHeight);
         }
         #endregion "Paint"
         #region "Mouse and Click"
@@ -1546,779 +1580,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        #region "Draw Button From Html source"
-        // all image and svg drawing is done in the BeepImage control
-        // all functions will be similar to the orginal DrawImageAndText control but will have different style based on html .
-        protected override void OnTextChanged(EventArgs e)
-        {
-            base.OnTextChanged(e);
-            UpdateMinSizeForMode();
-        }
-        public void DrawButtonAndImage1(Graphics g)
-        {
-            Color textColor;
-
-            // Determine text color based on current state and theme settings (same as original)
-            if (_isColorFromTheme)
-            {
-                textColor = _originalForColor;
-            }
-            else
-            {
-                textColor = ForeColor;
-            }
-
-            // Update text color based on button state for better visibility (same as original)
-            if (Enabled)
-            {
-                if (IsHovered)
-                {
-                    textColor = HoverForeColor;
-                }
-                else if (IsSelected)
-                {
-                    textColor = SelectedForeColor;
-                }
-                else if (IsPressed)
-                {
-                    textColor = PressedForeColor;
-                }
-            }
-            else
-            {
-                textColor = DisabledForeColor;
-            }
-
-            // Use scaled font if configured (same as original)
-            Font scaledFont = _textFont;
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
-
-            // HTML-style font override for modern look
-            Font htmlFont = new Font("Segoe UI", 12f, FontStyle.Regular);
-
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Update image size to fit new size of control (same as original)
-            if (beepImage != null)
-            {
-                if (_maxImageSize.Height > this.Height)
-                {
-                    beepImage.Height = this.Height - 4;
-                    _maxImageSize.Height = this.Height - 4;
-                }
-                if (_maxImageSize.Width > this.Width)
-                {
-                    beepImage.Width = this.Width - 4;
-                    _maxImageSize.Width = this.Width - 4;
-                }
-            }
-
-            // Limit image size to MaxImageSize (same as original)
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            Size textSize = TextRenderer.MeasureText(Text, htmlFont);
-
-            // Use the existing CalculateLayout function - no need to duplicate!
-            Rectangle imageRect, textRect;
-            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-
-            // HTML-style hover animations and transformations
-            float imageTranslateX = 0f;
-            float imageRotation = 0f;
-            float imageScale = 1f;
-            float textTranslateX = 0f;
-
-            if (IsHovered)
-            {
-                // HTML CSS-like hover effects
-                imageTranslateX = 8f;
-                imageRotation = 5f;
-                imageScale = 1.1f;
-                textTranslateX = 4f;
-            }
-
-            if (IsPressed)
-            {
-                // HTML CSS-like pressed effects
-                imageScale = 0.95f;
-                textTranslateX = 0f;
-            }
-
-            // Draw the image using BeepImage with HTML-style transformations (same structure as original)
-            if (beepImage != null && beepImage.HasImage)
-            {
-                // Apply HTML-style transformations to BeepImage
-                beepImage.ManualRotationAngle = imageRotation;
-                beepImage.ScaleFactor = imageScale;
-
-                // Calculate final image rectangle with transformations
-                Rectangle finalImageRect = new Rectangle(
-                    (int)(imageRect.X + imageTranslateX),
-                    imageRect.Y,
-                    imageRect.Width,
-                    imageRect.Height
-                );
-
-                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
-                {
-                    imageSize = this.Size;
-                }
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = finalImageRect.Size;
-
-                if (ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.ApplyTheme();
-                }
-
-                // Let BeepImage handle all the drawing (same as original)
-                beepImage.DrawImage(g, finalImageRect);
-
-                // Setup hit testing (same as original)
-                if (beepImageHitTest == null)
-                {
-                    beepImageHitTest = new ControlHitTest(finalImageRect, Point.Empty)
-                    {
-                        Name = "BeepImageRect",
-                        ActionName = "ImageClicked",
-                        HitAction = () =>
-                        {
-                            var ev = new BeepEventDataArgs("ImageClicked", this);
-                            ImageClicked?.Invoke(this, ev);
-                        }
-                    };
-                }
-                else
-                {
-                    beepImageHitTest.TargetRect = finalImageRect;
-                }
-
-                AddHitTest(beepImageHitTest);
-            }
-
-            // Draw text with HTML-style effects (same structure as original)
-            if (!string.IsNullOrEmpty(Text) && !HideText)
-            {
-                // Apply text transformation for HTML-style animation
-                Rectangle transformedTextRect = new Rectangle(
-                    (int)(textRect.X + textTranslateX),
-                    textRect.Y,
-                    textRect.Width,
-                    textRect.Height
-                );
-
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-
-                // Use high-quality text rendering with HTML font
-                using (var textBrush = new SolidBrush(textColor))
-                {
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    TextRenderer.DrawText(g, Text, htmlFont, transformedTextRect, textColor, flags);
-                }
-            }
-        }
-        /// <summary>
-        /// CSS Button Style 2: Purple button with expanding white icon container
-        /// Based on .cssbuttons-io-button style with expanding icon animation
-        /// </summary>
-        public void DrawButtonAndImage2(Graphics g)
-        {
-            Color textColor;
-
-            // Determine text color based on current state and theme settings (same as original)
-            if (_isColorFromTheme)
-            {
-                textColor = _originalForColor;
-            }
-            else
-            {
-                textColor = ForeColor;
-            }
-
-            // Update text color based on button state for better visibility (same as original)
-            if (Enabled)
-            {
-                if (IsHovered)
-                {
-                    textColor = HoverForeColor;
-                }
-                else if (IsSelected)
-                {
-                    textColor = SelectedForeColor;
-                }
-                else if (IsPressed)
-                {
-                    textColor = PressedForeColor;
-                }
-            }
-            else
-            {
-                textColor = DisabledForeColor;
-            }
-
-            // Use scaled font if configured (same as original)
-            Font scaledFont = _textFont;
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
-
-            // CSS Style 2 font: inherit font-family, 17px, font-weight: 500
-            Font cssFont = new Font("Segoe UI",11, FontStyle.Regular);
-
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Update image size to fit new size of control (same as original)
-            if (beepImage != null)
-            {
-                if (_maxImageSize.Height > this.Height)
-                {
-                    beepImage.Height = this.Height - 4;
-                    _maxImageSize.Height = this.Height - 4;
-                }
-                if (_maxImageSize.Width > this.Width)
-                {
-                    beepImage.Width = this.Width - 4;
-                    _maxImageSize.Width = this.Width - 4;
-                }
-            }
-
-            // Limit image size to MaxImageSize (same as original)
-            if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
-            {
-                float scaleFactor = Math.Min(
-                    (float)_maxImageSize.Width / imageSize.Width,
-                    (float)_maxImageSize.Height / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            Size textSize = TextRenderer.MeasureText(Text, cssFont);
-
-            // Use the existing CalculateLayout function - no need to duplicate!
-            Rectangle imageRect, textRect;
-            CalculateLayout(contentRect, imageSize, textSize, out imageRect, out textRect);
-
-            // CSS Style 2: Hover effects (translate and rotate)
-            float imageTranslateX = 0f;
-            float imageRotation = 0f;
-            float imageScale = 1f;
-            float textTranslateX = 0f;
-
-            if (IsHovered)
-            {
-                // CSS hover: translateX(-4px) and rotate(-3deg)
-                imageTranslateX = -4f;
-                imageRotation = -3f;
-                imageScale = 1.05f;
-                textTranslateX = -2f;
-            }
-
-            if (IsPressed)
-            {
-                // CSS active: transform: scale(0.95)
-                imageScale = 0.95f;
-                textTranslateX = 0f;
-            }
-
-            // Draw the image using BeepImage with CSS Style 2 transformations (same structure as original)
-            if (beepImage != null && beepImage.HasImage)
-            {
-                // Apply CSS Style 2 transformations to BeepImage
-                beepImage.ManualRotationAngle = imageRotation;
-                beepImage.ScaleFactor = imageScale;
-
-                // Calculate final image rectangle with translations
-                Rectangle finalImageRect = new Rectangle(
-                    (int)(imageRect.X + imageTranslateX),
-                    imageRect.Y,
-                    imageRect.Width,
-                    imageRect.Height
-                );
-
-                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
-                {
-                    imageSize = this.Size;
-                }
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = finalImageRect.Size;
-
-                if (ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.ApplyTheme();
-                }
-
-                // Let BeepImage handle all the drawing (same as original)
-                beepImage.DrawImage(g, finalImageRect);
-
-                // Setup hit testing (same as original)
-                if (beepImageHitTest == null)
-                {
-                    beepImageHitTest = new ControlHitTest(finalImageRect, Point.Empty)
-                    {
-                        Name = "BeepImageRect",
-                        ActionName = "ImageClicked",
-                        HitAction = () =>
-                        {
-                            var ev = new BeepEventDataArgs("ImageClicked", this);
-                            ImageClicked?.Invoke(this, ev);
-                        }
-                    };
-                }
-                else
-                {
-                    beepImageHitTest.TargetRect = finalImageRect;
-                }
-
-                AddHitTest(beepImageHitTest);
-            }
-
-            // Draw text with CSS Style 2 effects (same structure as original)
-            if (!string.IsNullOrEmpty(Text) && !HideText)
-            {
-                // Apply text transformation for CSS Style 2 animation
-                Rectangle transformedTextRect = new Rectangle(
-                    (int)(textRect.X + textTranslateX),
-                    textRect.Y,
-                    textRect.Width,
-                    textRect.Height
-                );
-
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-
-                // Use high-quality text rendering with CSS font
-                using (var textBrush = new SolidBrush(textColor))
-                {
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    TextRenderer.DrawText(g, Text, cssFont, transformedTextRect, textColor, flags);
-                }
-            }
-        }
-        /// <summary>
-        /// CSS Button Style 3: Lime green button with animated arrow SVG
-        /// Based on lime button style with sliding arrow animation
-        /// </summary>
-        public void DrawButtonAndImage3(Graphics g)
-        {
-            Color textColor;
-
-            // Determine text color based on current state and theme settings (same as original)
-            if (_isColorFromTheme)
-            {
-                textColor = _originalForColor;
-            }
-            else
-            {
-                textColor = ForeColor;
-            }
-
-            // Update text color based on button state for better visibility (same as original)
-            if (Enabled)
-            {
-                if (IsHovered)
-                {
-                    textColor = HoverForeColor;
-                }
-                else if (IsSelected)
-                {
-                    textColor = SelectedForeColor;
-                }
-                else if (IsPressed)
-                {
-                    textColor = PressedForeColor;
-                }
-            }
-            else
-            {
-                textColor = DisabledForeColor;
-            }
-
-            // Use scaled font if configured (same as original)
-            Font scaledFont = _textFont;
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
-
-            // CSS Style 3 font: font-weight: 700, font-size: 15px
-            Font cssFont = new Font("Segoe UI", 10f, FontStyle.Bold);
-
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Update image size to fit new size of control (same as original)
-            if (beepImage != null)
-            {
-                if (_maxImageSize.Height > this.Height)
-                {
-                    beepImage.Height = this.Height - 4;
-                    _maxImageSize.Height = this.Height - 4;
-                }
-                if (_maxImageSize.Width > this.Width)
-                {
-                    beepImage.Width = this.Width - 4;
-                    _maxImageSize.Width = this.Width - 4;
-                }
-            }
-
-            // CSS Style 3: SVG size should be 34px
-            int svgSize = Math.Min(28, Math.Min(contentRect.Height - 8, contentRect.Width - 8));
-            if (imageSize.Width > svgSize || imageSize.Height > svgSize)
-            {
-                float scaleFactor = Math.Min(
-                    (float)svgSize / imageSize.Width,
-                    (float)svgSize / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            Size textSize = TextRenderer.MeasureText(Text, cssFont);
-
-            // CSS Style 3 Layout: Text on left, SVG on right with margin-left: 10px
-            int svgMargin = 8; // margin-left: 10px equivalent
-
-            // CSS Style 3 animations
-            float svgTranslateX = 0f;
-            float buttonScale = 1f;
-
-            if (IsHovered)
-            {
-                // CSS hover: svg translateX(5px)
-                svgTranslateX = 4f;
-            }
-
-            if (IsPressed)
-            {
-                // CSS active: transform: scale(0.95)
-                buttonScale = 0.95f;
-            }
-
-            // Apply button scale transformation if pressed
-            Rectangle scaledContentRect = contentRect;
-            if (IsPressed && buttonScale != 1f)
-            {
-                int scaledWidth = (int)(contentRect.Width * buttonScale);
-                int scaledHeight = (int)(contentRect.Height * buttonScale);
-                int offsetX = (contentRect.Width - scaledWidth) / 2;
-                int offsetY = (contentRect.Height - scaledHeight) / 2;
-                scaledContentRect = new Rectangle(
-                    contentRect.X + offsetX,
-                    contentRect.Y + offsetY,
-                    scaledWidth,
-                    scaledHeight);
-            }
-
-            // Calculate CSS Style 3 layout with flex alignment
-            Rectangle textRect = new Rectangle(
-                scaledContentRect.Left + 16, // padding: 10px 20px equivalent
-                scaledContentRect.Top,
-                scaledContentRect.Width - imageSize.Width - svgMargin - 32, // Leave space for SVG and padding
-                scaledContentRect.Height
-            );
-
-            Rectangle svgRect = new Rectangle(
-                (int)(textRect.Right + svgMargin + svgTranslateX),
-                scaledContentRect.Top + (scaledContentRect.Height - imageSize.Height) / 2,
-                imageSize.Width,
-                imageSize.Height
-            );
-
-            // Draw the image using BeepImage with CSS Style 3 transformations (same structure as original)
-            if (beepImage != null && beepImage.HasImage)
-            {
-                // CSS Style 3: Icon should be black
-                beepImage.ForeColor = Color.Black;
-                beepImage.ManualRotationAngle = 0; // No rotation in this style
-                beepImage.ScaleFactor = 1f; // No additional scaling
-
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = imageSize;
-
-                if (ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.ApplyTheme();
-                }
-
-                // Let BeepImage handle all the drawing (same as original)
-                beepImage.DrawImage(g, svgRect);
-
-                // Setup hit testing (same as original)
-                if (beepImageHitTest == null)
-                {
-                    beepImageHitTest = new ControlHitTest(svgRect, Point.Empty)
-                    {
-                        Name = "BeepImageRect",
-                        ActionName = "ImageClicked",
-                        HitAction = () =>
-                        {
-                            var ev = new BeepEventDataArgs("ImageClicked", this);
-                            ImageClicked?.Invoke(this, ev);
-                        }
-                    };
-                }
-                else
-                {
-                    beepImageHitTest.TargetRect = svgRect;
-                }
-
-                AddHitTest(beepImageHitTest);
-            }
-
-            // Draw text with CSS Style 3 styling (same structure as original)
-            if (!string.IsNullOrEmpty(Text) && !HideText)
-            {
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign);
-
-                // CSS Style 3: Black text color, bold weight
-                using (var textBrush = new SolidBrush(Color.Black))
-                {
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    TextRenderer.DrawText(g, Text, cssFont, textRect, Color.Black, flags);
-                }
-            }
-        }
-        /// <summary>
-        /// CSS Button Style 4: Modern sliding background button with icon container
-        /// Based on button with sliding background animation and icon area
-        /// </summary>
-        public void DrawButtonAndImage4(Graphics g)
-        {
-            Color textColor;
-
-            // Determine text color based on current state and theme settings (same as original)
-            if (_isColorFromTheme)
-            {
-                textColor = _originalForColor;
-            }
-            else
-            {
-                textColor = ForeColor;
-            }
-
-            // Update text color based on button state for better visibility (same as original)
-            if (Enabled)
-            {
-                if (IsHovered)
-                {
-                    textColor = HoverForeColor;
-                }
-                else if (IsSelected)
-                {
-                    textColor = SelectedForeColor;
-                }
-                else if (IsPressed)
-                {
-                    textColor = PressedForeColor;
-                }
-            }
-            else
-            {
-                textColor = DisabledForeColor;
-            }
-
-            // Use scaled font if configured (same as original)
-            Font scaledFont = _textFont;
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
-
-            // CSS Style 4 font: font-weight: 600, line-height: 1
-            Font cssFont = new Font("Segoe UI", 9f, FontStyle.Bold);
-
-            Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
-
-            // Update image size to fit new size of control (same as original)
-            if (beepImage != null)
-            {
-                if (_maxImageSize.Height > this.Height)
-                {
-                    beepImage.Height = this.Height - 4;
-                    _maxImageSize.Height = this.Height - 4;
-                }
-                if (_maxImageSize.Width > this.Width)
-                {
-                    beepImage.Width = this.Width - 4;
-                    _maxImageSize.Width = this.Width - 4;
-                }
-            }
-
-            // CSS Style 4: Icon container size (48px width, 40px height from CSS)
-            int iconContainerWidth = Math.Min(32, contentRect.Height - 4);
-            int iconContainerHeight = contentRect.Height - 4;
-            int iconSize = Math.Min(20, iconContainerHeight - 8);
-
-            if (imageSize.Width > iconSize || imageSize.Height > iconSize)
-            {
-                float scaleFactor = Math.Min(
-                    (float)iconSize / imageSize.Width,
-                    (float)iconSize / imageSize.Height);
-                imageSize = new Size(
-                    (int)(imageSize.Width * scaleFactor),
-                    (int)(imageSize.Height * scaleFactor));
-            }
-
-            Size textSize = TextRenderer.MeasureText(Text, cssFont);
-
-            // CSS Style 4 Layout: Icon container on left, text on right
-            // CSS Style 4 animations
-            float decorTranslateX = -contentRect.Width; // Start completely hidden (translateX(-100%))
-            Color decorColor = Color.FromArgb(0, 173, 84); // --clr: #00ad54
-
-            if (IsHovered)
-            {
-                // CSS hover: background slides in (transform: translate(0))
-                decorTranslateX = 0f;
-                textColor = Color.White; // Text becomes white on hover
-            }
-
-            // Calculate CSS Style 4 layout
-            Rectangle iconContainerRect = new Rectangle(
-                contentRect.Left + 2,
-                contentRect.Top + 2,
-                iconContainerWidth,
-                iconContainerHeight
-            );
-
-            Rectangle textRect = new Rectangle(
-                iconContainerRect.Right + 6, // padding-left: .75rem
-                contentRect.Top,
-                contentRect.Width - iconContainerWidth - 12, // Leave space for icon and padding
-                contentRect.Height
-            );
-
-            Rectangle iconRect = new Rectangle(
-                iconContainerRect.X + (iconContainerRect.Width - imageSize.Width) / 2,
-                iconContainerRect.Y + (iconContainerRect.Height - imageSize.Height) / 2,
-                imageSize.Width,
-                imageSize.Height
-            );
-
-            // Draw CSS Style 4: Sliding background decoration (button-decor)
-            Rectangle decorRect = new Rectangle(
-                (int)(contentRect.X + decorTranslateX),
-                contentRect.Y,
-                contentRect.Width,
-                contentRect.Height
-            );
-
-            if (IsHovered)
-            {
-                using (SolidBrush decorBrush = new SolidBrush(decorColor))
-                {
-                    if (IsRounded && BorderRadius > 0)
-                    {
-                        using (GraphicsPath decorPath = GetRoundedRectPath(decorRect, BorderRadius))
-                        {
-                            g.FillPath(decorBrush, decorPath);
-                        }
-                    }
-                    else
-                    {
-                        g.FillRectangle(decorBrush, decorRect);
-                    }
-                }
-            }
-
-            // Draw CSS Style 4: Icon container background (always colored)
-            using (SolidBrush iconContainerBrush = new SolidBrush(decorColor))
-            {
-                if (IsRounded && BorderRadius > 0)
-                {
-                    using (GraphicsPath iconContainerPath = GetRoundedRectPath(iconContainerRect, BorderRadius / 2))
-                    {
-                        g.FillPath(iconContainerBrush, iconContainerPath);
-                    }
-                }
-                else
-                {
-                    g.FillRectangle(iconContainerBrush, iconContainerRect);
-                }
-            }
-
-            // Draw the image using BeepImage with CSS Style 4 transformations (same structure as original)
-            if (beepImage != null && beepImage.HasImage)
-            {
-                // CSS Style 4: Icon should be white
-                beepImage.ForeColor = Color.White;
-                beepImage.ManualRotationAngle = 0; // No rotation in this style
-                beepImage.ScaleFactor = 1f; // No additional scaling
-
-                beepImage.MaximumSize = imageSize;
-                beepImage.Size = imageSize;
-
-                if (ApplyThemeOnImage)
-                {
-                    beepImage.Theme = Theme;
-                    beepImage.ApplyTheme();
-                }
-
-                // Let BeepImage handle all the drawing (same as original)
-                beepImage.DrawImage(g, iconRect);
-
-                // Setup hit testing (same as original)
-                if (beepImageHitTest == null)
-                {
-                    beepImageHitTest = new ControlHitTest(iconRect, Point.Empty)
-                    {
-                        Name = "BeepImageRect",
-                        ActionName = "ImageClicked",
-                        HitAction = () =>
-                        {
-                            var ev = new BeepEventDataArgs("ImageClicked", this);
-                            ImageClicked?.Invoke(this, ev);
-                        }
-                    };
-                }
-                else
-                {
-                    beepImageHitTest.TargetRect = iconRect;
-                }
-
-                AddHitTest(beepImageHitTest);
-            }
-
-            // Draw text with CSS Style 4 styling (same structure as original)
-            if (!string.IsNullOrEmpty(Text) && !HideText)
-            {
-                // Constrain text width: max-width: 150px, text-overflow: ellipsis
-                int maxTextWidth = Math.Min(120, textRect.Width);
-                Rectangle constrainedTextRect = new Rectangle(
-                    textRect.X,
-                    textRect.Y,
-                    maxTextWidth,
-                    textRect.Height
-                );
-
-                TextFormatFlags flags = GetTextFormatFlags(TextAlign) | TextFormatFlags.EndEllipsis;
-
-                // CSS Style 4: Dynamic text color (dark by default, white on hover)
-                Color finalTextColor = IsHovered ? Color.White : Color.FromArgb(18, 18, 18); // #121212
-
-                using (var textBrush = new SolidBrush(finalTextColor))
-                {
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    TextRenderer.DrawText(g, Text, cssFont, constrainedTextRect, finalTextColor, flags);
-                }
-            }
-        }
-        #endregion "Draw Image and text"
-        #endregion
+        #endregion // End Draw Button From Html source
         #region "Material Design Support"
 
         /// <summary>
@@ -2364,8 +1626,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!EnableMaterialStyle || !ButtonAutoSizeForMaterial || ButtonPreventAutoExpansion)
                 return;
 
-            Console.WriteLine($"BeepButton: Applying Material size compensation. Current size: {Width}x{Height}");
-
             // Use fixed base size to prevent unwanted expansion for image-only buttons
             Size baseContentSize;
             
@@ -2399,13 +1659,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 baseContentSize = new Size(48, 24);
             }
 
-            Console.WriteLine($"BeepButton: Base content size: {baseContentSize}");
-            Console.WriteLine($"BeepButton: MaterialPreserveContentArea: {MaterialPreserveContentArea}");
-
             // Apply Material size compensation using base method
             AdjustSizeForMaterial(baseContentSize, true);
-
-            Console.WriteLine($"BeepButton: Final size after compensation: {Width}x{Height}");
         }
 
         /// <summary>

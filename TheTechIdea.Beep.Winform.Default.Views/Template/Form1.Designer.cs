@@ -30,6 +30,7 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             System.Drawing.Drawing2D.GraphicsPath graphicsPath1 = new System.Drawing.Drawing2D.GraphicsPath();
+            System.Drawing.Drawing2D.GraphicsPath graphicsPath7 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath6 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath5 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath4 = new System.Drawing.Drawing2D.GraphicsPath();
@@ -297,8 +298,8 @@
             beepComboBox1.IconSize = 20;
             beepComboBox1.Id = -1;
             beepComboBox1.InactiveBorderColor = Color.Gray;
-            graphicsPath6.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepComboBox1.InnerShape = graphicsPath6;
+            graphicsPath7.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepComboBox1.InnerShape = graphicsPath7;
             beepComboBox1.IsAcceptButton = false;
             beepComboBox1.IsBorderAffectedByTheme = true;
             beepComboBox1.IsCancelButton = false;
@@ -464,8 +465,8 @@
             beepCheckBoxBool1.Id = -1;
             beepCheckBoxBool1.ImagePath = null;
             beepCheckBoxBool1.InactiveBorderColor = Color.Gray;
-            graphicsPath5.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepCheckBoxBool1.InnerShape = graphicsPath5;
+            graphicsPath6.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepCheckBoxBool1.InnerShape = graphicsPath6;
             beepCheckBoxBool1.IsAcceptButton = false;
             beepCheckBoxBool1.IsBorderAffectedByTheme = true;
             beepCheckBoxBool1.IsCancelButton = false;
@@ -633,8 +634,8 @@
             beepDatePicker1.IconSize = 20;
             beepDatePicker1.Id = -1;
             beepDatePicker1.InactiveBorderColor = Color.Gray;
-            graphicsPath4.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepDatePicker1.InnerShape = graphicsPath4;
+            graphicsPath5.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepDatePicker1.InnerShape = graphicsPath5;
             beepDatePicker1.IsAcceptButton = false;
             beepDatePicker1.IsBorderAffectedByTheme = true;
             beepDatePicker1.IsCancelButton = false;
@@ -954,8 +955,8 @@
             beepChevronButton1.Id = -1;
             beepChevronButton1.ImagePath = null;
             beepChevronButton1.InactiveBorderColor = Color.Gray;
-            graphicsPath3.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepChevronButton1.InnerShape = graphicsPath3;
+            graphicsPath4.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepChevronButton1.InnerShape = graphicsPath4;
             beepChevronButton1.IsAcceptButton = false;
             beepChevronButton1.IsBorderAffectedByTheme = true;
             beepChevronButton1.IsCancelButton = false;
@@ -1296,8 +1297,8 @@
             beepDatePickerView1.IconSize = 20;
             beepDatePickerView1.Id = -1;
             beepDatePickerView1.InactiveBorderColor = Color.Gray;
-            graphicsPath2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepDatePickerView1.InnerShape = graphicsPath2;
+            graphicsPath3.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepDatePickerView1.InnerShape = graphicsPath3;
             beepDatePickerView1.IsAcceptButton = false;
             beepDatePickerView1.IsBorderAffectedByTheme = true;
             beepDatePickerView1.IsCancelButton = false;
@@ -1418,7 +1419,7 @@
             beepRadioGroup1.DisabledBorderColor = Color.LightGray;
             beepRadioGroup1.DisabledForeColor = Color.Gray;
             beepRadioGroup1.DisableDpiAndScaling = false;
-            beepRadioGroup1.DrawingRect = new Rectangle(24, 8, 224, 174);
+            beepRadioGroup1.DrawingRect = new Rectangle(24, 8, 203, 144);
             beepRadioGroup1.Easing = Vis.Modules.EasingType.Linear;
             beepRadioGroup1.EnableHighQualityRendering = true;
             beepRadioGroup1.EnableRippleEffect = false;
@@ -1427,12 +1428,13 @@
             beepRadioGroup1.ErrorText = "";
             beepRadioGroup1.ExternalDrawingLayer = Winform.Controls.Models.DrawingLayer.AfterAll;
             beepRadioGroup1.FieldID = null;
-            beepRadioGroup1.FilledBackgroundColor = Color.FromArgb(238, 234, 240);
+            beepRadioGroup1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepRadioGroup1.FloatingLabel = true;
             beepRadioGroup1.FocusBackColor = Color.LightYellow;
             beepRadioGroup1.FocusBorderColor = Color.RoyalBlue;
             beepRadioGroup1.FocusForeColor = Color.Black;
             beepRadioGroup1.FocusIndicatorColor = Color.RoyalBlue;
+            beepRadioGroup1.Font = new Font("Segoe UI", 9F);
             beepRadioGroup1.ForeColor = Color.FromArgb(33, 33, 33);
             beepRadioGroup1.Form = null;
             beepRadioGroup1.GlassmorphismBlur = 10F;
@@ -1454,7 +1456,8 @@
             beepRadioGroup1.IconSize = 20;
             beepRadioGroup1.Id = -1;
             beepRadioGroup1.InactiveBorderColor = Color.Gray;
-            beepRadioGroup1.InnerShape = null;
+            graphicsPath2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepRadioGroup1.InnerShape = graphicsPath2;
             beepRadioGroup1.IsAcceptButton = false;
             beepRadioGroup1.IsBorderAffectedByTheme = true;
             beepRadioGroup1.IsCancelButton = false;
@@ -1491,10 +1494,10 @@
             beepRadioGroup1.LeadingImagePath = "";
             beepRadioGroup1.LeftoffsetForDrawingRect = 0;
             beepRadioGroup1.LinkedProperty = null;
-            beepRadioGroup1.Location = new Point(48, 89);
+            beepRadioGroup1.Location = new Point(55, 112);
             beepRadioGroup1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
             beepRadioGroup1.MaterialCustomPadding = new Padding(0);
-            beepRadioGroup1.MaterialFillColor = Color.FromArgb(238, 234, 240);
+            beepRadioGroup1.MaterialFillColor = Color.FromArgb(245, 245, 245);
             beepRadioGroup1.MaterialIconPadding = 8;
             beepRadioGroup1.MaterialIconSize = 20;
             beepRadioGroup1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
@@ -1529,7 +1532,7 @@
             beepRadioGroup1.ShowRightBorder = false;
             beepRadioGroup1.ShowShadow = false;
             beepRadioGroup1.ShowTopBorder = false;
-            beepRadioGroup1.Size = new Size(272, 190);
+            beepRadioGroup1.Size = new Size(251, 160);
             beepRadioGroup1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepRadioGroup1.StaticNotMoving = false;
             beepRadioGroup1.TabIndex = 11;

@@ -53,13 +53,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                 { RadioGroupRenderStyle.Card, new CardRadioRenderer() },
                 { RadioGroupRenderStyle.Chip, new ChipRadioRenderer() },
                 { RadioGroupRenderStyle.Circular, new CircularRadioRenderer() },
-                { RadioGroupRenderStyle.Flat, new FlatRadioRenderer() }
-                // Add more renderers as they're implemented
+                { RadioGroupRenderStyle.Flat, new FlatRadioRenderer() },
+                { RadioGroupRenderStyle.Checkbox, new CheckboxRadioRenderer() },
+                { RadioGroupRenderStyle.Button, new ButtonRadioRenderer() },
+                { RadioGroupRenderStyle.Toggle, new ToggleRadioRenderer() }
             };
 
             // Set default renderer
             _currentRenderer = _renderers[_renderStyle];
             _currentRenderer.Initialize(this, _currentTheme);
+            _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer.MeasureItem(item, g);
 
             // Initialize MaxImageSize for all renderers
             foreach (var renderer in _renderers.Values)
@@ -228,6 +231,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
                     _renderStyle = value;
                     _currentRenderer = _renderers[value];
                     _currentRenderer.Initialize(this, _currentTheme);
+
+                    // Update measurer to the new renderer
+                    _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer?.MeasureItem(item, g) ?? Size.Empty;
                     
                     // Check if new renderer supports current selection mode
                     if (!_currentRenderer.SupportsMultipleSelection && _allowMultipleSelection)
@@ -486,6 +492,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
         #region Drawing
         protected override void DrawContent(Graphics g)
         {
+            base.DrawContent(g);
             if (_currentRenderer == null || _items == null || _items.Count == 0)
                 return;
 
@@ -776,6 +783,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
             {
                 renderer.UpdateTheme(_currentTheme);
             }
+
+            // Ensure measurer stays valid
+            _layoutHelper.ItemMeasurer = (item, g) => _currentRenderer?.MeasureItem(item, g) ?? Size.Empty;
             
             Invalidate();
         }

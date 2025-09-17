@@ -29,6 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
         public int ColumnCount { get; set; } = 1;
         public bool AutoSize { get; set; } = true;
         public Padding ItemPadding { get; set; } = new Padding(8);
+
+        // Optional external measurer (renderer-provided)
+        public Func<SimpleItem, Graphics, Size> ItemMeasurer { get; set; }
         #endregion
 
         #region Layout Calculation
@@ -67,19 +70,31 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int currentY = containerRect.Y + ItemPadding.Top;
             int itemWidth = containerRect.Width - ItemPadding.Horizontal;
 
-            foreach (var item in items)
+            using (Graphics g = _owner.CreateGraphics())
             {
-                int itemHeight = AutoSize ? CalculateItemHeight(item) : ItemSize.Height;
-                
-                Rectangle itemRect = new Rectangle(
-                    containerRect.X + ItemPadding.Left,
-                    currentY,
-                    itemWidth,
-                    itemHeight
-                );
+                foreach (var item in items)
+                {
+                    int itemHeight;
+                    if (AutoSize)
+                    {
+                        var measured = ItemMeasurer?.Invoke(item, g);
+                        itemHeight = measured?.Height > 0 ? measured.Value.Height : CalculateItemHeight_Fallback(item, g);
+                    }
+                    else
+                    {
+                        itemHeight = ItemSize.Height;
+                    }
+                    
+                    Rectangle itemRect = new Rectangle(
+                        containerRect.X + ItemPadding.Left,
+                        currentY,
+                        itemWidth,
+                        itemHeight
+                    );
 
-                rectangles.Add(itemRect);
-                currentY += itemHeight + ItemSpacing;
+                    rectangles.Add(itemRect);
+                    currentY += itemHeight + ItemSpacing;
+                }
             }
 
             return rectangles;
@@ -91,19 +106,31 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int currentX = containerRect.X + ItemPadding.Left;
             int itemHeight = containerRect.Height - ItemPadding.Vertical;
 
-            foreach (var item in items)
+            using (Graphics g = _owner.CreateGraphics())
             {
-                int itemWidth = AutoSize ? CalculateItemWidth(item) : ItemSize.Width;
-                
-                Rectangle itemRect = new Rectangle(
-                    currentX,
-                    containerRect.Y + ItemPadding.Top,
-                    itemWidth,
-                    itemHeight
-                );
+                foreach (var item in items)
+                {
+                    int itemWidth;
+                    if (AutoSize)
+                    {
+                        var measured = ItemMeasurer?.Invoke(item, g);
+                        itemWidth = measured?.Width > 0 ? measured.Value.Width : CalculateItemWidth_Fallback(item, g);
+                    }
+                    else
+                    {
+                        itemWidth = ItemSize.Width;
+                    }
+                    
+                    Rectangle itemRect = new Rectangle(
+                        currentX,
+                        containerRect.Y + ItemPadding.Top,
+                        itemWidth,
+                        itemHeight
+                    );
 
-                rectangles.Add(itemRect);
-                currentX += itemWidth + ItemSpacing;
+                    rectangles.Add(itemRect);
+                    currentX += itemWidth + ItemSpacing;
+                }
             }
 
             return rectangles;
@@ -118,9 +145,30 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int availableWidth = containerRect.Width - ItemPadding.Horizontal;
             int availableHeight = containerRect.Height - ItemPadding.Vertical;
             
-            int itemWidth = (availableWidth - (ItemSpacing * (columns - 1))) / columns;
-            int itemHeight = AutoSize ? CalculateItemHeight(items.FirstOrDefault()) : 
-                           (availableHeight - (ItemSpacing * (rows - 1))) / rows;
+            int itemWidth;
+            int itemHeight;
+            using (Graphics g = _owner.CreateGraphics())
+            {
+                if (AutoSize)
+                {
+                    var measured = ItemMeasurer?.Invoke(items.FirstOrDefault(), g);
+                    if (measured.HasValue && measured.Value.Width > 0 && measured.Value.Height > 0)
+                    {
+                        itemWidth = measured.Value.Width;
+                        itemHeight = measured.Value.Height;
+                    }
+                    else
+                    {
+                        itemWidth = CalculateItemWidth_Fallback(items.FirstOrDefault(), g);
+                        itemHeight = CalculateItemHeight_Fallback(items.FirstOrDefault(), g);
+                    }
+                }
+                else
+                {
+                    itemWidth = ItemSize.Width;
+                    itemHeight = ItemSize.Height;
+                }
+            }
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -148,35 +196,35 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int maxWidth = containerRect.Width - ItemPadding.Horizontal;
             int lineHeight = 0;
 
-            foreach (var item in items)
+            using (Graphics g = _owner.CreateGraphics())
             {
-                int itemWidth = AutoSize ? CalculateItemWidth(item) : ItemSize.Width;
-                int itemHeight = AutoSize ? CalculateItemHeight(item) : ItemSize.Height;
-
-                // Check if we need to wrap to next line
-                if (currentX + itemWidth > containerRect.X + maxWidth && currentX > containerRect.X + ItemPadding.Left)
+                foreach (var item in items)
                 {
-                    currentX = containerRect.X + ItemPadding.Left;
-                    currentY += lineHeight + ItemSpacing;
-                    lineHeight = 0;
+                    int itemWidth = AutoSize ? (ItemMeasurer?.Invoke(item, g).Width ?? CalculateItemWidth_Fallback(item, g)) : ItemSize.Width;
+                    int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
+
+                    // Check if we need to wrap to next line
+                    if (currentX + itemWidth > containerRect.X + maxWidth && currentX > containerRect.X + ItemPadding.Left)
+                    {
+                        currentX = containerRect.X + ItemPadding.Left;
+                        currentY += lineHeight + ItemSpacing;
+                        lineHeight = 0;
+                    }
+
+                    Rectangle itemRect = new Rectangle(currentX, currentY, itemWidth, itemHeight);
+                    rectangles.Add(itemRect);
+
+                    currentX += itemWidth + ItemSpacing;
+                    lineHeight = Math.Max(lineHeight, itemHeight);
                 }
-
-                Rectangle itemRect = new Rectangle(currentX, currentY, itemWidth, itemHeight);
-                rectangles.Add(itemRect);
-
-                currentX += itemWidth + ItemSpacing;
-                lineHeight = Math.Max(lineHeight, itemHeight);
             }
 
             return rectangles;
         }
         #endregion
 
-        #region Size Calculation
-        /// <summary>
-        /// Calculates the optimal width for an item based on its content
-        /// </summary>
-        public int CalculateItemWidth(SimpleItem item)
+        #region Size Calculation (fallbacks)
+        private int CalculateItemWidth_Fallback(SimpleItem item, Graphics g)
         {
             if (item == null) return ItemSize.Width;
 
@@ -188,11 +236,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             // Calculate text width if text exists
             if (!string.IsNullOrEmpty(item.Text))
             {
-                using (Graphics g = _owner.CreateGraphics())
-                {
-                    SizeF textSize = g.MeasureString(item.Text, _owner.Font);
-                    textWidth = (int)Math.Ceiling(textSize.Width);
-                }
+                SizeF textSize = g.MeasureString(item.Text, _owner.Font);
+                textWidth = (int)Math.Ceiling(textSize.Width);
             }
 
             // Add spacing between components
@@ -208,10 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             return contentWidth + ItemPadding.Horizontal;
         }
 
-        /// <summary>
-        /// Calculates the optimal height for an item based on its content
-        /// </summary>
-        public int CalculateItemHeight(SimpleItem item)
+        private int CalculateItemHeight_Fallback(SimpleItem item, Graphics g)
         {
             if (item == null) return ItemSize.Height;
 
@@ -222,11 +264,8 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             // Calculate text height if text exists
             if (!string.IsNullOrEmpty(item.Text))
             {
-                using (Graphics g = _owner.CreateGraphics())
-                {
-                    SizeF textSize = g.MeasureString(item.Text, _owner.Font);
-                    textHeight = (int)Math.Ceiling(textSize.Height);
-                }
+                SizeF textSize = g.MeasureString(item.Text, _owner.Font);
+                textHeight = (int)Math.Ceiling(textSize.Height);
             }
 
             // Take the maximum height of all components
@@ -235,7 +274,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             // Add padding
             return contentHeight + ItemPadding.Vertical;
         }
+        #endregion
 
+        #region Total Size Calculation
         /// <summary>
         /// Calculates the total size needed for the control based on items and layout
         /// </summary>
@@ -268,13 +309,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int totalHeight = ItemPadding.Vertical;
             int maxWidth = 0;
 
-            foreach (var item in items)
+            using (Graphics g = _owner.CreateGraphics())
             {
-                int itemHeight = AutoSize ? CalculateItemHeight(item) : ItemSize.Height;
-                int itemWidth = AutoSize ? CalculateItemWidth(item) : ItemSize.Width;
-                
-                totalHeight += itemHeight + ItemSpacing;
-                maxWidth = Math.Max(maxWidth, itemWidth);
+                foreach (var item in items)
+                {
+                    int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
+                    int itemWidth = AutoSize ? (ItemMeasurer?.Invoke(item, g).Width ?? CalculateItemWidth_Fallback(item, g)) : ItemSize.Width;
+                    
+                    totalHeight += itemHeight + ItemSpacing;
+                    maxWidth = Math.Max(maxWidth, itemWidth);
+                }
             }
 
             totalHeight -= ItemSpacing; // Remove last spacing
@@ -286,13 +330,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int totalWidth = ItemPadding.Horizontal;
             int maxHeight = 0;
 
-            foreach (var item in items)
+            using (Graphics g = _owner.CreateGraphics())
             {
-                int itemWidth = AutoSize ? CalculateItemWidth(item) : ItemSize.Width;
-                int itemHeight = AutoSize ? CalculateItemHeight(item) : ItemSize.Height;
-                
-                totalWidth += itemWidth + ItemSpacing;
-                maxHeight = Math.Max(maxHeight, itemHeight);
+                foreach (var item in items)
+                {
+                    int itemWidth = AutoSize ? (ItemMeasurer?.Invoke(item, g).Width ?? CalculateItemWidth_Fallback(item, g)) : ItemSize.Width;
+                    int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
+                    
+                    totalWidth += itemWidth + ItemSpacing;
+                    maxHeight = Math.Max(maxHeight, itemHeight);
+                }
             }
 
             totalWidth -= ItemSpacing; // Remove last spacing
@@ -304,8 +351,30 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int columns = Math.Max(1, ColumnCount);
             int rows = (int)Math.Ceiling((double)items.Count / columns);
             
-            int itemWidth = AutoSize ? CalculateItemWidth(items.FirstOrDefault()) : ItemSize.Width;
-            int itemHeight = AutoSize ? CalculateItemHeight(items.FirstOrDefault()) : ItemSize.Height;
+            int itemWidth;
+            int itemHeight;
+            using (Graphics g = _owner.CreateGraphics())
+            {
+                if (AutoSize)
+                {
+                    var measured = ItemMeasurer?.Invoke(items.FirstOrDefault(), g);
+                    if (measured.HasValue && measured.Value.Width > 0 && measured.Value.Height > 0)
+                    {
+                        itemWidth = measured.Value.Width;
+                        itemHeight = measured.Value.Height;
+                    }
+                    else
+                    {
+                        itemWidth = CalculateItemWidth_Fallback(items.FirstOrDefault(), g);
+                        itemHeight = CalculateItemHeight_Fallback(items.FirstOrDefault(), g);
+                    }
+                }
+                else
+                {
+                    itemWidth = ItemSize.Width;
+                    itemHeight = ItemSize.Height;
+                }
+            }
             
             int totalWidth = ItemPadding.Horizontal + (columns * itemWidth) + ((columns - 1) * ItemSpacing);
             int totalHeight = ItemPadding.Vertical + (rows * itemHeight) + ((rows - 1) * ItemSpacing);
@@ -325,22 +394,25 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             int lineHeight = 0;
             int totalWidth = 0;
 
-            foreach (var item in items)
+            using (Graphics g = _owner.CreateGraphics())
             {
-                int itemWidth = AutoSize ? CalculateItemWidth(item) : ItemSize.Width;
-                int itemHeight = AutoSize ? CalculateItemHeight(item) : ItemSize.Height;
-
-                // Check if we need to wrap
-                if (currentX + itemWidth > maxWidth && currentX > ItemPadding.Left)
+                foreach (var item in items)
                 {
-                    totalWidth = Math.Max(totalWidth, currentX - ItemSpacing);
-                    currentX = ItemPadding.Left;
-                    currentY += lineHeight + ItemSpacing;
-                    lineHeight = 0;
-                }
+                    int itemWidth = AutoSize ? (ItemMeasurer?.Invoke(item, g).Width ?? CalculateItemWidth_Fallback(item, g)) : ItemSize.Width;
+                    int itemHeight = AutoSize ? (ItemMeasurer?.Invoke(item, g).Height ?? CalculateItemHeight_Fallback(item, g)) : ItemSize.Height;
 
-                currentX += itemWidth + ItemSpacing;
-                lineHeight = Math.Max(lineHeight, itemHeight);
+                    // Check if we need to wrap
+                    if (currentX + itemWidth > maxWidth && currentX > ItemPadding.Left)
+                    {
+                        totalWidth = Math.Max(totalWidth, currentX - ItemSpacing);
+                        currentX = ItemPadding.Left;
+                        currentY += lineHeight + ItemSpacing;
+                        lineHeight = 0;
+                    }
+
+                    currentX += itemWidth + ItemSpacing;
+                    lineHeight = Math.Max(lineHeight, itemHeight);
+                }
             }
 
             totalWidth = Math.Max(totalWidth, currentX - ItemSpacing);

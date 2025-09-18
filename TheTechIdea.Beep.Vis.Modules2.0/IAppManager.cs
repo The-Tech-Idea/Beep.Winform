@@ -5,6 +5,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Utilities;
 
 namespace TheTechIdea.Beep.Vis.Modules
 {
@@ -56,7 +57,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         Task<IErrorsInfo> LoadGraphics(string[] namespacestoinclude);
         Task<IErrorsInfo> LoadAssemblies(string[] namespacestoinclude);
         List<IDM_Addin> Addins { get; set; }
-     
+
+        IErrorsInfo EditSetting();
         IErrorsInfo LoadSetting();
         IErrorsInfo SaveSetting();
         IErrorsInfo PrintGrid(IPassedArgs passedArgs);
@@ -108,6 +110,7 @@ namespace TheTechIdea.Beep.Vis.Modules
         void Email(object data);
         void Ticket(object data);
 
-
+        bool EditDataSourceConfig(DataSourceType dataSourceType,DatasourceCategory datasourceCategory,string datasourcename, string title, string description);
+        bool EditDataSourceConnection(DataSourceType dataSourceType, DatasourceCategory datasourceCategory, string datasourcename, string title, string description);
     }
 }

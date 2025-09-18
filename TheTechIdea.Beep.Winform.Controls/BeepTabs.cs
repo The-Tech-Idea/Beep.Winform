@@ -22,6 +22,25 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A fully custom tab control with themed headers and SVG close buttons.")]
     public class BeepTabs : TabControl
     {
+        // New: toggle showing close buttons on tab headers
+        private bool _showCloseButtons = true;
+
+        [Browsable(true)]
+        [Category("Behavior")]
+        [Description("If false, the close button is hidden and tabs cannot be closed from the header.")]
+        [DefaultValue(true)]
+        public bool ShowCloseButtons
+        {
+            get => _showCloseButtons;
+            set
+            {
+                if (_showCloseButtons == value) return;
+                _showCloseButtons = value;
+                // Sizes change when toggling close buttons (reserved width), so relayout
+                UpdateLayout();
+                Invalidate();
+            }
+        }
 
         #region "DPI Scaling Support"
         protected float DpiScaleFactor { get; private set; } = 1.0f;
@@ -69,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         #endregion
         public event EventHandler<TabRemovedEventArgs> TabRemoved;
-       
+        
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         private string _theme;
         [Browsable(true)]
@@ -377,9 +396,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private float[] CalculateTabSizes(Graphics g, bool vertical)
         {
-            // ✅ Don't call UpdateDpiScaling here since it's already called in OnPaint
-            // UpdateDpiScaling(g); // Remove this line
-
             float[] sizes = new float[TabCount];
             using (Font font = new Font(this.Font, FontStyle.Regular))
             {
@@ -394,7 +410,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     else
                     {
-                        float width = textSize.Width + (GetScaledTextPadding() * 2) + GetScaledCloseButtonSize() + (GetScaledCloseButtonPadding() * 2);
+                        float width = textSize.Width + (GetScaledTextPadding() * 2);
+                        if (ShowCloseButtons)
+                        {
+                            width += GetScaledCloseButtonSize() + (GetScaledCloseButtonPadding() * 2);
+                        }
                         sizes[i] = Math.Max(GetScaledMinTabWidth(), Math.Min(GetScaledMaxTabWidth(), width));
                     }
                     ////MiscFunctions.SendLog($"Tab {i} size: {sizes[i]} (Text: {text})");
@@ -526,10 +546,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            if (!vertical)
-                DrawCloseButton(g, tabRect, false);
-            else
-                DrawCloseButton(g, tabRect, true);
+            if (ShowCloseButtons)
+            {
+                if (!vertical)
+                    DrawCloseButton(g, tabRect, false);
+                else
+                    DrawCloseButton(g, tabRect, true);
+            }
 
             g.ResetClip();
         }
@@ -830,14 +853,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                         for (int i = 0; i < TabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], scaledHeaderHeight);
-                            RectangleF closeRect = GetCloseButtonRect(tabRect, false);
-
-                            if (closeRect.Contains(clientPoint))
+                            if (ShowCloseButtons)
                             {
-                                string tabText = TabPages[i].Text;
-                                TabPages.RemoveAt(i);
-                                TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
-                                return;
+                                RectangleF closeRect = GetCloseButtonRect(tabRect, false);
+                                if (closeRect.Contains(clientPoint))
+                                {
+                                    string tabText = TabPages[i].Text;
+                                    TabPages.RemoveAt(i);
+                                    TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
+                                    return;
+                                }
                             }
                             if (tabRect.Contains(clientPoint))
                             {
@@ -857,22 +882,25 @@ namespace TheTechIdea.Beep.Winform.Controls
                         for (int i = 0; i < tabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
-                            RectangleF closeRect = GetCloseButtonRect(tabRect, true);
-                            string tabText = TabPages[i].Text;
-                           ////MiscFunctions.SendLog($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
-                            if (closeRect.Contains(clientPoint))
+                            if (ShowCloseButtons)
                             {
-                               ////MiscFunctions.SendLog($"MouseClick: Close button clicked for tab {i}");
-                                try
+                                RectangleF closeRect = GetCloseButtonRect(tabRect, true);
+                                string tabText = TabPages[i].Text;
+                               ////MiscFunctions.SendLog($"MouseClick: Tab {i} rect: {tabRect}, Close rect: {closeRect}");
+                                if (closeRect.Contains(clientPoint))
                                 {
-                                    TabPages.RemoveAt(i);
-                                    TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
+                                   ////MiscFunctions.SendLog($"MouseClick: Close button clicked for tab {i}");
+                                    try
+                                    {
+                                        TabPages.RemoveAt(i);
+                                        TabRemoved?.Invoke(this, new TabRemovedEventArgs { TabText = tabText });
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                       ////MiscFunctions.SendLog($"MouseClick: Error removing tab: {ex.Message}");
+                                    }
+                                    return;
                                 }
-                                catch (Exception ex)
-                                {
-                                   ////MiscFunctions.SendLog($"MouseClick: Error removing tab: {ex.Message}");
-                                }
-                                return;
                             }
                             if (tabRect.Contains(clientPoint))
                             {
@@ -928,8 +956,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         for (int i = 0; i < TabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(currentX, yPos, tabSizes[i], HeaderHeight);
-                            RectangleF closeRect = GetCloseButtonRect(tabRect, false);
-                            if (tabRect.Contains(e.Location) && !closeRect.Contains(e.Location))
+                            RectangleF closeRect = RectangleF.Empty;
+                            if (ShowCloseButtons)
+                                closeRect = GetCloseButtonRect(tabRect, false);
+                            if (tabRect.Contains(e.Location) && (!ShowCloseButtons || !closeRect.Contains(e.Location)))
                             {
                                 _draggedTabIndex = i;
                                ////MiscFunctions.SendLog($"MouseDown: Potential drag on tab {_draggedTabIndex}, TabRect={tabRect}, CloseRect={closeRect}");
@@ -947,8 +977,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                         for (int i = 0; i < TabCount; i++)
                         {
                             RectangleF tabRect = new RectangleF(xPos, currentY, HeaderHeight, tabSizes[i]);
-                            RectangleF closeRect = GetCloseButtonRect(tabRect, true);
-                            if (tabRect.Contains(e.Location) && !closeRect.Contains(e.Location))
+                            RectangleF closeRect = RectangleF.Empty;
+                            if (ShowCloseButtons)
+                                closeRect = GetCloseButtonRect(tabRect, true);
+                            if (tabRect.Contains(e.Location) && (!ShowCloseButtons || !closeRect.Contains(e.Location)))
                             {
                                 _draggedTabIndex = i;
                                ////MiscFunctions.SendLog($"MouseDown: Potential drag on tab {_draggedTabIndex}, TabRect={tabRect}, CloseRect={closeRect}");

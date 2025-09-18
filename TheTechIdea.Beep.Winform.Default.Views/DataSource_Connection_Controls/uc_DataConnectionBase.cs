@@ -20,10 +20,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     public partial class uc_DataConnectionBase : TemplateUserControl
     {
+        // create a new cancel and save  events to tell parent form to close
+        public event EventHandler SaveClicked;
+        public event EventHandler CancelClicked;
+
+
         RecordStatus recordstatus = RecordStatus.Nothing;
         DataConnectionViewModel viewModel;
         DataSourceType SourceType;
         DatasourceCategory Category;
+        string DataSourceName;
+        string ConnectionID;
         List<SimpleItem> versions = new List<SimpleItem>();
         List<SimpleItem> drivers = new List<SimpleItem>();
         List<ConnectionDriversConfig> connectionDriversConfigs = new List<ConnectionDriversConfig>();
@@ -37,8 +44,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         {
             base.Configure(settings);
             viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
-
+            SavebeepButton.Click += SavebeepButton_Click;
+            CancelbeepButton.Click += CancelbeepButton_Click;
         }
+
+        public virtual void CancelbeepButton_Click(object? sender, EventArgs e)
+        {
+            CancelClicked?.Invoke(this, EventArgs.Empty);
+        }
+
+        public virtual void SavebeepButton_Click(object? sender, EventArgs e)
+        {
+            SaveClicked?.Invoke(this, EventArgs.Empty);
+        }
+
         public  override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
@@ -60,13 +79,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             }
             if(parameters.ContainsKey("DataSourceName"))
             {
-                string dsname = parameters["DataSourceName"].ToString();
-                viewModel.GetConnectionByName(dsname, SourceType, Category);
-                
+                DataSourceName = parameters["DataSourceName"].ToString();
+                viewModel.GetConnectionByName(DataSourceName, SourceType, Category);
+
             } else if (parameters.ContainsKey("ConnectionID"))
             {
-                string connid = parameters["ConnectionID"].ToString();
-                viewModel.GetConnection(connid);
+                ConnectionID = parameters["ConnectionID"].ToString();
+                viewModel.GetConnection(ConnectionID);
 
             }
             if(Category!=null && SourceType != null)

@@ -7,14 +7,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TheTechIdea.Beep.ConfigUtil;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
-    public partial class uc_CertificatesandSSLProperties : UserControl
+    public partial class uc_CertificatesandSSLProperties : uc_DataConnectionPropertiesBaseControl
     {
         public uc_CertificatesandSSLProperties()
         {
             InitializeComponent();
+        }
+        public override void SetupBindings(ConnectionProperties conn)
+        {
+            base.SetupBindings(conn);
+            ConnectionPropertytabPage.Text = "Certificate and SSL";
+            // Bind controls to ConnectionProperties properties for Certificate and SSL 
+            // 
         }
     }
 }

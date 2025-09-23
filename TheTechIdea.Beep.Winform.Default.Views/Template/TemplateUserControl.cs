@@ -32,15 +32,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             InitializeComponent();
             Details = new AddinDetails { ObjectType = "UserControl" };
             Dependencies = new Dependencies();
-            MainTemplatePanel.EnableMaterialStyle = false;
-
-            // Safety: ensure visible at runtime
-            MainTemplatePanel.IsVisible = true;
-            MainTemplatePanel.Visible = true;
-            MainTemplatePanel.IsFocusedOn = false;
-            MainTemplatePanel.IsSelectedOn = false;
-            MainTemplatePanel.IsHoveringOn = false;
-            MainTemplatePanel.IsPressedOn = false;
+        
         }
 
         public TemplateUserControl(IServiceProvider services) : this()

@@ -11,14 +11,31 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 using TheTechIdea.Beep.ConfigUtil; // ensure LINQ available
+using TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls;
+using TheTechIdea.Beep.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
+
+    /// <summary>
+    /// User control for managing data connection properties will embedded opn a dialog form 
+    /// to receive and return ConnectionProperties object
+    /// its suppose to return updated ConnectionProperties object after user interaction
+    /// with the dialog and user clicks OK/Save button and form closes with DialogResult.OK
+    /// </summary>
     public partial class uc_DataConnectionBase : TemplateUserControl
     {
         // Main data object - ConnectionProperties that will be passed in and returned
         protected ConnectionProperties _connectionProperties;
-
+        private readonly List<uc_DataConnectionPropertiesBaseControl> _childPropertyControls = new();
+        // Additional parameters if needed
+        // for specific connection types not covered in ConnectionProperties
+        /// <summary>
+        /// Extra parameters for specific connection types
+        /// These will be the default and properties need to be set in the dialog before showing
+        /// and added to the ConnectionProperties.ParameterList on save
+        /// </summary>
+        public Dictionary<string, string> DefaultParameterList { get; set; } = new Dictionary<string, string>();
         public ConnectionProperties ConnectionProperties
         {
             get => _connectionProperties;
@@ -72,6 +89,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 
             DriverVersionbeepComboBox.SelectedItemChanged -= DriverVersionbeepComboBox_SelectedItemChanged;
             DriverVersionbeepComboBox.SelectedItemChanged += DriverVersionbeepComboBox_SelectedItemChanged;
+
+            BuildPropertyTabs();
+            // Set default parameters if any
+            // use ConnectionHelper.GetAllParametersForDataSourceTypeNotInConnectionProperties
+
+            SetDefaultParameters();
         }
 
         /// <summary>
@@ -90,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         /// </summary>
         protected void AddTab(TabPage tab)
         {
-            if (beepTabs1 != null && !beepTabs1.TabPages.Contains(tab))
+            if (beepTabs1 != null && tab != null && !beepTabs1.TabPages.Contains(tab))
             {
                 beepTabs1.TabPages.Add(tab);
             }
@@ -110,12 +133,42 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 
             return true;
         }
+        private void SetupBindings()
+        {
+            if (ConnectionProperties == null) return;
 
+            // Clear existing bindings to avoid duplicates
+            ConnectionNamebeepTextBox.DataBindings.Clear();
+           
+            ConnectionStringbeepTextBox.DataBindings.Clear();
+
+            // Bind directly to ConnectionProperties
+            ConnectionNamebeepTextBox.DataBindings.Add(new Binding("Text", ConnectionProperties, nameof(ConnectionProperties.ConnectionName), true, DataSourceUpdateMode.OnPropertyChanged));
+          
+            ConnectionStringbeepTextBox.DataBindings.Add(new Binding("Text", ConnectionProperties, nameof(ConnectionProperties.ConnectionString), true, DataSourceUpdateMode.OnPropertyChanged));
+        }
+        #region Dialog Events
+        private void SavebeepButton_Click(object sender, EventArgs e)
+        {
+            if (ValidateConnection())
+            {
+                this.DialogResult = DialogResult.OK;
+
+            }
+        }
+        private void CancelbeepButton_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+
+        }
+        #endregion
+
+        #region Driver and Version Initialization
         private void InitializeDriverLists()
         {
             // Initialize driver and version lists based on connection properties
             // This replaces the old navigation-based initialization
-            if (ConnectionProperties?.Category != null && ConnectionProperties?.DatabaseType != null)
+            if (ConnectionProperties != null)
             {
                 Category = ConnectionProperties.Category;
                 SourceType = ConnectionProperties.DatabaseType;
@@ -124,7 +177,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 drivers = new List<SimpleItem>();
 
                 // Get available drivers for this category/type
-                // Note: This assumes beepService is available - may need to pass it in or make it injectable
                 connectionDriversConfigs = new List<ConnectionDriversConfig>(); // TODO: Get from config
 
                 foreach (var item in connectionDriversConfigs)
@@ -157,37 +209,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 }
             }
         }
-
-        private void SetupBindings()
-        {
-            if (ConnectionProperties == null) return;
-
-            // Clear existing bindings to avoid duplicates
-            ConnectionNamebeepTextBox.DataBindings.Clear();
-           
-            ConnectionStringbeepTextBox.DataBindings.Clear();
-
-            // Bind directly to ConnectionProperties
-            ConnectionNamebeepTextBox.DataBindings.Add(new Binding("Text", ConnectionProperties, "UserID", true, DataSourceUpdateMode.OnPropertyChanged));
-          
-            ConnectionStringbeepTextBox.DataBindings.Add(new Binding("Text", ConnectionProperties, "ConnectionString", true, DataSourceUpdateMode.OnPropertyChanged));
-        }
-
-        private void SavebeepButton_Click(object sender, EventArgs e)
-        {
-            if (ValidateConnection())
-            {
-                this.DialogResult = DialogResult.OK;
-               
-            }
-        }
-
-        private void CancelbeepButton_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.Cancel;
-            
-        }
-
         private void DriverVersionbeepComboBox_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem is SimpleItem v && ConnectionProperties != null)
@@ -195,7 +216,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 ConnectionProperties.DriverVersion = v.Value?.ToString();
             }
         }
-
         private void DriverbeepComboBox_SelectedItemChanged(object sender, SelectedItemChangedEventArgs e)
         {
             if (e.SelectedItem != null && ConnectionProperties != null)
@@ -208,5 +228,156 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
                 ConnectionProperties.DriverName = selectedItem.Value?.ToString();
             }
         }
+        #endregion
+
+        #region Tabs Composition
+        private void BuildPropertyTabs()
+        {
+            // Clear existing extra tabs except the first base tab (tabPage1)
+            for (int i = beepTabs1.TabPages.Count - 1; i >= 0; i--)
+            {
+                var tp = beepTabs1.TabPages[i];
+                if (tp != tabPage1)
+                {
+                    beepTabs1.TabPages.Remove(tp);
+                }
+            }
+            _childPropertyControls.Clear();
+
+            // Always add General and Provider/Categorization and Credentials
+            AddChildTab(new uc_GeneralProperties());
+            AddChildTab(new uc_ProviderandCategorizationProperties());
+            AddChildTab(new uc_CredentialsandConnectionStringProperties());
+
+            // Add according to category/type flags
+            var cat = ConnectionProperties.Category;
+            bool isDb = ConnectionProperties.IsDatabase || cat == DatasourceCategory.RDBMS || cat == DatasourceCategory.NOSQL || cat == DatasourceCategory.DocumentDB || cat == DatasourceCategory.KeyValueDB || cat == DatasourceCategory.ColumnarDB || cat == DatasourceCategory.GraphDB || cat == DatasourceCategory.TimeSeriesDB || cat == DatasourceCategory.BigData;
+            bool isFile = ConnectionProperties.IsFile || cat == DatasourceCategory.FILE;
+            bool isWeb = ConnectionProperties.IsWebApi || cat == DatasourceCategory.WEBAPI;
+
+            if (isDb)
+            {
+                AddChildTab(new uc_DatabaseProperties());
+                AddChildTab(new uc_NetwrokandRemoteProperties());
+                AddChildTab(new uc_AuthenticationandSecurityProperties());
+                AddChildTab(new uc_CertificatesandSSLProperties());
+            }
+            if (isFile)
+            {
+                AddChildTab(new uc_FileProperties());
+            }
+            if (isWeb)
+            {
+                AddChildTab(new uc_WebApiProperties());
+                AddChildTab(new uc_webapiAuthenticationProperties());
+                AddChildTab(new uc_HttpCompositionProperties());
+                AddChildTab(new uc_NetwrokandRemoteProperties());
+            }
+
+            // Additional tabs
+            AddChildTab(new uc_TypeandStateFlagsProperties());
+            AddChildTab(new uc_RequstandBehaviorProperties());
+            // uc_MetaDataProperties is dynamic; it already exists in project if needed, add as last
+            AddChildTab(new uc_MetaDataProperties());
+        }
+
+        private void AddChildTab(uc_DataConnectionPropertiesBaseControl child)
+        {
+            if (child == null) return;
+            child.ConnectionProperties = ConnectionProperties;
+            child.SetupBindings(ConnectionProperties);
+            _childPropertyControls.Add(child);
+            AddTab(child.ConnectionPropertytabPage);
+        }
+        #endregion
+
+        #region ParameterList Handling
+        public void SetParameterValue(string parameterName, string value)
+        {
+            if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
+            {
+                ConnectionProperties.ParameterList[parameterName] = value;
+            }
+            else
+            {
+                ConnectionProperties.ParameterList.Add(parameterName, value);
+            }
+        }
+        public string GetParameterValue(string parameterName)
+        {
+            if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
+            {
+                return ConnectionProperties.ParameterList[parameterName];
+            }
+            return null;
+        }
+        public void RemoveParameter(string parameterName)
+        {
+            if (ConnectionProperties.ParameterList.ContainsKey(parameterName))
+            {
+                ConnectionProperties.ParameterList.Remove(parameterName);
+            }
+        }
+        public void ClearParameters()
+        {
+            ConnectionProperties.ParameterList.Clear();
+        }
+        public Dictionary<string, string> GetAllParameters()
+        {
+            return new Dictionary<string, string>(ConnectionProperties.ParameterList);
+        }
+        public void SetAllParameters(Dictionary<string, string> parameters)
+        {
+            ConnectionProperties.ParameterList = new Dictionary<string, string>(parameters);
+        }
+        public void SetDefaultParameters()
+        {
+            var defaultParams = ConnectionHelper.GetAllParametersForDataSourceTypeNotInConnectionProperties(ConnectionProperties.DatabaseType);
+            foreach (parameterinfo param in defaultParams.Values)
+            {
+                SetParameterValue(param.Name, param.Value);
+            }
+        }
+        public bool HasParameter(string parameterName)
+        {
+            return ConnectionProperties.ParameterList.ContainsKey(parameterName);
+        }
+        public int ParameterCount()
+        {
+            return ConnectionProperties.ParameterList.Count;
+        }
+        public IEnumerable<string> GetParameterNames()
+        {
+            return ConnectionProperties.ParameterList.Keys;
+        }
+        public IEnumerable<string> GetParameterValues()
+        {
+            return ConnectionProperties.ParameterList.Values;
+        }
+        public void UpdateParameters(Dictionary<string, string> parameters)
+        {
+            foreach (var param in parameters)
+            {
+                SetParameterValue(param.Key, param.Value);
+            }
+        }
+        public void SyncParametersWithDefaultParametersList()
+        {
+            // Add any missing default parameters to the ConnectionProperties.ParameterList
+            foreach (var param in DefaultParameterList)
+            {
+                if (!ConnectionProperties.ParameterList.ContainsKey(param.Key))
+                {
+                    ConnectionProperties.ParameterList.Add(param.Key, param.Value);
+                }
+            }
+            // remove any parameters not in the DefaultParameterList
+            var keysToRemove = ConnectionProperties.ParameterList.Keys.Except(DefaultParameterList.Keys).ToList();
+            foreach (var key in keysToRemove)
+            {
+                ConnectionProperties.ParameterList.Remove(key);
+            }
+        }
+        #endregion
     }
 }

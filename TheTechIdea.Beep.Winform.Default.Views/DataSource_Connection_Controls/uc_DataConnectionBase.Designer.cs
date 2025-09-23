@@ -57,7 +57,7 @@
             // MainTemplatePanel
             // 
             MainTemplatePanel.Controls.Add(beepPanel1);
-            MainTemplatePanel.Size = new Size(530, 703);
+            MainTemplatePanel.Size = new Size(636, 723);
             // 
             // dataConnectionViewModelBindingSource
             // 
@@ -98,7 +98,7 @@
             beepPanel1.DisabledForeColor = Color.Gray;
             beepPanel1.DisableDpiAndScaling = false;
             beepPanel1.Dock = DockStyle.Fill;
-            beepPanel1.DrawingRect = new Rectangle(24, 8, 482, 687);
+            beepPanel1.DrawingRect = new Rectangle(8, 0, 620, 723);
             beepPanel1.Easing = Vis.Modules.EasingType.Linear;
             beepPanel1.EnableHighQualityRendering = true;
             beepPanel1.EnableRippleEffect = false;
@@ -177,7 +177,9 @@
             beepPanel1.MaterialIconSize = 20;
             beepPanel1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepPanel1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            beepPanel1.MaterialUseVariantPadding = false;
             beepPanel1.MaxHitListDrawPerFrame = 0;
+            beepPanel1.MinimumSize = new Size(161, 56);
             beepPanel1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepPanel1.Name = "beepPanel1";
             beepPanel1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -208,7 +210,7 @@
             beepPanel1.ShowTitleLine = false;
             beepPanel1.ShowTitleLineinFullWidth = true;
             beepPanel1.ShowTopBorder = false;
-            beepPanel1.Size = new Size(530, 703);
+            beepPanel1.Size = new Size(636, 723);
             beepPanel1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 0;
@@ -244,13 +246,13 @@
             beepTabs1.HeaderHeight = 30;
             beepTabs1.HeaderPosition = Winform.Controls.TabHeaderPosition.Top;
             beepTabs1.ItemSize = new Size(0, 1);
-            beepTabs1.Location = new Point(37, 30);
+            beepTabs1.Location = new Point(13, 7);
             beepTabs1.Name = "beepTabs1";
             beepTabs1.Padding = new Point(5, 5);
             beepTabs1.SelectedIndex = 0;
             beepTabs1.SelectTab = tabPage1;
             beepTabs1.ShowCloseButtons = false;
-            beepTabs1.Size = new Size(443, 569);
+            beepTabs1.Size = new Size(610, 642);
             beepTabs1.SizeMode = TabSizeMode.Fixed;
             beepTabs1.TabIndex = 9;
             beepTabs1.Theme = "DefaultTheme";
@@ -266,7 +268,7 @@
             tabPage1.Location = new Point(0, 30);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(443, 539);
+            tabPage1.Size = new Size(610, 612);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Connection";
             // 
@@ -387,7 +389,7 @@
             ConnectionNamebeepTextBox.LineNumberFont = new Font("Arial", 10F);
             ConnectionNamebeepTextBox.LineNumberForeColor = Color.Gray;
             ConnectionNamebeepTextBox.LinkedProperty = null;
-            ConnectionNamebeepTextBox.Location = new Point(21, 48);
+            ConnectionNamebeepTextBox.Location = new Point(105, 85);
             ConnectionNamebeepTextBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             ConnectionNamebeepTextBox.MaterialCustomPadding = new Padding(0);
             ConnectionNamebeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -569,7 +571,7 @@
             DriverbeepComboBox.LeadingImagePath = "";
             DriverbeepComboBox.LeftoffsetForDrawingRect = 0;
             DriverbeepComboBox.LinkedProperty = null;
-            DriverbeepComboBox.Location = new Point(36, 103);
+            DriverbeepComboBox.Location = new Point(120, 140);
             DriverbeepComboBox.MaterialBorderRadius = 4;
             DriverbeepComboBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             DriverbeepComboBox.MaterialCustomPadding = new Padding(0);
@@ -745,7 +747,7 @@
             ConnectionStringbeepTextBox.LineNumberFont = new Font("Arial", 10F);
             ConnectionStringbeepTextBox.LineNumberForeColor = Color.Gray;
             ConnectionStringbeepTextBox.LinkedProperty = null;
-            ConnectionStringbeepTextBox.Location = new Point(36, 240);
+            ConnectionStringbeepTextBox.Location = new Point(120, 277);
             ConnectionStringbeepTextBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             ConnectionStringbeepTextBox.MaterialCustomPadding = new Padding(0);
             ConnectionStringbeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -927,7 +929,7 @@
             DriverVersionbeepComboBox.LeadingImagePath = "";
             DriverVersionbeepComboBox.LeftoffsetForDrawingRect = 0;
             DriverVersionbeepComboBox.LinkedProperty = null;
-            DriverVersionbeepComboBox.Location = new Point(36, 178);
+            DriverVersionbeepComboBox.Location = new Point(120, 215);
             DriverVersionbeepComboBox.MaterialBorderRadius = 4;
             DriverVersionbeepComboBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             DriverVersionbeepComboBox.MaterialCustomPadding = new Padding(0);
@@ -1109,7 +1111,7 @@
             CancelbeepButton.LeadingImagePath = "";
             CancelbeepButton.LeftoffsetForDrawingRect = 0;
             CancelbeepButton.LinkedProperty = null;
-            CancelbeepButton.Location = new Point(37, 617);
+            CancelbeepButton.Location = new Point(90, 652);
             CancelbeepButton.Margin = new Padding(0);
             CancelbeepButton.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
             CancelbeepButton.MaterialCustomPadding = new Padding(0);
@@ -1301,7 +1303,7 @@
             SavebeepButton.LeadingImagePath = "";
             SavebeepButton.LeftoffsetForDrawingRect = 0;
             SavebeepButton.LinkedProperty = null;
-            SavebeepButton.Location = new Point(347, 617);
+            SavebeepButton.Location = new Point(400, 652);
             SavebeepButton.Margin = new Padding(0);
             SavebeepButton.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
             SavebeepButton.MaterialCustomPadding = new Padding(0);
@@ -1375,7 +1377,7 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             Name = "uc_DataConnectionBase";
-            Size = new Size(530, 703);
+            Size = new Size(636, 723);
             MainTemplatePanel.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataConnectionViewModelBindingSource).EndInit();
             beepPanel1.ResumeLayout(false);

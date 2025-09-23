@@ -1,6 +1,6 @@
 ﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
-    partial class uc_MySqlConnection
+    partial class uc_DatabaseProperties
     {
         /// <summary> 
         /// Required designer variable.

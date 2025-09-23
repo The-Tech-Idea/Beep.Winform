@@ -1,6 +1,6 @@
 ﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
-    partial class uc_SqlServerConnection
+    partial class uc_WebApiProperties
     {
         /// <summary> 
         /// Required designer variable.

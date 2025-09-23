@@ -1,6 +1,6 @@
 ﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
-    partial class uc_OracleConnection
+    partial class uc_GeneralProperties
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,17 +30,12 @@
         {
             SuspendLayout();
             // 
-            // MainTemplatePanel
-            // 
-            MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 530, 703);
-            MainTemplatePanel.Size = new Size(520, 678);
-            // 
-            // uc_OracleConnection
+            // uc_GeneralProperties
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            Name = "uc_OracleConnection";
-            Size = new Size(520, 678);
+            Name = "uc_GeneralProperties";
+            Size = new Size(408, 492);
             ResumeLayout(false);
         }
 

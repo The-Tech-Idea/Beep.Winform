@@ -108,7 +108,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
 
         protected override void OnPaint(PaintEventArgs e)
-        {// When material style is enabled, we control background painting explicitly
+        {
+            // Early out for safety during design-time removal/dispose
+            if (IsDisposed || !IsHandleCreated)
+                return;
+
+            // When material style is enabled, we control background painting explicitly
             if (EnableMaterialStyle)
             {
                 // Decide outside background treatment
@@ -283,11 +288,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     {
                         if (c is BaseControl beepParent)
                         {
-                            beepParent.ClearChildExternalDrawing(this);
-                            Parent.Invalidate();
+                            try
+                            {
+                                beepParent.ClearChildExternalDrawing(this);
+                                // Parent is null here; invalidate the actual parent we cleared
+                                beepParent.Invalidate();
+                            }
+                            catch { }
                         }
                     }
                 }
+                // Nothing else to register if no parent
+                return;
             }
 
             // Register external badge drawing with new parent, if any
@@ -298,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     newBeepParent.AddChildExternalDrawing(this, DrawBadgeExternally, DrawingLayer.AfterAll);
                     // Mark for redraw on parent
                     UpdateRegionForBadge();
-                    Parent.Invalidate();
+                    try { Parent?.Invalidate(); } catch { }
                 }
             }
         }

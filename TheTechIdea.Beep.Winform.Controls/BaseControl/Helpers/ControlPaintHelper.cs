@@ -139,7 +139,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 {
                     using var padBrush = new SolidBrush(parentBack);
                     g.FillRectangle(padBrush, new Rectangle(0, 0, _owner.Width, _owner.Height));
-                    g.FillPath(padBrush, _owner.InnerShape);
+                    // Guard against null InnerShape (can be null for some controls like BeepPanel at design-time)
+                    if (_owner.InnerShape != null && _owner.InnerShape.PointCount > 0)
+                    {
+                        g.FillPath(padBrush, _owner.InnerShape);
+                    }
                 }
             }
             catch { }

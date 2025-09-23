@@ -11,6 +11,14 @@ namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 {
     public class DialogManager : Component,IDialogManager
     {
+        public BeepPopupForm HostForm { get; }
+        public DialogManager(BeepPopupForm popupForm)
+        {
+            HostForm= popupForm;
+        }
+
+       
+
         public void CloseProgress(int token)
         {
             throw new NotImplementedException();

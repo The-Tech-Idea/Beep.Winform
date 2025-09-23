@@ -65,7 +65,6 @@
             // MainTemplatePanel
             // 
             MainTemplatePanel.Controls.Add(beepPanel1);
-            MainTemplatePanel.DataBindings.Add(new Binding("DataContext", dataConnectionViewModelBindingSource, "DBWork", true));
             MainTemplatePanel.Size = new Size(530, 703);
             // 
             // dataConnectionViewModelBindingSource
@@ -315,6 +314,7 @@
             LoginIDbeepTextBox.Category = Utilities.DbFieldCategory.String;
             LoginIDbeepTextBox.ComponentName = "BaseControl";
             LoginIDbeepTextBox.CustomMask = "";
+            LoginIDbeepTextBox.DataBindings.Add(new Binding("Text", dataConnectionViewModelBindingSource, "UserID", true));
             LoginIDbeepTextBox.DataSourceProperty = null;
             LoginIDbeepTextBox.DateFormat = "MM/dd/yyyy";
             LoginIDbeepTextBox.DateTimeFormat = "MM/dd/yyyy HH:mm:ss";
@@ -833,7 +833,7 @@
             // 
             // ConnectionStringbeepTextBox
             // 
-            ConnectionStringbeepTextBox.AcceptsReturn = false;
+            ConnectionStringbeepTextBox.AcceptsReturn = true;
             ConnectionStringbeepTextBox.AcceptsTab = false;
             ConnectionStringbeepTextBox.Anchor = AnchorStyles.None;
             ConnectionStringbeepTextBox.AnimationDuration = 500;
@@ -870,7 +870,7 @@
             ConnectionStringbeepTextBox.DisabledBorderColor = Color.LightGray;
             ConnectionStringbeepTextBox.DisabledForeColor = Color.Gray;
             ConnectionStringbeepTextBox.DisableDpiAndScaling = false;
-            ConnectionStringbeepTextBox.DrawingRect = new Rectangle(24, 8, 236, 33);
+            ConnectionStringbeepTextBox.DrawingRect = new Rectangle(24, 8, 236, 88);
             ConnectionStringbeepTextBox.Easing = Vis.Modules.EasingType.Linear;
             ConnectionStringbeepTextBox.EnableHighQualityRendering = true;
             ConnectionStringbeepTextBox.EnableRippleEffect = false;
@@ -947,7 +947,7 @@
             ConnectionStringbeepTextBox.LineNumberFont = new Font("Arial", 10F);
             ConnectionStringbeepTextBox.LineNumberForeColor = Color.Gray;
             ConnectionStringbeepTextBox.LinkedProperty = null;
-            ConnectionStringbeepTextBox.Location = new Point(75, 437);
+            ConnectionStringbeepTextBox.Location = new Point(75, 382);
             ConnectionStringbeepTextBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             ConnectionStringbeepTextBox.MaterialCustomPadding = new Padding(0);
             ConnectionStringbeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -960,7 +960,7 @@
             ConnectionStringbeepTextBox.MinimumSize = new Size(0, 22);
             ConnectionStringbeepTextBox.ModernGradientType = Vis.Modules.ModernGradientType.None;
             ConnectionStringbeepTextBox.Modified = true;
-            ConnectionStringbeepTextBox.Multiline = false;
+            ConnectionStringbeepTextBox.Multiline = true;
             ConnectionStringbeepTextBox.Name = "ConnectionStringbeepTextBox";
             ConnectionStringbeepTextBox.OnlyCharacters = false;
             ConnectionStringbeepTextBox.OnlyDigits = false;
@@ -998,7 +998,7 @@
             ConnectionStringbeepTextBox.ShowScrollbars = true;
             ConnectionStringbeepTextBox.ShowShadow = false;
             ConnectionStringbeepTextBox.ShowTopBorder = false;
-            ConnectionStringbeepTextBox.Size = new Size(284, 49);
+            ConnectionStringbeepTextBox.Size = new Size(284, 104);
             ConnectionStringbeepTextBox.SlideFrom = Vis.Modules.SlideDirection.Left;
             ConnectionStringbeepTextBox.StaticNotMoving = false;
             ConnectionStringbeepTextBox.TabIndex = 5;
@@ -1227,7 +1227,7 @@
             sidbeepTextBox.DisabledBorderColor = Color.LightGray;
             sidbeepTextBox.DisabledForeColor = Color.Gray;
             sidbeepTextBox.DisableDpiAndScaling = false;
-            sidbeepTextBox.DrawingRect = new Rectangle(24, 8, 236, 33);
+            sidbeepTextBox.DrawingRect = new Rectangle(24, 8, 91, 33);
             sidbeepTextBox.Easing = Vis.Modules.EasingType.Linear;
             sidbeepTextBox.EnableHighQualityRendering = true;
             sidbeepTextBox.EnableRippleEffect = false;
@@ -1304,7 +1304,7 @@
             sidbeepTextBox.LineNumberFont = new Font("Arial", 10F);
             sidbeepTextBox.LineNumberForeColor = Color.Gray;
             sidbeepTextBox.LinkedProperty = null;
-            sidbeepTextBox.Location = new Point(75, 382);
+            sidbeepTextBox.Location = new Point(209, 327);
             sidbeepTextBox.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             sidbeepTextBox.MaterialCustomPadding = new Padding(0);
             sidbeepTextBox.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1355,7 +1355,7 @@
             sidbeepTextBox.ShowScrollbars = true;
             sidbeepTextBox.ShowShadow = false;
             sidbeepTextBox.ShowTopBorder = false;
-            sidbeepTextBox.Size = new Size(284, 49);
+            sidbeepTextBox.Size = new Size(139, 49);
             sidbeepTextBox.SlideFrom = Vis.Modules.SlideDirection.Left;
             sidbeepTextBox.StaticNotMoving = false;
             sidbeepTextBox.TabIndex = 4;
@@ -1566,7 +1566,6 @@
             HostbeepTextBox.UseRichToolTip = true;
             HostbeepTextBox.UseSystemPasswordChar = false;
             HostbeepTextBox.UseThemeFont = true;
-            HostbeepTextBox.WordWrap = false;
             // 
             // PortbeepTextBox
             // 
@@ -1607,7 +1606,7 @@
             PortbeepTextBox.DisabledBorderColor = Color.LightGray;
             PortbeepTextBox.DisabledForeColor = Color.Gray;
             PortbeepTextBox.DisableDpiAndScaling = false;
-            PortbeepTextBox.DrawingRect = new Rectangle(24, 8, 233, 33);
+            PortbeepTextBox.DrawingRect = new Rectangle(24, 8, 78, 33);
             PortbeepTextBox.Easing = Vis.Modules.EasingType.Linear;
             PortbeepTextBox.EnableHighQualityRendering = true;
             PortbeepTextBox.EnableRippleEffect = false;
@@ -1735,7 +1734,7 @@
             PortbeepTextBox.ShowScrollbars = true;
             PortbeepTextBox.ShowShadow = false;
             PortbeepTextBox.ShowTopBorder = false;
-            PortbeepTextBox.Size = new Size(281, 49);
+            PortbeepTextBox.Size = new Size(126, 49);
             PortbeepTextBox.SlideFrom = Vis.Modules.SlideDirection.Left;
             PortbeepTextBox.StaticNotMoving = false;
             PortbeepTextBox.TabIndex = 3;
@@ -2158,19 +2157,19 @@
 
         #endregion
 
-        private BindingSource dataConnectionViewModelBindingSource;
-        private Controls.BeepPanel beepPanel1;
-        private Controls.BeepTextBox LoginIDbeepTextBox;
-        private Controls.BeepTextBox ConnectionStringbeepTextBox;
-        private Controls.BeepTextBox sidbeepTextBox;
-        private Controls.BeepTextBox PortbeepTextBox;
-        private Controls.BeepTextBox HostbeepTextBox;
-        private Controls.BeepComboBox DriverVersionbeepComboBox;
-        private Controls.BeepComboBox DriverbeepComboBox;
-        private Controls.BeepTextBox PasswordbeepTextBox;
-        private Controls.BeepButton CancelbeepButton;
-        private Controls.BeepButton SavebeepButton;
-        private Controls.BeepTabs beepTabs1;
-        private TabPage tabPage1;
+        protected BindingSource dataConnectionViewModelBindingSource;
+        protected Controls.BeepPanel beepPanel1;
+        protected Controls.BeepTextBox LoginIDbeepTextBox;
+        protected Controls.BeepTextBox ConnectionStringbeepTextBox;
+        protected Controls.BeepTextBox sidbeepTextBox;
+        protected Controls.BeepTextBox PortbeepTextBox;
+        protected Controls.BeepTextBox HostbeepTextBox;
+        protected Controls.BeepComboBox DriverVersionbeepComboBox;
+        protected Controls.BeepComboBox DriverbeepComboBox;
+        protected Controls.BeepTextBox PasswordbeepTextBox;
+        protected Controls.BeepButton CancelbeepButton;
+        protected Controls.BeepButton SavebeepButton;
+        public Controls.BeepTabs beepTabs1;
+        protected TabPage tabPage1;
     }
 }

@@ -16,7 +16,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         SaveAllDontSaveCancel,
         Close,
         Help,
-        TryAgainContinue
+        TryAgainContinue,
+        Ok,
+        Cancel,
+        Yes,
+        No,
+        Abort,
+        Retry,
+        Ignore
     }
     public enum  DialogType
     {

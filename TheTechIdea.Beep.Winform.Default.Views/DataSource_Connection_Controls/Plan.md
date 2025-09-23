@@ -168,3 +168,156 @@ DataSource_Connection_Controls/
 - DataManagementEngine for data source definitions
 - DataManagementModels for data structures</content>
 <parameter name="filePath">c:\Users\f_ald\source\repos\The-Tech-Idea\Beep.Winform\TheTechIdea.Beep.Winform.Default.Views\Configuration\DataSource_Connection_Controls\Plan.md
+
+
+Summary plan to implement connection user controls for all DataSourceType values
+1.	Standardize base pattern
+•	Class naming: uc_{Provider}Connection : uc_DataConnectionBase
+•	File path: ...Default.Views\DataSource_Connection_Controls\uc_{Provider}Connection.cs
+•	Addin metadata: set DatasourceType = DataSourceType.{Provider}, Category = DatasourceCategory.{Category}, addinType = AddinType.ConnectionProperties
+•	Constructors: default and IServiceProvider versions; set Details.AddinName = "{Provider} Connection"
+•	Override OnNavigatedTo(parameters) and call base.OnNavigatedTo(parameters) (base handles drivers, versions, bindings)
+•	Use BeepTabs from base; add provider tabs only when needed
+2.	Fields mapping to ConnectionProperties (reuse everywhere)
+•	Standard fields:
+•	DriverName, DriverVersion (base controls map these)
+•	UserID, Password, ConnectionString (base binds these)
+•	Host/Server, Port, Database (ServiceName/SID for Oracle), InstanceName (if applicable)
+•	FilePath, FileName, Extension (file-based)
+•	IsLocal, IsInMemory
+•	Keep Connection.ConnectionString updated (builder or manual override)
+3.	Standard tabs (apply as needed per provider)
+•	Connection: driver/version, UserID, Password, ConnectionString
+•	Server: Host, Port, Instance, Database/Service/SID
+•	Authentication: mode (Basic/Integrated/API/OAuth), SSL/TLS settings (Enable, Cert paths, Verify server)
+•	Files: FilePath, FileName, Extension, format options (CSV delimiter/encoding, Excel sheet)
+•	Cloud/API: base URL, region, project/account/workspace, API keys/secret, OAuth client/secret/token endpoint
+•	Options: Pooling, Timeouts, Retries, Schema/SearchPath, extra options (key/value)
+•	Test/Diagnostics: Test connection button, Build/Preview connection string, log area
+4.	Provider templates by category (use this as a checklist)
+A) RDBMS (DatasourceCategory.RDBMS)
+•	Types: Oracle, SqlServer, Mysql, MariaDB, Postgre, DB2, FireBird, Hana, SqlLite, SqlCompact, AzureSQL, AWSRDS, Cockroach, Spanner, TerraData, Vertica
+•	Fields:
+•	Server: Host, Port (defaults), Instance (if used), Database (or ServiceName/SID)
+•	Auth: UserID, Password, Integrated (SqlServer/AzureSQL)
+•	TLS/SSL: Enable, Encrypt, TrustServerCertificate, SSLMode (MySQL/Postgre)
+•	Options: Pooling, Timeouts, Schema/SearchPath
+•	Defaults and notes:
+•	Oracle: port 1521; ServiceName or SID
+•	SqlServer/AzureSQL: 1433; optional InstanceName; Integrated Security; Encrypt/TrustServerCertificate
+•	MySQL/MariaDB: 3306; SslMode
+•	Postgre: 5432; SSLMode; SearchPath
+•	SQLite/SqlCompact: use Files tab (FilePath/FileName/Extension), no Host/Port
+•	SAP Hana: default 30015
+B) NOSQL (DatasourceCategory.NOSQL)
+•	Types: MongoDB, CouchDB, RavenDB, Couchbase, Redis, DynamoDB, Firebase, LiteDB, ArangoDB, Cassandra, OrientDB, ElasticSearch, ClickHouse, InfluxDB, VistaDB
+•	Fields:
+•	Hosts list (clusters), Port(s), Database/Keyspace/Bucket/Index
+•	Auth: UserID/Password or API Key/Token
+•	TLS/SSL: Enable, CA, certs
+•	Notes:
+•	MongoDB: SRV or host list; Database; ReplicaSet; TLS (27017)
+•	Cassandra: hosts, port 9042, Keyspace, consistency
+•	Redis: Host, Port 6379, Password, DB index
+•	ElasticSearch: base URL, Index, TLS
+•	Couchbase: Cluster/Host, Bucket, User/Pass
+•	InfluxDB: URL, Org/Bucket/Token
+•	LiteDB/VistaDB: file-based → Files tab
+C) GraphDB (DatasourceCategory.GraphDB)
+•	Types: Neo4j, TigerGraph, JanusGraph
+•	Fields:
+•	Neo4j: bolt URI (host:port[/db]), User/Pass, TLS
+•	TigerGraph: host/port, Token
+•	JanusGraph: backend endpoints (maps to Cassandra/HBase configs)
+D) Columnar/BigData/TimeSeries (DatasourceCategory.ColumnarDB/BigData/TimeSeriesDB)
+•	Types: ClickHouse (also NoSQL), Hadoop, Kudu, Druid, Pinot, Parquet, Avro, ORC, Feather, TimeScale
+•	Fields:
+•	Server-based: Host, Port, Database, TLS, User/Pass
+•	File-based: FilePath, FileName/pattern, compression/format flags
+•	Options: schema inference
+•	Notes:
+•	Parquet/Avro/ORC/Feather: focus on Files tab
+•	TimeScale: Postgre template (5432 + SearchPath)
+E) In-Memory (DatasourceCategory.INMEMORY)
+•	Types: RealIM, Petastorm, RocketSet
+•	Fields: Name, optional persistence path, TTL/memory sizing
+•	Use ViewModel CreateInMemoryConnection path
+F) Cloud/DataWarehouse/DataLake (DatasourceCategory.CLOUD/DataWarehouse/DataLake)
+•	Types: AWSRedshift, GoogleBigQuery, AWSGlue, AWSAthena, AzureCloud, SnowFlake, DataBricks, Firebolt, Hologres, Supabase
+•	Fields:
+•	Region, Account/Project/Workspace
+•	Auth: AccessKey/SecretKey, OAuth client/secret/token, Role
+•	Warehouse/Database/Schema
+•	Storage paths (S3/Blob) for staging (Athena/Glue)
+•	Notes:
+•	BigQuery: Project, Dataset, key JSON file
+•	Snowflake: Account, Warehouse, Role, Database, Schema, auth mode
+G) Streaming/Messaging (DatasourceCategory.Stream/MessageQueue)
+•	Types: Kafka, RabbitMQ, ActiveMQ, Pulsar, Kinesis, SQS, SNS, AzureServiceBus, Nats, ZeroMQ, MassTransit
+•	Fields:
+•	Bootstrap servers/Endpoints
+•	Topic/Queue/Exchange
+•	GroupId/ClientId (Kafka), SSL/SASL
+•	Credentials (user/password/keys)
+H) MLModel (DatasourceCategory.MLModel)
+•	Types: TFRecord, ONNX, PyTorchData, ScikitLearnData, Onnx
+•	Fields: Files tab (model/data paths), pre/post options, schema inference
+I) FILE (DatasourceCategory.FILE)
+•	Types: FlatFile, CSV, TSV, Text, YAML, Json, XML, Xls, Doc, Docx, PPT, PPTX, PDF, Markdown, Log, INI, HTML, SQL, Parquet, Avro, ORC, Feather, RecordIO, LibSVM, GraphML, DICOM, LAS
+•	Fields:
+•	FilePath, FileName/pattern, Extension
+•	CSV/TSV/Text: delimiter, quote, encoding, header row
+•	Excel: sheet, header row
+•	XML/Json: root/array paths
+•	Binary: extraction flags
+J) WEBAPI (DatasourceCategory.WEBAPI)
+•	Types: WebApi, RestApi, OData, GraphQL
+•	Fields:
+•	Base URL, Endpoint path
+•	Auth: None/Basic/Bearer/API Key/OAuth
+•	Headers (key/value), Query params, Pagination mode
+•	Test: sample call and show response
+K) Misc/Bridges (DatasourceCategory.NONE or appropriate)
+•	Types: ODBC, OLEDB, ADO
+•	Fields: Full connection string, DSN, Provider (minimal UI)
+L) Search/Workflow/IoT (various categories)
+•	Types: Solr (SearchEngine), OPC (Industrial), AWSSWF, AWSStepFunctions (Workflow), AWSIoT, AWSIoTCore, AWSIoTAnalytics (IoT)
+•	Fields:
+•	Solr: base URL, Collection
+•	OPC: endpoint URL, security mode, certs
+•	SWF/StepFunctions: region, credentials, workflow id
+•	IoT: endpoint, registry ids, certs/keys
+M) VectorDB (DatasourceCategory.VectorDB)
+•	Types: ChromaDB, PineCone, Qdrant, Weaviate, Milvus, RedisVector, Zilliz, Vespa, ShapVector
+•	Fields:
+•	Endpoint/host/port or cloud API URL
+•	API Key/Auth
+•	Collection/Index/Namespace
+•	Dimension, distance metric, replicas
+•	RedisVector: reuse Redis host/port + vector options
+N) Connectors (DatasourceCategory.Connector)
+•	Large set (CRM, Marketing, E‑commerce, PM, Comms, Storage, Payments, Social, Workflow, DevTools, Support, Analytics)
+•	Fields: Base URL, Auth (API Key/OAuth), resource identifier (account/workspace/project), pagination, rate limits
+5.	Implementation checklist for every provider
+•	Create class uc_{Provider}Connection inheriting uc_DataConnectionBase
+•	Add [AddinAttribute(Caption="{Provider} Connection", DatasourceType=DataSourceType.{Provider}, Category=DatasourceCategory.{Category}, Name="uc_{Provider}Connection", addinType=AddinType.ConnectionProperties, displayType=DisplayType.Popup, misc="Config", menu="Configuration")]
+•	Constructors: call InitializeComponent() and set Details.AddinName
+•	Optionally add provider-specific tabs; bind fields to ConnectionProperties (Host, Port, Database, FilePath, etc.)
+•	Add a “Build” button (optional): construct provider connection string and assign Connection.ConnectionString
+•	“Test” button: try Editor.OpenDataSource(Connection.ConnectionName) and show result
+6.	Base control status (already in place)
+•	Binds UserID, Password, ConnectionString to DataConnectionViewModel.Connection
+•	Populates drivers and versions from Config_editor.DataDriversClasses filtered by category/type
+•	Updates Connection.DriverName and Connection.DriverVersion on selection
+7.	Recommended defaults registry (optional optimization)
+•	Maintain a simple registry per DataSourceType:
+•	Default port
+•	Connection string template placeholders
+•	Required fields list
+•	Use it to auto-fill fields and build strings consistently
+
+		Add provider-specific optional tabs/field bindings where needed:
+•	example : SQLite: Files tab only (FilePath/FileName/Extension).
+•				PostgreSQL: SearchPath, SSLMode in Options/Authentication.
+•				MySQL: SSLMode in Authentication/Options.
+•				SQL Server: Integrated/SQL Auth, Encrypt/TrustServerCertificate.

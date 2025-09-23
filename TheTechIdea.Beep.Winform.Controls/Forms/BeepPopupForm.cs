@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowCaptionBar = false;
             ShowSystemButtons = false;
             EnableCaptionGradient = false;
-          //  BorderThickness = 0;
+            BorderThickness = 5;
 
             // Initialize DPI scaling first
             //UpdateDpiScaling();

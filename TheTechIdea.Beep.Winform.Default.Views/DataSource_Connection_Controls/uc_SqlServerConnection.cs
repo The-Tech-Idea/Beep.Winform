@@ -14,23 +14,21 @@ using TheTechIdea.Beep.Winform.Default.Views.Template;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
-    [AddinAttribute(Caption = "Oracle Connection", ScopeCreateType = AddinScopeCreateType.Multiple, DatasourceType = DataSourceType.Oracle,Category = DatasourceCategory.RDBMS , Name = "uc_OracleConnection", misc = "Config", menu = "Configuration", addinType = AddinType.ConnectionProperties, displayType = DisplayType.Popup, ObjectType = "Beep")]
-    public partial class uc_OracleConnection : uc_DataConnectionBase
+    [AddinAttribute(Caption = "SQL Server Connection", ScopeCreateType = AddinScopeCreateType.Multiple, DatasourceType = DataSourceType.SqlServer, Category = DatasourceCategory.RDBMS, Name = "uc_SqlServerConnection", misc = "Config", menu = "Configuration", addinType = AddinType.ConnectionProperties, displayType = DisplayType.Popup, ObjectType = "Beep")]
+    public partial class uc_SqlServerConnection : uc_DataConnectionBase
     {
-        public uc_OracleConnection()
+        public uc_SqlServerConnection()
         {
             InitializeComponent();
         }
-        public uc_OracleConnection(IServiceProvider services) : base(services)
+        public uc_SqlServerConnection(IServiceProvider services) : base(services)
         {
             InitializeComponent();
-            Details.AddinName = "Oracle Connection";
+            Details.AddinName = "SQL Server Connection";
         }
         public override void OnNavigatedTo(Dictionary<string, object> parameters)
         {
             base.OnNavigatedTo(parameters);
-            
         }
-
     }
 }

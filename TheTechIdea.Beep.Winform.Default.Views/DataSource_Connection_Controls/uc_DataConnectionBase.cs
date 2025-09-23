@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+
 using TheTechIdea.Beep.DriversConfigurations;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Vis;
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
+using System.Linq; // ensure LINQ available
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
@@ -39,13 +34,48 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             InitializeComponent();
             Details.AddinName = "Oracle Connection";
         }
-      
+        public uc_DataConnectionBase()
+        {
+            InitializeComponent();
+        }
         public override void Configure(Dictionary<string, object> settings)
         {
             base.Configure(settings);
             viewModel = new DataConnectionViewModel(beepService.DMEEditor, beepService.vis);
+            // Setup binding source to point to Connection object
+            InitializeBindingSource();
+
             SavebeepButton.Click += SavebeepButton_Click;
             CancelbeepButton.Click += CancelbeepButton_Click;
+        }
+
+        private void InitializeBindingSource()
+        {
+            try
+            {
+                // Ensure the BindingSource points to the Connection object so child bindings are valid
+                dataConnectionViewModelBindingSource.DataSource = viewModel;
+                dataConnectionViewModelBindingSource.DataMember = nameof(DataConnectionViewModel.Connection);
+
+                // Setup/refresh control bindings
+                SetupBindings();
+            }
+            catch { /* ignore in design-time */ }
+        }
+
+        private void SetupBindings()
+        {
+            // Clear existing bindings to avoid duplicates
+            LoginIDbeepTextBox.DataBindings.Clear();
+            PasswordbeepTextBox.DataBindings.Clear();
+            ConnectionStringbeepTextBox.DataBindings.Clear();
+            // Note: BeepComboBox doesn't expose DisplayMember/ValueMember/SelectedValue.
+            // We'll handle driver mapping via events + SetValue instead of WinForms binding.
+
+            // Bind to Connection properties through the binding source
+            LoginIDbeepTextBox.DataBindings.Add(new Binding("Text", dataConnectionViewModelBindingSource, "UserID", true, DataSourceUpdateMode.OnPropertyChanged));
+            PasswordbeepTextBox.DataBindings.Add(new Binding("Text", dataConnectionViewModelBindingSource, "Password", true, DataSourceUpdateMode.OnPropertyChanged));
+            ConnectionStringbeepTextBox.DataBindings.Add(new Binding("Text", dataConnectionViewModelBindingSource, "ConnectionString", true, DataSourceUpdateMode.OnPropertyChanged));
         }
 
         public virtual void CancelbeepButton_Click(object? sender, EventArgs e)
@@ -55,6 +85,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 
         public virtual void SavebeepButton_Click(object? sender, EventArgs e)
         {
+            // Persist current connection via ViewModel then bubble the event
+            try { viewModel?.Save(); } catch { }
             SaveClicked?.Invoke(this, EventArgs.Empty);
         }
 
@@ -117,9 +149,36 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.ListItems = drivers.ToBindingList();
             DriverbeepComboBox.SelectedItemChanged -= DriverbeepComboBox_SelectedItemChanged;
             DriverbeepComboBox.SelectedItemChanged += DriverbeepComboBox_SelectedItemChanged;
-            this.DataContext = viewModel.DataConnections;
 
+            // Also wire version selection to update the connection
+            DriverVersionbeepComboBox.SelectedItemChanged -= DriverVersionbeepComboBox_SelectedItemChanged;
+            DriverVersionbeepComboBox.SelectedItemChanged += DriverVersionbeepComboBox_SelectedItemChanged;
 
+            // Initialize binding source for current connection
+            InitializeBindingSource();
+
+            // Preselect current driver and version if available
+            if (!string.IsNullOrEmpty(viewModel?.Connection?.DriverName))
+            {
+                DriverbeepComboBox.SetValue(viewModel.Connection.DriverName);
+                // Populate versions list for the selected driver
+                var selectedDriver = viewModel.Connection.DriverName;
+                DriverVersionbeepComboBox.ListItems = versions.Where(v => v.ParentValue?.ToString() == selectedDriver).ToBindingList();
+            }
+            if (!string.IsNullOrEmpty(viewModel?.Connection?.DriverVersion))
+            {
+                DriverVersionbeepComboBox.SetValue(viewModel.Connection.DriverVersion);
+            }
+
+            this.DataContext = viewModel.Connection; // set to current connection if framework uses it
+        }
+
+        private void DriverVersionbeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem is SimpleItem v && viewModel?.Connection != null)
+            {
+                viewModel.Connection.DriverVersion = v.Value?.ToString();
+            }
         }
 
         private void DriverbeepComboBox_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
@@ -127,14 +186,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             if (e.SelectedItem != null)
             {
                 SimpleItem selectedItem = (SimpleItem)e.SelectedItem;
-                if (selectedItem.Item != null)
+                // Filter versions for the selected driver
+                DriverVersionbeepComboBox.ListItems = versions.Where(v => v.ParentValue == (string)selectedItem.Value).ToBindingList();
+
+                // Update the connection driver name when selection changes
+                if (viewModel?.Connection != null)
                 {
-                    //viewModel.InstallFolderPath = (string)selectedItem.Value;
-                   DriverVersionbeepComboBox.ListItems = versions.Where(v => v.ParentValue == (string)selectedItem.Value).ToBindingList();
-                }
-                else
-                {
-                   // viewModel.InstallFolderPath = null;
+                    viewModel.Connection.DriverName = selectedItem.Value?.ToString();
                 }
             }
         }

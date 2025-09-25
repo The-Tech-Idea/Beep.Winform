@@ -2,9 +2,13 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         Unchanged
     }
 
-    public class BeepDataRecord : BeepControl, IEditableObject
+    public class BeepDataRecord : BaseControl, IEditableObject
     {
         #region Properties
 
@@ -137,10 +141,10 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _mainPanel = new Panel // Replace with BeepPanel if available
             {
-                Dock = DockStyle.Fill,
+                Dock = DockStyle.None, // we'll size it to the Material content rect
                 AutoSize = true,
                 AutoSizeMode = AutoSizeMode.GrowAndShrink,
-                BackColor = _currentTheme?.PanelBackColor ?? Color.White
+                BackColor = BackColor // keep in sync with control background
             };
             Controls.Add(_mainPanel);
 
@@ -154,6 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _mainPanel.Controls.Add(_tableLayout);
 
             ApplyTheme();
+            UpdateMaterialLayout();
         }
 
         #endregion
@@ -247,17 +252,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 IBeepUIComponent field = ControlExtensions.CreateFieldBasedOnCategory(prop.Name, prop.PropertyType);
                 if (field != null)
                 {
-                    // Configure the control
                     field.ComponentName = prop.Name;
                     field.BoundProperty = prop.Name;
-                  
+
                     if (field is BeepTextBox textBox)
                     {
                         textBox.ShowAllBorders = false;
+                        textBox.IsChild = true;
                     }
                     else if (field is BeepComboBox comboBox && prop.PropertyType.IsEnum)
                     {
-                        // Populate combo box with enum values if applicable
+                        comboBox.IsChild = true;
                         comboBox.ListItems = new BindingList<SimpleItem>(
                             Enum.GetValues(prop.PropertyType)
                                 .Cast<object>()
@@ -298,6 +303,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_fields == null || _fields.Count == 0)
             {
                 SetupEmptyLayout();
+                _tableLayout.ResumeLayout(true);
+                PositionMainPanelToMaterialContent();
+                UpdateMaterialLayout();
                 return;
             }
 
@@ -307,12 +315,33 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SetupVerticalLayout();
 
             _tableLayout.ResumeLayout(true);
-            _mainPanel.Invalidate();
+            PositionMainPanelToMaterialContent();
+            UpdateMaterialLayout();
+        }
+
+        private void PositionMainPanelToMaterialContent()
+        {
+            // Align the inner panel to BaseControl material content area
+            Rectangle contentRect = GetAdjustedContentRectSafe();
+            _mainPanel.Bounds = contentRect;
+        }
+
+        private Rectangle GetAdjustedContentRectSafe()
+        {
+            try
+            {
+                // Prefer adjusted content rect if BaseControl implements it
+                var rect = this.GetAdjustedContentRect();
+                if (rect != Rectangle.Empty) return rect;
+            }
+            catch { }
+            UpdateDrawingRect();
+            return this.DrawingRect;
         }
 
         private void SetupHorizontalLayout()
         {
-            int columns = FieldCount;
+            int columns = Math.Max(1, FieldCount);
             int rows = ShowFieldPrompts ? 2 : 1;
 
             _tableLayout.ColumnCount = columns;
@@ -434,6 +463,23 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
 
+        #region Painting / Material Integration
+        protected override void DrawContent(Graphics g)
+        {
+            // Draw BaseControl material background/borders first
+            base.DrawContent(g);
+            // Ensure the inner panel stays aligned with material content rect
+            PositionMainPanelToMaterialContent();
+        }
+
+        protected override void OnSizeChanged(EventArgs e)
+        {
+            base.OnSizeChanged(e);
+            PositionMainPanelToMaterialContent();
+            UpdateMaterialLayout();
+        }
+        #endregion
+
         #region Event Handlers
 
         private void Field_OnValueChanged(object sender, BeepComponentEventArgs e)
@@ -526,14 +572,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-         //   base.ApplyTheme();
-            _mainPanel.BackColor = _currentTheme.PanelBackColor;
-            _tableLayout.BackColor = _currentTheme.PanelBackColor;
+            base.ApplyTheme();
+            _mainPanel.BackColor = BackColor;
+            _tableLayout.BackColor = BackColor;
             foreach (var field in _fields)
             {
                 field.Theme = Theme;
                 field.ApplyTheme();
             }
+            UpdateMaterialLayout();
         }
 
         #endregion

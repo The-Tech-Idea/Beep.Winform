@@ -8,14 +8,33 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     public enum CardViewMode
     {
-        FullImage,    // Image at top, text and button below (First image)
-        Compact,      // No image, text and button only (Second image)
-        ImageLeft     // Image on left, text and button on right (Third image)
+        FullImage,
+        Compact,
+        ImageLeft
+    }
+
+    public enum CardStyle
+    {
+        Classic,
+        MaterialElevated,
+        SoftShadow,
+        Outline,
+        AccentHeader,
+        ListTile,
+        Glass
+    }
+
+    public sealed class CardAreaClickedEventArgs : EventArgs
+    {
+        public string AreaName { get; }
+        public Rectangle AreaRect { get; }
+        public CardAreaClickedEventArgs(string name, Rectangle rect) { AreaName = name; AreaRect = rect; }
     }
 
     [ToolboxItem(true)]
@@ -37,21 +56,25 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ContentAlignment imageAlignment = ContentAlignment.TopRight;
         private ContentAlignment textAlignment = ContentAlignment.TopLeft;
         private CardViewMode viewMode = CardViewMode.FullImage;
+        private CardStyle _style = CardStyle.MaterialElevated;
         private bool showButton = true;
         private string imagePath = string.Empty;
         private Rectangle imageRect, headerRect, paragraphRect, buttonRect;
+        private ICardPainter _painter;
+        private Color _accentColor = Color.FromArgb(0, 150, 136); // teal
 
         // Events
         public event EventHandler<BeepEventDataArgs> ImageClicked;
         public event EventHandler<BeepEventDataArgs> HeaderClicked;
         public event EventHandler<BeepEventDataArgs> ParagraphClicked;
         public event EventHandler<BeepEventDataArgs> ButtonClicked;
+        public event EventHandler<CardAreaClickedEventArgs> AreaClicked; // painter-provided
         #endregion
 
         // Constructor
         public BeepCard():base()
         {
-             IsChild = false;
+            IsChild = false;
             Padding = new Padding(5);
             BoundProperty = "ParagraphText";
             InitializeComponents();
@@ -59,6 +82,37 @@ namespace TheTechIdea.Beep.Winform.Controls
             ApplyThemeToChilds = false;
             ApplyTheme();
             CanBeHovered = true;
+            InitializePainter();
+        }
+
+        private void InitializePainter()
+        {
+            switch (_style)
+            {
+                case CardStyle.MaterialElevated:
+                    _painter = new MaterialElevatedCardPainter();
+                    break;
+                case CardStyle.SoftShadow:
+                    _painter = new SoftShadowCardPainter();
+                    break;
+                case CardStyle.Outline:
+                    _painter = new OutlineCardPainter();
+                    break;
+                case CardStyle.AccentHeader:
+                    _painter = new AccentHeaderCardPainter();
+                    break;
+                case CardStyle.ListTile:
+                    _painter = new ListTileCardPainter();
+                    break;
+                case CardStyle.Glass:
+                    _painter = new GlassCardPainter();
+                    break;
+                case CardStyle.Classic:
+                default:
+                    _painter = new OutlineCardPainter();
+                    break;
+            }
+            _painter?.Initialize(this, _currentTheme);
         }
 
         // Initialize the components
@@ -121,26 +175,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
-
-            // Calculate the layout rectangles
             RefreshLayout();
 
-            // Draw components
-            if (!string.IsNullOrEmpty(imagePath) && imageBox.Visible)
+            // Prepare painter layout context and let painter draw background and accents
+            var ctx = new LayoutContext
             {
-                imageBox.Draw(g, imageRect);
+                DrawingRect = DrawingRect,
+                ImageRect = imageRect,
+                HeaderRect = headerRect,
+                ParagraphRect = paragraphRect,
+                ButtonRect = buttonRect,
+                ShowImage = !string.IsNullOrEmpty(imagePath) && imageBox.Visible,
+                ShowButton = showButton,
+                Radius = BorderRadius,
+                AccentColor = _accentColor
+            };
+
+            _painter?.Initialize(this, _currentTheme);
+            ctx = _painter?.AdjustLayout(DrawingRect, ctx) ?? ctx;
+
+            _painter?.DrawBackground(g, ctx);
+
+            if (ctx.ShowImage && imageBox.Visible && ctx.ImageRect != Rectangle.Empty)
+            {
+                imageBox.Draw(g, ctx.ImageRect);
             }
 
-            headerLabel.Draw(g, headerRect);
-            paragraphLabel.Draw(g, paragraphRect);
+            headerLabel.Draw(g, ctx.HeaderRect);
+            paragraphLabel.Draw(g, ctx.ParagraphRect);
 
-            if (showButton)
+            if (ctx.ShowButton)
             {
-                actionButton.Draw(g, buttonRect);
+                actionButton.Draw(g, ctx.ButtonRect);
             }
 
-            // Refresh hit areas 
-            RefreshHitAreas();
+            _painter?.DrawForegroundAccents(g, ctx);
+
+            RefreshHitAreas(ctx);
+            _painter?.UpdateHitAreas(this, ctx, (name, rect) => AreaClicked?.Invoke(this, new CardAreaClickedEventArgs(name, rect)));
         }
 
         private void RefreshLayout()
@@ -158,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size measuredHeader = headerLabel.GetPreferredSize(Size.Empty);
             int headerMeasuredHeight = measuredHeader.Height;
 
-            Size measuredParagraph = paragraphLabel.GetPreferredSize(Size.Empty); 
+            Size measuredParagraph = paragraphLabel.GetPreferredSize(Size.Empty);
             int paragraphMeasuredHeight = measuredParagraph.Height;
 
             Size buttonSize = actionButton.GetPreferredSize(Size.Empty);
@@ -216,31 +288,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        private void RefreshHitAreas()
+        private void RefreshHitAreas(LayoutContext ctx)
         {
             ClearHitList();
 
-            if (!string.IsNullOrEmpty(imagePath) && imageBox.Visible)
+            if (!string.IsNullOrEmpty(imagePath) && imageBox.Visible && ctx.ImageRect != Rectangle.Empty)
             {
-                AddHitArea("Image", imageRect, imageBox, () => 
+                AddHitArea("Image", ctx.ImageRect, imageBox, () =>
                 {
                     ImageClicked?.Invoke(this, new BeepEventDataArgs("ImageClicked", this));
                 });
             }
 
-            AddHitArea("Header", headerRect, headerLabel, () => 
+            AddHitArea("Header", ctx.HeaderRect, headerLabel, () =>
             {
                 HeaderClicked?.Invoke(this, new BeepEventDataArgs("HeaderClicked", this));
             });
 
-            AddHitArea("Paragraph", paragraphRect, paragraphLabel, () => 
+            AddHitArea("Paragraph", ctx.ParagraphRect, paragraphLabel, () =>
             {
                 ParagraphClicked?.Invoke(this, new BeepEventDataArgs("ParagraphClicked", this));
             });
 
-            if (showButton)
+            if (ctx.ShowButton && ctx.ButtonRect != Rectangle.Empty)
             {
-                AddHitArea("Button", buttonRect, actionButton, () => 
+                AddHitArea("Button", ctx.ButtonRect, actionButton, () =>
                 {
                     ButtonClicked?.Invoke(this, new BeepEventDataArgs("ButtonClicked", this));
                 });
@@ -250,41 +322,54 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;
-            
+
             BackColor = _currentTheme.CardBackColor;
-            
-            // Apply theme to header label
+
             headerLabel.Theme = Theme;
             headerLabel.ForeColor = _currentTheme.CardHeaderStyle.TextColor;
             headerLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
             headerLabel.BackColor = _currentTheme.CardBackColor;
-            
-            // Apply theme to paragraph label
+
             paragraphLabel.Theme = Theme;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
             paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;
-            
-            // Apply theme to action button
+
             actionButton.Theme = Theme;
             actionButton.IsRounded = IsRounded;
             actionButton.BorderRadius = BorderRadius;
             actionButton.BorderThickness = BorderThickness;
-            
-            // Apply theme to image
+
             imageBox.Theme = Theme;
             imageBox.BackColor = _currentTheme.CardBackColor;
-            
+
+            InitializePainter();
             Invalidate();
         }
 
-        // Add property change notifications to trigger layout updates
+        #region Properties
         [Category("Appearance")]
         [Description("The view mode of the card (FullImage, Compact, ImageLeft).")]
         public CardViewMode ViewMode
         {
             get => viewMode;
             set { viewMode = value; RefreshLayout(); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Visual style painter for the card background and accents.")]
+        public CardStyle Style
+        {
+            get => _style;
+            set { _style = value; InitializePainter(); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Accent color used by some styles (e.g., header stripe, badges).")]
+        public Color AccentColor
+        {
+            get => _accentColor;
+            set { _accentColor = value; Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -366,6 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => textAlignment;
             set { textAlignment = value; paragraphLabel.TextAlign = value; RefreshLayout(); Invalidate(); }
         }
+        #endregion
 
         protected override void Dispose(bool disposing)
         {

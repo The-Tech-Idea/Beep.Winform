@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.BreadCrumbs.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -14,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Breadcrumps")]
     [Category("Beep Controls")]
     [Description("Enhanced breadcrumb navigation with hit area support and advanced styling")]
-    public class BeepBreadcrumps : BeepControl
+    public class BeepBreadcrump : BaseControl
     {
         #region Fields
         private BeepButton button;
@@ -33,6 +35,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BreadcrumbStyle _style = BreadcrumbStyle.Modern;
         private bool _showIcons = true;
         private bool _showHomeIcon = true;
+
+        private IBreadcrumbPainter _painter; // strategy painter per style
         #endregion
 
         #region Properties
@@ -59,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Text font for breadcrumb items")]
         public Font TextFont
         {
-            get => Font;
+            get => _textFont;
             set
             {
                 _textFont = value ?? new Font("Segoe UI", 9);
@@ -103,8 +107,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _style;
             set
             {
-                _style = value;
-                Invalidate();
+                if (_style != value)
+                {
+                    _style = value;
+                    InitializePainter();
+                    Invalidate();
+                }
             }
         }
 
@@ -141,7 +149,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _selectedItem = value;
-                OnCrumbClicked(new CrumbClickedEventArgs(_selectedIndex, _selectedItem.Name,_selectedItem.Text));
+                if (_selectedItem != null)
+                {
+                    OnCrumbClicked(new CrumbClickedEventArgs(_selectedIndex, _selectedItem.Name, _selectedItem.Text));
+                }
                 Invalidate();
             }
         }
@@ -173,7 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region Constructor
-        public BeepBreadcrumps()
+        public BeepBreadcrump()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                     ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
@@ -186,6 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             InitializeDrawingComponents();
             _items.ListChanged += Items_ListChanged;
+            InitializePainter();
 
             // Add some default items for design-time experience
             if (DesignMode)
@@ -194,6 +206,30 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _items.Add(new SimpleItem { Name = "Documents", Text = "Documents", ImagePath = "folder.svg" });
                 _items.Add(new SimpleItem { Name = "Current", Text = "Current", ImagePath = "file.svg" });
             }
+        }
+
+        private void InitializePainter()
+        {
+            // Select painter based on Style
+            switch (_style)
+            {
+                case BreadcrumbStyle.Classic:
+                    _painter = new ClassicBreadcrumbPainter();
+                    break;
+                case BreadcrumbStyle.Modern:
+                    _painter = new ModernBreadcrumbPainter();
+                    break;
+                case BreadcrumbStyle.Pill:
+                    _painter = new PillBreadcrumbPainter();
+                    break;
+                case BreadcrumbStyle.Flat:
+                default:
+                    _painter = new FlatBreadcrumbPainter();
+                    break;
+            }
+
+            // Initialize with current theme and font
+            _painter?.Initialize(this, _currentTheme, _textFont ?? Font, _showIcons);
         }
 
         private void InitializeDrawingComponents()
@@ -246,13 +282,15 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             foreach (var item in _items)
             {
+                if (item == null) continue;
+                var key = item.Name ?? Guid.NewGuid().ToString();
                 var state = new BreadcrumbState
                 {
                     Item = item,
                     IsHovered = false,
                     IsSelected = false
                 };
-                _itemStates[item.Name] = state;
+                _itemStates[key] = state;
             }
 
             Invalidate();
@@ -274,23 +312,35 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawBreadcrumbItems(Graphics g)
         {
+            if (_painter == null)
+            {
+                InitializePainter();
+            }
+            _painter?.Initialize(this, _currentTheme, _textFont ?? Font, _showIcons);
+
             int x = DrawingRect.Left + 5;
             int y = DrawingRect.Top;
             int itemHeight = DrawingRect.Height;
 
+            Color sepColor = _currentTheme != null
+                ? Color.FromArgb(128, _currentTheme.LabelForeColor)
+                : Color.FromArgb(128, ForeColor);
+
             for (int i = 0; i < _items.Count; i++)
             {
                 var item = _items[i];
-                var state = _itemStates.ContainsKey(item.Name) ? _itemStates[item.Name] : null;
+                if (item == null) continue;
+                var key = item.Name ?? string.Empty;
+                var state = _itemStates.ContainsKey(key) ? _itemStates[key] : null;
                 bool isHovered = state?.IsHovered ?? false;
                 bool isSelected = state?.IsSelected ?? false;
                 bool isLast = i == _items.Count - 1;
 
                 // Calculate item dimensions
-                var itemRect = CalculateItemRect(g, item, x, y, itemHeight, isHovered);
+                var itemRect = _painter.CalculateItemRect(g, item, x, y, itemHeight, isHovered);
 
                 // Draw the breadcrumb item
-                DrawBreadcrumbItem(g, item, itemRect, isHovered, isSelected, isLast);
+                _painter.DrawItem(g, button, item, itemRect, isHovered, isSelected, isLast);
 
                 // Add hit area
                 AddHitArea(
@@ -306,151 +356,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Draw separator if not last item
                 if (!isLast)
                 {
-                    x += DrawSeparator(g, x, y, itemHeight);
+                    x += _painter.DrawSeparator(g, label, x, y, itemHeight, _separatorText, _textFont ?? Font, sepColor, _itemSpacing);
                 }
             }
-        }
-
-        private Rectangle CalculateItemRect(Graphics g, SimpleItem item, int x, int y, int height, bool isHovered)
-        {
-            string displayText = item.Text ?? item.Name ?? "";
-            var textSize = TextRenderer.MeasureText(displayText, Font);
-
-            int iconWidth = (_showIcons && !string.IsNullOrEmpty(item.ImagePath)) ? 20 : 0;
-            int padding = 8;
-            int width = textSize.Width + padding * 2 + iconWidth + (iconWidth > 0 ? 4 : 0);
-
-            if (isHovered && _style == BreadcrumbStyle.Modern)
-            {
-                width += 4; // Extra padding for hover effect
-                height -= 2; // Slight height reduction for modern effect
-                y += 1;
-            }
-
-            return new Rectangle(x, y, width, height);
-        }
-
-        private void DrawBreadcrumbItem(Graphics g, SimpleItem item, Rectangle rect, bool isHovered, bool isSelected, bool isLast)
-        {
-            string displayText = item.Text ?? item.Name ?? "";
-
-            // Configure the reusable button component
-            button.Text = displayText;
-            button.ImagePath = (_showIcons && !string.IsNullOrEmpty(item.ImagePath)) ? item.ImagePath : "";
-            button.IsHovered = isHovered;
-            button.IsSelected = isSelected;
-
-            // Apply style-specific appearance
-            switch (_style)
-            {
-                case BreadcrumbStyle.Classic:
-                    DrawClassicStyle(g, button, rect, isHovered, isLast);
-                    break;
-                case BreadcrumbStyle.Modern:
-                    DrawModernStyle(g, button, rect, isHovered, isLast);
-                    break;
-                case BreadcrumbStyle.Pill:
-                    DrawPillStyle(g, button, rect, isHovered, isLast);
-                    break;
-                case BreadcrumbStyle.Flat:
-                    DrawFlatStyle(g, button, rect, isHovered, isLast);
-                    break;
-            }
-
-            // Draw the button content
-            button.Draw(g, rect);
-        }
-
-        private void DrawClassicStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
-        {
-            if (isHovered)
-            {
-                using (var brush = new SolidBrush(Color.FromArgb(50, _currentTheme.ButtonHoverBackColor)))
-                {
-                    g.FillRectangle(brush, rect);
-                }
-                using (var pen = new Pen(_currentTheme.ButtonHoverBorderColor, 1))
-                {
-                    g.DrawRectangle(pen, rect);
-                }
-            }
-
-            btn.BackColor = isHovered ? Color.FromArgb(30, _currentTheme.ButtonHoverBackColor) : Color.Transparent;
-            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
-        }
-
-        private void DrawModernStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
-        {
-            if (isHovered)
-            {
-                using (var path = GetRoundedRectPath(rect, 4))
-                using (var brush = new SolidBrush(Color.FromArgb(40, _currentTheme.ButtonHoverBackColor)))
-                {
-                    g.FillPath(brush, path);
-                }
-            }
-
-            btn.BackColor = Color.Transparent;
-            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
-            btn.IsRounded = true;
-            btn.BorderRadius = 4;
-        }
-
-        private void DrawPillStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
-        {
-            var pillRect = new Rectangle(rect.X, rect.Y + 4, rect.Width, rect.Height - 8);
-
-            using (var path = GetRoundedRectPath(pillRect, pillRect.Height / 2))
-            {
-                if (isHovered)
-                {
-                    using (var brush = new SolidBrush(Color.FromArgb(60, _currentTheme.ButtonHoverBackColor)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                }
-
-                if (isLast)
-                {
-                    using (var brush = new SolidBrush(Color.FromArgb(80, _currentTheme.ButtonBackColor)))
-                    {
-                        g.FillPath(brush, path);
-                    }
-                }
-            }
-
-            btn.BackColor = Color.Transparent;
-            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
-        }
-
-        private void DrawFlatStyle(Graphics g, BeepButton btn, Rectangle rect, bool isHovered, bool isLast)
-        {
-            if (isHovered)
-            {
-                var underlineRect = new Rectangle(rect.X, rect.Bottom - 2, rect.Width, 2);
-                using (var brush = new SolidBrush(_currentTheme.LinkColor))
-                {
-                    g.FillRectangle(brush, underlineRect);
-                }
-            }
-
-            btn.BackColor = Color.Transparent;
-            btn.ForeColor = isLast ? _currentTheme.ButtonForeColor : _currentTheme.LinkColor;
-        }
-
-        private int DrawSeparator(Graphics g, int x, int y, int height)
-        {
-            // Configure the reusable label for separator
-            label.Text = _separatorText;
-            label.ForeColor = Color.FromArgb(128, _currentTheme.LabelForeColor);
-            label.BackColor = Color.Transparent;
-
-            var sepSize = TextRenderer.MeasureText(_separatorText, Font);
-            var sepRect = new Rectangle(x + _itemSpacing, y, sepSize.Width, height);
-
-            label.Draw(g, sepRect);
-
-            return sepRect.Width + _itemSpacing;
         }
         #endregion
 
@@ -471,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (itemIndex < _items.Count)
                         {
-                            _hoveredItemName = _items[itemIndex].Name;
+                            _hoveredItemName = _items[itemIndex]?.Name;
                         }
                     }
                 }
@@ -513,7 +421,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 state.IsSelected = state.Item == item;
             }
 
-            OnCrumbClicked(new CrumbClickedEventArgs(index, item.Name,item.Text));
+            OnCrumbClicked(new CrumbClickedEventArgs(index, item?.Name, item?.Text));
             Invalidate();
         }
         #endregion
@@ -536,7 +444,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var item = _items[index];
                 _items.RemoveAt(index);
-                _itemStates.Remove(item.Name);
+                if (item != null && !string.IsNullOrEmpty(item.Name))
+                {
+                    _itemStates.Remove(item.Name);
+                }
             }
         }
 
@@ -575,7 +486,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 if (UseThemeFont)
                 {
-                    Font = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
+                    _textFont?.Dispose();
+                    _textFont = BeepThemesManager.ToFont(_currentTheme.LabelSmall);
                 }
 
                 // Apply theme to drawing components
@@ -589,6 +501,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 image.ApplyTheme();
             }
 
+            InitializePainter();
             Invalidate();
         }
         #endregion
@@ -598,12 +511,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (disposing)
             {
-                _items.ListChanged -= Items_ListChanged;
+                if (_items != null)
+                {
+                    _items.ListChanged -= Items_ListChanged;
+                }
             }
             base.Dispose(disposing);
         }
         #endregion
     }
 
-  
+    
 }

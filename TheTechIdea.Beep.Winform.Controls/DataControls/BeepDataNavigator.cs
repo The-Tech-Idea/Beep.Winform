@@ -1,21 +1,36 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.DataControls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
+    public enum DataNavigatorStyle
+    {
+        Classic,
+        MaterialBar,
+        OutlineBar,
+        SoftShadowBar,
+        GlassBar,
+        FlatUnderline,
+        Pill
+    }
+
     [ToolboxItem(true)]
     [DisplayName("Beep Data Navigator")]
     [Category("Beep Controls")]
     [Description("A data navigator control for CRUD operations.")]
-    public class BeepDataNavigator : BeepControl
+    public class BeepDataNavigator : BaseControl
     {
         public BeepButton btnFirst, btnPrevious, btnNext, btnLast, btnInsert, btnDelete, btnSave, btnCancel;
         public BeepButton btnQuery, btnFilter,btnPrint,btnEmail;
         public BeepButton txtPosition;
         public bool IsInQueryMode { get; private set; } = false;
+        private INavigatorPainter _painter;
+        private DataNavigatorStyle _style = DataNavigatorStyle.MaterialBar;
+        private Color _accentColor = Color.FromArgb(0, 150, 136);
+
         public IUnitofWork UnitOfWork
         {
             get => _unitOfWork;
@@ -25,7 +40,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     if (_unitOfWork != null)
                     {
-                        // Unsubscribe from previous events
                         _unitOfWork.Units.CurrentChanged -= Units_CurrentChanged;
                     }
 
@@ -33,7 +47,6 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (_unitOfWork != null)
                     {
-                        // Subscribe to new events
                         _unitOfWork.Units.CurrentChanged += Units_CurrentChanged;
                     }
                     UpdateRecordCountDisplay();
@@ -57,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showsendemail = value;
-                btnEmail.Visible = value;
+                if (btnEmail != null) btnEmail.Visible = value;
                 ArrangeControls();
                 Invalidate();
             }
@@ -68,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _showprint = value;
-                btnPrint.Visible = value;
+                if (btnPrint != null) btnPrint.Visible = value;
                 ArrangeControls();
                 Invalidate();
             }
@@ -89,7 +102,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _buttonHeight = value;
-               // adjustedHeight = ButtonHeight + (YOffset * 2);
                 ArrangeControls();
                 Invalidate();
             }
@@ -98,7 +110,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         public int YOffset { get; set; } = 1;
         int adjustedHeight;
 
-        // Events for CRUD actions
         public event EventHandler<BeepEventDataArgs> NewRecordCreated;
         public event EventHandler<BeepEventDataArgs> SaveCalled;
         public event EventHandler<BeepEventDataArgs> DeleteCalled;
@@ -127,11 +138,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             CreateNavigator();
             IsShadowAffectedByTheme = false;
             IsBorderAffectedByTheme = false;
-            //ApplyThemeToChilds = true;
             txtPosition.IsFrameless = true;
             txtPosition.MouseEnter += TxtPosition_MouseEnter;
             txtPosition.MouseHover += TxtPosition_MouseHover;
+            InitializePainter();
         }
+
+        private void InitializePainter()
+        {
+            switch (_style)
+            {
+                case DataNavigatorStyle.MaterialBar:
+                    _painter = new MaterialBarNavigatorPainter();
+                    break;
+                case DataNavigatorStyle.OutlineBar:
+                    _painter = new OutlineBarNavigatorPainter();
+                    break;
+                case DataNavigatorStyle.SoftShadowBar:
+                    _painter = new SoftShadowBarNavigatorPainter();
+                    break;
+                case DataNavigatorStyle.GlassBar:
+                    _painter = new GlassBarNavigatorPainter();
+                    break;
+                case DataNavigatorStyle.FlatUnderline:
+                    _painter = new FlatUnderlineNavigatorPainter();
+                    break;
+                case DataNavigatorStyle.Pill:
+                    _painter = new PillNavigatorPainter();
+                    break;
+                case DataNavigatorStyle.Classic:
+                default:
+                    _painter = new OutlineBarNavigatorPainter();
+                    break;
+            }
+            _painter?.Initialize(this, _currentTheme);
+        }
+
         private void TxtPosition_MouseEnter(object? sender, EventArgs e)
         {
             txtPosition.IsHovered = false;
@@ -144,10 +186,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.InitLayout();
             _isinit = true;
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
+            if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
-                Height = ButtonHeight + (YOffset * 2); // Include YOffset
+                Height = ButtonHeight + (YOffset * 2);
             }
             _isinit = false;
             ArrangeControls();
@@ -156,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
             GetDimensions();
-            ArrangeControls(); // Rearrange controls on resize
+            ArrangeControls();
         }
         private void CreateNavigator()
         {
@@ -170,19 +212,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.floppy-disk.svg");
             btnCancel = CreateButton("Rollback", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg");
 
-            btnFirst = CreateButton("First", btnFirst_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-left.svg");
-            btnPrevious = CreateButton("Previous", btnPrevious_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-left.svg");
-            btnNext = CreateButton("Next", btnNext_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-small-right.svg");
-            btnLast = CreateButton("Last", btnLast_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.angle-double-small-right.svg");
-            btnInsert = CreateButton("Insert", btnInsert_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.add.svg");
-            btnDelete = CreateButton("Delete", btnDelete_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.minus.svg");
-            btnSave = CreateButton("Save", btnSave_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.floppy-disk.svg");
-            btnCancel = CreateButton("Rollback", btnCancel_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.back-button.svg");
+            btnQuery = CreateButton("Query", btnQuery_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg");
+            btnFilter = CreateButton("Filter", btnFilter_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.filter.svg");
+            btnPrint = CreateButton("Print", btnPrint_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg");
+            btnEmail = CreateButton("Email", btnEmail_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg");
+
             SetThemeEffects(btnLast);
             SetThemeEffects(btnInsert);
             SetThemeEffects(btnDelete);
             SetThemeEffects(btnSave);
             SetThemeEffects(btnCancel);
+            SetThemeEffects(btnQuery);
+            SetThemeEffects(btnFilter);
+            SetThemeEffects(btnPrint);
+            SetThemeEffects(btnEmail);
 
             txtPosition = new BeepButton
             {
@@ -205,25 +248,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 OverrideFontSize = TypeStyleFontSize.Small
             };
 
-           
-
-            btnQuery = CreateButton("Query", btnQuery_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.search.svg");
-            btnFilter = CreateButton("Filter", btnFilter_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.filter.svg");
-            btnPrint = CreateButton("Print", btnPrint_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.print.svg");
-            btnEmail = CreateButton("Email", btnEmail_Click, "TheTechIdea.Beep.Winform.Controls.GFX.SVG.mail.svg");
-            SetThemeEffects(btnQuery);
-            SetThemeEffects(btnFilter);
-            SetThemeEffects(btnPrint);
-            SetThemeEffects(btnEmail);
-
             Controls.AddRange(new Control[]
             {
                 btnFirst, btnPrevious, btnNext, btnLast, txtPosition,
                 btnInsert, btnDelete, btnSave, btnCancel, btnQuery, btnFilter, btnPrint, btnEmail
             });
-
-
-
 
             ArrangeControls();
         }
@@ -241,20 +270,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             drawRectWidth = DrawingRect.Width;
             drawRectHeight = DrawingRect.Height;
             txtPosition.SetFont();
-            int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10; // Add padding
+            int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10;
             txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, txtPosition.Height));
-         
+
             if(adjustedHeight ==0)
             {
                 adjustedHeight = ButtonHeight + ((BorderThickness+YOffset) * 2);
-                // _buttonHeight = adjustedHeight - ((BorderThickness + YOffset) * 2);
                 return;
             }
             if (drawRectHeight < ButtonHeight )
             {
                 adjustedHeight= drawRectHeight + ((BorderThickness + YOffset) * 2);
                 _buttonHeight = adjustedHeight - ((BorderThickness + YOffset) * 2);
-                // resize all button heights
                 foreach (var item in Controls)
                 {
                     if (item is BeepButton)
@@ -265,17 +292,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 }
             }
-          this.Height = adjustedHeight;
-            //   adjustedHeight = _buttonHeight + (YOffset * 2); // Adjusted height includes YOffset
+            this.Height = adjustedHeight;
         }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
         {
             GetDimensions();
-            // Enforce a fixed height
-           // if(txtPosition.Height > adjustedHeight)
-           // {
-              // adjustedHeight= txtPosition.Height+(YOffset*2);
-           // }
             base.SetBoundsCore(x, y, width, adjustedHeight, specified);
         }
         private BeepButton CreateButton(string text, EventHandler onClick, string imagepath = null)
@@ -305,17 +326,31 @@ namespace TheTechIdea.Beep.Winform.Controls
             btn.Click += onClick;
             return btn;
         }
-        private void ArrangeControls()
+        protected override void DrawContent(Graphics g)
         {
-            // Ensure DrawingRect is updated
+            // Let BaseControl (Material helper) draw first
+            base.DrawContent(g);
             UpdateDrawingRect();
 
-            // Decide which layout to use depending on parent grid style
+            var ctx = new NavigatorLayout
+            {
+                DrawingRect = DrawingRect,
+                Radius = BorderRadius,
+                AccentColor = _accentColor,
+            };
+            _painter?.Initialize(this, _currentTheme);
+            ctx = _painter?.AdjustLayout(DrawingRect, ctx) ?? ctx;
+            _painter?.DrawBackground(g, ctx);
+            _painter?.DrawForeground(g, ctx);
+        }
+        private void ArrangeControls()
+        {
+            UpdateDrawingRect();
+
             bool professionalStyle = false;
             try
             {
                 var parentGrid = this.Parent as TheTechIdea.Beep.Winform.Controls.Grid.BeepGrid;
-                // If we are hosted inside BeepGrid (classic) check GridStyle
                 if (parentGrid != null)
                 {
                     var style = (GridX.BeepGridStyle)parentGrid.GridStyle;
@@ -332,7 +367,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             catch { professionalStyle = false; }
 
-            // Calculate total width for visible buttons/label
             int visibleButtons = 0;
             foreach (var control in Controls)
             {
@@ -343,26 +377,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             int totalButtonWidth = (ButtonWidth + buttonSpacing) * visibleButtons;
-            int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10; // Add padding
+            int totalLabelWidth = TextRenderer.MeasureText(txtPosition.Text, txtPosition.Font).Width + 10;
             int totalWidth = totalButtonWidth + totalLabelWidth + buttonSpacing;
 
-            // Center the buttons and txtPosition horizontally within DrawingRect
             int centerX = DrawingRect.Left + (DrawingRect.Width - totalWidth) / 2;
-
-            // Align controls vertically within DrawingRect
             int centerY = DrawingRect.Top + (DrawingRect.Height - ButtonHeight) / 2;
 
-            // Arrange buttons sequentially
             int currentX = centerX;
 
             if (professionalStyle)
             {
-                // Only place the position label centered; hide small pager buttons
                 foreach (var control in Controls)
                 {
                     if (control is BeepButton button)
                     {
-                        // Keep action buttons visible, but hide tiny navigation buttons
                         if (button == btnFirst || button == btnPrevious || button == btnNext || button == btnLast)
                         {
                             button.Visible = false;
@@ -371,7 +399,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                 }
 
-                // Center the position label
                 txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, ButtonHeight));
                 int labelX = DrawingRect.Left + (DrawingRect.Width - txtPosition.Width) / 2;
                 txtPosition.Location = new Point(labelX, centerY);
@@ -387,12 +414,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                     currentX += ButtonWidth + buttonSpacing;
                 }
             }
-            // Arrange txtPosition (Position label)
             txtPosition.Size = txtPosition.GetPreferredSize(new Size(totalLabelWidth, ButtonHeight));
             txtPosition.Location = new Point(currentX, centerY);
             currentX += txtPosition.Width + buttonSpacing;
 
-            // Handle optional buttons like Email and Print
             if (ShowSendEmail && btnEmail.Visible)
             {
                 btnEmail.Location = new Point(currentX, centerY);
@@ -409,7 +434,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void Units_CurrentChanged(object sender, EventArgs e)
         {
             UpdateRecordCountDisplay();
-            UpdateNavigationButtonState(); // Update buttons when the current index changes
+            UpdateNavigationButtonState();
         }
 
 
@@ -427,7 +452,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        // Event handlers for navigation buttons
         private void btnQuery_Click(object sender, EventArgs e)
         {
             QueryCalled?.Invoke(this, new BeepEventDataArgs("Query", null));
@@ -478,7 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void btnInsert_Click(object sender, EventArgs e)
         {
             var args = new BeepEventDataArgs("Insert", null);
-            NewRecordCreated?.Invoke(this, args); // Raise event for the parent control to handle
+            NewRecordCreated?.Invoke(this, args);
             if (args.Cancel)
             {
                 return;
@@ -493,7 +517,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void btnDelete_Click(object sender, EventArgs e)
         {
             var args = new BeepEventDataArgs("Delete", null);
-            DeleteCalled?.Invoke(this, args); // Raise event for the parent control to handle
+            DeleteCalled?.Invoke(this, args);
             if(args.Cancel)
             {
                 return;
@@ -508,7 +532,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void btnSave_Click(object sender, EventArgs e)
         {
             var args = new BeepEventDataArgs("Save", null);
-            SaveCalled?.Invoke(this, args); // Raise event for the parent control to handle
+            SaveCalled?.Invoke(this, args);
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
@@ -516,7 +540,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var args = new BeepEventDataArgs("Rollback", null);
             if (MessageBox.Show(this.Parent, "Are you sure you want to cancel Changes?", "Beep", MessageBoxButtons.OKCancel, MessageBoxIcon.Question) == DialogResult.OK)
             {
-                RollbackCalled?.Invoke(this, args); // Raise event for the parent control to handle
+                RollbackCalled?.Invoke(this, args);
                 if (args.Cancel)
                 {
                     return;
@@ -536,9 +560,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void HighlightCurrentRecord()
         {
-            // Assuming UnitOfWork.Units.CurrentIndex is exposed
             var currentIndex = UnitOfWork.Units.CurrentIndex;
-            // Update UI styling to reflect the current record
         }
         private void UpdateNavigationButtonState()
         {
@@ -564,14 +586,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             foreach (Control ctrl in Controls)
             {
-                // apply theme to all child controls
                 if (ctrl is BeepControl)
                 {
                     ((BeepControl)ctrl).Theme = Theme;
                 }
             }
             txtPosition.Theme = Theme;
+            InitializePainter();
             Invalidate();
+        }
+
+        [Category("Appearance")]
+        public DataNavigatorStyle Style
+        {
+            get => _style;
+            set { _style = value; InitializePainter(); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public Color AccentColor
+        {
+            get => _accentColor;
+            set { _accentColor = value; Invalidate(); }
         }
     }
 }

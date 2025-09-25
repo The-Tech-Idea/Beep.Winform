@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public RectangleF GetScaledBounds(SizeF imageSize, Rectangle targetRect)
         {
-            if (_dpi == null || DisableDpiAndScaling) return new RectangleF(targetRect.Location, targetRect.Size);
+            if (_dpi == null || DisableDpiAndScaling) return new RectangleF(targetRect.Location, new SizeF(imageSize.Width, imageSize.Height));
             return _dpi.GetScaledBounds(imageSize, targetRect, ScaleMode);
         }
 
@@ -264,6 +264,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public override Size GetPreferredSize(Size proposedSize)
         {
             _paint.UpdateRects();
+
+            // If Material style is on, include label/supporting text in preferred size
+            if (EnableMaterialStyle)
+            {
+                int width = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
+                int height = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
+
+                int baseMin = GetMaterialMinimumHeight();
+
+                int extraTop = 0;
+                int extraBottom = 0;
+                try
+                {
+                    using var g = CreateGraphics();
+                    if (!string.IsNullOrEmpty(LabelText))
+                    {
+                        int lblH = TextRenderer.MeasureText(g, "Ag", Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                        extraTop = Math.Max(10, (int)Math.Ceiling(lblH * 0.75)) + 2;
+                    }
+                    string supporting = !string.IsNullOrEmpty(ErrorText) ? ErrorText : HelperText;
+                    if (!string.IsNullOrEmpty(supporting))
+                    {
+                        using var supportFont = new Font(Font.FontFamily, Math.Max(8f, Font.Size - 1f));
+                        int supH = TextRenderer.MeasureText(g, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                        extraBottom = supH + 4;
+                    }
+                }
+                catch { }
+
+                int requiredH = baseMin + extraTop + extraBottom;
+                var effects = GetMaterialEffectsSpace();
+                requiredH += effects.Height;
+                requiredH = Math.Max(requiredH, Height);
+
+                return new Size(Math.Max(Width, width), requiredH);
+            }
+
             var drawingRect = _paint.DrawingRect;
             int adjustedWidth = drawingRect.Width;
             int adjustedHeight = drawingRect.Height;
@@ -413,7 +450,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _materialHelper.SetElevation(_bcElevationLevel);
             _materialHelper.SetElevationEnabled(_bcUseElevation);
 
+            // 1) Draw main MD field (bg, border, icons, etc.)
             _materialHelper.DrawAll(g);
+
+            // 2) Draw LabelText (floating style simplified) inside/outside based on variant
+            if (!string.IsNullOrEmpty(LabelText))
+            {
+                using var labelFont = new Font(Font, FontStyle.Regular);
+                Color labelColor = HasError ? ErrorColor : (_currentTheme?.SecondaryTextColor ?? ForeColor);
+
+                Rectangle fieldRect = _materialHelper.GetFieldRect();
+                Rectangle labelRect = new Rectangle(fieldRect.Left + 8, Math.Max(2, fieldRect.Top - (int)(labelFont.Height * 0.8)), fieldRect.Width - 16, labelFont.Height);
+                if (MaterialVariant != MaterialTextFieldVariant.Outlined)
+                {
+                    labelRect = new Rectangle(fieldRect.Left + 8, fieldRect.Top - labelFont.Height - 2, fieldRect.Width - 16, labelFont.Height);
+                }
+                TextRenderer.DrawText(g, LabelText, labelFont, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            // 3) Draw ErrorText or HelperText below field
+            string supporting = string.Empty;
+            Color supportingColor = (_currentTheme?.SecondaryTextColor ?? ForeColor);
+            if (HasError && !string.IsNullOrEmpty(ErrorText))
+            {
+                supporting = ErrorText;
+                supportingColor = ErrorColor;
+            }
+            else if (!string.IsNullOrEmpty(HelperText))
+            {
+                supporting = HelperText;
+                supportingColor = _currentTheme?.SecondaryTextColor ?? ForeColor;
+            }
+
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                using var supportFont = new Font(Font.FontFamily, Math.Max(8f, Font.Size - 1f), FontStyle.Regular);
+                var rect = _materialHelper.GetSupportingTextRect(supportFont.Height);
+                if (rect.Width > 10 && rect.Height > 0)
+                {
+                    TextRenderer.DrawText(g, supporting, supportFont, rect, supportingColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                }
+            }
         }
     
         /// <summary>

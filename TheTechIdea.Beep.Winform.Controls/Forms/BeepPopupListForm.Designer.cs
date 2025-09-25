@@ -119,20 +119,20 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.IsDirty = false;
             _beepListBox.IsEditable = false;
             _beepListBox.IsFocused = false;
-            _beepListBox.IsFocusedOn = true;
+           
             _beepListBox.IsFrameless = false;
             _beepListBox.IsHovered = false;
-            _beepListBox.IsHoveringOn = true;
+
             _beepListBox.IsItemChilds = true;
             _beepListBox.IsNew = false;
             _beepListBox.IsPressed = false;
-            _beepListBox.IsPressedOn = true;
+         
             _beepListBox.IsReadOnly = false;
             _beepListBox.IsRequired = false;
             _beepListBox.IsRounded = true;
             _beepListBox.IsRoundedAffectedByTheme = true;
             _beepListBox.IsSelected = false;
-            _beepListBox.IsSelectedOn = true;
+        
             _beepListBox.IsSelectedOptionOn = false;
             _beepListBox.IsShadowAffectedByTheme = true;
             _beepListBox.IsValid = true;

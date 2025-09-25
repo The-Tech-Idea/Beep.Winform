@@ -129,19 +129,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             InitializeComponent();
             _beepListBox.EnableMaterialStyle = false;
-            _beepListBox.IsFocusedOn = false;
-            _beepListBox.IsSelectedOn = false;
-            _beepListBox.IsHoveringOn = false;
-            _beepListBox.IsPressedOn = false;
+            _beepListBox.CanBeFocused = false;
+            _beepListBox.CanBeSelected = false;
+            _beepListBox.CanBeHovered = false;
+            _beepListBox.CanBePressed = false;
         }
         public BeepPopupListForm(List<SimpleItem> items)
         {
             InitializeComponent();
             _beepListBox.EnableMaterialStyle = false;
-            _beepListBox.IsFocusedOn = false;
-            _beepListBox.IsSelectedOn = false;
-            _beepListBox.IsHoveringOn = false;
-            _beepListBox.IsPressedOn = false;
+            _beepListBox.CanBeFocused = false;
+            _beepListBox.CanBeSelected = false;
+            _beepListBox.CanBeHovered = false;
+            _beepListBox.CanBePressed = false;
             //   _beepListBox.EnableMaterialStyle= false;
             _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
             _beepListBox.ItemClicked += BeepListBox_ItemClicked;
@@ -167,10 +167,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShowAllBorders = false;
             _beepListBox.EnableMaterialStyle = false;
             _beepListBox.IsFrameless = true;
-            _beepListBox.IsFocusedOn = false;
-            _beepListBox.IsSelectedOn = false;
-            _beepListBox.IsHoveringOn = false;
-            _beepListBox.IsPressedOn = false;
+            _beepListBox.CanBeFocused = false;
+            _beepListBox.CanBeSelected = false;
+            _beepListBox.CanBeHovered = false;
+            _beepListBox.CanBePressed = false;
             _beepListBox.ShowHilightBox = false;
            // _beepListBox.MenuItemHeight = Math.Max(Menuitemheight, 20); // Ensure minimum height
 

@@ -156,10 +156,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Runtime initialization
-            IsFocusedOn = false;
-            IsSelectedOn = false;
-            IsPressedOn = false;
-            IsHoveringOn = false;
+            CanBeFocused = false;
+            CanBeSelected = false;
+            CanBePressed = false;
+            CanBeHovered = false;
 
             this.Size = new Size(400, 300);
 

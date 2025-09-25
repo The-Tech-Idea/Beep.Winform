@@ -89,12 +89,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
             _inputRect = new Rectangle(0, 0, drawingRect.Width, drawingRect.Height);
 
-            _fieldRect = new Rectangle(
-                _inputRect.X + horizontalPadding,
-                _inputRect.Y + verticalPadding,
-                Math.Max(0, _inputRect.Width - (horizontalPadding * 2)),
-                Math.Max(0, _inputRect.Height - (verticalPadding * 2))
-            );
+            // Reserve vertical space for label (top) and supporting text (bottom)
+            int labelReserve = 0;
+            int bottomReserve = 0;
+            try
+            {
+                using var g = _owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(_owner.LabelText))
+                {
+                    // approx floating label height
+                    int lblH = TextRenderer.MeasureText(g, "Ag", _owner.Font, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    labelReserve = Math.Max(10, (int)Math.Ceiling(lblH * 0.75)) + 2; // small offset
+                }
+                // Supporting text prefers error text over helper
+                string supporting = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorText : _owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    using var supportFont = new Font(_owner.Font.FontFamily, Math.Max(8f, _owner.Font.Size - 1f));
+                    int supH = TextRenderer.MeasureText(g, "Ag", supportFont, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    bottomReserve = supH + 4; // leave distance from border
+                }
+            }
+            catch { /* fallback to zeros on design-time errors */ }
+
+            // Compose field rectangle inside the reserved areas
+            int fieldX = _inputRect.X + horizontalPadding;
+            int fieldY = _inputRect.Y + verticalPadding + labelReserve;
+            int fieldW = Math.Max(0, _inputRect.Width - (horizontalPadding * 2));
+            int fieldH = Math.Max(0, _inputRect.Height - (verticalPadding * 2) - labelReserve - bottomReserve);
+            _fieldRect = new Rectangle(fieldX, fieldY, fieldW, fieldH);
 
             // Layout icons inside the field area
             _icons.UpdateLayout(_fieldRect);
@@ -348,6 +371,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public Rectangle GetTrailingIconRect() => _icons.TrailingRect;
 
         public Rectangle GetContentRect() => _contentRect;
+        public Rectangle GetFieldRect() => _fieldRect;
+        public Rectangle GetInputRect() => _inputRect;
+
+        /// <summary>
+        /// Gets a reasonable rectangle for supporting text (helper/error) under the field.
+        /// </summary>
+        public Rectangle GetSupportingTextRect(int textHeight)
+        {
+            int y = Math.Min(_owner.Height - textHeight - 1, _fieldRect.Bottom + 4);
+            return new Rectangle(Math.Max(4, _fieldRect.Left), y, Math.Max(10, _fieldRect.Width - 8), textHeight);
+        }
 
         /// <summary>
         /// Gets the adjusted content rectangle that excludes icon areas

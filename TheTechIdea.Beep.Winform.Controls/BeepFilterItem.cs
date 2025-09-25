@@ -1,7 +1,7 @@
-﻿
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -10,7 +10,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Controls")]
     [DisplayName("Beep Filter Item")]
     [Description("A single filter condition for the BeepFilter control")]
-    public class BeepFilterItem : BeepControl
+    public class BeepFilterItem : BaseControl
     {
         private FilterCondition condition;
         private List<string> fieldNames;
@@ -20,11 +20,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepButton removeButton;
         private BeepButton checkButton;
 
+        // Optional: restrict operators by type
+        [Browsable(false)]
+        public List<FilterOperator>? AllowedOperators { get; set; }
+
         public event EventHandler<FilterChangedEventArgs> ConditionChanged;
         public event EventHandler RemoveRequested;
 
         public bool UseMenuForOperandsAndOperators { get; set; } = false;
-        public bool ShowLogicalOperator { get; set; } = true;
+        public bool ShowLogicalOperator { get; set; } = false; // groups handle logical ops by default
 
         public BeepFilterItem(List<string> fieldNames, List<Type> fieldTypes)
         {
@@ -66,10 +70,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ImageAlign = ContentAlignment.MiddleCenter,
                 ImagePath = ImageListHelper.GetImagePathFromName("close.svg"),
                 Size = new Size(20, textheight),
-                IsRounded =false,
+                IsRounded = false,
                 MaxImageSize = new Size(18, textheight - 2),
                 Visible = true,
-               Anchor=AnchorStyles.None,
+                Anchor = AnchorStyles.None,
                 IsFrameless = true,
                 IsRoundedAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
@@ -79,13 +83,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Initialize check button
             checkButton = new BeepButton
             {
-               HideText = true,
-                ImageAlign= ContentAlignment.MiddleCenter,
-                ImagePath=ImageListHelper.GetImagePathFromName("checkround.svg"),
-              
+                HideText = true,
+                ImageAlign = ContentAlignment.MiddleCenter,
+                ImagePath = ImageListHelper.GetImagePathFromName("checkround.svg"),
+
                 IsRounded = false,
-               Size = new Size(20, textheight),
-                MaxImageSize = new Size(18, textheight-2),
+                Size = new Size(20, textheight),
+                MaxImageSize = new Size(18, textheight - 2),
                 Anchor = AnchorStyles.None,
                 IsFrameless = true,
                 Visible = false, // Hidden by default, shown in edit mode
@@ -182,7 +186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             var operatorLabel = new Label
             {
-                Text = condition.Operator.ToString().Replace("Is", "is ").ToLower(),
+                Text = GetOperatorChipText(condition.Operator),
                 BackColor = Color.FromArgb(224, 255, 224),
                 ForeColor = Color.Black,
                 AutoSize = true,
@@ -245,19 +249,38 @@ namespace TheTechIdea.Beep.Winform.Controls
             visualPanel.Controls.Add(removeButton);
         }
 
+        private static string GetOperatorChipText(FilterOperator op)
+        {
+            return op switch
+            {
+                FilterOperator.Equals => "=",
+                FilterOperator.NotEquals => "!=",
+                FilterOperator.GreaterThan => ">",
+                FilterOperator.LessThan => "<",
+                FilterOperator.Contains => "contains",
+                FilterOperator.StartsWith => "begins with",
+                FilterOperator.EndsWith => "ends with",
+                FilterOperator.IsBetween => "between",
+                _ => op.ToString()
+            };
+        }
+
         private void SwitchToEditMode()
         {
+            // Initialize defaults when entering edit mode
+            if (string.IsNullOrEmpty(condition.FieldName) && fieldNames.Count > 0)
+            {
+                condition.FieldName = fieldNames[0];
+                var index = 0;
+                condition.DataType = fieldTypes.Count > 0 ? fieldTypes[index] : typeof(string);
+            }
+
             editPanel.Visible = true;
             visualPanel.Visible = false;
             checkButton.Visible = true;
             UpdateEditModeControls();
             editPanel.PerformLayout(); // Force layout update
             editPanel.Focus(); // Ensure focus is on edit panel
-        //   ////MiscFunctions.SendLog($"Switched to edit mode, checkButton.Visible={checkButton.Visible}, removeButton.Visible={removeButton.Visible}, editPanel.Controls.Count={editPanel.Controls.Count}");
-            //foreach (Control c in editPanel.Controls)
-            //{
-            //   ////MiscFunctions.SendLog($"Control in editPanel: {c.Text}, Visible={c.Visible}, Type={c.GetType().Name}");
-            //}
         }
 
         private void ExitEditMode()
@@ -267,7 +290,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             checkButton.Visible = false;
             UpdateDisplay();
             RaiseConditionChanged();
-      //     ////MiscFunctions.SendLog("Exited edit mode");
         }
 
         private void UpdateEditModeControls()
@@ -292,9 +314,23 @@ namespace TheTechIdea.Beep.Winform.Controls
             });
             editPanel.Controls.Add(fieldControl);
 
-            var operatorControl = CreateOperandControl(Enum.GetNames(typeof(FilterOperator)), condition.Operator.ToString(), "Operator", c =>
+            // Choose operator list; if AllowedOperators provided, respect it
+            string[] operatorItems = AllowedOperators != null && AllowedOperators.Count > 0
+                ? AllowedOperators.Select(o => o.ToString()).ToArray()
+                : Enum.GetNames(typeof(FilterOperator));
+
+            // Keep current selection if present; otherwise pick first
+            string currentOp = operatorItems.Contains(condition.Operator.ToString())
+                ? condition.Operator.ToString()
+                : operatorItems.FirstOrDefault() ?? FilterOperator.Equals.ToString();
+
+            var operatorControl = CreateOperandControl(operatorItems, currentOp, "Operator", c =>
             {
-                condition.Operator = (FilterOperator)Enum.Parse(typeof(FilterOperator), c);
+                // Parse only valid enum names
+                if (Enum.TryParse(typeof(FilterOperator), c, out var parsed))
+                {
+                    condition.Operator = (FilterOperator)parsed;
+                }
                 UpdateEditModeControls();
             });
             editPanel.Controls.Add(operatorControl);
@@ -361,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var label = new Label
                 {
                     Text = selectedItem ?? items.FirstOrDefault() ?? "Select...",
-                    Width = 100,
+                    Width = 120,
                     Tag = tag,
                     BorderStyle = BorderStyle.FixedSingle,
                     BackColor = Color.LightGray,
@@ -380,7 +416,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var comboBox = new ComboBox
                 {
-                    Width = 100,
+                    Width = 120,
                     DropDownStyle = ComboBoxStyle.DropDownList,
                     Tag = tag,
                     Enabled = !disabled,
@@ -400,31 +436,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Control CreateValueControl(string tag, object value, Action<object> onValueChanged)
         {
             Control valueControl;
-            if (condition.DataType == typeof(int) || condition.DataType == typeof(decimal))
+
+            // Booleans first
+            if (condition.DataType == typeof(bool))
+            {
+                var chk = new CheckBox
+                {
+                    Width = 20,
+                    Checked = value is bool b && b
+                };
+                chk.CheckedChanged += (s, e) => onValueChanged(chk.Checked);
+                valueControl = chk;
+            }
+            // Numeric types
+            else if (condition.DataType == typeof(int) || condition.DataType == typeof(decimal) ||
+                     condition.DataType == typeof(long) || condition.DataType == typeof(double) || condition.DataType == typeof(float))
             {
                 var numeric = new NumericUpDown
                 {
-                    Width = 100,
-                    Value = value != null ? Convert.ToDecimal(value) : 0
+                    Width = 120,
+                    DecimalPlaces = (condition.DataType == typeof(decimal) || condition.DataType == typeof(double) || condition.DataType == typeof(float)) ? 2 : 0,
+                    Value = value != null ? SafeToDecimal(value) : 0
                 };
                 numeric.ValueChanged += (s, e) => onValueChanged(numeric.Value);
                 valueControl = numeric;
             }
+            // Date/time
             else if (condition.DataType == typeof(DateTime))
             {
                 var datePicker = new DateTimePicker
                 {
-                    Width = 100,
-                    Value = value != null ? (DateTime)value : DateTime.Now
+                    Width = 140,
+                    Value = value is DateTime dt ? dt : DateTime.Now
                 };
                 datePicker.ValueChanged += (s, e) => onValueChanged(datePicker.Value);
                 valueControl = datePicker;
+            }
+            // Enum types
+            else if (condition.DataType != null && condition.DataType.IsEnum)
+            {
+                var combo = new ComboBox
+                {
+                    Width = 140,
+                    DropDownStyle = ComboBoxStyle.DropDownList
+                };
+                var names = Enum.GetNames(condition.DataType);
+                combo.Items.AddRange(names);
+                combo.SelectedItem = value?.ToString() ?? names.FirstOrDefault();
+                combo.SelectedIndexChanged += (s, e) => onValueChanged(combo.SelectedItem);
+                valueControl = combo;
             }
             else
             {
                 var textBox = new TextBox
                 {
-                    Width = 100,
+                    Width = 140,
                     Text = value?.ToString() ?? ""
                 };
                 textBox.KeyDown += (s, e) =>
@@ -444,10 +510,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             return valueControl;
         }
 
+        private static decimal SafeToDecimal(object v)
+        {
+            try
+            {
+                return Convert.ToDecimal(v);
+            }
+            catch
+            {
+                return 0m;
+            }
+        }
+
         private void RaiseConditionChanged()
         {
             ConditionChanged?.Invoke(this, new FilterChangedEventArgs(new List<FilterCondition> { condition }));
-         //  ////MiscFunctions.SendLog($"Condition changed: {condition}");
         }
     }
 }

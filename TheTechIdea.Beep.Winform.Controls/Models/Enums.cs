@@ -32,7 +32,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         Floating       // Floating panel style
     }
 
-
-
-   
+    /// <summary>
+    /// Visual presets for BeepComboBox styling, mapped to Material variants + custom tweaks.
+    /// </summary>
+    public enum BeepComboBoxVariant
+    {
+        Outlined = 0,       // Rectangular outline
+        Underline = 1,      // Line-only bottom (Material Standard)
+        RoundedOutlined = 2,// Pill outline
+        Filled = 3,         // Filled rectangle
+        RoundedFilled = 4,  // Filled pill
+        Subtle = 5          // Low-contrast filled (disabled-like)
+    }
 }

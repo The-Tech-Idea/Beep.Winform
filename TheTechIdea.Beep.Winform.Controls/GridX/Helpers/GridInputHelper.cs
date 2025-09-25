@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 col.Width = Math.Max(20, col.Width + dx);
                 _mouseDown = e.Location;
                 _grid.Layout.Recalculate();
-                // Custom scrollbars are updated automatically through drawing
+                _grid.ScrollBars?.UpdateBars();
                 _grid.Invalidate();
                 return;
             }
@@ -60,9 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Invalidate();
             }
 
-            _grid.Cursor = _grid.Layout.HeaderRect.Contains(e.Location) && HitTestColumnBorder(e.Location) >= 0
-                ? Cursors.VSplit
-                : Cursors.Default;
+            // Determine and set cursor based on possible action at this location
+            UpdateCursorForLocation(e.Location);
         }
 
         public void HandleMouseDown(MouseEventArgs e)
@@ -182,17 +181,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // Resize columns in header
-            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(e.Location))
+            // Resize columns - allow starting from header or rows area, like BeepSimpleGrid
+            int borderIdx = HitTestColumnBorder(e.Location);
+            if (borderIdx >= 0 && _grid.AllowUserToResizeColumns)
             {
-                var idx = HitTestColumnBorder(e.Location);
-                if (idx >= 0 && _grid.AllowUserToResizeColumns)
-                {
-                    _resizingColumn = true;
-                    _resizingColIndex = idx;
-                    _grid.Cursor = Cursors.VSplit;
-                    return;
-                }
+                _resizingColumn = true;
+                _resizingColIndex = borderIdx;
+                _grid.Cursor = Cursors.SizeWE;
+                return;
             }
 
             // Highlight active cell; do not toggle selection here
@@ -383,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
                     int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
                     _grid.Scroll.SetVerticalIndex(newStart);
-                    /* Custom scrollbars updated automatically */
+                    /* Custom scrollbars updated automatiquement */
                     break;
                 default:
                     return;
@@ -430,13 +426,32 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private int HitTestColumnBorder(Point p)
         {
-            if (_grid.Data.Columns.Count == 0) return -1;
-            int x = _grid.Layout.HeaderRect.Left;
-            for (int i = 0; i < _grid.Data.Columns.Count; i++)
+            // Prefer using the already calculated header cell rects which account for sticky columns and horizontal scroll
+            // Check header first
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(p) && _grid.Layout.HeaderCellRects.Length == _grid.Data.Columns.Count)
             {
-                x += _grid.Data.Columns[i].Width;
-                if (Math.Abs(p.X - x) <= _resizeMargin) return i;
+                for (int i = 0; i < _grid.Layout.HeaderCellRects.Length; i++)
+                {
+                    var r = _grid.Layout.HeaderCellRects[i];
+                    if (r.IsEmpty || !_grid.Data.Columns[i].Visible) continue;
+                    // Near the right edge of the header cell
+                    if (Math.Abs(p.X - r.Right) <= _resizeMargin)
+                        return i;
+                }
             }
+
+            // Also allow resizing from the rows area like BeepSimpleGrid
+            if (_grid.Layout.RowsRect.Contains(p) && _grid.Layout.HeaderCellRects.Length == _grid.Data.Columns.Count)
+            {
+                for (int i = 0; i < _grid.Layout.HeaderCellRects.Length; i++)
+                {
+                    var r = _grid.Layout.HeaderCellRects[i];
+                    if (r.IsEmpty || !_grid.Data.Columns[i].Visible) continue;
+                    if (Math.Abs(p.X - r.Right) <= _resizeMargin)
+                        return i;
+                }
+            }
+
             return -1;
         }
 
@@ -457,6 +472,96 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             return false;
+        }
+
+        private void UpdateCursorForLocation(Point p)
+        {
+            // 1) Column border -> resize cursor
+            int borderIdx = HitTestColumnBorder(p);
+            if (borderIdx >= 0 && _grid.AllowUserToResizeColumns)
+            {
+                _grid.Cursor = Cursors.SizeWE;
+                return;
+            }
+
+            // 2) Navigator buttons -> hand cursor
+            if (_grid.ShowNavigator)
+            {
+                var navRect = _grid.Layout.GetType().GetProperty("NavigatorRect")?.GetValue(_grid.Layout) as Rectangle? ?? Rectangle.Empty;
+                if (navRect != Rectangle.Empty && navRect.Contains(p))
+                {
+                    // Light-weight check: if any hit area exists here, treat as clickable
+                    if (_grid.HitTest(p) && _grid.HitTestControl?.HitAction != null)
+                    {
+                        _grid.Cursor = Cursors.Hand;
+                        return;
+                    }
+                }
+            }
+
+            // 3) Header icons (filter/sort) and sortable header -> hand cursor
+            if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(p))
+            {
+                int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
+                if (colIdx >= 0)
+                {
+                    if (_grid.Render.HeaderFilterIconRects.TryGetValue(colIdx, out var fr) && fr.Contains(p))
+                    {
+                        _grid.Cursor = Cursors.Hand;
+                        return;
+                    }
+                    if (_grid.Render.HeaderSortIconRects.TryGetValue(colIdx, out var sr) && sr.Contains(p))
+                    {
+                        _grid.Cursor = Cursors.Hand;
+                        return;
+                    }
+                    var column = _grid.Data.Columns[colIdx];
+                    if (column != null && column.AllowSort)
+                    {
+                        _grid.Cursor = Cursors.Hand;
+                        return;
+                    }
+                }
+            }
+
+            // 4) Row/selection checkbox -> hand cursor
+            if (_grid.ShowCheckBox)
+            {
+                int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);
+                var (rr, cc) = HitTestCell(p);
+                if (rr >= 0 && rr < _grid.Data.Rows.Count)
+                {
+                    var row = _grid.Data.Rows[rr];
+                    if (!row.RowCheckRect.IsEmpty && row.RowCheckRect.Contains(p))
+                    {
+                        _grid.Cursor = Cursors.Hand;
+                        return;
+                    }
+                    if (cc == checkCol && checkCol >= 0)
+                    {
+                        _grid.Cursor = Cursors.Hand;
+                        return;
+                    }
+                }
+            }
+
+            // 5) Editable cells -> IBeam cursor (text/edit intent), except selection checkbox column
+            {
+                var (rr, cc) = HitTestCell(p);
+                if (rr >= 0 && cc >= 0)
+                {
+                    var col = _grid.Data.Columns[cc];
+                    var cell = _grid.Data.Rows[rr].Cells[cc];
+                    if (!_grid.ReadOnly && !cell.IsReadOnly && cell.IsEditable && !col.IsSelectionCheckBox)
+                    {
+                        _grid.Cursor = Cursors.IBeam;
+                        return;
+                    }
+                }
+            }
+
+            // Default
+            _grid.Cursor = Cursors.Default;
         }
     }
 }

@@ -101,6 +101,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 Math.Max(0, calculatedHeight) // Prevent negative dimensions
             );
 
+            // Reserve space for label and helper when Material style is off
+            if (!_owner.EnableMaterialStyle)
+            {
+                try
+                {
+                    int reserveTop = 0;
+                    int reserveBottom = 0;
+                    using var g = _owner.CreateGraphics();
+
+                    if (!string.IsNullOrEmpty(_owner.LabelText))
+                    {
+                        float labelSize = Math.Max(8f, _owner.Font.Size - 1f);
+                        using var lf = new Font(_owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                        int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                        reserveTop = h + 2;
+                    }
+
+                    string support = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorText : _owner.HelperText;
+                    if (!string.IsNullOrEmpty(support))
+                    {
+                        float supSize = Math.Max(8f, _owner.Font.Size - 1f);
+                        using var sf = new Font(_owner.Font.FontFamily, supSize, FontStyle.Regular);
+                        int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                        reserveBottom = h + 4;
+                    }
+
+                    if (reserveTop > 0 || reserveBottom > 0)
+                    {
+                        DrawingRect = new Rectangle(
+                            DrawingRect.X,
+                            DrawingRect.Y + reserveTop,
+                            DrawingRect.Width,
+                            Math.Max(0, DrawingRect.Height - reserveTop - reserveBottom)
+                        );
+                    }
+                }
+                catch { /* best-effort */ }
+            }
+
             // UpdateBorderRectangle exactly like BeepControl
             int halfPen2 = (int)Math.Ceiling(_owner.BorderThickness / 2f);
             BorderRectangle = new Rectangle(
@@ -169,11 +208,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 CustomBorderDrawer?.Invoke(g);
             }
 
+            // Draw label/helper for non-material mode
+            if (!_owner.EnableMaterialStyle)
+            {
+                DrawLabelAndHelperNonMaterial(g);
+            }
+
             //if (!string.IsNullOrEmpty(_owner.BadgeText))
             //{
             //    //DrawBadge(g);
             //    _owner.DrawBadgeExternally(g,new Rectangle() { Height=20,Width=20});
             //}
+        }
+
+        private void DrawLabelAndHelperNonMaterial(Graphics g)
+        {
+            // Label (top)
+            if (!string.IsNullOrEmpty(_owner.LabelText))
+            {
+                float labelSize = Math.Max(8f, _owner.Font.Size - 1f);
+                using var lf = new Font(_owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                var labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var labelRect = new Rectangle(BorderRectangle.Left + 6, Math.Max(0, BorderRectangle.Top - labelHeight - 2), Math.Max(10, BorderRectangle.Width - 12), labelHeight);
+                Color labelColor = string.IsNullOrEmpty(_owner.ErrorText) ? (_owner.ForeColor) : _owner.ErrorColor;
+                TextRenderer.DrawText(g, _owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            // Supporting text (bottom): ErrorText wins, else HelperText
+            string supporting = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorText : _owner.HelperText;
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                float supSize = Math.Max(8f, _owner.Font.Size - 1f);
+                using var sf = new Font(_owner.Font.FontFamily, supSize, FontStyle.Regular);
+                var supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportRect = new Rectangle(BorderRectangle.Left + 6, BorderRectangle.Bottom + 2, Math.Max(10, BorderRectangle.Width - 12), supportHeight);
+                Color supportColor = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorColor : (_owner.ForeColor);
+                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
         }
 
         private void DrawBackground(Graphics g)
@@ -211,10 +282,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             if (ownerAdv != null)
             {
                 if (!_owner.Enabled) return _owner.DisabledBackColor;
-                if (ownerAdv.IsPressed && _owner.IsPressedOn) return _owner.PressedBackColor;
-                if (ownerAdv.IsHovered && _owner.IsHoveringOn) return _owner.HoverBackColor;
-                if (_owner.Focused && _owner.IsFocusedOn) return _owner.FocusBackColor;
-                if (ownerAdv.IsSelected && _owner.IsSelectedOn) return _owner.SelectedBackColor;
+                if (ownerAdv.IsPressed && _owner.CanBePressed) return _owner.PressedBackColor;
+                if (ownerAdv.IsHovered && _owner.CanBeHovered) return _owner.HoverBackColor;
+                if (_owner.Focused && _owner.CanBeFocused) return _owner.FocusBackColor;
+                if (ownerAdv.IsSelected && _owner.CanBeSelected) return _owner.SelectedBackColor;
             }
             return _owner.BackColor;
         }
@@ -391,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void DrawFloatingLabel(Graphics g, Rectangle borderRect, Color borderColor)
         {
-            var labelFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.8f);
+            var labelFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.85f);
             var labelSize = TextRenderer.MeasureText(_owner.LabelText, labelFont);
             int labelX = borderRect.X + 10;
             var labelGapRect = new Rectangle(labelX - 2, borderRect.Y - labelSize.Height / 2, labelSize.Width + 4, labelSize.Height);
@@ -405,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void DrawHelperText(Graphics g, Rectangle borderRect)
         {
-            var helperFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.8f);
+            var helperFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.85f);
             Color helperColor = _owner.IsValid ? Color.Gray : Color.Red;
             var helperRect = new Rectangle(borderRect.X, borderRect.Bottom + 2, borderRect.Width, 20);
             TextRenderer.DrawText(g, _owner.HelperText, helperFont, helperRect, helperColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);

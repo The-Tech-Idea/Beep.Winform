@@ -293,19 +293,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.IsDirty = false;
             _titleLabel.IsEditable = true;
             _titleLabel.IsFocused = false;
-            _titleLabel.IsFocusedOn = true;
+          
             _titleLabel.IsFrameless = false;
             _titleLabel.IsHovered = false;
-            _titleLabel.IsHoveringOn = true;
+ 
             _titleLabel.IsNew = false;
             _titleLabel.IsPressed = false;
-            _titleLabel.IsPressedOn = true;
+     
             _titleLabel.IsReadOnly = false;
             _titleLabel.IsRequired = false;
             _titleLabel.IsRounded = false;
             _titleLabel.IsRoundedAffectedByTheme = true;
             _titleLabel.IsSelected = false;
-            _titleLabel.IsSelectedOn = true;
+    
             _titleLabel.IsSelectedOptionOn = false;
             _titleLabel.IsShadowAffectedByTheme = true;
             _titleLabel.IsValid = true;

@@ -210,20 +210,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.IsDirty = false;
             cmbFilterCol1.IsEditable = true;
             cmbFilterCol1.IsFocused = false;
-            cmbFilterCol1.IsFocusedOn = true;
+  
             cmbFilterCol1.IsFrameless = false;
             cmbFilterCol1.IsHovered = false;
-            cmbFilterCol1.IsHoveringOn = true;
+
             cmbFilterCol1.IsNew = false;
             cmbFilterCol1.IsPopupOpen = false;
             cmbFilterCol1.IsPressed = false;
-            cmbFilterCol1.IsPressedOn = true;
+
             cmbFilterCol1.IsReadOnly = false;
             cmbFilterCol1.IsRequired = false;
             cmbFilterCol1.IsRounded = true;
             cmbFilterCol1.IsRoundedAffectedByTheme = true;
             cmbFilterCol1.IsSelected = false;
-            cmbFilterCol1.IsSelectedOn = true;
+         
             cmbFilterCol1.IsSelectedOptionOn = false;
             cmbFilterCol1.IsShadowAffectedByTheme = true;
             cmbFilterCol1.IsValid = true;
@@ -388,20 +388,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.IsDirty = false;
             cmbFilterVal1.IsEditable = true;
             cmbFilterVal1.IsFocused = false;
-            cmbFilterVal1.IsFocusedOn = true;
+  
             cmbFilterVal1.IsFrameless = false;
             cmbFilterVal1.IsHovered = false;
-            cmbFilterVal1.IsHoveringOn = true;
+       
             cmbFilterVal1.IsNew = false;
             cmbFilterVal1.IsPopupOpen = false;
             cmbFilterVal1.IsPressed = false;
-            cmbFilterVal1.IsPressedOn = true;
+        
             cmbFilterVal1.IsReadOnly = false;
             cmbFilterVal1.IsRequired = false;
             cmbFilterVal1.IsRounded = true;
             cmbFilterVal1.IsRoundedAffectedByTheme = true;
             cmbFilterVal1.IsSelected = false;
-            cmbFilterVal1.IsSelectedOn = true;
+           
             cmbFilterVal1.IsSelectedOptionOn = false;
             cmbFilterVal1.IsShadowAffectedByTheme = true;
             cmbFilterVal1.IsValid = true;
@@ -566,20 +566,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.IsDirty = false;
             cmbFilterCol2.IsEditable = true;
             cmbFilterCol2.IsFocused = false;
-            cmbFilterCol2.IsFocusedOn = true;
+          
             cmbFilterCol2.IsFrameless = false;
             cmbFilterCol2.IsHovered = false;
-            cmbFilterCol2.IsHoveringOn = true;
+          
             cmbFilterCol2.IsNew = false;
             cmbFilterCol2.IsPopupOpen = false;
             cmbFilterCol2.IsPressed = false;
-            cmbFilterCol2.IsPressedOn = true;
+          
             cmbFilterCol2.IsReadOnly = false;
             cmbFilterCol2.IsRequired = false;
             cmbFilterCol2.IsRounded = true;
             cmbFilterCol2.IsRoundedAffectedByTheme = true;
             cmbFilterCol2.IsSelected = false;
-            cmbFilterCol2.IsSelectedOn = true;
+           
             cmbFilterCol2.IsSelectedOptionOn = false;
             cmbFilterCol2.IsShadowAffectedByTheme = true;
             cmbFilterCol2.IsValid = true;
@@ -744,20 +744,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.IsDirty = false;
             cmbFilterVal2.IsEditable = true;
             cmbFilterVal2.IsFocused = false;
-            cmbFilterVal2.IsFocusedOn = true;
+         
             cmbFilterVal2.IsFrameless = false;
             cmbFilterVal2.IsHovered = false;
-            cmbFilterVal2.IsHoveringOn = true;
+          
             cmbFilterVal2.IsNew = false;
             cmbFilterVal2.IsPopupOpen = false;
             cmbFilterVal2.IsPressed = false;
-            cmbFilterVal2.IsPressedOn = true;
+          
             cmbFilterVal2.IsReadOnly = false;
             cmbFilterVal2.IsRequired = false;
             cmbFilterVal2.IsRounded = true;
             cmbFilterVal2.IsRoundedAffectedByTheme = true;
             cmbFilterVal2.IsSelected = false;
-            cmbFilterVal2.IsSelectedOn = true;
+         
             cmbFilterVal2.IsSelectedOptionOn = false;
             cmbFilterVal2.IsShadowAffectedByTheme = true;
             cmbFilterVal2.IsValid = true;
@@ -922,20 +922,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.IsDirty = false;
             cmbGroupBy.IsEditable = true;
             cmbGroupBy.IsFocused = false;
-            cmbGroupBy.IsFocusedOn = true;
+        
             cmbGroupBy.IsFrameless = false;
             cmbGroupBy.IsHovered = false;
-            cmbGroupBy.IsHoveringOn = true;
+         
             cmbGroupBy.IsNew = false;
             cmbGroupBy.IsPopupOpen = false;
             cmbGroupBy.IsPressed = false;
-            cmbGroupBy.IsPressedOn = true;
+           
             cmbGroupBy.IsReadOnly = false;
             cmbGroupBy.IsRequired = false;
             cmbGroupBy.IsRounded = true;
             cmbGroupBy.IsRoundedAffectedByTheme = true;
             cmbGroupBy.IsSelected = false;
-            cmbGroupBy.IsSelectedOn = true;
+           
             cmbGroupBy.IsSelectedOptionOn = false;
             cmbGroupBy.IsShadowAffectedByTheme = true;
             cmbGroupBy.IsValid = true;
@@ -1100,20 +1100,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.IsDirty = false;
             cmbOrderBy.IsEditable = true;
             cmbOrderBy.IsFocused = false;
-            cmbOrderBy.IsFocusedOn = true;
+      
             cmbOrderBy.IsFrameless = false;
             cmbOrderBy.IsHovered = false;
-            cmbOrderBy.IsHoveringOn = true;
+       
             cmbOrderBy.IsNew = false;
             cmbOrderBy.IsPopupOpen = false;
             cmbOrderBy.IsPressed = false;
-            cmbOrderBy.IsPressedOn = true;
+        
             cmbOrderBy.IsReadOnly = false;
             cmbOrderBy.IsRequired = false;
             cmbOrderBy.IsRounded = true;
             cmbOrderBy.IsRoundedAffectedByTheme = true;
             cmbOrderBy.IsSelected = false;
-            cmbOrderBy.IsSelectedOn = true;
+           
             cmbOrderBy.IsSelectedOptionOn = false;
             cmbOrderBy.IsShadowAffectedByTheme = true;
             cmbOrderBy.IsValid = true;
@@ -1410,19 +1410,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             chkShowHeaders.IsDirty = false;
             chkShowHeaders.IsEditable = true;
             chkShowHeaders.IsFocused = false;
-            chkShowHeaders.IsFocusedOn = true;
+         
             chkShowHeaders.IsFrameless = false;
             chkShowHeaders.IsHovered = false;
-            chkShowHeaders.IsHoveringOn = true;
+         
             chkShowHeaders.IsNew = false;
             chkShowHeaders.IsPressed = false;
-            chkShowHeaders.IsPressedOn = true;
+         
             chkShowHeaders.IsReadOnly = false;
             chkShowHeaders.IsRequired = false;
             chkShowHeaders.IsRounded = true;
             chkShowHeaders.IsRoundedAffectedByTheme = true;
             chkShowHeaders.IsSelected = false;
-            chkShowHeaders.IsSelectedOn = true;
+           
             chkShowHeaders.IsSelectedOptionOn = false;
             chkShowHeaders.IsShadowAffectedByTheme = true;
             chkShowHeaders.IsValid = true;
@@ -1631,20 +1631,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.IsDirty = false;
             btnExport.IsEditable = true;
             btnExport.IsFocused = false;
-            btnExport.IsFocusedOn = true;
+       
             btnExport.IsFrameless = false;
             btnExport.IsHovered = false;
-            btnExport.IsHoveringOn = true;
+     
             btnExport.IsNew = false;
             btnExport.IsPopupOpen = false;
             btnExport.IsPressed = false;
-            btnExport.IsPressedOn = true;
+         
             btnExport.IsReadOnly = false;
             btnExport.IsRequired = false;
             btnExport.IsRounded = true;
             btnExport.IsRoundedAffectedByTheme = true;
             btnExport.IsSelected = false;
-            btnExport.IsSelectedOn = true;
+          
             btnExport.IsSelectedOptionOn = false;
             btnExport.IsShadowAffectedByTheme = true;
             btnExport.IsSideMenuChild = false;
@@ -1825,20 +1825,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.IsDirty = false;
             btnApply.IsEditable = true;
             btnApply.IsFocused = false;
-            btnApply.IsFocusedOn = true;
+        
             btnApply.IsFrameless = false;
             btnApply.IsHovered = false;
-            btnApply.IsHoveringOn = true;
+        
             btnApply.IsNew = false;
             btnApply.IsPopupOpen = false;
             btnApply.IsPressed = false;
-            btnApply.IsPressedOn = true;
+         
             btnApply.IsReadOnly = false;
             btnApply.IsRequired = false;
             btnApply.IsRounded = true;
             btnApply.IsRoundedAffectedByTheme = true;
             btnApply.IsSelected = false;
-            btnApply.IsSelectedOn = true;
+          
             btnApply.IsSelectedOptionOn = false;
             btnApply.IsShadowAffectedByTheme = true;
             btnApply.IsSideMenuChild = false;
@@ -2019,20 +2019,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.IsDirty = false;
             btnReset.IsEditable = true;
             btnReset.IsFocused = false;
-            btnReset.IsFocusedOn = true;
+      
             btnReset.IsFrameless = false;
             btnReset.IsHovered = false;
-            btnReset.IsHoveringOn = true;
+      
             btnReset.IsNew = false;
             btnReset.IsPopupOpen = false;
             btnReset.IsPressed = false;
-            btnReset.IsPressedOn = true;
+          
             btnReset.IsReadOnly = false;
             btnReset.IsRequired = false;
             btnReset.IsRounded = true;
             btnReset.IsRoundedAffectedByTheme = true;
             btnReset.IsSelected = false;
-            btnReset.IsSelectedOn = true;
+         
             btnReset.IsSelectedOptionOn = false;
             btnReset.IsShadowAffectedByTheme = true;
             btnReset.IsSideMenuChild = false;
@@ -2213,20 +2213,20 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.IsDirty = false;
             btnClose.IsEditable = true;
             btnClose.IsFocused = false;
-            btnClose.IsFocusedOn = true;
+       
             btnClose.IsFrameless = false;
             btnClose.IsHovered = false;
-            btnClose.IsHoveringOn = true;
+          
             btnClose.IsNew = false;
             btnClose.IsPopupOpen = false;
             btnClose.IsPressed = false;
-            btnClose.IsPressedOn = true;
+          
             btnClose.IsReadOnly = false;
             btnClose.IsRequired = false;
             btnClose.IsRounded = true;
             btnClose.IsRoundedAffectedByTheme = true;
             btnClose.IsSelected = false;
-            btnClose.IsSelectedOn = true;
+         
             btnClose.IsSelectedOptionOn = false;
             btnClose.IsShadowAffectedByTheme = true;
             btnClose.IsSideMenuChild = false;

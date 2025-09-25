@@ -18,7 +18,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         GreaterThan,
         LessThan,
         Contains,
-        IsBetween // Add this
+        StartsWith, // added
+        EndsWith,   // added
+        IsBetween   // Add this
     }
 
     public enum FilterLogicalOperator
@@ -65,6 +67,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public FilterChangedEventArgs(List<FilterCondition> conditions)
         {
             Conditions = conditions;
+        }
+    }
+
+    // New: action event args for OK / Apply to deliver filters to parent
+    public class FilterActionEventArgs : EventArgs
+    {
+        public string Expression { get; }
+        public List<FilterCondition> Conditions { get; }
+        public List<TheTechIdea.Beep.Report.IAppFilter> AppFilters { get; }
+        public FilterActionEventArgs(string expression, List<FilterCondition> conditions, List<TheTechIdea.Beep.Report.IAppFilter> appFilters)
+        {
+            Expression = expression;
+            Conditions = conditions ?? new List<FilterCondition>();
+            AppFilters = appFilters ?? new List<TheTechIdea.Beep.Report.IAppFilter>();
         }
     }
 }

@@ -295,10 +295,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderRadius = ScaleValue(3); // Scale border radius
             items.ListChanged += Items_ListChanged;
             ApplyThemeToChilds = false;
-            IsFocusedOn = false;
-            IsSelectedOn= false;
-            IsHoveringOn= false;
-            IsPressedOn= false;
+            CanBeSelected = false;
+            CanBePressed= false;
+            CanBeHovered= false;
+            CanBeFocused= false;
             InitLayout();
             BoundProperty = "SelectedMenuItem";
             InitializeSearchBox();

@@ -115,56 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 ApplyTheme();
             }
         }
-        private bool _isPressedOn = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsPressedOn
-        {
-            get => _isPressedOn;
-            set
-            {
-                _isPressedOn = value;
-                Invalidate();
-            }
-        }
-        private bool _isselectedOn = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsSelectedOn
-        {
-            get => _isselectedOn;
-            set
-            {
-                _isselectedOn = value;
-                Invalidate();
-            }
-        }
-        private bool _isfocusedOn = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsFocusedOn
-        {
-            get => _isfocusedOn;
-            set
-            {
-                _isfocusedOn = value;
-                Invalidate();
-            }
-        }
-        private bool _ishoveringon = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        public bool IsHoveringOn
-        {
-            get => _ishoveringon;
-            set
-            {
-                _ishoveringon = value;
-                Invalidate();
-            }
-        }
-        [Browsable(true)]
-        [Category("Appearance")]
+     
         public bool ApplyThemeToChilds { get; set; } = true;
         #endregion
 
@@ -776,6 +727,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [DefaultValue(MaterialOutsideBackgroundMode.ParentBackColor)]
         public MaterialOutsideBackgroundMode MaterialOutsideBackground { get; set; } = MaterialOutsideBackgroundMode.ParentBackColor;
         // Additional BeepControl parity properties
+        private bool _canBeSelected = true;
+        [Browsable(true)]
+        public bool CanBeSelected
+        {
+            get => _canBeSelected   ;
+            set
+            {
+                if (_canBeSelected == value) return;
+                _canBeSelected = value;
+                if (!value && IsSelected) IsSelected = false;
+                Invalidate();
+            }
+        }
         private bool _canBeHovered = true;
         [Browsable(true)]
         public bool CanBeHovered

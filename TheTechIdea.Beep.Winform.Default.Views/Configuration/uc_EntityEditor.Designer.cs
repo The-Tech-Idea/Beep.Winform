@@ -540,19 +540,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.IsDirty = false;
             beepPanel1.IsEditable = false;
             beepPanel1.IsFocused = false;
-            beepPanel1.IsFocusedOn = false;
+        
             beepPanel1.IsFrameless = true;
             beepPanel1.IsHovered = false;
-            beepPanel1.IsHoveringOn = false;
+           
             beepPanel1.IsNew = false;
             beepPanel1.IsPressed = false;
-            beepPanel1.IsPressedOn = false;
+          
             beepPanel1.IsReadOnly = false;
             beepPanel1.IsRequired = false;
             beepPanel1.IsRounded = true;
             beepPanel1.IsRoundedAffectedByTheme = false;
             beepPanel1.IsSelected = false;
-            beepPanel1.IsSelectedOn = false;
+        
             beepPanel1.IsSelectedOptionOn = true;
             beepPanel1.IsShadowAffectedByTheme = false;
             beepPanel1.IsValid = true;
@@ -720,20 +720,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.IsDirty = false;
             beepButton1.IsEditable = false;
             beepButton1.IsFocused = false;
-            beepButton1.IsFocusedOn = true;
+           
             beepButton1.IsFrameless = false;
             beepButton1.IsHovered = false;
-            beepButton1.IsHoveringOn = true;
+          
             beepButton1.IsNew = false;
             beepButton1.IsPopupOpen = false;
             beepButton1.IsPressed = false;
-            beepButton1.IsPressedOn = true;
+            
             beepButton1.IsReadOnly = false;
             beepButton1.IsRequired = false;
             beepButton1.IsRounded = false;
             beepButton1.IsRoundedAffectedByTheme = true;
             beepButton1.IsSelected = false;
-            beepButton1.IsSelectedOn = true;
+           
             beepButton1.IsSelectedOptionOn = true;
             beepButton1.IsShadowAffectedByTheme = true;
             beepButton1.IsSideMenuChild = false;
@@ -898,19 +898,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.IsDirty = false;
             beepLabel2.IsEditable = false;
             beepLabel2.IsFocused = false;
-            beepLabel2.IsFocusedOn = true;
+           
             beepLabel2.IsFrameless = false;
             beepLabel2.IsHovered = false;
-            beepLabel2.IsHoveringOn = true;
+          
             beepLabel2.IsNew = false;
             beepLabel2.IsPressed = false;
-            beepLabel2.IsPressedOn = true;
+        
             beepLabel2.IsReadOnly = false;
             beepLabel2.IsRequired = false;
             beepLabel2.IsRounded = true;
             beepLabel2.IsRoundedAffectedByTheme = true;
             beepLabel2.IsSelected = false;
-            beepLabel2.IsSelectedOn = true;
+            
             beepLabel2.IsSelectedOptionOn = true;
             beepLabel2.IsShadowAffectedByTheme = true;
             beepLabel2.IsValid = true;
@@ -1075,20 +1075,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.IsDirty = false;
             EntitiesbeepComboBox.IsEditable = false;
             EntitiesbeepComboBox.IsFocused = false;
-            EntitiesbeepComboBox.IsFocusedOn = true;
+           
             EntitiesbeepComboBox.IsFrameless = false;
             EntitiesbeepComboBox.IsHovered = false;
-            EntitiesbeepComboBox.IsHoveringOn = true;
+           
             EntitiesbeepComboBox.IsNew = false;
             EntitiesbeepComboBox.IsPopupOpen = false;
             EntitiesbeepComboBox.IsPressed = false;
-            EntitiesbeepComboBox.IsPressedOn = true;
+           
             EntitiesbeepComboBox.IsReadOnly = false;
             EntitiesbeepComboBox.IsRequired = false;
             EntitiesbeepComboBox.IsRounded = true;
             EntitiesbeepComboBox.IsRoundedAffectedByTheme = true;
             EntitiesbeepComboBox.IsSelected = false;
-            EntitiesbeepComboBox.IsSelectedOn = true;
+         
             EntitiesbeepComboBox.IsSelectedOptionOn = true;
             EntitiesbeepComboBox.IsShadowAffectedByTheme = true;
             EntitiesbeepComboBox.IsValid = true;
@@ -1243,19 +1243,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.IsDirty = false;
             beepLabel1.IsEditable = false;
             beepLabel1.IsFocused = false;
-            beepLabel1.IsFocusedOn = true;
+          
             beepLabel1.IsFrameless = false;
             beepLabel1.IsHovered = false;
-            beepLabel1.IsHoveringOn = true;
+          
             beepLabel1.IsNew = false;
             beepLabel1.IsPressed = false;
-            beepLabel1.IsPressedOn = true;
+          
             beepLabel1.IsReadOnly = false;
             beepLabel1.IsRequired = false;
             beepLabel1.IsRounded = true;
             beepLabel1.IsRoundedAffectedByTheme = true;
             beepLabel1.IsSelected = false;
-            beepLabel1.IsSelectedOn = true;
+          
             beepLabel1.IsSelectedOptionOn = true;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsValid = true;
@@ -1420,20 +1420,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.IsDirty = false;
             DatasourcebeepComboBox.IsEditable = false;
             DatasourcebeepComboBox.IsFocused = false;
-            DatasourcebeepComboBox.IsFocusedOn = true;
+           
             DatasourcebeepComboBox.IsFrameless = false;
             DatasourcebeepComboBox.IsHovered = false;
-            DatasourcebeepComboBox.IsHoveringOn = true;
+          
             DatasourcebeepComboBox.IsNew = false;
             DatasourcebeepComboBox.IsPopupOpen = false;
             DatasourcebeepComboBox.IsPressed = false;
-            DatasourcebeepComboBox.IsPressedOn = true;
+            
             DatasourcebeepComboBox.IsReadOnly = false;
             DatasourcebeepComboBox.IsRequired = false;
             DatasourcebeepComboBox.IsRounded = true;
             DatasourcebeepComboBox.IsRoundedAffectedByTheme = true;
             DatasourcebeepComboBox.IsSelected = false;
-            DatasourcebeepComboBox.IsSelectedOn = true;
+           
             DatasourcebeepComboBox.IsSelectedOptionOn = true;
             DatasourcebeepComboBox.IsShadowAffectedByTheme = true;
             DatasourcebeepComboBox.IsValid = true;

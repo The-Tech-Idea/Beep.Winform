@@ -166,20 +166,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.IsDirty = false;
             CancelbeepButton.IsEditable = true;
             CancelbeepButton.IsFocused = false;
-            CancelbeepButton.IsFocusedOn = true;
+          
             CancelbeepButton.IsFrameless = false;
             CancelbeepButton.IsHovered = false;
-            CancelbeepButton.IsHoveringOn = true;
+        
             CancelbeepButton.IsNew = false;
             CancelbeepButton.IsPopupOpen = false;
             CancelbeepButton.IsPressed = false;
-            CancelbeepButton.IsPressedOn = true;
+          
             CancelbeepButton.IsReadOnly = false;
             CancelbeepButton.IsRequired = false;
             CancelbeepButton.IsRounded = true;
             CancelbeepButton.IsRoundedAffectedByTheme = true;
             CancelbeepButton.IsSelected = false;
-            CancelbeepButton.IsSelectedOn = true;
+        
             CancelbeepButton.IsSelectedOptionOn = false;
             CancelbeepButton.IsShadowAffectedByTheme = true;
             CancelbeepButton.IsSideMenuChild = false;
@@ -358,20 +358,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.IsDirty = false;
             SavebeepButton.IsEditable = true;
             SavebeepButton.IsFocused = false;
-            SavebeepButton.IsFocusedOn = true;
+        
             SavebeepButton.IsFrameless = false;
             SavebeepButton.IsHovered = false;
-            SavebeepButton.IsHoveringOn = true;
+         
             SavebeepButton.IsNew = false;
             SavebeepButton.IsPopupOpen = false;
             SavebeepButton.IsPressed = false;
-            SavebeepButton.IsPressedOn = true;
+          
             SavebeepButton.IsReadOnly = false;
             SavebeepButton.IsRequired = false;
             SavebeepButton.IsRounded = true;
             SavebeepButton.IsRoundedAffectedByTheme = true;
             SavebeepButton.IsSelected = false;
-            SavebeepButton.IsSelectedOn = true;
+         
             SavebeepButton.IsSelectedOptionOn = false;
             SavebeepButton.IsShadowAffectedByTheme = true;
             SavebeepButton.IsSideMenuChild = false;
@@ -537,20 +537,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.IsDirty = false;
             SystemFolderbeepComboBox.IsEditable = false;
             SystemFolderbeepComboBox.IsFocused = false;
-            SystemFolderbeepComboBox.IsFocusedOn = true;
+         
             SystemFolderbeepComboBox.IsFrameless = false;
             SystemFolderbeepComboBox.IsHovered = false;
-            SystemFolderbeepComboBox.IsHoveringOn = true;
+       
             SystemFolderbeepComboBox.IsNew = false;
             SystemFolderbeepComboBox.IsPopupOpen = false;
             SystemFolderbeepComboBox.IsPressed = false;
-            SystemFolderbeepComboBox.IsPressedOn = true;
+          
             SystemFolderbeepComboBox.IsReadOnly = false;
             SystemFolderbeepComboBox.IsRequired = false;
             SystemFolderbeepComboBox.IsRounded = false;
             SystemFolderbeepComboBox.IsRoundedAffectedByTheme = true;
             SystemFolderbeepComboBox.IsSelected = false;
-            SystemFolderbeepComboBox.IsSelectedOn = true;
+         
             SystemFolderbeepComboBox.IsSelectedOptionOn = false;
             SystemFolderbeepComboBox.IsShadowAffectedByTheme = true;
             SystemFolderbeepComboBox.IsValid = true;
@@ -714,19 +714,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.IsDirty = false;
             databaseTextBox.IsEditable = false;
             databaseTextBox.IsFocused = false;
-            databaseTextBox.IsFocusedOn = true;
+          
             databaseTextBox.IsFrameless = false;
             databaseTextBox.IsHovered = false;
-            databaseTextBox.IsHoveringOn = true;
+         
             databaseTextBox.IsNew = false;
             databaseTextBox.IsPressed = false;
-            databaseTextBox.IsPressedOn = true;
+           
             databaseTextBox.IsReadOnly = false;
             databaseTextBox.IsRequired = false;
             databaseTextBox.IsRounded = false;
             databaseTextBox.IsRoundedAffectedByTheme = true;
             databaseTextBox.IsSelected = false;
-            databaseTextBox.IsSelectedOn = true;
+          
             databaseTextBox.IsSelectedOptionOn = false;
             databaseTextBox.IsShadowAffectedByTheme = false;
             databaseTextBox.IsValid = true;
@@ -910,19 +910,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.IsDirty = false;
             PasswordbeepTextBox.IsEditable = false;
             PasswordbeepTextBox.IsFocused = false;
-            PasswordbeepTextBox.IsFocusedOn = true;
+          
             PasswordbeepTextBox.IsFrameless = false;
             PasswordbeepTextBox.IsHovered = false;
-            PasswordbeepTextBox.IsHoveringOn = true;
+          
             PasswordbeepTextBox.IsNew = false;
             PasswordbeepTextBox.IsPressed = false;
-            PasswordbeepTextBox.IsPressedOn = true;
+         
             PasswordbeepTextBox.IsReadOnly = false;
             PasswordbeepTextBox.IsRequired = false;
             PasswordbeepTextBox.IsRounded = false;
             PasswordbeepTextBox.IsRoundedAffectedByTheme = true;
             PasswordbeepTextBox.IsSelected = false;
-            PasswordbeepTextBox.IsSelectedOn = true;
+          
             PasswordbeepTextBox.IsSelectedOptionOn = false;
             PasswordbeepTextBox.IsShadowAffectedByTheme = false;
             PasswordbeepTextBox.IsValid = true;
@@ -1106,19 +1106,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.IsDirty = false;
             OtherFolderbeepTextBox.IsEditable = false;
             OtherFolderbeepTextBox.IsFocused = false;
-            OtherFolderbeepTextBox.IsFocusedOn = true;
+           
             OtherFolderbeepTextBox.IsFrameless = false;
             OtherFolderbeepTextBox.IsHovered = false;
-            OtherFolderbeepTextBox.IsHoveringOn = true;
+       
             OtherFolderbeepTextBox.IsNew = false;
             OtherFolderbeepTextBox.IsPressed = false;
-            OtherFolderbeepTextBox.IsPressedOn = true;
+          
             OtherFolderbeepTextBox.IsReadOnly = false;
             OtherFolderbeepTextBox.IsRequired = false;
             OtherFolderbeepTextBox.IsRounded = false;
             OtherFolderbeepTextBox.IsRoundedAffectedByTheme = true;
             OtherFolderbeepTextBox.IsSelected = false;
-            OtherFolderbeepTextBox.IsSelectedOn = true;
+          
             OtherFolderbeepTextBox.IsSelectedOptionOn = false;
             OtherFolderbeepTextBox.IsShadowAffectedByTheme = false;
             OtherFolderbeepTextBox.IsValid = true;
@@ -1295,20 +1295,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.IsDirty = false;
             LocalDbTypebeepComboBox.IsEditable = false;
             LocalDbTypebeepComboBox.IsFocused = false;
-            LocalDbTypebeepComboBox.IsFocusedOn = true;
+          
             LocalDbTypebeepComboBox.IsFrameless = false;
             LocalDbTypebeepComboBox.IsHovered = false;
-            LocalDbTypebeepComboBox.IsHoveringOn = true;
+          
             LocalDbTypebeepComboBox.IsNew = false;
             LocalDbTypebeepComboBox.IsPopupOpen = false;
             LocalDbTypebeepComboBox.IsPressed = false;
-            LocalDbTypebeepComboBox.IsPressedOn = true;
+         
             LocalDbTypebeepComboBox.IsReadOnly = false;
             LocalDbTypebeepComboBox.IsRequired = false;
             LocalDbTypebeepComboBox.IsRounded = false;
             LocalDbTypebeepComboBox.IsRoundedAffectedByTheme = true;
             LocalDbTypebeepComboBox.IsSelected = false;
-            LocalDbTypebeepComboBox.IsSelectedOn = true;
+          
             LocalDbTypebeepComboBox.IsSelectedOptionOn = false;
             LocalDbTypebeepComboBox.IsShadowAffectedByTheme = true;
             LocalDbTypebeepComboBox.IsValid = true;
@@ -1479,20 +1479,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.IsDirty = false;
             beepButton1.IsEditable = true;
             beepButton1.IsFocused = false;
-            beepButton1.IsFocusedOn = true;
+         
             beepButton1.IsFrameless = false;
             beepButton1.IsHovered = false;
-            beepButton1.IsHoveringOn = true;
+         
             beepButton1.IsNew = false;
             beepButton1.IsPopupOpen = false;
             beepButton1.IsPressed = false;
-            beepButton1.IsPressedOn = true;
+          
             beepButton1.IsReadOnly = false;
             beepButton1.IsRequired = false;
             beepButton1.IsRounded = true;
             beepButton1.IsRoundedAffectedByTheme = true;
             beepButton1.IsSelected = false;
-            beepButton1.IsSelectedOn = true;
+          
             beepButton1.IsSelectedOptionOn = false;
             beepButton1.IsShadowAffectedByTheme = true;
             beepButton1.IsSideMenuChild = false;

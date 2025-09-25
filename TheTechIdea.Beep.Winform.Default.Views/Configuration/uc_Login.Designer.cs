@@ -128,19 +128,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.IsDirty = false;
             beepLabel1.IsEditable = false;
             beepLabel1.IsFocused = false;
-            beepLabel1.IsFocusedOn = true;
+         
             beepLabel1.IsFrameless = false;
             beepLabel1.IsHovered = false;
-            beepLabel1.IsHoveringOn = true;
+          
             beepLabel1.IsNew = false;
             beepLabel1.IsPressed = false;
-            beepLabel1.IsPressedOn = true;
+            
             beepLabel1.IsReadOnly = false;
             beepLabel1.IsRequired = false;
             beepLabel1.IsRounded = true;
             beepLabel1.IsRoundedAffectedByTheme = true;
             beepLabel1.IsSelected = false;
-            beepLabel1.IsSelectedOn = true;
+          
             beepLabel1.IsSelectedOptionOn = false;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsValid = true;
@@ -464,20 +464,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.IsDirty = false;
             CancelbeepButton.IsEditable = false;
             CancelbeepButton.IsFocused = false;
-            CancelbeepButton.IsFocusedOn = true;
+        
             CancelbeepButton.IsFrameless = false;
             CancelbeepButton.IsHovered = false;
-            CancelbeepButton.IsHoveringOn = true;
+           
             CancelbeepButton.IsNew = false;
             CancelbeepButton.IsPopupOpen = false;
             CancelbeepButton.IsPressed = false;
-            CancelbeepButton.IsPressedOn = true;
+           
             CancelbeepButton.IsReadOnly = false;
             CancelbeepButton.IsRequired = false;
             CancelbeepButton.IsRounded = true;
             CancelbeepButton.IsRoundedAffectedByTheme = true;
             CancelbeepButton.IsSelected = false;
-            CancelbeepButton.IsSelectedOn = true;
+            
             CancelbeepButton.IsSelectedOptionOn = false;
             CancelbeepButton.IsShadowAffectedByTheme = true;
             CancelbeepButton.IsSideMenuChild = false;

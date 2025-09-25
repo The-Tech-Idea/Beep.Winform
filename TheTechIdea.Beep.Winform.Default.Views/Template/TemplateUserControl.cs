@@ -48,10 +48,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
                 BeepThemesManager.ThemeChanged += BeepThemesManager_ThemeChanged;
                 Theme = BeepThemesManager.CurrentThemeName;
                 MainTemplatePanel.EnableMaterialStyle = false;
-                MainTemplatePanel.IsFocusedOn = false;
-                MainTemplatePanel.IsSelectedOn = false;
-                MainTemplatePanel.IsHoveringOn = false;
-                MainTemplatePanel.IsPressedOn = false;
+                MainTemplatePanel.CanBeFocused = false;
+                MainTemplatePanel.CanBeSelected = false;
+                MainTemplatePanel.CanBeHovered = false;
+                MainTemplatePanel.CanBePressed = false;
             }
         }
 

@@ -146,19 +146,19 @@
             beepPanel1.IsDirty = false;
             beepPanel1.IsEditable = true;
             beepPanel1.IsFocused = false;
-            beepPanel1.IsFocusedOn = false;
+           
             beepPanel1.IsFrameless = false;
             beepPanel1.IsHovered = false;
-            beepPanel1.IsHoveringOn = false;
+          
             beepPanel1.IsNew = false;
             beepPanel1.IsPressed = false;
-            beepPanel1.IsPressedOn = false;
+            
             beepPanel1.IsReadOnly = false;
             beepPanel1.IsRequired = false;
             beepPanel1.IsRounded = true;
             beepPanel1.IsRoundedAffectedByTheme = true;
             beepPanel1.IsSelected = false;
-            beepPanel1.IsSelectedOn = false;
+            
             beepPanel1.IsSelectedOptionOn = false;
             beepPanel1.IsShadowAffectedByTheme = true;
             beepPanel1.IsValid = true;
@@ -363,19 +363,19 @@
             ConnectionNamebeepTextBox.IsDirty = false;
             ConnectionNamebeepTextBox.IsEditable = true;
             ConnectionNamebeepTextBox.IsFocused = false;
-            ConnectionNamebeepTextBox.IsFocusedOn = true;
+          
             ConnectionNamebeepTextBox.IsFrameless = false;
             ConnectionNamebeepTextBox.IsHovered = false;
-            ConnectionNamebeepTextBox.IsHoveringOn = true;
+            
             ConnectionNamebeepTextBox.IsNew = false;
             ConnectionNamebeepTextBox.IsPressed = false;
-            ConnectionNamebeepTextBox.IsPressedOn = true;
+           
             ConnectionNamebeepTextBox.IsReadOnly = false;
             ConnectionNamebeepTextBox.IsRequired = false;
             ConnectionNamebeepTextBox.IsRounded = true;
             ConnectionNamebeepTextBox.IsRoundedAffectedByTheme = true;
             ConnectionNamebeepTextBox.IsSelected = false;
-            ConnectionNamebeepTextBox.IsSelectedOn = true;
+          
             ConnectionNamebeepTextBox.IsSelectedOptionOn = false;
             ConnectionNamebeepTextBox.IsShadowAffectedByTheme = true;
             ConnectionNamebeepTextBox.IsValid = true;
@@ -547,20 +547,20 @@
             DriverbeepComboBox.IsDirty = false;
             DriverbeepComboBox.IsEditable = true;
             DriverbeepComboBox.IsFocused = false;
-            DriverbeepComboBox.IsFocusedOn = true;
+         
             DriverbeepComboBox.IsFrameless = false;
             DriverbeepComboBox.IsHovered = false;
-            DriverbeepComboBox.IsHoveringOn = true;
+          
             DriverbeepComboBox.IsNew = false;
             DriverbeepComboBox.IsPopupOpen = false;
             DriverbeepComboBox.IsPressed = false;
-            DriverbeepComboBox.IsPressedOn = true;
+           
             DriverbeepComboBox.IsReadOnly = false;
             DriverbeepComboBox.IsRequired = false;
             DriverbeepComboBox.IsRounded = true;
             DriverbeepComboBox.IsRoundedAffectedByTheme = true;
             DriverbeepComboBox.IsSelected = false;
-            DriverbeepComboBox.IsSelectedOn = true;
+           
             DriverbeepComboBox.IsSelectedOptionOn = false;
             DriverbeepComboBox.IsShadowAffectedByTheme = true;
             DriverbeepComboBox.IsValid = true;
@@ -721,19 +721,19 @@
             ConnectionStringbeepTextBox.IsDirty = false;
             ConnectionStringbeepTextBox.IsEditable = true;
             ConnectionStringbeepTextBox.IsFocused = false;
-            ConnectionStringbeepTextBox.IsFocusedOn = true;
+            
             ConnectionStringbeepTextBox.IsFrameless = false;
             ConnectionStringbeepTextBox.IsHovered = false;
-            ConnectionStringbeepTextBox.IsHoveringOn = true;
+           
             ConnectionStringbeepTextBox.IsNew = false;
             ConnectionStringbeepTextBox.IsPressed = false;
-            ConnectionStringbeepTextBox.IsPressedOn = true;
+           
             ConnectionStringbeepTextBox.IsReadOnly = false;
             ConnectionStringbeepTextBox.IsRequired = false;
             ConnectionStringbeepTextBox.IsRounded = true;
             ConnectionStringbeepTextBox.IsRoundedAffectedByTheme = true;
             ConnectionStringbeepTextBox.IsSelected = false;
-            ConnectionStringbeepTextBox.IsSelectedOn = true;
+          
             ConnectionStringbeepTextBox.IsSelectedOptionOn = false;
             ConnectionStringbeepTextBox.IsShadowAffectedByTheme = true;
             ConnectionStringbeepTextBox.IsValid = true;
@@ -905,20 +905,20 @@
             DriverVersionbeepComboBox.IsDirty = false;
             DriverVersionbeepComboBox.IsEditable = true;
             DriverVersionbeepComboBox.IsFocused = false;
-            DriverVersionbeepComboBox.IsFocusedOn = true;
+           
             DriverVersionbeepComboBox.IsFrameless = false;
             DriverVersionbeepComboBox.IsHovered = false;
-            DriverVersionbeepComboBox.IsHoveringOn = true;
+         
             DriverVersionbeepComboBox.IsNew = false;
             DriverVersionbeepComboBox.IsPopupOpen = false;
             DriverVersionbeepComboBox.IsPressed = false;
-            DriverVersionbeepComboBox.IsPressedOn = true;
+            
             DriverVersionbeepComboBox.IsReadOnly = false;
             DriverVersionbeepComboBox.IsRequired = false;
             DriverVersionbeepComboBox.IsRounded = true;
             DriverVersionbeepComboBox.IsRoundedAffectedByTheme = true;
             DriverVersionbeepComboBox.IsSelected = false;
-            DriverVersionbeepComboBox.IsSelectedOn = true;
+           
             DriverVersionbeepComboBox.IsSelectedOptionOn = false;
             DriverVersionbeepComboBox.IsShadowAffectedByTheme = true;
             DriverVersionbeepComboBox.IsValid = true;
@@ -1085,20 +1085,20 @@
             CancelbeepButton.IsDirty = false;
             CancelbeepButton.IsEditable = true;
             CancelbeepButton.IsFocused = false;
-            CancelbeepButton.IsFocusedOn = true;
+           
             CancelbeepButton.IsFrameless = false;
             CancelbeepButton.IsHovered = false;
-            CancelbeepButton.IsHoveringOn = true;
+           
             CancelbeepButton.IsNew = false;
             CancelbeepButton.IsPopupOpen = false;
             CancelbeepButton.IsPressed = false;
-            CancelbeepButton.IsPressedOn = true;
+           
             CancelbeepButton.IsReadOnly = false;
             CancelbeepButton.IsRequired = false;
             CancelbeepButton.IsRounded = true;
             CancelbeepButton.IsRoundedAffectedByTheme = true;
             CancelbeepButton.IsSelected = false;
-            CancelbeepButton.IsSelectedOn = true;
+           
             CancelbeepButton.IsSelectedOptionOn = false;
             CancelbeepButton.IsShadowAffectedByTheme = true;
             CancelbeepButton.IsSideMenuChild = false;
@@ -1277,20 +1277,20 @@
             SavebeepButton.IsDirty = false;
             SavebeepButton.IsEditable = true;
             SavebeepButton.IsFocused = false;
-            SavebeepButton.IsFocusedOn = true;
+         
             SavebeepButton.IsFrameless = false;
             SavebeepButton.IsHovered = false;
-            SavebeepButton.IsHoveringOn = true;
+        
             SavebeepButton.IsNew = false;
             SavebeepButton.IsPopupOpen = false;
             SavebeepButton.IsPressed = false;
-            SavebeepButton.IsPressedOn = true;
+           
             SavebeepButton.IsReadOnly = false;
             SavebeepButton.IsRequired = false;
             SavebeepButton.IsRounded = true;
             SavebeepButton.IsRoundedAffectedByTheme = true;
             SavebeepButton.IsSelected = false;
-            SavebeepButton.IsSelectedOn = true;
+           
             SavebeepButton.IsSelectedOptionOn = false;
             SavebeepButton.IsShadowAffectedByTheme = true;
             SavebeepButton.IsSideMenuChild = false;

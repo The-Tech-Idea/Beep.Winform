@@ -139,19 +139,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.IsDirty = false;
             beepLabel1.IsEditable = false;
             beepLabel1.IsFocused = false;
-            beepLabel1.IsFocusedOn = true;
+          
             beepLabel1.IsFrameless = false;
             beepLabel1.IsHovered = false;
-            beepLabel1.IsHoveringOn = true;
+           
             beepLabel1.IsNew = false;
             beepLabel1.IsPressed = false;
-            beepLabel1.IsPressedOn = true;
+           
             beepLabel1.IsReadOnly = false;
             beepLabel1.IsRequired = false;
             beepLabel1.IsRounded = true;
             beepLabel1.IsRoundedAffectedByTheme = true;
             beepLabel1.IsSelected = false;
-            beepLabel1.IsSelectedOn = true;
+          
             beepLabel1.IsSelectedOptionOn = true;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsValid = true;
@@ -324,19 +324,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.IsDirty = false;
             beepTextBox1.IsEditable = false;
             beepTextBox1.IsFocused = false;
-            beepTextBox1.IsFocusedOn = true;
+          
             beepTextBox1.IsFrameless = false;
             beepTextBox1.IsHovered = false;
-            beepTextBox1.IsHoveringOn = true;
+          
             beepTextBox1.IsNew = false;
             beepTextBox1.IsPressed = false;
-            beepTextBox1.IsPressedOn = true;
+          
             beepTextBox1.IsReadOnly = false;
             beepTextBox1.IsRequired = false;
             beepTextBox1.IsRounded = true;
             beepTextBox1.IsRoundedAffectedByTheme = true;
             beepTextBox1.IsSelected = false;
-            beepTextBox1.IsSelectedOn = true;
+           
             beepTextBox1.IsSelectedOptionOn = false;
             beepTextBox1.IsShadowAffectedByTheme = false;
             beepTextBox1.IsValid = true;

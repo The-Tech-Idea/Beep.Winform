@@ -131,19 +131,19 @@
             beepLabel1.IsDirty = false;
             beepLabel1.IsEditable = true;
             beepLabel1.IsFocused = false;
-            beepLabel1.IsFocusedOn = true;
+         
             beepLabel1.IsFrameless = false;
             beepLabel1.IsHovered = false;
-            beepLabel1.IsHoveringOn = true;
+         
             beepLabel1.IsNew = false;
             beepLabel1.IsPressed = false;
-            beepLabel1.IsPressedOn = true;
+         
             beepLabel1.IsReadOnly = false;
             beepLabel1.IsRequired = false;
             beepLabel1.IsRounded = true;
             beepLabel1.IsRoundedAffectedByTheme = true;
             beepLabel1.IsSelected = false;
-            beepLabel1.IsSelectedOn = true;
+          
             beepLabel1.IsSelectedOptionOn = false;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsValid = true;
@@ -310,20 +310,20 @@
             beepComboBox1.IsDirty = false;
             beepComboBox1.IsEditable = true;
             beepComboBox1.IsFocused = false;
-            beepComboBox1.IsFocusedOn = true;
+            
             beepComboBox1.IsFrameless = false;
             beepComboBox1.IsHovered = false;
-            beepComboBox1.IsHoveringOn = true;
+          
             beepComboBox1.IsNew = false;
             beepComboBox1.IsPopupOpen = false;
             beepComboBox1.IsPressed = false;
-            beepComboBox1.IsPressedOn = true;
+           
             beepComboBox1.IsReadOnly = false;
             beepComboBox1.IsRequired = false;
             beepComboBox1.IsRounded = true;
             beepComboBox1.IsRoundedAffectedByTheme = true;
             beepComboBox1.IsSelected = false;
-            beepComboBox1.IsSelectedOn = true;
+         
             beepComboBox1.IsSelectedOptionOn = false;
             beepComboBox1.IsShadowAffectedByTheme = true;
             beepComboBox1.IsValid = true;
@@ -477,19 +477,19 @@
             beepCheckBoxBool1.IsDirty = false;
             beepCheckBoxBool1.IsEditable = true;
             beepCheckBoxBool1.IsFocused = false;
-            beepCheckBoxBool1.IsFocusedOn = true;
+           
             beepCheckBoxBool1.IsFrameless = true;
             beepCheckBoxBool1.IsHovered = false;
-            beepCheckBoxBool1.IsHoveringOn = true;
+           
             beepCheckBoxBool1.IsNew = false;
             beepCheckBoxBool1.IsPressed = false;
-            beepCheckBoxBool1.IsPressedOn = true;
+         
             beepCheckBoxBool1.IsReadOnly = false;
             beepCheckBoxBool1.IsRequired = false;
             beepCheckBoxBool1.IsRounded = true;
             beepCheckBoxBool1.IsRoundedAffectedByTheme = true;
             beepCheckBoxBool1.IsSelected = false;
-            beepCheckBoxBool1.IsSelectedOn = true;
+            
             beepCheckBoxBool1.IsSelectedOptionOn = false;
             beepCheckBoxBool1.IsShadowAffectedByTheme = true;
             beepCheckBoxBool1.IsValid = true;
@@ -646,19 +646,19 @@
             beepDatePicker1.IsDirty = false;
             beepDatePicker1.IsEditable = true;
             beepDatePicker1.IsFocused = false;
-            beepDatePicker1.IsFocusedOn = true;
+         
             beepDatePicker1.IsFrameless = false;
             beepDatePicker1.IsHovered = false;
-            beepDatePicker1.IsHoveringOn = true;
+         
             beepDatePicker1.IsNew = false;
             beepDatePicker1.IsPressed = false;
-            beepDatePicker1.IsPressedOn = true;
+          
             beepDatePicker1.IsReadOnly = false;
             beepDatePicker1.IsRequired = false;
             beepDatePicker1.IsRounded = true;
             beepDatePicker1.IsRoundedAffectedByTheme = true;
             beepDatePicker1.IsSelected = false;
-            beepDatePicker1.IsSelectedOn = true;
+         
             beepDatePicker1.IsSelectedOptionOn = false;
             beepDatePicker1.IsShadowAffectedByTheme = true;
             beepDatePicker1.IsValid = true;
@@ -968,19 +968,19 @@
             beepChevronButton1.IsDirty = false;
             beepChevronButton1.IsEditable = true;
             beepChevronButton1.IsFocused = false;
-            beepChevronButton1.IsFocusedOn = true;
+          
             beepChevronButton1.IsFrameless = true;
             beepChevronButton1.IsHovered = false;
-            beepChevronButton1.IsHoveringOn = true;
+         
             beepChevronButton1.IsNew = false;
             beepChevronButton1.IsPressed = false;
-            beepChevronButton1.IsPressedOn = true;
+           
             beepChevronButton1.IsReadOnly = false;
             beepChevronButton1.IsRequired = false;
             beepChevronButton1.IsRounded = true;
             beepChevronButton1.IsRoundedAffectedByTheme = false;
             beepChevronButton1.IsSelected = false;
-            beepChevronButton1.IsSelectedOn = true;
+            
             beepChevronButton1.IsSelectedOptionOn = false;
             beepChevronButton1.IsShadowAffectedByTheme = false;
             beepChevronButton1.IsValid = true;
@@ -1129,20 +1129,20 @@
             beepListBox1.IsDirty = false;
             beepListBox1.IsEditable = false;
             beepListBox1.IsFocused = false;
-            beepListBox1.IsFocusedOn = false;
+       
             beepListBox1.IsFrameless = false;
             beepListBox1.IsHovered = false;
-            beepListBox1.IsHoveringOn = false;
+          
             beepListBox1.IsItemChilds = true;
             beepListBox1.IsNew = false;
             beepListBox1.IsPressed = false;
-            beepListBox1.IsPressedOn = false;
+           
             beepListBox1.IsReadOnly = false;
             beepListBox1.IsRequired = false;
             beepListBox1.IsRounded = true;
             beepListBox1.IsRoundedAffectedByTheme = true;
             beepListBox1.IsSelected = false;
-            beepListBox1.IsSelectedOn = false;
+           
             beepListBox1.IsSelectedOptionOn = false;
             beepListBox1.IsShadowAffectedByTheme = true;
             beepListBox1.IsValid = true;
@@ -1309,19 +1309,19 @@
             beepDatePickerView1.IsDirty = false;
             beepDatePickerView1.IsEditable = true;
             beepDatePickerView1.IsFocused = false;
-            beepDatePickerView1.IsFocusedOn = true;
+           
             beepDatePickerView1.IsFrameless = false;
             beepDatePickerView1.IsHovered = false;
-            beepDatePickerView1.IsHoveringOn = true;
+          
             beepDatePickerView1.IsNew = false;
             beepDatePickerView1.IsPressed = false;
-            beepDatePickerView1.IsPressedOn = true;
+           
             beepDatePickerView1.IsReadOnly = false;
             beepDatePickerView1.IsRequired = false;
             beepDatePickerView1.IsRounded = true;
             beepDatePickerView1.IsRoundedAffectedByTheme = true;
             beepDatePickerView1.IsSelected = false;
-            beepDatePickerView1.IsSelectedOn = true;
+           
             beepDatePickerView1.IsSelectedOptionOn = false;
             beepDatePickerView1.IsShadowAffectedByTheme = true;
             beepDatePickerView1.IsValid = true;
@@ -1468,19 +1468,19 @@
             beepRadioGroup1.IsDirty = false;
             beepRadioGroup1.IsEditable = true;
             beepRadioGroup1.IsFocused = false;
-            beepRadioGroup1.IsFocusedOn = true;
+            
             beepRadioGroup1.IsFrameless = false;
             beepRadioGroup1.IsHovered = false;
-            beepRadioGroup1.IsHoveringOn = true;
+           
             beepRadioGroup1.IsNew = false;
             beepRadioGroup1.IsPressed = false;
-            beepRadioGroup1.IsPressedOn = true;
+         
             beepRadioGroup1.IsReadOnly = false;
             beepRadioGroup1.IsRequired = false;
             beepRadioGroup1.IsRounded = true;
             beepRadioGroup1.IsRoundedAffectedByTheme = true;
             beepRadioGroup1.IsSelected = false;
-            beepRadioGroup1.IsSelectedOn = true;
+          
             beepRadioGroup1.IsSelectedOptionOn = false;
             beepRadioGroup1.IsShadowAffectedByTheme = true;
             beepRadioGroup1.IsValid = true;

@@ -115,19 +115,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.IsDirty = false;
             MainTemplatePanel.IsEditable = false;
             MainTemplatePanel.IsFocused = false;
-            MainTemplatePanel.IsFocusedOn = false;
+          
             MainTemplatePanel.IsFrameless = false;
             MainTemplatePanel.IsHovered = false;
-            MainTemplatePanel.IsHoveringOn = false;
+          
             MainTemplatePanel.IsNew = false;
             MainTemplatePanel.IsPressed = false;
-            MainTemplatePanel.IsPressedOn = false;
+          
             MainTemplatePanel.IsReadOnly = false;
             MainTemplatePanel.IsRequired = false;
             MainTemplatePanel.IsRounded = false;
             MainTemplatePanel.IsRoundedAffectedByTheme = false;
             MainTemplatePanel.IsSelected = false;
-            MainTemplatePanel.IsSelectedOn = false;
+          
             MainTemplatePanel.IsSelectedOptionOn = false;
             MainTemplatePanel.IsShadowAffectedByTheme = false;
             MainTemplatePanel.IsValid = true;

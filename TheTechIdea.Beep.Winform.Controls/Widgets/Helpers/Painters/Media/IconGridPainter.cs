@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
@@ -14,13 +16,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
     /// </summary>
     internal sealed class IconGridPainter : WidgetPainterBase, IDisposable
     {
-        private ImagePainter _iconPainter;
+        private BaseImage.ImagePainter _iconPainter;
 
         public IconGridPainter()
         {
-            _iconPainter = new ImagePainter();
-            _iconPainter.ScaleMode = ImageScaleMode.KeepAspectRatio;
-            _iconPainter.ClipShape = ImageClipShape.None;
+            _iconPainter = new BaseImage.ImagePainter();
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
@@ -61,7 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             // Update theme configuration
             if (Theme != null)
             {
-                _iconPainter.Theme = Theme;
+                _iconPainter.CurrentTheme = Theme;
+                _iconPainter.ApplyThemeOnImage = true;
             }
 
             // Draw title
@@ -101,11 +102,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     
                     // Try to draw custom icon using ImagePainter if IconPath exists
                     bool iconDrawn = false;
-                    if (!string.IsNullOrEmpty(ctx.IconPath))
+                    var customIconPath = ctx.CustomData.ContainsKey("IconPath") ? ctx.CustomData["IconPath"]?.ToString() : null;
+                    if (!string.IsNullOrEmpty(customIconPath))
                     {
                         try
                         {
-                            _iconPainter.DrawImage(g, ctx.IconPath, iconRect);
+                            _iconPainter.ImagePath = customIconPath;
+                            _iconPainter.DrawImage(g, iconRect);
                             iconDrawn = true;
                         }
                         catch { }

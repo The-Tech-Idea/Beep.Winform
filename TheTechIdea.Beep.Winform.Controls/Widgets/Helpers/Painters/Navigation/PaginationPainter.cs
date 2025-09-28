@@ -45,8 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             int currentPage = ctx.CustomData.ContainsKey("CurrentPage") ? (int)ctx.CustomData["CurrentPage"] : 1;
             int totalPages = ctx.CustomData.ContainsKey("TotalPages") ? (int)ctx.CustomData["TotalPages"] : 10;

@@ -47,8 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             var items = ctx.CustomData.ContainsKey("Items") ? 
                 (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleBreadcrumb();
@@ -83,8 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             
             // Home icon
             var homeIconRect = new Rectangle(x, y - 8, 16, 16);
-            _imagePainter.DrawSvg(g, "home", homeIconRect, 
-                Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.8f);
+            _imagePainter.ImagePath = "home.svg";
+            _imagePainter.DrawImage(g, homeIconRect);
             x += 24;
             
             for (int i = 0; i < items.Count; i++)
@@ -97,8 +97,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 if (i > 0)
                 {
                     var chevronRect = new Rectangle(x, y - 6, 12, 12);
-                    _imagePainter.DrawSvg(g, "chevron-right", chevronRect, 
-                        Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray), 0.6f);
+                    _imagePainter.ImagePath = "chevron-right.svg";
+                    _imagePainter.DrawImage(g, chevronRect);
                     x += 16;
                 }
                 

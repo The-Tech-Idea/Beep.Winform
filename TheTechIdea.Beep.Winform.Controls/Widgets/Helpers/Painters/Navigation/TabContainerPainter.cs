@@ -48,8 +48,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             var items = ctx.CustomData.ContainsKey("Items") ? 
                 (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleTabs();
@@ -124,8 +124,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 if (!string.IsNullOrEmpty(iconName))
                 {
                     var iconRect = new Rectangle(tabRect.X + 8, tabRect.Y + (tabRect.Height - 16) / 2, 16, 16);
-                    _imagePainter.DrawSvg(g, iconName, iconRect, 
-                        isActive ? primaryColor : Color.FromArgb(140, Color.Black), 0.8f);
+                    _imagePainter.ImagePath = iconName;
+                    _imagePainter.DrawImage(g, iconRect);
                 }
                 
                 // Tab text

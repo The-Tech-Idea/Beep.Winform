@@ -218,5 +218,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             var arrowRect = new Rectangle(ctx.DrawingRect.Right - 24, ctx.DrawingRect.Top + 8, 16, 16);
             DrawTrendArrow(g, arrowRect, trend, ctx.AccentColor);
         }
+
+        public void Dispose()
+        {
+            _imagePainter?.Dispose();
+        }
     }
 }

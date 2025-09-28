@@ -108,5 +108,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         {
             // Optional: Draw time markers or event categories
         }
+
+        public void Dispose()
+        {
+            _imagePainter?.Dispose();
+        }
     }
 }

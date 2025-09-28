@@ -45,8 +45,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             var items = ctx.CustomData.ContainsKey("Items") ? 
                 (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleSteps();
@@ -110,7 +110,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     
                     // Check icon
                     var iconRect = new Rectangle(stepRect.X + 8, stepRect.Y + 8, 16, 16);
-                    _imagePainter.DrawSvg(g, "check", iconRect, Color.White, 1.0f);
+                    _imagePainter.ImagePath = "check.svg";
+                    _imagePainter.DrawImage(g, iconRect);
                 }
                 else if (isCurrent)
                 {

@@ -12,35 +12,40 @@ using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public enum CardViewMode
-    {
-        FullImage,
-        Compact,
-        ImageLeft
-    }
-
     public enum CardStyle
     {
-        Classic,
-        MaterialElevated,
-        SoftShadow,
-        Outline,
-        AccentHeader,
-        ListTile,
-        Glass
-    }
-
-    public sealed class CardAreaClickedEventArgs : EventArgs
-    {
-        public string AreaName { get; }
-        public Rectangle AreaRect { get; }
-        public CardAreaClickedEventArgs(string name, Rectangle rect) { AreaName = name; AreaRect = rect; }
+        // Profile-oriented styles
+        ProfileCard,     // Vertical profile with large image/avatar (like Corey Tawney)
+        CompactProfile,  // Smaller profile variant
+        
+        // Content-oriented styles  
+        ContentCard,     // Banner image top, content below (like course cards)
+        FeatureCard,     // Icon + title + description (like app features)
+        
+        // List-oriented styles
+        ListCard,        // Horizontal with avatar/icon (like Director listings)
+        TestimonialCard, // Quote style with avatar and rating stars
+        
+        // Simple styles
+        DialogCard,      // Simple modal-style (like confirmation dialogs)
+        BasicCard,       // Minimal card for general content
+        
+        // E-commerce styles
+        ProductCard,     // Product showcase with image, price, rating
+        ProductCompactCard, // Horizontal compact product for lists
+        
+        // Data/Analytics styles
+        StatCard,        // Statistics and KPIs display
+        
+        // Social/Communication styles
+        EventCard,       // Events, appointments, time-based content
+        SocialMediaCard  // Social posts, feeds, announcements
     }
 
     [ToolboxItem(true)]
     [DisplayName("Beep Card")]
     [Category("Beep Controls")]
-    [Description("A card control that displays an image, header, paragraph, and action button with multiple views.")]
+    [Description("A comprehensive card control supporting multiple modern card styles.")]
     public class BeepCard : BaseControl
     {
         #region "Fields"
@@ -48,27 +53,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepLabel headerLabel;
         private BeepLabel paragraphLabel;
         private BeepButton actionButton;
+        private BeepButton secondaryButton;
         private string headerText = "Card Title";
         private string paragraphText = "Card Description";
         private string buttonText = "Action";
+        private string secondaryButtonText = "More";
+        private bool showSecondaryButton = true;
         private int maxImageSize = 64;
         private ContentAlignment headerAlignment = ContentAlignment.TopLeft;
         private ContentAlignment imageAlignment = ContentAlignment.TopRight;
         private ContentAlignment textAlignment = ContentAlignment.TopLeft;
-        private CardViewMode viewMode = CardViewMode.FullImage;
-        private CardStyle _style = CardStyle.MaterialElevated;
+        private CardStyle _style = CardStyle.ProfileCard;
         private bool showButton = true;
         private string imagePath = string.Empty;
         private Rectangle imageRect, headerRect, paragraphRect, buttonRect;
         private ICardPainter _painter;
         private Color _accentColor = Color.FromArgb(0, 150, 136); // teal
 
-        // Events
+        // Enhanced properties for new styles
+        private string _badgeText1 = string.Empty; // Primary badge (e.g., PRO, FREE)
+        private Color _badge1BackColor = Color.FromArgb(255, 235, 59); // amber
+        private Color _badge1ForeColor = Color.Black;
+        private string _badgeText2 = string.Empty; // Secondary badge
+        private Color _badge2BackColor = Color.FromArgb(33, 150, 243); // blue
+        private Color _badge2ForeColor = Color.White;
+        private List<string> _tags = new List<string>(); // For chips/tags
+        private string _subtitleText = string.Empty; // For profile subtitles
+        private int _rating = 0; // 0-5 stars for testimonials
+        private bool _showRating = false;
+        private string _statusText = string.Empty; // e.g., "Available for work"
+        private Color _statusColor = Color.Green;
+        private bool _showStatus = false;
+
+        // Events - using BaseControl's built-in event system
         public event EventHandler<BeepEventDataArgs> ImageClicked;
         public event EventHandler<BeepEventDataArgs> HeaderClicked;
         public event EventHandler<BeepEventDataArgs> ParagraphClicked;
         public event EventHandler<BeepEventDataArgs> ButtonClicked;
-        public event EventHandler<CardAreaClickedEventArgs> AreaClicked; // painter-provided
+        // Remove CardAreaClickedEventArgs - use BaseControl's HitDetected event instead
         #endregion
 
         // Constructor
@@ -89,27 +111,47 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             switch (_style)
             {
-                case CardStyle.MaterialElevated:
-                    _painter = new MaterialElevatedCardPainter();
+                case CardStyle.ProfileCard:
+                    _painter = new ProfileCardPainter();
                     break;
-                case CardStyle.SoftShadow:
-                    _painter = new SoftShadowCardPainter();
+                case CardStyle.CompactProfile:
+                    _painter = new CompactProfileCardPainter();
                     break;
-                case CardStyle.Outline:
-                    _painter = new OutlineCardPainter();
+                case CardStyle.ContentCard:
+                    _painter = new ContentCardPainter();
                     break;
-                case CardStyle.AccentHeader:
-                    _painter = new AccentHeaderCardPainter();
+                case CardStyle.FeatureCard:
+                    _painter = new FeatureCardPainter();
                     break;
-                case CardStyle.ListTile:
-                    _painter = new ListTileCardPainter();
+                case CardStyle.ListCard:
+                    _painter = new ListCardPainter();
                     break;
-                case CardStyle.Glass:
-                    _painter = new GlassCardPainter();
+                case CardStyle.TestimonialCard:
+                    _painter = new TestimonialCardPainter();
                     break;
-                case CardStyle.Classic:
+                case CardStyle.DialogCard:
+                    _painter = new DialogCardPainter();
+                    break;
+                case CardStyle.BasicCard:
+                    _painter = new BasicCardPainter();
+                    break;
+                case CardStyle.ProductCard:
+                    _painter = new ProductCardPainter();
+                    break;
+                case CardStyle.ProductCompactCard:
+                    _painter = new ProductCompactCardPainter();
+                    break;
+                case CardStyle.StatCard:
+                    _painter = new StatCardPainter();
+                    break;
+                case CardStyle.EventCard:
+                    _painter = new EventCardPainter();
+                    break;
+                case CardStyle.SocialMediaCard:
+                    _painter = new SocialMediaCardPainter();
+                    break;
                 default:
-                    _painter = new OutlineCardPainter();
+                    _painter = new ProfileCardPainter();
                     break;
             }
             _painter?.Initialize(this, _currentTheme);
@@ -168,6 +210,17 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Visible = showButton
             };
 
+            secondaryButton = new BeepButton
+            {
+                Text = secondaryButtonText,
+                Theme = Theme,
+                IsFrameless = true,
+                IsChild = false,
+                IsShadowAffectedByTheme = false,
+                IsBorderAffectedByTheme = false,
+                Visible = showSecondaryButton
+            };
+
             ApplyTheme();
             RefreshLayout();
         }
@@ -177,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.DrawContent(g);
             RefreshLayout();
 
-            // Prepare painter layout context and let painter draw background and accents
+            // Enhanced LayoutContext with new properties
             var ctx = new LayoutContext
             {
                 DrawingRect = DrawingRect,
@@ -188,7 +241,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowImage = !string.IsNullOrEmpty(imagePath) && imageBox.Visible,
                 ShowButton = showButton,
                 Radius = BorderRadius,
-                AccentColor = _accentColor
+                AccentColor = _accentColor,
+                Tags = _tags,
+                ShowSecondaryButton = showSecondaryButton,
+                BadgeText1 = _badgeText1,
+                Badge1BackColor = _badge1BackColor,
+                Badge1ForeColor = _badge1ForeColor,
+                BadgeText2 = _badgeText2,
+                Badge2BackColor = _badge2BackColor,
+                Badge2ForeColor = _badge2ForeColor,
+                SubtitleText = _subtitleText,
+                StatusText = _statusText,
+                StatusColor = _statusColor,
+                ShowStatus = _showStatus,
+                Rating = _rating,
+                ShowRating = _showRating
             };
 
             _painter?.Initialize(this, _currentTheme);
@@ -206,86 +273,36 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (ctx.ShowButton)
             {
+                actionButton.Text = buttonText;
                 actionButton.Draw(g, ctx.ButtonRect);
+            }
+
+            if (ctx.ShowSecondaryButton)
+            {
+                secondaryButton.Text = secondaryButtonText;
+                var r = ctx.SecondaryButtonRect == Rectangle.Empty
+                    ? new Rectangle(Math.Max(DrawingRect.Left + 12, ctx.ButtonRect.Left - 120 - 12), ctx.ButtonRect.Top, 120, ctx.ButtonRect.Height)
+                    : ctx.SecondaryButtonRect;
+                secondaryButton.Draw(g, r);
             }
 
             _painter?.DrawForegroundAccents(g, ctx);
 
             RefreshHitAreas(ctx);
-            _painter?.UpdateHitAreas(this, ctx, (name, rect) => AreaClicked?.Invoke(this, new CardAreaClickedEventArgs(name, rect)));
+            
+            // Use BaseControl's hit area system - painters can register custom hit areas
+            _painter?.UpdateHitAreas(this, ctx, (name, rect) => 
+            {
+                // This will trigger the HitDetected event from BaseControl
+                // No need for custom CardAreaClickedEventArgs
+            });
         }
 
         private void RefreshLayout()
         {
+            // Only keep DrawingRect calculation; painters decide internal layout
             Padding = new Padding(3);
-            int padding = Padding.All;
             UpdateDrawingRect();
-
-            if (DrawingRect.Width <= padding * 2 || DrawingRect.Height <= padding * 2)
-                return;
-
-            int availableWidth = Math.Max(0, DrawingRect.Width - padding * 2);
-            int availableHeight = Math.Max(0, DrawingRect.Height - padding * 2);
-
-            Size measuredHeader = headerLabel.GetPreferredSize(Size.Empty);
-            int headerMeasuredHeight = measuredHeader.Height;
-
-            Size measuredParagraph = paragraphLabel.GetPreferredSize(Size.Empty);
-            int paragraphMeasuredHeight = measuredParagraph.Height;
-
-            Size buttonSize = actionButton.GetPreferredSize(Size.Empty);
-            int buttonHeight = buttonSize.Height;
-            int buttonWidth = buttonSize.Width;
-
-            // Layout based on view mode
-            switch (viewMode)
-            {
-                case CardViewMode.FullImage:
-                    if (imageBox.Visible)
-                    {
-                        int imageHeight = (int)(availableHeight * 0.6);
-                        imageRect = new Rectangle(DrawingRect.Left + padding, DrawingRect.Top + padding, availableWidth, imageHeight);
-                        headerRect = new Rectangle(DrawingRect.Left + padding, imageRect.Bottom + padding, availableWidth, headerMeasuredHeight);
-                        paragraphRect = new Rectangle(DrawingRect.Left + padding, headerRect.Bottom + padding, availableWidth, Math.Max(0, DrawingRect.Bottom - headerRect.Bottom - buttonHeight - padding * 3));
-                        buttonRect = new Rectangle(DrawingRect.Right - buttonWidth - padding, DrawingRect.Bottom - buttonHeight - padding, buttonWidth, buttonHeight);
-                    }
-                    else
-                    {
-                        headerRect = new Rectangle(DrawingRect.Left + padding, DrawingRect.Top + padding, availableWidth, headerMeasuredHeight);
-                        paragraphRect = new Rectangle(DrawingRect.Left + padding, headerRect.Bottom + padding, availableWidth, Math.Max(0, DrawingRect.Bottom - headerRect.Bottom - buttonHeight - padding * 3));
-                        buttonRect = new Rectangle(DrawingRect.Right - buttonWidth - padding, DrawingRect.Bottom - buttonHeight - padding, buttonWidth, buttonHeight);
-                    }
-                    break;
-
-                case CardViewMode.Compact:
-                    headerRect = new Rectangle(DrawingRect.Left + padding, DrawingRect.Top + padding, availableWidth, headerMeasuredHeight);
-                    paragraphRect = new Rectangle(DrawingRect.Left + padding, headerRect.Bottom + padding, availableWidth, Math.Max(0, DrawingRect.Bottom - headerRect.Bottom - buttonHeight - padding * 3));
-                    buttonRect = new Rectangle(DrawingRect.Right - buttonWidth - padding, DrawingRect.Bottom - buttonHeight - padding, buttonWidth, buttonHeight);
-                    imageRect = Rectangle.Empty;
-                    break;
-
-                case CardViewMode.ImageLeft:
-                    if (imageBox.Visible)
-                    {
-                        int imageWidth = (int)(availableWidth * 0.33);
-                        imageRect = new Rectangle(DrawingRect.Left + padding, DrawingRect.Top + padding, imageWidth, availableHeight - buttonHeight - padding);
-
-                        int textAreaX = imageRect.Right + padding;
-                        int textAreaWidth = Math.Max(0, DrawingRect.Right - padding - textAreaX);
-
-                        headerRect = new Rectangle(textAreaX, DrawingRect.Top + padding, textAreaWidth, headerMeasuredHeight);
-                        paragraphRect = new Rectangle(textAreaX, headerRect.Bottom + padding, textAreaWidth, Math.Max(0, DrawingRect.Bottom - headerRect.Bottom - buttonHeight - padding * 3));
-                        buttonRect = new Rectangle(DrawingRect.Right - buttonWidth - padding, DrawingRect.Bottom - buttonHeight - padding, buttonWidth, buttonHeight);
-                    }
-                    else
-                    {
-                        headerRect = new Rectangle(DrawingRect.Left + padding, DrawingRect.Top + padding, availableWidth, headerMeasuredHeight);
-                        paragraphRect = new Rectangle(DrawingRect.Left + padding, headerRect.Bottom + padding, availableWidth, Math.Max(0, DrawingRect.Bottom - headerRect.Bottom - buttonHeight - padding * 3));
-                        buttonRect = new Rectangle(DrawingRect.Right - buttonWidth - padding, DrawingRect.Bottom - buttonHeight - padding, buttonWidth, buttonHeight);
-                        imageRect = Rectangle.Empty;
-                    }
-                    break;
-            }
         }
 
         private void RefreshHitAreas(LayoutContext ctx)
@@ -317,6 +334,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ButtonClicked?.Invoke(this, new BeepEventDataArgs("ButtonClicked", this));
                 });
             }
+
+            if (ctx.ShowSecondaryButton && ctx.SecondaryButtonRect != Rectangle.Empty)
+            {
+                AddHitArea("SecondaryButton", ctx.SecondaryButtonRect, secondaryButton, () =>
+                {
+                    ButtonClicked?.Invoke(this, new BeepEventDataArgs("SecondaryButtonClicked", this));
+                });
+            }
         }
 
         public override void ApplyTheme()
@@ -332,13 +357,22 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             paragraphLabel.Theme = Theme;
             paragraphLabel.ForeColor = _currentTheme.CardTextForeColor;
-            paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
+            paragraphLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.Paragraph);
             paragraphLabel.BackColor = _currentTheme.CardBackColor;
 
             actionButton.Theme = Theme;
             actionButton.IsRounded = IsRounded;
             actionButton.BorderRadius = BorderRadius;
             actionButton.BorderThickness = BorderThickness;
+
+            if (secondaryButton == null)
+            {
+                secondaryButton = new BeepButton();
+            }
+            secondaryButton.Theme = Theme;
+            secondaryButton.IsRounded = IsRounded;
+            secondaryButton.BorderRadius = BorderRadius;
+            secondaryButton.BorderThickness = BorderThickness;
 
             imageBox.Theme = Theme;
             imageBox.BackColor = _currentTheme.CardBackColor;
@@ -347,17 +381,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             Invalidate();
         }
 
-        #region Properties
+        #region Enhanced Properties
         [Category("Appearance")]
-        [Description("The view mode of the card (FullImage, Compact, ImageLeft).")]
-        public CardViewMode ViewMode
-        {
-            get => viewMode;
-            set { viewMode = value; RefreshLayout(); Invalidate(); }
-        }
-
-        [Category("Appearance")]
-        [Description("Visual style painter for the card background and accents.")]
+        [Description("Visual style of the card layout and design.")]
         public CardStyle Style
         {
             get => _style;
@@ -365,11 +391,127 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
 
         [Category("Appearance")]
-        [Description("Accent color used by some styles (e.g., header stripe, badges).")]
+        [Description("Accent color used for highlights and accents.")]
         public Color AccentColor
         {
             get => _accentColor;
             set { _accentColor = value; Invalidate(); }
+        }
+
+        [Category("Content")]
+        [Description("Subtitle text displayed below the header.")]
+        public string SubtitleText
+        {
+            get => _subtitleText;
+            set { _subtitleText = value; Invalidate(); }
+        }
+
+        [Category("Content")]
+        [Description("Status text (e.g., 'Available for work').")]
+        public string StatusText
+        {
+            get => _statusText;
+            set { _statusText = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Color of the status indicator.")]
+        public Color StatusColor
+        {
+            get => _statusColor;
+            set { _statusColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Whether to show the status indicator.")]
+        public bool ShowStatus
+        {
+            get => _showStatus;
+            set { _showStatus = value; Invalidate(); }
+        }
+
+        [Category("Content")]
+        [Description("Rating value (0-5 stars) for testimonial cards.")]
+        public int Rating
+        {
+            get => _rating;
+            set { _rating = Math.Max(0, Math.Min(5, value)); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Whether to show the rating stars.")]
+        public bool ShowRating
+        {
+            get => _showRating;
+            set { _showRating = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Primary badge text, e.g., PRO or FREE.")]
+        public string BadgeText1
+        {
+            get => _badgeText1;
+            set { _badgeText1 = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public Color Badge1BackColor
+        {
+            get => _badge1BackColor;
+            set { _badge1BackColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public Color Badge1ForeColor
+        {
+            get => _badge1ForeColor;
+            set { _badge1ForeColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Secondary badge text (optional).")]
+        public string BadgeText2
+        {
+            get => _badgeText2;
+            set { _badgeText2 = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public Color Badge2BackColor
+        {
+            get => _badge2BackColor;
+            set { _badge2BackColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public Color Badge2ForeColor
+        {
+            get => _badge2ForeColor;
+            set { _badge2ForeColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Tags/chips rendered on the card.")]
+        public List<string> Tags
+        {
+            get => _tags;
+            set { _tags = value ?? new List<string>(); Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Text for secondary button.")]
+        public string SecondaryButtonText
+        {
+            get => secondaryButtonText;
+            set { secondaryButtonText = value; if (secondaryButton != null) secondaryButton.Text = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        [Description("Whether to show the secondary button.")]
+        public bool ShowSecondaryButton
+        {
+            get => showSecondaryButton;
+            set { showSecondaryButton = value; if (secondaryButton != null) secondaryButton.Visible = value; Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -377,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string HeaderText
         {
             get => headerText;
-            set { headerText = value; headerLabel.Text = value; RefreshLayout(); Invalidate(); }
+            set { headerText = value; headerLabel.Text = value; Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -385,23 +527,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         public string ParagraphText
         {
             get => paragraphText;
-            set { paragraphText = value; paragraphLabel.Text = value; RefreshLayout(); Invalidate(); }
+            set { paragraphText = value; paragraphLabel.Text = value; Invalidate(); }
         }
 
         [Category("Appearance")]
-        [Description("Text displayed on the action button.")]
+        [Description("Text displayed on the primary action button.")]
         public string ButtonText
         {
             get => buttonText;
-            set { buttonText = value; actionButton.Text = value; RefreshLayout(); Invalidate(); }
+            set { buttonText = value; actionButton.Text = value; Invalidate(); }
         }
 
         [Category("Appearance")]
-        [Description("Determines whether the action button is visible.")]
+        [Description("Determines whether the primary action button is visible.")]
         public bool ShowButton
         {
             get => showButton;
-            set { showButton = value; actionButton.Visible = value; RefreshLayout(); Invalidate(); }
+            set { showButton = value; actionButton.Visible = value; Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -415,17 +557,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 imagePath = value;
                 imageBox.ImagePath = value;
                 imageBox.Visible = !string.IsNullOrEmpty(value);
-                RefreshLayout();
                 Invalidate();
             }
         }
 
         [Category("Appearance")]
-        [Description("Maximum size of the image displayed on the card.")]
+        [Description("Maximum size of the image displayed on the card (if used by style).")]
         public int MaxImageSize
         {
             get => maxImageSize;
-            set { maxImageSize = value; imageBox.Size = new Size(value, value); RefreshLayout(); Invalidate(); }
+            set { maxImageSize = value; imageBox.Size = new Size(value, value); Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -433,15 +574,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContentAlignment HeaderAlignment
         {
             get => headerAlignment;
-            set { headerAlignment = value; RefreshLayout(); Invalidate(); }
+            set { headerAlignment = value; Invalidate(); }
         }
 
         [Category("Appearance")]
-        [Description("The alignment of the image.")]
+        [Description("The alignment of the image (style-specific usage).")]
         public ContentAlignment ImageAlignment
         {
             get => imageAlignment;
-            set { imageAlignment = value; RefreshLayout(); Invalidate(); }
+            set { imageAlignment = value; Invalidate(); }
         }
 
         [Category("Appearance")]
@@ -449,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public ContentAlignment TextAlignment
         {
             get => textAlignment;
-            set { textAlignment = value; paragraphLabel.TextAlign = value; RefreshLayout(); Invalidate(); }
+            set { textAlignment = value; paragraphLabel.TextAlign = value; Invalidate(); }
         }
         #endregion
 
@@ -461,6 +602,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 headerLabel?.Dispose();
                 paragraphLabel?.Dispose();
                 actionButton?.Dispose();
+                secondaryButton?.Dispose();
             }
             base.Dispose(disposing);
         }

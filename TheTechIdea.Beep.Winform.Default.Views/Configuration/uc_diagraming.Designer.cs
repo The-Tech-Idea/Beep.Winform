@@ -63,6 +63,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             BeepColumnConfig beepColumnConfig25 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig26 = new BeepColumnConfig();
             BeepColumnConfig beepColumnConfig27 = new BeepColumnConfig();
+            System.Drawing.Drawing2D.GraphicsPath graphicsPath6 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath5 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath4 = new System.Drawing.Drawing2D.GraphicsPath();
             System.Drawing.Drawing2D.GraphicsPath graphicsPath3 = new System.Drawing.Drawing2D.GraphicsPath();
@@ -77,12 +78,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1 = new BeepTextBox();
             beepCheckBoxBool1 = new BeepCheckBoxBool();
             beepComboBox2 = new BeepComboBox();
+            beepChart1 = new TheTechIdea.Beep.Winform.Controls.Charts.BeepChart();
             MainTemplatePanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)driversConfigViewModelBindingSource).BeginInit();
             SuspendLayout();
             // 
             // MainTemplatePanel
             // 
+            MainTemplatePanel.Controls.Add(beepChart1);
             MainTemplatePanel.Controls.Add(beepComboBox2);
             MainTemplatePanel.Controls.Add(beepCheckBoxBool1);
             MainTemplatePanel.Controls.Add(beepTextBox1);
@@ -122,6 +125,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.CanBeFocused = true;
             beepComboBox1.CanBeHovered = false;
             beepComboBox1.CanBePressed = true;
+            beepComboBox1.CanBeSelected = true;
             beepComboBox1.Category = Utilities.DbFieldCategory.Numeric;
             beepComboBox1.ComboBoxErrorText = "";
             beepComboBox1.ComboBoxHasError = false;
@@ -181,20 +185,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.IsDirty = false;
             beepComboBox1.IsEditable = false;
             beepComboBox1.IsFocused = false;
-         
             beepComboBox1.IsFrameless = false;
             beepComboBox1.IsHovered = false;
-          
             beepComboBox1.IsNew = false;
             beepComboBox1.IsPopupOpen = false;
             beepComboBox1.IsPressed = false;
-          
             beepComboBox1.IsReadOnly = false;
             beepComboBox1.IsRequired = false;
             beepComboBox1.IsRounded = true;
             beepComboBox1.IsRoundedAffectedByTheme = true;
             beepComboBox1.IsSelected = false;
-           
             beepComboBox1.IsSelectedOptionOn = false;
             beepComboBox1.IsShadowAffectedByTheme = true;
             beepComboBox1.IsValid = true;
@@ -298,6 +298,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.CanBeFocused = true;
             beepButton1.CanBeHovered = true;
             beepButton1.CanBePressed = true;
+            beepButton1.CanBeSelected = true;
             beepButton1.Category = Utilities.DbFieldCategory.Boolean;
             beepButton1.ComponentName = "BeepControl";
             beepButton1.DataSourceProperty = null;
@@ -361,20 +362,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.IsDirty = false;
             beepButton1.IsEditable = false;
             beepButton1.IsFocused = false;
-         
             beepButton1.IsFrameless = false;
             beepButton1.IsHovered = false;
-         
             beepButton1.IsNew = false;
             beepButton1.IsPopupOpen = false;
             beepButton1.IsPressed = false;
-          
             beepButton1.IsReadOnly = false;
             beepButton1.IsRequired = false;
             beepButton1.IsRounded = true;
             beepButton1.IsRoundedAffectedByTheme = true;
             beepButton1.IsSelected = false;
-          
             beepButton1.IsSelectedOptionOn = false;
             beepButton1.IsShadowAffectedByTheme = true;
             beepButton1.IsSideMenuChild = false;
@@ -482,6 +479,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.CanBeFocused = true;
             beepGridPro1.CanBeHovered = true;
             beepGridPro1.CanBePressed = true;
+            beepGridPro1.CanBeSelected = true;
             beepGridPro1.Category = Utilities.DbFieldCategory.String;
             beepGridPro1.ColumnHeaderHeight = 30;
             beepColumnConfig1.AggregationType = AggregationType.None;
@@ -1768,8 +1766,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.IconSize = 20;
             beepGridPro1.Id = -1;
             beepGridPro1.InactiveBorderColor = Color.Gray;
-            graphicsPath5.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepGridPro1.InnerShape = graphicsPath5;
+            graphicsPath6.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepGridPro1.InnerShape = graphicsPath6;
             beepGridPro1.IsAcceptButton = false;
             beepGridPro1.IsBorderAffectedByTheme = true;
             beepGridPro1.IsCancelButton = false;
@@ -1780,19 +1778,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.IsDirty = false;
             beepGridPro1.IsEditable = true;
             beepGridPro1.IsFocused = false;
-         
             beepGridPro1.IsFrameless = false;
             beepGridPro1.IsHovered = false;
-        
             beepGridPro1.IsNew = false;
             beepGridPro1.IsPressed = false;
-          
             beepGridPro1.IsReadOnly = false;
             beepGridPro1.IsRequired = false;
             beepGridPro1.IsRounded = true;
             beepGridPro1.IsRoundedAffectedByTheme = true;
             beepGridPro1.IsSelected = false;
-         
             beepGridPro1.IsSelectedOptionOn = false;
             beepGridPro1.IsShadowAffectedByTheme = true;
             beepGridPro1.IsValid = true;
@@ -1895,6 +1889,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.CanBeFocused = true;
             beepButton2.CanBeHovered = true;
             beepButton2.CanBePressed = true;
+            beepButton2.CanBeSelected = true;
             beepButton2.Category = Utilities.DbFieldCategory.Boolean;
             beepButton2.ComponentName = "BaseControl";
             beepButton2.DataSourceProperty = null;
@@ -1902,7 +1897,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.DisabledBorderColor = Color.Gray;
             beepButton2.DisabledForeColor = Color.Gray;
             beepButton2.DisableDpiAndScaling = false;
-            beepButton2.DrawingRect = new Rectangle(0, 24, 226, 31);
+            beepButton2.DrawingRect = new Rectangle(24, 22, 52, 6);
             beepButton2.Easing = EasingType.Linear;
             beepButton2.EmbeddedImagePath = null;
             beepButton2.EnableHighQualityRendering = true;
@@ -1947,8 +1942,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.ImageEmbededin = ImageEmbededin.Button;
             beepButton2.ImagePath = null;
             beepButton2.InactiveBorderColor = Color.Gray;
-            graphicsPath4.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepButton2.InnerShape = graphicsPath4;
+            graphicsPath5.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepButton2.InnerShape = graphicsPath5;
             beepButton2.IsAcceptButton = false;
             beepButton2.IsBorderAffectedByTheme = true;
             beepButton2.IsCancelButton = false;
@@ -1960,20 +1955,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.IsDirty = false;
             beepButton2.IsEditable = true;
             beepButton2.IsFocused = false;
-          
             beepButton2.IsFrameless = false;
             beepButton2.IsHovered = false;
-         
             beepButton2.IsNew = false;
             beepButton2.IsPopupOpen = false;
             beepButton2.IsPressed = false;
-         
             beepButton2.IsReadOnly = false;
             beepButton2.IsRequired = false;
             beepButton2.IsRounded = true;
             beepButton2.IsRoundedAffectedByTheme = true;
             beepButton2.IsSelected = false;
-          
             beepButton2.IsSelectedOptionOn = false;
             beepButton2.IsShadowAffectedByTheme = true;
             beepButton2.IsSideMenuChild = false;
@@ -2084,6 +2075,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.CanBeFocused = false;
             beepTextBox1.CanBeHovered = true;
             beepTextBox1.CanBePressed = true;
+            beepTextBox1.CanBeSelected = true;
             beepTextBox1.Category = Utilities.DbFieldCategory.String;
             beepTextBox1.ComponentName = "BaseControl";
             beepTextBox1.CustomMask = "";
@@ -2094,7 +2086,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.DisabledBorderColor = Color.LightGray;
             beepTextBox1.DisabledForeColor = Color.Gray;
             beepTextBox1.DisableDpiAndScaling = false;
-            beepTextBox1.DrawingRect = new Rectangle(1, 26, 237, 8);
+            beepTextBox1.DrawingRect = new Rectangle(1, 26, 251, 8);
             beepTextBox1.Easing = EasingType.Linear;
             beepTextBox1.EnableHighQualityRendering = true;
             beepTextBox1.EnableMaterialStyle = false;
@@ -2134,8 +2126,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.ImageAlign = ContentAlignment.MiddleLeft;
             beepTextBox1.ImagePath = "";
             beepTextBox1.InactiveBorderColor = Color.Gray;
-            graphicsPath3.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepTextBox1.InnerShape = graphicsPath3;
+            graphicsPath4.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepTextBox1.InnerShape = graphicsPath4;
             beepTextBox1.IsAcceptButton = false;
             beepTextBox1.IsBorderAffectedByTheme = true;
             beepTextBox1.IsCancelButton = false;
@@ -2146,19 +2138,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.IsDirty = false;
             beepTextBox1.IsEditable = true;
             beepTextBox1.IsFocused = false;
-         
             beepTextBox1.IsFrameless = false;
             beepTextBox1.IsHovered = false;
-           
             beepTextBox1.IsNew = false;
             beepTextBox1.IsPressed = false;
-          
             beepTextBox1.IsReadOnly = false;
             beepTextBox1.IsRequired = false;
             beepTextBox1.IsRounded = true;
             beepTextBox1.IsRoundedAffectedByTheme = true;
             beepTextBox1.IsSelected = false;
-          
             beepTextBox1.IsSelectedOptionOn = false;
             beepTextBox1.IsShadowAffectedByTheme = true;
             beepTextBox1.IsValid = true;
@@ -2224,7 +2212,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.ShowScrollbars = true;
             beepTextBox1.ShowShadow = false;
             beepTextBox1.ShowTopBorder = false;
-            beepTextBox1.Size = new Size(239, 62);
+            beepTextBox1.Size = new Size(253, 62);
             beepTextBox1.SlideFrom = SlideDirection.Left;
             beepTextBox1.StaticNotMoving = false;
             beepTextBox1.TabIndex = 16;
@@ -2271,6 +2259,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCheckBoxBool1.CanBeFocused = false;
             beepCheckBoxBool1.CanBeHovered = true;
             beepCheckBoxBool1.CanBePressed = true;
+            beepCheckBoxBool1.CanBeSelected = true;
             beepCheckBoxBool1.Category = Utilities.DbFieldCategory.String;
             beepCheckBoxBool1.ComponentName = "BaseControl";
             beepCheckBoxBool1.DataSourceProperty = null;
@@ -2317,8 +2306,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCheckBoxBool1.Id = -1;
             beepCheckBoxBool1.ImagePath = null;
             beepCheckBoxBool1.InactiveBorderColor = Color.Gray;
-            graphicsPath2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepCheckBoxBool1.InnerShape = graphicsPath2;
+            graphicsPath3.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepCheckBoxBool1.InnerShape = graphicsPath3;
             beepCheckBoxBool1.IsAcceptButton = false;
             beepCheckBoxBool1.IsBorderAffectedByTheme = true;
             beepCheckBoxBool1.IsCancelButton = false;
@@ -2329,19 +2318,15 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCheckBoxBool1.IsDirty = false;
             beepCheckBoxBool1.IsEditable = true;
             beepCheckBoxBool1.IsFocused = false;
-         
             beepCheckBoxBool1.IsFrameless = false;
             beepCheckBoxBool1.IsHovered = false;
-         
             beepCheckBoxBool1.IsNew = false;
             beepCheckBoxBool1.IsPressed = false;
-         
             beepCheckBoxBool1.IsReadOnly = false;
             beepCheckBoxBool1.IsRequired = false;
             beepCheckBoxBool1.IsRounded = true;
             beepCheckBoxBool1.IsRoundedAffectedByTheme = true;
             beepCheckBoxBool1.IsSelected = false;
-         
             beepCheckBoxBool1.IsSelectedOptionOn = false;
             beepCheckBoxBool1.IsShadowAffectedByTheme = true;
             beepCheckBoxBool1.IsValid = true;
@@ -2432,6 +2417,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.CanBeFocused = false;
             beepComboBox2.CanBeHovered = true;
             beepComboBox2.CanBePressed = true;
+            beepComboBox2.CanBeSelected = true;
             beepComboBox2.Category = Utilities.DbFieldCategory.Numeric;
             beepComboBox2.ComboBoxErrorText = "";
             beepComboBox2.ComboBoxHasError = false;
@@ -2480,8 +2466,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.IconSize = 20;
             beepComboBox2.Id = -1;
             beepComboBox2.InactiveBorderColor = Color.Gray;
-            graphicsPath1.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
-            beepComboBox2.InnerShape = graphicsPath1;
+            graphicsPath2.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepComboBox2.InnerShape = graphicsPath2;
             beepComboBox2.IsAcceptButton = false;
             beepComboBox2.IsBorderAffectedByTheme = true;
             beepComboBox2.IsCancelButton = false;
@@ -2492,20 +2478,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.IsDirty = false;
             beepComboBox2.IsEditable = true;
             beepComboBox2.IsFocused = false;
-       
             beepComboBox2.IsFrameless = false;
             beepComboBox2.IsHovered = false;
-        
             beepComboBox2.IsNew = false;
             beepComboBox2.IsPopupOpen = false;
             beepComboBox2.IsPressed = false;
-          
             beepComboBox2.IsReadOnly = false;
             beepComboBox2.IsRequired = false;
             beepComboBox2.IsRounded = true;
             beepComboBox2.IsRoundedAffectedByTheme = true;
             beepComboBox2.IsSelected = false;
-          
             beepComboBox2.IsSelectedOptionOn = false;
             beepComboBox2.IsShadowAffectedByTheme = true;
             beepComboBox2.IsValid = true;
@@ -2576,6 +2558,197 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox2.UseRichToolTip = true;
             beepComboBox2.UseThemeFont = true;
             // 
+            // beepChart1
+            // 
+            beepChart1.AccentColor = Color.FromArgb(0, 150, 136);
+            beepChart1.AnimationDuration = 500;
+            beepChart1.AnimationType = DisplayAnimationType.None;
+            beepChart1.ApplyThemeToChilds = true;
+            beepChart1.AutoDrawHitListComponents = true;
+            beepChart1.BackColor = Color.White;
+            beepChart1.BadgeBackColor = Color.Red;
+            beepChart1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            beepChart1.BadgeForeColor = Color.White;
+            beepChart1.BadgeShape = BadgeShape.Circle;
+            beepChart1.BadgeText = "";
+            beepChart1.BlockID = null;
+            beepChart1.BorderColor = Color.Black;
+            beepChart1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepChart1.BorderRadius = 8;
+            beepChart1.BorderStyle = BorderStyle.FixedSingle;
+            beepChart1.BorderThickness = 1;
+            beepChart1.BottomAxisType = AxisType.Numeric;
+            beepChart1.BottomoffsetForDrawingRect = 0;
+            beepChart1.BoundProperty = null;
+            beepChart1.CanBeFocused = false;
+            beepChart1.CanBeHovered = true;
+            beepChart1.CanBePressed = true;
+            beepChart1.CanBeSelected = true;
+            beepChart1.Category = Utilities.DbFieldCategory.String;
+            beepChart1.ChartAxisColor = Color.FromArgb(100, 100, 100);
+            beepChart1.ChartBackColor = Color.White;
+            beepChart1.ChartFillColor = Color.FromArgb(173, 216, 230);
+            beepChart1.ChartGridLineColor = Color.FromArgb(230, 230, 230);
+            beepChart1.ChartLegendBackColor = Color.FromArgb(240, 240, 240);
+            beepChart1.ChartLegendShapeColor = Color.FromArgb(54, 162, 235);
+            beepChart1.ChartLegendTextColor = Color.FromArgb(33, 33, 33);
+            beepChart1.ChartLineColor = Color.FromArgb(50, 50, 50);
+            beepChart1.ChartSubtitle = "Subtitle or Description";
+            beepChart1.ChartSubtitleFont = new Font("Arial", 14F);
+            beepChart1.ChartTextColor = Color.FromArgb(33, 33, 33);
+            beepChart1.ChartTitle = "Chart Title";
+            beepChart1.ChartTitleColor = Color.FromArgb(33, 33, 33);
+            beepChart1.ChartTitleFont = new Font("Arial", 20F, FontStyle.Bold);
+            beepChart1.ChartTitleForeColor = Color.FromArgb(33, 33, 33);
+            beepChart1.ChartType = ChartType.Bar;
+            beepChart1.ChartValue = "$12,000,000";
+            beepChart1.ChartValueFont = new Font("Arial", 24F, FontStyle.Bold);
+            beepChart1.ComponentName = "BaseControl";
+            beepChart1.CustomDraw = false;
+            beepChart1.DataSourceProperty = null;
+            beepChart1.DisabledBackColor = Color.LightGray;
+            beepChart1.DisabledBorderColor = Color.Gray;
+            beepChart1.DisabledForeColor = Color.DarkGray;
+            beepChart1.DisableDpiAndScaling = false;
+            beepChart1.DrawingRect = new Rectangle(24, 8, 351, 419);
+            beepChart1.Easing = EasingType.Linear;
+            beepChart1.EnableHighQualityRendering = true;
+            beepChart1.EnableRippleEffect = false;
+            beepChart1.EnableSplashEffect = false;
+            beepChart1.ErrorColor = Color.FromArgb(176, 0, 32);
+            beepChart1.ErrorText = "";
+            beepChart1.ExternalDrawingLayer = DrawingLayer.AfterAll;
+            beepChart1.FieldID = null;
+            beepChart1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
+            beepChart1.FloatingLabel = true;
+            beepChart1.FocusBackColor = Color.LightYellow;
+            beepChart1.FocusBorderColor = Color.RoyalBlue;
+            beepChart1.FocusForeColor = Color.Black;
+            beepChart1.FocusIndicatorColor = Color.RoyalBlue;
+            beepChart1.ForeColor = Color.FromArgb(33, 33, 33);
+            beepChart1.Form = null;
+            beepChart1.GlassmorphismBlur = 10F;
+            beepChart1.GlassmorphismOpacity = 0.1F;
+            beepChart1.GradientAngle = 0F;
+            beepChart1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepChart1.GradientEndColor = Color.Gray;
+            beepChart1.GradientStartColor = Color.LightGray;
+            beepChart1.GridMode = false;
+            beepChart1.GuidID = "d09d9253-8db4-463e-aaa4-506a02667fcf";
+            beepChart1.HasError = false;
+            beepChart1.HelperText = "";
+            beepChart1.HitAreaEventOn = false;
+            beepChart1.HitTestControl = null;
+            beepChart1.HoverBackColor = Color.LightBlue;
+            beepChart1.HoverBorderColor = Color.Blue;
+            beepChart1.HoveredBackcolor = Color.LightBlue;
+            beepChart1.HoverForeColor = Color.Black;
+            beepChart1.IconSize = 20;
+            beepChart1.Id = -1;
+            beepChart1.InactiveBorderColor = Color.Gray;
+            graphicsPath1.FillMode = System.Drawing.Drawing2D.FillMode.Alternate;
+            beepChart1.InnerShape = graphicsPath1;
+            beepChart1.IsAcceptButton = false;
+            beepChart1.IsBorderAffectedByTheme = true;
+            beepChart1.IsCancelButton = false;
+            beepChart1.IsChild = true;
+            beepChart1.IsCustomeBorder = false;
+            beepChart1.IsDefault = false;
+            beepChart1.IsDeleted = false;
+            beepChart1.IsDirty = false;
+            beepChart1.IsEditable = true;
+            beepChart1.IsFocused = false;
+            beepChart1.IsFrameless = false;
+            beepChart1.IsHovered = false;
+            beepChart1.IsNew = false;
+            beepChart1.IsPressed = false;
+            beepChart1.IsReadOnly = false;
+            beepChart1.IsRequired = false;
+            beepChart1.IsRounded = true;
+            beepChart1.IsRoundedAffectedByTheme = true;
+            beepChart1.IsSelected = false;
+            beepChart1.IsSelectedOptionOn = false;
+            beepChart1.IsShadowAffectedByTheme = true;
+            beepChart1.IsValid = true;
+            beepChart1.IsVisible = true;
+            beepChart1.Items = (List<object>)resources.GetObject("beepChart1.Items");
+            beepChart1.LabelText = "";
+            beepChart1.LeadingIconPath = "";
+            beepChart1.LeadingImagePath = "";
+            beepChart1.LeftAxisType = AxisType.Numeric;
+            beepChart1.LeftoffsetForDrawingRect = 0;
+            beepChart1.LegendPlacement = Winform.Controls.Charts.Helpers.LegendPlacement.Right;
+            beepChart1.LinkedProperty = null;
+            beepChart1.Location = new Point(31, 41);
+            beepChart1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
+            beepChart1.MaterialCustomPadding = new Padding(0);
+            beepChart1.MaterialFillColor = Color.FromArgb(245, 245, 245);
+            beepChart1.MaterialIconPadding = 8;
+            beepChart1.MaterialIconSize = 20;
+            beepChart1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
+            beepChart1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            beepChart1.MaxHitListDrawPerFrame = 0;
+            beepChart1.ModernGradientType = ModernGradientType.None;
+            beepChart1.Name = "beepChart1";
+            beepChart1.OverrideFontSize = TypeStyleFontSize.None;
+            beepChart1.ParentBackColor = Color.Empty;
+            beepChart1.ParentControl = null;
+            beepChart1.PressedBackColor = Color.Gray;
+            beepChart1.PressedBorderColor = Color.DarkGray;
+            beepChart1.PressedForeColor = Color.White;
+            beepChart1.RadialCenter = (PointF)resources.GetObject("beepChart1.RadialCenter");
+            beepChart1.RightoffsetForDrawingRect = 0;
+            beepChart1.SavedGuidID = null;
+            beepChart1.SavedID = null;
+            beepChart1.ScaleMode = ImageScaleMode.KeepAspectRatio;
+            beepChart1.SelectedBackColor = Color.LightGreen;
+            beepChart1.SelectedBorderColor = Color.Green;
+            beepChart1.SelectedForeColor = Color.Black;
+            beepChart1.SelectedValue = null;
+            beepChart1.ShadowColor = Color.Black;
+            beepChart1.ShadowOffset = 3;
+            beepChart1.ShadowOpacity = 0.25F;
+            beepChart1.ShowAllBorders = false;
+            beepChart1.ShowBottomBorder = false;
+            beepChart1.ShowFocusIndicator = false;
+            beepChart1.ShowLeftBorder = false;
+            beepChart1.ShowLegend = true;
+            beepChart1.ShowMarkers = true;
+            beepChart1.ShowRightBorder = false;
+            beepChart1.ShowShadow = false;
+            beepChart1.ShowTitle = true;
+            beepChart1.ShowTopBorder = false;
+            beepChart1.Size = new Size(399, 435);
+            beepChart1.SlideFrom = SlideDirection.Left;
+            beepChart1.SmoothLines = false;
+            beepChart1.Stacked = false;
+            beepChart1.StackedMode = Winform.Controls.Charts.Helpers.StackedMode.None;
+            beepChart1.StaticNotMoving = false;
+            beepChart1.TabIndex = 19;
+            beepChart1.Tag = MainTemplatePanel;
+            beepChart1.TempBackColor = Color.Empty;
+            beepChart1.Text = "beepChart1";
+            beepChart1.Theme = "DefaultTheme";
+            beepChart1.ToolTipText = null;
+            beepChart1.TopoffsetForDrawingRect = 0;
+            beepChart1.TrailingIconPath = "";
+            beepChart1.TrailingImagePath = "";
+            beepChart1.UseExternalBufferedGraphics = false;
+            beepChart1.UseGlassmorphism = false;
+            beepChart1.UseGradientBackground = false;
+            beepChart1.UseRichToolTip = true;
+            beepChart1.UseThemeFont = true;
+            beepChart1.ViewportXMax = 0F;
+            beepChart1.ViewportXMin = 0F;
+            beepChart1.ViewportYMax = 0F;
+            beepChart1.ViewportYMin = 0F;
+            beepChart1.XAxisTitle = "X Title";
+            beepChart1.XLabelAngle = 0F;
+            beepChart1.XTimeGranularity = Winform.Controls.Charts.Helpers.TimeTickGranularity.Auto;
+            beepChart1.YAxisTitle = "Y Title";
+            beepChart1.YLabelAngle = 0F;
+            beepChart1.YTimeGranularity = Winform.Controls.Charts.Helpers.TimeTickGranularity.Auto;
+            // 
             // uc_diagraming
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -2597,5 +2770,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private BeepButton beepButton2;
         private BeepCheckBoxBool beepCheckBoxBool1;
         private BeepComboBox beepComboBox2;
+        private Controls.Charts.BeepChart beepChart1;
     }
 }

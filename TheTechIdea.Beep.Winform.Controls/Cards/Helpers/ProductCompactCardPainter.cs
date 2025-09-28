@@ -1,0 +1,93 @@
+using System;
+using System.Drawing;
+using TheTechIdea.Beep.Winform.Controls.Base;
+
+namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
+{
+    /// <summary>
+    /// ProductCompactCard - Horizontal compact product display for lists
+    /// </summary>
+    internal sealed class ProductCompactCardPainter : CardPainterBase
+    {
+        public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
+        {
+            int pad = 12;
+            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            
+            // Small product image on left (square)
+            int imageSize = ctx.DrawingRect.Height - pad * 2;
+            ctx.ImageRect = new Rectangle(
+                ctx.DrawingRect.Left + pad,
+                ctx.DrawingRect.Top + pad,
+                imageSize, imageSize
+            );
+            
+            // Content area to the right of image
+            int contentLeft = ctx.ImageRect.Right + 12;
+            int contentWidth = ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - 80 - pad;
+            
+            // Product name
+            ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, 18);
+            
+            // Category/brand
+            ctx.SubtitleRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 2, contentWidth, 14);
+            
+            // Rating stars (small)
+            ctx.RatingRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 4, 80, 14);
+            
+            // Price on the right side
+            ctx.ParagraphRect = new Rectangle(
+                ctx.DrawingRect.Right - pad - 75,
+                ctx.DrawingRect.Top + pad,
+                70, 20
+            );
+            
+            // Badge in top-right corner
+            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            {
+                ctx.BadgeRect = new Rectangle(
+                    ctx.DrawingRect.Right - pad - 45,
+                    ctx.DrawingRect.Bottom - pad - 16,
+                    40, 14
+                );
+            }
+            
+            ctx.ShowButton = false;
+            ctx.ShowSecondaryButton = false;
+            return ctx;
+        }
+
+        public override void DrawBackground(Graphics g, LayoutContext ctx)
+        {
+            DrawSoftShadow(g, ctx.DrawingRect, 8, layers: 3, offset: 1);
+            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Color.White);
+            using var bgPath = CreateRoundedPath(ctx.DrawingRect, 8);
+            g.FillPath(bgBrush, bgPath);
+        }
+
+        public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
+        {
+            // Draw price
+            if (!string.IsNullOrEmpty(ctx.SubtitleText)) // Price in SubtitleText
+            {
+                using var priceFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
+                using var priceBrush = new SolidBrush(ctx.AccentColor);
+                var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
+                g.DrawString(ctx.SubtitleText, priceFont, priceBrush, ctx.ParagraphRect, format);
+            }
+            
+            // Draw rating stars (compact)
+            if (ctx.ShowRating && ctx.Rating > 0)
+            {
+                CardRenderingHelpers.DrawStars(g, ctx.RatingRect, ctx.Rating, Color.FromArgb(255, 193, 7));
+            }
+            
+            // Draw badge
+            if (!string.IsNullOrEmpty(ctx.BadgeText1))
+            {
+                using var badgeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
+                CardRenderingHelpers.DrawBadge(g, ctx.BadgeRect, ctx.BadgeText1, ctx.Badge1BackColor, ctx.Badge1ForeColor, badgeFont);
+            }
+        }
+    }
+}

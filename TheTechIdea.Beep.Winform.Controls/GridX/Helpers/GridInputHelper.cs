@@ -351,13 +351,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int visible = VisibleRowCount();
             switch (e.KeyCode)
             {
-                case Keys.Left: c = Math.Max(0, c - 1); break;
-                case Keys.Right: c = Math.Min(_grid.Data.Columns.Count - 1, c + 1); break;
-                case Keys.Up: r = Math.Max(0, r - 1); break;
-                case Keys.Down: r = Math.Min(_grid.Data.Rows.Count - 1, r + 1); break;
+                case Keys.Left:
+                    c = Math.Max(0, c - 1);
+                    break;
+                case Keys.Right:
+                    c = Math.Min(_grid.Data.Columns.Count - 1, c + 1);
+                    break;
+                case Keys.Up:
+                    r = Math.Max(0, r - 1);
+                    break;
+                case Keys.Down:
+                    r = Math.Min(_grid.Data.Rows.Count - 1, r + 1);
+                    break;
                 case Keys.Home:
-                    if (e.Control) { r = 0; _grid.Scroll.SetVerticalIndex(0); /* Custom scrollbars updated automatically */ }
-                    else { c = 0; }
+                    if (e.Control)
+                    {
+                        r = 0;
+                        _grid.Scroll.SetVerticalIndex(0);
+                    }
+                    else
+                    {
+                        c = 0;
+                    }
                     break;
                 case Keys.End:
                     if (e.Control)
@@ -365,21 +380,21 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         r = Math.Max(0, _grid.Data.Rows.Count - 1);
                         int newStartEnd = Math.Max(0, r - visible + 1);
                         _grid.Scroll.SetVerticalIndex(newStartEnd);
-                        /* Custom scrollbars updated automatically */
                     }
-                    else { c = _grid.Data.Columns.Count - 1; }
+                    else
+                    {
+                        c = _grid.Data.Columns.Count - 1;
+                    }
                     break;
                 case Keys.PageUp:
                     r = Math.Max(0, r - visible);
                     _grid.Scroll.SetVerticalIndex(Math.Max(0, _grid.Scroll.FirstVisibleRowIndex - visible));
-                    /* Custom scrollbars updated automatically */
                     break;
                 case Keys.PageDown:
                     r = Math.Min(_grid.Data.Rows.Count - 1, r + visible);
                     int maxStart = Math.Max(0, _grid.Data.Rows.Count - visible);
                     int newStart = Math.Min(maxStart, _grid.Scroll.FirstVisibleRowIndex + visible);
                     _grid.Scroll.SetVerticalIndex(newStart);
-                    /* Custom scrollbars updated automatiquement */
                     break;
                 default:
                     return;
@@ -400,12 +415,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (r < start)
             {
                 _grid.Scroll.SetVerticalIndex(r);
-                // Custom scrollbars are updated automatically through drawing
             }
             else if (r >= start + visible)
             {
                 _grid.Scroll.SetVerticalIndex(Math.Max(0, r - visible + 1));
-                // Custom scrollbars are updated automatically through drawing
             }
         }
 

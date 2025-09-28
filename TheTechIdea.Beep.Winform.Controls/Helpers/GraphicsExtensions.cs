@@ -31,6 +31,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
         /// <summary>
+        /// Fills a rounded rectangle with uniform corner radius
+        /// </summary>
+        /// <param name="graphics">Graphics object</param>
+        /// <param name="brush">Brush to fill with</param>
+        /// <param name="rect">Rectangle bounds</param>
+        /// <param name="radius">Corner radius for all corners</param>
+        public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle rect, float radius)
+        {
+            FillRoundedRectangle(graphics, brush, rect, radius, radius, radius, radius);
+        }
+
+        /// <summary>
         /// Draws a rounded rectangle with specified corner radii
         /// </summary>
         /// <param name="graphics">Graphics object</param>
@@ -47,6 +59,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             {
                 graphics.DrawPath(pen, path);
             }
+        }
+
+        /// <summary>
+        /// Draws a rounded rectangle with uniform corner radius
+        /// </summary>
+        /// <param name="graphics">Graphics object</param>
+        /// <param name="pen">Pen to draw with</param>
+        /// <param name="rect">Rectangle bounds</param>
+        /// <param name="radius">Corner radius for all corners</param>
+        public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle rect, float radius)
+        {
+            DrawRoundedRectangle(graphics, pen, rect, radius, radius, radius, radius);
         }
 
         /// <summary>
@@ -483,7 +507,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <summary>
         /// Creates a GraphicsPath for a rectangle with elliptical corners
         /// allowing different horizontal and vertical radii. This can be used
-        /// for more “modern” or “material” style corners.
+        /// for more ï¿½modernï¿½ or ï¿½materialï¿½ style corners.
         /// </summary>
         /// <param name="rect">The overall bounding rectangle.</param>
         /// <param name="radiusX">Horizontal radius for corners.</param>

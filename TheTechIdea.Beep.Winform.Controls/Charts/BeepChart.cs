@@ -8,14 +8,6 @@ using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
-    public enum ChartSurfaceStyle
-    {
-        Classic,
-        Card,
-        Outline,
-        Glass
-    }
-
     [ToolboxItem(true)]
     [ToolboxBitmap(typeof(BeepChart), "BeepChart.bmp")]
     [Description("A custom chart control for WinForms.")]
@@ -30,7 +22,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         private IChartSeriesPainter _seriesPainter;
         private IChartLegendPainter _legendPainter = new RightSideLegendPainter();
         private ChartType _lastSeriesType;
-        private ChartSurfaceStyle _surfaceStyle = ChartSurfaceStyle.Card;
         private Color _accentColor = Color.FromArgb(0, 150, 136);
         private bool _showtitle= true;
         private readonly SeriesRenderOptions _seriesOptions = new SeriesRenderOptions();
@@ -262,22 +253,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
 
         private void InitializePainter()
         {
-            switch (_surfaceStyle)
-            {
-                case ChartSurfaceStyle.Card:
-                    _painter = new CardChartPainter();
-                    break;
-                case ChartSurfaceStyle.Outline:
-                    _painter = new OutlineChartPainter();
-                    break;
-                case ChartSurfaceStyle.Glass:
-                    _painter = new GlassChartPainter2();
-                    break;
-                case ChartSurfaceStyle.Classic:
-                default:
-                    _painter = new CardChartPainter();
-                    break;
-            }
+            // Always use Glass style
+            _painter = new GlassChartPainter2();
             _painter?.Initialize(this, _currentTheme);
 
             _axisPainter = new CartesianAxisPainter();
@@ -965,13 +942,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
         #endregion
 
         #region Surface style properties
-        [Category("Appearance")]
-        public ChartSurfaceStyle SurfaceStyle
-        {
-            get => _surfaceStyle;
-            set { _surfaceStyle = value; InitializePainter(); Invalidate(); }
-        }
-
         [Category("Appearance")]
         public Color AccentColor
         {

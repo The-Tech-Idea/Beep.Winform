@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Vis.Modules;
+using Math = System.Math;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {

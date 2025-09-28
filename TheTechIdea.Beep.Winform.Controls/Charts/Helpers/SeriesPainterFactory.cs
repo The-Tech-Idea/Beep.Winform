@@ -15,5 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
                 _ => new LineSeriesPainter()
             };
         }
+
+        // Alias for consistency with the refactored code
+        public static IChartSeriesPainter GetPainter(ChartType type) => Get(type);
     }
 }

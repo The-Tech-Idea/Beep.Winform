@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls; // BeepButton, BeepComboBox, BeepCheckBoxBool
 using TheTechIdea.Beep.Vis.Modules;
+using Math = System.Math;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
 {

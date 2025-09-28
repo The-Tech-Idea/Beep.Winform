@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
+using System;
 
 namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
 {
@@ -19,37 +20,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
         public abstract LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx);
         public abstract void DrawBackground(Graphics g, LayoutContext ctx);
         public abstract void DrawForegroundAccents(Graphics g, LayoutContext ctx);
-        public virtual void UpdateHitAreas(BaseControl owner, LayoutContext ctx, System.Action<string, Rectangle> notifyAreaHit) { }
 
-        protected GraphicsPath Round(Rectangle r, int radius)
+        // Default implementation - painters can override for custom hit areas
+        public virtual void UpdateHitAreas(BaseControl owner, LayoutContext ctx, Action<string, Rectangle> notifyAreaHit)
         {
-            int d = radius * 2;
-            var p = new GraphicsPath();
-            if (radius <= 0)
-            {
-                p.AddRectangle(r);
-                return p;
-            }
-            p.AddArc(r.Left, r.Top, d, d, 180, 90);
-            p.AddArc(r.Right - d, r.Top, d, d, 270, 90);
-            p.AddArc(r.Right - d, r.Bottom - d, d, d, 0, 90);
-            p.AddArc(r.Left, r.Bottom - d, d, d, 90, 90);
-            p.CloseFigure();
-            return p;
+            // Default: no additional hit areas beyond what BeepCard already handles
+            // Individual painters can override this to add custom interactive areas
         }
 
-        protected void SoftShadow(Graphics g, Rectangle rect, int radius, int layers = 6, int offset = 3)
+        // Helper methods using CardRenderingHelpers
+        protected GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
         {
-            for (int i = layers; i > 0; i--)
-            {
-                int spread = i * 2;
-                int alpha = (int)(18 * (i / (float)layers));
-                using var b = new SolidBrush(Color.FromArgb(alpha, Color.Black));
-                var r = new Rectangle(rect.X + offset - spread/2, rect.Y + offset - spread/2,
-                    rect.Width + spread, rect.Height + spread);
-                using var path = Round(r, radius + i);
-                g.FillPath(b, path);
-            }
+            return CardRenderingHelpers.CreateRoundedPath(rect, radius);
+        }
+
+        protected void DrawSoftShadow(Graphics g, Rectangle rect, int radius, int layers = 6, int offset = 3)
+        {
+            CardRenderingHelpers.DrawSoftShadow(g, rect, radius, layers, offset);
         }
     }
 }

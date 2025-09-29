@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Icons;
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
 {
     /// <summary>
     /// A comprehensive project task card designed for kanban-style project management.
@@ -300,20 +300,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void InitializeCard()
         {
             // Set default size and style based on compact mode
-            this.Size = _compactMode ? new Size(200, 180) : new Size(280, 320);
-            this.BorderRadius = 12;
+            Size = _compactMode ? new Size(200, 180) : new Size(280, 320);
+            BorderRadius = 12;
            
-            this.UseGradientBackground = true;
-            this.GradientDirection = LinearGradientMode.Vertical;
-            this.GradientStartColor = Color.FromArgb(255, 248, 249, 250);
-            this.GradientEndColor = Color.FromArgb(255, 241, 245, 249);
-            this.ForeColor = Color.FromArgb(51, 51, 51);
-            this.BorderColor = Color.FromArgb(226, 232, 240);
-            this.Cursor = Cursors.Hand;
+            UseGradientBackground = true;
+            GradientDirection = LinearGradientMode.Vertical;
+            GradientStartColor = Color.FromArgb(255, 248, 249, 250);
+            GradientEndColor = Color.FromArgb(255, 241, 245, 249);
+            ForeColor = Color.FromArgb(51, 51, 51);
+            BorderColor = Color.FromArgb(226, 232, 240);
+            Cursor = Cursors.Hand;
 
             // Enable mouse events
-            this.SetStyle(ControlStyles.Selectable, true);
-            this.TabStop = true;
+            SetStyle(ControlStyles.Selectable, true);
+            TabStop = true;
         }
 
         #endregion
@@ -327,7 +327,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
-            var clientRect = this.DrawingRect;
+            var clientRect = DrawingRect;
             int padding = _compactMode ? 8 : 12;
             int currentY = clientRect.Top + padding;
 
@@ -589,7 +589,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Draw progress
-            var progressWidth = (int)((ProgressValue / 100f) * barWidth);
+            var progressWidth = (int)(ProgressValue / 100f * barWidth);
             if (progressWidth > 0)
             {
                 using (var progressBrush = new SolidBrush(_statusColor))
@@ -726,7 +726,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Check if action buttons were clicked
             if (_showActionButtons && !_compactMode)
             {
-                var clientRect = this.DrawingRect;
+                var clientRect = DrawingRect;
                 int padding = 12;
                 int buttonHeight = 28;
                 int buttonSpacing = 8;
@@ -764,11 +764,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.ApplyTheme();
             
             // Apply theme colors to the control
-            this.BackColor = _currentTheme.TaskCardBackColor;
-            this.GradientStartColor = _currentTheme.GradientStartColor;
-            this.GradientEndColor = _currentTheme.GradientEndColor;
-            this.BorderColor = _currentTheme.TaskCardBorderColor;
-            this.ForeColor = _currentTheme.TaskCardForeColor;
+            BackColor = _currentTheme.TaskCardBackColor;
+            GradientStartColor = _currentTheme.GradientStartColor;
+            GradientEndColor = _currentTheme.GradientEndColor;
+            BorderColor = _currentTheme.TaskCardBorderColor;
+            ForeColor = _currentTheme.TaskCardForeColor;
             
             Invalidate();
         }

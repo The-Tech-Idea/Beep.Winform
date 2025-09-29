@@ -633,7 +633,7 @@
     <Compile Update="BeepBindingNavigator.cs" />
     <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
     <Compile Update="BeepCheckBox.cs" />
-    <Compile Update="BeepProgressBar.cs">
+    <Compile Update="ProgressBars\BeepProgressBar.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="Properties\Resources.Designer.cs">

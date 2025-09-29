@@ -180,7 +180,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             }
             //HeaderbeepPanel.TitleText = viewModel.EntityName?? "Entity Editor";
             beepSimpleGrid1.TitleText =  "Field Structure";
-            if(viewModel.DBWork!=null)           beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
+            if (viewModel.DBWork != null)
+            {
+                beepSimpleGrid1.DataSource = viewModel.DBWork.Units;
+            }
         }
        
     }

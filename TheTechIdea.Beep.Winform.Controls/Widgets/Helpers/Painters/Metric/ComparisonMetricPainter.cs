@@ -51,23 +51,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+                using var titleFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var titleBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center };
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
             }
+
+            // Decide primary color safely
+            var primaryColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
 
             // Current value with icon
             if (!string.IsNullOrEmpty(ctx.Value))
             {
                 using var valueFont = new Font(Owner.Font.FontFamily, 16f, FontStyle.Bold);
                 DrawModernValue(g, ctx.ValueRect, ctx.Value, ctx.Units, valueFont, 
-                    ctx.AccentColor ?? Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), "trending-up");
+                    primaryColor, "trending-up");
             }
 
             // Comparison value with icon

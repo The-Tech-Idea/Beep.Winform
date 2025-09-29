@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 {
@@ -118,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             using var borderPen = new Pen(Color.White, 2);
             g.DrawEllipse(borderPen, rect);
             
-            if (member.AvatarImage != null || !string.IsNullOrEmpty(member.AvatarImagePath))
+            if (member.AvatarImage != null || !string.IsNullOrEmpty(member.Avatar))
             {
                 // Configure avatar painter
                 _avatarPainter.CurrentTheme = Theme;
@@ -126,9 +127,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 _avatarPainter.ScaleMode = ImageScaleMode.Fill;
                 
                 // Set image source
-                if (!string.IsNullOrEmpty(member.AvatarImagePath))
+                if (!string.IsNullOrEmpty(member.Avatar))
                 {
-                    _avatarPainter.ImagePath = member.AvatarImagePath;
+                    _avatarPainter.ImagePath = member.Avatar;
                 }
                 else if (member.AvatarImage != null)
                 {
@@ -136,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 }
                 
                 // Draw avatar with ImagePainter
-                _avatarPainter.DrawImage(g, rect);
+                _avatarPainter.DrawImage(g, member.Avatar, rect);
             }
             else
             {

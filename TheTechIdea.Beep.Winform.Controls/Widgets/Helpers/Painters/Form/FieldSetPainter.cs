@@ -8,14 +8,19 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 {
     /// <summary>
-    /// FieldSet - Traditional fieldset styling painter
+    /// FieldSet - Traditional fieldset styling painter with hit areas and hover accents
     /// </summary>
     internal sealed class FieldSetPainter : WidgetPainterBase
     {
+        private readonly List<(Rectangle rect, int index, string name)> _fieldRects = new();
+        private Rectangle _legendRectCache;
+        private Rectangle _contentRectCache;
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 12;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
 
             // Legend area (title)
             if (!string.IsNullOrEmpty(ctx.Title))
@@ -31,6 +36,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Bottom - contentTop - pad
             );
+
+            _legendRectCache = ctx.HeaderRect;
+            _contentRectCache = ctx.ContentRect;
+            _fieldRects.Clear();
+
+            // Precompute field rectangles if fields exist (for hit testing)
+            var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
+            if (fields != null && fields.Count > 0)
+            {
+                int fieldHeight = 35;
+                int currentY = ctx.ContentRect.Top;
+                for (int i = 0; i < fields.Count; i++)
+                {
+                    if (currentY + fieldHeight > ctx.ContentRect.Bottom) break;
+                    var fieldRect = new Rectangle(ctx.ContentRect.Left, currentY, ctx.ContentRect.Width, fieldHeight);
+                    var inputRect = new Rectangle(fieldRect.Left, fieldRect.Top + 14, fieldRect.Width, 18);
+                    _fieldRects.Add((inputRect, i, fields[i].Name ?? $"Field_{i}"));
+                    currentY += fieldHeight + 2;
+                }
+            }
 
             return ctx;
         }
@@ -74,6 +99,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             {
                 DrawRequiredIndicator(g, ctx);
             }
+
+            // Hover accents for inputs
+            for (int i = 0; i < _fieldRects.Count; i++)
+            {
+                var (rect, index, name) = _fieldRects[i];
+                if (IsAreaHovered($"FieldSet_Field_{index}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillRectangle(hover, Rectangle.Inflate(rect, 2, 2));
+                }
+            }
         }
 
         private void DrawLegend(Graphics g, Rectangle legendRect, string title)
@@ -84,8 +120,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.FillRectangle(legendBgBrush, legendBgRect);
 
             // Draw legend text
-            using var legendFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-            using var legendBrush = new SolidBrush(Theme?.TextForeColor ?? Color.FromArgb(100, 100, 100));
+            using var legendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+            using var legendBrush = new SolidBrush(Theme?.CardTextForeColor ?? Color.FromArgb(100, 100, 100));
             g.DrawString(title, legendFont, legendBrush, legendRect);
         }
 
@@ -97,8 +133,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (fields == null || fields.Count == 0)
             {
                 // Draw placeholder content
-                using var placeholderFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-                using var placeholderBrush = new SolidBrush(Color.FromArgb(120, Color.Gray));
+                using var placeholderFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+                using var placeholderBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
                 g.DrawString("No fields defined", placeholderFont, placeholderBrush, ctx.ContentRect);
                 return;
             }
@@ -107,21 +143,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             int fieldHeight = 35;
             int currentY = ctx.ContentRect.Top;
 
-            foreach (var field in fields)
+            for (int i = 0; i < fields.Count; i++)
             {
                 if (currentY + fieldHeight > ctx.ContentRect.Bottom) break;
 
+                var field = fields[i];
                 var fieldRect = new Rectangle(ctx.ContentRect.Left, currentY, ctx.ContentRect.Width, fieldHeight);
 
                 // Draw field label
-                using var labelFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var labelBrush = new SolidBrush(Theme?.LabelColor ?? Color.Black);
+                using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+                using var labelBrush = new SolidBrush(Theme?.LabelForeColor ?? Theme?.ForeColor ?? Color.Black);
                 g.DrawString(field.Label, labelFont, labelBrush, fieldRect.Left, fieldRect.Top + 2);
 
                 // Draw field value/input area
                 var inputRect = new Rectangle(fieldRect.Left, fieldRect.Top + 14, fieldRect.Width, 18);
-                using var inputBrush = new SolidBrush(Color.FromArgb(250, 250, 250));
-                using var inputPen = new Pen(Color.FromArgb(200, 200, 200), 1);
+                using var inputBrush = new SolidBrush(Theme?.TextBoxBackColor ?? Color.FromArgb(250, 250, 250));
+                using var inputPen = new Pen(Theme?.TextBoxBorderColor ?? Color.FromArgb(200, 200, 200), 1);
 
                 g.FillRectangle(inputBrush, inputRect);
                 g.DrawRectangle(inputPen, inputRect);
@@ -133,9 +170,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                     displayValue = field.Placeholder;
                 }
 
-                using var valueFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 Color valueColor = string.IsNullOrEmpty(field.Value?.ToString()) ?
-                    Color.Gray : (Theme?.LabelColor ?? Color.Black);
+                    Color.Gray : (Theme?.LabelForeColor ?? Theme?.ForeColor ?? Color.Black);
                 using var valueBrush = new SolidBrush(valueColor);
 
                 g.DrawString(displayValue, valueFont, valueBrush, inputRect.Left + 4, inputRect.Top + 2);
@@ -159,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             g.FillEllipse(indicatorBrush, indicatorRect);
 
             using var indicatorFont = new Font("Arial", 8f, FontStyle.Bold);
-            using var indicatorTextBrush = new SolidBrush(Color.White);
+            using var indicatorTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
             g.DrawString("*", indicatorFont, indicatorTextBrush, indicatorRect,
                        new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
         }
@@ -188,6 +225,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             path.AddLine(borderRect.Left, borderRect.Bottom, borderRect.Left, borderRect.Top);
 
             return path;
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            // Legend/header hit
+            if (!_legendRectCache.IsEmpty)
+            {
+                owner.AddHitArea("FieldSet_Legend", _legendRectCache, null, () =>
+                {
+                    ctx.CustomData["LegendClicked"] = true;
+                    notifyAreaHit?.Invoke("FieldSet_Legend", _legendRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+
+            // Input fields
+            for (int i = 0; i < _fieldRects.Count; i++)
+            {
+                int idx = _fieldRects[i].index;
+                var rect = _fieldRects[i].rect;
+                owner.AddHitArea($"FieldSet_Field_{idx}", rect, null, () =>
+                {
+                    ctx.CustomData["SelectedFieldIndex"] = idx;
+                    notifyAreaHit?.Invoke($"FieldSet_Field_{idx}", rect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            // Content area
+            if (!_contentRectCache.IsEmpty)
+            {
+                owner.AddHitArea("FieldSet_Content", _contentRectCache, null, () =>
+                {
+                    ctx.CustomData["ContentClicked"] = true;
+                    notifyAreaHit?.Invoke("FieldSet_Content", _contentRectCache);
+                    Owner?.Invalidate();
+                });
+            }
         }
     }
 }

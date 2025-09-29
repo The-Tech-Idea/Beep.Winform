@@ -7,14 +7,16 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// ActivityFeed - Timeline-style activities
+    /// ActivityFeed - Timeline-style activities with hover and per-item hit areas
     /// </summary>
     internal sealed class ActivityFeedPainter : WidgetPainterBase
     {
+        private readonly List<Rectangle> _itemRects = new();
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             // Header with title
             ctx.HeaderRect = new Rectangle(
@@ -31,7 +33,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3
             );
-            
+
+            _itemRects.Clear();
             return ctx;
         }
 
@@ -48,8 +51,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Draw title
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
+                using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
+                using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
             }
@@ -60,24 +63,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var items = (List<Dictionary<string, object>>)ctx.CustomData["Items"];
                 int maxItems = ctx.CustomData.ContainsKey("MaxVisibleItems") ? (int)ctx.CustomData["MaxVisibleItems"] : 10;
                 
-                DrawActivityItems(g, ctx.ContentRect, items.Take(maxItems).ToList());
+                DrawActivityItems(g, ctx, ctx.ContentRect, items.Take(maxItems).ToList());
             }
         }
 
-        private void DrawActivityItems(Graphics g, Rectangle rect, List<Dictionary<string, object>> items)
+        private void DrawActivityItems(Graphics g, WidgetContext ctx, Rectangle rect, List<Dictionary<string, object>> items)
         {
             if (!items.Any()) return;
             
             int itemHeight = Math.Min(40, rect.Height / Math.Max(items.Count, 1));
-            using var nameFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var nameBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
-            using var timeBrush = new SolidBrush(Color.FromArgb(120, Color.Gray));
+            using var nameFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var nameBrush = new SolidBrush(Color.FromArgb(180, Theme?.ForeColor ?? Color.Black));
+            using var timeBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
             
+            _itemRects.Clear();
+
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
                 int y = rect.Y + i * itemHeight;
+                var itemRect = new Rectangle(rect.X, y, rect.Width, itemHeight);
+                _itemRects.Add(itemRect);
+
+                // Hover background
+                if (IsAreaHovered($"ActivityFeed_Item_{i}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillRectangle(hover, itemRect);
+                }
                 
                 // Timeline dot
                 var dotRect = new Rectangle(rect.X + 8, y + itemHeight / 2 - 4, 8, 8);
@@ -87,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Timeline line (except for last item)
                 if (i < items.Count - 1)
                 {
-                    using var linePen = new Pen(Color.FromArgb(50, Color.Gray), 1);
+                    using var linePen = new Pen(Color.FromArgb(50, Theme?.BorderColor ?? Color.Gray), 1);
                     g.DrawLine(linePen, dotRect.X + 4, dotRect.Bottom, dotRect.X + 4, y + itemHeight);
                 }
                 
@@ -119,6 +133,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Optional: Draw scroll indicators or load more button
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            for (int i = 0; i < _itemRects.Count; i++)
+            {
+                int idx = i;
+                var rect = _itemRects[i];
+                owner.AddHitArea($"ActivityFeed_Item_{idx}", rect, null, () =>
+                {
+                    ctx.CustomData["SelectedActivityIndex"] = idx;
+                    notifyAreaHit?.Invoke($"ActivityFeed_Item_{idx}", rect);
+                    Owner?.Invalidate();
+                });
+            }
         }
     }
 }

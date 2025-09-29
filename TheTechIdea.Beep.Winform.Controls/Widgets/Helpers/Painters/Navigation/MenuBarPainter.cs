@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var items = ctx.CustomData.ContainsKey("Items") ?
@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             if (!items.Any()) return;
 
             int itemWidth = ctx.ContentRect.Width / items.Count;
-            using var menuFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+            using var menuFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
             var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
 
             for (int i = 0; i < items.Count; i++)

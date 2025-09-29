@@ -366,4 +366,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             g.DrawLine(pen, rect.Right - 2, rect.Y + 2, rect.X + 2, rect.Bottom - 2);
         }
     }
+
+    /// <summary>
+    /// Graphics extension methods for widget painters
+    /// </summary>
+    internal static class GraphicsExtensions
+    {
+        /// <summary>
+        /// Fills a rounded rectangle - used by BalanceCardPainter and other painters
+        /// </summary>
+        public static void FillRoundedRectangle(this Graphics g, Brush brush, Rectangle rect, int radius)
+        {
+            if (g == null || brush == null || rect.IsEmpty) return;
+            
+            using var path = WidgetRenderingHelpers.CreateRoundedPath(rect, radius);
+            g.FillPath(brush, path);
+        }
+
+        /// <summary>
+        /// Draws a rounded rectangle outline
+        /// </summary>
+        public static void DrawRoundedRectangle(this Graphics g, Pen pen, Rectangle rect, int radius)
+        {
+            if (g == null || pen == null || rect.IsEmpty) return;
+            
+            using var path = WidgetRenderingHelpers.CreateRoundedPath(rect, radius);
+            g.DrawPath(pen, path);
+        }
+    }
+
+    /// <summary>
+    /// Notification types for icon drawing
+    /// </summary>
+    internal enum NotificationType
+    {
+        Success,
+        Warning,
+        Error,
+        Info,
+        Progress
+    }
 }

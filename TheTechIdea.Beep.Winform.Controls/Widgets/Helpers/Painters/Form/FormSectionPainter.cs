@@ -254,5 +254,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             return Theme?.TextBoxBorderColor ?? Color.FromArgb(200, 200, 200);
         }
+
+        public void Dispose()
+        {
+            _imagePainter?.Dispose();
+        }
     }
 }

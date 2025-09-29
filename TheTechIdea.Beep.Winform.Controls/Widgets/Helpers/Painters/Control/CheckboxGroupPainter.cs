@@ -7,14 +7,18 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
 {
     /// <summary>
-    /// CheckboxGroup - Group of related checkboxes
+    /// CheckboxGroup - Group of related checkboxes with hit areas and hover states
     /// </summary>
     internal sealed class CheckboxGroupPainter : WidgetPainterBase
     {
+        private readonly List<Rectangle> _checkboxRects = new();
+        private List<string> _checkboxTexts = new();
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int padding = 8;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
             
             // Header area for group title
             ctx.HeaderRect = new Rectangle(
@@ -32,6 +36,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
                 ctx.DrawingRect.Width - padding * 2,
                 ctx.DrawingRect.Bottom - contentTop - padding
             );
+
+            // Precompute checkbox rects
+            _checkboxTexts = GetSampleCheckboxes();
+            _checkboxRects.Clear();
+            _checkboxRects.AddRange(CalculateCheckboxLayout(ctx.ContentRect, _checkboxTexts.Count));
             
             return ctx;
         }
@@ -54,8 +63,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw group title
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                var titleColor = Theme?.TextColor ?? Color.FromArgb(70, 70, 70);
-                using (var titleFont = new Font("Segoe UI", 9.5f, FontStyle.Bold))
+                var titleColor = Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.FromArgb(70, 70, 70);
+                using (var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9.5f, FontStyle.Bold))
                 using (var titleBrush = new SolidBrush(titleColor))
                 {
                     g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, 
@@ -64,35 +73,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             }
 
             // Draw checkboxes
-            DrawCheckboxes(g, ctx);
+            for (int i = 0; i < _checkboxTexts.Count && i < _checkboxRects.Count; i++)
+            {
+                bool isChecked = ctx.CustomData.TryGetValue($"CheckboxGroup_Checked_{i}", out var v) && v is bool b && b;
+                bool hovered = IsAreaHovered($"CheckboxGroup_Item_{i}");
+                DrawCheckbox(g, _checkboxRects[i], _checkboxTexts[i], isChecked, hovered);
+            }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Draw focus indicators if needed
-            var checkboxes = GetSampleCheckboxes();
-            var checkboxRects = CalculateCheckboxLayout(ctx.ContentRect, checkboxes.Count);
-            
-            if (checkboxRects.Count > 0)
-            {
-                var focusColor = Theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-                using (var focusPen = new Pen(focusColor, 2))
-                {
-                    // Draw focus on first checkbox as example
-                    var focusRect = Rectangle.Inflate(checkboxRects[0], 1, 1);
-                    g.DrawRoundedRectangle(focusPen, focusRect, 2);
-                }
-            }
+            // Optional: additional accents can go here
         }
 
-        private void DrawCheckboxes(Graphics g, WidgetContext ctx)
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
         {
-            var checkboxes = GetSampleCheckboxes();
-            var checkboxRects = CalculateCheckboxLayout(ctx.ContentRect, checkboxes.Count);
-            
-            for (int i = 0; i < checkboxes.Count; i++)
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            for (int i = 0; i < _checkboxRects.Count; i++)
             {
-                DrawCheckbox(g, checkboxRects[i], checkboxes[i], i % 2 == 0); // Alternate checked state
+                int idx = i;
+                var rect = _checkboxRects[i];
+                if (rect.IsEmpty) continue;
+                owner.AddHitArea($"CheckboxGroup_Item_{idx}", rect, null, () =>
+                {
+                    bool current = ctx.CustomData.TryGetValue($"CheckboxGroup_Checked_{idx}", out var v) && v is bool b && b;
+                    ctx.CustomData[$"CheckboxGroup_Checked_{idx}"] = !current;
+                    notifyAreaHit?.Invoke($"CheckboxGroup_Item_{idx}", rect);
+                    Owner?.Invalidate();
+                });
             }
         }
 
@@ -113,17 +122,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             return rects;
         }
 
-        private void DrawCheckbox(Graphics g, Rectangle rect, string text, bool isChecked)
+        private void DrawCheckbox(Graphics g, Rectangle rect, string text, bool isChecked, bool hovered)
         {
             int checkSize = 16;
             var checkRect = new Rectangle(rect.Left, rect.Top + (rect.Height - checkSize) / 2, checkSize, checkSize);
             var textRect = new Rectangle(checkRect.Right + 8, rect.Top, rect.Width - checkSize - 8, rect.Height);
             
+            // Draw hover background
+            if (hovered)
+            {
+                using var hover = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRoundedRectangle(hover, Rectangle.Inflate(rect, -2, -2), 3);
+            }
+
             // Draw checkbox background
             var checkBgColor = isChecked 
                 ? (Theme?.AccentColor ?? Color.FromArgb(0, 120, 215))
-                : Color.White;
-            var checkBorderColor = Theme?.BorderColor ?? Color.FromArgb(150, 150, 150);
+                : Theme?.BackColor ?? Color.White;
+            var checkBorderColor = hovered ? (Theme?.AccentColor ?? Color.FromArgb(0, 120, 215)) : (Theme?.BorderColor ?? Color.FromArgb(150, 150, 150));
             
             using (var checkBgBrush = new SolidBrush(checkBgColor))
             using (var checkBorderPen = new Pen(checkBorderColor, 1.5f))
@@ -148,8 +164,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             }
             
             // Draw text
-            var textColor = Theme?.TextColor ?? Color.FromArgb(70, 70, 70);
-            using (var textFont = new Font("Segoe UI", 8.5f))
+            var textColor =  Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.FromArgb(70, 70, 70);
+            using (var textFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8.5f))
             using (var textBrush = new SolidBrush(textColor))
             {
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };

@@ -114,7 +114,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw validation indicators
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") as List<ValidationResult>;
+            var validationResults = ctx.CustomData.ContainsKey("ValidationResults")
+                ? ctx.CustomData["ValidationResults"] as List<ValidationResult>
+                : null;
             var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
 
             if (validationResults == null || fields == null) return;

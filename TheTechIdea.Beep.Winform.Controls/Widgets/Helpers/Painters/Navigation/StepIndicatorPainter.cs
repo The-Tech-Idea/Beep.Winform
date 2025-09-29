@@ -76,14 +76,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int stepSpacing = (ctx.ContentRect.Width - stepSize * items.Count) / Math.Max(items.Count - 1, 1);
             int y = ctx.ContentRect.Y + ctx.ContentRect.Height / 2;
             
-            var primaryColor = ctx.AccentColor ?? Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
             var successColor = Color.FromArgb(76, 175, 80);
             var pendingColor = Color.FromArgb(189, 189, 189);
             
             using var completedBrush = new SolidBrush(successColor);
             using var currentBrush = new SolidBrush(primaryColor);
             using var pendingBrush = new SolidBrush(pendingColor);
-            using var textFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Medium);
+            using var textFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             using var completedPen = new Pen(successColor, 2);
             using var currentPen = new Pen(primaryColor, 3);
             using var pendingPen = new Pen(pendingColor, 2);
@@ -152,8 +152,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 {
                     using var labelBrush = new SolidBrush(isCurrent ? primaryColor : 
                         isCompleted ? successColor : Color.FromArgb(120, Color.Black));
-                    using var labelFont = new Font(Owner.Font.FontFamily, 8f, 
-                        isCurrent || isCompleted ? FontStyle.Medium : FontStyle.Regular);
+                    using var labelFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                     
                     var labelRect = new Rectangle(x - 20, stepRect.Bottom + 8, stepSize + 40, 20);
                     var labelFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -172,10 +171,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 
             float progress = (float)currentIndex / Math.Max(items.Count - 1, 1);
             
-            if (ctx.CustomData.ContainsKey("ShowProgress") && (bool)ctx.CustomData["ShowProgress"])
+            if (ctx.CustomData.ContainsKey("ShowProgress") && ctx.CustomData["ShowProgress"] is bool show && show)
             {
-                using var progressFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Medium);
-                using var progressBrush = new SolidBrush(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243));
+                using var progressFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                var primary = Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243);
+                using var progressBrush = new SolidBrush(primary);
                 
                 var progressText = $"{progress:P0}";
                 var progressRect = new Rectangle(ctx.ContentRect.Right - 50, ctx.ContentRect.Y, 50, 20);

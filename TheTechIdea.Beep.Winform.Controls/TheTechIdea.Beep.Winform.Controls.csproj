@@ -48,8 +48,6 @@
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-		<None Include="Widgets\Helpers\Painters\Media\AvatarListPainter.cs" />
-		<None Include="Widgets\Helpers\Painters\Media\IconCardPainter.cs" />
 	</ItemGroup>
   <ItemGroup>
     <Compile Remove="AppBar\**" />
@@ -68,8 +66,6 @@
     <Compile Remove="BeepGlobalThemeManager.cs" />
     <Compile Remove="BeepTabs_old.cs" />
     <Compile Remove="Managers\BeepDataBlockManager.cs" />
-    <Compile Remove="Widgets\Helpers\Painters\Media\AvatarListPainter.cs" />
-    <Compile Remove="Widgets\Helpers\Painters\Media\IconCardPainter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="BeepiForm.Designer.cs~RF145a38e5.TMP" />
@@ -681,6 +677,14 @@
     <Folder Include="Properties\DataSources\" />
     <Folder Include="Resources\" />
     <Folder Include="ToolTips\Helpers\" />
+    <Folder Include="Widgets\Helpers\Painters\Finance\" />
+    <Folder Include="Widgets\Helpers\Painters\Form\" />
+    <Folder Include="Widgets\Helpers\Painters\List\" />
+    <Folder Include="Widgets\Helpers\Painters\Map\" />
+    <Folder Include="Widgets\Helpers\Painters\Media\" />
+    <Folder Include="Widgets\Helpers\Painters\Metric\" />
+    <Folder Include="Widgets\Helpers\Painters\Notification\" />
+    <Folder Include="Widgets\Helpers\Painters\Social\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="GFX\SVG\square-minus.svg" />

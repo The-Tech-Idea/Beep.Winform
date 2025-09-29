@@ -7,17 +7,31 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// RankingList - Ordered ranking list
+    /// RankingList - Ordered ranking list with per-row hit areas
     /// </summary>
     internal sealed class RankingListPainter : WidgetPainterBase
     {
+        private readonly List<Rectangle> _rowRects = new();
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 8, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
+
+            _rowRects.Clear();
+            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
+            {
+                int itemHeight = Math.Min(32, ctx.ContentRect.Height / Math.Max(items.Count, 1));
+                for (int i = 0; i < items.Count; i++)
+                {
+                    int y = ctx.ContentRect.Y + i * itemHeight;
+                    _rowRects.Add(new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, itemHeight));
+                }
+            }
             
             return ctx;
         }
@@ -32,7 +46,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Draw title
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
             {
                 using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
@@ -40,10 +53,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect);
             }
             
-            // Draw ranking items
-            if (ctx.CustomData.ContainsKey("Items"))
+            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
             {
-                var items = (List<Dictionary<string, object>>)ctx.CustomData["Items"];
                 DrawRankingItems(g, ctx.ContentRect, items);
             }
         }
@@ -61,22 +72,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 var item = items[i];
                 int y = rect.Y + i * itemHeight;
+                var rowRect = _rowRects.Count > i ? _rowRects[i] : new Rectangle(rect.X, y, rect.Width, itemHeight);
+
+                // Hover background
+                if (IsAreaHovered($"RankingList_Row_{i}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillRectangle(hover, rowRect);
+                }
                 
                 // Rank badge
-                var rankRect = new Rectangle(rect.X, y + 4, 24, itemHeight - 8);
+                var rankRect = new Rectangle(rowRect.X, rowRect.Y + 4, 24, rowRect.Height - 8);
                 Color rankColor = i < 3 ? GetRankColor(i) : Color.FromArgb(100, Color.Gray);
-                
                 using var rankBrush = new SolidBrush(rankColor);
                 using var rankPath = CreateRoundedPath(rankRect, 4);
                 g.FillPath(rankBrush, rankPath);
-                
                 using var rankTextBrush = new SolidBrush(Color.White);
                 var rankFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString((i + 1).ToString(), rankFont, rankTextBrush, rankRect, rankFormat);
                 
-                // Item content
-                var contentRect = new Rectangle(rect.X + 32, y, rect.Width - 100, itemHeight);
-                var valueRect = new Rectangle(rect.Right - 60, y, 60, itemHeight);
+                // Content
+                var contentRect = new Rectangle(rowRect.X + 32, rowRect.Y, rowRect.Width - 100, rowRect.Height);
+                var valueRect = new Rectangle(rowRect.Right - 60, rowRect.Y, 60, rowRect.Height);
                 
                 if (item.ContainsKey("Name"))
                 {
@@ -107,7 +124,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Optional: Draw medals or special indicators for top ranks
+            // Optional: medals etc.
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            for (int i = 0; i < _rowRects.Count; i++)
+            {
+                int idx = i;
+                var rect = _rowRects[i];
+                owner.AddHitArea($"RankingList_Row_{idx}", rect, null, () =>
+                {
+                    ctx.CustomData["SelectedRankIndex"] = idx;
+                    notifyAreaHit?.Invoke($"RankingList_Row_{idx}", rect);
+                    Owner?.Invalidate();
+                });
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 {
@@ -17,6 +17,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
     internal sealed class ChartGridPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+        private readonly List<Rectangle> _cellRects = new();
+        private Rectangle _expandRect;
 
         public ChartGridPainter()
         {
@@ -25,10 +27,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 12, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
+
+            // Precompute grid cell rectangles for hit testing
+            _cellRects.Clear();
+            if (ctx.CustomData.ContainsKey("Metrics"))
+            {
+                var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
+                int columns = ctx.CustomData.ContainsKey("Columns") ? (int)ctx.CustomData["Columns"] : 2;
+                int rows = ctx.CustomData.ContainsKey("Rows") ? (int)ctx.CustomData["Rows"] : 2;
+                _cellRects.AddRange(CalculateGridCellRects(ctx.ContentRect, metrics?.Count ?? 0, columns, rows));
+            }
+
+            // Expand button location (if expandable)
+            _expandRect = new Rectangle(ctx.DrawingRect.Right - 28, ctx.DrawingRect.Y + 8, 20, 20);
             
             return ctx;
         }
@@ -44,8 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             // Draw enhanced title with grid icon
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
@@ -82,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             // Title text
             var titleTextRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
                 ctx.HeaderRect.Width - iconRect.Width - 16, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleTextBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleTextBrush, titleTextRect, format);
@@ -113,6 +129,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                     cellHeight - cellPad * 2
                 );
                 
+                // Ensure cache aligns with drawn rects
+                if (i < _cellRects.Count) _cellRects[i] = cellRect;
+                
                 // Enhanced cell background with gradient
                 Color cellColor = metric.ContainsKey("Color") ? (Color)metric["Color"] : accentColor;
                 using var cellBrush = new LinearGradientBrush(
@@ -127,6 +146,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 using var borderPen = new Pen(Color.FromArgb(20, Theme?.BorderColor ?? Color.Gray), 1);
                 g.DrawPath(borderPen, cellPath);
                 
+                // Hover effect
+                if (IsAreaHovered($"ChartGrid_Cell_{i}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillRoundedRectangle(hover, Rectangle.Inflate(cellRect, 2, 2), 8);
+                }
+                
                 // Header area with icon and title
                 var headerRect = new Rectangle(cellRect.X + 8, cellRect.Y + 8, cellRect.Width - 16, 20);
                 var iconRect = new Rectangle(headerRect.X, headerRect.Y + 2, 16, 16);
@@ -139,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 {
                     var titleTextRect = new Rectangle(iconRect.Right + 6, headerRect.Y, 
                         headerRect.Width - iconRect.Width - 6, headerRect.Height);
-                    using var titleFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.SemiBold);
+                    using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f,FontStyle.Bold);
                     using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                     var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                     g.DrawString(metric["Title"].ToString(), titleFont, titleBrush, titleTextRect, format);
@@ -149,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 if (metric.ContainsKey("Value"))
                 {
                     var valueRect = new Rectangle(cellRect.X + 8, headerRect.Bottom + 4, cellRect.Width - 16, 18);
-                    using var valueFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+                    using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
                     using var valueBrush = new SolidBrush(cellColor);
                     var valueFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                     g.DrawString(metric["Value"].ToString(), valueFont, valueBrush, valueRect, valueFormat);
@@ -168,13 +194,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             // Draw expand indicator for full grid view
             if (ctx.CustomData.ContainsKey("IsExpandable") && (bool)ctx.CustomData["IsExpandable"])
             {
-                var expandRect = new Rectangle(ctx.DrawingRect.Right - 28, ctx.DrawingRect.Y + 8, 20, 20);
                 using var expandBrush = new SolidBrush(Color.FromArgb(30, Theme?.AccentColor ?? Color.Gray));
-                g.FillRoundedRectangle(expandBrush, expandRect, 4);
+                g.FillRoundedRectangle(expandBrush, _expandRect, 4);
                 
-                var iconRect = new Rectangle(expandRect.X + 2, expandRect.Y + 2, 16, 16);
+                var iconRect = new Rectangle(_expandRect.X + 2, _expandRect.Y + 2, 16, 16);
                 _imagePainter.DrawSvg(g, "maximize", iconRect, 
                     Color.FromArgb(150, Theme?.AccentColor ?? Color.Gray), 0.7f);
+            }
+
+            // Title underline on hover
+            if (IsAreaHovered("ChartGrid_Title") && !string.IsNullOrEmpty(ctx.Title))
+            {
+                using var underlinePen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.Blue), 2);
+                g.DrawLine(underlinePen, ctx.HeaderRect.Left, ctx.HeaderRect.Bottom - 2, ctx.HeaderRect.Right, ctx.HeaderRect.Bottom - 2);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            // Header click area
+            if (!string.IsNullOrEmpty(ctx.Title))
+            {
+                owner.AddHitArea("ChartGrid_Title", ctx.HeaderRect, null, () =>
+                {
+                    ctx.CustomData["TitleClicked"] = true;
+                    notifyAreaHit?.Invoke("ChartGrid_Title", ctx.HeaderRect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            // Cell click areas
+            for (int i = 0; i < _cellRects.Count; i++)
+            {
+                int idx = i;
+                var rect = _cellRects[i];
+                if (rect.IsEmpty) continue;
+                owner.AddHitArea($"ChartGrid_Cell_{idx}", rect, null, () =>
+                {
+                    ctx.CustomData["SelectedCellIndex"] = idx;
+                    notifyAreaHit?.Invoke($"ChartGrid_Cell_{idx}", rect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            // Expand area
+            if (ctx.CustomData.ContainsKey("IsExpandable") && (bool)ctx.CustomData["IsExpandable"])
+            {
+                owner.AddHitArea("ChartGrid_Expand", _expandRect, null, () =>
+                {
+                    ctx.CustomData["ExpandRequested"] = true;
+                    notifyAreaHit?.Invoke("ChartGrid_Expand", _expandRect);
+                    Owner?.Invalidate();
+                });
+            }
+        }
+
+        private IEnumerable<Rectangle> CalculateGridCellRects(Rectangle rect, int metricsCount, int columns, int rows)
+        {
+            int cellWidth = rect.Width / Math.Max(columns, 1);
+            int cellHeight = rect.Height / Math.Max(rows, 1);
+            int cellPad = 8;
+            int maxCells = Math.Min(metricsCount, columns * rows);
+
+            for (int i = 0; i < maxCells; i++)
+            {
+                int col = i % columns;
+                int row = i / columns;
+                yield return new Rectangle(
+                    rect.X + col * cellWidth + cellPad,
+                    rect.Y + row * cellHeight + cellPad,
+                    cellWidth - cellPad * 2,
+                    cellHeight - cellPad * 2
+                );
             }
         }
 

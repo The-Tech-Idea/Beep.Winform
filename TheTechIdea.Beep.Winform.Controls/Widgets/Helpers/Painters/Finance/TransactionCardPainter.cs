@@ -2,186 +2,183 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Base;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
-namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
+namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 {
     /// <summary>
-    /// TransactionCard - Financial transaction display with enhanced visual presentation
+    /// TransactionCard - Transaction entry display using BaseControl's hit area system
     /// </summary>
     internal sealed class TransactionCardPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
 
+        // Store rectangles for layout
+        private Rectangle _categoryAreaRect;
+        private Rectangle _amountAreaRect;
+        private Rectangle _detailsAreaRect;
+        private Rectangle _statusAreaRect;
+
         public TransactionCardPainter()
         {
             _imagePainter = new BaseImage.ImagePainter();
         }
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            int pad = 10;
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = baseRect;
             
-            // Transaction type icon
-            ctx.IconRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
-                24, 24
-            );
+            // Transaction header (merchant/category)
+            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 20);
             
-            // Transaction details
-            ctx.HeaderRect = new Rectangle(
-                ctx.IconRect.Right + 12,
-                ctx.DrawingRect.Top + pad,
-                ctx.DrawingRect.Width - ctx.IconRect.Width - pad * 3,
-                24
-            );
-            
-            // Amount
+            // Transaction content (amount, date, details)
             ctx.ContentRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
-                ctx.IconRect.Bottom + 12,
+                ctx.HeaderRect.Bottom + 4,
                 ctx.DrawingRect.Width - pad * 2,
-                28
+                ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 2 - 4
             );
-            
-            // Date and status
-            ctx.FooterRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ContentRect.Bottom + 8,
-                ctx.DrawingRect.Width - pad * 2,
-                20
-            );
+
+            // Compute rectangles for hit areas (registration happens in UpdateHitAreas)
+            _categoryAreaRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y, ctx.HeaderRect.Width / 2, ctx.HeaderRect.Height);
+            _amountAreaRect = new Rectangle(ctx.ContentRect.X + ctx.ContentRect.Width - 80, ctx.ContentRect.Y, 80, 20);
+            _detailsAreaRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y + 22, ctx.ContentRect.Width - 85, 16);
+            _statusAreaRect = new Rectangle(ctx.DrawingRect.Right - 24, ctx.DrawingRect.Y + 4, 20, 20);
             
             return ctx;
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            owner.AddHitArea("Transaction_Category", _categoryAreaRect, null, () => { HandleCategoryClick(ctx); notifyAreaHit?.Invoke("Transaction_Category", _categoryAreaRect); });
+            owner.AddHitArea("Transaction_Amount", _amountAreaRect, null, () => { HandleAmountClick(ctx); notifyAreaHit?.Invoke("Transaction_Amount", _amountAreaRect); });
+            owner.AddHitArea("Transaction_Details", _detailsAreaRect, null, () => { HandleDetailsClick(ctx); notifyAreaHit?.Invoke("Transaction_Details", _detailsAreaRect); });
+            owner.AddHitArea("Transaction_Status", _statusAreaRect, null, () => { HandleStatusClick(ctx); notifyAreaHit?.Invoke("Transaction_Status", _statusAreaRect); });
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             using var bgBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
-            using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
+            using var bgPath = CreateRoundedPath(ctx.DrawingRect, 4);
             g.FillPath(bgBrush, bgPath);
-            
-            // Subtle border
-            using var borderPen = new Pen(Color.FromArgb(30, Color.Black), 1);
+            using var borderPen = new Pen(Color.FromArgb(30, Theme?.BorderColor ?? Color.Gray));
             g.DrawPath(borderPen, bgPath);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
-            // Transaction data
-            string transactionType = ctx.CustomData.ContainsKey("TransactionType") ? ctx.CustomData["TransactionType"].ToString() : "payment";
-            string description = ctx.CustomData.ContainsKey("Description") ? ctx.CustomData["Description"].ToString() : "Payment to Merchant";
-            decimal amount = ctx.CustomData.ContainsKey("PrimaryValue") ? (decimal)ctx.CustomData["PrimaryValue"] : -50.00m;
-            string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
-            DateTime transactionDate = ctx.CustomData.ContainsKey("TransactionDate") ? (DateTime)ctx.CustomData["TransactionDate"] : DateTime.Now;
-            string status = ctx.CustomData.ContainsKey("Status") ? ctx.CustomData["Status"].ToString() : "Completed";
+            string merchant = ctx.CustomData.ContainsKey("Merchant") ? ctx.CustomData["Merchant"].ToString() : "Amazon";
+            string category = ctx.CustomData.ContainsKey("Category") ? ctx.CustomData["Category"].ToString() : "Shopping";
+            decimal amount = ctx.CustomData.ContainsKey("Amount") ? (decimal)ctx.CustomData["Amount"] : -45.99m;
+            string currency = ctx.CustomData.ContainsKey("Currency") ? ctx.CustomData["Currency"].ToString() : "$";
+            DateTime date = ctx.CustomData.ContainsKey("Date") ? (DateTime)ctx.CustomData["Date"] : DateTime.Now.AddDays(-1);
+            string status = ctx.CustomData.ContainsKey("Status") ? ctx.CustomData["Status"].ToString() : "Posted";
 
-            DrawTransactionIcon(g, ctx, transactionType, amount);
-            DrawTransactionDetails(g, ctx, description, amount, currencySymbol, transactionDate, status);
+            DrawTransactionHeader(g, ctx, merchant, category);
+            DrawTransactionDetails(g, ctx, amount, currency, date, status);
         }
 
-        private void DrawTransactionIcon(Graphics g, WidgetContext ctx, string transactionType, decimal amount)
+        private void DrawTransactionHeader(Graphics g, WidgetContext ctx, string merchant, string category)
         {
-            // Icon background
-            var bgColor = amount < 0 ? Color.FromArgb(244, 67, 54) : Color.FromArgb(76, 175, 80);
-            using var iconBrush = new SolidBrush(Color.FromArgb(30, bgColor));
-            g.FillRoundedRectangle(iconBrush, ctx.IconRect, 12);
-
-            // Transaction category icon
-            string iconName = transactionType.ToLower() switch
+            bool isCategoryHovered = IsAreaHovered("Transaction_Category");
+            var iconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y + 2, 16, 16);
+            string iconName = category.ToLower() switch
             {
-                "income" or "salary" => "arrow-down-left",
-                "expense" or "payment" => "arrow-up-right", 
-                "transfer" => "arrow-right-left",
-                "investment" => "trending-up",
-                "withdrawal" => "minus",
-                "deposit" => "plus",
+                "shopping" => "shopping-bag",
+                "food" => "utensils",
+                "transport" => "car",
+                "entertainment" => "film",
+                "utilities" => "zap",
                 _ => "dollar-sign"
             };
-            
-            var iconRect = Rectangle.Inflate(ctx.IconRect, -4, -4);
-            _imagePainter.DrawSvg(g, iconName, iconRect, bgColor, 0.9f);
+            Color iconColor = isCategoryHovered ? Theme?.PrimaryColor ?? Color.Blue : Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray);
+            _imagePainter.DrawSvg(g, iconName, iconRect, iconColor, 0.8f);
+
+            var merchantRect = new Rectangle(iconRect.Right + 6, ctx.HeaderRect.Y, _categoryAreaRect.Width - iconRect.Width - 6, ctx.HeaderRect.Height);
+            using var merchantFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, isCategoryHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
+            Color merchantColor = isCategoryHovered ? Theme?.PrimaryColor ?? Color.Blue : Theme?.ForeColor ?? Color.Black;
+            using var merchantBrush = new SolidBrush(merchantColor);
+            var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+            string merchantText = isCategoryHovered ? $"{merchant} - Filter by {category}" : merchant;
+            g.DrawString(merchantText, merchantFont, merchantBrush, merchantRect, format);
         }
 
-        private void DrawTransactionDetails(Graphics g, WidgetContext ctx, string description, decimal amount, string currencySymbol, DateTime transactionDate, string status)
+        private void DrawTransactionDetails(Graphics g, WidgetContext ctx, decimal amount, string currency, DateTime date, string status)
         {
-            // Transaction description
-            using var descFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Medium);
-            using var descBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
-            var descFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-            g.DrawString(description, descFont, descBrush, ctx.HeaderRect, descFormat);
-
-            // Amount with proper formatting
-            var amountColor = amount < 0 ? Color.FromArgb(244, 67, 54) : Color.FromArgb(76, 175, 80);
-            using var amountFont = new Font(Owner.Font.FontFamily, 16f, FontStyle.Bold);
+            bool isAmountHovered = IsAreaHovered("Transaction_Amount");
+            bool isCredit = amount > 0;
+            Color amountColor = isCredit ? Color.FromArgb(76, 175, 80) : Color.FromArgb(244, 67, 54);
+            if (isAmountHovered) amountColor = Color.FromArgb(Math.Min(255, amountColor.R + 40), Math.Min(255, amountColor.G + 40), Math.Min(255, amountColor.B + 40));
+            using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, isAmountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var amountBrush = new SolidBrush(amountColor);
-            string amountText = $"{(amount < 0 ? "-" : "+")}{currencySymbol}{Math.Abs(amount):N2}";
-            var amountFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(amountText, amountFont, amountBrush, ctx.ContentRect, amountFormat);
+            string amountText = $"{(isCredit ? "+" : "")}{currency}{Math.Abs(amount):N2}";
+            if (isAmountHovered) amountText += " - View details";
+            var amountFormat = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
+            g.DrawString(amountText, amountFont, amountBrush, _amountAreaRect, amountFormat);
 
-            // Date and status
-            using var dateFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var dateBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray));
-            string dateText = transactionDate.ToString("MMM dd, yyyy");
-            var dateFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
-            g.DrawString(dateText, dateFont, dateBrush, ctx.FooterRect, dateFormat);
-
-            // Status with indicator
-            var statusColor = status.ToLower() switch
-            {
-                "completed" => Color.FromArgb(76, 175, 80),
-                "pending" => Color.FromArgb(255, 193, 7), 
-                "failed" => Color.FromArgb(244, 67, 54),
-                _ => Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray)
-            };
-            
-            using var statusFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
-            using var statusBrush = new SolidBrush(statusColor);
-            var statusSize = g.MeasureString(status, statusFont);
-            var statusRect = new Rectangle(
-                ctx.FooterRect.Right - (int)statusSize.Width, 
-                ctx.FooterRect.Y, 
-                (int)statusSize.Width, 
-                ctx.FooterRect.Height
-            );
-            var statusFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString(status, statusFont, statusBrush, statusRect, statusFormat);
+            bool isDetailsHovered = IsAreaHovered("Transaction_Details");
+            using var detailsFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, isDetailsHovered ? FontStyle.Regular | FontStyle.Underline : FontStyle.Regular);
+            Color detailsColor = isDetailsHovered ? Theme?.PrimaryColor ?? Color.Blue : Color.FromArgb(120, Theme?.ForeColor ?? Color.Gray);
+            using var detailsBrush = new SolidBrush(detailsColor);
+            string detailsText = isDetailsHovered ? $"{date:MMM dd} • {status} - Click for full details" : $"{date:MMM dd} • {status}";
+            var detailsFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
+            g.DrawString(detailsText, detailsFont, detailsBrush, _detailsAreaRect, detailsFormat);
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Category badge for transaction type
-            if (ctx.CustomData.ContainsKey("Category"))
+            bool isStatusHovered = IsAreaHovered("Transaction_Status");
+            string status = ctx.CustomData.ContainsKey("Status") ? ctx.CustomData["Status"].ToString() : "Posted";
+            Color statusColor = status.ToLower() switch { "posted" => Color.FromArgb(76, 175, 80), "pending" => Color.FromArgb(255, 193, 7), "failed" => Color.FromArgb(244, 67, 54), _ => Color.FromArgb(120, 120, 120) };
+            if (isStatusHovered) statusColor = Color.FromArgb(Math.Min(255, statusColor.R + 40), Math.Min(255, statusColor.G + 40), Math.Min(255, statusColor.B + 40));
+            var statusRect = _statusAreaRect; if (isStatusHovered) statusRect.Inflate(2, 2);
+            using var statusBrush = new SolidBrush(statusColor);
+            g.FillEllipse(statusBrush, new Rectangle(statusRect.X + 6, statusRect.Y + 6, 8, 8));
+            if (isStatusHovered)
             {
-                string category = ctx.CustomData["Category"].ToString();
-                var badgeRect = new Rectangle(ctx.DrawingRect.Right - 60, ctx.DrawingRect.Y + 8, 52, 16);
-                
-                var categoryColor = category.ToLower() switch
-                {
-                    "food" => Color.FromArgb(255, 152, 0),
-                    "transport" => Color.FromArgb(33, 150, 243),
-                    "entertainment" => Color.FromArgb(156, 39, 176),
-                    "utilities" => Color.FromArgb(76, 175, 80),
-                    "shopping" => Color.FromArgb(244, 67, 54),
-                    _ => Color.FromArgb(96, 125, 139)
-                };
-                
-                using var categoryBrush = new SolidBrush(Color.FromArgb(20, categoryColor));
-                g.FillRoundedRectangle(categoryBrush, badgeRect, 8);
-                
-                using var categoryFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Medium);
-                using var categoryTextBrush = new SolidBrush(categoryColor);
-                var categoryFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                g.DrawString(category.ToUpper(), categoryFont, categoryTextBrush, badgeRect, categoryFormat);
+                var tooltipRect = new Rectangle(statusRect.X - 60, statusRect.Bottom + 2, 80, 16);
+                using var tooltipBrush = new SolidBrush(Color.FromArgb(200, 0, 0, 0));
+                using var tooltipPath = CreateRoundedPath(tooltipRect, 4);
+                g.FillPath(tooltipBrush, tooltipPath);
+                using var tooltipFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                using var tooltipTextBrush = new SolidBrush(Color.White);
+                var tooltipFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
+                g.DrawString($"Status: {status}", tooltipFont, tooltipTextBrush, tooltipRect, tooltipFormat);
             }
+        }
+
+        private void HandleCategoryClick(WidgetContext ctx)
+        {
+            string category = ctx.CustomData.ContainsKey("Category") ? ctx.CustomData["Category"].ToString() : "Shopping";
+            ctx.CustomData["FilterByCategory"] = category;
+            Owner?.Invalidate();
+        }
+
+        private void HandleAmountClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowTransactionDetails"] = true;
+            Owner?.Invalidate();
+        }
+
+        private void HandleDetailsClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowFullDetails"] = true;
+            Owner?.Invalidate();
+        }
+
+        private void HandleStatusClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowStatusInfo"] = true;
+            Owner?.Invalidate();
         }
 
         public void Dispose()

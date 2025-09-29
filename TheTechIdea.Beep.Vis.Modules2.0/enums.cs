@@ -591,7 +591,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         Stretch,
         KeepAspectRatio,
         KeepAspectRatioByWidth,
-        KeepAspectRatioByHeight
+        KeepAspectRatioByHeight,
+        Fill
     }
    
 

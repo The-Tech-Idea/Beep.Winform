@@ -7,17 +7,36 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// TaskList - Checklist/todo style  
+    /// TaskList - Checklist/todo style with checkbox and item hit areas
     /// </summary>
     internal sealed class TaskListPainter : WidgetPainterBase
     {
+        private readonly List<Rectangle> _itemRects = new();
+        private readonly List<Rectangle> _checkboxRects = new();
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 8, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
+            
+            // Precompute item and checkbox rects
+            _itemRects.Clear();
+            _checkboxRects.Clear();
+            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items && items.Count > 0)
+            {
+                int itemHeight = Math.Min(28, ctx.ContentRect.Height / Math.Max(items.Count, 1));
+                for (int i = 0; i < items.Count; i++)
+                {
+                    int y = ctx.ContentRect.Y + i * itemHeight;
+                    var itemRect = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, itemHeight);
+                    _itemRects.Add(itemRect);
+                    _checkboxRects.Add(new Rectangle(itemRect.X + 8, y + itemHeight / 2 - 6, 12, 12));
+                }
+            }
             
             return ctx;
         }
@@ -41,9 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             }
             
             // Draw task items
-            if (ctx.CustomData.ContainsKey("Items"))
+            if (ctx.CustomData.TryGetValue("Items", out var raw) && raw is List<Dictionary<string, object>> items)
             {
-                var items = (List<Dictionary<string, object>>)ctx.CustomData["Items"];
                 DrawTaskItems(g, ctx.ContentRect, items);
             }
         }
@@ -59,20 +77,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             {
                 var item = items[i];
                 int y = rect.Y + i * itemHeight;
+
+                var itemRect = _itemRects.Count > i ? _itemRects[i] : new Rectangle(rect.X, y, rect.Width, itemHeight);
+                var checkboxRect = _checkboxRects.Count > i ? _checkboxRects[i] : new Rectangle(itemRect.X + 8, y + itemHeight / 2 - 6, 12, 12);
+
+                // Hover background
+                if (IsAreaHovered($"TaskList_Item_{i}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillRectangle(hover, itemRect);
+                }
                 
                 // Checkbox
-                var checkboxRect = new Rectangle(rect.X + 8, y + itemHeight / 2 - 6, 12, 12);
                 bool isCompleted = item.ContainsKey("Status") && item["Status"].ToString().ToLower() == "completed";
-                
-                using var checkboxPen = new Pen(Color.FromArgb(150, Color.Gray), 1);
+                using var checkboxPen = new Pen(Color.FromArgb(IsAreaHovered($"TaskList_Check_{i}") ? 200 : 150, Color.Gray), 1);
                 g.DrawRectangle(checkboxPen, checkboxRect);
                 
                 if (isCompleted)
                 {
                     using var checkBrush = new SolidBrush(Color.Green);
                     g.FillRectangle(checkBrush, Rectangle.Inflate(checkboxRect, -2, -2));
-                    
-                    // Checkmark
                     using var checkPen = new Pen(Color.White, 2);
                     g.DrawLines(checkPen, new Point[]
                     {
@@ -83,12 +107,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 }
                 
                 // Task text
-                var taskRect = new Rectangle(rect.X + 28, y, rect.Width - 36, itemHeight);
+                var taskRect = new Rectangle(itemRect.X + 28, y, itemRect.Width - 36, itemHeight);
                 if (item.ContainsKey("Name"))
                 {
                     Color textColor = isCompleted ? Color.FromArgb(120, Color.Gray) : Color.FromArgb(180, Color.Black);
                     FontStyle fontStyle = isCompleted ? FontStyle.Strikeout : FontStyle.Regular;
-                    
                     using var taskTextFont = new Font(Owner.Font.FontFamily, 9f, fontStyle);
                     using var taskBrush = new SolidBrush(textColor);
                     var taskFormat = new StringFormat { LineAlignment = StringAlignment.Center };
@@ -99,7 +122,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Optional: Draw progress indicator or completion summary
+            // Checkbox hover stroke
+            for (int i = 0; i < _checkboxRects.Count; i++)
+            {
+                if (IsAreaHovered($"TaskList_Check_{i}"))
+                {
+                    using var pen = new Pen(Theme?.AccentColor ?? Color.Blue, 1.5f);
+                    g.DrawRectangle(pen, _checkboxRects[i]);
+                }
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            for (int i = 0; i < _itemRects.Count; i++)
+            {
+                int idx = i;
+                var itemRect = _itemRects[i];
+                var checkRect = _checkboxRects[i];
+
+                owner.AddHitArea($"TaskList_Item_{idx}", itemRect, null, () =>
+                {
+                    ctx.CustomData["SelectedTaskIndex"] = idx;
+                    notifyAreaHit?.Invoke($"TaskList_Item_{idx}", itemRect);
+                    Owner?.Invalidate();
+                });
+
+                owner.AddHitArea($"TaskList_Check_{idx}", checkRect, null, () =>
+                {
+                    ctx.CustomData["ToggleTaskIndex"] = idx;
+                    notifyAreaHit?.Invoke($"TaskList_Check_{idx}", checkRect);
+                    Owner?.Invalidate();
+                });
+            }
         }
     }
 }

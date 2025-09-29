@@ -6,16 +6,24 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
+using System.Linq;
 using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 {
     /// <summary>
-    /// CryptoWidget - Cryptocurrency progress/stats with enhanced visual presentation
+    /// CryptoWidget - Cryptocurrency progress/stats with enhanced visual presentation and hit areas
     /// </summary>
     internal sealed class CryptoWidgetPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+
+        // Interactive areas
+        private Rectangle _iconRect;
+        private Rectangle _nameRect;
+        private Rectangle _priceRect;
+        private Rectangle _changeRect;
+        private Rectangle _chartRect;
 
         public CryptoWidgetPainter()
         {
@@ -24,63 +32,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = baseRect;
             
             // Crypto icon area
-            ctx.IconRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
-                32, 32
-            );
-            
+            ctx.IconRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, 32, 32);
+            _iconRect = ctx.IconRect;
+
             // Crypto name and symbol
-            ctx.HeaderRect = new Rectangle(
-                ctx.IconRect.Right + 12,
-                ctx.DrawingRect.Top + pad,
-                ctx.DrawingRect.Width - ctx.IconRect.Width - pad * 3,
-                32
-            );
-            
+            ctx.HeaderRect = new Rectangle(ctx.IconRect.Right + 12, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - ctx.IconRect.Width - pad * 3, 32);
+            _nameRect = ctx.HeaderRect;
+
             // Current price
-            ctx.ContentRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.IconRect.Bottom + 12,
-                ctx.DrawingRect.Width - pad * 2,
-                30
-            );
-            
+            ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.IconRect.Bottom + 12, ctx.DrawingRect.Width - pad * 2, 30);
+            _priceRect = ctx.ContentRect;
+
             // Change percentage and chart
-            ctx.FooterRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ContentRect.Bottom + 8,
-                ctx.DrawingRect.Width - pad * 2,
-                ctx.DrawingRect.Bottom - ctx.ContentRect.Bottom - pad * 2
-            );
+            ctx.FooterRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.ContentRect.Bottom + 8, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Bottom - ctx.ContentRect.Bottom - pad * 2);
+            _changeRect = new Rectangle(ctx.FooterRect.X, ctx.FooterRect.Y, ctx.FooterRect.Width, 20);
+            _chartRect = new Rectangle(ctx.FooterRect.X, ctx.FooterRect.Y + 20, ctx.FooterRect.Width, Math.Max(0, ctx.FooterRect.Height - 20));
             
             return ctx;
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            owner.AddHitArea("Crypto_Icon", _iconRect, null, () => { HandleIconClick(ctx); notifyAreaHit?.Invoke("Crypto_Icon", _iconRect); });
+            owner.AddHitArea("Crypto_Name", _nameRect, null, () => { HandleNameClick(ctx); notifyAreaHit?.Invoke("Crypto_Name", _nameRect); });
+            owner.AddHitArea("Crypto_Price", _priceRect, null, () => { HandlePriceClick(ctx); notifyAreaHit?.Invoke("Crypto_Price", _priceRect); });
+            owner.AddHitArea("Crypto_Change", _changeRect, null, () => { HandleChangeClick(ctx); notifyAreaHit?.Invoke("Crypto_Change", _changeRect); });
+            owner.AddHitArea("Crypto_Chart", _chartRect, null, () => { HandleChartClick(ctx); notifyAreaHit?.Invoke("Crypto_Chart", _chartRect); });
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
             DrawSoftShadow(g, ctx.DrawingRect, 6, layers: 2, offset: 1);
-            
-            // Gradient background for crypto feel
-            using var brush = new LinearGradientBrush(ctx.DrawingRect, 
-                Color.FromArgb(250, 250, 255), 
-                Color.FromArgb(240, 245, 255), 
-                LinearGradientMode.Vertical);
+            using var brush = new LinearGradientBrush(ctx.DrawingRect, Theme?.BackColor ?? Color.FromArgb(250, 250, 255), Theme?.SecondaryColor ?? Color.FromArgb(240, 245, 255), LinearGradientMode.Vertical);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(brush, bgPath);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
-            decimal value = ctx.CustomData.ContainsKey("PrimaryValue") ? (decimal)ctx.CustomData["PrimaryValue"] : 0m;
-            decimal percentage = ctx.CustomData.ContainsKey("Percentage") ? (decimal)ctx.CustomData["Percentage"] : 0m;
+            decimal value = ctx.CustomData.ContainsKey("PrimaryValue") ? Convert.ToDecimal(ctx.CustomData["PrimaryValue"]) : 0m;
+            decimal percentage = ctx.CustomData.ContainsKey("Percentage") ? Convert.ToDecimal(ctx.CustomData["Percentage"]) : 0m;
             string currencySymbol = ctx.CustomData.ContainsKey("CurrencySymbol") ? ctx.CustomData["CurrencySymbol"].ToString() : "$";
 
             DrawCryptoIcon(g, ctx);
@@ -89,24 +90,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawCryptoIcon(Graphics g, WidgetContext ctx)
         {
-            // Enhanced crypto icon with dynamic selection
-            string cryptoName = ctx.CustomData.ContainsKey("CryptoName") ? 
-                ctx.CustomData["CryptoName"].ToString().ToLower() : "bitcoin";
-            
-            // Map crypto names to appropriate icons
-            string iconName = cryptoName switch
-            {
-                "bitcoin" or "btc" => "dollar-sign", // Bitcoin representation
-                "ethereum" or "eth" => "hexagon", // Ethereum representation
-                "litecoin" or "ltc" => "circle", // Litecoin representation
-                "ripple" or "xrp" => "zap", // Ripple representation
-                _ => "trending-up" // Default crypto icon
-            };
-
-            Color cryptoColor = ctx.CustomData.ContainsKey("CryptoColor") ? 
-                (Color)ctx.CustomData["CryptoColor"] : Color.FromArgb(255, 193, 7); // Bitcoin gold
-            
-            _imagePainter.DrawSvg(g, iconName, ctx.IconRect, cryptoColor, 0.9f);
+            string cryptoName = ctx.CustomData.ContainsKey("CryptoName") ? ctx.CustomData["CryptoName"].ToString().ToLower() : "bitcoin";
+            string iconName = cryptoName switch { "bitcoin" or "btc" => "dollar-sign", "ethereum" or "eth" => "hexagon", "litecoin" or "ltc" => "circle", "ripple" or "xrp" => "zap", _ => "trending-up" };
+            Color cryptoColor = ctx.CustomData.ContainsKey("CryptoColor") ? (Color)ctx.CustomData["CryptoColor"] : (Theme?.AccentColor ?? Color.FromArgb(255, 193, 7));
+            _imagePainter.DrawSvg(g, iconName, _iconRect, cryptoColor, 0.9f);
         }
 
         private void DrawCryptoInfo(Graphics g, WidgetContext ctx, decimal value, decimal percentage, string currencySymbol)
@@ -115,61 +102,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             var positiveColor = ctx.CustomData.ContainsKey("PositiveColor") ? (Color)ctx.CustomData["PositiveColor"] : Color.Green;
             var negativeColor = ctx.CustomData.ContainsKey("NegativeColor") ? (Color)ctx.CustomData["NegativeColor"] : Color.Red;
 
-            // Enhanced crypto name display with icon
-            string cryptoName = ctx.CustomData.ContainsKey("CryptoName") ? 
-                ctx.CustomData["CryptoName"].ToString() : "Bitcoin";
-            string cryptoSymbol = ctx.CustomData.ContainsKey("CryptoSymbol") ? 
-                ctx.CustomData["CryptoSymbol"].ToString() : "BTC";
+            string cryptoName = ctx.CustomData.ContainsKey("CryptoName") ? ctx.CustomData["CryptoName"].ToString() : "Bitcoin";
+            string cryptoSymbol = ctx.CustomData.ContainsKey("CryptoSymbol") ? ctx.CustomData["CryptoSymbol"].ToString() : "BTC";
 
-            // Draw crypto name with symbol
-            var nameIconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y, 16, 16);
+            // Name and symbol
+            var nameIconRect = new Rectangle(_nameRect.X, _nameRect.Y, 16, 16);
             _imagePainter.DrawSvg(g, "circle", nameIconRect, Theme?.AccentColor ?? Color.Gray, 0.6f);
-
-            var nameTextRect = new Rectangle(nameIconRect.Right + 4, ctx.HeaderRect.Y, 
-                ctx.HeaderRect.Width - nameIconRect.Width - 4, 16);
-            using var nameFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            var nameTextRect = new Rectangle(nameIconRect.Right + 4, _nameRect.Y, _nameRect.Width - nameIconRect.Width - 4, 16);
+            using var nameFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var nameBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             g.DrawString(cryptoName, nameFont, nameBrush, nameTextRect.X, nameTextRect.Y);
-            
-            // Draw symbol
-            using var symbolFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var symbolFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var symbolBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             g.DrawString(cryptoSymbol, symbolFont, symbolBrush, nameTextRect.X, nameTextRect.Y + 16);
 
-            // Draw current price with trend
-            using var priceFont = new Font(Owner.Font.FontFamily, 16f, FontStyle.Bold);
+            // Current price
+            bool priceHovered = IsAreaHovered("Crypto_Price");
+            using var priceFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 16f, priceHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
             using var priceBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
-            string priceText = $"{currencySymbol}{value:N2}";
-            g.DrawString(priceText, priceFont, priceBrush, ctx.ContentRect);
+            string priceText = $"{currencySymbol}{value:N2}" + (priceHovered ? " - Click to view orderbook" : string.Empty);
+            g.DrawString(priceText, priceFont, priceBrush, _priceRect);
 
-            // Enhanced percentage change with trend icon
-            Color trendColor = trend == FinanceTrend.Up ? positiveColor : 
-                             trend == FinanceTrend.Down ? negativeColor : Color.Gray;
-            
-            var changeRect = new Rectangle(ctx.FooterRect.X, ctx.FooterRect.Y, ctx.FooterRect.Width, 20);
-            var trendIconRect = new Rectangle(changeRect.X, changeRect.Y + 2, 16, 16);
-            
-            string trendIconName = trend == FinanceTrend.Up ? "trending-up" : 
-                                 trend == FinanceTrend.Down ? "trending-down" : "minus";
+            // Change percentage
+            Color trendColor = trend == FinanceTrend.Up ? positiveColor : trend == FinanceTrend.Down ? negativeColor : Color.Gray;
+            bool changeHovered = IsAreaHovered("Crypto_Change");
+            if (changeHovered) trendColor = Color.FromArgb(Math.Min(255, trendColor.R + 30), Math.Min(255, trendColor.G + 30), Math.Min(255, trendColor.B + 30));
+            var trendIconRect = new Rectangle(_changeRect.X, _changeRect.Y + 2, 16, 16);
+            string trendIconName = trend == FinanceTrend.Up ? "trending-up" : trend == FinanceTrend.Down ? "trending-down" : "minus";
             _imagePainter.DrawSvg(g, trendIconName, trendIconRect, trendColor, 0.8f);
-
-            var changeTextRect = new Rectangle(trendIconRect.Right + 4, changeRect.Y, 
-                changeRect.Width - trendIconRect.Width - 4, changeRect.Height);
-            using var changeFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
+            var changeTextRect = new Rectangle(trendIconRect.Right + 4, _changeRect.Y, _changeRect.Width - trendIconRect.Width - 4, _changeRect.Height);
+            using var changeFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
             using var changeBrush = new SolidBrush(trendColor);
             string changeText = $"{percentage:+0.00;-0.00;0.00}%";
             var changeFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(changeText, changeFont, changeBrush, changeTextRect, changeFormat);
 
-            // Draw mini price chart placeholder
-            DrawMiniChart(g, new Rectangle(ctx.FooterRect.X, ctx.FooterRect.Y + 20, ctx.FooterRect.Width, 30), trendColor);
+            // Mini chart
+            DrawMiniChart(g, _chartRect, trendColor);
         }
 
         private void DrawMiniChart(Graphics g, Rectangle rect, Color trendColor)
         {
             if (rect.Width < 20 || rect.Height < 10) return;
-
-            // Simple price chart simulation
             var points = new List<PointF>();
             int steps = 20;
             for (int i = 0; i < steps; i++)
@@ -178,7 +152,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 float y = rect.Y + rect.Height / 2 + (float)Math.Sin(i * 0.5) * rect.Height / 4;
                 points.Add(new PointF(x, y));
             }
-
             if (points.Count > 1)
             {
                 using var pen = new Pen(trendColor, 2);
@@ -188,21 +161,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Draw live indicator for real-time crypto data
-            if (ctx.CustomData.ContainsKey("IsLive") && (bool)ctx.CustomData["IsLive"])
+            if (IsAreaHovered("Crypto_Icon"))
             {
-                var liveRect = new Rectangle(ctx.DrawingRect.Right - 28, ctx.DrawingRect.Y + 8, 20, 20);
-                using var liveBrush = new SolidBrush(Color.FromArgb(30, Color.Green));
-                g.FillRoundedRectangle(liveBrush, liveRect, 4);
-                
-                var liveIconRect = new Rectangle(liveRect.X + 2, liveRect.Y + 2, 16, 16);
-                _imagePainter.DrawSvg(g, "radio", liveIconRect, Color.FromArgb(150, Color.Green), 0.7f);
+                using var pen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.Blue), 1);
+                g.DrawRectangle(pen, _iconRect);
+            }
+            if (IsAreaHovered("Crypto_Name"))
+            {
+                using var pen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.Blue), 1);
+                g.DrawRectangle(pen, _nameRect);
+            }
+            if (IsAreaHovered("Crypto_Price"))
+            {
+                using var glow = new SolidBrush(Color.FromArgb(14, Theme?.PrimaryColor ?? Color.Blue));
+                using var p = CreateRoundedPath(Rectangle.Inflate(_priceRect, 4, 2), 6);
+                g.FillPath(glow, p);
+            }
+            if (IsAreaHovered("Crypto_Change"))
+            {
+                using var pen = new Pen(Color.FromArgb(150, Theme?.AccentColor ?? Color.Gray), 1);
+                g.DrawRectangle(pen, _changeRect);
+            }
+            if (IsAreaHovered("Crypto_Chart"))
+            {
+                using var glow = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRectangle(glow, _chartRect);
             }
         }
 
-        public void Dispose()
-        {
-            _imagePainter?.Dispose();
-        }
+        private void HandleIconClick(WidgetContext ctx) { ctx.CustomData["ShowCryptoInfo"] = true; Owner?.Invalidate(); }
+        private void HandleNameClick(WidgetContext ctx) { ctx.CustomData["ShowCryptoDetails"] = true; Owner?.Invalidate(); }
+        private void HandlePriceClick(WidgetContext ctx) { ctx.CustomData["ShowOrderBook"] = true; Owner?.Invalidate(); }
+        private void HandleChangeClick(WidgetContext ctx) { ctx.CustomData["ShowChangeHistory"] = true; Owner?.Invalidate(); }
+        private void HandleChartClick(WidgetContext ctx) { ctx.CustomData["ShowPriceChart"] = true; Owner?.Invalidate(); }
+
+        public void Dispose() { _imagePainter?.Dispose(); }
     }
 }

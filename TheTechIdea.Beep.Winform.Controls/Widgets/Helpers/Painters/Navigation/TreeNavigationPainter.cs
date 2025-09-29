@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var treeItems = ctx.CustomData.ContainsKey("TreeItems") ?
@@ -137,14 +137,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         }
     }
 
-    // Supporting classes for navigation painters
-    public class TreeNodeItem
-    {
-        public string Text { get; set; } = string.Empty;
-        public int Level { get; set; }
-        public bool IsExpanded { get; set; }
-        public bool HasChildren { get; set; }
-        public string IconName { get; set; } = string.Empty;
-        public object Data { get; set; }
-    }
 }

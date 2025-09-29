@@ -1,24 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
-    /// ImageCard - Card with background image and overlay text
+    /// ImageCard - Card with background image and overlay text (now with hit areas for image and overlay)
     /// </summary>
     internal sealed class ImageCardPainter : WidgetPainterBase, IDisposable
     {
         private ImagePainter _imagePainter;
+        private Rectangle _imageRectCache;
+        private Rectangle _overlayRectCache;
 
         public ImageCardPainter()
         {
             _imagePainter = new ImagePainter();
-            _imagePainter.ScaleMode = ImageScaleMode.Fill;
-            _imagePainter.ClipShape = ImageClipShape.RoundedRect;
+            _imagePainter.ScaleMode = Vis.Modules.ImageScaleMode.Fill;
+            _imagePainter.ClipShape = Vis.Modules.ImageClipShape.RoundedRect;
             _imagePainter.CornerRadius = 8f;
         }
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
@@ -28,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
             // Full card is the image area
             ctx.ContentRect = Rectangle.Inflate(ctx.DrawingRect, -pad, -pad);
+            _imageRectCache = ctx.ContentRect;
 
             // Overlay area at bottom if enabled
             if (ctx.ShowIcon && ctx.CustomData.ContainsKey("ShowOverlay") && (bool)ctx.CustomData["ShowOverlay"])
@@ -38,6 +41,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                     ctx.ContentRect.Width,
                     40
                 );
+                _overlayRectCache = ctx.FooterRect;
+            }
+            else
+            {
+                _overlayRectCache = Rectangle.Empty;
             }
 
             return ctx;
@@ -47,34 +55,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
         {
             DrawSoftShadow(g, ctx.DrawingRect, 8, layers: 3, offset: 2);
 
-            // Draw image background if available
             var image = ctx.CustomData.ContainsKey("Image") ? ctx.CustomData["Image"] as Image : null;
             var imagePath = ctx.CustomData.ContainsKey("ImagePath") ? ctx.CustomData["ImagePath"]?.ToString() : null;
             
             if (image != null || !string.IsNullOrEmpty(imagePath))
             {
-                // Configure ImagePainter
                 _imagePainter.CurrentTheme = Theme;
                 _imagePainter.CornerRadius = ctx.CornerRadius;
-                _imagePainter.ScaleMode = ImageScaleMode.Fill;
-                _imagePainter.ClipShape = ImageClipShape.RoundedRect;
-                
-                // Set image source
+                _imagePainter.ScaleMode = Vis.Modules.ImageScaleMode.Fill;
+                _imagePainter.ClipShape = Vis.Modules.ImageClipShape.RoundedRect;
                 if (!string.IsNullOrEmpty(imagePath))
-                {
                     _imagePainter.ImagePath = imagePath;
-                }
-                else if (image != null)
-                {
+                else
                     _imagePainter.Image = image;
-                }
-
-                // Draw with ImagePainter
                 _imagePainter.DrawImage(g, ctx.DrawingRect);
             }
             else
             {
-                // Fallback gradient background
                 using var bgBrush = new SolidBrush(Color.FromArgb(30, ctx.AccentColor));
                 using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
                 g.FillPath(bgBrush, bgPath);
@@ -83,23 +80,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Draw overlay if enabled
             bool showOverlay = ctx.CustomData.ContainsKey("ShowOverlay") && (bool)ctx.CustomData["ShowOverlay"];
-            if (showOverlay && !ctx.FooterRect.IsEmpty)
+            if (showOverlay && !_overlayRectCache.IsEmpty)
             {
-                // Semi-transparent overlay background
                 using var overlayBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
-                using var overlayPath = CreateRoundedPath(ctx.FooterRect, 0);
+                using var overlayPath = CreateRoundedPath(_overlayRectCache, 0);
                 g.FillPath(overlayBrush, overlayPath);
-
-                // Overlay text
-                string overlayText = ctx.CustomData.ContainsKey("OverlayText") ?
-                    ctx.CustomData["OverlayText"].ToString() : ctx.Title;
-
+                string overlayText = ctx.CustomData.ContainsKey("OverlayText") ? ctx.CustomData["OverlayText"].ToString() : ctx.Title;
                 using var overlayFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
                 using var overlayTextBrush = new SolidBrush(Color.White);
-
-                var textRect = Rectangle.Inflate(ctx.FooterRect, -12, -8);
+                var textRect = Rectangle.Inflate(_overlayRectCache, -12, -8);
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };
                 g.DrawString(overlayText, overlayFont, overlayTextBrush, textRect, format);
             }
@@ -107,7 +97,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Optional: Draw corner accents or badges
+            // Hover cues
+            if (IsAreaHovered("ImageCard_Image"))
+            {
+                using var pen = new Pen(Color.FromArgb(120, Theme?.PrimaryColor ?? Color.Blue), 2);
+                using var path = CreateRoundedPath(_imageRectCache, 8);
+                g.DrawPath(pen, path);
+            }
+            if (!_overlayRectCache.IsEmpty && IsAreaHovered("ImageCard_Overlay"))
+            {
+                using var glow = new SolidBrush(Color.FromArgb(60, Color.Black));
+                g.FillRectangle(glow, _overlayRectCache);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            if (!_imageRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ImageCard_Image", _imageRectCache, null, () =>
+                {
+                    ctx.CustomData["ImageClicked"] = true;
+                    notifyAreaHit?.Invoke("ImageCard_Image", _imageRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+            if (!_overlayRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ImageCard_Overlay", _overlayRectCache, null, () =>
+                {
+                    ctx.CustomData["OverlayClicked"] = true;
+                    notifyAreaHit?.Invoke("ImageCard_Overlay", _overlayRectCache);
+                    Owner?.Invalidate();
+                });
+            }
         }
 
         public void Dispose()

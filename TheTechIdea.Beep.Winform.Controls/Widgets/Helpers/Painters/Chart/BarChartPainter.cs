@@ -1,19 +1,23 @@
 using System;
 using System.Drawing;
 using System.Linq;
+using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
 {
     /// <summary>
     /// BarChart - Vertical/horizontal bar chart
+    /// Updated: Uses BaseControl.DrawingRect and registers hover/click hit area for chart body
     /// </summary>
     internal sealed class BarChartPainter : WidgetPainterBase
     {
+        private Rectangle _chartRectCache;
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             ctx.HeaderRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
@@ -41,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                 chartBottom - chartTop
             );
             
+            _chartRectCache = ctx.ChartRect;
             return ctx;
         }
         
@@ -56,8 +61,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
         {
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
+                using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+                using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
             }
@@ -66,22 +71,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 WidgetRenderingHelpers.DrawBarChart(g, ctx.ChartRect, ctx.Values, ctx.AccentColor, Color.FromArgb(10, Color.Gray));
             }
+
+            if (IsAreaHovered("BarChart_Chart"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRoundedRectangle(hover, Rectangle.Inflate(ctx.ChartRect, 2, 2), 6);
+            }
         }
         
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            if (ctx.ShowLegend && ctx.Labels?.Any() == true)
+            if (ctx.ShowLegend && (ctx.Labels?.Any() == true) && (ctx.Colors?.Any() == true))
             {
-                DrawSimpleLegend(g, ctx.LegendRect, ctx.Labels.Take(ctx.Colors.Count).ToList(), ctx.Colors);
+                int minCount = Math.Min(ctx.Labels.Count, ctx.Colors.Count);
+                var labels = ctx.Labels.Take(minCount).ToList();
+                var colors = ctx.Colors.Take(minCount).ToList();
+                DrawSimpleLegend(g, ctx.LegendRect, labels, colors);
             }
         }
         
-        private void DrawSimpleLegend(Graphics g, Rectangle rect, System.Collections.Generic.List<string> labels, System.Collections.Generic.List<Color> colors)
+        private void DrawSimpleLegend(Graphics g, Rectangle rect, List<string> labels, List<Color> colors)
         {
             if (!labels.Any() || !colors.Any()) return;
             
             int itemWidth = rect.Width / Math.Min(labels.Count, 4);
-            using var legendFont = new Font(Owner.Font.FontFamily, 8f);
+            using var legendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f);
             
             for (int i = 0; i < Math.Min(Math.Min(labels.Count, colors.Count), 4); i++)
             {
@@ -90,11 +104,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                 var textRect = new Rectangle(x + 16, rect.Y, itemWidth - 16, rect.Height);
                 
                 using var colorBrush = new SolidBrush(colors[i]);
-                using var textBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+                using var textBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 
                 g.FillRectangle(colorBrush, colorRect);
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };
                 g.DrawString(labels[i], legendFont, textBrush, textRect, format);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            if (!_chartRectCache.IsEmpty)
+            {
+                owner.AddHitArea("BarChart_Chart", _chartRectCache, null, () =>
+                {
+                    ctx.CustomData["BarChartClicked"] = true;
+                    notifyAreaHit?.Invoke("BarChart_Chart", _chartRectCache);
+                    Owner?.Invalidate();
+                });
             }
         }
     }

@@ -100,5 +100,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
                 owner.AddHitArea("Gauge", ctx.ContentRect, null, () => notifyAreaHit?.Invoke("Gauge", ctx.ContentRect));
             }
         }
+
+        public void Dispose()
+        {
+            _imagePainter?.Dispose();
+        }
     }
 }

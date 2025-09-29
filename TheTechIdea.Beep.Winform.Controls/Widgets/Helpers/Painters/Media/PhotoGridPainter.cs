@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,17 +11,21 @@ using TheTechIdea.Beep.Winform.Controls.BaseImage;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
     /// <summary>
-    /// PhotoGrid - Grid layout of photos/images with overlays
+    /// PhotoGrid - Grid layout of photos/images with overlays and interactive cells
     /// </summary>
     internal sealed class PhotoGridPainter : WidgetPainterBase, IDisposable
     {
         private ImagePainter _photoPainter;
+        private readonly List<Rectangle> _photoRects = new();
+        private int _cols = 3;
+        private int _rows = 2;
+        private int _spacing = 6;
 
         public PhotoGridPainter()
         {
             _photoPainter = new ImagePainter();
-            _photoPainter.ScaleMode = ImageScaleMode.Fill;
-            _photoPainter.ClipShape = ImageClipShape.RoundedRect;
+            _photoPainter.ScaleMode = Vis.Modules.ImageScaleMode.Fill;
+            _photoPainter.ClipShape = Vis.Modules.ImageClipShape.RoundedRect;
         }
 
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
@@ -28,13 +33,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             int pad = 12;
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
             
-            // Title area
             if (!string.IsNullOrEmpty(ctx.Title))
             {
                 ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
             }
             
-            // Grid area
             int contentTop = ctx.HeaderRect.IsEmpty ? ctx.DrawingRect.Top + pad : ctx.HeaderRect.Bottom + 8;
             ctx.ContentRect = new Rectangle(
                 ctx.DrawingRect.Left + pad,
@@ -42,6 +45,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Bottom - contentTop - pad
             );
+
+            // Precompute photo cell rectangles
+            _photoRects.Clear();
+            var area = ctx.ContentRect;
+            int photoWidth = (area.Width - _spacing * (_cols - 1)) / _cols;
+            int photoHeight = (area.Height - _spacing * (_rows - 1)) / _rows;
+            for (int row = 0; row < _rows; row++)
+            {
+                for (int col = 0; col < _cols; col++)
+                {
+                    var rect = new Rectangle(
+                        area.X + col * (photoWidth + _spacing),
+                        area.Y + row * (photoHeight + _spacing),
+                        photoWidth,
+                        photoHeight
+                    );
+                    _photoRects.Add(rect);
+                }
+            }
             
             return ctx;
         }
@@ -58,13 +80,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Update theme configuration
             if (Theme != null)
             {
-                _photoPainter.Theme = Theme;
+                _photoPainter.CurrentTheme = Theme;
             }
 
-            // Draw title
             if (!string.IsNullOrEmpty(ctx.Title))
             {
                 using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
@@ -73,56 +93,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
             }
 
-            // Draw photo grid
-            DrawPhotoGrid(g, ctx.ContentRect, ctx);
-        }
-
-        private void DrawPhotoGrid(Graphics g, Rectangle area, WidgetContext ctx)
-        {
-            int cols = 3;
-            int rows = 2;
-            int spacing = 6;
-            int photoWidth = (area.Width - spacing * (cols - 1)) / cols;
-            int photoHeight = (area.Height - spacing * (rows - 1)) / rows;
-            
-            for (int row = 0; row < rows; row++)
+            // Draw photos using precomputed rects
+            for (int i = 0; i < _photoRects.Count; i++)
             {
-                for (int col = 0; col < cols; col++)
+                var photoRect = _photoRects[i];
+
+                // Try custom image path list in CustomImagePaths
+                bool photoDrawn = false;
+                if (ctx.CustomImagePaths != null && i < ctx.CustomImagePaths.Count)
                 {
-                    var photoRect = new Rectangle(
-                        area.X + col * (photoWidth + spacing),
-                        area.Y + row * (photoHeight + spacing),
-                        photoWidth,
-                        photoHeight
-                    );
-                    
-                    // Try to draw custom photo using ImagePainter if ImagePath exists
-                    bool photoDrawn = false;
-                    if (!string.IsNullOrEmpty(ctx.ImagePath))
+                    try
                     {
-                        try
-                        {
-                            _photoPainter.DrawImage(g, ctx.ImagePath, photoRect);
-                            photoDrawn = true;
-                        }
-                        catch { }
+                        _photoPainter.DrawImage(g, ctx.CustomImagePaths[i], photoRect);
+                        photoDrawn = true;
                     }
-                    
-                    // Draw placeholder photo if no custom image
-                    if (!photoDrawn)
-                    {
-                        DrawPlaceholderPhoto(g, photoRect, ctx.AccentColor);
-                    }
-                    
-                    // Draw photo overlay with index
-                    DrawPhotoOverlay(g, photoRect, row * cols + col + 1);
+                    catch { }
                 }
+
+                if (!photoDrawn)
+                {
+                    DrawPlaceholderPhoto(g, photoRect, ctx.AccentColor);
+                }
+
+                // Hover effect
+                if (IsAreaHovered($"PhotoGrid_Cell_{i}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(30, Theme?.PrimaryColor ?? Color.Blue));
+                    using var path = CreateRoundedPath(photoRect, 6);
+                    g.FillPath(hover, path);
+                }
+
+                // Overlay with index
+                DrawPhotoOverlay(g, photoRect, i + 1);
             }
         }
 
         private void DrawPlaceholderPhoto(Graphics g, Rectangle rect, Color color)
         {
-            // Draw gradient background
             using var gradientBrush = new LinearGradientBrush(
                 rect, 
                 Color.FromArgb(100, color), 
@@ -132,10 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             using var path = CreateRoundedPath(rect, 6);
             g.FillPath(gradientBrush, path);
             
-            // Draw mountain/landscape placeholder
             using var sceneryPen = new Pen(Color.FromArgb(150, Color.White), 2);
-            
-            // Mountains
             var mountainPoints = new Point[]
             {
                 new Point(rect.X + rect.Width / 4, rect.Y + rect.Height * 2 / 3),
@@ -144,20 +148,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 new Point(rect.Right, rect.Y + rect.Height / 2)
             };
             g.DrawLines(sceneryPen, mountainPoints);
-            
-            // Sun
             var sunRect = new Rectangle(rect.Right - 20, rect.Y + 8, 12, 12);
             g.DrawEllipse(sceneryPen, sunRect);
         }
 
         private void DrawPhotoOverlay(Graphics g, Rectangle rect, int index)
         {
-            // Semi-transparent overlay at bottom
             var overlayRect = new Rectangle(rect.X, rect.Bottom - 24, rect.Width, 24);
             using var overlayBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
             g.FillRectangle(overlayBrush, overlayRect);
-            
-            // Photo number
             using var indexFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
             using var indexBrush = new SolidBrush(Color.White);
             var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
@@ -166,7 +165,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Optional: Draw selection indicators or hover effects
+            // Optional: selection border could be drawn here
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            for (int i = 0; i < _photoRects.Count; i++)
+            {
+                int idx = i;
+                var rect = _photoRects[i];
+                owner.AddHitArea($"PhotoGrid_Cell_{idx}", rect, null, () =>
+                {
+                    ctx.CustomData["SelectedPhotoIndex"] = idx;
+                    notifyAreaHit?.Invoke($"PhotoGrid_Cell_{idx}", rect);
+                    Owner?.Invalidate();
+                });
+            }
         }
 
         public void Dispose()

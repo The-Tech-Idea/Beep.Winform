@@ -6,14 +6,16 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
 {
     /// <summary>
-    /// PieChart - Pie/donut chart
+    /// PieChart - Pie/donut chart with hover and hit area
     /// </summary>
     internal sealed class PieChartPainter : WidgetPainterBase
     {
+        private Rectangle _chartRectCache;
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 20);
             
@@ -24,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                 chartSize, chartSize
             );
             
+            _chartRectCache = ctx.ChartRect;
             return ctx;
         }
 
@@ -39,8 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
         {
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
+                using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+                using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
             }
@@ -63,11 +66,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                     }
                 }
             }
+
+            if (IsAreaHovered("PieChart_Chart"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillEllipse(hover, Rectangle.Inflate(ctx.ChartRect, 2, 2));
+            }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Optional: Draw percentage labels
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            if (!_chartRectCache.IsEmpty)
+            {
+                owner.AddHitArea("PieChart_Chart", _chartRectCache, null, () =>
+                {
+                    ctx.CustomData["PieChartClicked"] = true;
+                    notifyAreaHit?.Invoke("PieChart_Chart", _chartRectCache);
+                    Owner?.Invalidate();
+                });
+            }
         }
     }
 }

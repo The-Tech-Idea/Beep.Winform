@@ -12,11 +12,14 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// ValidationPanel - Form section with validation display painter with enhanced visual presentation
+    /// ValidationPanel - Form section with validation display painter with enhanced visual presentation and hit areas
     /// </summary>
     internal sealed class ValidationPanelPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+        private Rectangle _headerRectCache;
+        private Rectangle _messagesRectCache;
+        private Rectangle _fieldsRectCache;
 
         public ValidationPanelPainter()
         {
@@ -26,7 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
             
             // Form title and validation summary
             ctx.HeaderRect = new Rectangle(
@@ -51,6 +55,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Bottom - ctx.IconRect.Bottom - pad * 2
             );
+
+            _headerRectCache = ctx.HeaderRect;
+            _messagesRectCache = ctx.IconRect;
+            _fieldsRectCache = ctx.ContentRect;
             
             return ctx;
         }
@@ -91,18 +99,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int totalFields = validationResults.Count;
             
             // Draw title
-            using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
-            using var titleBrush = new SolidBrush(Color.FromArgb(200, Color.Black));
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
+            using var titleBrush = new SolidBrush(Color.FromArgb(200, Theme?.ForeColor ?? Color.Black));
             g.DrawString(title, titleFont, titleBrush, rect.X, rect.Y);
             
             // Draw validation status
-            using var statusFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             Color statusColor = errorCount == 0 ? accentColor : errorColor;
             using var statusBrush = new SolidBrush(statusColor);
             
             string statusText = errorCount == 0 ? 
-                "? Form is valid" : 
-                $"? {errorCount} error{(errorCount > 1 ? "s" : "")} found";
+                "✓ Form is valid" : 
+                $"⚠ {errorCount} error{(errorCount > 1 ? "s" : "")} found";
             
             var statusSize = g.MeasureString(statusText, statusFont);
             g.DrawString(statusText, statusFont, statusBrush, rect.Right - statusSize.Width, rect.Y);
@@ -146,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 return;
             }
             
-            using var messageFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            using var messageFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             int y = rect.Y;
             int lineHeight = 18;
             
@@ -157,13 +165,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var iconRect = new Rectangle(rect.X, y + 2, 12, 12);
                 g.FillEllipse(iconBrush, iconRect);
                 
-                using var iconFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                using var iconTextBrush = new SolidBrush(Color.White);
+                using var iconFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+                using var iconTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
                 var iconFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString("!", iconFont, iconTextBrush, iconRect, iconFormat);
                 
                 // Draw error message
-                using var messageBrush = new SolidBrush(Color.FromArgb(180, Color.Black));
+                using var messageBrush = new SolidBrush(Color.FromArgb(180, Theme?.ForeColor ?? Color.Black));
                 g.DrawString(error.Message, messageFont, messageBrush, rect.X + 18, y + 1);
                 
                 y += lineHeight;
@@ -178,13 +186,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             var iconRect = new Rectangle(rect.X, rect.Y + 2, 16, 16);
             g.FillEllipse(iconBrush, iconRect);
             
-            using var iconFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-            using var iconTextBrush = new SolidBrush(Color.White);
+            using var iconFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+            using var iconTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
             var iconFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-            g.DrawString("?", iconFont, iconTextBrush, iconRect, iconFormat);
+            g.DrawString("✓", iconFont, iconTextBrush, iconRect, iconFormat);
             
             // Draw success message
-            using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var messageFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var messageBrush = new SolidBrush(Color.FromArgb(100, 150, 100));
             g.DrawString("All fields are valid and ready for submission", messageFont, messageBrush, rect.X + 22, rect.Y + 2);
         }
@@ -197,8 +205,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int fieldHeight = 30;
             int maxFields = Math.Min(fields.Count, rect.Height / fieldHeight);
             
-            using var labelFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            using var labelBrush = new SolidBrush(Color.FromArgb(140, Color.Black));
+            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
+            using var labelBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             
             for (int i = 0; i < maxFields; i++)
             {
@@ -214,14 +222,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 
                 // Draw validation status indicator
                 Color statusColor = validation?.IsValid == true ? validColor : errorColor;
-                string statusIcon = validation?.IsValid == true ? "?" : "?";
+                string statusIcon = validation?.IsValid == true ? "✓" : "!";
                 
                 using var statusBrush = new SolidBrush(statusColor);
                 var statusRect = new Rectangle(fieldRect.X, fieldRect.Y + 6, 12, 12);
                 g.FillEllipse(statusBrush, statusRect);
                 
-                using var statusFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-                using var statusTextBrush = new SolidBrush(Color.White);
+                using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+                using var statusTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
                 var statusFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(statusIcon, statusFont, statusTextBrush, statusRect, statusFormat);
                 
@@ -232,21 +240,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 string valuePreview = field.Value?.ToString() ?? "";
                 if (field.Type == FormFieldType.Password && !string.IsNullOrEmpty(valuePreview))
                 {
-                    valuePreview = new string('�', valuePreview.Length);
+                    valuePreview = new string('•', valuePreview.Length);
                 }
                 else if (valuePreview.Length > 20)
                 {
                     valuePreview = valuePreview.Substring(0, 17) + "...";
                 }
                 
-                using var valueBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+                using var valueBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 g.DrawString(valuePreview, labelFont, valueBrush, fieldRect.X + 18, fieldRect.Y + 16);
             }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Optional: Draw additional validation indicators
+            // Optional accents
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            if (!_headerRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ValidationPanel_Header", _headerRectCache, null, () =>
+                {
+                    ctx.CustomData["ValidationHeaderClicked"] = true;
+                    notifyAreaHit?.Invoke("ValidationPanel_Header", _headerRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+            if (!_messagesRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ValidationPanel_Messages", _messagesRectCache, null, () =>
+                {
+                    ctx.CustomData["ValidationMessagesClicked"] = true;
+                    notifyAreaHit?.Invoke("ValidationPanel_Messages", _messagesRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+            if (!_fieldsRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ValidationPanel_Fields", _fieldsRectCache, null, () =>
+                {
+                    ctx.CustomData["ValidationFieldsClicked"] = true;
+                    notifyAreaHit?.Invoke("ValidationPanel_Fields", _fieldsRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+        }
+
+        public void Dispose()
+        {
+            _imagePainter?.Dispose();
         }
     }
 }

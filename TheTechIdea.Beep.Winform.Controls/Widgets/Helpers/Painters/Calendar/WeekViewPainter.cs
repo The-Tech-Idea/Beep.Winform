@@ -1,17 +1,26 @@
 using System;
 using System.Drawing;
+using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 {
     /// <summary>
-    /// WeekView - Weekly calendar display painter
+    /// WeekView - Weekly calendar display painter with hit areas and hover accents
     /// </summary>
     internal sealed class WeekViewPainter : WidgetPainterBase
     {
+        private readonly List<(Rectangle rect, int day)> _dayHeaderRects = new();
+        private readonly List<(Rectangle rect, int day, int evtIndex)> _eventRects = new();
+        private Rectangle _gridRectCache;
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
+            _gridRectCache = ctx.DrawingRect;
+            _dayHeaderRects.Clear();
+            _eventRects.Clear();
             return ctx;
         }
 
@@ -35,6 +44,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             // Draw current day highlight and grid lines
             DrawCurrentDayHighlight(g, ctx);
             DrawWeekGridLines(g, ctx);
+
+            // Hover accents
+            for (int i = 0; i < _dayHeaderRects.Count; i++)
+            {
+                if (IsAreaHovered($"WeekView_DayHeader_{_dayHeaderRects[i].day}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillRectangle(hover, _dayHeaderRects[i].rect);
+                }
+            }
+            for (int i = 0; i < _eventRects.Count; i++)
+            {
+                var (rect, day, idx) = _eventRects[i];
+                if (IsAreaHovered($"WeekView_Event_{day}_{idx}"))
+                {
+                    using var pen = new Pen(Theme?.AccentColor ?? Color.Gray, 1.5f);
+                    g.DrawRectangle(pen, rect);
+                }
+            }
         }
 
         private void DrawWeekHeader(Graphics g, WidgetContext ctx)
@@ -46,11 +74,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int dayWidth = ctx.DrawingRect.Width / 7;
             int headerHeight = 30;
 
-            using var dayFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
-            using var dateFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-            using var dayBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.Black);
-            using var dateBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+            using var dayFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
+            using var dateFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+            using var dayBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
+            using var dateBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
 
+            _dayHeaderRects.Clear();
             for (int i = 0; i < 7; i++)
             {
                 var currentDay = startOfWeek.AddDays(i);
@@ -60,6 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                     dayWidth,
                     headerHeight
                 );
+                _dayHeaderRects.Add((dayRect, i));
 
                 // Highlight today
                 if (currentDay.Date == today.Date)
@@ -97,8 +127,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                 ctx.DrawingRect.Height - 30
             );
 
-            using var timeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-            using var timeBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
+            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+            using var timeBrush = new SolidBrush(Color.FromArgb(100, Theme?.ForeColor ?? Color.Black));
 
             for (int hour = startHour; hour <= endHour; hour++)
             {
@@ -111,14 +141,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
                 var timeText = $"{hour}:00";
                 g.DrawString(timeText, timeFont, timeBrush, timeSlotRect,
-                           new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Top });
+                           new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near });
             }
         }
 
         private void DrawWeekEvents(Graphics g, WidgetContext ctx)
         {
-            // Sample events throughout the week
-            var events = new[]
+            // Sample events throughout the week (replace with ctx.CustomData if present)
+            var events = ctx.CustomData.ContainsKey("WeekEvents") ? (IEnumerable<dynamic>)ctx.CustomData["WeekEvents"] : new[]
             {
                 new { Day = 1, StartHour = 9, Duration = 1, Title = "Meeting", Color = Color.FromArgb(76, 175, 80) },
                 new { Day = 2, StartHour = 14, Duration = 2, Title = "Project Review", Color = Color.FromArgb(33, 150, 243) },
@@ -131,9 +161,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int hourHeight = 40;
             int startHour = 8;
 
-            using var eventFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
-            using var eventTextBrush = new SolidBrush(Color.White);
+            using var eventFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
+            using var eventTextBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
 
+            _eventRects.Clear();
+            int idx = 0;
             foreach (var evt in events)
             {
                 var eventRect = new Rectangle(
@@ -142,11 +174,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                     dayWidth - 4,
                     evt.Duration * hourHeight - 4
                 );
+                _eventRects.Add((eventRect, evt.Day, idx));
 
                 // Draw event background
                 using var eventBrush = new SolidBrush(evt.Color);
                 using var eventPath = CreateRoundedPath(eventRect, 4);
                 g.FillPath(eventBrush, eventPath);
+
+                // Hover effect
+                if (IsAreaHovered($"WeekView_Event_{evt.Day}_{idx}"))
+                {
+                    using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                    g.FillPath(hover, eventPath);
+                }
 
                 // Draw event title
                 if (eventRect.Height > 16)
@@ -154,6 +194,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                     var textRect = Rectangle.Inflate(eventRect, -4, -2);
                     g.DrawString(evt.Title, eventFont, eventTextBrush, textRect);
                 }
+                idx++;
             }
         }
 
@@ -179,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
         private void DrawWeekGridLines(Graphics g, WidgetContext ctx)
         {
-            using var gridPen = new Pen(Color.FromArgb(40, Color.LightGray), 1);
+            using var gridPen = new Pen(Color.FromArgb(40, Theme?.BorderColor ?? Color.LightGray), 1);
             
             int timeSlotWidth = 60;
             int dayWidth = (ctx.DrawingRect.Width - timeSlotWidth) / 7;
@@ -199,6 +240,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             {
                 int y = ctx.DrawingRect.Top + 30 + (hour - startHour) * hourHeight;
                 g.DrawLine(gridPen, ctx.DrawingRect.Left + timeSlotWidth, y, ctx.DrawingRect.Right, y);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            // Day headers
+            foreach (var (rect, day) in _dayHeaderRects)
+            {
+                string name = $"WeekView_DayHeader_{day}";
+                owner.AddHitArea(name, rect, null, () =>
+                {
+                    ctx.CustomData["SelectedDayHeader"] = day;
+                    notifyAreaHit?.Invoke(name, rect);
+                    Owner?.Invalidate();
+                });
+            }
+            // Events
+            foreach (var (rect, day, idx) in _eventRects)
+            {
+                string name = $"WeekView_Event_{day}_{idx}";
+                owner.AddHitArea(name, rect, null, () =>
+                {
+                    ctx.CustomData["SelectedEventDay"] = day;
+                    ctx.CustomData["SelectedEventIndex"] = idx;
+                    notifyAreaHit?.Invoke(name, rect);
+                    Owner?.Invalidate();
+                });
+            }
+            // Grid
+            if (!_gridRectCache.IsEmpty)
+            {
+                owner.AddHitArea("WeekView_Grid", _gridRectCache, null, () =>
+                {
+                    ctx.CustomData["WeekGridClicked"] = true;
+                    notifyAreaHit?.Invoke("WeekView_Grid", _gridRectCache);
+                    Owner?.Invalidate();
+                });
             }
         }
     }

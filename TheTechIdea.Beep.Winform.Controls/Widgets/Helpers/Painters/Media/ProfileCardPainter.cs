@@ -5,6 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 
@@ -78,7 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             // Update theme configuration
             if (Theme != null)
             {
-                _avatarPainter.Theme = Theme;
+                _avatarPainter.CurrentTheme = Theme;
             }
 
             // Draw avatar

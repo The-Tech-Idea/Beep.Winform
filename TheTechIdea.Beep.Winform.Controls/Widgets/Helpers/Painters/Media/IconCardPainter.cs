@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
-
 	/// <summary>
-	/// IconCard - Large icon with label/description
+	/// IconCard - Large icon with label/description (now with card/badge interactions)
 	/// </summary>
 	internal sealed class IconCardPainter : WidgetPainterBase, IDisposable
 	{
 		private ImagePainter _iconPainter;
+		private Rectangle _cardRectCache;
+		private Rectangle _badgeRectCache;
 
 		public IconCardPainter()
 		{
@@ -52,6 +54,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				ctx.DrawingRect.Bottom - ctx.HeaderRect.Bottom - pad
 			);
 
+			// Cache card rect and badge rect
+			_cardRectCache = ctx.DrawingRect;
+			_badgeRectCache = new Rectangle(ctx.IconRect.Right - 12, ctx.IconRect.Top - 4, 16, 16);
 			return ctx;
 		}
 
@@ -68,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			// Update theme configuration
 			if (Theme != null)
 			{
-				_iconPainter.Theme = Theme;
+				_iconPainter.CurrentTheme = Theme;
 			}
 
 			// Draw icon background circle
@@ -78,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			// Draw icon using ImagePainter
 			DrawIconWithImagePainter(g, ctx.IconRect, ctx);
 
-			// Draw title
+			// Title
 			if (!string.IsNullOrEmpty(ctx.Title))
 			{
 				using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
@@ -87,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
 			}
 
-			// Draw subtitle
+			// Subtitle
 			if (!string.IsNullOrEmpty(ctx.Value))
 			{
 				using var subtitleFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
@@ -95,11 +100,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
 				g.DrawString(ctx.Value, subtitleFont, subtitleBrush, ctx.ContentRect, format);
 			}
+
+			// Optional badge
+			bool showBadge = ctx.CustomData.ContainsKey("ShowBadge") && Convert.ToBoolean(ctx.CustomData["ShowBadge"]);
+			if (showBadge)
+			{
+				using var badgeBrush = new SolidBrush(Color.FromArgb(200, ctx.AccentColor));
+				g.FillEllipse(badgeBrush, _badgeRectCache);
+				using var starFont = new Font("Segoe UI Symbol", 8, FontStyle.Bold);
+				using var starBrush = new SolidBrush(Color.White);
+				var sz = g.MeasureString("★", starFont);
+				g.DrawString("★", starFont, starBrush, _badgeRectCache.X + (_badgeRectCache.Width - sz.Width) / 2, _badgeRectCache.Y + (_badgeRectCache.Height - sz.Height) / 2);
+			}
 		}
 
 		private void DrawIconWithImagePainter(Graphics g, Rectangle rect, WidgetContext ctx)
 		{
-			// Try to draw custom icon if IconPath is provided
 			if (!string.IsNullOrEmpty(ctx.IconPath))
 			{
 				try
@@ -107,16 +123,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 					_iconPainter.DrawImage(g, ctx.IconPath, rect);
 					return;
 				}
-				catch
-				{
-					// Fall back to placeholder if icon fails to load
-				}
+				catch { }
 			}
-
-			// Draw placeholder icon using traditional method as fallback
+			// Placeholder
 			using var iconPen = new Pen(ctx.AccentColor, 3);
-
-			// Draw a simple house icon as placeholder
 			var points = new Point[]
 			{
 				new Point(rect.X + rect.Width / 2, rect.Y + 8),
@@ -127,13 +137,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				new Point(rect.Right - rect.Width / 4, rect.Y + rect.Height / 2),
 				new Point(rect.Right - 8, rect.Y + rect.Height / 2)
 			};
-
 			g.DrawLines(iconPen, points);
 		}
 
 		public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
 		{
-			// Optional: Draw badges or status indicators
+			// Card hover
+			if (IsAreaHovered("IconCard_Card"))
+			{
+				using var pen = new Pen(Color.FromArgb(120, Theme?.PrimaryColor ?? Color.Blue), 2);
+				using var path = CreateRoundedPath(_cardRectCache, ctx.CornerRadius);
+				g.DrawPath(pen, path);
+			}
+			// Badge hover
+			if (IsAreaHovered("IconCard_Badge"))
+			{
+				using var glow = new SolidBrush(Color.FromArgb(40, Theme?.AccentColor ?? Color.Blue));
+				g.FillEllipse(glow, Rectangle.Inflate(_badgeRectCache, 3, 3));
+			}
+		}
+
+		public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+		{
+			if (owner == null) return;
+			ClearOwnerHitAreas();
+			owner.AddHitArea("IconCard_Card", _cardRectCache, null, () =>
+			{
+				ctx.CustomData["IconCardClicked"] = true;
+				notifyAreaHit?.Invoke("IconCard_Card", _cardRectCache);
+				Owner?.Invalidate();
+			});
+			bool showBadge = ctx.CustomData.ContainsKey("ShowBadge") && Convert.ToBoolean(ctx.CustomData["ShowBadge"]);
+			if (showBadge)
+			{
+				owner.AddHitArea("IconCard_Badge", _badgeRectCache, null, () =>
+				{
+					ctx.CustomData["IconCardBadgeClicked"] = true;
+					notifyAreaHit?.Invoke("IconCard_Badge", _badgeRectCache);
+					Owner?.Invalidate();
+				});
+			}
 		}
 
 		public void Dispose()

@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
-using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 {
@@ -17,6 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
     internal sealed class ComparisonGridPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+        private Rectangle _leftPanelRect;
+        private Rectangle _rightPanelRect;
+        private Rectangle _vsIconRect;
 
         public ComparisonGridPainter()
         {
@@ -25,10 +28,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
             
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 24);
             ctx.ContentRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.HeaderRect.Bottom + 12, ctx.DrawingRect.Width - pad * 2, ctx.DrawingRect.Height - ctx.HeaderRect.Height - pad * 3);
+            
+            // Precompute panel rectangles
+            int panelWidth = ctx.ContentRect.Width / 2 - 12;
+            int panelHeight = ctx.ContentRect.Height;
+            _leftPanelRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y, panelWidth, panelHeight);
+            _rightPanelRect = new Rectangle(ctx.ContentRect.X + panelWidth + 24, ctx.ContentRect.Y, panelWidth, panelHeight);
+
+            // VS icon area
+            var separatorRect = new Rectangle(ctx.ContentRect.X + panelWidth + 4, ctx.ContentRect.Y + ctx.ContentRect.Height / 2 - 20, 16, 40);
+            var circleRect = new Rectangle(separatorRect.X, separatorRect.Y + 12, 16, 16);
+            _vsIconRect = new Rectangle(circleRect.X + 2, circleRect.Y + 2, 12, 12);
             
             return ctx;
         }
@@ -44,8 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             // Draw enhanced title with comparison icon
             if (ctx.ShowHeader && !string.IsNullOrEmpty(ctx.Title))
@@ -56,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             if (ctx.CustomData.ContainsKey("Metrics"))
             {
                 var metrics = (List<Dictionary<string, object>>)ctx.CustomData["Metrics"];
-                DrawComparisonPanels(g, ctx.ContentRect, metrics);
+                DrawComparisonPanels(g, _leftPanelRect, _rightPanelRect, metrics);
             }
         }
 
@@ -78,40 +93,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             // Title text
             var titleTextRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
                 ctx.HeaderRect.Width - iconRect.Width - 16, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleTextBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleTextBrush, titleTextRect, format);
         }
 
-        private void DrawComparisonPanels(Graphics g, Rectangle rect, List<Dictionary<string, object>> metrics)
+        private void DrawComparisonPanels(Graphics g, Rectangle leftRect, Rectangle rightRect, List<Dictionary<string, object>> metrics)
         {
             if (metrics.Count < 2) return;
             
-            int panelWidth = rect.Width / 2 - 12;
-            int panelHeight = rect.Height;
-            
-            // Left panel
-            var leftRect = new Rectangle(rect.X, rect.Y, panelWidth, panelHeight);
             DrawComparisonPanel(g, leftRect, metrics[0], Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), "Current", true);
-            
-            // Right panel
-            var rightRect = new Rectangle(rect.X + panelWidth + 24, rect.Y, panelWidth, panelHeight);
             DrawComparisonPanel(g, rightRect, metrics.Count > 1 ? metrics[1] : metrics[0], 
                 Theme?.AccentColor ?? Color.FromArgb(255, 152, 0), "Previous", false);
             
-            // Enhanced VS separator with icon
-            var separatorRect = new Rectangle(rect.X + panelWidth + 4, rect.Y + rect.Height / 2 - 20, 16, 40);
-            
-            // Background circle for VS
+            // Enhanced VS separator with icon and hover
             using var vsBgBrush = new SolidBrush(Color.FromArgb(30, Theme?.BorderColor ?? Color.Gray));
-            var circleRect = new Rectangle(separatorRect.X, separatorRect.Y + 12, 16, 16);
+            var circleRect = new Rectangle(_vsIconRect.X - 2, _vsIconRect.Y - 2, 16, 16);
             g.FillEllipse(vsBgBrush, circleRect);
             
-            // VS icon
-            var vsIconRect = new Rectangle(circleRect.X + 2, circleRect.Y + 2, 12, 12);
-            _imagePainter.DrawSvg(g, "git-compare", vsIconRect, 
-                Color.FromArgb(150, Theme?.ForeColor ?? Color.Gray), 0.8f);
+            bool vsHovered = IsAreaHovered("ComparisonGrid_VS");
+            _imagePainter.DrawSvg(g, "git-compare", _vsIconRect, 
+                vsHovered ? (Theme?.PrimaryColor ?? Color.Blue) : Color.FromArgb(150, Theme?.ForeColor ?? Color.Gray), 0.8f);
         }
 
         private void DrawComparisonPanel(Graphics g, Rectangle rect, Dictionary<string, object> metric, Color accentColor, string label, bool isCurrent)
@@ -137,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             
             var labelTextRect = new Rectangle(iconRect.Right + 6, headerRect.Y, 
                 headerRect.Width - iconRect.Width - 6, headerRect.Height);
-            using var labelFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.SemiBold);
+            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f,FontStyle.Bold);
             using var labelBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
             var labelFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(label, labelFont, labelBrush, labelTextRect, labelFormat);
@@ -146,7 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
             var valueRect = new Rectangle(rect.X + 12, headerRect.Bottom + 8, rect.Width - 24, 40);
             if (metric.ContainsKey("Value"))
             {
-                using var valueFont = new Font(Owner.Font.FontFamily, 18f, FontStyle.Bold);
+                using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 18f, FontStyle.Bold);
                 using var valueBrush = new SolidBrush(accentColor);
                 var valueFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(metric["Value"].ToString(), valueFont, valueBrush, valueRect, valueFormat);
@@ -177,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
                 // Trend text
                 var trendTextRect = new Rectangle(trendIconRect.Right + 4, trendRect.Y, 
                     trendRect.Width - trendIconRect.Width - 12, trendRect.Height);
-                using var trendFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.SemiBold);
+                using var trendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f,FontStyle.Bold);
                 using var trendBrush = new SolidBrush(trendColor);
                 var trendFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(trend, trendFont, trendBrush, trendTextRect, trendFormat);
@@ -186,16 +189,56 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Dashboard
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Draw comparison insights if available
-            if (ctx.CustomData.ContainsKey("ShowInsights") && (bool)ctx.CustomData["ShowInsights"])
+            // Title hover underline
+            if (IsAreaHovered("ComparisonGrid_Title") && !string.IsNullOrEmpty(ctx.Title))
             {
-                var insightRect = new Rectangle(ctx.DrawingRect.Right - 28, ctx.DrawingRect.Bottom - 28, 20, 20);
-                using var insightBrush = new SolidBrush(Color.FromArgb(30, Theme?.AccentColor ?? Color.Orange));
-                g.FillRoundedRectangle(insightBrush, insightRect, 4);
-                
-                var iconRect = new Rectangle(insightRect.X + 2, insightRect.Y + 2, 16, 16);
-                _imagePainter.DrawSvg(g, "info", iconRect, 
-                    Color.FromArgb(150, Theme?.AccentColor ?? Color.Orange), 0.7f);
+                using var underlinePen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.Blue), 2);
+                g.DrawLine(underlinePen, ctx.HeaderRect.Left, ctx.HeaderRect.Bottom - 2, ctx.HeaderRect.Right, ctx.HeaderRect.Bottom - 2);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            if (!string.IsNullOrEmpty(ctx.Title))
+            {
+                owner.AddHitArea("ComparisonGrid_Title", ctx.HeaderRect, null, () =>
+                {
+                    ctx.CustomData["TitleClicked"] = true;
+                    notifyAreaHit?.Invoke("ComparisonGrid_Title", ctx.HeaderRect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            if (!_leftPanelRect.IsEmpty)
+            {
+                owner.AddHitArea("ComparisonGrid_Left", _leftPanelRect, null, () =>
+                {
+                    ctx.CustomData["LeftPanelClicked"] = true;
+                    notifyAreaHit?.Invoke("ComparisonGrid_Left", _leftPanelRect);
+                    Owner?.Invalidate();
+                });
+            }
+            if (!_rightPanelRect.IsEmpty)
+            {
+                owner.AddHitArea("ComparisonGrid_Right", _rightPanelRect, null, () =>
+                {
+                    ctx.CustomData["RightPanelClicked"] = true;
+                    notifyAreaHit?.Invoke("ComparisonGrid_Right", _rightPanelRect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            if (!_vsIconRect.IsEmpty)
+            {
+                owner.AddHitArea("ComparisonGrid_VS", _vsIconRect, null, () =>
+                {
+                    ctx.CustomData["VsClicked"] = true;
+                    notifyAreaHit?.Invoke("ComparisonGrid_VS", _vsIconRect);
+                    Owner?.Invalidate();
+                });
             }
         }
 

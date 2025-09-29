@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 
@@ -77,7 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             bool showStatus = ctx.CustomData.ContainsKey("ShowStatus") && (bool)ctx.CustomData["ShowStatus"];
 
             // Draw avatar
-            DrawAvatar(g, ctx.IconRect, avatarImage, userName, ctx.AccentColor);
+            DrawAvatar(g, ctx, ctx.IconRect, avatarImage, userName, ctx.AccentColor);
             
             // Draw status indicator on avatar if enabled
             if (showStatus)
@@ -107,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             }
         }
 
-        private void DrawAvatar(Graphics g, Rectangle rect, Image avatarImage, string userName, Color accentColor)
+        private void DrawAvatar(Graphics g, WidgetContext ctx, Rectangle rect, Image avatarImage, string userName, Color accentColor)
         {
             // Draw avatar background
             using var avatarBgBrush = new SolidBrush(Color.FromArgb(30, accentColor));

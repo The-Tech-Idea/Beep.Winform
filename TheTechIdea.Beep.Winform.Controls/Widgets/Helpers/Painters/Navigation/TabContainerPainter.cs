@@ -75,9 +75,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         private void DrawModernTabs(Graphics g, WidgetContext ctx, List<NavigationItem> items, int currentIndex)
         {
             int tabWidth = ctx.ContentRect.Width / items.Count;
-            var primaryColor = ctx.AccentColor ?? Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            var primaryColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
             
-            using var tabFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+            using var tabFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
             using var activeTabBrush = new SolidBrush(Color.White);
             using var inactiveTabBrush = new SolidBrush(Color.FromArgb(248, 249, 250));
             using var activeTextBrush = new SolidBrush(primaryColor);
@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Optional: Draw tab separators for better visual separation
-            if (ctx.CustomData.ContainsKey("ShowSeparators") && (bool)ctx.CustomData["ShowSeparators"])
+            if (ctx.CustomData.ContainsKey("ShowSeparators") && ctx.CustomData["ShowSeparators"] is bool show && show)
             {
                 var items = ctx.CustomData.ContainsKey("Items") ? 
                     (List<NavigationItem>)ctx.CustomData["Items"] : CreateSampleTabs();

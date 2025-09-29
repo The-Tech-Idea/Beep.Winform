@@ -9,6 +9,36 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 {
     public partial class ImagePainter
     {
+        public void DrawImage(Graphics g, string imagePath, Rectangle bounds)
+        {
+            if (!HasImage || bounds.Width <= 0 || bounds.Height <= 0)
+                return;
+
+            if (!UseCaching)
+            {
+                DrawToCache(g, bounds);
+                return;
+            }
+
+            bool needsRegeneration = CheckIfStateChanged(bounds);
+
+            if (!needsRegeneration && _cachedRenderedImage != null && _cachedImageRect == bounds)
+            {
+                g.DrawImage(_cachedRenderedImage, bounds);
+                return;
+            }
+
+            if (needsRegeneration)
+            {
+                RegenerateImage(bounds);
+            }
+
+            if (_cachedRenderedImage != null)
+            {
+                g.DrawImage(_cachedRenderedImage, bounds);
+            }
+        }
+
         public void DrawImage(Graphics g, Rectangle bounds)
         {
             if (!HasImage || bounds.Width <= 0 || bounds.Height <= 0)

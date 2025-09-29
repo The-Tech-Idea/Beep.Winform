@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw label
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                var titleColor = Theme?.TextColor ?? Color.FromArgb(70, 70, 70);
+                var titleColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(70, 70, 70);
                 using (var titleFont = new Font("Segoe UI", 9f, FontStyle.Regular))
                 using (var titleBrush = new SolidBrush(titleColor))
                 {
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
         {
             var bgColor = Color.White;
             var borderColor = Theme?.BorderColor ?? Color.FromArgb(180, 180, 180);
-            var textColor = Theme?.TextColor ?? Color.FromArgb(70, 70, 70);
+            var textColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(70, 70, 70);
             
             using (var bgBrush = new SolidBrush(bgColor))
             using (var borderPen = new Pen(borderColor))
@@ -125,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
         {
             var buttonColor = Theme?.ButtonBackColor ?? Color.FromArgb(240, 240, 240);
             var borderColor = Theme?.BorderColor ?? Color.FromArgb(180, 180, 180);
-            var arrowColor = Theme?.TextColor ?? Color.FromArgb(100, 100, 100);
+            var arrowColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(100, 100, 100);
             
             using (var buttonBrush = new SolidBrush(buttonColor))
             using (var borderPen = new Pen(borderColor))

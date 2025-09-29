@@ -8,14 +8,19 @@ using System.Linq;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 {
     /// <summary>
-    /// ValidatedInput - Single input with validation painter
+    /// ValidatedInput - Single input with validation painter with hit areas and hover accents
     /// </summary>
     internal sealed class ValidatedInputPainter : WidgetPainterBase
     {
+        private Rectangle _labelRectCache;
+        private Rectangle _inputRectCache;
+        private Rectangle _validationRectCache;
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            // Adjust for padding
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            // Adjust for padding and base rect
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
 
             // Calculate layout rectangles
             int labelHeight = 20;
@@ -31,6 +36,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             ctx.FooterRect = new Rectangle(ctx.DrawingRect.X, ctx.ContentRect.Bottom + spacing,
                                          ctx.DrawingRect.Width, validationHeight);
+
+            _labelRectCache = ctx.HeaderRect;
+            _inputRectCache = ctx.ContentRect;
+            _validationRectCache = ctx.FooterRect;
 
             return ctx;
         }
@@ -58,8 +67,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             // Draw label
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var labelFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
-                using var labelBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.Black);
+                using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
+                using var labelBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
                 g.DrawString(ctx.Title, labelFont, labelBrush, ctx.HeaderRect,
                            new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
             }
@@ -74,12 +83,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw focus indicator if interactive
-            if (ctx.IsInteractive && Owner.Focused)
+            if (ctx.IsInteractive && Owner?.Focused == true)
             {
                 using var focusPen = new Pen(ctx.AccentColor, 2);
                 var focusRect = Rectangle.Inflate(ctx.ContentRect, -1, -1);
                 using var focusPath = CreateRoundedPath(focusRect, 4);
                 g.DrawPath(focusPen, focusPath);
+            }
+
+            // Hover accents
+            if (IsAreaHovered("ValidatedInput_Input"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+                using var p = CreateRoundedPath(Rectangle.Inflate(_inputRectCache, 2, 2), 4);
+                g.FillPath(hover, p);
             }
         }
 
@@ -93,10 +110,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             bool isRequired = field.IsRequired;
 
             // Draw placeholder or value
-            using var textFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
+            using var textFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             Color textColor = string.IsNullOrEmpty(displayValue) ?
-                (Theme?.PlaceholderColor ?? Color.Gray) :
-                (Theme?.TextBoxForeColor ?? Color.Black);
+                (Theme?.TextBoxPlaceholderColor ?? Color.Gray) :
+                (Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
 
             using var textBrush = new SolidBrush(textColor);
 
@@ -117,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawValidationMessage(Graphics g, WidgetContext ctx)
         {
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") as List<ValidationResult>;
+            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? ctx.CustomData["ValidationResults"] as List<ValidationResult> : null;
             var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
 
             if (validationResults == null || fields == null || fields.Count == 0) return;
@@ -127,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
             if (validation != null && !validation.IsValid)
             {
-                using var validationFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                using var validationFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var validationBrush = new SolidBrush(GetValidationColor(ctx, validation.Severity));
                 g.DrawString(validation.Message, validationFont, validationBrush, ctx.FooterRect,
                            new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center });
@@ -136,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private Color GetBorderColor(WidgetContext ctx)
         {
-            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") as List<ValidationResult>;
+            var validationResults = ctx.CustomData.ContainsKey("ValidationResults") ? ctx.CustomData["ValidationResults"] as List<ValidationResult> : null;
             var fields = ctx.CustomData.ContainsKey("Fields") ? ctx.CustomData["Fields"] as List<FormField> : null;
 
             if (validationResults == null || fields == null || fields.Count == 0)
@@ -148,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             if (validation != null && !validation.IsValid)
                 return GetValidationColor(ctx, validation.Severity);
 
-            if (ctx.IsInteractive && Owner.Focused)
+            if (ctx.IsInteractive && Owner?.Focused == true)
                 return ctx.AccentColor;
 
             return Theme?.TextBoxBorderColor ?? Color.FromArgb(200, 200, 200);
@@ -164,6 +181,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                     return ctx.CustomData.ContainsKey("WarningColor") ? (Color)ctx.CustomData["WarningColor"] : Color.Orange;
                 default:
                     return ctx.CustomData.ContainsKey("ValidColor") ? (Color)ctx.CustomData["ValidColor"] : Color.Green;
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            if (!_inputRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ValidatedInput_Input", _inputRectCache, null, () =>
+                {
+                    ctx.CustomData["InputClicked"] = true;
+                    notifyAreaHit?.Invoke("ValidatedInput_Input", _inputRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+            if (!_labelRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ValidatedInput_Label", _labelRectCache, null, () =>
+                {
+                    ctx.CustomData["LabelClicked"] = true;
+                    notifyAreaHit?.Invoke("ValidatedInput_Label", _labelRectCache);
+                    Owner?.Invalidate();
+                });
+            }
+            if (!_validationRectCache.IsEmpty)
+            {
+                owner.AddHitArea("ValidatedInput_Validation", _validationRectCache, null, () =>
+                {
+                    ctx.CustomData["ValidationClicked"] = true;
+                    notifyAreaHit?.Invoke("ValidatedInput_Validation", _validationRectCache);
+                    Owner?.Invalidate();
+                });
             }
         }
     }

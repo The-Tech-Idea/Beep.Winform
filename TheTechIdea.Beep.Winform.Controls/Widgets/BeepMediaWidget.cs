@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets
 {

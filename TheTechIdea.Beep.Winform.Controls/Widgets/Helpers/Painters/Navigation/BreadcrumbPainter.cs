@@ -10,11 +10,13 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// Breadcrumb - Breadcrumb navigation with enhanced visual presentation
+    /// Breadcrumb - Breadcrumb navigation with enhanced visual presentation and hit areas
     /// </summary>
     internal sealed class BreadcrumbPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+        private readonly List<(Rectangle rect, int index)> _itemRects = new();
+        private Rectangle _homeRect;
 
         public BreadcrumbPainter()
         {
@@ -24,7 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 8;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
             
             // Breadcrumb items take full area
             ctx.ContentRect = new Rectangle(
@@ -33,6 +36,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Height - pad * 2
             );
+
+            _itemRects.Clear();
+            _homeRect = Rectangle.Empty;
             
             return ctx;
         }
@@ -73,8 +79,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private void DrawModernBreadcrumb(Graphics g, WidgetContext ctx, List<NavigationItem> items, int currentIndex)
         {
-            using var regularFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
-            using var activeFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Medium);
+            using var regularFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
+            using var activeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
             using var regularBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Gray));
             using var activeBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             
@@ -82,36 +88,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int y = ctx.ContentRect.Y + ctx.ContentRect.Height / 2;
             
             // Home icon
-            var homeIconRect = new Rectangle(x, y - 8, 16, 16);
-            _imagePainter.ImagePath = "home.svg";
-            _imagePainter.DrawImage(g, homeIconRect);
+            _homeRect = new Rectangle(x, y - 8, 16, 16);
+            _imagePainter.DrawSvg(g, "home", _homeRect, Theme?.ForeColor ?? Color.Black, 0.9f);
             x += 24;
             
             for (int i = 0; i < items.Count; i++)
             {
                 var item = items[i];
                 bool isActive = i == currentIndex;
-                bool isLast = i == items.Count - 1;
                 
                 // Separator chevron (except before first item)
                 if (i > 0)
                 {
                     var chevronRect = new Rectangle(x, y - 6, 12, 12);
-                    _imagePainter.ImagePath = "chevron-right.svg";
-                    _imagePainter.DrawImage(g, chevronRect);
+                    _imagePainter.DrawSvg(g, "chevron-right", chevronRect, Color.FromArgb(140, Theme?.ForeColor ?? Color.Gray), 0.8f);
                     x += 16;
                 }
                 
-                // Item background for active item
+                // Item text
                 var font = isActive ? activeFont : regularFont;
                 var brush = isActive ? activeBrush : regularBrush;
                 var textSize = g.MeasureString(item.Text, font);
-                
-                if (isActive)
+                var textRect = new Rectangle(x - 4, y - 10, (int)textSize.Width + 8, 20);
+
+                // Item background for active or hovered item
+                if (isActive || IsAreaHovered($"Breadcrumb_Item_{i}"))
                 {
-                    var bgRect = new Rectangle(x - 4, y - 10, (int)textSize.Width + 8, 20);
-                    using var bgBrush = new SolidBrush(Color.FromArgb(15, Theme?.PrimaryColor ?? Color.Blue));
-                    using var bgPath = CreateRoundedPath(bgRect, 4);
+                    using var bgBrush = new SolidBrush(Color.FromArgb(isActive ? 15 : 8, Theme?.PrimaryColor ?? Color.Blue));
+                    using var bgPath = CreateRoundedPath(textRect, 4);
                     g.FillPath(bgBrush, bgPath);
                 }
                 
@@ -119,17 +123,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var textPoint = new PointF(x, y - textSize.Height / 2);
                 g.DrawString(item.Text, font, brush, textPoint);
                 
+                _itemRects.Add((textRect, i));
                 x += (int)textSize.Width + 8;
             }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Hover effects for breadcrumb items
-            if (ctx.CustomData.ContainsKey("HoveredIndex"))
+            // Home hover accent
+            if (!_homeRect.IsEmpty && IsAreaHovered("Breadcrumb_Home"))
             {
-                int hoveredIndex = (int)ctx.CustomData["HoveredIndex"];
-                // Add hover highlighting logic here
+                using var hover = new SolidBrush(Color.FromArgb(20, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillEllipse(hover, Rectangle.Inflate(_homeRect, 4, 4));
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            // Home
+            if (!_homeRect.IsEmpty)
+            {
+                owner.AddHitArea("Breadcrumb_Home", _homeRect, null, () =>
+                {
+                    ctx.CustomData["BreadcrumbHomeClicked"] = true;
+                    notifyAreaHit?.Invoke("Breadcrumb_Home", _homeRect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            // Items
+            for (int i = 0; i < _itemRects.Count; i++)
+            {
+                int idx = _itemRects[i].index;
+                var rect = _itemRects[i].rect;
+                owner.AddHitArea($"Breadcrumb_Item_{idx}", rect, null, () =>
+                {
+                    ctx.CustomData["BreadcrumbIndex"] = idx;
+                    notifyAreaHit?.Invoke($"Breadcrumb_Item_{idx}", rect);
+                    Owner?.Invalidate();
+                });
             }
         }
 

@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             // Progress icon
@@ -66,7 +66,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.9f);
 
             // Progress message with modern typography
-            using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Medium);
+            using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
             using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
 
             var textRect = new Rectangle(ctx.ContentRect.X + 28, ctx.ContentRect.Y,
@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var fillRect = new Rectangle(progressRect.X, progressRect.Y, fillWidth, progressRect.Height);
 
                 using var fillPath = CreateRoundedPath(fillRect, fillRect.Height / 2);
-                var progressColor = ctx.AccentColor ?? Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+                var progressColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
 
                 using var fillBrush = new LinearGradientBrush(fillRect,
                     progressColor,

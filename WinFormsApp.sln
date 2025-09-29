@@ -26,8 +26,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Beep.Nugget.Engine", "..\Beep.Nugget\Beep.Nugget.Engine\Beep.Nugget.Engine.csproj", "{1C83742B-27A0-79A2-215D-22C6C3D7C024}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Copilot_Instructions", "Copilot_Instructions", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{2AFBC5BA-5EEA-46F5-A2F4-C0A281F5A9A4}"
 	ProjectSection(SolutionItems) = preProject
-		Readme.md = Readme.md
+		copilot-instructions.md = copilot-instructions.md
+		README.md = README.md
 	EndProjectSection
 EndProject
 Global

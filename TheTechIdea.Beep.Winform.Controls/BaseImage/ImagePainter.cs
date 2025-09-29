@@ -1,13 +1,16 @@
-﻿using System;
+﻿using Svg;
+using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.IO;
 using System.Linq;
-using Svg;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 {
@@ -125,7 +128,20 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
                 InvalidateCache();
             }
         }
-
+        private string _themeName;
+       [Browsable(true)]
+        [Category("Appearance")]
+        [TypeConverter(typeof(ThemeEnumConverter))]
+        public string Theme
+        {
+            get => _themeName;
+            set
+            {
+                _themeName = value;
+                _currentTheme = BeepThemesManager.GetTheme(value);
+                //ApplyTheme();
+            }
+        }
         public float ManualRotationAngle { get => _manualRotationAngle; set { if (Math.Abs(_manualRotationAngle - value) > 0.1f) { _manualRotationAngle = value; _stateChanged = true; InvalidateCache(); } } }
         public bool FlipX { get => _flipX; set { if (_flipX != value) { _flipX = value; _stateChanged = true; InvalidateCache(); } } }
         public bool FlipY { get => _flipY; set { if (_flipY != value) { _flipY = value; _stateChanged = true; InvalidateCache(); } } }

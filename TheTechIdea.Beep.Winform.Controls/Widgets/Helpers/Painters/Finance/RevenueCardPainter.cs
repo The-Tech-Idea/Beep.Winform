@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Helpers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Globalization;
-using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
+using BaseImage = TheTechIdea.Beep.Winform.Controls.BaseImage;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 {
@@ -19,6 +19,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
     {
         private BaseImage.ImagePainter _imagePainter;
 
+        // Interactive areas
+        private Rectangle _amountRect;
+        private Rectangle _countRect;
+        private Rectangle _trendRect;
+        private Rectangle _iconRect;
+
         public RevenueCardPainter()
         {
             _imagePainter = new BaseImage.ImagePainter();
@@ -26,7 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 12;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = baseRect;
 
             // Title area
             if (!string.IsNullOrEmpty(ctx.Title))
@@ -49,29 +56,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 ctx.IconRect = new Rectangle(ctx.DrawingRect.Right - 32, ctx.DrawingRect.Top + 8, 24, 24);
             }
 
+            // Compute common content rectangles for interaction
+            _amountRect = new Rectangle(ctx.ContentRect.Left, ctx.ContentRect.Top + 10, ctx.ContentRect.Width, 20);
+            _countRect = new Rectangle(ctx.ContentRect.Left, _amountRect.Bottom + 4, ctx.ContentRect.Width, 14);
+            _trendRect = new Rectangle(ctx.ContentRect.Right - 50, ctx.ContentRect.Top + 8, 45, 12);
+            _iconRect = ctx.IconRect;
+
             return ctx;
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            owner.AddHitArea("Revenue_Amount", _amountRect, null, () => { HandleAmountClick(ctx); notifyAreaHit?.Invoke("Revenue_Amount", _amountRect); });
+            owner.AddHitArea("Revenue_Count", _countRect, null, () => { HandleCountClick(ctx); notifyAreaHit?.Invoke("Revenue_Count", _countRect); });
+            owner.AddHitArea("Revenue_Trend", _trendRect, null, () => { HandleTrendClick(ctx); notifyAreaHit?.Invoke("Revenue_Trend", _trendRect); });
+            if (!_iconRect.IsEmpty)
+                owner.AddHitArea("Revenue_Icon", _iconRect, null, () => { HandleIconClick(ctx); notifyAreaHit?.Invoke("Revenue_Icon", _iconRect); });
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            // Draw main card background with subtle gradient for revenue (positive)
             using var bgBrush = new LinearGradientBrush(ctx.DrawingRect,
                 Color.FromArgb(255, 255, 255),
-                Color.FromArgb(248, 252, 248), // Slight green tint
+                Color.FromArgb(248, 252, 248),
                 LinearGradientMode.Vertical);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
-
-            // Draw subtle border
             using var borderPen = new Pen(Color.FromArgb(220, 220, 220), 1);
             g.DrawPath(borderPen, bgPath);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
             // Draw title with revenue icon
             if (!string.IsNullOrEmpty(ctx.Title) && !ctx.HeaderRect.IsEmpty)
@@ -91,15 +112,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawRevenueHeader(Graphics g, WidgetContext ctx)
         {
-            // Revenue icon
             var iconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y + 2, 20, 20);
-            _imagePainter.DrawSvg(g, "trending-up", iconRect, 
-                Color.FromArgb(76, 175, 80), 0.9f);
+            _imagePainter.DrawSvg(g, "trending-up", iconRect, Color.FromArgb(76, 175, 80), 0.9f);
 
-            // Revenue title
-            var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
+            var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y,
                 ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleBrush, titleRect, format);
@@ -107,11 +125,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Draw growth trend indicator
-            DrawGrowthIndicator(g, ctx);
-
-            // Draw revenue category badge
-            DrawRevenueBadge(g, ctx);
+            // Hover accents
+            if (IsAreaHovered("Revenue_Amount"))
+            {
+                using var glow = new SolidBrush(Color.FromArgb(16, 76, 175, 80));
+                var r = Rectangle.Inflate(_amountRect, 4, 2);
+                using var p = CreateRoundedPath(r, 4);
+                g.FillPath(glow, p);
+            }
+            if (IsAreaHovered("Revenue_Trend"))
+            {
+                using var pen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.Green), 1);
+                g.DrawRectangle(pen, _trendRect);
+            }
+            if (IsAreaHovered("Revenue_Icon") && !_iconRect.IsEmpty)
+            {
+                using var pen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.Green), 1);
+                g.DrawEllipse(pen, _iconRect);
+            }
         }
 
         private void DrawRevenueData(Graphics g, WidgetContext ctx)
@@ -127,130 +158,117 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
             if (financeItems != null && financeItems.Count > 0)
             {
-                // Display total revenue (positive values)
-                double totalRevenue = financeItems.Where(item => item.Value > 0).Sum(item => item.Value);
+                // Sum might be decimal depending on FinanceItem.Value type; convert explicitly to double
+                var totalRevenueDecimal = financeItems.Where(item => item.Value > 0).Sum(item => item.Value);
+                double totalRevenue = (double)totalRevenueDecimal;
 
-                using var amountFont = new Font(Owner.Font.FontFamily, 14f, FontStyle.Bold);
+                bool amountHovered = IsAreaHovered("Revenue_Amount");
+                using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, amountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
                 using var amountBrush = new SolidBrush(GetRevenueColor(ctx, totalRevenue));
 
                 string amountText = showCurrency ?
                     $"{currencySymbol}{totalRevenue.ToString("N0", CultureInfo.CurrentCulture)}" :
                     totalRevenue.ToString("N0", CultureInfo.CurrentCulture);
+                if (amountHovered) amountText += " - Click to drilldown";
 
-                var amountRect = new Rectangle(ctx.ContentRect.Left, ctx.ContentRect.Top + 10,
-                                             ctx.ContentRect.Width, 20);
-                g.DrawString(amountText, amountFont, amountBrush, amountRect);
+                g.DrawString(amountText, amountFont, amountBrush, _amountRect);
 
-                // Display revenue transaction count
                 int revenueCount = financeItems.Count(item => item.Value > 0);
-                using var countFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var countBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
+                bool countHovered = IsAreaHovered("Revenue_Count");
+                using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, countHovered ? FontStyle.Underline : FontStyle.Regular);
+                using var countBrush = new SolidBrush(countHovered ? Theme?.PrimaryColor ?? Color.Green : Color.FromArgb(150, Color.Black));
 
                 string countText = $"{revenueCount} revenue transaction{(revenueCount != 1 ? "s" : "")}";
-                var countRect = new Rectangle(ctx.ContentRect.Left, amountRect.Bottom + 4,
-                                            ctx.ContentRect.Width, 14);
-                g.DrawString(countText, countFont, countBrush, countRect);
+                g.DrawString(countText, countFont, countBrush, _countRect);
 
-                // Display period and growth
                 var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ?
                     ctx.CustomData["LastUpdated"] : null;
                 if (lastUpdated != null)
                 {
-                    using var periodFont = new Font(Owner.Font.Font.FontFamily, 7f, FontStyle.Regular);
+                    using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
                     using var periodBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-
                     string periodText = $"Updated {lastUpdated}";
-                    var periodRect = new Rectangle(ctx.ContentRect.Left, countRect.Bottom + 2,
-                                                 ctx.ContentRect.Width, 12);
+                    var periodRect = new Rectangle(_countRect.Left, _countRect.Bottom + 2, _countRect.Width, 12);
                     g.DrawString(periodText, periodFont, periodBrush, periodRect);
+                }
+
+                // Trend area visual
+                string trend = ctx.CustomData.ContainsKey("Trend") ? ctx.CustomData["Trend"]?.ToString() : null;
+                if (!string.IsNullOrEmpty(trend))
+                {
+                    using var trendFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Bold);
+                    Color trendColor = trend.Contains("+") || trend.Contains("↑") ? Color.Green : Color.Red;
+                    bool trendHovered = IsAreaHovered("Revenue_Trend");
+                    if (trendHovered)
+                        trendColor = Color.FromArgb(Math.Min(255, trendColor.R + 30), Math.Min(255, trendColor.G + 30), Math.Min(255, trendColor.B + 30));
+                    using var trendBrush = new SolidBrush(trendColor);
+                    var fmt = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
+                    g.DrawString(trend, trendFont, trendBrush, _trendRect, fmt);
                 }
             }
             else
             {
-                // Draw sample revenue data
                 DrawSampleRevenueData(g, ctx, currencySymbol, showCurrency);
             }
         }
 
         private void DrawSampleRevenueData(Graphics g, WidgetContext ctx, string currencySymbol, bool showCurrency)
         {
-            using var amountFont = new Font(Owner.Font.FontFamily, 14f, FontStyle.Bold);
-            using var amountBrush = new SolidBrush(Color.FromArgb(34, 139, 34)); // Forest green for revenue
-
+            using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
+            using var amountBrush = new SolidBrush(Color.FromArgb(34, 139, 34));
             string amountText = showCurrency ? $"{currencySymbol}45,230" : "45230";
-            var amountRect = new Rectangle(ctx.ContentRect.Left, ctx.ContentRect.Top + 10,
-                                         ctx.ContentRect.Width, 20);
-            g.DrawString(amountText, amountFont, amountBrush, amountRect);
+            g.DrawString(amountText, amountFont, amountBrush, _amountRect);
 
-            using var countFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var countBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
-
             string countText = "28 transactions";
-            var countRect = new Rectangle(ctx.ContentRect.Left, amountRect.Bottom + 4,
-                                        ctx.ContentRect.Width, 14);
-            g.DrawString(countText, countFont, countBrush, countRect);
+            g.DrawString(countText, countFont, countBrush, _countRect);
 
-            using var periodFont = new Font(Owner.Font.Font.FontFamily, 7f, FontStyle.Regular);
+            using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
             using var periodBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-
             string periodText = "This month";
-            var periodRect = new Rectangle(ctx.ContentRect.Left, countRect.Bottom + 2,
-                                         ctx.ContentRect.Width, 12);
+            var periodRect = new Rectangle(_countRect.Left, _countRect.Bottom + 2, _countRect.Width, 12);
             g.DrawString(periodText, periodFont, periodBrush, periodRect);
         }
 
         private void DrawRevenueIcon(Graphics g, WidgetContext ctx)
         {
-            // Draw a revenue/trending up icon
-            using var iconBrush = new SolidBrush(Color.FromArgb(34, 139, 34)); // Green for revenue
+            using var iconBrush = new SolidBrush(Color.FromArgb(34, 139, 34));
             g.FillEllipse(iconBrush, ctx.IconRect);
-
-            // Draw upward arrow symbol
             using var symbolFont = new Font("Arial", 12f, FontStyle.Bold);
             using var symbolBrush = new SolidBrush(Color.White);
-            g.DrawString("↗", symbolFont, symbolBrush, ctx.IconRect,
-                       new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
-        }
-
-        private void DrawGrowthIndicator(Graphics g, WidgetContext ctx)
-        {
-            // Draw growth percentage if available
-            var trend = ctx.CustomData.ContainsKey("Trend") ? ctx.CustomData["Trend"]?.ToString() : null;
-            if (!string.IsNullOrEmpty(trend))
-            {
-                using var trendFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Bold);
-                Color trendColor = trend.Contains("+") || trend.Contains("↑") ? Color.Green : Color.Red;
-                using var trendBrush = new SolidBrush(trendColor);
-
-                var trendRect = new Rectangle(ctx.ContentRect.Right - 50, ctx.ContentRect.Top + 8, 45, 12);
-                g.DrawString(trend, trendFont, trendBrush, trendRect,
-                           new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center });
-            }
-        }
-
-        private void DrawRevenueBadge(Graphics g, WidgetContext ctx)
-        {
-            // Draw a small revenue badge indicator
-            var badgeRect = new Rectangle(ctx.DrawingRect.Left + 8, ctx.DrawingRect.Top + 8, 12, 12);
-            using var badgeBrush = new SolidBrush(Color.FromArgb(34, 139, 34));
-            g.FillEllipse(badgeBrush, badgeRect);
-
-            // Draw small dollar symbol
-            using var badgeFont = new Font("Arial", 8f, FontStyle.Bold);
-            using var badgeSymbolBrush = new SolidBrush(Color.White);
-            g.DrawString("$", badgeFont, badgeSymbolBrush, badgeRect,
-                       new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            g.DrawString("↗", symbolFont, symbolBrush, ctx.IconRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
         }
 
         private Color GetRevenueColor(WidgetContext ctx, double amount)
         {
-            // Color code based on revenue amount ranges (positive = good)
             if (amount > 50000)
-                return Color.FromArgb(34, 139, 34); // Dark green for high revenue
+                return Color.FromArgb(34, 139, 34);
             else if (amount > 10000)
-                return Color.FromArgb(50, 205, 50); // Lime green for good revenue
+                return Color.FromArgb(50, 205, 50);
             else
-                return ctx.AccentColor; // Accent color for moderate revenue
+                return ctx.AccentColor;
+        }
+
+        private void HandleAmountClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowRevenueDetails"] = true;
+            Owner?.Invalidate();
+        }
+        private void HandleCountClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowTransactionsList"] = true;
+            Owner?.Invalidate();
+        }
+        private void HandleTrendClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowTrendChart"] = true;
+            Owner?.Invalidate();
+        }
+        private void HandleIconClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowIconInfo"] = true;
+            Owner?.Invalidate();
         }
 
         public void Dispose()

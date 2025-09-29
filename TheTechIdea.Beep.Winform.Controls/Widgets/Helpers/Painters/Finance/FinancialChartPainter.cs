@@ -168,14 +168,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             if (financeItems.Count < 2) return;
 
             var points = new List<PointF>();
-            double maxValue = financeItems.Max(item => Math.Abs(item.Value));
-            double minValue = financeItems.Min(item => item.Value);
+            decimal maxValue = financeItems.Max(item => Math.Abs(item.Value));
+            decimal minValue = financeItems.Min(item => item.Value);
+            decimal range = maxValue - minValue;
+            if (range == 0) range = 1; // avoid division by zero
 
             for (int i = 0; i < financeItems.Count; i++)
             {
                 var item = financeItems[i];
                 float x = ctx.ChartRect.Left + (i * ctx.ChartRect.Width / (float)(financeItems.Count - 1));
-                float normalizedValue = (float)((item.Value - minValue) / (maxValue - minValue));
+                float normalizedValue = (float)((item.Value - minValue) / range);
                 float y = ctx.ChartRect.Bottom - (normalizedValue * ctx.ChartRect.Height * 0.8f) - (ctx.ChartRect.Height * 0.1f);
 
                 points.Add(new PointF(x, y));

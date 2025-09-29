@@ -121,6 +121,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
                 owner.AddHitArea("TrendDetails", ctx.TrendRect, null, () => notifyAreaHit?.Invoke("TrendDetails", ctx.TrendRect));
             }
         }
+
+        public void Dispose()
+        {
+            _imagePainter?.Dispose();
+        }
     }
 
 }

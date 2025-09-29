@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             // Get notification data
@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Draw title with enhanced typography
             using var titleFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
-            var titleFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Top };
+            var titleFormat = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Near };
             g.DrawString(title, titleFont, titleBrush, titleRect, titleFormat);
 
             // Draw message with proper formatting
@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             using var messageBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Gray));
             var messageFormat = new StringFormat {
                 Alignment = StringAlignment.Near,
-                LineAlignment = StringAlignment.Top,
+                LineAlignment = StringAlignment.Near,
                 Trimming = StringTrimming.EllipsisWord
             };
             g.DrawString(message, messageFont, messageBrush, messageRect, messageFormat);

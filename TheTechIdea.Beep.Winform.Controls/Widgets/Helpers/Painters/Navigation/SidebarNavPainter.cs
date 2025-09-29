@@ -42,7 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var items = ctx.CustomData.ContainsKey("Items") ?
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int spacing = 4;
             var primaryColor = Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
 
-            using var navFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+            using var navFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
 
             for (int i = 0; i < items.Count; i++)
             {
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
                 // Navigation text
                 using var textBrush = new SolidBrush(isActive ? primaryColor : Theme?.ForeColor ?? Color.Black);
-                var textRect = new Rectangle(itemRect.X + 40, itemRect.Y, itemRect.Width - 40, itemRect.Height);
+                var textRect = new Rectangle(itemRect.X + 40, itemRect.Y, itemRect.Width - 40, itemHeight);
                 var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(item.Text, navFont, textBrush, textRect, format);
             }
@@ -108,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         private string GetSidebarIcon(string itemText, int index)
         {
-            var text = itemText?.ToLower() ?? "";
+            var text = itemText?.ToLower() ?? string.Empty;
             if (text.Contains("dashboard")) return "home";
             if (text.Contains("analytic")) return "bar-chart-2";
             if (text.Contains("report")) return "file-text";

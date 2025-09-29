@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var currentStep = ctx.CustomData.ContainsKey("CurrentStep") ? (int)ctx.CustomData["CurrentStep"] : 2;
@@ -232,7 +232,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             
             using var labelFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Color.FromArgb(160, Color.Black));
-            using var valueBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
             
             for (int i = 0; i < maxFields; i++)
             {
@@ -254,7 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 
                 // Draw field status
                 string status = field.Value != null ? "Completed" : "Pending";
-                using var statusBrush = new SolidBrush(field.Value != null ? Color.FromArgb(100, 150, 100) : valueBrush);
+                using var statusBrush = new SolidBrush(field.Value != null ? Color.FromArgb(100, 150, 100) : Color.FromArgb(100, Color.Black));
                 g.DrawString(status, labelFont, statusBrush, fieldRect.X + 12, fieldRect.Y + 16);
             }
         }
@@ -297,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var iconRect = new Rectangle(buttonRect.X + 8, buttonRect.Y + 8, 16, 16);
                 _imagePainter.DrawSvg(g, "arrow-right", iconRect, Color.White, 0.9f);
                 
-                using var nextFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+                using var nextFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var nextTextBrush = new SolidBrush(Color.White);
                 var textRect = new Rectangle(iconRect.Right + 4, buttonRect.Y, 
                     buttonRect.Width - iconRect.Width - 12, buttonRect.Height);

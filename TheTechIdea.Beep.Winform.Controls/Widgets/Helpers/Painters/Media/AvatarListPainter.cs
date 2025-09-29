@@ -11,17 +11,20 @@ using TheTechIdea.Beep.Winform.Controls.BaseImage;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 {
 	/// <summary>
-	/// AvatarList - Vertical list of avatars with names and status
+	/// AvatarList - Vertical list of avatars with names and status (now with interactions)
 	/// </summary>
 	internal sealed class AvatarListPainter : WidgetPainterBase, IDisposable
 	{
 		private ImagePainter _avatarPainter;
+		private readonly List<Rectangle> _itemRects = new();
+		private readonly List<Rectangle> _avatarRects = new();
+		private readonly List<Rectangle> _statusRects = new();
 
 		public AvatarListPainter()
 		{
 			_avatarPainter = new ImagePainter();
-			_avatarPainter.ScaleMode = ImageScaleMode.Fill;
-			_avatarPainter.ClipShape = ImageClipShape.Circle;
+			_avatarPainter.ScaleMode = Vis.Modules.ImageScaleMode.Fill;
+			_avatarPainter.ClipShape = Vis.Modules.ImageClipShape.Circle;
 		}
 
 		public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
@@ -43,6 +46,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				ctx.DrawingRect.Width - pad * 2,
 				ctx.DrawingRect.Bottom - contentTop - pad
 			);
+
+			// Precompute item/avatar/status rects for hit-testing
+			_itemRects.Clear();
+			_avatarRects.Clear();
+			_statusRects.Clear();
+
+			int avatarSize = 40;
+			int itemHeight = avatarSize + 8;
+			int maxItems = Math.Max(0, ctx.ContentRect.Height / itemHeight);
+			int dataCount = 0;
+			if (ctx.CustomData.TryGetValue("Users", out var raw) && raw is List<Dictionary<string, object>> users)
+			{
+				dataCount = users.Count;
+			}
+			else
+			{
+				dataCount = 6; // fallback to sample
+			}
+			int itemsToShow = Math.Min(maxItems, dataCount);
+			for (int i = 0; i < itemsToShow; i++)
+			{
+				var itemRect = new Rectangle(
+					ctx.ContentRect.X,
+					ctx.ContentRect.Y + i * itemHeight,
+					ctx.ContentRect.Width,
+					itemHeight - 4
+				);
+				_itemRects.Add(itemRect);
+				var avatarRect = new Rectangle(
+					itemRect.X,
+					itemRect.Y + (itemRect.Height - avatarSize) / 2,
+					avatarSize,
+					avatarSize
+				);
+				_avatarRects.Add(avatarRect);
+				_statusRects.Add(new Rectangle(avatarRect.Right - 10, avatarRect.Bottom - 10, 8, 8));
+			}
 			
 			return ctx;
 		}
@@ -62,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			// Update theme configuration
 			if (Theme != null)
 			{
-				_avatarPainter.Theme = Theme;
+				_avatarPainter.CurrentTheme = Theme;
 			}
 
 			// Draw title
@@ -82,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 		{
 			int avatarSize = 40;
 			int itemHeight = avatarSize + 8;
-			int maxItems = area.Height / itemHeight;
+			int maxItems = Math.Max(0, area.Height / itemHeight);
 			
 			var users = new[] 
 			{
@@ -96,23 +136,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			
 			int itemsToShow = Math.Min(maxItems, users.Length);
 			
-			for (int i = 0; i < itemsToShow; i++)
+			for (int i = 0; i < itemsToShow && i < _itemRects.Count; i++)
 			{
 				var user = users[i];
-				var itemRect = new Rectangle(
-					area.X,
-					area.Y + i * itemHeight,
-					area.Width,
-					itemHeight - 4
-				);
+				var itemRect = _itemRects[i];
+				var avatarRect = _avatarRects[i];
+				var statusRect = _statusRects[i];
 				
-				// Avatar rectangle
-				var avatarRect = new Rectangle(
-					itemRect.X,
-					itemRect.Y + (itemRect.Height - avatarSize) / 2,
-					avatarSize,
-					avatarSize
-				);
+				// Hover background
+				if (IsAreaHovered($"AvatarList_Item_{i}"))
+				{
+					using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+					g.FillRectangle(hover, itemRect);
+				}
 				
 				// Draw avatar
 				DrawAvatarWithImagePainter(g, avatarRect, ctx, user.Status);
@@ -145,7 +181,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				g.DrawString(user.Role, roleFont, roleBrush, roleRect, roleFormat);
 				
 				// Draw status indicator
-				DrawStatusIndicator(g, avatarRect, user.Status);
+				DrawStatusIndicator(g, statusRect, user.Status);
+
+				// Hover accents for avatar/status
+				if (IsAreaHovered($"AvatarList_Avatar_{i}"))
+				{
+					using var pen = new Pen(Theme?.AccentColor ?? Color.Blue, 1.2f);
+					g.DrawEllipse(pen, avatarRect);
+				}
+				if (IsAreaHovered($"AvatarList_Status_{i}"))
+				{
+					using var glow = new SolidBrush(Color.FromArgb(80, Theme?.AccentColor ?? Color.Blue));
+					g.FillEllipse(glow, Rectangle.Inflate(statusRect, 3, 3));
+				}
 			}
 		}
 
@@ -204,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 			g.DrawArc(personPen, bodyRect, 0, 180);
 		}
 
-		private void DrawStatusIndicator(Graphics g, Rectangle avatarRect, string status)
+		private void DrawStatusIndicator(Graphics g, Rectangle statusRect, string status)
 		{
 			var statusColor = status switch
 			{
@@ -214,12 +262,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				_ => Color.Gray
 			};
 			
-			var statusRect = new Rectangle(
-				avatarRect.Right - 10, 
-				avatarRect.Bottom - 10, 
-				8, 8
-			);
-			
 			using var statusBrush = new SolidBrush(statusColor);
 			using var statusBorder = new Pen(Theme?.BackColor ?? Color.White, 2);
 			g.FillEllipse(statusBrush, statusRect);
@@ -228,8 +270,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 
 		public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
 		{
-			// Optional: Draw scroll indicators if list is too long
-			// or selection highlights
+			// Optional: scroll indicators or selection highlights already handled per-item hover
+		}
+
+		public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+		{
+			if (owner == null) return;
+			ClearOwnerHitAreas();
+			for (int i = 0; i < _itemRects.Count; i++)
+			{
+				int idx = i;
+				var itemRect = _itemRects[i];
+				var avatarRect = _avatarRects[i];
+				var statusRect = _statusRects[i];
+				owner.AddHitArea($"AvatarList_Item_{idx}", itemRect, null, () =>
+				{
+					ctx.CustomData["SelectedAvatarItemIndex"] = idx;
+					notifyAreaHit?.Invoke($"AvatarList_Item_{idx}", itemRect);
+					Owner?.Invalidate();
+				});
+				owner.AddHitArea($"AvatarList_Avatar_{idx}", avatarRect, null, () =>
+				{
+					ctx.CustomData["SelectedAvatarIndex"] = idx;
+					notifyAreaHit?.Invoke($"AvatarList_Avatar_{idx}", avatarRect);
+					Owner?.Invalidate();
+				});
+				owner.AddHitArea($"AvatarList_Status_{idx}", statusRect, null, () =>
+				{
+					ctx.CustomData["SelectedStatusIndex"] = idx;
+					notifyAreaHit?.Invoke($"AvatarList_Status_{idx}", statusRect);
+					Owner?.Invalidate();
+				});
+			}
 		}
 
 		public void Dispose()

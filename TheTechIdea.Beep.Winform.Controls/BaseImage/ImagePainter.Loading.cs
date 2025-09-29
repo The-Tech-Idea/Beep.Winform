@@ -10,13 +10,16 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 {
     public partial class ImagePainter
     {
+        public bool UseThemeColors { get; set; } = false;
+
         public bool LoadFromStream(Stream stream, string extensionHint)
         {
             try
             {
-                if (string.Equals(Path.GetExtension(extensionHint), ".svg", StringComparison.OrdinalIgnoreCase))
+                string ext = Path.GetExtension(extensionHint);
+                if (string.Equals(ext, ".svg", StringComparison.OrdinalIgnoreCase))
                 {
-                    using var reader = new StreamReader(stream);
+                    using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 4096, leaveOpen: true);
                     string svgContent = reader.ReadToEnd();
                     svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
                                            .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
@@ -26,7 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
                 }
                 else
                 {
-                    Image = Image.FromStream(stream);
+                    using var img = Image.FromStream(stream, useEmbeddedColorManagement: true, validateImageData: true);
+                    Image = new Bitmap(img); // decouple from source stream
                 }
                 return true;
             }
@@ -117,7 +121,11 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
             try
             {
                 DisposeImages();
-                _regularImage = Image.FromFile(imagePath);
+                // Avoid file locking by cloning the image
+                using (var img = Image.FromFile(imagePath))
+                {
+                    _regularImage = new Bitmap(img);
+                }
                 _isSvg = false;
                 _stateChanged = true;
                 InvalidateCache();
@@ -172,7 +180,6 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
         {
             try
             {
-                Stream stream = null;
                 string matchedResource = null;
                 string normalizedResourcePath = resourcePath.Trim().Replace("\\", ".").Replace("/", ".");
 
@@ -184,41 +191,35 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 
                     if (matchedResource != null)
                     {
-                        stream = assembly.GetManifestResourceStream(matchedResource);
-                        break;
-                    }
-                }
+                        using var stream = assembly.GetManifestResourceStream(matchedResource);
+                        if (stream == null) break;
 
-                if (stream != null)
-                {
-                    string extension = Path.GetExtension(resourcePath).ToLower();
-                    if (extension == ".svg")
-                    {
-                        using (var reader = new StreamReader(stream))
+                        string extension = Path.GetExtension(resourcePath).ToLower();
+                        if (extension == ".svg")
                         {
+                            using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 4096, leaveOpen: false);
                             string svgContent = reader.ReadToEnd();
                             svgContent = svgContent.Replace("text-anchor=\"left\"", "text-anchor=\"start\"")
                                                    .Replace("stroke-opacity=\"null\"", "stroke-opacity=\"1.0\"")
                                                    .Replace("stroke=\"null\"", "stroke=\"none\"");
 
-                            using (var sanitizedStream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(svgContent)))
-                            {
-                                _svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
-                                _svgDocument.CustomAttributes.Remove("style");
-                                _svgDocument.FlushStyles();
-                                _isSvg = true;
-                            }
+                            using var sanitizedStream = new MemoryStream(Encoding.UTF8.GetBytes(svgContent));
+                            _svgDocument = SvgDocument.Open<SvgDocument>(sanitizedStream);
+                            _svgDocument.CustomAttributes.Remove("style");
+                            _svgDocument.FlushStyles();
+                            _isSvg = true;
                         }
-                    }
-                    else
-                    {
-                        _regularImage = Image.FromStream(stream);
-                        _isSvg = false;
-                    }
+                        else
+                        {
+                            using var img = Image.FromStream(stream, useEmbeddedColorManagement: true, validateImageData: true);
+                            _regularImage = new Bitmap(img); // decouple from stream
+                            _isSvg = false;
+                        }
 
-                    _stateChanged = true;
-                    InvalidateCache();
-                    return true;
+                        _stateChanged = true;
+                        InvalidateCache();
+                        return true;
+                    }
                 }
 
                 return false;
@@ -227,6 +228,39 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
             {
                 return false;
             }
+        }
+
+        // Convenience: draw an SVG/icon by key or path with color and opacity
+        public void DrawSvg(Graphics g, string iconKeyOrPath, Rectangle destRect, Color color, float opacity = 1.0f)
+        {
+            if (g == null || destRect.Width <= 0 || destRect.Height <= 0) return;
+            if (string.IsNullOrWhiteSpace(iconKeyOrPath)) return;
+
+            // Resolve to a resource path or file path
+            string path = iconKeyOrPath;
+            try
+            {
+                bool looksLikePath = iconKeyOrPath.Contains("/") || iconKeyOrPath.Contains("\\") || Path.GetExtension(iconKeyOrPath).Length > 0;
+                if (!looksLikePath)
+                {
+                    string mapped = ImageListHelper.GetImagePathFromName(iconKeyOrPath);
+                    if (!string.IsNullOrEmpty(mapped)) path = mapped;
+                }
+            }
+            catch { /* best-effort mapping */ }
+
+            // Use a temporary painter to avoid mutating this instance's cached state
+            using var painter = new ImagePainter();
+            painter.CurrentTheme = this.CurrentTheme;
+            painter.ImageEmbededin = this.ImageEmbededin;
+            painter.ApplyThemeOnImage = true; // allow recolor
+            painter.FillColor = color;
+            painter.StrokeColor = color;
+            painter.Opacity = Math.Max(0f, Math.Min(1f, opacity));
+            painter.ImagePath = path; // auto-load
+            painter.Alignment = this.Alignment;
+            painter.ScaleMode = this.ScaleMode;
+            painter.DrawImage(g, destRect);
         }
     }
 }

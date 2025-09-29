@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Editor.UOW;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {

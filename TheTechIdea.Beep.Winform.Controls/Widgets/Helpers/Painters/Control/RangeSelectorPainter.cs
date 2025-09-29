@@ -54,7 +54,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             // Draw label
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                var titleColor = Theme?.TextColor ?? Color.FromArgb(70, 70, 70);
+                var titleColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(70, 70, 70);
                 using (var titleFont = new Font("Segoe UI", 9f, FontStyle.Regular))
                 using (var titleBrush = new SolidBrush(titleColor))
                 {
@@ -129,7 +129,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             var shadowColor = Color.FromArgb(60, Color.Black);
             
             // Draw shadow
-            var shadowRect = Rectangle.Offset(handleRect, 1, 1);
+            var shadowRect = new Rectangle(handleRect.X, handleRect.Y, handleRect.Width, handleRect.Height);
+            shadowRect.Offset(1, 1);
             using (var shadowBrush = new SolidBrush(shadowColor))
             {
                 g.FillEllipse(shadowBrush, shadowRect);
@@ -157,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Control
             var minValue = 25; // Example values
             var maxValue = 75;
             
-            var textColor = Theme?.TextColor ?? Color.FromArgb(100, 100, 100);
+            var textColor =  Theme?.TextBoxForeColor ?? Color.FromArgb(100, 100, 100);
             using (var textFont = new Font("Segoe UI", 8f))
             using (var textBrush = new SolidBrush(textColor))
             {

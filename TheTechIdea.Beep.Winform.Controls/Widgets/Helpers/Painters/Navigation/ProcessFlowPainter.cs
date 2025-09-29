@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var processes = ctx.CustomData.ContainsKey("Processes") ?
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int nodeHeight = 50;
             int spacing = (ctx.ContentRect.Width - nodeWidth * processes.Count) / Math.Max(processes.Count - 1, 1);
 
-            using var processFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Medium);
+            using var processFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
 
             for (int i = 0; i < processes.Count; i++)
             {
@@ -159,12 +159,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         }
     }
 
-    // Supporting classes for navigation painters
-    public class NavigationItem
-    {
-        public string Text { get; set; } = string.Empty;
-        public bool IsActive { get; set; }
-        public string IconName { get; set; } = string.Empty;
-        public object Data { get; set; }
-    }
 }

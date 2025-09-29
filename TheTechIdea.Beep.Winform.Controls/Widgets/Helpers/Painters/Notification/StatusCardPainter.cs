@@ -10,11 +10,13 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 {
     /// <summary>
-    /// StatusCard - Status card with icon and modern styling
+    /// StatusCard - Status card with icon and modern styling (interactive)
     /// </summary>
     internal sealed class StatusCardPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+        private Rectangle _cardRectCache;
+        private Rectangle _actionRectCache;
 
         public StatusCardPainter()
         {
@@ -25,15 +27,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         {
             int pad = 12;
             ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            _cardRectCache = ctx.DrawingRect;
             
             // Icon area
             ctx.IconRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, 24, 24);
+            
+            // Action button (right-top corner)
+            _actionRectCache = new Rectangle(ctx.DrawingRect.Right - pad - 18, ctx.DrawingRect.Top + pad + 3, 18, 18);
             
             // Content area
             ctx.ContentRect = new Rectangle(
                 ctx.IconRect.Right + 12,
                 ctx.DrawingRect.Top + pad,
-                ctx.DrawingRect.Width - (ctx.IconRect.Right + 12 - ctx.DrawingRect.Left) - pad,
+                ctx.DrawingRect.Width - (ctx.IconRect.Right + 12 - ctx.DrawingRect.Left) - pad - 20,
                 ctx.DrawingRect.Height - pad * 2
             );
             
@@ -57,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             // Get status information
@@ -77,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             // Status title
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Medium);
+                using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
                 using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
                 
                 var titleRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Y, ctx.ContentRect.Width, 20);
@@ -136,12 +142,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 var progressRect = new Rectangle(ctx.ContentRect.X, ctx.ContentRect.Bottom - 8, 
                     ctx.ContentRect.Width, 4);
                 
-                // Animated progress bar placeholder
                 using var trackBrush = new SolidBrush(Color.FromArgb(30, Color.Gray));
                 using var trackPath = CreateRoundedPath(progressRect, 2);
                 g.FillPath(trackBrush, trackPath);
                 
-                // Progress fill (could be animated)
                 var progress = ctx.CustomData.ContainsKey("Progress") ? 
                     (float)ctx.CustomData["Progress"] / 100f : 0.3f;
                 
@@ -153,6 +157,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                     using var fillPath = CreateRoundedPath(fillRect, 2);
                     g.FillPath(fillBrush, fillPath);
                 }
+            }
+
+            // Draw action (dismiss) 'x' icon
+            bool showAction = !(ctx.CustomData.ContainsKey("HideAction") && (bool)ctx.CustomData["HideAction"]);
+            if (showAction && !_actionRectCache.IsEmpty)
+            {
+                bool hover = IsAreaHovered("StatusCard_Action");
+                using var pen = new Pen(hover ? (Theme?.PrimaryColor ?? Color.Blue) : (Theme?.ForeColor ?? Color.Black), 1.5f);
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.DrawLine(pen, _actionRectCache.Left + 4, _actionRectCache.Top + 4, _actionRectCache.Right - 4, _actionRectCache.Bottom - 4);
+                g.DrawLine(pen, _actionRectCache.Right - 4, _actionRectCache.Top + 4, _actionRectCache.Left + 4, _actionRectCache.Bottom - 4);
+            }
+
+            // Card hover outline
+            if (IsAreaHovered("StatusCard_Card"))
+            {
+                using var outline = new Pen(Color.FromArgb(80, Theme?.PrimaryColor ?? Color.Blue), 2);
+                using var path = CreateRoundedPath(_cardRectCache, 8);
+                g.DrawPath(outline, path);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            owner.AddHitArea("StatusCard_Card", _cardRectCache, null, () =>
+            {
+                ctx.CustomData["StatusCardClicked"] = true;
+                notifyAreaHit?.Invoke("StatusCard_Card", _cardRectCache);
+                Owner?.Invalidate();
+            });
+
+            bool showAction = !(ctx.CustomData.ContainsKey("HideAction") && (bool)ctx.CustomData["HideAction"]);
+            if (showAction)
+            {
+                owner.AddHitArea("StatusCard_Action", _actionRectCache, null, () =>
+                {
+                    ctx.CustomData["StatusCardDismissed"] = true;
+                    notifyAreaHit?.Invoke("StatusCard_Action", _actionRectCache);
+                    Owner?.Invalidate();
+                });
             }
         }
 

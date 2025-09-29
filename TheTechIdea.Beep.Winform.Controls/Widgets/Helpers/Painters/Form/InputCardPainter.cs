@@ -11,11 +11,18 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 {
     /// <summary>
-    /// InputCard - Styled input container painter with enhanced visual presentation
+    /// InputCard - Styled input container painter with enhanced visual presentation and hit areas
     /// </summary>
     internal sealed class InputCardPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+
+        // Cached interactive rects
+        private Rectangle _headerIconRect;
+        private Rectangle _headerLabelRect;
+        private Rectangle _inputRectCache;
+        private Rectangle _validationIconRect;
+        private Rectangle _footerRectCache;
 
         public InputCardPainter()
         {
@@ -25,7 +32,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
             
             // Input card header
             ctx.HeaderRect = new Rectangle(
@@ -50,6 +58,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 ctx.DrawingRect.Width - pad * 2,
                 ctx.DrawingRect.Bottom - ctx.ContentRect.Bottom - pad - 4
             );
+
+            // Cache hit areas
+            _headerIconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y + 2, 16, 16);
+            _headerLabelRect = new Rectangle(_headerIconRect.Right + 6, ctx.HeaderRect.Y, ctx.HeaderRect.Width - _headerIconRect.Width - 6, ctx.HeaderRect.Height);
+            _inputRectCache = ctx.ContentRect;
+            _footerRectCache = ctx.FooterRect;
+            // Validation icon resides at right of input
+            _validationIconRect = new Rectangle(ctx.ContentRect.Right - 24, ctx.ContentRect.Y + (ctx.ContentRect.Height - 16) / 2, 16, 16);
             
             return ctx;
         }
@@ -65,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var fields = ctx.CustomData.ContainsKey("Fields") ? 
@@ -74,8 +90,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 (List<ValidationResult>)ctx.CustomData["ValidationResults"] : new List<ValidationResult>();
             var validColor = Color.FromArgb(76, 175, 80);
             var errorColor = Color.FromArgb(244, 67, 54);
-            var showRequired = ctx.CustomData.ContainsKey("ShowRequired") ? (bool)ctx.CustomData["ShowRequired"] : true;
-            var isReadOnly = ctx.CustomData.ContainsKey("IsReadOnly") ? (bool)ctx.CustomData["IsReadOnly"] : false;
+            var showRequired = ctx.CustomData.ContainsKey("ShowRequired") && ctx.CustomData["ShowRequired"] is bool b1 ? b1 : true;
+            var isReadOnly = ctx.CustomData.ContainsKey("IsReadOnly") && ctx.CustomData["IsReadOnly"] is bool b2 ? b2 : false;
 
             // Get primary field (first field or focused field)
             var primaryField = fields.FirstOrDefault();
@@ -93,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawSampleInputCard(Graphics g, WidgetContext ctx, bool showRequired, bool isReadOnly, Color validColor, Color errorColor)
         {
-            var sampleField = new FormField { Name = "email", Label = "Email Address", Type = "email", Placeholder = "Enter your email", IsRequired = true };
+            var sampleField = new FormField { Name = "email", Label = "Email Address", Type = FormFieldType.Email, Placeholder = "Enter your email", IsRequired = true };
             DrawInputCard(g, ctx, sampleField, null, showRequired, isReadOnly, validColor, errorColor);
         }
 
@@ -114,15 +130,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             Color errorColor, Color accentColor)
         {
             // Field type icon
-            var iconRect = new Rectangle(rect.X, rect.Y + 2, 16, 16);
-            string iconName = GetFieldTypeIcon(field.Type);
+            var iconRect = _headerIconRect;
+            string iconName = GetFieldTypeIcon(field.Type.ToString());
             _imagePainter.DrawSvg(g, iconName, iconRect, 
                 Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 0.8f);
 
             // Field label
-            var labelRect = new Rectangle(iconRect.Right + 6, rect.Y, 
-                rect.Width - iconRect.Width - 6, rect.Height);
-            using var labelFont = new Font(Owner.Font.FontFamily, 11f, FontStyle.Medium);
+            var labelRect = _headerLabelRect;
+            using var labelFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(field.Label, labelFont, labelBrush, labelRect, format);
@@ -151,28 +166,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
                 "textarea" => "align-left",
                 _ => "edit-3"
             };
-        }
-
-        private void DrawFieldTypeIndicator(Graphics g, Rectangle rect, FormField field, Color accentColor)
-        {
-            string typeIcon = field.Type switch
-            {
-                FormFieldType.Email => "?",
-                FormFieldType.Phone => "?",
-                FormFieldType.Password => "??",
-                FormFieldType.Date => "??",
-                FormFieldType.Number => "#",
-                FormFieldType.File => "??",
-                _ => ""
-            };
-            
-            if (!string.IsNullOrEmpty(typeIcon))
-            {
-                using var typeFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
-                using var typeBrush = new SolidBrush(Color.FromArgb(150, accentColor));
-                var typeSize = g.MeasureString(typeIcon, typeFont);
-                g.DrawString(typeIcon, typeFont, typeBrush, rect.Right - typeSize.Width, rect.Y);
-            }
         }
 
         private void DrawCardInput(Graphics g, Rectangle rect, FormField field, ValidationResult validation, 
@@ -214,25 +207,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             
             // Draw field value or placeholder
             string displayText = "";
-            Color textColor = Color.FromArgb(200, Color.Black);
+            Color textColor = Theme?.ForeColor ?? Color.FromArgb(200, Color.Black);
             
             if (field.Value != null && !string.IsNullOrEmpty(field.Value.ToString()))
             {
                 displayText = field.Value.ToString();
                 if (field.Type == FormFieldType.Password)
                 {
-                    displayText = new string('�', displayText.Length);
+                    displayText = new string('•', displayText.Length);
                 }
             }
             else if (!string.IsNullOrEmpty(field.Placeholder))
             {
                 displayText = field.Placeholder;
-                textColor = Color.FromArgb(120, Color.Gray);
+                textColor = Theme?.TextBoxPlaceholderColor ?? Color.FromArgb(120, Color.Gray);
             }
             
             if (!string.IsNullOrEmpty(displayText))
             {
-                using var contentFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Regular);
+                using var contentFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
                 using var contentBrush = new SolidBrush(textColor);
                 var contentFormat = new StringFormat { LineAlignment = StringAlignment.Center };
                 
@@ -248,7 +241,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
 
         private void DrawFocusIndicator(Graphics g, Rectangle contentRect)
         {
-            using var cursorPen = new Pen(Color.FromArgb(33, 150, 243), 1);
+            using var cursorPen = new Pen(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 1);
             int cursorX = contentRect.X + contentRect.Width - 20;
             g.DrawLine(cursorPen, cursorX, contentRect.Y + 4, cursorX, contentRect.Bottom - 4);
         }
@@ -257,16 +250,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             Color validColor, Color errorColor)
         {
             Color indicatorColor = validation.IsValid ? validColor : errorColor;
-            string indicatorText = validation.IsValid ? "?" : "?";
+            string indicatorText = validation.IsValid ? "✓" : "!";
             
-            var indicatorRect = new Rectangle(rect.Right - 24, rect.Y + (rect.Height - 16) / 2, 16, 16);
+            var indicatorRect = _validationIconRect;
             
             // Draw indicator background
             using var indicatorBrush = new SolidBrush(Color.FromArgb(200, indicatorColor));
             g.FillEllipse(indicatorBrush, indicatorRect);
             
             // Draw indicator symbol
-            using var symbolFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Bold);
+            using var symbolFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Bold);
             using var symbolBrush = new SolidBrush(Color.White);
             var symbolFormat = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
             g.DrawString(indicatorText, symbolFont, symbolBrush, indicatorRect, symbolFormat);
@@ -275,12 +268,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         private void DrawCardFooter(Graphics g, Rectangle rect, FormField field, ValidationResult validation, Color errorColor)
         {
             int y = rect.Y;
-            using var footerFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+            using var footerFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             
             // Draw help text
             if (!string.IsNullOrEmpty(field.HelpText))
             {
-                using var helpBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
+                using var helpBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 g.DrawString(field.HelpText, footerFont, helpBrush, rect.X, y);
                 y += 14;
             }
@@ -296,12 +289,80 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Focus indicator
-            if (ctx.CustomData.ContainsKey("IsFocused") && (bool)ctx.CustomData["IsFocused"])
+            if (ctx.CustomData.ContainsKey("IsFocused") && ctx.CustomData["IsFocused"] is bool isFocused && isFocused)
             {
                 var focusRect = Rectangle.Inflate(ctx.DrawingRect, 2, 2);
                 using var focusPen = new Pen(Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243), 2);
                 g.DrawRoundedRectangle(focusPen, focusRect, 8);
             }
+
+            // Hover effects for header label and icon
+            if (IsAreaHovered("InputCard_HeaderLabel"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(8, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRectangle(hover, _headerLabelRect);
+            }
+            if (IsAreaHovered("InputCard_HeaderIcon"))
+            {
+                using var pen = new Pen(Theme?.PrimaryColor ?? Color.Blue, 1.2f);
+                g.DrawRectangle(pen, _headerIconRect);
+            }
+            // Input hover
+            if (IsAreaHovered("InputCard_Input"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(6, Theme?.PrimaryColor ?? Color.Blue));
+                using var p = CreateRoundedPath(Rectangle.Inflate(_inputRectCache, 2, 2), 6);
+                g.FillPath(hover, p);
+            }
+            // Validation icon hover
+            if (IsAreaHovered("InputCard_ValidationIcon"))
+            {
+                using var pen = new Pen(Theme?.AccentColor ?? Color.Gray, 1.2f);
+                g.DrawEllipse(pen, _validationIconRect);
+            }
+            // Footer hover
+            if (IsAreaHovered("InputCard_Footer"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(4, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRectangle(hover, _footerRectCache);
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            owner.AddHitArea("InputCard_HeaderIcon", _headerIconRect, null, () =>
+            {
+                ctx.CustomData["HeaderIconClicked"] = true;
+                notifyAreaHit?.Invoke("InputCard_HeaderIcon", _headerIconRect);
+                Owner?.Invalidate();
+            });
+            owner.AddHitArea("InputCard_HeaderLabel", _headerLabelRect, null, () =>
+            {
+                ctx.CustomData["HeaderLabelClicked"] = true;
+                notifyAreaHit?.Invoke("InputCard_HeaderLabel", _headerLabelRect);
+                Owner?.Invalidate();
+            });
+            owner.AddHitArea("InputCard_Input", _inputRectCache, null, () =>
+            {
+                ctx.CustomData["InputClicked"] = true;
+                notifyAreaHit?.Invoke("InputCard_Input", _inputRectCache);
+                Owner?.Invalidate();
+            });
+            owner.AddHitArea("InputCard_ValidationIcon", _validationIconRect, null, () =>
+            {
+                ctx.CustomData["ValidationIconClicked"] = true;
+                notifyAreaHit?.Invoke("InputCard_ValidationIcon", _validationIconRect);
+                Owner?.Invalidate();
+            });
+            owner.AddHitArea("InputCard_Footer", _footerRectCache, null, () =>
+            {
+                ctx.CustomData["FooterClicked"] = true;
+                notifyAreaHit?.Invoke("InputCard_Footer", _footerRectCache);
+                Owner?.Invalidate();
+            });
         }
 
         public void Dispose()

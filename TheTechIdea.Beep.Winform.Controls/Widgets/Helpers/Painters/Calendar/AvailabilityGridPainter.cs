@@ -5,13 +5,21 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 {
     /// <summary>
-    /// AvailabilityGrid - Availability/booking grid painter
+    /// AvailabilityGrid - Availability/booking grid painter with hit areas and hover states
     /// </summary>
     internal sealed class AvailabilityGridPainter : WidgetPainterBase
     {
+        private readonly List<(Rectangle rect, int day, int slot)> _slotRects = new();
+        private readonly List<(Rectangle rect, int day)> _dayHeaderRects = new();
+        private Rectangle _gridRectCache;
+
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -4, -4);
+            _gridRectCache = ctx.DrawingRect;
+            _slotRects.Clear();
+            _dayHeaderRects.Clear();
             return ctx;
         }
 
@@ -33,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         {
             // Draw grid lines and selection highlights
             DrawGridLines(g, ctx);
-            DrawSelectionHighlight(g, ctx);
+            DrawDayHeaders(g, ctx);
         }
 
         private void DrawTimeSlots(Graphics g, WidgetContext ctx)
@@ -42,8 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             int slotHeight = 30;
             int slotsCount = Math.Max(1, ctx.DrawingRect.Height / slotHeight);
 
-            using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var timeBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Color.Black);
+            using var timeFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var timeBrush = new SolidBrush(Theme?.TextBoxForeColor ?? Theme?.ForeColor ?? Color.Black);
 
             for (int i = 0; i < slotsCount; i++)
             {
@@ -71,6 +79,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             // Sample availability data
             var random = new Random(42); // Fixed seed for consistent display
 
+            _slotRects.Clear();
             for (int day = 0; day < 7; day++)
             {
                 for (int timeSlot = 0; timeSlot < slotsCount; timeSlot++)
@@ -81,6 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                         slotWidth - 2,
                         slotHeight - 2
                     );
+                    _slotRects.Add((slotRect, day, timeSlot));
 
                     // Determine slot status (available, busy, unavailable)
                     int status = random.Next(0, 3);
@@ -94,6 +104,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                     using var slotBrush = new SolidBrush(slotColor);
                     g.FillRectangle(slotBrush, slotRect);
 
+                    // Hover overlay
+                    if (IsAreaHovered($"Availability_Slot_{day}_{timeSlot}"))
+                    {
+                        using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                        g.FillRectangle(hover, Rectangle.Inflate(slotRect, 2, 1));
+                    }
+
                     // Add status text if slot is large enough
                     if (slotRect.Width > 30 && slotRect.Height > 20)
                     {
@@ -104,8 +121,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                             _ => "N/A"
                         };
 
-                        using var statusFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-                        using var statusBrush = new SolidBrush(Color.White);
+                        using var statusFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                        using var statusBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
                         g.DrawString(statusText, statusFont, statusBrush, slotRect,
                                    new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
                     }
@@ -116,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
         private void DrawGridLines(Graphics g, WidgetContext ctx)
         {
             // Draw subtle grid lines
-            using var gridPen = new Pen(Color.FromArgb(60, Color.Gray), 1);
+            using var gridPen = new Pen(Color.FromArgb(60, Theme?.BorderColor ?? Color.Gray), 1);
             
             // Horizontal lines
             int slotHeight = 30;
@@ -137,15 +154,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             }
         }
 
-        private void DrawSelectionHighlight(Graphics g, WidgetContext ctx)
+        private void DrawDayHeaders(Graphics g, WidgetContext ctx)
         {
             // Draw day labels at the top
             int slotWidth = Math.Max(40, (ctx.DrawingRect.Width - 70) / 7);
             string[] dayNames = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
-            using var dayFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
+            using var dayFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Bold);
             using var dayBrush = new SolidBrush(Theme?.AccentColor ?? Color.Blue);
 
+            _dayHeaderRects.Clear();
             for (int i = 0; i < dayNames.Length && i < 7; i++)
             {
                 var dayRect = new Rectangle(
@@ -154,9 +172,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
                     slotWidth,
                     18
                 );
+                _dayHeaderRects.Add((dayRect, i));
 
                 g.DrawString(dayNames[i], dayFont, dayBrush, dayRect,
                            new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            // Slots
+            foreach (var (rect, day, slot) in _slotRects)
+            {
+                string name = $"Availability_Slot_{day}_{slot}";
+                owner.AddHitArea(name, rect, null, () =>
+                {
+                    ctx.CustomData["SelectedDay"] = day;
+                    ctx.CustomData["SelectedSlot"] = slot;
+                    notifyAreaHit?.Invoke(name, rect);
+                    Owner?.Invalidate();
+                });
+            }
+            // Day headers
+            foreach (var (rect, day) in _dayHeaderRects)
+            {
+                string name = $"Availability_Day_{day}";
+                owner.AddHitArea(name, rect, null, () =>
+                {
+                    ctx.CustomData["HeaderDayClicked"] = day;
+                    notifyAreaHit?.Invoke(name, rect);
+                    Owner?.Invalidate();
+                });
+            }
+
+            if (!_gridRectCache.IsEmpty)
+            {
+                owner.AddHitArea("Availability_Grid", _gridRectCache, null, () =>
+                {
+                    ctx.CustomData["GridClicked"] = true;
+                    notifyAreaHit?.Invoke("Availability_Grid", _gridRectCache);
+                    Owner?.Invalidate();
+                });
             }
         }
     }

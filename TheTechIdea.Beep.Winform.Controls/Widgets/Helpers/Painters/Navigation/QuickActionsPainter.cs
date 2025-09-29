@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             var actions = ctx.CustomData.ContainsKey("Actions") ?
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             int buttonSize = Math.Min((ctx.ContentRect.Width - (cols - 1) * 8) / cols, 
                                     (ctx.ContentRect.Height - (rows - 1) * 8) / rows);
             
-            using var actionFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Medium);
+            using var actionFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             
             for (int i = 0; i < actions.Count; i++)
             {

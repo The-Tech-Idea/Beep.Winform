@@ -6,10 +6,11 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
 {
     /// <summary>
-    /// LineChart - Line/area chart
+    /// LineChart - Line/area chart with chart hit area and hover cue
     /// </summary>
     internal sealed class LineChartPainter : WidgetPainterBase
     {
+        private Rectangle _chartRectCache;
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
@@ -25,6 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             int chartTop = ctx.HeaderRect.Bottom + 8;
             int chartBottom = ctx.ShowLegend ? ctx.LegendRect.Top - 8 : ctx.DrawingRect.Bottom - pad;
             ctx.ChartRect = new Rectangle(ctx.DrawingRect.Left + pad, chartTop, ctx.DrawingRect.Width - pad * 2, chartBottom - chartTop);
+            _chartRectCache = ctx.ChartRect;
             
             return ctx;
         }
@@ -51,6 +53,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             {
                 WidgetRenderingHelpers.DrawLineChart(g, ctx.ChartRect, ctx.Values, ctx.AccentColor, 3f);
             }
+
+            if (IsAreaHovered("LineChart_Chart"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRoundedRectangle(hover, Rectangle.Inflate(ctx.ChartRect, 2, 2), 6);
+            }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
@@ -72,6 +80,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                         g.FillEllipse(pointBrush, x - 3, y - 3, 6, 6);
                     }
                 }
+            }
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            if (!_chartRectCache.IsEmpty)
+            {
+                owner.AddHitArea("LineChart_Chart", _chartRectCache, null, () =>
+                {
+                    ctx.CustomData["LineChartClicked"] = true;
+                    notifyAreaHit?.Invoke("LineChart_Chart", _chartRectCache);
+                    Owner?.Invalidate();
+                });
             }
         }
     }

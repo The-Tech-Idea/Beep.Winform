@@ -13,11 +13,16 @@ using BaseImage = TheTechIdea.Beep.Winform.Controls.Models;
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 {
     /// <summary>
-    /// ExpenseCard - Expense category display painter
+    /// ExpenseCard - Expense category display painter (BeepAppBar methodology) with hit areas
     /// </summary>
     internal sealed class ExpenseCardPainter : WidgetPainterBase, IDisposable
     {
         private BaseImage.ImagePainter _imagePainter;
+
+        // Interactive rects
+        private Rectangle _amountRect;
+        private Rectangle _countRect;
+        private Rectangle _iconRect;
 
         public ExpenseCardPainter()
         {
@@ -26,7 +31,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 12;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = baseRect;
 
             // Title area
             if (!string.IsNullOrEmpty(ctx.Title))
@@ -49,37 +55,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
                 ctx.IconRect = new Rectangle(ctx.DrawingRect.Right - 32, ctx.DrawingRect.Top + 8, 24, 24);
             }
 
+            // Compute interactive rects
+            _amountRect = new Rectangle(ctx.ContentRect.Left, ctx.ContentRect.Top + 10, ctx.ContentRect.Width, 20);
+            _countRect = new Rectangle(ctx.ContentRect.Left, _amountRect.Bottom + 4, ctx.ContentRect.Width, 14);
+            _iconRect = ctx.IconRect;
+
             return ctx;
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+
+            owner.AddHitArea("Expense_Amount", _amountRect, null, () => { HandleAmountClick(ctx); notifyAreaHit?.Invoke("Expense_Amount", _amountRect); });
+            owner.AddHitArea("Expense_Count", _countRect, null, () => { HandleCountClick(ctx); notifyAreaHit?.Invoke("Expense_Count", _countRect); });
+            if (!_iconRect.IsEmpty)
+                owner.AddHitArea("Expense_Icon", _iconRect, null, () => { HandleIconClick(ctx); notifyAreaHit?.Invoke("Expense_Icon", _iconRect); });
         }
 
         public override void DrawBackground(Graphics g, WidgetContext ctx)
         {
-            // Draw main card background
-            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Color.White);
+            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Theme?.BackColor ?? Color.White);
             using var bgPath = CreateRoundedPath(ctx.DrawingRect, ctx.CornerRadius);
             g.FillPath(bgBrush, bgPath);
-
-            // Draw subtle border
-            using var borderPen = new Pen(Color.FromArgb(220, 220, 220), 1);
+            using var borderPen = new Pen(Theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1);
             g.DrawPath(borderPen, bgPath);
         }
 
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
-            // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
-            _imagePainter.UseThemeColors = true;
+            _imagePainter.CurrentTheme = Theme;
+            _imagePainter.ApplyThemeOnImage = true;
 
-            // Draw title with expense icon
             if (!string.IsNullOrEmpty(ctx.Title) && !ctx.HeaderRect.IsEmpty)
             {
                 DrawExpenseHeader(g, ctx);
             }
 
-            // Draw expense data
             DrawExpenseData(g, ctx);
 
-            // Draw icon if enabled
             if (ctx.ShowIcon && !ctx.IconRect.IsEmpty)
             {
                 DrawExpenseIcon(g, ctx);
@@ -88,15 +103,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         private void DrawExpenseHeader(Graphics g, WidgetContext ctx)
         {
-            // Expense icon
+            // Expense icon (credit card) next to title
             var iconRect = new Rectangle(ctx.HeaderRect.X, ctx.HeaderRect.Y + 2, 20, 20);
-            _imagePainter.DrawSvg(g, "credit-card", iconRect, 
-                Color.FromArgb(244, 67, 54), 0.9f);
+            _imagePainter.DrawSvg(g, "credit-card", iconRect, Theme?.PrimaryColor ?? Color.FromArgb(244, 67, 54), 0.9f);
 
-            // Expense title
-            var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y, 
+            var titleRect = new Rectangle(iconRect.Right + 8, ctx.HeaderRect.Y,
                 ctx.HeaderRect.Width - iconRect.Width - 8, ctx.HeaderRect.Height);
-            using var titleFont = new Font(Owner.Font.FontFamily, 12f, FontStyle.Bold);
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 12f, FontStyle.Bold);
             using var titleBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleBrush, titleRect, format);
@@ -104,8 +117,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
-            // Draw expense category indicator
-            DrawCategoryIndicator(g, ctx);
+            if (IsAreaHovered("Expense_Amount"))
+            {
+                using var glow = new SolidBrush(Color.FromArgb(16, 244, 67, 54));
+                var r = Rectangle.Inflate(_amountRect, 4, 2);
+                using var p = CreateRoundedPath(r, 4);
+                g.FillPath(glow, p);
+            }
+            if (IsAreaHovered("Expense_Icon") && !_iconRect.IsEmpty)
+            {
+                using var pen = new Pen(Color.FromArgb(150, Theme?.PrimaryColor ?? Color.FromArgb(244, 67, 54)), 1);
+                g.DrawEllipse(pen, _iconRect);
+            }
         }
 
         private void DrawExpenseData(Graphics g, WidgetContext ctx)
@@ -121,127 +144,106 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
 
             if (financeItems != null && financeItems.Count > 0)
             {
-                // Display total expenses
                 double totalExpenses = financeItems.Where(item => item.Value < 0).Sum(item => Math.Abs((double)item.Value));
 
-                using var amountFont = new Font(Owner.Font.FontFamily, 14f, FontStyle.Bold);
+                bool amountHovered = IsAreaHovered("Expense_Amount");
+                using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, amountHovered ? FontStyle.Bold | FontStyle.Underline : FontStyle.Bold);
                 using var amountBrush = new SolidBrush(GetExpenseColor(ctx, totalExpenses));
 
                 string amountText = showCurrency ?
                     $"{currencySymbol}{totalExpenses.ToString("N0", CultureInfo.CurrentCulture)}" :
                     totalExpenses.ToString("N0", CultureInfo.CurrentCulture);
+                if (amountHovered) amountText += " - Click to drilldown";
 
-                var amountRect = new Rectangle(ctx.ContentRect.Left, ctx.ContentRect.Top + 10,
-                                             ctx.ContentRect.Width, 20);
-                g.DrawString(amountText, amountFont, amountBrush, amountRect);
+                g.DrawString(amountText, amountFont, amountBrush, _amountRect);
 
-                // Display expense count
                 int expenseCount = financeItems.Count(item => item.Value < 0);
-                using var countFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-                using var countBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
+                bool countHovered = IsAreaHovered("Expense_Count");
+                using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, countHovered ? FontStyle.Underline : FontStyle.Regular);
+                using var countBrush = new SolidBrush(countHovered ? (Theme?.PrimaryColor ?? Color.Red) : Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
 
                 string countText = $"{expenseCount} expense{(expenseCount != 1 ? "s" : "")}";
-                var countRect = new Rectangle(ctx.ContentRect.Left, amountRect.Bottom + 4,
-                                            ctx.ContentRect.Width, 14);
-                g.DrawString(countText, countFont, countBrush, countRect);
+                g.DrawString(countText, countFont, countBrush, _countRect);
 
-                // Display period if available
-                var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ?
-                    ctx.CustomData["LastUpdated"] : null;
+                var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ? ctx.CustomData["LastUpdated"] : null;
                 if (lastUpdated != null)
                 {
-                    using var periodFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-                    using var periodBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-
+                    using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+                    using var periodBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                     string periodText = $"Updated {lastUpdated}";
-                    var periodRect = new Rectangle(ctx.ContentRect.Left, countRect.Bottom + 2,
-                                                 ctx.ContentRect.Width, 12);
+                    var periodRect = new Rectangle(_countRect.Left, _countRect.Bottom + 2, _countRect.Width, 12);
                     g.DrawString(periodText, periodFont, periodBrush, periodRect);
                 }
             }
             else
             {
-                // Draw sample expense data
                 DrawSampleExpenseData(g, ctx, currencySymbol, showCurrency);
             }
         }
 
         private void DrawSampleExpenseData(Graphics g, WidgetContext ctx, string currencySymbol, bool showCurrency)
         {
-            using var amountFont = new Font(Owner.Font.FontFamily, 14f, FontStyle.Bold);
+            using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 14f, FontStyle.Bold);
             using var amountBrush = new SolidBrush(ctx.AccentColor);
-
             string amountText = showCurrency ? $"{currencySymbol}2,450" : "2450";
-            var amountRect = new Rectangle(ctx.ContentRect.Left, ctx.ContentRect.Top + 10,
-                                         ctx.ContentRect.Width, 20);
-            g.DrawString(amountText, amountFont, amountBrush, amountRect);
+            g.DrawString(amountText, amountFont, amountBrush, _amountRect);
 
-            using var countFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
-            using var countBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
-
+            using var countFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
+            using var countBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
             string countText = "12 expenses";
-            var countRect = new Rectangle(ctx.ContentRect.Left, amountRect.Bottom + 4,
-                                        ctx.ContentRect.Width, 14);
-            g.DrawString(countText, countFont, countBrush, countRect);
+            g.DrawString(countText, countFont, countBrush, _countRect);
 
-            using var periodFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
-            using var periodBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-
+            using var periodFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 7f, FontStyle.Regular);
+            using var periodBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
             string periodText = "This month";
-            var periodRect = new Rectangle(ctx.ContentRect.Left, countRect.Bottom + 2,
-                                         ctx.ContentRect.Width, 12);
+            var periodRect = new Rectangle(_countRect.Left, _countRect.Bottom + 2, _countRect.Width, 12);
             g.DrawString(periodText, periodFont, periodBrush, periodRect);
         }
 
         private void DrawExpenseIcon(Graphics g, WidgetContext ctx)
         {
-            // Check if custom icon path is provided
             var iconPath = ctx.CustomData.ContainsKey("IconPath") ? ctx.CustomData["IconPath"]?.ToString() : null;
-            
             if (!string.IsNullOrEmpty(iconPath))
             {
-                // Configure icon painter
-                _iconPainter.CurrentTheme = Theme;
-                _iconPainter.ImagePath = iconPath;
-                _iconPainter.ClipShape = ImageClipShape.Circle;
-                _iconPainter.ScaleMode = ImageScaleMode.KeepAspectRatio;
-                _iconPainter.ApplyThemeOnImage = true;
-                
-                // Draw icon with ImagePainter
-                _iconPainter.DrawImage(g, ctx.IconRect);
+                _imagePainter.CurrentTheme = Theme;
+                _imagePainter.ApplyThemeOnImage = true;
+                _imagePainter.ImagePath = iconPath;
+                _imagePainter.DrawImage(g, ctx.IconRect);
             }
             else
             {
-                // Fallback: Draw a simple expense icon (dollar sign in circle)
                 using var iconBrush = new SolidBrush(ctx.AccentColor);
                 g.FillEllipse(iconBrush, ctx.IconRect);
-
-                using var symbolFont = new Font("Arial", 10f, FontStyle.Bold);
-                using var symbolBrush = new SolidBrush(Color.White);
-                g.DrawString("$", symbolFont, symbolBrush, ctx.IconRect,
-                           new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+                using var symbolFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+                using var symbolBrush = new SolidBrush(Theme?.BackColor ?? Color.White);
+                g.DrawString("$", symbolFont, symbolBrush, ctx.IconRect, new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
             }
-        }
-
-        private void DrawCategoryIndicator(Graphics g, WidgetContext ctx)
-        {
-            // Draw a small colored indicator based on expense category
-            var indicatorRect = new Rectangle(ctx.DrawingRect.Left + 8, ctx.DrawingRect.Top + 8, 4, 16);
-            using var indicatorBrush = new SolidBrush(ctx.AccentColor);
-            g.FillRectangle(indicatorBrush, indicatorRect);
         }
 
         private Color GetExpenseColor(WidgetContext ctx, double amount)
         {
-            // Color code based on expense amount ranges
             if (amount > 5000)
-                return ctx.CustomData.ContainsKey("NegativeColor") ?
-                    (Color)ctx.CustomData["NegativeColor"] : Color.Red;
+                return ctx.CustomData.ContainsKey("NegativeColor") ? (Color)ctx.CustomData["NegativeColor"] : Color.Red;
             else if (amount > 1000)
-                return ctx.CustomData.ContainsKey("NeutralColor") ?
-                    (Color)ctx.CustomData["NeutralColor"] : Color.Orange;
+                return ctx.CustomData.ContainsKey("NeutralColor") ? (Color)ctx.CustomData["NeutralColor"] : Color.Orange;
             else
                 return ctx.AccentColor;
+        }
+
+        private void HandleAmountClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowExpenseDetails"] = true;
+            Owner?.Invalidate();
+        }
+        private void HandleCountClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowExpensesList"] = true;
+            Owner?.Invalidate();
+        }
+        private void HandleIconClick(WidgetContext ctx)
+        {
+            ctx.CustomData["ShowIconInfo"] = true;
+            Owner?.Invalidate();
         }
 
         public void Dispose()

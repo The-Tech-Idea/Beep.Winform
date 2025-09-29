@@ -49,13 +49,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             // Draw title with icon
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+                using var titleFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var titleBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
                 
                 // Progress icon
@@ -109,13 +109,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
                 var fillRect = new Rectangle(progressRect.X, progressRect.Y, fillWidth, progressRect.Height);
                 
                 using var fillPath = CreateRoundedPath(fillRect, fillRect.Height / 2);
-                var progressColor = ctx.AccentColor ?? Theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+                var progressColor = ctx.AccentColor != Color.Empty ? ctx.AccentColor : (Theme != null ? Theme.PrimaryColor : Color.FromArgb(33, 150, 243));
                 
-                using var fillBrush = new LinearGradientBrush(fillRect, 
-                    progressColor, 
-                    Color.FromArgb(Math.Min(255, progressColor.R + 30), 
-                                 Math.Min(255, progressColor.G + 30), 
-                                 Math.Min(255, progressColor.B + 30)), 
+                var lighter = Color.FromArgb(
+                    Math.Min(255, progressColor.R + 30),
+                    Math.Min(255, progressColor.G + 30),
+                    Math.Min(255, progressColor.B + 30));
+                using var fillBrush = new LinearGradientBrush(
+                    new RectangleF(fillRect.X, fillRect.Y, fillRect.Width, fillRect.Height),
+                    progressColor,
+                    lighter,
                     LinearGradientMode.Vertical);
                 g.FillPath(fillBrush, fillPath);
             }
@@ -124,7 +127,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             if (ctx.CustomData.ContainsKey("ShowPercentage") && 
                 (bool)ctx.CustomData["ShowPercentage"])
             {
-                using var percentFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Medium);
+                using var percentFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                 using var percentBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
                 
                 var percentText = $"{progress:P0}";

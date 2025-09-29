@@ -28,7 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 20;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
 
             // Icon in top-left
             int iconSize = 32;
@@ -74,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         public override void DrawContent(Graphics g, WidgetContext ctx)
         {
             // Configure ImagePainter with theme
-            _imagePainter.Theme = Theme;
+            _imagePainter.CurrentTheme = Theme;
             _imagePainter.UseThemeColors = true;
 
             // Draw modern metric card content
@@ -105,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         {
             if (string.IsNullOrEmpty(ctx.Title)) return;
 
-            using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Medium);
+            using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Regular);
             using var titleBrush = new SolidBrush(Color.FromArgb(140, Theme?.ForeColor ?? Color.Black));
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
@@ -115,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
         {
             if (string.IsNullOrEmpty(ctx.Value)) return;
 
-            using var valueFont = new Font(Owner.Font.FontFamily, 24f, FontStyle.Bold);
+            using var valueFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 24f, FontStyle.Bold);
             using var valueBrush = new SolidBrush(Theme?.ForeColor ?? Color.Black);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             
@@ -142,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             // Trend text
             var textRect = new Rectangle(trendIconRect.Right + 4, trendRect.Y, 
                 trendRect.Width - iconSize - 4, trendRect.Height);
-            using var trendFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Medium);
+            using var trendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 9f, FontStyle.Regular);
             using var trendBrush = new SolidBrush(ctx.TrendColor);
             var format = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
             g.DrawString(ctx.TrendValue, trendFont, trendBrush, textRect, format);
@@ -178,7 +179,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
             // Draw trend
             if (ctx.ShowTrend && !string.IsNullOrEmpty(ctx.TrendValue))
             {
-                using var trendFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
+                using var trendFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
                 using var trendBrush = new SolidBrush(ctx.TrendColor);
                 var format = new StringFormat { Alignment = StringAlignment.Far, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.TrendValue, trendFont, trendBrush, ctx.TrendRect, format);
@@ -187,10 +188,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Metric
 
         public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle> notifyAreaHit)
         {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            
             // Icon is clickable if shown
             if (ctx.ShowIcon && !ctx.IconRect.IsEmpty)
             {
-                owner.AddHitArea("CardIcon", ctx.IconRect, null, () => notifyAreaHit?.Invoke("CardIcon", ctx.IconRect));
+                owner.AddHitArea("CardMetric_Icon", ctx.IconRect, null, () =>
+                {
+                    ctx.CustomData["IconClicked"] = true;
+                    notifyAreaHit?.Invoke("CardMetric_Icon", ctx.IconRect);
+                    Owner?.Invalidate();
+                });
             }
         }
 

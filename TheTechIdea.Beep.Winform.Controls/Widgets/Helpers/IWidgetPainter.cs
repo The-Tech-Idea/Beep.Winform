@@ -63,7 +63,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
         // Interactive properties
         public bool IsInteractive;
         public Dictionary<string, object> CustomData = new Dictionary<string, object>();
-        
+        public List<string> CustomImagePaths = new List<string>();
+        public Rectangle SubHeaderRect { get; internal set; }
+        public Rectangle AvatarRect { get; internal set; }
+        public string ImagePath { get;  set; }
+        public bool ShowStatus { get; internal set; }
+        public string? IconPath { get; internal set; }
+
         // Note: We don't need ClickableAreas here because BaseControl handles hit areas
         // through its AddHitArea(), ClearHitList(), HitTest(), etc. methods
         // Painters will use owner.AddHitArea() in UpdateHitAreas() method

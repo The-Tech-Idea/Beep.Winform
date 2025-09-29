@@ -38,6 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets
         private string _description = "";
         private Color _accentColor = Color.FromArgb(33, 150, 243); // Blue
         private Color _validColor = Color.FromArgb(76, 175, 80); // Green
+        private Color _invalidColor;
         private Color _errorColor = Color.FromArgb(244, 67, 54); // Red
         private Color _warningColor = Color.FromArgb(255, 193, 7); // Amber
         private Color _textBoxBackColor = Color.White;

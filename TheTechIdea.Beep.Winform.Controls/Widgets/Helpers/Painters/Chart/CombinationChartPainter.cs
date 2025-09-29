@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
 {
@@ -12,10 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
     /// </summary>
     internal sealed class CombinationChartPainter : WidgetPainterBase
     {
+        private Rectangle _chartRectCache;
         public override WidgetContext AdjustLayout(Rectangle drawingRect, WidgetContext ctx)
         {
             int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
+            var baseRect = Owner?.DrawingRect ?? drawingRect;
+            ctx.DrawingRect = Rectangle.Inflate(baseRect, -8, -8);
 
             ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, 20);
 
@@ -30,6 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                 chartHeight
             );
 
+            _chartRectCache = ctx.ChartRect;
             return ctx;
         }
 
@@ -46,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
             // Draw title
             if (!string.IsNullOrEmpty(ctx.Title))
             {
-                using var titleFont = new Font(Owner.Font.FontFamily, 10f, FontStyle.Bold);
-                using var titleBrush = new SolidBrush(Color.FromArgb(150, Color.Black));
+                using var titleFont = new Font(Owner?.Font?.FontFamily ?? SystemFonts.DefaultFont.FontFamily, 10f, FontStyle.Bold);
+                using var titleBrush = new SolidBrush(Color.FromArgb(150, Theme?.ForeColor ?? Color.Black));
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(ctx.Title, titleFont, titleBrush, ctx.HeaderRect, format);
             }
@@ -60,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                 if (halfCount > 0)
                 {
                     var barValues = ctx.Values.Take(halfCount).ToList();
-                    WidgetRenderingHelpers.DrawBarChart(g, ctx.ChartRect, barValues, Color.FromArgb(100, ctx.AccentColor), Color.FromArgb(10, Color.Gray));
+                    WidgetRenderingHelpers.DrawBarChart(g, ctx.ChartRect, barValues, Color.FromArgb(100, ctx.AccentColor), Color.FromArgb(10, Theme?.BorderColor ?? Color.Gray));
                 }
 
                 // Draw line (second half of values)
@@ -70,11 +73,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Chart
                     WidgetRenderingHelpers.DrawLineChart(g, ctx.ChartRect, lineValues, ctx.AccentColor, 2f);
                 }
             }
+
+            // Hover overlay
+            if (IsAreaHovered("CombinationChart_Chart"))
+            {
+                using var hover = new SolidBrush(Color.FromArgb(10, Theme?.PrimaryColor ?? Color.Blue));
+                g.FillRoundedRectangle(hover, Rectangle.Inflate(ctx.ChartRect, 2, 2), 6);
+            }
         }
 
         public override void DrawForegroundAccents(Graphics g, WidgetContext ctx)
         {
             // Draw combination legend or indicators
+        }
+
+        public override void UpdateHitAreas(BaseControl owner, WidgetContext ctx, Action<string, Rectangle>? notifyAreaHit)
+        {
+            if (owner == null) return;
+            ClearOwnerHitAreas();
+            if (!_chartRectCache.IsEmpty)
+            {
+                owner.AddHitArea("CombinationChart_Chart", _chartRectCache, null, () =>
+                {
+                    ctx.CustomData["CombinationChartClicked"] = true;
+                    notifyAreaHit?.Invoke("CombinationChart_Chart", _chartRectCache);
+                    Owner?.Invalidate();
+                });
+            }
         }
     }
 }

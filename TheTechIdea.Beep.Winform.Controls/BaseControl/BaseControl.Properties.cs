@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 
 
 
@@ -17,6 +18,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 {
     public partial class BaseControl
     {
+        #region Painter strategy
+        public enum BaseControlPainterKind
+        {
+            Auto,
+            Classic,
+            Material,
+            Card,
+            NeoBrutalist
+        }
+
+        private BaseControlPainterKind _painterKind = BaseControlPainterKind.Auto;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Select the painter (renderer) used to draw the control. Auto picks Material when Material Style is enabled, otherwise Classic.")]
+        public BaseControlPainterKind PainterKind
+        {
+            get => _painterKind;
+            set
+            {
+                if (_painterKind == value) return;
+                _painterKind = value;
+                UpdatePainterFromKind();
+                Invalidate();
+            }
+        }
+
+        private void UpdatePainterFromKind()
+        {
+            EnableMaterialStyle = false;
+            switch (_painterKind)
+            {
+                case BaseControlPainterKind.Classic:
+                    _painter = new ClassicBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Material:
+                    _painter = new MaterialBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Card:
+                    _painter = new CardBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.NeoBrutalist:
+                    _painter = new NeoBrutalistBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Auto:
+                default:
+                    _painter = EnableMaterialStyle ? new MaterialBaseControlPainter() : new ClassicBaseControlPainter();
+                    break;
+            }
+        }
+        #endregion
+
         #region Text Property Override
         [Browsable(true)]
         [Category("Appearance")]

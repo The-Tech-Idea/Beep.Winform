@@ -1,4 +1,5 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
@@ -793,7 +794,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private Controls.BeepLabel beepLabel1;
         private Controls.BeepComboBox beepComboBox1;
         private Controls.BeepLabel beepLabel2;
-        private Controls.BeepButton AddSourcebeepButton;
+        private BeepButton AddSourcebeepButton;
         private Controls.BeepCheckBoxBool beepCheckBoxBool1;
     }
 }

@@ -54,6 +54,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // beepuiManager1
             // 
             beepuiManager1.BeepMenuBar = beepMenuAppBar1;
+            beepuiManager1.DisplayContainer = beepDisplayContainer1;
             beepuiManager1.IsRounded = false;
             beepuiManager1.ShowBorder = false;
             beepuiManager1.Title = "Beep";
@@ -102,6 +103,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.CanBeFocused = false;
             beepMenuAppBar1.CanBeHovered = true;
             beepMenuAppBar1.CanBePressed = true;
+            beepMenuAppBar1.CanBeSelected = false;
             beepMenuAppBar1.Category = Utilities.DbFieldCategory.String;
             beepMenuAppBar1.ComponentName = "BaseControl";
             beepMenuAppBar1.DataSourceProperty = null;
@@ -193,6 +195,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.ModernGradientType = ModernGradientType.None;
             beepMenuAppBar1.Name = "beepMenuAppBar1";
             beepMenuAppBar1.OverrideFontSize = TypeStyleFontSize.None;
+            beepMenuAppBar1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
             beepMenuAppBar1.ParentBackColor = Color.Empty;
             beepMenuAppBar1.ParentControl = null;
             beepMenuAppBar1.PressedBackColor = Color.Gray;
@@ -390,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 2;
+            beepAppTree1.SeqID = 1;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 0;
             beepAppTree1.ShadowOpacity = 0.5F;
@@ -469,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.DisabledForeColor = Color.Black;
             beepDisplayContainer1.DisableDpiAndScaling = true;
             beepDisplayContainer1.Dock = DockStyle.Fill;
-            beepDisplayContainer1.DrawingRect = new Rectangle(0, 0, 787, 710);
+            beepDisplayContainer1.DrawingRect = new Rectangle(2, 2, 783, 706);
             beepDisplayContainer1.Easing = EasingType.Linear;
             beepDisplayContainer1.EnableHighQualityRendering = true;
             beepDisplayContainer1.EnableRippleEffect = false;
@@ -533,6 +536,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.ModernGradientType = ModernGradientType.None;
             beepDisplayContainer1.Name = "beepDisplayContainer1";
             beepDisplayContainer1.OverrideFontSize = TypeStyleFontSize.None;
+            beepDisplayContainer1.Padding = new Padding(2);
             beepDisplayContainer1.ParentBackColor = Color.Empty;
             beepDisplayContainer1.ParentControl = null;
             beepDisplayContainer1.PressedBackColor = Color.White;
@@ -590,6 +594,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             ClientSize = new Size(1200, 800);
             Controls.Add(splitContainer2);
             Name = "MainFrm";
+            ShowStyleButton = true;
+            ShowThemeButton = true;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("MainFrm.StylePresets.Presets");
             Text = "Beep";
             Theme = "DefaultTheme";

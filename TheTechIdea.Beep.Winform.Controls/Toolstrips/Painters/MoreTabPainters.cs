@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
         public override string Key => nameof(ToolStripPainterKind.TabsSegmentedEqual);
         public override void Paint(Graphics g, Rectangle bounds, IBeepTheme theme, BeepToolStrip owner, IReadOnlyDictionary<string, object> parameters)
         {
-            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
             using var bg = new SolidBrush(owner.BackColor);
             g.FillRectangle(bg, bounds);
             if (owner.Buttons == null || owner.Buttons.Count == 0) return;
@@ -46,7 +46,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
                 int available = bounds.Width - spacing * (owner.Buttons.Count + 1);
                 int piece = System.Math.Max(20, available / owner.Buttons.Count);
                 int x = bounds.Left + spacing;
-                int y = bounds.Top + spacing;
                 for (int i = 0; i < owner.Buttons.Count; i++)
                 {
                     var rect = new Rectangle(x, bounds.Top + spacing, piece, bounds.Height - spacing * 2);
@@ -56,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             }
         }
 
-        private void DrawOne(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, Font font, int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
+        private void DrawOne(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font, int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             using var brd = new Pen(theme.BorderColor, 1);
             g.DrawRectangle(brd, rect);
@@ -68,8 +67,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             }
             var tc = selected ? theme.MenuItemSelectedForeColor : theme.MenuItemForeColor;
             Rectangle iconRect = Rectangle.Empty; Rectangle textRect = rect;
-            string text = string.IsNullOrEmpty(item.Text) ? item.Name : item.Text;
-            if (!string.IsNullOrEmpty(item.ImagePath))
+            string text = string.IsNullOrEmpty(item?.Text) ? item?.Name ?? string.Empty : item.Text;
+            if (item != null && !string.IsNullOrEmpty(item.ImagePath))
             {
                 if (iconPlacement.Equals("Left", System.StringComparison.OrdinalIgnoreCase))
                 { iconRect = new Rectangle(rect.Left + padH, rect.Top + (rect.Height - iconSize) / 2, iconSize, iconSize); textRect = new Rectangle(iconRect.Right + iconGap, rect.Top, rect.Right - (iconRect.Right + iconGap) - padH, rect.Height); }
@@ -80,14 +79,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             TextRenderer.DrawText(g, text, font, textRect, tc, TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter);
         }
 
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, Font font, int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement) { }
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font, int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement) { }
     }
 
     // 2) Shadow only on selected tabs
     internal sealed class SelectedShadowTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsSelectedShadow);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             bool selected = index == owner.SelectedIndex;
@@ -106,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             g.DrawPath(border, path);
 
             Rectangle iconRect = Rectangle.Empty; Rectangle textRect = rect;
-            if (!string.IsNullOrEmpty(item.ImagePath))
+            if (item != null && !string.IsNullOrEmpty(item.ImagePath))
             {
                 if (iconPlacement.Equals("Left", System.StringComparison.OrdinalIgnoreCase))
                 { iconRect = new Rectangle(rect.Left + padH, rect.Top + (rect.Height - iconSize) / 2, iconSize, iconSize); textRect = new Rectangle(iconRect.Right + iconGap, rect.Top, rect.Right - (iconRect.Right + iconGap) - padH, rect.Height); }
@@ -123,13 +122,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
     internal sealed class RoundedUnderlineTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsRoundedUnderline);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             bool selected = index == owner.SelectedIndex;
 
             Rectangle iconRect = Rectangle.Empty; Rectangle textRect = rect;
-            if (!string.IsNullOrEmpty(item.ImagePath))
+            if (item != null && !string.IsNullOrEmpty(item.ImagePath))
             {
                 if (iconPlacement.Equals("Left", System.StringComparison.OrdinalIgnoreCase))
                 { iconRect = new Rectangle(rect.Left + padH, rect.Top + (rect.Height - iconSize) / 2, iconSize, iconSize); textRect = new Rectangle(iconRect.Right + iconGap, rect.Top, rect.Right - (iconRect.Right + iconGap) - padH, rect.Height); }

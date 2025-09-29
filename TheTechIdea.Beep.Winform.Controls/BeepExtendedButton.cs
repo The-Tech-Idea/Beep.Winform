@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
+ 
 using TheTechIdea.Beep.Winform.Controls.Models;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;

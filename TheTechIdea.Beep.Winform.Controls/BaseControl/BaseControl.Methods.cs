@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -418,6 +419,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 g.InterpolationMode = InterpolationMode.NearestNeighbor;
                 g.PixelOffsetMode = PixelOffsetMode.Default;
                 g.TextRenderingHint = TextRenderingHint.SystemDefault;
+            }
+
+            // Painter strategy takes precedence when available
+            if (_painter != null)
+            {
+                _painter.UpdateLayout(this);
+                _painter.Paint(g, this);
+
+                // Let painter register hit areas; wire actions when available
+                _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, this, action));
+                return;
             }
 
             if (EnableMaterialStyle)
@@ -846,6 +858,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (EnableMaterialStyle && MaterialAutoSizeCompensation && !_isInitializing)
             {
                 ApplyMaterialSizeCompensation();
+            }
+
+            // Keep painter strategy in sync if painter auto-select is used
+            if (_painter != null)
+            {
+                // Auto-switch painter when Material toggle changes
+                _painter = EnableMaterialStyle ? new MaterialBaseControlPainter() : new ClassicBaseControlPainter();
             }
         }
 

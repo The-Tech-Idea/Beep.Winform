@@ -1,0 +1,22 @@
+{
+  "gnome.adwaita.light": {
+    "BorderRadius": 6,
+    "BorderThickness": 1,
+    "ShadowDepth": 6,
+    "EnableGlow": false,
+    "GlowSpread": 0,
+    "CaptionHeight": 34,
+    "RibbonHeight": 76,
+    "CaptionButtonSize": 26
+  },
+  "gnome.adwaita.dark": {
+    "BorderRadius": 6,
+    "BorderThickness": 1,
+    "ShadowDepth": 8,
+    "EnableGlow": false,
+    "GlowSpread": 0,
+    "CaptionHeight": 34,
+    "RibbonHeight": 76,
+    "CaptionButtonSize": 26
+  }
+}

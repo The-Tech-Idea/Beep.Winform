@@ -12,6 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Forms.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Managers;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using System.Diagnostics;
+using TheTechIdea.Beep.Winform.Controls.Forms.Caption;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -229,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private Rectangle _snapLeft, _snapRight, _snapTop; private bool _showSnapOverlay;
         private void SnapHints_OnMouseMove(MouseEventArgs e) { if (InDesignHost || !_showSnapHints) return; if (WindowState == FormWindowState.Normal && (MouseButtons & MouseButtons.Left) == MouseButtons.Left) { var screen = Screen.FromPoint(Cursor.Position).WorkingArea; int thickness = 8; _snapLeft = new Rectangle(screen.Left, screen.Top, thickness, screen.Height); _snapRight = new Rectangle(screen.Right - thickness, screen.Top, thickness, screen.Height); _snapTop = new Rectangle(screen.Left, screen.Top, screen.Width, thickness); _showSnapOverlay = true; Invalidate(); } else if (_showSnapOverlay) { _showSnapOverlay = false; Invalidate(); } }
         private void SnapHints_OnMouseLeave() { if (_showSnapOverlay) { _showSnapOverlay = false; Invalidate(); } }
-        private void SnapHints_OnPaintOverlay(Graphics g) { if (InDesignHost || !_showSnapOverlay) return; using var br = new SolidBrush(Color.FromArgb(40, 0, 120, 215)); g.FillRectangle(br, _snapLeft); g.FillRectangle(br, _snapRight); g.FillRectangle(br, _snapTop); }
+        private void SnapHints_OnPaintOverlay(Graphics g) { if (InDesignHost || !_showSnapHints) return; using var br = new SolidBrush(Color.FromArgb(40, 0, 120, 215)); g.FillRectangle(br, _snapLeft); g.FillRectangle(br, _snapRight); g.FillRectangle(br, _snapTop); }
         #endregion
 
         #region DPI handling mode
@@ -266,6 +267,68 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _useImmersiveDarkMode = false;
         private void ApplyImmersiveDarkMode() { if (InDesignHost || !IsHandleCreated) return; try { int value = _useImmersiveDarkMode ? 1 : 0; DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, Marshal.SizeOf<int>()); } catch { } }
         private void InitializeCaptionHelperWithLegacyState() { if (_captionHelper != null) { _captionHelper.ShowCaptionBar = _legacyShowCaptionBar; _captionHelper.ShowSystemButtons = _legacyShowSystemButtons; _captionHelper.EnableCaptionGradient = _legacyEnableCaptionGradient; _captionHelper.CaptionHeight = _legacyCaptionHeight; } }
+
+        // New: expose CaptionRendererKind
+        [Category("Beep Caption")]
+        [DefaultValue(Forms.Caption.CaptionRendererKind.Windows)]
+        [TypeConverter(typeof(TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design.CaptionRendererKindConverter))]
+        [Editor(typeof(TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design.CaptionRendererKindEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        public Forms.Caption.CaptionRendererKind CaptionRenderer
+        {
+            get => _captionHelper?.RendererKind ?? Forms.Caption.CaptionRendererKind.Windows;
+            set { _captionHelper?.SwitchRenderer(value); Invalidate(); }
+        }
+
+        // New: separate buttons in caption bar
+        [Category("Beep Caption"), DefaultValue(false)]
+        public bool ShowThemeButton
+        {
+            get => _captionHelper?.ShowThemeButton ?? false;
+            set { if (_captionHelper != null) { _captionHelper.ShowThemeButton = value; Invalidate(); } }
+        }
+
+        [Category("Beep Caption"), DefaultValue(false)]
+        public bool ShowStyleButton
+        {
+            get => _captionHelper?.ShowStyleButton ?? false;
+            set { if (_captionHelper != null) { _captionHelper.ShowStyleButton = value; Invalidate(); } }
+        }
+
+        [Category("Beep Caption"), Description("Icon path for the Theme button (optional)"), Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        ]
+        public string ThemeButtonIconPath
+        {
+            get => _captionHelper?.ThemeButtonIconPath ?? string.Empty;
+            set { if (_captionHelper != null) { _captionHelper.ThemeButtonIconPath = value; Invalidate(); } }
+        }
+
+        [Category("Beep Caption"), Description("Icon path for the Style button (optional)"), Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        ]
+        public string StyleButtonIconPath
+        {
+            get => _captionHelper?.StyleButtonIconPath ?? string.Empty;
+            set { if (_captionHelper != null) { _captionHelper.StyleButtonIconPath = value; Invalidate(); } }
+        }
+
+        // Kept for backward compatibility but hidden
+        [Browsable(false)]
+        [DefaultValue(Forms.Caption.CaptionBarExtraButtonKind.None)]
+        public Forms.Caption.CaptionBarExtraButtonKind CaptionExtraButton
+        {
+            get
+            {
+                if ((_captionHelper?.ShowThemeButton ?? false) && !(_captionHelper?.ShowStyleButton ?? false)) return Forms.Caption.CaptionBarExtraButtonKind.Themes;
+                if (!(_captionHelper?.ShowThemeButton ?? false) && (_captionHelper?.ShowStyleButton ?? false)) return Forms.Caption.CaptionBarExtraButtonKind.StyleToggle;
+                return Forms.Caption.CaptionBarExtraButtonKind.None;
+            }
+            set
+            {
+                if (_captionHelper == null) return;
+                _captionHelper.ShowThemeButton = value == Forms.Caption.CaptionBarExtraButtonKind.Themes;
+                _captionHelper.ShowStyleButton = value == Forms.Caption.CaptionBarExtraButtonKind.StyleToggle;
+                Invalidate();
+            }
+        }
         #endregion
 
         #region Properties

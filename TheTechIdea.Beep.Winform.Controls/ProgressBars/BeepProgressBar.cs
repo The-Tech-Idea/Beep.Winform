@@ -277,6 +277,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         {
             if (Width <= 0 || Height <= 0) { Width = 400; Height = GetHeightForSize(_barSize); }
             DoubleBuffered = true; BorderRadius = 6; IsRounded = true;
+            // enforce a safe minimum without mutating size during Resize
+            MinimumSize = new Size(8, 2);
             _textBrush = new SolidBrush(Color.White);
             _progressBrush = new SolidBrush(Color.FromArgb(52, 152, 219));
             _borderPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1);
@@ -286,6 +288,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         }
 
         private int GetHeightForSize(ProgressBarSize size) => size switch { ProgressBarSize.Thin => 4, ProgressBarSize.Small => 8, ProgressBarSize.Medium => 12, ProgressBarSize.Large => 20, ProgressBarSize.ExtraLarge => 30, _ => 12 };
+        protected override void OnResize(EventArgs e)
+        {
+            // Do not mutate Width/Height here to avoid re-entrant layout and designer issues.
+            base.OnResize(e);
+            Invalidate();
+        }
+
         private void UpdateSizeForStyle()
         {
             if (_barSize != ProgressBarSize.Medium || _style == ProgressBarStyle.Segmented)
@@ -331,27 +340,64 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         #region Painter pipeline
         protected override void DrawContent(Graphics g)
         {
+            // Guard against invalid graphics or size during designer resize
+            if (g == null || Width <= 0 || Height <= 0)
+                return;
+
+            // Ensure painters are available
             if (_painters != null && _painters.Count == 0) EnsureDefaultPainters();
             var activePainter = GetActivePainter();
             if (activePainter != null)
             {
-                var rect = DrawingRect; rect.Inflate(-BorderThickness, -BorderThickness);
-                activePainter.Paint(g, rect, _currentTheme, this, Parameters);
-                _areaRects.Clear(); ClearHitList();
-                activePainter.UpdateHitAreas(this, rect, _currentTheme, Parameters, (name, r) =>
+                // Clamp drawing rectangle to valid positive size
+                var rect = DrawingRect;
+                if (rect.Width <= 0 || rect.Height <= 0)
+                    return;
+
+                int shrink = Math.Max(0, BorderThickness);
+                int maxShrink = Math.Min(rect.Width / 2, rect.Height / 2);
+                if (shrink > maxShrink) shrink = maxShrink;
+                rect.Inflate(-shrink, -shrink);
+                if (rect.Width <= 0 || rect.Height <= 0)
+                    return;
+
+                try
                 {
-                    _areaRects[name] = r;
-                    AddHitArea(name, r, this, () =>
+                    activePainter.Paint(g, rect, _currentTheme, this, Parameters);
+                }
+                catch (ArgumentException)
+                {
+                    // Safety in designer when GDI receives invalid params
+                    if (LicenseManager.UsageMode != LicenseUsageMode.Designtime) throw;
+                    return;
+                }
+
+                _areaRects.Clear();
+                ClearHitList();
+
+                try
+                {
+                    activePainter.UpdateHitAreas(this, rect, _currentTheme, Parameters, (name, r) =>
                     {
-                        if (name.StartsWith("Step:"))
+                        // Avoid registering invalid rectangles
+                        if (r.Width <= 0 || r.Height <= 0) return;
+                        _areaRects[name] = r;
+                        AddHitArea(name, r, this, () =>
                         {
-                            StepClicked?.Invoke(this, System.EventArgs.Empty);
-                            if (int.TryParse(name.Substring(5), out var sIdx)) { StepIndexClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); if (PainterKind == ProgressPainterKind.ChevronSteps) ChevronStepClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); }
-                        }
-                        else if (name.StartsWith("Dot:")) { if (int.TryParse(name.Substring(4), out var dIdx)) DotClicked?.Invoke(this, new ProgressDotEventArgs(dIdx)); }
-                        else if (name == "Ring" || name == "RingDots") { RingClicked?.Invoke(this, System.EventArgs.Empty); }
+                            if (name.StartsWith("Step:"))
+                            {
+                                StepClicked?.Invoke(this, System.EventArgs.Empty);
+                                if (int.TryParse(name.Substring(5), out var sIdx)) { StepIndexClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); if (PainterKind == ProgressPainterKind.ChevronSteps) ChevronStepClicked?.Invoke(this, new ProgressStepEventArgs(sIdx)); }
+                            }
+                            else if (name.StartsWith("Dot:")) { if (int.TryParse(name.Substring(4), out var dIdx)) DotClicked?.Invoke(this, new ProgressDotEventArgs(dIdx)); }
+                            else if (name == "Ring" || name == "RingDots") { RingClicked?.Invoke(this, System.EventArgs.Empty); }
+                        });
                     });
-                });
+                }
+                catch (ArgumentException)
+                {
+                    if (LicenseManager.UsageMode != LicenseUsageMode.Designtime) throw;
+                }
                 return;
             }
             // No fallback owner drawing; painters are mandatory

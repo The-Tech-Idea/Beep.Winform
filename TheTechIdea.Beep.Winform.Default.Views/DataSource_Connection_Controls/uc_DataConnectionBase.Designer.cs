@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
+﻿
+using TheTechIdea.Beep.Winform.Controls;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     partial class uc_DataConnectionBase
     {
@@ -1394,8 +1397,8 @@
         protected Controls.BeepTextBox ConnectionStringbeepTextBox;
         protected Controls.BeepComboBox DriverVersionbeepComboBox;
         protected Controls.BeepComboBox DriverbeepComboBox;
-        protected Controls.BeepButton CancelbeepButton;
-        protected Controls.BeepButton SavebeepButton;
+        protected BeepButton CancelbeepButton;
+        protected BeepButton SavebeepButton;
         public Controls.BeepTabs beepTabs1;
       
         protected TabPage tabPage1;

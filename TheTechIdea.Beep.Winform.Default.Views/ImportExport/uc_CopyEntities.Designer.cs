@@ -1,6 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
@@ -35,12 +36,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             BeepRowConfig beepRowConfig1 = new BeepRowConfig();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(uc_CopyEntities));
             beepSimpleGrid1 = new TheTechIdea.Beep.Winform.Controls.BeepSimpleGrid();
-            progressBar1 = new TheTechIdea.Beep.Winform.Controls.BeepProgressBar();
+            progressBar1 = new BeepProgressBar();
             LogtextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             beepPanel1 = new TheTechIdea.Beep.Winform.Controls.BeepPanel();
             beepNumericUpDown1 = new TheTechIdea.Beep.Winform.Controls.BeepNumericUpDown();
-            RunScriptsbeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
-            StopbeepButton = new TheTechIdea.Beep.Winform.Controls.BeepButton();
+            RunScriptsbeepButton = new BeepButton();
+            StopbeepButton = new BeepButton();
             beepPanel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -327,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             progressBar1.UseGradientBackground = false;
             progressBar1.UseThemeFont = true;
             progressBar1.Value = 0;
-            progressBar1.VisualMode = Winform.Controls.ProgressBarDisplayMode.CurrProgress;
+            progressBar1.VisualMode =ProgressBarDisplayMode.CurrProgress;
             // 
             // LogtextBox
             // 
@@ -999,12 +1000,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 
         #endregion
 
-        private Controls.BeepSimpleGrid beepSimpleGrid1;
-        private Controls.BeepProgressBar progressBar1;
+        private BeepSimpleGrid beepSimpleGrid1;
+        private BeepProgressBar progressBar1;
         private BeepTextBox LogtextBox;
         private Controls.BeepPanel beepPanel1;
-        private Controls.BeepButton RunScriptsbeepButton;
+        private BeepButton RunScriptsbeepButton;
         private Controls.BeepNumericUpDown beepNumericUpDown1;
-        private Controls.BeepButton StopbeepButton;
+        private BeepButton StopbeepButton;
     }
 }

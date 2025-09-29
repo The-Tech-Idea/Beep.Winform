@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using System.Drawing;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -87,6 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         internal ControlDpiHelper _dpi;
         internal ControlDataBindingHelper _dataBinding;
         internal BaseControlMaterialHelper _materialHelper;
+        internal IBaseControlPainter _painter; // strategy-based painter (optional)
 
         // Internal access to paint helper for helpers within the same assembly
         internal ControlPaintHelper PaintHelper => _paint;
@@ -184,6 +186,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     _materialHelper = new BaseControlMaterialHelper(this);
                 }
+                
+                // 5. Initialize default painter strategy (keeps behavior identical)
+                _painter = _bcEnableMaterialStyle ?
+                    new MaterialBaseControlPainter() as IBaseControlPainter :
+                    new ClassicBaseControlPainter();
                 
             }
             catch (Exception ex)

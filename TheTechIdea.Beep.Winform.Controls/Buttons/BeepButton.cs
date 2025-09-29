@@ -619,12 +619,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Enable material style for modern button appearance, but keep it compact
             EnableMaterialStyle = true;
-            StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
+            StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             ButtonAutoSizeForMaterial = false; // Default to false to prevent large buttons
             MaterialPreserveContentArea = true; // Preserve content area instead of expanding
 
             // Apply size compensation when handle is created if explicitly enabled
-            this.HandleCreated += (s, e) => {
+            HandleCreated += (s, e) => {
                 if (EnableMaterialStyle && ButtonAutoSizeForMaterial && !ButtonPreventAutoExpansion)
                 {
                     ApplyMaterialSizeCompensation();
@@ -768,7 +768,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (AutoSize)
             {
                 Size textSize = TextRenderer.MeasureText(Text, _textFont);
-                this.Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
+                Size = new Size(textSize.Width + Padding.Horizontal, textSize.Height + Padding.Vertical);
             }
         }
      
@@ -1006,7 +1006,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else if (hasImage && hasText)
             {
                 // Layout logic based on TextImageRelation when both text and image are present
-                switch (this.TextImageRelation)
+                switch (TextImageRelation)
                 {
                     case TextImageRelation.Overlay:
                         // ImagePath and text overlap
@@ -1359,7 +1359,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public void SetBinding(string controlProperty, string dataSourceProperty)
         {
             // Implementation for setting up data binding
-            this.DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
+            DataBindings.Add(controlProperty, DataContext, dataSourceProperty, true, DataSourceUpdateMode.OnPropertyChanged);
         }
         #endregion "Binding and Control Type"
         #region Splash Animation
@@ -1419,7 +1419,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Parent is BeepControl newBeepParent)
             {
                 // inherit splash effect setting from parent BeepControl
-                this.EnableSplashEffect = newBeepParent.EnableSplashEffect;
+                EnableSplashEffect = newBeepParent.EnableSplashEffect;
                 newBeepParent.AddChildExternalDrawing(
                     this,
                     DrawBadgeExternally,
@@ -1499,15 +1499,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Update image size to fit new size of control
             if (beepImage != null)
             {
-                if (_maxImageSize.Height > this.Height)
+                if (_maxImageSize.Height > Height)
                 {
-                    beepImage.Height = this.Height - 4;
-                    _maxImageSize.Height = this.Height - 4;
+                    beepImage.Height = Height - 4;
+                    _maxImageSize.Height = Height - 4;
                 }
-                if (_maxImageSize.Width > this.Width)
+                if (_maxImageSize.Width > Width)
                 {
-                    beepImage.Width = this.Width - 4;
-                    _maxImageSize.Width = this.Width - 4;
+                    beepImage.Width = Width - 4;
+                    _maxImageSize.Width = Width - 4;
                 }
             }
 
@@ -1531,9 +1531,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Draw the image if available
             if (beepImage != null && beepImage.HasImage)
             {
-                if (beepImage.Size.Width > this.Size.Width || beepImage.Size.Height > this.Size.Height)
+                if (beepImage.Size.Width > Size.Width || beepImage.Size.Height > Size.Height)
                 {
-                    imageSize = this.Size;
+                    imageSize = Size;
                 }
                 beepImage.MaximumSize = imageSize;
                 beepImage.Size = imageRect.Size;

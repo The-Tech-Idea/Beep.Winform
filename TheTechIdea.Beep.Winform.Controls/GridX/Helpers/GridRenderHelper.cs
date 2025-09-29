@@ -8,9 +8,10 @@ using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Winform.Controls; // BeepButton and other controls
+ 
 using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using ContentAlignment = System.Drawing.ContentAlignment;
 

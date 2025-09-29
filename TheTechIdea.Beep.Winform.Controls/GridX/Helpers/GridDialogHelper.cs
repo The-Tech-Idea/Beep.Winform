@@ -4,7 +4,9 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+ 
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers

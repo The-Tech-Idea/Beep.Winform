@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Editor.UOWManager.Models;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Integrated.Modules

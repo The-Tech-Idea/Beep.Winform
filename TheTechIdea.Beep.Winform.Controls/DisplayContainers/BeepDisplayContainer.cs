@@ -4,6 +4,7 @@ using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

@@ -10,6 +10,7 @@ using Timer = System.Windows.Forms.Timer;
 using System.Windows.Forms;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

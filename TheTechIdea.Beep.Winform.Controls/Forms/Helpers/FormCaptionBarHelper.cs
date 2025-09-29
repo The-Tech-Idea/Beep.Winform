@@ -3,7 +3,10 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Forms.Caption;
+using TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 {
@@ -26,6 +29,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         public bool ShowSystemButtons { get; set; } = true;
         public bool EnableCaptionGradient { get; set; } = true;
         
+        // Separate extra buttons
+        public bool ShowThemeButton { get; set; } = false;
+        public string ThemeButtonIconPath { get; set; } = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg";
+        private Rectangle _themeButtonRect;
+        private bool _themeHover;
+
+        public bool ShowStyleButton { get; set; } = false; // switches caption renderer (Windows/Mac/GNOME/KDE)
+        public string StyleButtonIconPath { get; set; } = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg";
+        private Rectangle _styleButtonRect;
+        private bool _styleHover;
+        
+        // Renderer strategy
+        private ICaptionRenderer _renderer;
+        public CaptionRendererKind RendererKind { get; private set; } = CaptionRendererKind.Windows;
+
         // Logo/Icon properties
         public string LogoImagePath
         {
@@ -95,6 +113,104 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             _registerPaddingProvider = registerPaddingProvider ?? throw new ArgumentNullException(nameof(registerPaddingProvider));
             _overlayRegistry.Add(PaintOverlay);
             _registerPaddingProvider((ref Padding p) => { if (ShowCaptionBar) p.Top += CaptionHeight; });
+
+            SetRenderer(CaptionRendererKind.Windows);
+        }
+
+        private void SetRenderer(CaptionRendererKind kind)
+        {
+            RendererKind = kind;
+            _renderer = kind switch
+            {
+                CaptionRendererKind.MacLike => new MacLikeCaptionRenderer(),
+                CaptionRendererKind.Gnome => new GnomeCaptionRenderer(),
+                CaptionRendererKind.Kde => new KdeCaptionRenderer(),
+                _ => new WindowsCaptionRenderer()
+            };
+            _renderer.UpdateHost(Form, () => Theme, () => CaptionHeight);
+            _renderer.SetShowSystemButtons(ShowSystemButtons);
+            ApplyRendererVisualDefaults(kind);
+            TryMapFormStyleAndPreset(kind);
+        }
+
+        private void TryMapFormStyleAndPreset(CaptionRendererKind kind)
+        {
+            try
+            {
+                // Map renderer to BeepFormStyle
+                var formType = _host.AsForm.GetType();
+                var formStyleProp = formType.GetProperty("FormStyle");
+                if (formStyleProp != null)
+                {
+                    var enumType = formStyleProp.PropertyType; // BeepFormStyle
+                    object styleValue = formStyleProp.GetValue(_host.AsForm);
+                    string targetStyleName = kind switch
+                    {
+                        CaptionRendererKind.MacLike => "Material",
+                        CaptionRendererKind.Gnome => "Minimal",
+                        CaptionRendererKind.Kde => "Modern",
+                        _ => "Modern"
+                    };
+                    foreach (var v in Enum.GetValues(enumType))
+                    {
+                        if (string.Equals(v.ToString(), targetStyleName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            formStyleProp.SetValue(_host.AsForm, v);
+                            break;
+                        }
+                    }
+                }
+
+                // Try to apply a preset if available
+                var applyPreset = _host.AsForm.GetType().GetMethod("ApplyPreset", new[] { typeof(string) });
+                if (applyPreset != null)
+                {
+                    string key = kind switch
+                    {
+                        CaptionRendererKind.MacLike => "macos.light",
+                        CaptionRendererKind.Gnome => "gnome.adwaita.light",
+                        CaptionRendererKind.Kde => "kde.breeze.light",
+                        _ => string.Empty
+                    };
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        try { applyPreset.Invoke(_host.AsForm, new object[] { key }); } catch { }
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void ApplyRendererVisualDefaults(CaptionRendererKind kind)
+        {
+            // Nudge caption visuals to better match platform styles
+            switch (kind)
+            {
+                case CaptionRendererKind.Gnome:
+                    EnableCaptionGradient = false;
+                    if (CaptionHeight < 34) CaptionHeight = 34;
+                    break;
+                case CaptionRendererKind.Kde:
+                    // Subtle gradient is fine
+                    EnableCaptionGradient = true;
+                    if (CaptionHeight < 36) CaptionHeight = 36;
+                    break;
+                case CaptionRendererKind.MacLike:
+                    EnableCaptionGradient = false;
+                    if (CaptionHeight < 36) CaptionHeight = 36;
+                    break;
+                case CaptionRendererKind.Windows:
+                default:
+                    // keep whatever the theme set; slight gradient allowed
+                    break;
+            }
+        }
+
+        public void SwitchRenderer(CaptionRendererKind kind)
+        {
+            if (RendererKind == kind) return;
+            SetRenderer(kind);
+            Form.Invalidate();
         }
 
         private void InitializeLogoPainter()
@@ -114,7 +230,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 }
                 catch (Exception)
                 {
-                    // Handle image loading errors silently
                     _logoPainter = null;
                 }
             }
@@ -122,73 +237,138 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 
         public void UpdateTheme()
         {
-            // Update logo painter with current theme
             if (_logoPainter != null && Theme != null)
             {
                 _logoPainter.CurrentTheme = Theme;
                 if (_logoPainter.ApplyThemeOnImage)
                 {
-                    // Force theme reapplication
                     Form.Invalidate();
                 }
             }
+            _renderer?.UpdateTheme(Theme);
         }
 
-        public bool IsPointInSystemButtons(Point p) => ShowSystemButtons && (CloseRect.Contains(p) || MaxRect.Contains(p) || MinRect.Contains(p));
+        public bool IsPointInSystemButtons(Point p)
+            => (_renderer?.HitTest(p) == true)
+               || (ShowThemeButton && _themeButtonRect.Contains(p))
+               || (ShowStyleButton && _styleButtonRect.Contains(p));
+
         public bool IsCursorOverSystemButton => IsPointInSystemButtons(Form.PointToClient(Cursor.Position));
         
         public void OnMouseMove(MouseEventArgs e)
         {
-            if (!ShowCaptionBar || !ShowSystemButtons) return;
-            var prev = (_hoverClose, _hoverMax, _hoverMin);
-            _hoverClose = CloseRect.Contains(e.Location);
-            _hoverMax = MaxRect.Contains(e.Location);
-            _hoverMin = MinRect.Contains(e.Location);
-            if (prev != (_hoverClose, _hoverMax, _hoverMin))
+            if (!ShowCaptionBar) return;
+            bool invalidate = false;
+            if (ShowSystemButtons && _renderer != null)
             {
-                var invalid = Rectangle.Union(CloseRect, MaxRect);
-                invalid = Rectangle.Union(invalid, MinRect);
-                Form.Invalidate(invalid);
+                if (_renderer.OnMouseMove(e.Location, out var inv))
+                {
+                    Form.Invalidate(inv);
+                    invalidate = true;
+                }
+            }
+            bool prevThemeHover = _themeHover;
+            bool prevStyleHover = _styleHover;
+            _themeHover = ShowThemeButton && _themeButtonRect.Contains(e.Location);
+            _styleHover = ShowStyleButton && _styleButtonRect.Contains(e.Location);
+            if (prevThemeHover != _themeHover) invalidate = true;
+            if (prevStyleHover != _styleHover) invalidate = true;
+            if (invalidate)
+            {
+                var invRect = Rectangle.Union(_themeButtonRect, _styleButtonRect);
+                Form.Invalidate(invRect);
             }
         }
         
         public void OnMouseLeave()
         {
-            if (_hoverClose || _hoverMax || _hoverMin)
+            if (_renderer == null && !ShowThemeButton && !ShowStyleButton) return;
+            Rectangle inv = Rectangle.Empty;
+            if (_renderer != null)
             {
-                _hoverClose = _hoverMax = _hoverMin = false;
-                var invalid = Rectangle.Union(CloseRect, MaxRect);
-                invalid = Rectangle.Union(invalid, MinRect);
-                Form.Invalidate(invalid);
+                _renderer.OnMouseLeave(out inv);
+                if (!inv.IsEmpty) Form.Invalidate(inv);
             }
+            if (_themeHover) { _themeHover = false; Form.Invalidate(_themeButtonRect); }
+            if (_styleHover) { _styleHover = false; Form.Invalidate(_styleButtonRect); }
         }
         
         public void OnMouseDown(MouseEventArgs e)
         {
-            if (!ShowCaptionBar || !ShowSystemButtons) return;
-            if (CloseRect.Contains(e.Location)) Form.Close();
-            else if (MaxRect.Contains(e.Location)) ToggleMaximize();
-            else if (MinRect.Contains(e.Location)) Form.WindowState = FormWindowState.Minimized;
+            if (!ShowCaptionBar) return;
+            if (ShowThemeButton && _themeButtonRect.Contains(e.Location))
+            {
+                ShowThemeMenu();
+                Form.Invalidate(_themeButtonRect);
+                return;
+            }
+            if (ShowStyleButton && _styleButtonRect.Contains(e.Location))
+            {
+                ShowRendererMenu();
+                Form.Invalidate(_styleButtonRect);
+                return;
+            }
+            if (ShowSystemButtons && _renderer != null)
+            {
+                if (_renderer.OnMouseDown(e.Location, Form, out var inv))
+                {
+                    if (!inv.IsEmpty) Form.Invalidate(inv);
+                }
+            }
         }
-        
-        private void ToggleMaximize() => Form.WindowState = Form.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized;
+
+        private void ShowThemeMenu()
+        {
+            var menu = new ContextMenuStrip();
+            try
+            {
+                foreach (string theme in BeepThemesManager.GetThemeNames())
+                {
+                    var item = new ToolStripMenuItem(theme);
+                    item.Click += (s, e) =>
+                    {
+                        try
+                        {
+                            // Set global current theme like AppBar does
+                            BeepThemesManager.SetCurrentTheme(theme);
+                            // Set the host's Theme property, which triggers ApplyTheme()
+                            _host.AsForm.GetType().GetProperty("Theme")?.SetValue(_host.AsForm, theme);
+                        }
+                        catch { }
+                    };
+                    menu.Items.Add(item);
+                }
+            }
+            catch { }
+            var pt = Form.PointToScreen(new Point(_themeButtonRect.Left, _themeButtonRect.Bottom));
+            menu.Show(pt);
+        }
+
+        private void ShowRendererMenu()
+        {
+            var menu = new ContextMenuStrip();
+            void add(CaptionRendererKind k, string text)
+            {
+                var item = new ToolStripMenuItem(text) { Checked = (RendererKind == k) };
+                item.Click += (s, e) => SwitchRenderer(k);
+                menu.Items.Add(item);
+            }
+            add(CaptionRendererKind.Windows, "Windows");
+            add(CaptionRendererKind.MacLike, "macOS-like");
+            add(CaptionRendererKind.Gnome,   "GNOME / Adwaita");
+            add(CaptionRendererKind.Kde,     "KDE / Breeze");
+            var pt = Form.PointToScreen(new Point(_styleButtonRect.Left, _styleButtonRect.Bottom));
+            menu.Show(pt);
+        }
         
         private void LayoutButtons()
         {
-            if (!ShowCaptionBar || !ShowSystemButtons)
-            { CloseRect = MaxRect = MinRect = Rectangle.Empty; return; }
-            float scale = Form.DeviceDpi / 96f;
-            int btnSize = Math.Max(24, (int)(CaptionHeight - 8 * scale));
-            int top = (int)(4 * scale);
-            CloseRect = new Rectangle(Form.ClientSize.Width - btnSize - 8, top, btnSize, btnSize);
-            MaxRect = new Rectangle(CloseRect.Left - btnSize - 6, top, btnSize, btnSize);
-            MinRect = new Rectangle(MaxRect.Left - btnSize - 6, top, btnSize, btnSize);
+            // no-op here; renderers compute their own layout during Paint
         }
         
         private void PaintOverlay(Graphics g)
         {
             if (!ShowCaptionBar) return;
-            LayoutButtons();
             var rect = new Rectangle(0, 0, Form.ClientSize.Width, CaptionHeight);
             if (rect.Width <= 0 || rect.Height <= 0) return;
             
@@ -204,8 +384,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 g.FillRectangle(b, rect);
             }
 
-            // Draw logo/icon using ImagePainter (if enabled)
-            int titleStartX = 10; // Default title start position
+            // Draw logo/icon
+            int titleStartX = 10; // default start
             if (_showLogo && _logoPainter != null && _logoPainter.HasImage)
             {
                 var logoRect = new Rectangle(
@@ -214,48 +394,94 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                     _logoSize.Width,
                     _logoSize.Height
                 );
-                
                 try
                 {
                     _logoPainter.DrawImage(g, logoRect);
-                    // Adjust title start position to account for logo
                     titleStartX = logoRect.Right + _logoMargin.Right;
                 }
-                catch (Exception)
+                catch { }
+            }
+
+            // System buttons via renderer
+            float scale = Form.DeviceDpi / 96f;
+            _renderer?.Paint(g, rect, scale, Theme, Form.WindowState, out var invArea);
+
+            // Layout our extra buttons (to the left of system buttons cluster)
+            int btnSize = Math.Max(24, (int)(CaptionHeight - 8 * scale));
+            var margin = (int)(8 * scale);
+            _themeButtonRect = Rectangle.Empty;
+            _styleButtonRect = Rectangle.Empty;
+
+            int sysClusterWidth = ShowSystemButtons ? (btnSize * 3 + margin * 3) : 0;
+            int right = rect.Right - margin - sysClusterWidth;
+            int y = rect.Top + (rect.Height - btnSize) / 2;
+
+            if (ShowThemeButton)
+            {
+                _themeButtonRect = new Rectangle(right - btnSize, y, btnSize, btnSize);
+                right = _themeButtonRect.Left - margin;
+            }
+            if (ShowStyleButton)
+            {
+                _styleButtonRect = new Rectangle(right - btnSize, y, btnSize, btnSize);
+                right = _styleButtonRect.Left - margin;
+            }
+
+            // Paint theme button glyph
+            using (var p = new Pen(Theme?.AppBarButtonForeColor ?? Form.ForeColor, 1.6f))
+            {
+                if (ShowThemeButton)
                 {
-                    // Handle painting errors silently
+                    if (_themeHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _themeButtonRect); }
+                    int inset = (int)(6 * scale);
+                    int dy = (int)(4 * scale);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int yLine = _themeButtonRect.Top + inset + i * dy;
+                        g.DrawLine(p, _themeButtonRect.Left + inset, yLine, _themeButtonRect.Right - inset, yLine);
+                    }
+                }
+                if (ShowStyleButton)
+                {
+                    if (_styleHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _styleButtonRect); }
+                    int inset = (int)(6 * scale);
+                    var r = Rectangle.Inflate(_styleButtonRect, -inset, -inset);
+                    int cx = r.Left + r.Width / 2;
+                    int cy = r.Top + r.Height / 2;
+                    g.DrawRectangle(p, r);
+                    g.DrawLine(p, cx, r.Top, cx, r.Bottom);
+                    g.DrawLine(p, r.Left, cy, r.Right, cy);
                 }
             }
 
+            // Compute title insets from renderer to avoid overlap
+            int leftInset = 0, rightInset = 0;
+            _renderer?.GetTitleInsets(rect, scale, out leftInset, out rightInset);
+            // Reserve space for our buttons on the right
+            int extraRight = 0;
+            if (ShowThemeButton) extraRight += _themeButtonRect.Width + margin;
+            if (ShowStyleButton) extraRight += _styleButtonRect.Width + margin;
+            rightInset += extraRight;
+            titleStartX = Math.Max(titleStartX, rect.Left + leftInset);
+
             // Draw form title
-            using (var sf = new StringFormat { LineAlignment = StringAlignment.Center })
-            using (var titleBrush = new SolidBrush(Theme?.AppBarTitleForeColor ?? Form.ForeColor))
+            using var sf = new StringFormat { LineAlignment = StringAlignment.Center };
+            using var titleBrush = new SolidBrush(Theme?.AppBarTitleForeColor ?? Form.ForeColor);
+
+            Rectangle titleRect;
+            if (RendererKind == CaptionRendererKind.Gnome)
             {
-                var titleRect = new Rectangle(titleStartX, 0, rect.Width - titleStartX - 160, rect.Height);
-                g.DrawString(Form.Text, Form.Font, titleBrush, titleRect, sf);
+                // Center title within available caption width
+                sf.Alignment = StringAlignment.Center;
+                titleRect = new Rectangle(rect.Left + leftInset, 0, rect.Width - leftInset - rightInset, rect.Height);
             }
-            
-            // Draw system buttons
-            if (ShowSystemButtons)
+            else
             {
-                using var pen = new Pen(Theme?.AppBarButtonForeColor ?? Form.ForeColor, 1.5f) { Alignment = PenAlignment.Center };
-                float scale = Form.DeviceDpi / 96f;
-                
-                // Minimize button
-                if (_hoverMin) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.LightGray); g.FillRectangle(hb, MinRect); }
-                CaptionGlyphProvider.DrawMinimize(g, pen, MinRect, scale);
-                
-                // Maximize/Restore button
-                if (_hoverMax) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.LightGray); g.FillRectangle(hb, MaxRect); }
-                if (Form.WindowState == FormWindowState.Maximized) 
-                    CaptionGlyphProvider.DrawRestore(g, pen, MaxRect, scale); 
-                else 
-                    CaptionGlyphProvider.DrawMaximize(g, pen, MaxRect, scale);
-                
-                // Close button
-                if (_hoverClose) { using var hb = new SolidBrush(Theme?.ButtonErrorBackColor ?? Color.IndianRed); g.FillRectangle(hb, CloseRect); }
-                CaptionGlyphProvider.DrawClose(g, pen, CloseRect, scale);
+                // Left-align title after logo/insets
+                sf.Alignment = StringAlignment.Near;
+                titleRect = new Rectangle(titleStartX, 0, rect.Width - titleStartX - rightInset, rect.Height);
             }
+            g.DrawString(Form.Text, Form.Font, titleBrush, titleRect, sf);
         }
 
         public void Dispose()

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
+ 
 using BeepDialogResult=TheTechIdea.Beep.Vis.Modules.BeepDialogResult;
 
 namespace TheTechIdea.Beep.Winform.Controls

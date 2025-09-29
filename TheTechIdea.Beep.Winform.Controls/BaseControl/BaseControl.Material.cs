@@ -407,6 +407,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public event EventHandler TrailingIconClicked;
         protected virtual void OnLeadingIconClick() => LeadingIconClicked?.Invoke(this, EventArgs.Empty);
         protected virtual void OnTrailingIconClick() => TrailingIconClicked?.Invoke(this, EventArgs.Empty);
+        
+        // Internal wrappers for painters to trigger clicks safely
+        internal void TriggerLeadingIconClick() => OnLeadingIconClick();
+        internal void TriggerTrailingIconClick() => OnTrailingIconClick();
         #endregion
 
         #region Size change handling

@@ -137,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             TextRenderer.DrawText(g, text, font, textRect, tc, TextFormatFlags.VerticalCenter | TextFormatFlags.HorizontalCenter);
         }
 
-        protected abstract void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected abstract void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement);
 
         public virtual void UpdateHitAreas(BeepToolStrip owner, Rectangle bounds, IBeepTheme theme, IReadOnlyDictionary<string, object> parameters, System.Action<string, Rectangle> register)

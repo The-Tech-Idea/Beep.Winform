@@ -15,6 +15,7 @@ using System.Linq;
 using Timer = System.Windows.Forms.Timer;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

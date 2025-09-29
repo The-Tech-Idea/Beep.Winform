@@ -8,12 +8,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
     internal sealed class UnderlineTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsUnderline);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             bool selected = index == owner.SelectedIndex;
             var (iconRect, textRect) = GetIconTextRects(rect, item, iconPlacement, iconSize, iconGap, padH, padV);
-            DrawIconAndText(g, theme, owner, item, selected, string.IsNullOrEmpty(item.Text) ? item.Name : item.Text, font, iconRect, textRect);
+            DrawIconAndText(g, theme, owner, item, selected, text, font, iconRect, textRect);
 
             if (selected)
             {
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
     internal sealed class PillTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsPill);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             bool selected = index == owner.SelectedIndex;
@@ -37,14 +37,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             g.FillPath(fill, path); g.DrawPath(brd, path);
 
             var (iconRect, textRect) = GetIconTextRects(rect, item, iconPlacement, iconSize, iconGap, padH, padV);
-            DrawIconAndText(g, theme, owner, item, selected, string.IsNullOrEmpty(item.Text) ? item.Name : item.Text, font, iconRect, textRect);
+            DrawIconAndText(g, theme, owner, item, selected, text, font, iconRect, textRect);
         }
     }
 
     internal sealed class OutlineTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsOutline);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             using var path = RoundedRect(rect, GetCorner(owner.Parameters, "CornerRadius", 8));
@@ -53,14 +53,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             bool selected = index == owner.SelectedIndex;
 
             var (iconRect, textRect) = GetIconTextRects(rect, item, iconPlacement, iconSize, iconGap, padH, padV);
-            DrawIconAndText(g, theme, owner, item, selected, string.IsNullOrEmpty(item.Text) ? item.Name : item.Text, font, iconRect, textRect);
+            DrawIconAndText(g, theme, owner, item, selected, text, font, iconRect, textRect);
         }
     }
 
     internal sealed class SegmentedTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsSegmented);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             using var brd = new Pen(theme.BorderColor, 1);
@@ -72,14 +72,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
                 g.FillRectangle(fill, Rectangle.Inflate(rect, -1, -1));
             }
             var (iconRect, textRect) = GetIconTextRects(rect, item, iconPlacement, iconSize, iconGap, padH, padV);
-            DrawIconAndText(g, theme, owner, item, selected, string.IsNullOrEmpty(item.Text) ? item.Name : item.Text, font, iconRect, textRect);
+            DrawIconAndText(g, theme, owner, item, selected, text, font, iconRect, textRect);
         }
     }
 
     internal sealed class FilledTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.TabsFilled);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             bool selected = index == owner.SelectedIndex;
@@ -87,19 +87,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             using var fill = new SolidBrush(selected ? theme.MenuItemSelectedBackColor : theme.MenuItemHoverBackColor);
             g.FillPath(fill, path);
             var (iconRect, textRect) = GetIconTextRects(rect, item, iconPlacement, iconSize, iconGap, padH, padV);
-            DrawIconAndText(g, theme, owner, item, selected, string.IsNullOrEmpty(item.Text) ? item.Name : item.Text, font, iconRect, textRect);
+            DrawIconAndText(g, theme, owner, item, selected, text, font, iconRect, textRect);
         }
     }
 
     internal sealed class MinimalUnderlineTabsPainter : TabsBasePainter
     {
         public override string Key => nameof(ToolStripPainterKind.MinimalUnderline);
-        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, System.Drawing.Font font,
+        protected override void DrawTab(Graphics g, Rectangle rect, IBeepTheme theme, BeepToolStrip owner, SimpleItem item, int index, string text, System.Drawing.Font font,
             int padH, int padV, int spacing, int iconSize, int iconGap, string iconPlacement)
         {
             bool selected = index == owner.SelectedIndex;
             var (iconRect, textRect) = GetIconTextRects(rect, item, iconPlacement, iconSize, iconGap, padH, padV);
-            DrawIconAndText(g, theme, owner, item, selected, string.IsNullOrEmpty(item.Text) ? item.Name : item.Text, font, iconRect, textRect);
+            DrawIconAndText(g, theme, owner, item, selected, text, font, iconRect, textRect);
 
             if (selected)
             {

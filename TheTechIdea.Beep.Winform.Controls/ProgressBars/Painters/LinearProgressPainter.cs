@@ -21,11 +21,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             // Apply owner border thickness inset
             var rect = bounds;
             rect.Inflate(-owner.BorderThickness, -owner.BorderThickness);
+            if (rect.Width <= 0 || rect.Height <= 0) return;
+
+            // Helper to clamp radius by the rectangle size
+            static int ClampCorner(Rectangle r, int desired)
+                => desired <= 0 ? 0 : System.Math.Min(desired, System.Math.Min(r.Width, r.Height) / 2);
 
             // Background (rounded or not)
             if (owner.IsRounded && owner.BorderRadius > 0)
             {
-                using var path = ControlPaintHelper.GetRoundedRectPath(rect, owner.BorderRadius);
+                int cr = ClampCorner(rect, owner.BorderRadius);
+                using var path = ControlPaintHelper.GetRoundedRectPath(rect, cr);
                 using var backFill = new SolidBrush(owner.BackColor);
                 g.FillPath(backFill, path);
             }
@@ -38,13 +44,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             // Secondary progress
             if (owner.SecondaryProgress > owner.Minimum)
             {
-                float secondaryWidth = (float)(owner.SecondaryProgress - owner.Minimum) / (owner.Maximum - owner.Minimum) * rect.Width;
+                float secondaryWidthF = (float)(owner.SecondaryProgress - owner.Minimum) / System.Math.Max(1, owner.Maximum - owner.Minimum) * rect.Width;
+                int secondaryWidth = System.Math.Max(1, (int)System.Math.Round(secondaryWidthF));
                 if (secondaryWidth > 0)
                 {
-                    var secondaryRect = new Rectangle(rect.X, rect.Y, (int)secondaryWidth, rect.Height);
+                    var secondaryRect = new Rectangle(rect.X, rect.Y, System.Math.Min(secondaryWidth, rect.Width), rect.Height);
                     if (owner.IsRounded && owner.BorderRadius > 0)
                     {
-                        using var spath = ControlPaintHelper.GetRoundedRectPath(secondaryRect, owner.BorderRadius);
+                        int cr2 = ClampCorner(secondaryRect, owner.BorderRadius);
+                        using var spath = ControlPaintHelper.GetRoundedRectPath(secondaryRect, cr2);
                         using var sbrush = new SolidBrush(owner.SecondaryProgressColor);
                         g.FillPath(sbrush, spath);
                     }
@@ -58,15 +66,18 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
             // Primary progress
             float pct = owner.DisplayProgressPercentageAccessor; // 0..1 animated percentage
-            float progressWidth = pct * rect.Width;
+            pct = System.Math.Max(0f, System.Math.Min(1f, pct));
+            int progressWidth = System.Math.Max(1, (int)System.Math.Round(pct * rect.Width));
             if (progressWidth > 0)
             {
-                var progressRect = new Rectangle(rect.X, rect.Y, (int)progressWidth, rect.Height);
+                var progressRect = new Rectangle(rect.X, rect.Y, System.Math.Min(progressWidth, rect.Width), rect.Height);
                 // Clip for rounded to keep corner radius on the fill end
-                Region oldClip = g.Clip;
+                Region? oldClip = null;
                 if (owner.IsRounded && owner.BorderRadius > 0)
                 {
-                    using var clipPath = ControlPaintHelper.GetRoundedRectPath(progressRect, owner.BorderRadius);
+                    oldClip = g.Clip; // copy
+                    int crp = ClampCorner(progressRect, owner.BorderRadius);
+                    using var clipPath = ControlPaintHelper.GetRoundedRectPath(progressRect, crp);
                     g.SetClip(clipPath, CombineMode.Replace);
                 }
 
@@ -112,11 +123,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                         }
                         break;
                     case ProgressBarStyle.Segmented:
-                        float segmentWidth = (float)rect.Width / owner.Segments;
+                        float segmentWidth = (float)rect.Width / System.Math.Max(1, owner.Segments);
                         int filled = (int)(pct * owner.Segments);
                         for (int i = 0; i < owner.Segments; i++)
                         {
-                            var seg = new Rectangle((int)(rect.X + i * segmentWidth + 1), rect.Y + 1, (int)(segmentWidth - 2), rect.Height - 2);
+                            var seg = new Rectangle((int)(rect.X + i * segmentWidth + 1), rect.Y + 1, System.Math.Max(1, (int)(segmentWidth - 2)), System.Math.Max(1, rect.Height - 2));
                             if (i < filled)
                             {
                                 using var segBrush = new SolidBrush(owner.ProgressColor);
@@ -124,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                             }
                             else if (i == filled && pct * owner.Segments % 1 > 0)
                             {
-                                var pw = (int)(pct * owner.Segments % 1 * seg.Width);
+                                var pw = System.Math.Max(1, (int)(pct * owner.Segments % 1 * seg.Width));
                                 using var segBrush = new SolidBrush(owner.ProgressColor);
                                 g.FillRectangle(segBrush, new Rectangle(seg.X, seg.Y, pw, seg.Height));
                             }
@@ -139,20 +150,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 {
                     float glowOpacity = owner.IsPulsating ? owner.GlowIntensity : 0.25f;
                     glowOpacity *= owner.IsPulsating ? 0.4f : 1f;
-                    using var glowBrush = new LinearGradientBrush(new Rectangle(progressRect.Right - 20, progressRect.Y, 20, progressRect.Height),
-                        Color.FromArgb((int)(255 * glowOpacity), 255, 255, 255),
-                        Color.FromArgb(10, 255, 255, 255), LinearGradientMode.Horizontal);
-                    g.FillRectangle(glowBrush, progressRect.Right - 20, progressRect.Y, 20, progressRect.Height);
+                    int gw = System.Math.Min(20, progressRect.Width);
+                    if (gw > 0)
+                    {
+                        using var glowBrush = new LinearGradientBrush(new Rectangle(progressRect.Right - gw, progressRect.Y, gw, progressRect.Height),
+                            Color.FromArgb((int)(255 * glowOpacity), 255, 255, 255),
+                            Color.FromArgb(10, 255, 255, 255), LinearGradientMode.Horizontal);
+                        g.FillRectangle(glowBrush, progressRect.Right - gw, progressRect.Y, gw, progressRect.Height);
+                    }
                 }
 
                 // restore clip
-                g.Clip = oldClip;
+                if (oldClip != null)
+                {
+                    g.Clip = oldClip;
+                    oldClip.Dispose();
+                }
             }
 
             // Border
             if (owner.IsRounded && owner.BorderRadius > 0)
             {
-                using var borderPath = ControlPaintHelper.GetRoundedRectPath(rect, owner.BorderRadius);
+                int crb = ClampCorner(rect, owner.BorderRadius);
+                using var borderPath = ControlPaintHelper.GetRoundedRectPath(rect, crb);
                 using var borderPen = new Pen(theme.ProgressBarBorderColor != Color.Empty ? theme.ProgressBarBorderColor : theme.BorderColor, 1);
                 g.DrawPath(borderPen, borderPath);
             }
@@ -168,22 +188,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 var text = owner.TextToDrawAccessor;
                 if (!string.IsNullOrEmpty(text))
                 {
-                    using var font = owner.TextFont ?? new Font("Segoe UI", 10f, FontStyle.Regular);
+                    using var font = owner.TextFont ?? new System.Drawing.Font("Segoe UI", 10f, System.Drawing.FontStyle.Regular);
                     var sz = g.MeasureString(text, font);
                     if (sz.Width <= rect.Width - 4 && sz.Height <= rect.Height - 2)
                     {
-                        var pt = new PointF(rect.Left + (rect.Width - sz.Width) / 2, rect.Top + (rect.Height - sz.Height) / 2);
-                        // pick contrasting brush depending on fill coverage
-                        if (pct > 0.5f)
-                        {
-                            using var tb = new SolidBrush(owner.TextColor);
-                            g.DrawString(text, font, tb, pt);
-                        }
-                        else
-                        {
-                            using var cb = new SolidBrush(GetContrastColor(owner.ProgressColor));
-                            g.DrawString(text, font, cb, pt);
-                        }
+                        var pt = new System.Drawing.PointF(rect.Left + (rect.Width - sz.Width) / 2, rect.Top + (rect.Height - sz.Height) / 2);
+                        using var tb = new SolidBrush(owner.TextColor);
+                        g.DrawString(text, font, tb, pt);
                     }
                 }
             }
@@ -196,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
 
         private static Color GetContrastColor(Color color)
         {
-            int br = (int)Math.Sqrt(color.R * color.R * 0.299 + color.G * color.G * 0.587 + color.B * color.B * 0.114);
+            int br = (int)System.Math.Sqrt(color.R * color.R * 0.299 + color.G * color.G * 0.587 + color.B * color.B * 0.114);
             return br > 130 ? Color.Black : Color.White;
         }
     }

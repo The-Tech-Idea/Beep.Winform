@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Integrated.Modules;
 using TheTechIdea.Beep.Report;
+using TheTechIdea.Beep.Editor.UOWManager.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -126,6 +127,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
+
+        DataBlockMode IBeepDataBlock.BlockMode { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
         #endregion "Properties"
         #region "Constructors"
         public BeepDataBlock()
@@ -398,8 +401,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (childBlock is BeepDataBlock childBeepBlock)
                     await childBeepBlock.SwitchBlockModeAsync(newMode);
-                else
-                    childBlock.SwitchBlockMode(newMode); // fallback to sync for non-BeepDataBlock
+               
             }
         }
 
@@ -1061,6 +1063,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             GC.SuppressFinalize(this);
         }
+
         #endregion "Dispose"
 
         #region "Events"

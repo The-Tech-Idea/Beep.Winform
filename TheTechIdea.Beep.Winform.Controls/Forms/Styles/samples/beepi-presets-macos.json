@@ -1,0 +1,22 @@
+{
+  "macos.light": {
+    "BorderRadius": 12,
+    "BorderThickness": 1,
+    "ShadowDepth": 8,
+    "EnableGlow": false,
+    "GlowSpread": 8,
+    "CaptionHeight": 36,
+    "RibbonHeight": 80,
+    "CaptionButtonSize": 28
+  },
+  "macos.dark": {
+    "BorderRadius": 12,
+    "BorderThickness": 1,
+    "ShadowDepth": 10,
+    "EnableGlow": false,
+    "GlowSpread": 10,
+    "CaptionHeight": 36,
+    "RibbonHeight": 80,
+    "CaptionButtonSize": 28
+  }
+}

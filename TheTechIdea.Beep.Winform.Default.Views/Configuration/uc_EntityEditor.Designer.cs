@@ -1,4 +1,5 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -1523,6 +1524,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private Controls.BeepComboBox DatasourcebeepComboBox;
         private Controls.BeepLabel beepLabel2;
         private Controls.BeepComboBox EntitiesbeepComboBox;
-        private Controls.BeepButton beepButton1;
+        private BeepButton beepButton1;
     }
 }

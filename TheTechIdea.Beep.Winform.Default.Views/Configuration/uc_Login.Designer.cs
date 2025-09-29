@@ -1,4 +1,6 @@
-﻿using TheTechIdea.Beep.Winform.Controls.Models;
+﻿
+using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
@@ -572,6 +574,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         private Controls.BeepLogin beepLogin1;
         private Controls.BeepLabel beepLabel1;
-        private Controls.BeepButton CancelbeepButton;
+        private BeepButton CancelbeepButton;
     }
 }

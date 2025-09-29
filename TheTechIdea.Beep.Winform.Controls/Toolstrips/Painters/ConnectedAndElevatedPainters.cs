@@ -119,7 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
 
             // Icon + text
             Rectangle iconRect = Rectangle.Empty; Rectangle textRect = rect;
-            if (!string.IsNullOrEmpty(item.ImagePath))
+            if (item != null && !string.IsNullOrEmpty(item.ImagePath))
             {
                 if (iconPlacement.Equals("Left", System.StringComparison.OrdinalIgnoreCase))
                 { iconRect = new Rectangle(rect.Left + padH, rect.Top + (rect.Height - iconSize) / 2, iconSize, iconSize); textRect = new Rectangle(iconRect.Right + iconGap, rect.Top, rect.Right - (iconRect.Right + iconGap) - padH, rect.Height); }

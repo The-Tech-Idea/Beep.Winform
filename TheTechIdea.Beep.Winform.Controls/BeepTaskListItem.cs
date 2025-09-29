@@ -4,8 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

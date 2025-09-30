@@ -7,14 +7,36 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {
     // Material rendering extension for BaseControl (partial)
     public partial class BaseControl
     {
-       
+    
 
+
+        private void ClearPainterHitAreas()
+        {
+            try
+            {
+                var names = new System.Collections.Generic.HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                {
+                    "MaterialLeadingIcon","MaterialTrailingIcon",
+                    "ClassicLeadingIcon","ClassicTrailingIcon",
+                    "CardLeadingIcon","CardTrailingIcon",
+                    "NeoLeadingIcon","NeoTrailingIcon"
+                };
+                var list = _hitTest?.HitList;
+                if (list != null && list.Count > 0)
+                {
+                    list.RemoveAll(h => names.Contains(h.Name));
+                }
+            }
+            catch { }
+        }
+        
         #region Material fields
         private bool _bcEnableMaterialStyle = true;
         private MaterialTextFieldVariant _bcMaterialVariant = MaterialTextFieldVariant.Outlined;

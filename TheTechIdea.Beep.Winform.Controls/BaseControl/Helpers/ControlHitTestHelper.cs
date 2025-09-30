@@ -168,11 +168,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 HitTestControl = null;
                 return false;
             }
-
+            HitTestControl = null;
             bool hitDetected = false;
+            HitAreaEventOn = false;
             foreach (var hitTest in HitList)
             {
                 hitTest.IsHit = false;
+              
                 if (hitTest?.TargetRect != null && hitTest.IsVisible && hitTest.IsEnabled && hitTest.TargetRect.Contains(location))
                 {
                     hitTest.IsHit = true;

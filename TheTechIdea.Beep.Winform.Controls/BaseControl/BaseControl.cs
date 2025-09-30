@@ -107,7 +107,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
     [Category("Performance")]
     [Description("Automatically draws components in HitList during OnPaint.")]
-    public bool AutoDrawHitListComponents { get; set; } = true;
+    public bool AutoDrawHitListComponents { get; set; } = false;
 
     [Category("Performance")]
     [Description("Optional cap for how many HitList components to draw per frame. 0 or negative disables capping.")]

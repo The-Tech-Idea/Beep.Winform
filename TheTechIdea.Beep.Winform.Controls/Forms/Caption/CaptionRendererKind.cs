@@ -5,6 +5,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
         Windows,
         MacLike,
         Gnome,
-        Kde
+        Kde,
+        Cinnamon,
+        Elementary
     }
 }

@@ -8,6 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
     /// <summary>
     /// Neo-brutalism painter: bold thick borders, hard shadows, vivid flat fills, simple blocks.
     /// Uses BaseControl.Text as title, HelperText as subtitle, BadgeText as a sticker.
+    /// Supports optional Leading/Trailing icons in the title row.
     /// </summary>
     internal sealed class NeoBrutalistBaseControlPainter : IBaseControlPainter
     {
@@ -18,12 +19,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private Rectangle _subtitleRect;
         private Rectangle _ctaRect;
         private Rectangle _bodyRect;
+        private Rectangle _leadIconRect;
+        private Rectangle _trailIconRect;
 
         public void UpdateLayout(Base.BaseControl owner)
         {
             if (owner == null || owner.Width <= 0 || owner.Height <= 0)
             {
                 _cardRect = _shadowRect = _stickerRect = _titleRect = _subtitleRect = _ctaRect = _bodyRect = Rectangle.Empty;
+                _leadIconRect = _trailIconRect = Rectangle.Empty;
                 return;
             }
 
@@ -51,6 +55,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int top = _cardRect.Top + pad + (_stickerRect.IsEmpty ? 0 : _stickerRect.Height + 8);
             _titleRect = new Rectangle(_cardRect.Left + pad, top, Math.Max(0, _cardRect.Width - pad * 2), owner.Font.Height + 8);
             _subtitleRect = new Rectangle(_cardRect.Left + pad, _titleRect.Bottom + 4, Math.Max(0, _cardRect.Width - pad * 2), owner.Font.Height + 6);
+
+            // Optional icons in title row
+            _leadIconRect = Rectangle.Empty;
+            _trailIconRect = Rectangle.Empty;
+            int iconPad = Math.Max(0, owner.IconPadding);
+            int iconSize = Math.Min(owner.IconSize, Math.Max(12, _titleRect.Height - iconPad));
+            bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
+            bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
+
+            if (hasLeading)
+            {
+                _leadIconRect = new Rectangle(_titleRect.Left, _titleRect.Top + (_titleRect.Height - iconSize) / 2, iconSize, iconSize);
+                _titleRect = new Rectangle(_leadIconRect.Right + iconPad, _titleRect.Top, Math.Max(0, _titleRect.Width - iconSize - iconPad), _titleRect.Height);
+            }
+            if (hasTrailing)
+            {
+                _trailIconRect = new Rectangle(Math.Max(_titleRect.Left, _cardRect.Right - pad - iconSize), _titleRect.Top + (_titleRect.Height - iconSize) / 2, iconSize, iconSize);
+                _titleRect = new Rectangle(_titleRect.Left, _titleRect.Top, Math.Max(0, _titleRect.Width - iconSize - iconPad), _titleRect.Height);
+            }
 
             int ctaH = 32; int ctaW = 96;
             _ctaRect = new Rectangle(_cardRect.Right - pad - ctaW, _cardRect.Bottom - pad - ctaH, ctaW, ctaH);
@@ -101,12 +124,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
             }
 
-            // title (bold, large-ish)
-            if (!string.IsNullOrWhiteSpace(owner.Text))
+            // icons
+            if (!_leadIconRect.IsEmpty)
             {
-                using var titleFont = new Font(owner.Font.FontFamily, owner.Font.Size + 1.5f, FontStyle.Bold);
-                TextRenderer.DrawText(g, owner.Text, titleFont, _titleRect, titleColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
+                var img = new BeepImage { IsChild = true, BackColor = owner.BackColor, ForeColor = owner.ForeColor, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true, Size = _leadIconRect.Size, ImagePath = string.IsNullOrEmpty(owner.LeadingIconPath) ? owner.LeadingImagePath : owner.LeadingIconPath };
+                img.DrawImage(g, _leadIconRect);
+            }
+            if (!_trailIconRect.IsEmpty)
+            {
+                var img = new BeepImage { IsChild = true, BackColor = owner.BackColor, ForeColor = owner.ForeColor, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true, Size = _trailIconRect.Size, ImagePath = string.IsNullOrEmpty(owner.TrailingIconPath) ? owner.TrailingImagePath : owner.TrailingIconPath };
+                img.DrawImage(g, _trailIconRect);
             }
 
             // subtitle (one line, black/secondary)
@@ -144,6 +171,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (!_bodyRect.IsEmpty) register?.Invoke("NeoBody", _bodyRect, null);
             if (!_ctaRect.IsEmpty) register?.Invoke("NeoPrimary", _ctaRect, null);
             if (!_stickerRect.IsEmpty) register?.Invoke("NeoSticker", _stickerRect, null);
+            if (!_leadIconRect.IsEmpty && owner.LeadingIconClickable) register?.Invoke("NeoLeadingIcon", _leadIconRect, owner.TriggerLeadingIconClick);
+            if (!_trailIconRect.IsEmpty && owner.TrailingIconClickable) register?.Invoke("NeoTrailingIcon", _trailIconRect, owner.TriggerTrailingIconClick);
         }
     }
 }

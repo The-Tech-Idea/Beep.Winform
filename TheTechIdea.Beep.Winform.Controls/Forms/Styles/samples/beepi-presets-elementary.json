@@ -1,0 +1,22 @@
+{
+  "elementary.light": {
+    "BorderRadius": 10,
+    "BorderThickness": 1,
+    "ShadowDepth": 4,
+    "EnableGlow": false,
+    "GlowSpread": 0,
+    "CaptionHeight": 40,
+    "RibbonHeight": 88,
+    "CaptionButtonSize": 30
+  },
+  "elementary.dark": {
+    "BorderRadius": 10,
+    "BorderThickness": 1,
+    "ShadowDepth": 6,
+    "EnableGlow": false,
+    "GlowSpread": 0,
+    "CaptionHeight": 40,
+    "RibbonHeight": 88,
+    "CaptionButtonSize": 30
+  }
+}

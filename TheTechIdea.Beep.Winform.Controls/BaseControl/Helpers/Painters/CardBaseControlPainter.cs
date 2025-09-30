@@ -8,6 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
     /// A card-styled painter inspired by the provided UI reference. Renders a rounded card
     /// with optional badge, title, subtitle, and a primary action pill at the bottom-right.
     /// Uses BaseControl.Text as Title, HelperText as Subtitle, and BadgeText as the badge.
+    /// Supports optional Leading/Trailing icons placed in the title row.
     /// </summary>
     internal sealed class CardBaseControlPainter : IBaseControlPainter
     {
@@ -18,12 +19,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private Rectangle _subtitleRect;
         private Rectangle _actionRect;
         private Rectangle _contentRect; // body area for user content if needed
+        private Rectangle _leadIconRect;
+        private Rectangle _trailIconRect;
 
         public void UpdateLayout(Base.BaseControl owner)
         {
             if (owner == null || owner.Width <= 0 || owner.Height <= 0)
             {
                 _cardRect = _badgeRect = _titleRect = _subtitleRect = _actionRect = _contentRect = Rectangle.Empty;
+                _leadIconRect = _trailIconRect = Rectangle.Empty;
                 return;
             }
 
@@ -50,8 +54,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             // title and subtitle
             int topY = _cardRect.Top + pad + 4;
             int rightLimit = _badgeRect.IsEmpty ? _cardRect.Right - pad : _badgeRect.Left - 8;
-            _titleRect = new Rectangle(_cardRect.Left + pad, topY, Math.Max(0, rightLimit - (_cardRect.Left + pad)), owner.Font.Height + 6);
+            _titleRect = new Rectangle(_cardRect.Left + pad, topY, Math.Max(0, rightLimit - (_cardRect.Left + pad)), owner.Font.Height + 8);
             _subtitleRect = new Rectangle(_cardRect.Left + pad, _titleRect.Bottom + 4, Math.Max(0, _cardRect.Right - pad - (_cardRect.Left + pad)), (int)Math.Ceiling(owner.Font.Size + 6));
+
+            // Optional icons in title row
+            _leadIconRect = Rectangle.Empty;
+            _trailIconRect = Rectangle.Empty;
+            int iconPad = Math.Max(0, owner.IconPadding);
+            int iconSize = Math.Min(owner.IconSize, Math.Max(12, _titleRect.Height - iconPad));
+            bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
+            bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
+
+            if (hasLeading)
+            {
+                _leadIconRect = new Rectangle(_titleRect.Left, _titleRect.Top + (_titleRect.Height - iconSize) / 2, iconSize, iconSize);
+                _titleRect = new Rectangle(_leadIconRect.Right + iconPad, _titleRect.Top, Math.Max(0, _titleRect.Width - iconSize - iconPad), _titleRect.Height);
+            }
+
+            if (hasTrailing)
+            {
+                _trailIconRect = new Rectangle(Math.Max(_titleRect.Left, rightLimit - iconSize), _titleRect.Top + (_titleRect.Height - iconSize) / 2, iconSize, iconSize);
+                _titleRect = new Rectangle(_titleRect.Left, _titleRect.Top, Math.Max(0, _titleRect.Width - iconSize - iconPad), _titleRect.Height);
+            }
 
             // action pill area at bottom-right
             int actionH = 28;
@@ -108,12 +132,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 TextRenderer.DrawText(g, owner.BadgeText, owner.Font, _badgeRect, badgeColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
             }
 
-            // title
-            if (!string.IsNullOrWhiteSpace(owner.Text))
+            // icons in title row
+            if (!_leadIconRect.IsEmpty)
             {
-                using var titleFont = new Font(owner.Font, FontStyle.Bold);
-                var titleColor = theme?.ForeColor ?? owner.ForeColor;
-                TextRenderer.DrawText(g, owner.Text, titleFont, _titleRect, titleColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+                var img = new BeepImage { IsChild = true, BackColor = owner.BackColor, ForeColor = owner.ForeColor, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true, Size = _leadIconRect.Size, ImagePath = string.IsNullOrEmpty(owner.LeadingIconPath) ? owner.LeadingImagePath : owner.LeadingIconPath };
+                img.DrawImage(g, _leadIconRect);
+            }
+            if (!_trailIconRect.IsEmpty)
+            {
+                var img = new BeepImage { IsChild = true, BackColor = owner.BackColor, ForeColor = owner.ForeColor, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true, Size = _trailIconRect.Size, ImagePath = string.IsNullOrEmpty(owner.TrailingIconPath) ? owner.TrailingImagePath : owner.TrailingIconPath };
+                img.DrawImage(g, _trailIconRect);
             }
 
             // subtitle
@@ -135,9 +163,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 var actionFore = theme?.MenuItemSelectedForeColor ?? Color.White;
                 TextRenderer.DrawText(g, actionText, owner.Font, _actionRect, actionFore, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
             }
-
-            // optional: small icon dot indicator (like the ref) on left of subtitle
-            // Skipped for simplicity; can be added later from LeadingIconPath.
         }
 
         public void UpdateHitAreas(Base.BaseControl owner, Action<string, Rectangle, Action> register)
@@ -146,6 +171,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (!_cardRect.IsEmpty) register?.Invoke("CardBody", _contentRect, null);
             if (!_actionRect.IsEmpty) register?.Invoke("CardPrimaryButton", _actionRect, null);
             if (!_badgeRect.IsEmpty) register?.Invoke("CardBadge", _badgeRect, null);
+            if (!_leadIconRect.IsEmpty && owner.LeadingIconClickable) register?.Invoke("CardLeadingIcon", _leadIconRect, owner.TriggerLeadingIconClick);
+            if (!_trailIconRect.IsEmpty && owner.TrailingIconClickable) register?.Invoke("CardTrailingIcon", _trailIconRect, owner.TriggerTrailingIconClick);
         }
 
         private static Color Blend(Color baseColor, Color overlay, float amount)

@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             owner._materialHelper.SetElevation(owner.MaterialElevationLevel);
             owner._materialHelper.SetElevationEnabled(owner.MaterialUseElevation);
 
-            // Draw MD field
+            // Draw MD field (bg, border, icons, state)
             owner._materialHelper.DrawAll(g);
 
             // Draw label and supporting text same as BaseControl.DrawMaterialContent
@@ -65,6 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     TextRenderer.DrawText(g, supporting, supportFont, rect, supportingColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
                 }
             }
+
+            // Main text is drawn centrally by BaseControl.DrawContent to avoid duplicates.
         }
 
         public void UpdateHitAreas(Base.BaseControl owner, Action<string, Rectangle, Action> register)

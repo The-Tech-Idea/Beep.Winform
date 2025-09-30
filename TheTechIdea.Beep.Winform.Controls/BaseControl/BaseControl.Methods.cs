@@ -428,7 +428,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _painter.Paint(g, this);
 
                 // Let painter register hit areas; wire actions when available
-                _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, this, action));
+                // IMPORTANT: pass null as component to avoid AutoDraw redrawing the owner inside icon rectangles
+                _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, null, action));
+
+                // Draw main Text centrally once, after painter work
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    Rectangle contentRect;
+                    if (EnableMaterialStyle && _materialHelper != null)
+                    {
+                        contentRect = _materialHelper.GetAdjustedContentRect();
+                        if (contentRect.IsEmpty || contentRect.Width <= 0 || contentRect.Height <= 0)
+                            contentRect = _materialHelper.GetFieldRect();
+                    }
+                    else
+                    {
+                        var drawingRect = _paint?.DrawingRect ?? new Rectangle(0, 0, Width, Height);
+                        var icons = new BaseControlIconsHelper(this);
+                        icons.UpdateLayout(drawingRect);
+                        contentRect = icons.AdjustedContentRect;
+                        if (contentRect.IsEmpty || contentRect.Width <= 0 || contentRect.Height <= 0)
+                            contentRect = drawingRect;
+                    }
+
+                    if (contentRect.Width > 0 && contentRect.Height > 0)
+                    {
+                        var textColor = Enabled ? ForeColor : DisabledForeColor;
+                        var flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
+                        TextRenderer.DrawText(g, Text, Font, contentRect, textColor, flags);
+                    }
+                }
                 return;
             }
 

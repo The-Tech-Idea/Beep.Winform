@@ -12,7 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design
             (CaptionRendererKind.Windows, "Windows (Default)"),
             (CaptionRendererKind.MacLike, "macOS-like"),
             (CaptionRendererKind.Gnome,   "GNOME / Adwaita"),
-            (CaptionRendererKind.Kde,     "KDE / Breeze")
+            (CaptionRendererKind.Kde,     "KDE / Breeze"),
+            (CaptionRendererKind.Cinnamon,"Cinnamon"),
+            (CaptionRendererKind.Elementary,"Elementary")
         };
 
         public CaptionRendererKindConverter() : base(typeof(CaptionRendererKind)) { }

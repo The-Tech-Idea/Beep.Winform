@@ -105,6 +105,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Category("Beep Style"), DefaultValue(true)] public bool EnableGlow { get => _enableGlow; set { if (_enableGlow != value) { _enableGlow = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
         [Category("Beep Style")] public Color GlowColor { get => _glowColor; set { if (_glowColor != value) { _glowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
         [Category("Beep Style"), DefaultValue(8f)] public float GlowSpread { get => _glowSpread; set { if (Math.Abs(_glowSpread - value) > float.Epsilon) { _glowSpread = Math.Max(0f, value); if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
+
+        // New: auto mapping/preset toggles
+        [Category("Beep Style"), DefaultValue(true), Description("If true, when the current theme is dark, renderer preset keys with .dark will be applied (if available).")]
+        public bool AutoPickDarkPresets { get; set; } = true;
+
+        [Category("Beep Style"), DefaultValue(true), Description("If true, switching CaptionRenderer maps FormStyle and tries to apply a matching preset.")]
+        public bool AutoApplyRendererPreset { get; set; } = true;
         // Logo properties now delegated to FormCaptionBarHelper
         [Category("Beep Logo")]
         [Description("Path to the logo image file (SVG, PNG, JPG, etc.)")]

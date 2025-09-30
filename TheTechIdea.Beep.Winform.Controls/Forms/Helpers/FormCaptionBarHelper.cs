@@ -39,6 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         public string StyleButtonIconPath { get; set; } = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg";
         private Rectangle _styleButtonRect;
         private bool _styleHover;
+
+        // Caption title overrides
+        public Font? TitleFontOverride { get; set; }
+        public Color? TitleForeColorOverride { get; set; }
         
         // Renderer strategy
         private ICaptionRenderer _renderer;
@@ -125,6 +129,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 CaptionRendererKind.MacLike => new MacLikeCaptionRenderer(),
                 CaptionRendererKind.Gnome => new GnomeCaptionRenderer(),
                 CaptionRendererKind.Kde => new KdeCaptionRenderer(),
+                CaptionRendererKind.Cinnamon => new CinnamonCaptionRenderer(),
+                CaptionRendererKind.Elementary => new ElementaryCaptionRenderer(),
                 _ => new WindowsCaptionRenderer()
             };
             _renderer.UpdateHost(Form, () => Theme, () => CaptionHeight);
@@ -137,45 +143,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         {
             try
             {
-                // Map renderer to BeepFormStyle
-                var formType = _host.AsForm.GetType();
+                var form = _host.AsForm;
+                var formType = form.GetType();
+
+                // Respect host flags if available
+                bool autoApply = true;
+                bool autoPickDark = true;
+                var autoApplyProp = formType.GetProperty("AutoApplyRendererPreset");
+                var autoDarkProp = formType.GetProperty("AutoPickDarkPresets");
+                if (autoApplyProp != null) autoApply = (bool)(autoApplyProp.GetValue(form) ?? true);
+                if (autoDarkProp != null) autoPickDark = (bool)(autoDarkProp.GetValue(form) ?? true);
+
+                // Map FormStyle
                 var formStyleProp = formType.GetProperty("FormStyle");
                 if (formStyleProp != null)
                 {
-                    var enumType = formStyleProp.PropertyType; // BeepFormStyle
-                    object styleValue = formStyleProp.GetValue(_host.AsForm);
+                    var enumType = formStyleProp.PropertyType;
                     string targetStyleName = kind switch
                     {
                         CaptionRendererKind.MacLike => "Material",
-                        CaptionRendererKind.Gnome => "Minimal",
-                        CaptionRendererKind.Kde => "Modern",
+                        CaptionRendererKind.Gnome => "Gnome",
+                        CaptionRendererKind.Kde => "Kde",
+                        CaptionRendererKind.Cinnamon => "Cinnamon",
+                        CaptionRendererKind.Elementary => "Elementary",
                         _ => "Modern"
                     };
                     foreach (var v in Enum.GetValues(enumType))
                     {
                         if (string.Equals(v.ToString(), targetStyleName, StringComparison.OrdinalIgnoreCase))
                         {
-                            formStyleProp.SetValue(_host.AsForm, v);
+                            formStyleProp.SetValue(form, v);
                             break;
                         }
                     }
                 }
 
-                // Try to apply a preset if available
-                var applyPreset = _host.AsForm.GetType().GetMethod("ApplyPreset", new[] { typeof(string) });
+                if (!autoApply) return;
+
+                // Decide light/dark key suffix
+                string suffix = ".light";
+                if (autoPickDark)
+                {
+                    try
+                    {
+                        string themeName = formType.GetProperty("Theme")?.GetValue(form) as string ?? string.Empty;
+                        bool nameImpliesDark = themeName.Contains("dark", StringComparison.OrdinalIgnoreCase);
+                        var t = Theme;
+                        bool colorImpliesDark = t != null && (t.AppBarBackColor.GetBrightness() < 0.5f || t.BackColor.GetBrightness() < 0.5f);
+                        if (nameImpliesDark || colorImpliesDark)
+                            suffix = ".dark";
+                    }
+                    catch { }
+                }
+
+                // ApplyPreset based on renderer
+                var applyPreset = formType.GetMethod("ApplyPreset", new[] { typeof(string) });
                 if (applyPreset != null)
                 {
-                    string key = kind switch
+                    string baseKey = kind switch
                     {
-                        CaptionRendererKind.MacLike => "macos.light",
-                        CaptionRendererKind.Gnome => "gnome.adwaita.light",
-                        CaptionRendererKind.Kde => "kde.breeze.light",
+                        CaptionRendererKind.MacLike => "macos",
+                        CaptionRendererKind.Gnome => "gnome.adwaita",
+                        CaptionRendererKind.Kde => "kde.breeze",
+                        CaptionRendererKind.Cinnamon => "cinnamon.mint",
+                        CaptionRendererKind.Elementary => "elementary",
                         _ => string.Empty
                     };
-                    if (!string.IsNullOrEmpty(key))
+                    if (!string.IsNullOrEmpty(baseKey))
                     {
-                        try { applyPreset.Invoke(_host.AsForm, new object[] { key }); } catch { }
-                    }
+                        string key = baseKey + suffix;
+                        try { applyPreset.Invoke(form, new object[] { key }); } catch { }
+                      }
                 }
             }
             catch { }
@@ -183,25 +221,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 
         private void ApplyRendererVisualDefaults(CaptionRendererKind kind)
         {
-            // Nudge caption visuals to better match platform styles
             switch (kind)
             {
                 case CaptionRendererKind.Gnome:
-                    EnableCaptionGradient = false;
-                    if (CaptionHeight < 34) CaptionHeight = 34;
-                    break;
+                    EnableCaptionGradient = false; if (CaptionHeight < 34) CaptionHeight = 34; break;
                 case CaptionRendererKind.Kde:
-                    // Subtle gradient is fine
-                    EnableCaptionGradient = true;
-                    if (CaptionHeight < 36) CaptionHeight = 36;
-                    break;
+                    EnableCaptionGradient = true; if (CaptionHeight < 36) CaptionHeight = 36; break;
+                case CaptionRendererKind.Cinnamon:
+                    EnableCaptionGradient = true; if (CaptionHeight < 38) CaptionHeight = 38; break;
+                case CaptionRendererKind.Elementary:
+                    EnableCaptionGradient = false; if (CaptionHeight < 40) CaptionHeight = 40; break;
                 case CaptionRendererKind.MacLike:
-                    EnableCaptionGradient = false;
-                    if (CaptionHeight < 36) CaptionHeight = 36;
-                    break;
+                    EnableCaptionGradient = false; if (CaptionHeight < 36) CaptionHeight = 36; break;
                 case CaptionRendererKind.Windows:
                 default:
-                    // keep whatever the theme set; slight gradient allowed
                     break;
             }
         }
@@ -357,6 +390,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             add(CaptionRendererKind.MacLike, "macOS-like");
             add(CaptionRendererKind.Gnome,   "GNOME / Adwaita");
             add(CaptionRendererKind.Kde,     "KDE / Breeze");
+            add(CaptionRendererKind.Cinnamon,"Cinnamon");
+            add(CaptionRendererKind.Elementary, "Elementary");
             var pt = Form.PointToScreen(new Point(_styleButtonRect.Left, _styleButtonRect.Bottom));
             menu.Show(pt);
         }
@@ -373,9 +408,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             if (rect.Width <= 0 || rect.Height <= 0) return;
             
             // Draw caption background
-            if (EnableCaptionGradient && Theme != null && Theme.AppBarBackColor != Color.Empty)
+            if (EnableCaptionGradient && Theme != null)
             {
-                using var brush = new LinearGradientBrush(rect, ControlPaint.Light(Theme.AppBarBackColor, .05f), ControlPaint.Dark(Theme.AppBarBackColor, .05f), LinearGradientMode.Vertical);
+                // Prefer theme-provided gradient tokens
+                var start = Theme.AppBarGradiantStartColor != Color.Empty ? Theme.AppBarGradiantStartColor : (Theme.AppBarBackColor != Color.Empty ? Theme.AppBarBackColor : SystemColors.ControlDark);
+                var end   = Theme.AppBarGradiantEndColor   != Color.Empty ? Theme.AppBarGradiantEndColor   : (Theme.AppBarBackColor != Color.Empty ? ControlPaint.Dark(Theme.AppBarBackColor, .05f) : SystemColors.ControlDark);
+                var dir   = Theme.AppBarGradiantDirection;
+                using var brush = new LinearGradientBrush(rect, start, end, dir);
                 g.FillRectangle(brush, rect);
             }
             else
@@ -466,12 +505,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 
             // Draw form title
             using var sf = new StringFormat { LineAlignment = StringAlignment.Center };
-            using var titleBrush = new SolidBrush(Theme?.AppBarTitleForeColor ?? Form.ForeColor);
+            // Title font and color from overrides/theme if available
+            var titleFont = TitleFontOverride ?? BeepThemesManager.ToFont(Theme?.AppBarTitleStyle) ?? Form.Font;
+            Color titleColor = TitleForeColorOverride ?? (Theme?.AppBarTitleForeColor ?? Color.Empty);
+            if (titleColor == Color.Empty)
+            {
+                var styleColor = Theme?.AppBarTitleStyle?.TextColor;
+                if (styleColor.HasValue && styleColor.Value.A != 0)
+                    titleColor = styleColor.Value;
+                else
+                    titleColor = Form.ForeColor;
+            }
+            using var titleBrush = new SolidBrush(titleColor);
 
             Rectangle titleRect;
-            if (RendererKind == CaptionRendererKind.Gnome)
+            if (RendererKind == CaptionRendererKind.Gnome || RendererKind == CaptionRendererKind.MacLike)
             {
-                // Center title within available caption width
+                // Center title within available caption width (common for GNOME and macOS-like skins)
                 sf.Alignment = StringAlignment.Center;
                 titleRect = new Rectangle(rect.Left + leftInset, 0, rect.Width - leftInset - rightInset, rect.Height);
             }
@@ -481,7 +531,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 sf.Alignment = StringAlignment.Near;
                 titleRect = new Rectangle(titleStartX, 0, rect.Width - titleStartX - rightInset, rect.Height);
             }
-            g.DrawString(Form.Text, Form.Font, titleBrush, titleRect, sf);
+            g.DrawString(Form.Text, titleFont, titleBrush, titleRect, sf);
         }
 
         public void Dispose()

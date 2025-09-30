@@ -14,9 +14,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     // Material rendering extension for BaseControl (partial)
     public partial class BaseControl
     {
-    
-
-
         private void ClearPainterHitAreas()
         {
             try
@@ -25,8 +22,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     "MaterialLeadingIcon","MaterialTrailingIcon",
                     "ClassicLeadingIcon","ClassicTrailingIcon",
-                    "CardLeadingIcon","CardTrailingIcon",
-                    "NeoLeadingIcon","NeoTrailingIcon"
+                    "Card_Main",
+                    "NeoLeadingIcon","NeoTrailingIcon",
+                    "ReadingCardLeadingIcon","ReadingCardTrailingIcon",
+                    "ReadingCard_Settings","ReadingCard_Main",
+                    "Button_Main",
+                    "ShortcutCard_Main"
                 };
                 var list = _hitTest?.HitList;
                 if (list != null && list.Count > 0)
@@ -38,7 +39,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         
         #region Material fields
-        private bool _bcEnableMaterialStyle = true;
         private MaterialTextFieldVariant _bcMaterialVariant = MaterialTextFieldVariant.Outlined;
         private int _bcMaterialRadius = 8;
         private bool _bcShowFill = false;
@@ -80,30 +80,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     _bcUseVariantPadding = value;
                     IsCustomeBorder = value; // keep ControlPaintHelper drawing borders
-                    OnMaterialPropertyChanged();
-                    Invalidate();
-                }
-            }
-        }
-        [Browsable(true), Category("Material Style"), DefaultValue(true)]
-        public bool EnableMaterialStyle
-        {
-            get => _bcEnableMaterialStyle;
-            set
-            {
-                if (_bcEnableMaterialStyle != value)
-                {
-                    _bcEnableMaterialStyle = value;
-
-                    if (!value)
-                    {
-                        // We are disabling Material: drop the Material min-size clamp
-                        // so derived controls can choose their own minimums.
-                        MinimumSize = Size.Empty;
-                    }
-
-                    MaterialVariant = MaterialTextFieldVariant.Standard;
-                    IsCustomeBorder = false;
                     OnMaterialPropertyChanged();
                     Invalidate();
                 }
@@ -169,8 +145,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcLeadingIconPath = value ?? string.Empty;
-                if (EnableMaterialStyle)
-                    _materialHelper?.UpdateLayout(); // Recalculate icon positions only when material is enabled
+                UpdateMaterialLayout();
                 Invalidate();
             }
         }
@@ -184,23 +159,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcTrailingIconPath = value ?? string.Empty;
-                if (EnableMaterialStyle)
-                    _materialHelper?.UpdateLayout(); // Recalculate icon positions only when material is enabled
+                UpdateMaterialLayout();
                 Invalidate();
             }
         }
         [Browsable(true), Category("Icons")]
         [Description("Image path for the leading (left) icon - alternative to SVG path.")]
-        public string LeadingImagePath { get => _bcLeadingImagePath; set { _bcLeadingImagePath = value ?? string.Empty; if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public string LeadingImagePath { get => _bcLeadingImagePath; set { _bcLeadingImagePath = value ?? string.Empty; UpdateMaterialLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Image path for the trailing (right) icon - alternative to SVG path.")]
-        public string TrailingImagePath { get => _bcTrailingImagePath; set { _bcTrailingImagePath = value ?? string.Empty; if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public string TrailingImagePath { get => _bcTrailingImagePath; set { _bcTrailingImagePath = value ?? string.Empty; UpdateMaterialLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Show clear button when field has content.")]
         [DefaultValue(false)]
-        public bool ShowClearButton { get => _bcShowClearButton; set { _bcShowClearButton = value; if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public bool ShowClearButton { get => _bcShowClearButton; set { _bcShowClearButton = value; UpdateMaterialLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Enable click events for the leading icon.")]
@@ -215,12 +189,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true), Category("Icons")]
         [Description("Size of the icons in pixels.")]
         [DefaultValue(24)]
-        public int IconSize { get => _bcIconSize; set { _bcIconSize = Math.Max(12, value); if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public int IconSize { get => _bcIconSize; set { _bcIconSize = Math.Max(12, value); UpdateMaterialLayout(); Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("Padding between icons and text.")]
         [DefaultValue(8)]
-        public int IconPadding { get => _bcIconPadding; set { _bcIconPadding = Math.Max(0, value); if (EnableMaterialStyle) _materialHelper?.UpdateLayout(); Invalidate(); } }
+        public int IconPadding { get => _bcIconPadding; set { _bcIconPadding = Math.Max(0, value); UpdateMaterialLayout(); Invalidate(); } }
 
         // Material Design specific icon properties (aliases for compatibility)
         [Browsable(false)]
@@ -267,8 +241,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set
             {
                 _bcElevationLevel = Math.Max(0, Math.Min(value, 5));
-                if (EnableMaterialStyle)
-                    _materialHelper?.SetElevation(_bcElevationLevel);
                 Invalidate();
             }
         }
@@ -282,8 +254,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
              set
              {
                  _bcUseElevation = value;
-                 if (EnableMaterialStyle)
-                    _materialHelper?.SetElevationEnabled(_bcUseElevation);
                  Invalidate();
              }
          }
@@ -356,8 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             MaterialBorderVariant = MaterialVariant;
             FilledBackgroundColor = MaterialFillColor;
             BorderRadius = MaterialBorderRadius;
-            if (EnableMaterialStyle)
-                _materialHelper?.UpdateLayout();
+            UpdateMaterialLayout();
              Invalidate();
         }
 
@@ -366,7 +335,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         public Rectangle GetAdjustedContentRect()
         {
-            return _materialHelper?.GetAdjustedContentRect() ?? Rectangle.Empty;
+            // Use painter-provided content rectangle
+            EnsurePainter();
+            _painter?.UpdateLayout(this);
+            return _painter?.ContentRect ?? Rectangle.Empty;
         }
 
         /// <summary>
@@ -374,53 +346,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         public Rectangle GetContentRect()
         {
-            return _materialHelper?.GetContentRect() ?? Rectangle.Empty;
-        }
-
-        /// <summary>
-        /// Updates the material helper with current elevation settings
-        /// </summary>
-        private void UpdateMaterialHelperElevation()
-        {
-            if (_materialHelper != null)
-            {
-                _materialHelper.SetElevation(_bcElevationLevel);
-                _materialHelper.SetElevationEnabled(_bcUseElevation);
-            }
+            // Use painter-provided content rectangle
+            EnsurePainter();
+            _painter?.UpdateLayout(this);
+            return _painter?.ContentRect ?? Rectangle.Empty;
         }
         #endregion
 
         #region Partial hook implementation
         partial void DrawCustomBorder_Ext(Graphics g)
         {
-            if (!_bcEnableMaterialStyle) return;
-            _materialHelper ??= new BaseControlMaterialHelper(this);
-            _materialHelper.UpdateLayout();
-
-            var leadRect = _materialHelper.GetLeadingIconRect();
-            var trailRect = _materialHelper.GetTrailingIconRect();
-            UpdateMaterialIconHitAreas(leadRect, trailRect);
-
-            // Note: Main drawing is now handled in DrawContent method
-            // This method only handles icon hit areas for backward compatibility
-        }
-
-        private void UpdateMaterialIconHitAreas(Rectangle leadRect, Rectangle trailRect)
-        {
-            if (HitList != null)
-            {
-                var stale = HitList.Where(h => h.Name == "MaterialLeadingIcon" || h.Name == "MaterialTrailingIcon").ToList();
-                foreach (var s in stale)
-                {
-                    if ((s.Name == "MaterialLeadingIcon" && leadRect.IsEmpty) || (s.Name == "MaterialTrailingIcon" && trailRect.IsEmpty))
-                    {
-                        HitList.Remove(s);
-                    }
-                }
-            }
-
-            if (!leadRect.IsEmpty) _hitTest?.AddHitArea("MaterialLeadingIcon", leadRect, null, () => OnLeadingIconClick());
-            if (!trailRect.IsEmpty) _hitTest?.AddHitArea("MaterialTrailingIcon", trailRect, null, () => OnTrailingIconClick());
+            // No-op: painters now own all drawing and hit area registration
+            // This partial method is kept for binary compatibility but does nothing
         }
         #endregion
 
@@ -439,15 +376,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnSizeChanged(EventArgs e)
         {
             base.OnSizeChanged(e);
-            // Recalculate icon layout when control size changes
-            _materialHelper?.UpdateLayout();
+            // Update painter layout when control size changes
+            UpdateMaterialLayout();
         }
 
         protected override void OnFontChanged(EventArgs e)
         {
             base.OnFontChanged(e);
-            // Recalculate icon layout when font changes
-            _materialHelper?.UpdateLayout();
+            // Update painter layout when font changes
+            UpdateMaterialLayout();
         }
         #endregion
 

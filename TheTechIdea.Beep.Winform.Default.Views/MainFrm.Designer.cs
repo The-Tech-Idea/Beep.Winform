@@ -115,7 +115,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.DrawingRect = new Rectangle(0, 0, 1198, 46);
             beepMenuAppBar1.Easing = EasingType.Linear;
             beepMenuAppBar1.EnableHighQualityRendering = true;
-            beepMenuAppBar1.EnableMaterialStyle = false;
+          //  beepMenuAppBar1.EnableMaterialStyle = false;
             beepMenuAppBar1.EnableRippleEffect = false;
             beepMenuAppBar1.EnableSplashEffect = false;
             beepMenuAppBar1.ErrorColor = Color.FromArgb(176, 0, 32);

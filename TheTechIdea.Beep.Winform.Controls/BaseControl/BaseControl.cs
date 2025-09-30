@@ -80,19 +80,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private bool CanFocus() => _canBeFocused;
 
         // Helpers - Make all consistently non-readonly to allow proper initialization
-        internal ControlPaintHelper _paint;
         internal ControlEffectHelper _effects;
         internal ControlHitTestHelper _hitTest;
         internal ControlInputHelper _input;
         internal ControlExternalDrawingHelper _externalDrawing;
         internal ControlDpiHelper _dpi;
         internal ControlDataBindingHelper _dataBinding;
-        internal BaseControlMaterialHelper _materialHelper;
+     //   internal BaseControlMaterialHelper _materialHelper; // kept for binary compatibility; no longer constructed/used at runtime
         internal IBaseControlPainter _painter; // strategy-based painter (optional)
 
-        // Internal access to paint helper for helpers within the same assembly
-        internal ControlPaintHelper PaintHelper => _paint;
-        
         // Track theme change subscription
         private bool _subscribedToThemeChanged = false;
         
@@ -168,7 +164,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // IMPORTANT: Do not create DPI helper by default; let framework scale.
                 if (!DisableDpiAndScaling)
                     _dpi = new ControlDpiHelper(this);
-                _paint = new ControlPaintHelper(this);
                 _dataBinding = new ControlDataBindingHelper(this);
                 _externalDrawing = new ControlExternalDrawingHelper(this);
                 
@@ -179,18 +174,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // 3. Initialize helpers that depend on multiple other helpers
                 _input = new ControlInputHelper(this, _effects, _hitTest);
                 
-                // 4. Initialize Material helper last (depends on many others)
-                // Initialize material helper only if material style is enabled to avoid
-                // material layout side-effects when feature is toggled off.
-                if (_bcEnableMaterialStyle)
-                {
-                    _materialHelper = new BaseControlMaterialHelper(this);
-                }
+                // 4. Legacy material helper is no longer constructed; painters own material rendering now
+                // _materialHelper remains null for binary compatibility
                 
-                // 5. Initialize default painter strategy (keeps behavior identical)
-                _painter = _bcEnableMaterialStyle ?
-                    new MaterialBaseControlPainter() as IBaseControlPainter :
-                    new ClassicBaseControlPainter();
+                // 5. Initialize default painter based on PainterKind (defaults to Auto -> Classic)
+                UpdatePainterFromKind();
                 
             }
             catch (Exception ex)
@@ -223,26 +211,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Console.WriteLine($"Tooltip initialization failed: {tooltipEx.Message}");
             }
             
-            // Only update drawing rect if paint helper is working
-            if (_paint != null)
-            {
-                try
-                {
-                    _paint.UpdateRects();
-                }
-                catch (Exception ex)
-                {
-                    if (isDesignMode)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"BaseControl: UpdateDrawingRect error in design mode: {ex.Message}");
-                    }
-                    else
-                    {
-                        Console.WriteLine($"BaseControl: UpdateDrawingRect error: {ex.Message}");
-                    }
-                }
-            }
-            
             // Subscribe to global theme changes at runtime
             TrySubscribeThemeChanged(isDesignMode);
             
@@ -257,12 +225,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 // Create only the most essential helpers
-                if (_paint == null)
-                {
-                    Console.WriteLine("Creating minimal paint helper for fallback");
-                    _paint = new ControlPaintHelper(this);
-                }
-                
                 if (_dpi == null && !DisableDpiAndScaling)
                 {
                     Console.WriteLine("Creating minimal DPI helper for fallback");
@@ -398,11 +360,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Only perform complex layout operations if not in design mode
                 if (!isDesignMode)
                 {
-                    // Use the existing UpdateDrawingRect method from BaseControl.Methods.cs
-                    if (_paint != null)
-                    {
-                        _paint.UpdateRects();
-                    }
+                    EnsurePainter();
+                    _painter?.UpdateLayout(this);
                 }
             }
             catch (Exception ex)
@@ -435,11 +394,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Only perform complex operations if not in design mode
                 if (!isDesignMode)
                 {
-                    // Use the existing UpdateDrawingRect method from BaseControl.Methods.cs
-                    if (_paint != null)
-                    {
-                        _paint.UpdateRects();
-                    }
+                    EnsurePainter();
+                    _painter?.UpdateLayout(this);
                 }
             }
             catch (Exception ex)

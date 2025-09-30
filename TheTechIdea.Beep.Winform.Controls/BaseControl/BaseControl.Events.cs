@@ -28,30 +28,69 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnPaddingChanged(EventArgs e)
         {
             base.OnPaddingChanged(e);
-            
-            // Add null check to prevent exceptions during initialization
-            _paint?.InvalidateRects();
+
+            // Keep painter layout in sync with padding changes
+            EnsurePainter();
+            _painter?.UpdateLayout(this);
             Invalidate();
         }
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
 
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            // Early out for safety during design-time removal/dispose
+            if (IsDisposed || !IsHandleCreated)
+                return;
+
+         
+
+            if (IsChild && ParentBackColor != Color.Empty)
+            {
+                BackColor = ParentBackColor;
+            }
+            e.Graphics.Clear(BackColor);
+            if (UseExternalBufferedGraphics)
+            {
+                BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+                using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+                {
+                    Graphics g = buffer.Graphics;
+
+                   
+                    // Paint the inner area using the new PaintInnerShape method
+
+                    PaintInnerShape(g, BackColor);
+
+                    _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+                    DrawContent(g);
+                 
+                    _effects?.DrawOverlays(g);
+                    buffer.Render(e.Graphics);
+                }
+            }
+            else
+            {
+                Graphics g = e.Graphics;
+
+                // Paint the inner area using the new PaintInnerShape method
+
+                PaintInnerShape(g, BackColor);
+                _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+                DrawContent(g);
+              
+                _effects?.DrawOverlays(g);
+            }
+        }
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            
-            // Mark rects dirty and let drawing ensure they’re updated
-            _paint?.InvalidateRects();
-            
-            //// Only update material layout if helper is initialized
-            //if (_materialHelper != null)
-            //{
-            //    UpdateMaterialLayout();
-            //}
-            
-            // Simple region update
+            UpdateDrawingRect();
             UpdateControlRegion();
-            
-            // Ensure parent redraws badge area if size changes
             UpdateRegionForBadge();
+            Invalidate();
         }
 
         private void UpdateControlRegion()
@@ -101,97 +140,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             Region = controlRegion;
         }
-
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            
-        }
-
-        protected override void OnPaint(PaintEventArgs e)
-        {
-            // Early out for safety during design-time removal/dispose
-            if (IsDisposed || !IsHandleCreated)
-                return;
-
-            // When material style is enabled, we control background painting explicitly
-            if (EnableMaterialStyle)
-            {
-                // Decide outside background treatment
-                switch (MaterialOutsideBackground)
-                {
-                    case MaterialOutsideBackgroundMode.ParentBackColor:
-                        e.Graphics.Clear(Parent?.BackColor ?? BackColor);
-                        break;
-                    case MaterialOutsideBackgroundMode.Transparent:
-                        // Simulate transparency by painting parent's BackColor; true transparency is not supported by WinForms for all cases
-                        e.Graphics.Clear(Parent?.BackColor ?? Color.Transparent);
-                        break;
-                    case MaterialOutsideBackgroundMode.ControlBackColor:
-                    default:
-                        e.Graphics.Clear(BackColor);
-                        break;
-                }
-               
-            }
-            if (IsChild && ParentBackColor != Color.Empty)
-            {
-                BackColor = ParentBackColor;
-            }
-
-            if (UseExternalBufferedGraphics)
-            {
-                BufferedGraphicsContext context = BufferedGraphicsManager.Current;
-                using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
-                {
-                    Graphics g = buffer.Graphics;
-                
-
-                    // Paint the inner area using the new PaintInnerShape method
-                   
-                    PaintInnerShape(g, BackColor);
-                    
-                    _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
-                    DrawContent(g);
-                    DrawHitListIfNeeded(g);
-                    _effects?.DrawOverlays(g);
-                    buffer.Render(e.Graphics);
-                }
-            }
-            else
-            {
-                Graphics g = e.Graphics;
-             
-                // Paint the inner area using the new PaintInnerShape method
-
-                PaintInnerShape(g, BackColor);
-                _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
-                DrawContent(g);
-                DrawHitListIfNeeded(g);
-                _effects?.DrawOverlays(g);
-            }
-        }
-
-        private void DrawHitListIfNeeded(Graphics g)
-        {
-            if (!AutoDrawHitListComponents || _hitTest?.HitList == null || _hitTest.HitList.Count == 0)
-                return;
-
-            int drawn = 0;
-            var clip = ClientRectangle;
-            foreach (var ht in _hitTest.HitList)
-            {
-                if (!ht.IsVisible || ht.uIComponent == null)
-                    continue;
-                if (!clip.IntersectsWith(ht.TargetRect))
-                    continue;
-                ht.uIComponent.Draw(g, ht.TargetRect);
-                drawn++;
-                if (MaxHitListDrawPerFrame > 0 && drawn >= MaxHitListDrawPerFrame)
-                    break;
-            }
-        }
-
-
         #endregion
 
         #region Mouse and Input Event Routing
@@ -356,6 +304,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         internal void InvokeSubmitChanges(BeepComponentEventArgs args)
         {
             SubmitChanges?.Invoke(this, args);
+        }
+
+        /// <summary>
+        /// Programmatically triggers the Click event. Used by painters and helpers.
+        /// </summary>
+        public void TriggerClick()
+        {
+            if (Enabled && Visible)
+            {
+                OnClick(EventArgs.Empty);
+            }
         }
 
         #endregion

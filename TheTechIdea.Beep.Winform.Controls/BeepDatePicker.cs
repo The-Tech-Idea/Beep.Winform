@@ -151,7 +151,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateMinimumSize(); // Recalculate size when format changes
                 
                 // Apply size compensation if Material Design is enabled
-                if (EnableMaterialStyle && DatePickerAutoSizeForMaterial)
+                if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial)
                 {
                     ApplyMaterialSizeCompensation();
                 }
@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     UpdateMinimumSize(); // Recalculate size when custom format changes
                     
                     // Apply size compensation if Material Design is enabled
-                    if (EnableMaterialStyle && DatePickerAutoSizeForMaterial)
+                    if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial)
                     {
                         ApplyMaterialSizeCompensation();
                     }
@@ -209,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 UpdateMinimumSize(); // Recalculate size when culture changes
                 
                 // Apply size compensation if Material Design is enabled
-                if (EnableMaterialStyle && DatePickerAutoSizeForMaterial)
+                if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial)
                 {
                     ApplyMaterialSizeCompensation();
                 }
@@ -361,7 +361,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _textFont = this.Font;
 
             // Make it like BeepComboBox by default
-            EnableMaterialStyle = true;
+            //EnableMaterialStyle = true;
             MaterialVariant = MaterialTextFieldVariant.Outlined;
             MaterialBorderRadius = 4;
             calendarIcon = new BeepImage
@@ -476,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Material sizing and overrides
         public override void ApplyMaterialSizeCompensation()
         {
-            if (!EnableMaterialStyle || !DatePickerAutoSizeForMaterial) return;
+            if (PainterKind != BaseControlPainterKind.Material || !DatePickerAutoSizeForMaterial) return;
             
             Size contentSize;
             using (Graphics g = CreateGraphics())
@@ -531,7 +531,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnFontChanged(e);
             _textFont = this.Font;
-            if (EnableMaterialStyle && DatePickerAutoSizeForMaterial) ApplyMaterialSizeCompensation();
+            if (PainterKind == BaseControlPainterKind.Material && DatePickerAutoSizeForMaterial) ApplyMaterialSizeCompensation();
             UpdateMinimumSize();
             Invalidate();
         }
@@ -623,9 +623,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Use material helper content rect if available; fallback to DrawingRect
         private Rectangle GetContentRectForDrawing()
         {
-            if (EnableMaterialStyle && _materialHelper != null)
+            if (PainterKind == BaseControlPainterKind.Material )
             {
-                var r = _materialHelper.GetContentRect();
+                var r = GetContentRect();
                 if (r.Width > 0 && r.Height > 0) return r;
             }
             return DrawingRect;
@@ -918,7 +918,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Size baseContentMin = new Size(Math.Max(120, baseContentW), Math.Max(20, baseContentH));
 
                 // Apply Material Design calculations if enabled
-                Size effectiveMin = EnableMaterialStyle 
+                Size effectiveMin = PainterKind == BaseControlPainterKind.Material
                     ? GetEffectiveMaterialMinimum(baseContentMin)
                     : new Size(
                         baseContentMin.Width + (BorderThickness + 2) * 2,

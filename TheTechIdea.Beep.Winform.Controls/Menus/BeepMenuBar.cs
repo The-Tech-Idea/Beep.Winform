@@ -201,8 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Width = 200;
                 Height = ScaledMenuItemHeight + ScaleValue(2);
             }
-            EnableMaterialStyle = false;
-
+          
             ApplyThemeToChilds = true;
             BoundProperty = "SelectedMenuItem";
             IsFrameless = true;

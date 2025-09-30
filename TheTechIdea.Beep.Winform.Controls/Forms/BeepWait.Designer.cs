@@ -423,7 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DrawingRect = new Rectangle(1, 1, 860, 52);
             Title.Easing = EasingType.Linear;
             Title.EnableHighQualityRendering = true;
-            Title.EnableMaterialStyle = false;
+            Title.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
             Title.EnableRippleEffect = false;
             Title.EnableSplashEffect = false;
             Title.ErrorColor = Color.FromArgb(176, 0, 32);
@@ -599,7 +599,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.DrawingRect = new Rectangle(1, 1, 173, 38);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
-            beepLabel1.EnableMaterialStyle = false;
+            beepLabel1.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
             beepLabel1.EnableRippleEffect = false;
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);

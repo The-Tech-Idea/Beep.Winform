@@ -68,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             target.IsChild = true;
             target.BackColor = _owner.BackColor;
             target.ForeColor = _owner.ForeColor;
-            target.ApplyThemeOnImage = true; // allow theme tint
+            target.ApplyThemeOnImage = false; // allow theme tint
             target.PreserveSvgBackgrounds = true; // keep background shapes (e.g., circle) from the SVG
             target.Size = size;
             if (!string.Equals(target.ImagePath, imagePath, StringComparison.OrdinalIgnoreCase))

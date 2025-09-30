@@ -527,7 +527,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 ApplyThemeToChilds = true,
                 
                 // CRITICAL: Disable Material Design to allow small size
-                EnableMaterialStyle = false,
+                //EnableMaterialStyle = false,
  
                 IsFrameless = false,
                 IsShadowAffectedByTheme = false,
@@ -1308,7 +1308,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 _searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
 
                 // Disable Material Design to prevent size constraints
-                _searchBox.EnableMaterialStyle = false;
+                _searchBox.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
 
                 // Add the search box to the controls and make it visible
                 _searchBox.Visible = true;

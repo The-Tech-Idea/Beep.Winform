@@ -6,20 +6,20 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 {
     /// <summary>
-    /// Card painter: provides outer card styling (border, background, shadow) 
+    /// Shortcut card painter: provides outer card styling (border, background) 
     /// while leaving inner content (DrawingRect) for inheriting controls to handle.
-    /// Based on card design with rounded corners and subtle elevation.
+    /// Based on the keyboard shortcut card design - only handles the outer card appearance.
     /// </summary>
-    internal sealed class CardBaseControlPainter : IBaseControlPainter
+    internal sealed class ShortcutCardBaseControlPainter : IBaseControlPainter
     {
         private Rectangle _cardRect;
         private Rectangle _drawingRect;
 
         // Layout constants matching the design
-        private const int CARD_PADDING = 8;
+        private const int CARD_PADDING = 6;
         private const int CONTENT_PADDING = 16;
-        private const int BORDER_RADIUS = 12;
-        private const int SHADOW_OFFSET = 2;
+        private const int BORDER_RADIUS = 8;
+        private const int BORDER_WIDTH = 2;
 
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _cardRect;
@@ -34,12 +34,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 return;
             }
 
-            // Main card rectangle with padding for shadow
+            // Main card rectangle
             _cardRect = new Rectangle(
                 CARD_PADDING,
                 CARD_PADDING,
-                owner.Width - (CARD_PADDING * 2) - SHADOW_OFFSET,
-                owner.Height - (CARD_PADDING * 2) - SHADOW_OFFSET
+                owner.Width - (CARD_PADDING * 2),
+                owner.Height - (CARD_PADDING * 2)
             );
 
             if (_cardRect.Width <= 0 || _cardRect.Height <= 0) 
@@ -67,8 +67,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         {
             if (g == null || owner == null || _cardRect.IsEmpty) return;
 
-            var theme = owner._currentTheme;
-
             // Enable high-quality rendering
             var oldSmoothingMode = g.SmoothingMode;
             var oldInterpolationMode = g.InterpolationMode;
@@ -78,8 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             try
             {
-                // Only draw card shadow, background and border - inheriting controls handle all inner content
-                DrawCardShadow(g, owner);
+                // Only draw card background and border - inheriting controls handle all inner content
                 DrawCardBackground(g, owner);
             }
             finally
@@ -90,38 +87,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
         }
 
-        private void DrawCardShadow(Graphics g, Base.BaseControl owner)
-        {
-            Rectangle shadowRect = new Rectangle(
-                _cardRect.X + SHADOW_OFFSET, 
-                _cardRect.Y + SHADOW_OFFSET, 
-                _cardRect.Width, 
-                _cardRect.Height
-            );
-
-            var theme = owner._currentTheme;
-            Color shadowColor = theme?.ShadowColor ?? Color.FromArgb(30, Color.Black);
-
-            using (var shadowBrush = new SolidBrush(shadowColor))
-            using (var shadowPath = CreateRoundedPath(shadowRect, BORDER_RADIUS))
-            {
-                g.FillPath(shadowBrush, shadowPath);
-            }
-        }
-
         private void DrawCardBackground(Graphics g, Base.BaseControl owner)
         {
+            // Get colors from theme
             var theme = owner._currentTheme;
-
+            
             // Determine background color - use owner's BackColor if set, otherwise theme
             Color backgroundColor = owner.BackColor != Color.Transparent && owner.BackColor != SystemColors.Control 
                 ? owner.BackColor 
-                : (theme?.CardBackColor ?? Color.White);
+                : (theme?.BackColor ?? Color.FromArgb(173, 216, 230)); // Light blue/cyan fallback
 
             // Determine border color - use owner's BorderColor if set, otherwise theme
             Color borderColor = owner.BorderColor != Color.Black && owner.BorderColor != Color.Empty
                 ? owner.BorderColor
-                : (theme?.BorderColor ?? Color.FromArgb(220, 220, 220));
+                : (theme?.BorderColor ?? Color.FromArgb(70, 130, 180)); // Steel blue fallback
 
             // Apply state-based modifications
             if (!owner.Enabled)
@@ -131,32 +110,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
             else if (owner.IsPressed)
             {
-                backgroundColor = Color.FromArgb(230, backgroundColor.R, backgroundColor.G, backgroundColor.B);
+                backgroundColor = Color.FromArgb(220, backgroundColor.R, backgroundColor.G, backgroundColor.B);
             }
             else if (owner.IsHovered)
             {
-                backgroundColor = theme?.CardBackColor != null ? 
-                    Blend(backgroundColor, theme?.MenuItemHoverBackColor ?? Color.White, 0.12f) :
-                    Color.FromArgb(255, Math.Min(255, backgroundColor.R + 10), 
-                        Math.Min(255, backgroundColor.G + 10), Math.Min(255, backgroundColor.B + 10));
+                backgroundColor = Color.FromArgb(255, Math.Min(255, backgroundColor.R + 10), 
+                    Math.Min(255, backgroundColor.G + 10), Math.Min(255, backgroundColor.B + 10));
             }
 
             using (var backgroundBrush = new SolidBrush(backgroundColor))
-            using (var borderPen = new Pen(borderColor, 1))
+            using (var borderPen = new Pen(borderColor, BORDER_WIDTH))
             using (var cardPath = CreateRoundedPath(_cardRect, BORDER_RADIUS))
             {
                 g.FillPath(backgroundBrush, cardPath);
                 g.DrawPath(borderPen, cardPath);
             }
-        }
-
-        private static Color Blend(Color baseColor, Color overlay, float amount)
-        {
-            amount = Math.Max(0f, Math.Min(1f, amount));
-            byte r = (byte)(baseColor.R + (overlay.R - baseColor.R) * amount);
-            byte g = (byte)(baseColor.G + (overlay.G - baseColor.G) * amount);
-            byte b = (byte)(baseColor.B + (overlay.B - baseColor.B) * amount);
-            return Color.FromArgb(r, g, b);
         }
 
         public void UpdateHitAreas(Base.BaseControl owner, Action<string, Rectangle, Action> register)
@@ -166,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             // Register entire card as clickable
             if (!_cardRect.IsEmpty)
             {
-                register("Card_Main", _cardRect, () => 
+                register("ShortcutCard_Main", _cardRect, () => 
                 {
                     // Trigger the Click event
                     owner.TriggerClick();
@@ -179,8 +147,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner == null) return Size.Empty;
 
             // Minimum size to accommodate the card design
-            int minWidth = 150;
-            int minHeight = 100;
+            int minWidth = 120;
+            int minHeight = 80;
 
             return new Size(
                 Math.Max(minWidth, proposedSize.Width),

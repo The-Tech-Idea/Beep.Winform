@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DrawingRect = new Rectangle(1, 1, 298, 84);
             beepLabel1.Easing = Vis.Modules.EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
-            beepLabel1.EnableMaterialStyle = false;
+          //  beepLabel1.EnableMaterialStyle = false;
             beepLabel1.EnableRippleEffect = false;
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);

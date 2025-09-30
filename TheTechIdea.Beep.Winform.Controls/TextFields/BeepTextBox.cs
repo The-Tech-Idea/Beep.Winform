@@ -1733,10 +1733,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Prefer Material content rectangle when Material style is enabled
             Rectangle contentArea;
-            if (EnableMaterialStyle)
+            if (PainterKind== BaseControlPainterKind.Material)
             {
-                // Ensure material helper layout is updated before fetching rects
-                UpdateMaterialLayout();
+              
                 contentArea = GetMaterialContentRectangle();
 
                 // Fallback if material content rect is empty
@@ -2262,7 +2261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Use material content rect if available; otherwise base on provided rectangle
             Rectangle textRect = rectangle;
-            if (EnableMaterialStyle)
+            if (PainterKind == Base.BaseControl.BaseControlPainterKind.Material)
             {
                 // Approximate content area within the provided rectangle
                 var padding = GetMaterialStylePadding();

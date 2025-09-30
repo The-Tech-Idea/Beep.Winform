@@ -849,7 +849,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.DrawingRect = new Rectangle(1, 1, 122, 31);
             beepLabel2.Easing = EasingType.Linear;
             beepLabel2.EnableHighQualityRendering = true;
-            beepLabel2.EnableMaterialStyle = false;
+         //   beepLabel2.EnableMaterialStyle = false;
             beepLabel2.EnableRippleEffect = false;
             beepLabel2.EnableSplashEffect = false;
             beepLabel2.ErrorColor = Color.FromArgb(176, 0, 32);
@@ -1194,7 +1194,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DrawingRect = new Rectangle(1, 1, 122, 31);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
-            beepLabel1.EnableMaterialStyle = false;
+         //   beepLabel1.EnableMaterialStyle = false;
             beepLabel1.EnableRippleEffect = false;
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);

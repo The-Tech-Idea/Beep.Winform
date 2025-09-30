@@ -129,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPopupListForm() : base()
         {
             InitializeComponent();
-            _beepListBox.EnableMaterialStyle = false;
+            _beepListBox.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
             _beepListBox.CanBeFocused = false;
             _beepListBox.CanBeSelected = false;
             _beepListBox.CanBeHovered = false;
@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPopupListForm(List<SimpleItem> items)
         {
             InitializeComponent();
-            _beepListBox.EnableMaterialStyle = false;
+            _beepListBox.PainterKind = Base.BaseControl.BaseControlPainterKind.Classic;
             _beepListBox.CanBeFocused = false;
             _beepListBox.CanBeSelected = false;
             _beepListBox.CanBeHovered = false;
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.ShowShadow = false;
             _beepListBox.IsBorderAffectedByTheme = false;
             _beepListBox.ShowAllBorders = false;
-            _beepListBox.EnableMaterialStyle = false;
+            _beepListBox.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
             _beepListBox.IsFrameless = true;
             _beepListBox.CanBeFocused = false;
             _beepListBox.CanBeSelected = false;

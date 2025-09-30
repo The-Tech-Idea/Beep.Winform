@@ -52,10 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint |
                      ControlStyles.DoubleBuffer | ControlStyles.ResizeRedraw, true);
 
-            // Enable Material Design styling
-            EnableMaterialStyle = true;
-            MaterialVariant = MaterialTextFieldVariant.Outlined;
-            MaterialBorderRadius = 8;
+          
             ShowAllBorders = true;
 
             try
@@ -141,9 +138,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         // Helper method like BeepComboBox uses
         private Rectangle GetContentRectForDrawing()
         {
-            if (EnableMaterialStyle && _materialHelper != null)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
-                var r = _materialHelper.GetContentRect();
+                var r = GetContentRect();
                 if (r.Width > 0 && r.Height > 0) return r;
             }
             return DrawingRect;
@@ -204,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 IsChild = true, 
                 Theme = Theme, 
                 Anchor = AnchorStyles.Top | AnchorStyles.Left,
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -319,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             ForeColor = _currentTheme.CalendarForeColor;
             
             // Apply Material Design theme colors
-            if (EnableMaterialStyle)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 MaterialOutlineColor = _currentTheme.CalendarBorderColor;
                 MaterialPrimaryColor = _currentTheme.CalendarSelectedDateBackColor;

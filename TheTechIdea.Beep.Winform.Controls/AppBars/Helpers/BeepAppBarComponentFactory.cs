@@ -7,6 +7,7 @@ using TheTechIdea.Beep.Vis.Modules.Managers;
  
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using static TheTechIdea.Beep.Winform.Controls.Base.BaseControl;
 
 namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
 {
@@ -98,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
                 PlaceholderText = "Search...",
                 Anchor = AnchorStyles.Right,
                 ApplyThemeToChilds = true,
-                EnableMaterialStyle = false,
+                PainterKind = BaseControlPainterKind.Classic,
                 IsFrameless = false,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,

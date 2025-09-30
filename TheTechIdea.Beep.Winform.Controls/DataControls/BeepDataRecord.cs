@@ -158,7 +158,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _mainPanel.Controls.Add(_tableLayout);
 
             ApplyTheme();
-            UpdateMaterialLayout();
+           
         }
 
         #endregion
@@ -305,7 +305,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 SetupEmptyLayout();
                 _tableLayout.ResumeLayout(true);
                 PositionMainPanelToMaterialContent();
-                UpdateMaterialLayout();
+             
                 return;
             }
 
@@ -316,7 +316,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _tableLayout.ResumeLayout(true);
             PositionMainPanelToMaterialContent();
-            UpdateMaterialLayout();
+           
         }
 
         private void PositionMainPanelToMaterialContent()
@@ -476,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnSizeChanged(e);
             PositionMainPanelToMaterialContent();
-            UpdateMaterialLayout();
+           
         }
         #endregion
 
@@ -580,7 +580,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 field.Theme = Theme;
                 field.ApplyTheme();
             }
-            UpdateMaterialLayout();
+           
         }
 
         #endregion

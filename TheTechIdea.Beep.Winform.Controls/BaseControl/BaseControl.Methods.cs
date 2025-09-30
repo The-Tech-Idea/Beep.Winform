@@ -17,6 +17,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 {
     public partial class BaseControl
     {
+        // Ensure a painter instance exists and matches PainterKind
+        private void EnsurePainter()
+        {
+            try
+            {
+                var desired = PainterKind;
+                if (desired == BaseControlPainterKind.Auto)
+                {
+                    desired =  BaseControlPainterKind.Classic;
+                }
+
+                bool needsNew = _painter == null;
+                if (!needsNew)
+                {
+                    // Check type mismatch
+                    needsNew = desired switch
+                    {
+                        BaseControlPainterKind.Classic => _painter is not ClassicBaseControlPainter,
+                        BaseControlPainterKind.Material => _painter is not MaterialBaseControlPainter,
+                        BaseControlPainterKind.Card => _painter is not CardBaseControlPainter,
+                        BaseControlPainterKind.NeoBrutalist => _painter is not NeoBrutalistBaseControlPainter,
+                        BaseControlPainterKind.ReadingCard => _painter is not ReadingCardBaseControlPainter,
+                        _ => _painter is null
+                    };
+                }
+
+                if (needsNew)
+                {
+                    _painter = desired switch
+                    {
+                        BaseControlPainterKind.Classic => new ClassicBaseControlPainter(),
+                        BaseControlPainterKind.Material => new MaterialBaseControlPainter(),
+                        BaseControlPainterKind.Card => new CardBaseControlPainter(),
+                        BaseControlPainterKind.NeoBrutalist => new NeoBrutalistBaseControlPainter(),
+                        BaseControlPainterKind.ReadingCard => new ReadingCardBaseControlPainter(),
+                        _ => new ClassicBaseControlPainter()
+                    };
+                }
+            }
+            catch { /* keep previous painter if any */ }
+        }
+
         #region Theme Methods
         public virtual void ApplyTheme()
         {
@@ -209,11 +251,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public void StopAnimation() => _input.StopAnimation();
         public void StartRippleEffect(Point center) => _input.StartRippleEffect(center);
         #endregion
-
-        #region Gradient Helper Methods
-        public void AddGradientStop(float position, Color color) => _paint.AddGradientStop(position, color);
-        public void ClearGradientStops() => _paint.ClearGradientStops();
-        #endregion
+        #region Control State Management
+        protected virtual void ShowToolTipIfExists()
+        {
+            if (!string.IsNullOrEmpty(ToolTipText))
+            {
+                _toolTip?.Show(ToolTipText, this, PointToClient(MousePosition), 3000);
+            }
+        }
+       
 
         #region Image and Size Utility Methods (from BeepControl)
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
@@ -253,21 +299,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        #region Control State Management
-        protected virtual void ShowToolTipIfExists()
-        {
-            if (!string.IsNullOrEmpty(ToolTipText))
-            {
-                _toolTip?.Show(ToolTipText, this, PointToClient(MousePosition), 3000);
-            }
-        }
-
         public override Size GetPreferredSize(Size proposedSize)
         {
-            _paint.UpdateRects();
+            EnsurePainter();
 
-            // If Material style is on, include label/supporting text in preferred size
-            if (EnableMaterialStyle)
+            // Let the active painter decide first
+            if (_painter != null)
+            {
+                try
+                {
+                    var painterSize = _painter.GetPreferredSize(this, proposedSize);
+                    if (!painterSize.IsEmpty)
+                        return painterSize;
+                }
+                catch { /* fallback to existing logic */ }
+            }
+
+            if (PainterKind== BaseControlPainterKind.Material)
             {
                 int width = Math.Max(1, proposedSize.Width <= 0 ? Width : proposedSize.Width);
                 int height = Math.Max(1, proposedSize.Height <= 0 ? Height : proposedSize.Height);
@@ -302,14 +350,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 return new Size(Math.Max(Width, width), requiredH);
             }
 
-            var drawingRect = _paint.DrawingRect;
-            int adjustedWidth = drawingRect.Width;
-            int adjustedHeight = drawingRect.Height;
-            return new Size(adjustedWidth, adjustedHeight);
+            // Classic fallback: make a conservative estimate using padding and borders
+            int border = ShowAllBorders ? BorderThickness * 2 : 0;
+            var pad = Padding;
+            int minW = Math.Max(Width, pad.Horizontal + border + Math.Max(60, Font.Height * 3));
+            int minH = Math.Max(Height, pad.Vertical + border + Math.Max(24, Font.Height + 8));
+            return new Size(minW, minH);
         }
-
-        // Parity wrappers
-        public virtual void UpdateDrawingRect() => _paint.UpdateRects();
 
         /// <summary>
         /// Paints the inner shape of the control (content area excluding borders)
@@ -318,12 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <param name="fillColor">Color to fill the inner area with</param>
         protected virtual void PaintInnerShape(Graphics g, Color fillColor)
         {
-            // Ensure the InnerShape is up to date
-            _paint?.EnsureUpdated();
-            if (EnableMaterialStyle && _materialHelper != null)
-            {
-                _materialHelper.UpdateLayout();
-            }
+            // Painters own layout; do not rely on ControlPaintHelper rectangles here
 
             // Use the InnerShape if available, otherwise fallback to InnerArea rectangle
             if (InnerShape != null && InnerShape.PointCount > 0)
@@ -366,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected virtual void PaintInnerShapeUsingPath(Graphics g, GraphicsPath innerShape, Color fillColor)
         {
             // For Material Design, respect variant-specific fill rules
-            if (EnableMaterialStyle)
+            if (PainterKind== BaseControlPainterKind.Material)
             {
                 bool shouldShowFill = MaterialVariant == MaterialTextFieldVariant.Filled || MaterialShowFill;
                 
@@ -421,139 +463,84 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 g.TextRenderingHint = TextRenderingHint.SystemDefault;
             }
 
-            // Painter strategy takes precedence when available
+            // Always rely on painter
+            EnsurePainter();
+            _painter.UpdateLayout(this);
+
+            // Expose painter inner rect to derived controls via BaseControl.DrawingRect
+            try { this.DrawingRect = _painter.DrawingRect; } catch { }
+
+            _painter.Paint(g, this);
+
+            // Let painter register hit areas; wire actions when available
+            _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, null, action));
+
+           
+        }
+
+        /// <summary>
+        /// Triggers Material Design size compensation when properties change
+        /// </summary>
+        protected virtual void OnMaterialPropertyChanged()
+        {
+            if (PainterKind== BaseControlPainterKind.Material && MaterialAutoSizeCompensation && !_isInitializing)
+            {
+                ApplyMaterialSizeCompensation();
+            }
+
+            // Keep painter strategy in sync if painter auto-select is used
             if (_painter != null)
             {
-                _painter.UpdateLayout(this);
-                _painter.Paint(g, this);
-
-                // Let painter register hit areas; wire actions when available
-                // IMPORTANT: pass null as component to avoid AutoDraw redrawing the owner inside icon rectangles
-                _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, null, action));
-
-                // Draw main Text centrally once, after painter work
-                if (!string.IsNullOrEmpty(Text))
-                {
-                    Rectangle contentRect;
-                    if (EnableMaterialStyle && _materialHelper != null)
-                    {
-                        contentRect = _materialHelper.GetAdjustedContentRect();
-                        if (contentRect.IsEmpty || contentRect.Width <= 0 || contentRect.Height <= 0)
-                            contentRect = _materialHelper.GetFieldRect();
-                    }
-                    else
-                    {
-                        var drawingRect = _paint?.DrawingRect ?? new Rectangle(0, 0, Width, Height);
-                        var icons = new BaseControlIconsHelper(this);
-                        icons.UpdateLayout(drawingRect);
-                        contentRect = icons.AdjustedContentRect;
-                        if (contentRect.IsEmpty || contentRect.Width <= 0 || contentRect.Height <= 0)
-                            contentRect = drawingRect;
-                    }
-
-                    if (contentRect.Width > 0 && contentRect.Height > 0)
-                    {
-                        var textColor = Enabled ? ForeColor : DisabledForeColor;
-                        var flags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPrefix;
-                        TextRenderer.DrawText(g, Text, Font, contentRect, textColor, flags);
-                    }
-                }
-                return;
-            }
-
-            if (EnableMaterialStyle)
-            {
-                // Use material design drawing
-                DrawMaterialContent(g);
-            }
-            else
-            {
-                _paint.EnsureUpdated();
-                _paint.Draw(g);
+                // Auto-switch painter when Material toggle changes
+                _painter = PainterKind == BaseControlPainterKind.Material ? new MaterialBaseControlPainter() : new ClassicBaseControlPainter();
             }
         }
 
         /// <summary>
-        /// Draws material design content using the enhanced material helper
+        /// Updates the drawing rectangle based on current painter layout
+        /// This is a critical method used by many derived controls
         /// </summary>
-        private void DrawMaterialContent(Graphics g)
+        public virtual void UpdateDrawingRect()
         {
-            if (!EnableMaterialStyle) return;
-            // Create material helper if it doesn't exist
-            if (_materialHelper == null)
+            EnsurePainter();
+            if (_painter == null) return;
+
+            // Compute layout once and assign rect without forcing redraw
+            _painter.UpdateLayout(this);
+            var newRect = _painter.DrawingRect;
+            if (newRect != _drawingRect)
             {
-                _materialHelper = new BaseControlMaterialHelper(this);
+                _drawingRect = newRect;
+            }
+        }
+
+        /// <summary>
+        /// Applies Material Design size compensation - can be overridden by derived controls
+        /// </summary>
+        public virtual void ApplyMaterialSizeCompensation()
+        {
+            if (PainterKind != BaseControlPainterKind.Material || !MaterialAutoSizeCompensation)
+                return;
+
+            // Calculate current text size if we have content
+            Size textSize = Size.Empty;
+            if (!string.IsNullOrEmpty(Text))
+            {
+                using (Graphics g = CreateGraphics())
+                {
+                    var measuredSize = g.MeasureString(Text, Font);
+                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
+                }
             }
             
-            _materialHelper.UpdateLayout();
-
-            // Apply elevation settings to the material helper
-            _materialHelper.SetElevation(_bcElevationLevel);
-            _materialHelper.SetElevationEnabled(_bcUseElevation);
-
-            // 1) Draw main MD field (bg, border, icons, etc.)
-            _materialHelper.DrawAll(g);
-
-            // 2) Draw LabelText (floating style simplified) inside/outside based on variant
-            if (!string.IsNullOrEmpty(LabelText))
+            // Use a reasonable default content size if no text
+            if (textSize.IsEmpty)
             {
-                using var labelFont = new Font(Font, FontStyle.Regular);
-                Color labelColor = HasError ? ErrorColor : (_currentTheme?.SecondaryTextColor ?? ForeColor);
-
-                Rectangle fieldRect = _materialHelper.GetFieldRect();
-                Rectangle labelRect = new Rectangle(fieldRect.Left + 8, Math.Max(2, fieldRect.Top - (int)(labelFont.Height * 0.8)), fieldRect.Width - 16, labelFont.Height);
-                if (MaterialVariant != MaterialTextFieldVariant.Outlined)
-                {
-                    labelRect = new Rectangle(fieldRect.Left + 8, fieldRect.Top - labelFont.Height - 2, fieldRect.Width - 16, labelFont.Height);
-                }
-                TextRenderer.DrawText(g, LabelText, labelFont, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+                textSize = new Size(100, 20);
             }
-
-            // 3) Draw ErrorText or HelperText below field
-            string supporting = string.Empty;
-            Color supportingColor = (_currentTheme?.SecondaryTextColor ?? ForeColor);
-            if (HasError && !string.IsNullOrEmpty(ErrorText))
-            {
-                supporting = ErrorText;
-                supportingColor = ErrorColor;
-            }
-            else if (!string.IsNullOrEmpty(HelperText))
-            {
-                supporting = HelperText;
-                supportingColor = _currentTheme?.SecondaryTextColor ?? ForeColor;
-            }
-
-            if (!string.IsNullOrEmpty(supporting))
-            {
-                using var supportFont = new Font(Font.FontFamily, Math.Max(8f, Font.Size - 1f), FontStyle.Regular);
-                var rect = _materialHelper.GetSupportingTextRect(supportFont.Height);
-                if (rect.Width > 10 && rect.Height > 0)
-                {
-                    TextRenderer.DrawText(g, supporting, supportFont, rect, supportingColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// Updates the material helper layout. Called by derived classes when layout changes.
-        /// </summary>
-        protected void UpdateMaterialLayout()
-        {
-            if (!EnableMaterialStyle) return;
-            // Add null check to prevent NullReferenceException during initialization
-            if (_materialHelper != null)
-            {
-                _materialHelper.UpdateLayout();
-            }
-        }
-
-        protected  GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            return ControlPaintHelper.GetRoundedRectPath(rect, radius);
-        }
-        protected virtual void DrawFocusIndicator(Graphics g)
-        {
-            // Focus indicator handled by effects helper; override in derived if needed
+            
+            // Apply Material size compensation
+            AdjustSizeForMaterial(textSize, true);
         }
         #endregion
 
@@ -632,7 +619,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>Padding structure with Material Design spacing requirements</returns>
         public virtual Padding GetMaterialStylePadding()
         {
-            if (!EnableMaterialStyle)
+            if (PainterKind != BaseControlPainterKind.Material)
                 return Padding.Empty;
 
             // Material Design padding based on variant
@@ -655,9 +642,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>Size of additional space needed for focus and elevation effects</returns>
         public virtual Size GetMaterialEffectsSpace()
         {
-            if (!EnableMaterialStyle)
+            if (PainterKind != BaseControlPainterKind.Material)
                 return Size.Empty;
-
             int focusSpace = 4; // 2px on each side for focus ring
             // Elevation applies on both sides; use 2x to reflect left+right / top+bottom
             int elevationSpace = MaterialUseElevation ? Math.Min(MaterialElevationLevel, 5) * 2 : 0;
@@ -671,7 +657,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>Size of space needed for leading and trailing icons</returns>
         public virtual Size GetMaterialIconSpace()
         {
-            if (!EnableMaterialStyle)
+            if (PainterKind !=  BaseControlPainterKind.Material)
                 return Size.Empty;
 
             int totalIconWidth = 0;
@@ -701,8 +687,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>Minimum size that accommodates Material Design requirements</returns>
         public virtual Size CalculateMinimumSizeForMaterial(Size baseContentSize)
         {
-            if (!EnableMaterialStyle)
-                return baseContentSize;
+            if (PainterKind != BaseControlPainterKind.Material)
+                
+            return baseContentSize;
 
             if (MaterialPreserveContentArea)
             {
@@ -797,15 +784,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>Rectangle available for content after Material Design spacing is applied</returns>
         public virtual Rectangle GetMaterialContentRectangle()
         {
-            if (!EnableMaterialStyle)
-                return ClientRectangle;
+            if (PainterKind != BaseControlPainterKind.Material)
+               
+            return ClientRectangle;
 
-            if (_materialHelper != null)
+            // Use painter-provided rects when available
+            if (_painter != null)
             {
-                return _materialHelper.GetContentRect();
+                var rect = _painter.ContentRect;
+                if (!rect.IsEmpty)
+                    return rect;
+                rect = _painter.DrawingRect;
+                if (!rect.IsEmpty)
+                    return rect;
             }
 
-            // Fallback calculation if material helper is not available
+            // Fallback calculation if painter is not set yet
             var padding = GetMaterialStylePadding();
             var effects = GetMaterialEffectsSpace();
             var icons = GetMaterialIconSpace();
@@ -825,8 +819,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <param name="respectMaximumSize">Whether to respect any maximum size constraints</param>
         public virtual void AdjustSizeForMaterial(Size baseContentSize, bool respectMaximumSize = true)
         {
-            if (!EnableMaterialStyle)
-                return;
+            if (PainterKind != BaseControlPainterKind.Material)
+               
+            return;
 
             var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
             
@@ -871,82 +866,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <returns>Minimum size including Material padding, effects and icons, DPI-scaled.</returns>
         protected Size GetEffectiveMaterialMinimum(Size baseContentMinimum)
         {
-            if (!EnableMaterialStyle)
-                return baseContentMinimum;
+            if (PainterKind != BaseControlPainterKind.Material)
+              
+            return baseContentMinimum;
 
             var min = CalculateMinimumSizeForMaterial(baseContentMinimum);
             return ScaleSize(min);
         }
-        
-      
-        /// <summary>
-        /// Triggers Material Design size compensation when properties change
-        /// </summary>
-        protected virtual void OnMaterialPropertyChanged()
-        {
-            if (EnableMaterialStyle && MaterialAutoSizeCompensation && !_isInitializing)
-            {
-                ApplyMaterialSizeCompensation();
-            }
 
-            // Keep painter strategy in sync if painter auto-select is used
-            if (_painter != null)
-            {
-                // Auto-switch painter when Material toggle changes
-                _painter = EnableMaterialStyle ? new MaterialBaseControlPainter() : new ClassicBaseControlPainter();
-            }
-        }
 
-        /// <summary>
-        /// Applies Material Design size compensation - can be overridden by derived controls
-        /// </summary>
-        public virtual void ApplyMaterialSizeCompensation()
-        {
-            if (!EnableMaterialStyle || !MaterialAutoSizeCompensation)
-                return;
-
-            // Calculate current text size if we have content
-            Size textSize = Size.Empty;
-            if (!string.IsNullOrEmpty(Text))
-            {
-                using (Graphics g = CreateGraphics())
-                {
-                    var measuredSize = g.MeasureString(Text, Font);
-                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
-                }
-            }
-            
-            // Use a reasonable default content size if no text
-            if (textSize.IsEmpty)
-            {
-                textSize = new Size(100, 20);
-            }
-            
-            // Apply Material size compensation
-            AdjustSizeForMaterial(textSize, true);
-        }
         #endregion
-
-        // Handle runtime per-monitor DPI changes
-        private const int WM_DPICHANGED = 0x02E0;
-        protected override void WndProc(ref Message m)
+        protected GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
-            if (m.Msg == WM_DPICHANGED)
-            {
-                try
-                {
-                    if (!DisableDpiAndScaling && _dpi != null)
-                    {
-                        _dpi.UpdateDpiFromControl();
-                        // Refresh layout dependent on DPI
-                        _paint?.InvalidateRects();
-                        UpdateMaterialLayout();
-                        Invalidate();
-                    }
-                }
-                catch { /* best-effort */ }
-            }
-            base.WndProc(ref m);
+            return ControlPaintHelper.GetRoundedRectPath(rect, radius);
         }
+        //// Handle runtime per-monitor DPI changes
+        //private const int WM_DPICHANGED = 0x02E0;
+        //protected override void WndProc(ref Message m)
+        //{
+        //    if (m.Msg == WM_DPICHANGED)
+        //    {
+        //        try
+        //        {
+        //            if (!DisableDpiAndScaling && _dpi != null)
+        //            {
+        //                _dpi.UpdateDpiFromControl();
+        //                // Refresh layout dependent on DPI
+        //                //  ;
+        //                // UpdateMaterialLayout();
+        //                Invalidate();
+        //            }
+        //        }
+        //        catch { /* best-effort */ }
+        //    }
+        //    base.WndProc(ref m);
+        //}
     }
 }

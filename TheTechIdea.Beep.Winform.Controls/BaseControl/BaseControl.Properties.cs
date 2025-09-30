@@ -25,7 +25,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             Classic,
             Material,
             Card,
-            NeoBrutalist
+            NeoBrutalist,
+            ReadingCard,
+            SimpleButton,
+            KeyboardShortcut
         }
 
         private BaseControlPainterKind _painterKind = BaseControlPainterKind.Auto;
@@ -43,10 +46,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 Invalidate();
             }
         }
-
+        public bool EnableMaterialStyle { get;set; } = false;
         private void UpdatePainterFromKind()
         {
-            EnableMaterialStyle = false;
             switch (_painterKind)
             {
                 case BaseControlPainterKind.Classic:
@@ -61,9 +63,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 case BaseControlPainterKind.NeoBrutalist:
                     _painter = new NeoBrutalistBaseControlPainter();
                     break;
+                case BaseControlPainterKind.ReadingCard:
+                    _painter = new ReadingCardBaseControlPainter();
+                    break;
                 case BaseControlPainterKind.Auto:
                 default:
-                    _painter = EnableMaterialStyle ? new MaterialBaseControlPainter() : new ClassicBaseControlPainter();
+                    // Auto defaults to Classic painter
+                    _painter = new ClassicBaseControlPainter();
                     break;
             }
         }
@@ -232,6 +238,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             } 
         }
 
+        // Data binding context
+        public object DataContext { get; set; }
+
         public virtual string BoundProperty 
         { 
             get => _boundProperty; 
@@ -398,8 +407,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 {
                     _materialAutoSizeCompensation = value;
 
-                    // Trigger immediate compensation when enabled
-                    if (value && EnableMaterialStyle && !_isInitializing)
+                    // Trigger immediate compensation when enabled and using Material painter
+                    if (value && PainterKind == BaseControlPainterKind.Material && !_isInitializing)
                     {
                         ApplyMaterialSizeCompensation();
                     }
@@ -442,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public bool ShowAllBorders
         {
             get => _showAllBorders;
-            set { if (_showAllBorders == value) return; _showAllBorders = value; _paint?.InvalidateRects(); Invalidate(); }
+            set { if (_showAllBorders == value) return; _showAllBorders = value; Invalidate(); }
         }
         private bool _showAllBorders = false;
 
@@ -486,7 +495,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_borderThickness == value) return;
                 _borderThickness = Math.Max(0, value);
-                _paint?.InvalidateRects();
                 UpdateControlRegion();
                 Invalidate();
             }
@@ -501,7 +509,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_borderRadius == value) return;
                 _borderRadius = Math.Max(0, value);
-                _paint?.InvalidateRects();
                 UpdateControlRegion();
                 Invalidate();
             }
@@ -516,7 +523,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_isRounded == value) return;
                 _isRounded = value;
-                _paint?.InvalidateRects();
                 UpdateControlRegion();
                 Invalidate();
             }
@@ -876,7 +882,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             {
                 if (_isRoundedAffectedByTheme == value) return;
                 _isRoundedAffectedByTheme = value;
-                _paint?.InvalidateRects();
                 UpdateControlRegion();
                 Invalidate();
             }
@@ -899,17 +904,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(false)] 
         public Rectangle DrawingRect
         {
-            get { return _paint != null ? _paint.DrawingRect : Rectangle.Empty; }
+            get { return _drawingRect; }
             set 
             { 
-                if (_paint != null)
-                {
-                    _paint.DrawingRect = value; 
-                    _paint.UpdateRects();
-                }
-                Invalidate(); 
+                if (_drawingRect == value) return;
+                _drawingRect = value;
+                // Do not Invalidate here; drawing pipeline sets this every frame
             }
         }
+        private Rectangle _drawingRect;
+
         private GraphicsPath _innerShape;
         // Drawing rect and offsets
         [Browsable(false)]
@@ -943,6 +947,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         // Custom border parity
         private bool _isCustomBorder = false;
         [Browsable(true)] public bool IsCustomeBorder { get => _isCustomBorder; set { _isCustomBorder = value; Invalidate(); } }
+
+        /// <summary>
+        /// Updates painter layout (replaces material helper usage)
+        /// </summary>
+        private void UpdateMaterialLayout()
+        {
+            EnsurePainter();
+            _painter?.UpdateLayout(this);
+        }
         #endregion
 
         #region Extra Parity Properties

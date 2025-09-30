@@ -405,7 +405,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 // Enable Excel-like filter popup automatically
                 this.EnableExcelFilter();
             }
-            EnableMaterialStyle = false;
+            //PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
             StylePreset = MaterialTextFieldStylePreset.Default;
             RowHeight = 25;
             ColumnHeaderHeight = 28;

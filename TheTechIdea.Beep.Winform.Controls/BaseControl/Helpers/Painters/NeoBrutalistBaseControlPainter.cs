@@ -6,173 +6,236 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 {
     /// <summary>
-    /// Neo-brutalism painter: bold thick borders, hard shadows, vivid flat fills, simple blocks.
-    /// Uses BaseControl.Text as title, HelperText as subtitle, BadgeText as a sticker.
-    /// Supports optional Leading/Trailing icons in the title row.
+    /// Neo-Brutalist painter: provides bold, high-contrast styling with thick borders and stark shadows
+    /// while leaving inner content (DrawingRect) for inheriting controls to handle.
+    /// Uses current theme colors with brutalist modifications.
     /// </summary>
     internal sealed class NeoBrutalistBaseControlPainter : IBaseControlPainter
     {
-        private Rectangle _cardRect;
-        private Rectangle _shadowRect;
-        private Rectangle _stickerRect;
-        private Rectangle _titleRect;
-        private Rectangle _subtitleRect;
-        private Rectangle _ctaRect;
-        private Rectangle _bodyRect;
-        private Rectangle _leadIconRect;
-        private Rectangle _trailIconRect;
+        private Rectangle _drawingRect;
+        private Rectangle _borderRect;
+        private Rectangle _contentRect;
+
+        // Neo-Brutalist design constants
+        private const int BORDER_WIDTH = 4;
+        private const int SHADOW_OFFSET = 8;
+        private const int CONTENT_PADDING = 16;
+
+        public Rectangle DrawingRect => _drawingRect;
+        public Rectangle BorderRect => _borderRect;
+        public Rectangle ContentRect => _contentRect;
 
         public void UpdateLayout(Base.BaseControl owner)
         {
-            if (owner == null || owner.Width <= 0 || owner.Height <= 0)
+            if (owner == null)
             {
-                _cardRect = _shadowRect = _stickerRect = _titleRect = _subtitleRect = _ctaRect = _bodyRect = Rectangle.Empty;
-                _leadIconRect = _trailIconRect = Rectangle.Empty;
+                _drawingRect = _borderRect = _contentRect = Rectangle.Empty;
                 return;
             }
 
-            int pad = 12;
-            int border = 3; // thick brutalist border
-            int shadowOffset = 6;
+            // Calculate rects with brutalist spacing
+            int totalPadding = BORDER_WIDTH + CONTENT_PADDING;
+            int shadowSpace = SHADOW_OFFSET;
 
-            _cardRect = new Rectangle(0 + border, 0 + border, Math.Max(0, owner.Width - border * 2 - shadowOffset), Math.Max(0, owner.Height - border * 2 - shadowOffset));
-            _shadowRect = new Rectangle(_cardRect.X + shadowOffset, _cardRect.Y + shadowOffset, _cardRect.Width, _cardRect.Height);
+            // Drawing rect with content padding
+            _drawingRect = new Rectangle(
+                totalPadding,
+                totalPadding,
+                Math.Max(0, owner.Width - (totalPadding * 2) - shadowSpace),
+                Math.Max(0, owner.Height - (totalPadding * 2) - shadowSpace)
+            );
 
-            // sticker (badge) top-left, rectangular with thick border
-            if (!string.IsNullOrEmpty(owner.BadgeText))
-            {
-                using var g = owner.CreateGraphics();
-                var sz = TextRenderer.MeasureText(g, owner.BadgeText, owner.Font);
-                int w = Math.Min(Math.Max(sz.Width + 14, 48), Math.Max(48, owner.Width / 2));
-                int h = Math.Max(22, owner.Font.Height + 6);
-                _stickerRect = new Rectangle(_cardRect.Left + pad, _cardRect.Top + pad, w, h);
-            }
-            else
-            {
-                _stickerRect = Rectangle.Empty;
-            }
+            // Border rect for the main border
+            _borderRect = new Rectangle(
+                BORDER_WIDTH / 2,
+                BORDER_WIDTH / 2,
+                Math.Max(0, owner.Width - BORDER_WIDTH - shadowSpace),
+                Math.Max(0, owner.Height - BORDER_WIDTH - shadowSpace)
+            );
 
-            int top = _cardRect.Top + pad + (_stickerRect.IsEmpty ? 0 : _stickerRect.Height + 8);
-            _titleRect = new Rectangle(_cardRect.Left + pad, top, Math.Max(0, _cardRect.Width - pad * 2), owner.Font.Height + 8);
-            _subtitleRect = new Rectangle(_cardRect.Left + pad, _titleRect.Bottom + 4, Math.Max(0, _cardRect.Width - pad * 2), owner.Font.Height + 6);
+            // Content rect is same as drawing rect for brutalist style
+            _contentRect = _drawingRect;
 
-            // Optional icons in title row
-            _leadIconRect = Rectangle.Empty;
-            _trailIconRect = Rectangle.Empty;
-            int iconPad = Math.Max(0, owner.IconPadding);
-            int iconSize = Math.Min(owner.IconSize, Math.Max(12, _titleRect.Height - iconPad));
+            // Adjust for icons if present
             bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
             bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
-
-            if (hasLeading)
+            if (hasLeading || hasTrailing)
             {
-                _leadIconRect = new Rectangle(_titleRect.Left, _titleRect.Top + (_titleRect.Height - iconSize) / 2, iconSize, iconSize);
-                _titleRect = new Rectangle(_leadIconRect.Right + iconPad, _titleRect.Top, Math.Max(0, _titleRect.Width - iconSize - iconPad), _titleRect.Height);
+                var icons = new BaseControlIconsHelper(owner);
+                icons.UpdateLayout(_drawingRect);
+                _contentRect = icons.AdjustedContentRect;
             }
-            if (hasTrailing)
-            {
-                _trailIconRect = new Rectangle(Math.Max(_titleRect.Left, _cardRect.Right - pad - iconSize), _titleRect.Top + (_titleRect.Height - iconSize) / 2, iconSize, iconSize);
-                _titleRect = new Rectangle(_titleRect.Left, _titleRect.Top, Math.Max(0, _titleRect.Width - iconSize - iconPad), _titleRect.Height);
-            }
-
-            int ctaH = 32; int ctaW = 96;
-            _ctaRect = new Rectangle(_cardRect.Right - pad - ctaW, _cardRect.Bottom - pad - ctaH, ctaW, ctaH);
-
-            int bodyTop = _subtitleRect.Bottom + 8;
-            _bodyRect = new Rectangle(_cardRect.Left + pad, bodyTop, Math.Max(0, _cardRect.Width - pad * 2), Math.Max(0, _ctaRect.Top - 8 - bodyTop));
         }
 
         public void Paint(Graphics g, Base.BaseControl owner)
         {
             if (g == null || owner == null) return;
-            var theme = owner._currentTheme; // internal access
 
-            g.SmoothingMode = SmoothingMode.None; // crisp brutalist look
+            var theme = owner._currentTheme;
 
-            // derive colors
-            Color accent = theme?.MenuMainItemSelectedBackColor ?? Color.Gold;
-            Color surface = theme?.BackColor ?? owner.BackColor;
-            if (surface == Color.Empty || surface.A == 0) surface = Color.White;
-            Color cardFill = accent; // bright card color
-            Color borderColor = Color.Black;
-            Color shadowColor = Color.Black;
-            Color titleColor = Color.Black;
-            Color subtitleColor = theme?.SecondaryTextColor ?? Color.Black;
+            // Disable anti-aliasing for sharp, brutal edges
+            var oldSmoothingMode = g.SmoothingMode;
+            g.SmoothingMode = SmoothingMode.None;
 
-            // hard offset shadow rectangle
-            using (var sb = new SolidBrush(shadowColor))
+            try
             {
-                g.FillRectangle(sb, _shadowRect);
-            }
+                // 1. Draw stark shadow
+                DrawBrutalistShadow(g, owner);
 
-            // card block
-            using (var b = new SolidBrush(cardFill))
-            using (var pen = new Pen(borderColor, 3))
-            {
-                g.FillRectangle(b, _cardRect);
-                g.DrawRectangle(pen, _cardRect);
-            }
+                // 2. Draw bold background
+                DrawBrutalistBackground(g, owner);
 
-            // sticker (badge) — white fill with thick black outline
-            if (!_stickerRect.IsEmpty)
-            {
-                using var sbFill = new SolidBrush(Color.White);
-                using var sbPen = new Pen(Color.Black, 2);
-                g.FillRectangle(sbFill, _stickerRect);
-                g.DrawRectangle(sbPen, _stickerRect);
-                TextRenderer.DrawText(g, owner.BadgeText, owner.Font, _stickerRect, Color.Black,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-            }
+                // 3. Draw thick border
+                DrawBrutalistBorder(g, owner);
 
-            // icons
-            if (!_leadIconRect.IsEmpty)
-            {
-                var img = new BeepImage { IsChild = true, BackColor = owner.BackColor, ForeColor = owner.ForeColor, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true, Size = _leadIconRect.Size, ImagePath = string.IsNullOrEmpty(owner.LeadingIconPath) ? owner.LeadingImagePath : owner.LeadingIconPath };
-                img.DrawImage(g, _leadIconRect);
-            }
-            if (!_trailIconRect.IsEmpty)
-            {
-                var img = new BeepImage { IsChild = true, BackColor = owner.BackColor, ForeColor = owner.ForeColor, ApplyThemeOnImage = true, PreserveSvgBackgrounds = true, Size = _trailIconRect.Size, ImagePath = string.IsNullOrEmpty(owner.TrailingIconPath) ? owner.TrailingImagePath : owner.TrailingIconPath };
-                img.DrawImage(g, _trailIconRect);
-            }
-
-            // subtitle (one line, black/secondary)
-            if (!string.IsNullOrWhiteSpace(owner.HelperText))
-            {
-                using var subFont = new Font(owner.Font.FontFamily, owner.Font.Size, FontStyle.Regular);
-                TextRenderer.DrawText(g, owner.HelperText, subFont, _subtitleRect, subtitleColor,
-                    TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-            }
-
-            // CTA button: black fill, white text, thick outline, slight inner offset to look like a sticker
-            using (var ctaFill = new SolidBrush(Color.Black))
-            using (var ctaPen = new Pen(Color.Black, 2))
-            {
-                g.FillRectangle(ctaFill, _ctaRect);
-                g.DrawRectangle(ctaPen, _ctaRect);
-                TextRenderer.DrawText(g, "Select", owner.Font, _ctaRect, Color.White,
-                    TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis | TextFormatFlags.NoPadding);
-            }
-
-            // optional dotted grid accent inside body area (very subtle)
-            using (var gridPen = new Pen(Color.FromArgb(40, Color.Black), 1))
-            {
-                int step = 8;
-                for (int x = _bodyRect.Left; x < _bodyRect.Right; x += step)
+                // 4. Draw icons if any
+                bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
+                bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
+                if (hasLeading || hasTrailing)
                 {
-                    g.DrawLine(gridPen, x, _bodyRect.Top, x, _bodyRect.Top + 2);
+                    var icons = new BaseControlIconsHelper(owner);
+                    icons.UpdateLayout(_drawingRect);
+                    icons.Draw(g);
                 }
             }
+            finally
+            {
+                // Restore graphics state
+                g.SmoothingMode = oldSmoothingMode;
+            }
+        }
+
+        private void DrawBrutalistShadow(Graphics g, Base.BaseControl owner)
+        {
+            var theme = owner._currentTheme;
+            
+            Rectangle shadowRect = new Rectangle(
+                _borderRect.X + SHADOW_OFFSET,
+                _borderRect.Y + SHADOW_OFFSET,
+                _borderRect.Width,
+                _borderRect.Height
+            );
+
+            // Use theme shadow color or stark black
+            Color shadowColor = theme?.ShadowColor ?? Color.Black;
+            // Make shadow more opaque for brutalist style
+            if (shadowColor.A < 200)
+            {
+                shadowColor = Color.FromArgb(200, shadowColor.R, shadowColor.G, shadowColor.B);
+            }
+
+            using var shadowBrush = new SolidBrush(shadowColor);
+            g.FillRectangle(shadowBrush, shadowRect);
+        }
+
+        private void DrawBrutalistBackground(Graphics g, Base.BaseControl owner)
+        {
+            var theme = owner._currentTheme;
+            
+            // Get background color from theme or owner
+            Color backgroundColor = GetBrutalistBackgroundColor(owner, theme);
+            
+            using var backgroundBrush = new SolidBrush(backgroundColor);
+            g.FillRectangle(backgroundBrush, _borderRect);
+        }
+
+        private void DrawBrutalistBorder(Graphics g, Base.BaseControl owner)
+        {
+            var theme = owner._currentTheme;
+            
+            // Get border color from theme or use high contrast
+            Color borderColor = GetBrutalistBorderColor(owner, theme);
+            
+            using var borderPen = new Pen(borderColor, BORDER_WIDTH);
+            g.DrawRectangle(borderPen, _borderRect);
+
+            // Add inner accent line for more brutal effect
+            if (owner.IsFocused || owner.IsHovered)
+            {
+                Color accentColor = owner.IsFocused ? 
+                    (theme?.FocusIndicatorColor ?? Color.Yellow) : 
+                    (theme?.BorderColor ?? Color.White);
+                    
+                Rectangle innerRect = Rectangle.Inflate(_borderRect, -BORDER_WIDTH, -BORDER_WIDTH);
+                using var accentPen = new Pen(accentColor, 2);
+                g.DrawRectangle(accentPen, innerRect);
+            }
+        }
+
+        private Color GetBrutalistBackgroundColor(Base.BaseControl owner, TheTechIdea.Beep.Vis.Modules.IBeepTheme theme)
+        {
+            // Neo-brutalist uses high contrast colors
+            if (!owner.Enabled)
+                return theme?.DisabledBackColor ?? Color.LightGray;
+            if (owner.IsPressed)
+                return theme?.ButtonPressedBackColor ?? Color.Red;
+            if (owner.IsHovered)
+                return theme?.ButtonHoverBackColor ?? Color.Yellow;
+            if (owner.IsSelected)
+                return theme?.ButtonSelectedBackColor ?? Color.Lime;
+            
+            // Use owner's BackColor or theme default, ensure high contrast
+            Color baseColor = owner.BackColor != Color.Transparent && owner.BackColor != SystemColors.Control ? 
+                owner.BackColor : (theme?.BackColor ?? Color.White);
+                
+            // Ensure the color is vibrant for brutalist style
+            if (baseColor == Color.White || baseColor == Color.Empty || baseColor == Color.Transparent)
+            {
+                baseColor = theme?.ButtonBackColor ?? Color.Cyan;
+            }
+            
+            return baseColor;
+        }
+
+        private Color GetBrutalistBorderColor(Base.BaseControl owner, TheTechIdea.Beep.Vis.Modules.IBeepTheme theme)
+        {
+            // Neo-brutalist always uses stark, high-contrast borders
+            if (owner.HasError)
+                return owner.ErrorColor;
+            if (!owner.Enabled)
+                return theme?.DisabledBorderColor ?? Color.Gray;
+            if (owner.IsFocused)
+                return theme?.FocusIndicatorColor ?? Color.Yellow;
+            if (owner.IsPressed)
+                return theme?.ButtonPressedBorderColor ?? Color.DarkRed;
+            if (owner.IsHovered)
+                return theme?.ButtonHoverBorderColor ?? Color.DarkBlue;
+            
+            // Default to black for maximum contrast
+            return owner.BorderColor != Color.Empty ? owner.BorderColor : 
+                   (theme?.BorderColor ?? Color.Black);
         }
 
         public void UpdateHitAreas(Base.BaseControl owner, Action<string, Rectangle, Action> register)
         {
-            if (owner == null) return;
-            if (!_bodyRect.IsEmpty) register?.Invoke("NeoBody", _bodyRect, null);
-            if (!_ctaRect.IsEmpty) register?.Invoke("NeoPrimary", _ctaRect, null);
-            if (!_stickerRect.IsEmpty) register?.Invoke("NeoSticker", _stickerRect, null);
-            if (!_leadIconRect.IsEmpty && owner.LeadingIconClickable) register?.Invoke("NeoLeadingIcon", _leadIconRect, owner.TriggerLeadingIconClick);
-            if (!_trailIconRect.IsEmpty && owner.TrailingIconClickable) register?.Invoke("NeoTrailingIcon", _trailIconRect, owner.TriggerTrailingIconClick);
+            if (owner == null || register == null) return;
+            
+            bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
+            bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
+            if (!(hasLeading || hasTrailing)) return;
+
+            var icons = new BaseControlIconsHelper(owner);
+            icons.UpdateLayout(_drawingRect);
+            var lead = icons.LeadingRect;
+            var trail = icons.TrailingRect;
+            if (!lead.IsEmpty && owner.LeadingIconClickable) register("NeoLeadingIcon", lead, owner.TriggerLeadingIconClick);
+            if (!trail.IsEmpty && owner.TrailingIconClickable) register("NeoTrailingIcon", trail, owner.TriggerTrailingIconClick);
+        }
+
+        public Size GetPreferredSize(Base.BaseControl owner, Size proposedSize)
+        {
+            if (owner == null) return Size.Empty;
+
+            // Neo-brutalist needs extra space for thick borders and shadows
+            int totalPadding = (BORDER_WIDTH * 2) + (CONTENT_PADDING * 2) + SHADOW_OFFSET;
+            
+            int minWidth = 100 + totalPadding;
+            int minHeight = owner.Font.Height + totalPadding;
+
+            return new Size(
+                Math.Max(minWidth, proposedSize.Width),
+                Math.Max(minHeight, proposedSize.Height)
+            );
         }
     }
 }

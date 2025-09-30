@@ -618,14 +618,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeFocused = true;
 
             // Enable material style for modern button appearance, but keep it compact
-            EnableMaterialStyle = true;
+            //EnableMaterialStyle = true;
             StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             ButtonAutoSizeForMaterial = false; // Default to false to prevent large buttons
             MaterialPreserveContentArea = true; // Preserve content area instead of expanding
 
             // Apply size compensation when handle is created if explicitly enabled
             HandleCreated += (s, e) => {
-                if (EnableMaterialStyle && ButtonAutoSizeForMaterial && !ButtonPreventAutoExpansion)
+                if (PainterKind == BaseControlPainterKind.Material && ButtonAutoSizeForMaterial && !ButtonPreventAutoExpansion)
                 {
                     ApplyMaterialSizeCompensation();
                 }
@@ -759,7 +759,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _textFont = Font;
             
             // Apply Material Design size compensation if enabled
-            if (EnableMaterialStyle && ButtonAutoSizeForMaterial)
+            if (PainterKind== BaseControlPainterKind.Material && ButtonAutoSizeForMaterial)
             {
                 ApplyMaterialSizeCompensation();
             }
@@ -1157,7 +1157,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Minimal button size
                 var minimal = new Size(32, 28);
-                return EnableMaterialStyle
+                return PainterKind == BaseControlPainterKind.Material
                     ? GetEffectiveMaterialMinimum(new Size(32, 16))
                     : minimal;
             }
@@ -1185,7 +1185,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // If Material style is enabled, expand by Material paddings/effects properly
-            if (EnableMaterialStyle)
+            if (PainterKind ==Base.BaseControl.BaseControlPainterKind.Material)
             {
                 // Ask BaseControl to compute effective minimum including Material paddings, icons, effects, DPI, etc.
                 var materialMin = GetEffectiveMaterialMinimum(baseContentSize);
@@ -1435,7 +1435,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Draw Image and text"
         private void UpdateMinSizeForMode()
         {
-            if (!EnableMaterialStyle)
+            if (PainterKind != BaseControlPainterKind.Material)
             {
                 // Image-only? keep the floor at ButtonMinSize; otherwise no clamp.
                 bool imageOnly = (string.IsNullOrEmpty(Text) || HideText) && beepImage?.HasImage == true;
@@ -1588,7 +1588,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ForceMaterialSizeCompensation()
         {
-            Console.WriteLine($"BeepButton: Force compensation called. EnableMaterialStyle: {EnableMaterialStyle}, AutoSize: {ButtonAutoSizeForMaterial}, PreventExpansion: {ButtonPreventAutoExpansion}");
+            Console.WriteLine($"BeepButton: Force compensation called. EnableMaterialStyle: {PainterKind == BaseControlPainterKind.Material}, AutoSize: {ButtonAutoSizeForMaterial}, PreventExpansion: {ButtonPreventAutoExpansion}");
             
             // Temporarily enable auto size and disable expansion prevention if needed
             bool originalAutoSize = ButtonAutoSizeForMaterial;
@@ -1603,8 +1603,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ButtonAutoSizeForMaterial = originalAutoSize;
             ButtonPreventAutoExpansion = originalPreventExpansion;
             
-            // Force layout update
-            UpdateMaterialLayout();
+          
             Invalidate();
         }
         protected override void OnClick(EventArgs e)
@@ -1623,7 +1622,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public override void ApplyMaterialSizeCompensation()
         {
-            if (!EnableMaterialStyle || !ButtonAutoSizeForMaterial || ButtonPreventAutoExpansion)
+            if (PainterKind != BaseControlPainterKind.Material || !ButtonAutoSizeForMaterial || ButtonPreventAutoExpansion)
                 return;
 
             // Use fixed base size to prevent unwanted expansion for image-only buttons
@@ -1668,7 +1667,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public string GetMaterialSizeInfo()
         {
-            if (!EnableMaterialStyle)
+            if (PainterKind != BaseControlPainterKind.Material)
                 return "Material Design is disabled";
                 
             var padding = GetMaterialStylePadding();

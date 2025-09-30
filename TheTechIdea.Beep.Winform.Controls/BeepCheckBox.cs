@@ -590,8 +590,13 @@ namespace TheTechIdea.Beep.Winform.Controls
     
         protected override void DrawContent(Graphics g)
         {
+            // Ensure painter updates the layout and DrawingRect like BeepButton does
             UpdateDrawingRect();
+
+            // Let BaseControl painter draw container (borders/background)
             base.DrawContent(g);
+
+            // Now draw the checkbox content inside the latest DrawingRect
             Draw(g, DrawingRect);
         }
        private void DrawAlignedText(Graphics g, string text, Font font, Color color, Rectangle textRect)
@@ -798,24 +803,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_beepImage != null)
                     _beepImage.Theme = Theme;
-                if (IsChild && Parent != null)
-                {
-                    BackColor = Parent.BackColor;
-                    ParentBackColor = Parent.BackColor;
-                }
+
+                // Use theme defaults for outer frame from BaseControl painters
                 ForeColor = _currentTheme.CheckBoxForeColor;
-                BackColor = _currentTheme.CheckBoxBackColor;
-                // Apply font from theme if configured to use theme fonts
+                BackColor = _currentTheme.BackColor;
+
                 if (UseThemeFont)
                 {
-                    // Get font from button style or fall back to default style
-                    _textFont = _currentTheme.ButtonStyle != null
+                    _textFont = _currentTheme.CheckBoxFont != null
                         ? BeepThemesManager.ToFont(_currentTheme.CheckBoxFont)
                         : new Font("Segoe UI", 9f);
-
-                    
                 }
-            //    SafeApplyFont(TextFont ?? _textFont);
                 Invalidate();
             }
         }

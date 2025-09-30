@@ -188,9 +188,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
         public BeepCalendar():base()    
         {
             // Enable Material Design styling
-            EnableMaterialStyle = true;
-            MaterialVariant = MaterialTextFieldVariant.Outlined;
-            MaterialBorderRadius = 8;
+            //EnableMaterialStyle = true;
+          
             ShowAllBorders = true;
             
             InitializeControls();
@@ -207,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "◀",
                 IsChild = true,
                 Theme = Theme,
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -228,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "▶",
                 IsChild = true,
                 Theme = Theme,
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -249,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "Today",
                 IsChild = true,
                 Theme = Theme,
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -271,7 +270,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "Month", 
                 IsChild = true, 
                 Theme = Theme, 
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -291,7 +290,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "Week", 
                 IsChild = true, 
                 Theme = Theme, 
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -311,7 +310,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "Day", 
                 IsChild = true, 
                 Theme = Theme, 
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -331,7 +330,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "List", 
                 IsChild = true, 
                 Theme = Theme, 
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -357,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
                 Text = "+ Create Event",
                 IsChild = true,
                 Theme = Theme,
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialVariant = MaterialTextFieldVariant.Outlined,
                 MaterialBorderRadius = 4,
                 AutoSizeContent = true,  // Enable content-based auto-sizing
@@ -1182,7 +1181,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
             ForeColor = _currentTheme.CalendarForeColor;
 
             // Apply Material Design theme colors if enabled
-            if (EnableMaterialStyle)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 MaterialOutlineColor = _currentTheme.CalendarBorderColor;
                 MaterialPrimaryColor = _currentTheme.CalendarSelectedDateBackColor;

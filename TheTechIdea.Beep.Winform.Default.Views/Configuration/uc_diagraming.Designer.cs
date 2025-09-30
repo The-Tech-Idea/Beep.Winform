@@ -1719,7 +1719,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DrawingRect = new Rectangle(1, 1, 802, 424);
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableHighQualityRendering = true;
-            beepGridPro1.EnableMaterialStyle = false;
+         //   beepGridPro1.EnableMaterialStyle = false;
             beepGridPro1.EnableRippleEffect = false;
             beepGridPro1.EnableSplashEffect = false;
             beepGridPro1.ErrorColor = Color.FromArgb(176, 0, 32);

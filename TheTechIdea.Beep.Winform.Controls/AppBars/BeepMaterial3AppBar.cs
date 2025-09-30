@@ -282,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 PlaceholderText = "Search...",
                 Visible = _showSearch,
                 IsChild = true,
-                EnableMaterialStyle = true,
+                //EnableMaterialStyle = true,
                 MaterialAutoSizeCompensation = false,
                 MaterialPreserveContentArea = true,
                 MaterialUseVariantPadding = false,

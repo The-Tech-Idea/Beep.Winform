@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using static TheTechIdea.Beep.Winform.Controls.Base.BaseControl;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 {
@@ -11,6 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
     /// Enhanced helper that renders comprehensive Material Design 3 styling for BaseControl.
     /// Provides field backgrounds, borders, state layers, elevation effects, and proper icon layout.
     /// </summary>
+    [Obsolete("BaseControlMaterialHelper is deprecated. Use MaterialBaseControlPainter which owns layout and drawing.")]
     internal sealed class BaseControlMaterialHelper
     {
         private readonly BaseControl _owner;
@@ -148,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         /// </summary>
         public void DrawAll(Graphics g)
         {
-            if (!_owner.EnableMaterialStyle) return;
+            if (_owner.PainterKind != BaseControlPainterKind.Material) return;
 
             // Always sync with latest owner properties
             UpdateColors();
@@ -363,7 +365,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public void DrawIconsOnly(Graphics g)
         {
-            if (!_owner.EnableMaterialStyle) return;
+            if (_owner.PainterKind != BaseControlPainterKind.Material) return;
             _icons.Draw(g);
         }
 

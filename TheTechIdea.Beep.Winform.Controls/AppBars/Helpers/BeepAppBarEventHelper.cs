@@ -144,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
                 // Position and add the search box to controls
                 searchBox.SetBounds(searchRect.Left, searchRect.Top, searchRect.Width, searchRect.Height);
                 searchBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
-                searchBox.EnableMaterialStyle = false;
+                searchBox.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
                 searchBox.Visible = true;
                 
                 // Add to parent control

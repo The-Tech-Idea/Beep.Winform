@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 770, 432);
             MainTemplatePanel.Easing = EasingType.Linear;
             MainTemplatePanel.EnableHighQualityRendering = true;
-            MainTemplatePanel.EnableMaterialStyle = false;
+           // MainTemplatePanel.EnableMaterialStyle = false;
             MainTemplatePanel.EnableRippleEffect = false;
             MainTemplatePanel.EnableSplashEffect = false;
             MainTemplatePanel.ErrorColor = Color.FromArgb(176, 0, 32);

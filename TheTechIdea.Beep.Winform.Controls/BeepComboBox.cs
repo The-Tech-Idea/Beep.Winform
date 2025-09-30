@@ -234,27 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DefaultValue(false)]
         public bool AutoWidthToContent { get; set; } = false;
 
-        /// <summary>
-        /// Override EnableMaterialStyle to apply size compensation when toggled
-        /// </summary>
-        [Browsable(true), Category("Material Style"), DefaultValue(true)]
-        public new bool EnableMaterialStyle
-        {
-            get => base.EnableMaterialStyle;
-            set
-            {
-                if (base.EnableMaterialStyle != value)
-                {
-                    base.EnableMaterialStyle = value;
-                    
-                    // Recalculate height for the new mode
-                    GetControlHeight();
-                    Height = _collapsedHeight;
-                    
-                    Invalidate();
-                }
-            }
-        }
+      
 
         /// <summary>
         /// Override the base Material size compensation to handle ComboBox-specific logic
@@ -264,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public override void ApplyMaterialSizeCompensation()
         {
-            if (!EnableMaterialStyle || !ComboBoxAutoSizeForMaterial)
+            if (PainterKind!= BaseControlPainterKind.Material  || !ComboBoxAutoSizeForMaterial)
                 return;
 
             Console.WriteLine($"BeepComboBox: Applying Material size compensation. Current size: {Width}x{Height}");
@@ -302,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializeDrawingComponents();
             
             // Enable Material Design styling
-            EnableMaterialStyle = true;
+            //EnableMaterialStyle = true;
             MaterialVariant = MaterialTextFieldVariant.Outlined;
             MaterialBorderRadius = 4; // Reduced from 8
             LabelText = string.Empty; // Default floating label
@@ -312,7 +292,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             GetControlHeight();
 
             // Apply Material Design size compensation if enabled, but only after handle is created
-            if (EnableMaterialStyle)
+            if (PainterKind== BaseControlPainterKind.Material)
             {
                 this.HandleCreated += (s, e) => {
                     if (ComboBoxAutoSizeForMaterial && !PreventAutoExpansion)
@@ -390,7 +370,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 ShowShadow = false,
                 HideText = true,
                 BorderRadius = 0,
-                EnableMaterialStyle = false,
+                //EnableMaterialStyle = false,
                 ImageAlign = ContentAlignment.MiddleCenter,
                 TextAlign = ContentAlignment.MiddleCenter,
                 TextImageRelation = TextImageRelation.ImageBeforeText
@@ -424,7 +404,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private int GetControlHeight()
         {
-            if (EnableMaterialStyle)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 // Use Material Design height calculation
                 return CalculateHeightForMaterial();
@@ -539,7 +519,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 Size baseContentMin = new Size(Math.Max(_minWidth, baseContentW), Math.Max(20, baseContentH));
 
-                Size effectiveMin = EnableMaterialStyle
+                Size effectiveMin = PainterKind == BaseControlPainterKind.Material
                     ? GetEffectiveMaterialMinimum(baseContentMin)
                     : new Size(
                         baseContentMin.Width + (BorderThickness + 2) * 2,
@@ -597,7 +577,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnResize(e);
 
-            if (EnableMaterialStyle)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 EnforceMaterialSizing();
             }
@@ -740,11 +720,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Helper methods mirroring BeepDatePicker's approach
         private Rectangle GetContentRectForDrawing()
         {
-            if (EnableMaterialStyle && _materialHelper != null)
-            {
-                var r = _materialHelper.GetContentRect();
-                if (r.Width > 0 && r.Height > 0) return r;
-            }
+            UpdateDrawingRect();
             return DrawingRect;
         }
 
@@ -784,7 +760,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedBorderColor = _currentTheme.ComboBoxSelectedBorderColor;
 
             // Apply Material Design theme colors if enabled
-            if (EnableMaterialStyle)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 MaterialOutlineColor = _currentTheme.ComboBoxBorderColor;
                 MaterialPrimaryColor = _currentTheme.ComboBoxSelectedBorderColor;
@@ -846,13 +822,17 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Update existing DrawContent to delegate to the helpers - same approach as BeepDatePicker
         protected override void DrawContent(Graphics g)
         {
+            // Match BeepButton pattern: refresh DrawingRect from painter each frame
+            UpdateDrawingRect();
+
+            // Allow BaseControl painter to render container/border
             base.DrawContent(g);
 
             if (_currentTheme == null) return;
 
             Rectangle contentRect = GetContentRectForDrawing();
 
-            // Text drawing - similar to BeepDatePicker approach
+            // Text drawing
             string textToDraw = _isEditing ? _inputText : (SelectedItem?.Text ?? string.Empty);
             if (!string.IsNullOrEmpty(textToDraw))
             {
@@ -861,7 +841,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _currentTheme.ComboBoxForeColor != Color.Empty ? _currentTheme.ComboBoxForeColor : ForeColor,
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
-            else if (!string.IsNullOrEmpty(PlaceholderText)) // Show placeholder when no text and no selection
+            else if (!string.IsNullOrEmpty(PlaceholderText))
             {
                 string placeholder = PlaceholderText;
                 Rectangle placeholderRect = GetTextRect(contentRect);
@@ -870,20 +850,28 @@ namespace TheTechIdea.Beep.Winform.Controls
                     TextFormatFlags.VerticalCenter | TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
-            // Dropdown divider and button - same approach as BeepDatePicker
-            Rectangle buttonRect = GetButtonRectFromContent(contentRect);
-            int dividerX = buttonRect.Left - _padding;
-            using (Pen dividerPen = new Pen(Color.FromArgb(60, _currentTheme.ComboBoxBorderColor != Color.Empty ? _currentTheme.ComboBoxBorderColor : BorderColor), 1))
+            // Internal divider only for non-Material
+            if (PainterKind != BaseControlPainterKind.Material)
             {
-                g.DrawLine(dividerPen, new Point(dividerX, contentRect.Y + _padding), new Point(dividerX, contentRect.Bottom - _padding));
+                Rectangle buttonRect = GetButtonRectFromContent(contentRect);
+                int dividerX = buttonRect.Left - _padding;
+                using (Pen dividerPen = new Pen(Color.FromArgb(60, _currentTheme.ComboBoxBorderColor != Color.Empty ? _currentTheme.ComboBoxBorderColor : BorderColor), 1))
+                {
+                    g.DrawLine(dividerPen, new Point(dividerX, contentRect.Y + _padding), new Point(dividerX, contentRect.Bottom - _padding));
+                }
             }
 
-            // Draw the dropdown button
-            if (buttonRect.Width > 1 && buttonRect.Height > 1)
+            // Dropdown button glyph-only
+            Rectangle buttonRect2 = GetButtonRectFromContent(contentRect);
+            if (buttonRect2.Width > 1 && buttonRect2.Height > 1)
             {
                 int pad = Math.Max(1, _padding);
-                _dropDownButton.MaxImageSize = new Size(Math.Max(1, buttonRect.Width - (2 * pad)), Math.Max(1, buttonRect.Height - (2 * pad)));
-                _dropDownButton.Draw(g, buttonRect);
+                _dropDownButton.MaxImageSize = new Size(Math.Max(1, buttonRect2.Width - (2 * pad)), Math.Max(1, buttonRect2.Height - (2 * pad)));
+                _dropDownButton.IsFrameless = true;
+                _dropDownButton.ShowAllBorders = false;
+                _dropDownButton.BorderThickness = 0;
+                _dropDownButton.IsRounded = false;
+                _dropDownButton.Draw(g, buttonRect2);
             }
         }
 
@@ -1164,7 +1152,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _textFont = Font;
 
-            if (EnableMaterialStyle && ComboBoxAutoSizeForMaterial)
+            if (PainterKind == BaseControlPainterKind.Material && ComboBoxAutoSizeForMaterial)
             {
                 ApplyMaterialSizeCompensation();
             }
@@ -1177,7 +1165,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Recompute min after font changes
             UpdateMinimumSize();
 
-            _materialHelper?.UpdateLayout();
+ UpdateDrawingRect();
+            PositionControls();
+            Invalidate();
         }
 
         /// <summary>
@@ -1185,7 +1175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public void ForceMaterialSizeCompensation()
         {
-            Console.WriteLine($"BeepComboBox: Force compensation called. EnableMaterialStyle: {EnableMaterialStyle}, AutoSize: {ComboBoxAutoSizeForMaterial}");
+            Console.WriteLine($"BeepComboBox: Force compensation called. EnableMaterialStyle: {PainterKind == BaseControlPainterKind.Material}, AutoSize: {ComboBoxAutoSizeForMaterial}");
             
             // Temporarily enable auto size if needed
             bool originalAutoSize = ComboBoxAutoSizeForMaterial;
@@ -1197,7 +1187,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ComboBoxAutoSizeForMaterial = originalAutoSize;
             
             // Force layout update
-            UpdateMaterialLayout();
+            
             Invalidate();
         }
 
@@ -1206,7 +1196,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public string GetMaterialSizeInfo()
         {
-            if (!EnableMaterialStyle)
+            if (PainterKind != BaseControlPainterKind.Material)
                 return "Material Design is disabled";
                 
             var padding = GetMaterialStylePadding();

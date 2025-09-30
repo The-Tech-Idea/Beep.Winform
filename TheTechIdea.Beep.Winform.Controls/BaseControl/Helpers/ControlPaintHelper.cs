@@ -12,555 +12,13 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 {
-    internal partial class ControlPaintHelper
+    [Obsolete("ControlPaintHelper is deprecated. Use IBaseControlPainter implementations for layout and drawing. This helper remains only for shared utilities (rounded paths, gradients) during transition.")]
+    internal static class ControlPaintHelper
     {
-        private readonly BaseControl _owner;
-        private BaseControl OwnerAdv => _owner as BaseControl;
+        // Removed instance state. Only utilities remain.
 
-        public ControlPaintHelper(BaseControl owner)
-        {
-            _owner = owner ?? throw new ArgumentNullException(nameof(owner));
-            UpdateRects();
-        }
-
-        public Rectangle DrawingRect { get; set; }
-        public Rectangle BorderRectangle { get; set; }
-        private bool _rectsDirty = true;
-
-        public void UpdateRects()
-        {
-            _rectsDirty = false;
-            int shadow = _owner.ShowShadow ? _owner.ShadowOffset : 0;
-            int border = 0;
-
-            // Calculate border thickness needed for rectangle calculations
-            if (_owner.ShowAllBorders ||
-                (_owner.EnableMaterialStyle && _owner.MaterialBorderVariant == MaterialTextFieldVariant.Outlined))
-            {
-                border = _owner.BorderThickness;
-            }
-            else if (!_owner.EnableMaterialStyle && _owner.BorderThickness > 0)
-            {
-                // For non-material style, account for border thickness if any individual borders are shown
-                if (_owner.ShowTopBorder || _owner.ShowBottomBorder || _owner.ShowLeftBorder || _owner.ShowRightBorder)
-                {
-                    border = _owner.BorderThickness;
-                }
-            }
-
-            var padding = _owner.Padding;
-
-            int leftPad = padding.Left + _owner.LeftoffsetForDrawingRect;
-            int topPad = padding.Top + _owner.TopoffsetForDrawingRect;
-            int rightPad = padding.Right + _owner.RightoffsetForDrawingRect;
-            int bottomPad = padding.Bottom + _owner.BottomoffsetForDrawingRect;
-
-            if (_owner.EnableMaterialStyle && _owner._materialHelper != null)
-            {
-                try
-                {
-                    _owner._materialHelper.UpdateLayout();
-                    var materialContentRect = _owner._materialHelper.GetContentRect();
-                    if (materialContentRect.Width > 0 && materialContentRect.Height > 0)
-                    {
-                        // Translate material content rect to control coordinates
-                        DrawingRect = materialContentRect;
-                        // Border rectangle should still wrap whole control interior for non-material borders
-                        int halfPen = (int)Math.Ceiling(_owner.BorderThickness / 2f);
-                        BorderRectangle = new Rectangle(
-                            shadow + halfPen,
-                            shadow + halfPen,
-                            Math.Max(0, _owner.Width - (shadow + halfPen) * 2),
-                            Math.Max(0, _owner.Height - (shadow + halfPen) * 2)
-                        );
-                        return;
-                    }
-                }
-                catch { /* fall through to standard calculation */ }
-            }
-
-            // EXACT BeepControl's calculation for EnableMaterialStyle=false
-            // Initialize offsets for shadow and border
-            int shadowOffsetValue = _owner.ShowShadow ? _owner.ShadowOffset : 0;
-            int borderOffsetValue = _owner.ShowAllBorders ? _owner.BorderThickness : 0;
-
-            // Account for padding and offsets
-            int leftPadding = _owner.Padding.Left + _owner.LeftoffsetForDrawingRect;
-            int topPadding = _owner.Padding.Top + _owner.TopoffsetForDrawingRect;
-            int rightPadding = _owner.Padding.Right + _owner.RightoffsetForDrawingRect;
-            int bottomPadding = _owner.Padding.Bottom + _owner.BottomoffsetForDrawingRect;
-
-            // Calculate the DrawingRect as the inner rectangle avoiding borders, shadows, and padding
-            int calculatedWidth = _owner.Width - (shadowOffsetValue * 2 + borderOffsetValue * 2 + leftPadding + rightPadding);
-            int calculatedHeight = _owner.Height - (shadowOffsetValue * 2 + borderOffsetValue * 2 + topPadding + bottomPadding);
-
-            DrawingRect = new Rectangle(
-                shadowOffsetValue + borderOffsetValue + leftPadding,
-                shadowOffsetValue + borderOffsetValue + topPadding,
-                Math.Max(0, calculatedWidth),  // Prevent negative dimensions
-                Math.Max(0, calculatedHeight) // Prevent negative dimensions
-            );
-
-            // Reserve space for label and helper when Material style is off
-            if (!_owner.EnableMaterialStyle)
-            {
-                try
-                {
-                    int reserveTop = 0;
-                    int reserveBottom = 0;
-                    using var g = _owner.CreateGraphics();
-
-                    if (!string.IsNullOrEmpty(_owner.LabelText))
-                    {
-                        float labelSize = Math.Max(8f, _owner.Font.Size - 1f);
-                        using var lf = new Font(_owner.Font.FontFamily, labelSize, FontStyle.Regular);
-                        int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        reserveTop = h + 2;
-                    }
-
-                    string support = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorText : _owner.HelperText;
-                    if (!string.IsNullOrEmpty(support))
-                    {
-                        float supSize = Math.Max(8f, _owner.Font.Size - 1f);
-                        using var sf = new Font(_owner.Font.FontFamily, supSize, FontStyle.Regular);
-                        int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                        reserveBottom = h + 4;
-                    }
-
-                    if (reserveTop > 0 || reserveBottom > 0)
-                    {
-                        DrawingRect = new Rectangle(
-                            DrawingRect.X,
-                            DrawingRect.Y + reserveTop,
-                            DrawingRect.Width,
-                            Math.Max(0, DrawingRect.Height - reserveTop - reserveBottom)
-                        );
-                    }
-                }
-                catch { /* best-effort */ }
-            }
-
-            // UpdateBorderRectangle exactly like BeepControl
-            int halfPen2 = (int)Math.Ceiling(_owner.BorderThickness / 2f);
-            BorderRectangle = new Rectangle(
-                shadowOffsetValue + halfPen2,
-                shadowOffsetValue + halfPen2,
-                Math.Max(0, _owner.Width - (shadowOffsetValue + halfPen2) * 2),
-                Math.Max(0, _owner.Height - (shadowOffsetValue + halfPen2) * 2)
-            );
-        }
-
-        public void InvalidateRects()
-        {
-            _rectsDirty = true;
-        }
-
-        public void EnsureUpdated()
-        {
-            if (_rectsDirty) UpdateRects();
-        }
-
-        // Custom border flag will be held on owner (via BaseControl.IsCustomeBorder),
-        // we expose an event-like callback for custom drawing if needed.
-        public Action<Graphics> CustomBorderDrawer { get; set; }
-
-        public void Draw(Graphics g)
-        {
-            if (g == null) return;
-            EnsureUpdated();
-          
-
-            // Paint outer padding area first to match parent (prevents white gutters)
-            try
-            {
-                var parentBack = (_owner.Parent as Control)?.BackColor ?? _owner.BackColor;
-                if (parentBack.A > 0) // not fully transparent
-                {
-                    using var padBrush = new SolidBrush(parentBack);
-                    g.FillRectangle(padBrush, new Rectangle(0, 0, _owner.Width, _owner.Height));
-                    // Guard against null InnerShape (can be null for some controls like BeepPanel at design-time)
-                    if (_owner.InnerShape != null && _owner.InnerShape.PointCount > 0)
-                    {
-                        g.FillPath(padBrush, _owner.InnerShape);
-                    }
-                }
-            }
-            catch { }
-           
-           
-            DrawBackground(g);
-
-            if (_owner.ShowShadow)
-            {
-                DrawShadow(g);
-            }
-
-            // If consumer wants full custom border, let them draw; otherwise default borders
-            if (!(OwnerAdv?.IsCustomeBorder ?? false))
-            {
-                if (!_owner.IsFrameless)
-                {
-                    DrawBorders(g);
-                }
-            }
-            else
-            {
-                CustomBorderDrawer?.Invoke(g);
-            }
-
-            // Draw label/helper for non-material mode
-            if (!_owner.EnableMaterialStyle)
-            {
-                DrawLabelAndHelperNonMaterial(g);
-            }
-
-            //if (!string.IsNullOrEmpty(_owner.BadgeText))
-            //{
-            //    //DrawBadge(g);
-            //    _owner.DrawBadgeExternally(g,new Rectangle() { Height=20,Width=20});
-            //}
-        }
-
-        private void DrawLabelAndHelperNonMaterial(Graphics g)
-        {
-            // Label (top)
-            if (!string.IsNullOrEmpty(_owner.LabelText))
-            {
-                float labelSize = Math.Max(8f, _owner.Font.Size - 1f);
-                using var lf = new Font(_owner.Font.FontFamily, labelSize, FontStyle.Regular);
-                var labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                var labelRect = new Rectangle(BorderRectangle.Left + 6, Math.Max(0, BorderRectangle.Top - labelHeight - 2), Math.Max(10, BorderRectangle.Width - 12), labelHeight);
-                Color labelColor = string.IsNullOrEmpty(_owner.ErrorText) ? (_owner.ForeColor) : _owner.ErrorColor;
-                TextRenderer.DrawText(g, _owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-            }
-
-            // Supporting text (bottom): ErrorText wins, else HelperText
-            string supporting = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorText : _owner.HelperText;
-            if (!string.IsNullOrEmpty(supporting))
-            {
-                float supSize = Math.Max(8f, _owner.Font.Size - 1f);
-                using var sf = new Font(_owner.Font.FontFamily, supSize, FontStyle.Regular);
-                var supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
-                var supportRect = new Rectangle(BorderRectangle.Left + 6, BorderRectangle.Bottom + 2, Math.Max(10, BorderRectangle.Width - 12), supportHeight);
-                Color supportColor = !string.IsNullOrEmpty(_owner.ErrorText) ? _owner.ErrorColor : (_owner.ForeColor);
-                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
-            }
-        }
-
-        private void DrawBackground(Graphics g)
-        {
-            // Skip background drawing when Material style is enabled as it's handled in PaintInnerShape
-            if (_owner.EnableMaterialStyle)
-            {
-                return;
-            }
-
-            Color backColor = GetEffectiveBackColor();
-
-            if (_owner.UseGradientBackground && _owner.ModernGradientType != ModernGradientType.None)
-            {
-                DrawModernGradient(g, backColor);
-            }
-            else if (_owner.UseGradientBackground)
-            {
-                DrawLinearGradient(g, _owner.GradientStartColor, _owner.GradientEndColor);
-            }
-            else
-            {
-                // Respect FilledBackgroundColor only when Material style is enabled.
-                // If material is disabled, always use the control's effective back color.
-                using (var brush = new SolidBrush(backColor))
-                {
-                    FillShape(g, brush, DrawingRect);
-                }
-            }
-        }
-
-        private Color GetEffectiveBackColor()
-        {
-            var ownerAdv = OwnerAdv;
-            if (ownerAdv != null)
-            {
-                if (!_owner.Enabled) return _owner.DisabledBackColor;
-                if (ownerAdv.IsPressed && _owner.CanBePressed) return _owner.PressedBackColor;
-                if (ownerAdv.IsHovered && _owner.CanBeHovered) return _owner.HoverBackColor;
-                if (_owner.Focused && _owner.CanBeFocused) return _owner.FocusBackColor;
-                if (ownerAdv.IsSelected && _owner.CanBeSelected) return _owner.SelectedBackColor;
-            }
-            return _owner.BackColor;
-        }
-
-        private void DrawShadow(Graphics g)
-        {
-            if (_owner.ShadowOpacity <= 0) return;
-
-            int shadowDepth = Math.Max(1, _owner.ShadowOffset / 2);
-            int maxLayers = Math.Min(shadowDepth, 6);
-
-            Rectangle shadowRect = new Rectangle(
-                DrawingRect.X + _owner.ShadowOffset,
-                DrawingRect.Y + _owner.ShadowOffset,
-                DrawingRect.Width,
-                DrawingRect.Height);
-
-            for (int i = 1; i <= maxLayers; i++)
-            {
-                float layerOpacityFactor = (float)(maxLayers - i + 1) / maxLayers;
-                float finalOpacity = _owner.ShadowOpacity * layerOpacityFactor * 0.6f;
-                int layerAlpha = Math.Max(5, (int)(255 * finalOpacity));
-
-                Color layerShadowColor = Color.FromArgb(layerAlpha, _owner.ShadowColor);
-                int spread = i - 1;
-                Rectangle layerRect = new Rectangle(
-                    shadowRect.X - spread,
-                    shadowRect.Y - spread,
-                    shadowRect.Width + (spread * 2),
-                    shadowRect.Height + (spread * 2));
-
-                using (var shadowBrush = new SolidBrush(layerShadowColor))
-                {
-                    if (_owner.IsRounded && _owner.BorderRadius > 0)
-                    {
-                        int shadowRadius = Math.Max(0, _owner.BorderRadius + spread);
-                        using (var shadowPath = GetRoundedRectPath(layerRect, shadowRadius))
-                        {
-                            g.FillPath(shadowBrush, shadowPath);
-                        }
-                    }
-                    else
-                    {
-                        g.FillRectangle(shadowBrush, layerRect);
-                    }
-                }
-            }
-        }
-
-        private void DrawBorders(Graphics g)
-        {
-            // Material UI borders take priority
-            if (_owner.EnableMaterialStyle)
-            {
-                DrawMaterialBorder(g);
-                return;
-            }
-
-            Color effectiveBorderColor = GetEffectiveBorderColor();
-
-            if (_owner.ShowAllBorders && _owner.BorderThickness > 0)
-            {
-                using (var borderPen = new Pen(effectiveBorderColor, _owner.BorderThickness))
-                {
-                    borderPen.DashStyle = _owner.BorderDashStyle;
-                    borderPen.Alignment = PenAlignment.Inset;
-
-                    if (_owner.IsRounded)
-                    {
-                        using (var path = GetRoundedRectPath(BorderRectangle, _owner.BorderRadius))
-                        {
-                            g.DrawPath(borderPen, path);
-                        }
-                    }
-                    else
-                    {
-                        g.DrawRectangle(borderPen, BorderRectangle);
-                    }
-                }
-            }
-            else
-            {
-                // Draw individual borders
-                using (var borderPen = new Pen(effectiveBorderColor, _owner.BorderThickness))
-                {
-                    borderPen.DashStyle = _owner.BorderDashStyle;
-                    if (_owner.ShowTopBorder)
-                        g.DrawLine(borderPen, BorderRectangle.Left, BorderRectangle.Top, BorderRectangle.Right, BorderRectangle.Top);
-                    if (_owner.ShowBottomBorder)
-                        g.DrawLine(borderPen, BorderRectangle.Left, BorderRectangle.Bottom, BorderRectangle.Right, BorderRectangle.Bottom);
-                    if (_owner.ShowLeftBorder)
-                        g.DrawLine(borderPen, BorderRectangle.Left, BorderRectangle.Top, BorderRectangle.Left, BorderRectangle.Bottom);
-                    if (_owner.ShowRightBorder)
-                        g.DrawLine(borderPen, BorderRectangle.Right, BorderRectangle.Top, BorderRectangle.Right, BorderRectangle.Bottom);
-                }
-            }
-        }
-
-        private Color GetEffectiveBorderColor()
-        {
-            var ownerAdv = OwnerAdv;
-            if (ownerAdv != null)
-            {
-                if (!_owner.Enabled) return _owner.DisabledBorderColor;
-                if (_owner.Focused) return _owner.FocusBorderColor;
-                if (ownerAdv.IsHovered) return _owner.HoverBorderColor;
-                if (ownerAdv.IsPressed) return _owner.PressedBorderColor;
-                if (ownerAdv.IsSelected) return _owner.SelectedBorderColor;
-                return ownerAdv.BorderColor;
-            }
-            return _owner.InactiveBorderColor;
-        }
-
-        private void DrawMaterialBorder(Graphics g)
-        {
-            Color borderColor = GetEffectiveBorderColor();
-            Rectangle borderRect = BorderRectangle;
-
-            switch (_owner.MaterialBorderVariant)
-            {
-                case MaterialTextFieldVariant.Standard:
-                    using (var underlinePen = new Pen(borderColor, 1))
-                    {
-                        g.DrawLine(underlinePen, borderRect.Left, borderRect.Bottom - 1, borderRect.Right, borderRect.Bottom - 1);
-                        if (_owner.Focused)
-                        {
-                            using (var focusPen = new Pen(_owner.FocusBorderColor, 2))
-                                g.DrawLine(focusPen, borderRect.Left, borderRect.Bottom, borderRect.Right, borderRect.Bottom);
-                        }
-                    }
-                    break;
-
-                case MaterialTextFieldVariant.Outlined:
-                    using (var borderPen = new Pen(borderColor, 1))
-                    {
-                        if (_owner.IsRounded)
-                        {
-                            using (var path = GetRoundedRectPath(borderRect, _owner.BorderRadius))
-                                g.DrawPath(borderPen, path);
-                        }
-                        else
-                        {
-                            g.DrawRectangle(borderPen, borderRect);
-                        }
-
-                        // Draw floating label if needed
-                        if (_owner.FloatingLabel && !string.IsNullOrEmpty(_owner.LabelText))
-                        {
-                            DrawFloatingLabel(g, borderRect, borderColor);
-                        }
-                    }
-                    break;
-
-                case MaterialTextFieldVariant.Filled:
-                    // Background already handled in DrawBackground
-                    using (var underlinePen = new Pen(borderColor, 1))
-                    {
-                        g.DrawLine(underlinePen, borderRect.Left, borderRect.Bottom - 1, borderRect.Right, borderRect.Bottom - 1);
-                        if (_owner.Focused)
-                        {
-                            using (var focusPen = new Pen(_owner.FocusBorderColor, 2))
-                                g.DrawLine(focusPen, borderRect.Left, borderRect.Bottom, borderRect.Right, borderRect.Bottom);
-                        }
-                    }
-                    break;
-            }
-
-            // Draw helper text if provided
-            if (!string.IsNullOrEmpty(_owner.HelperText))
-            {
-                DrawHelperText(g, borderRect);
-            }
-        }
-
-        private void DrawFloatingLabel(Graphics g, Rectangle borderRect, Color borderColor)
-        {
-            var labelFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.85f);
-            var labelSize = TextRenderer.MeasureText(_owner.LabelText, labelFont);
-            int labelX = borderRect.X + 10;
-            var labelGapRect = new Rectangle(labelX - 2, borderRect.Y - labelSize.Height / 2, labelSize.Width + 4, labelSize.Height);
-
-            using (var backBrush = new SolidBrush(_owner.BackColor))
-                g.FillRectangle(backBrush, labelGapRect);
-
-            using (var labelBrush = new SolidBrush(_owner.Focused ? _owner.FocusBorderColor : borderColor))
-                g.DrawString(_owner.LabelText, labelFont, labelBrush, labelX, borderRect.Y - labelSize.Height / 2);
-        }
-
-        private void DrawHelperText(Graphics g, Rectangle borderRect)
-        {
-            var helperFont = new Font(_owner.Font.FontFamily, _owner.Font.Size * 0.85f);
-            Color helperColor = _owner.IsValid ? Color.Gray : Color.Red;
-            var helperRect = new Rectangle(borderRect.X, borderRect.Bottom + 2, borderRect.Width, 20);
-            TextRenderer.DrawText(g, _owner.HelperText, helperFont, helperRect, helperColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
-        }
-
-        private void DrawBadge(Graphics g)
-        {
-            const int badgeSize = 22;
-            int x = _owner.Width - badgeSize / 2;
-            int y = -badgeSize / 2;
-            var badgeRect = new Rectangle(x, y, badgeSize, badgeSize);
-
-            // Badge shadow
-            if (_owner.ShowShadow)
-            {
-                float badgeShadowOpacity = Math.Min(0.3f, _owner.ShadowOpacity * 0.8f);
-                int badgeShadowOffset = 1;
-                Color badgeShadowColor = Color.FromArgb((int)(255 * badgeShadowOpacity), _owner.ShadowColor);
-
-                using (var shadowBrush = new SolidBrush(badgeShadowColor))
-                {
-                    g.FillEllipse(shadowBrush, badgeRect.X + badgeShadowOffset, badgeRect.Y + badgeShadowOffset, badgeRect.Width, badgeRect.Height);
-                }
-            }
-
-            // Badge background
-            using (var brush = new SolidBrush(_owner.BadgeBackColor))
-            {
-                switch (_owner.BadgeShape)
-                {
-                    case BadgeShape.Circle:
-                        g.FillEllipse(brush, badgeRect);
-                        break;
-                    case BadgeShape.RoundedRectangle:
-                        using (var path = GetRoundedRectPath(badgeRect, badgeRect.Height / 4))
-                            g.FillPath(brush, path);
-                        break;
-                    case BadgeShape.Rectangle:
-                        g.FillRectangle(brush, badgeRect);
-                        break;
-                }
-            }
-
-            // Badge text
-            if (!string.IsNullOrEmpty(_owner.BadgeText))
-            {
-                using (var textBrush = new SolidBrush(_owner.BadgeForeColor))
-                using (var scaledFont = _owner.DisableDpiAndScaling ? _owner.BadgeFont : GetScaledBadgeFont(g, _owner.BadgeText, new Size(badgeRect.Width - 4, badgeRect.Height - 4), _owner.BadgeFont))
-                {
-                    var fmt = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
-                    g.DrawString(_owner.BadgeText, scaledFont, textBrush, badgeRect, fmt);
-                }
-            }
-        }
-
-        #region Modern Gradient Methods
-        private void DrawModernGradient(Graphics g, Color baseColor)
-        {
-            switch (_owner.ModernGradientType)
-            {
-                case ModernGradientType.Subtle:
-                    DrawSubtleGradient(g, DrawingRect, baseColor);
-                    break;
-                case ModernGradientType.Linear:
-                    DrawLinearGradient(g, _owner.GradientStartColor, _owner.GradientEndColor);
-                    break;
-                case ModernGradientType.Radial:
-                    DrawRadialGradient(g, DrawingRect, baseColor);
-                    break;
-                case ModernGradientType.Conic:
-                    DrawConicGradient(g, DrawingRect, baseColor);
-                    break;
-                case ModernGradientType.Mesh:
-                    DrawMeshGradient(g, DrawingRect, baseColor);
-                    break;
-            }
-
-            if (_owner.UseGlassmorphism)
-            {
-                ApplyGlassmorphism(g, DrawingRect);
-            }
-        }
-
-        private void DrawSubtleGradient(Graphics g, Rectangle rect, Color baseColor)
+        // Modern Gradient Methods (utility overloads)
+        public static void DrawSubtleGradient(Graphics g, Rectangle rect, Color baseColor, float angleDegrees = 0f)
         {
             Color color1 = baseColor;
             float brightness = baseColor.GetBrightness();
@@ -570,73 +28,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 ? Color.FromArgb(Math.Max(0, baseColor.R - (int)(255 * subtleFactor)), Math.Max(0, baseColor.G - (int)(255 * subtleFactor)), Math.Max(0, baseColor.B - (int)(255 * subtleFactor)))
                 : Color.FromArgb(Math.Min(255, baseColor.R + (int)(255 * subtleFactor)), Math.Min(255, baseColor.G + (int)(255 * subtleFactor)), Math.Min(255, baseColor.B + (int)(255 * subtleFactor)));
 
-            float angleRadians = (float)(_owner.GradientAngle * Math.PI / 180f);
+            float angleRadians = (float)(angleDegrees * Math.PI / 180f);
             using (var gradientBrush = CreateAngledGradientBrush(rect, color1, color2, angleRadians))
             {
-                var blend = new ColorBlend();
-                blend.Colors = new Color[] { color1, BlendColors(color1, color2, 0.5f), color2 };
-                blend.Positions = new float[] { 0.0f, 0.3f, 1.0f };
-                gradientBrush.InterpolationColors = blend;
-                FillShape(g, gradientBrush, rect);
-            }
-        }
-
-        private void DrawLinearGradient(Graphics g, Color startColor, Color endColor)
-        {
-            using (var gradientBrush = new LinearGradientBrush(DrawingRect, startColor, endColor, _owner.GradientDirection))
-            {
-                if (_owner.GradientStops.Count > 0)
+                var blend = new ColorBlend
                 {
-                    ApplyGradientStops(gradientBrush);
-                }
-                FillShape(g, gradientBrush, DrawingRect);
+                    Colors = new Color[] { color1, BlendColors(color1, color2, 0.5f), color2 },
+                    Positions = new float[] { 0.0f, 0.3f, 1.0f }
+                };
+                gradientBrush.InterpolationColors = blend;
+                FillShape(g, gradientBrush, rect, 0, false);
             }
         }
 
-        private void DrawRadialGradient(Graphics g, Rectangle rect, Color baseColor)
+        public static void DrawLinearGradient(Graphics g, Rectangle rect, Color startColor, Color endColor, LinearGradientMode direction, List<GradientStop> stops = null)
         {
-            Color centerColor = _owner.GradientStartColor != Color.LightGray ? _owner.GradientStartColor : baseColor;
-            Color edgeColor = _owner.GradientEndColor != Color.Gray ? _owner.GradientEndColor : ModifyColorBrightness(baseColor, 0.7f);
+            using (var gradientBrush = new LinearGradientBrush(rect, startColor, endColor, direction))
+            {
+                if (stops != null && stops.Count > 1)
+                {
+                    ApplyGradientStops(gradientBrush, stops);
+                }
+                FillShape(g, gradientBrush, rect, 0, false);
+            }
+        }
 
-            var center = new PointF(rect.X + rect.Width * _owner.RadialCenter.X, rect.Y + rect.Height * _owner.RadialCenter.Y);
-            float radius = Math.Max(rect.Width, rect.Height) * 0.7f;
-
+        public static void DrawRadialGradient(Graphics g, Rectangle rect, Color centerColor, Color edgeColor, PointF center, float radiusFactor = 0.7f)
+        {
             using (var path = new GraphicsPath())
             {
+                float radius = Math.Max(rect.Width, rect.Height) * radiusFactor;
                 path.AddEllipse(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                 using (var gradientBrush = new PathGradientBrush(path))
                 {
                     gradientBrush.CenterColor = centerColor;
                     gradientBrush.SurroundColors = new Color[] { edgeColor };
                     gradientBrush.CenterPoint = center;
-                    FillShape(g, gradientBrush, rect);
+                    FillShape(g, gradientBrush, rect, 0, false);
                 }
             }
         }
 
-        private void DrawConicGradient(Graphics g, Rectangle rect, Color baseColor)
+        public static void DrawConicGradient(Graphics g, Rectangle rect, Func<float, Color> colorByHue, float startAngleDegrees)
         {
             var center = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
             int segments = 36;
-
             for (int i = 0; i < segments; i++)
             {
-                float startAngle = (i * 360f / segments) + _owner.GradientAngle;
+                float startAngle = (i * 360f / segments) + startAngleDegrees;
                 float hue = (startAngle % 360f) / 360f;
-                Color segmentColor = ColorFromHSV(hue, 0.5f, baseColor.GetBrightness());
-
-                using (var segmentBrush = new SolidBrush(Color.FromArgb(100, segmentColor)))
-                {
-                    g.FillPie(segmentBrush, rect, startAngle, 360f / segments);
-                }
+                Color segmentColor = colorByHue(hue);
+                using var segmentBrush = new SolidBrush(Color.FromArgb(100, segmentColor));
+                g.FillPie(segmentBrush, rect, startAngle, 360f / segments);
             }
         }
 
-        private void DrawMeshGradient(Graphics g, Rectangle rect, Color baseColor)
+        public static void DrawMeshGradient(Graphics g, Rectangle rect, Color baseColor, int gridSize = 3)
         {
-            int gridSize = 3;
             Color[,] colorGrid = new Color[gridSize, gridSize];
-
             for (int x = 0; x < gridSize; x++)
             {
                 for (int y = 0; y < gridSize; y++)
@@ -654,43 +103,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 for (int y = 0; y < gridSize - 1; y++)
                 {
                     var cellRect = new RectangleF(rect.X + x * cellWidth, rect.Y + y * cellHeight, cellWidth * 1.5f, cellHeight * 1.5f);
-                    using (var cellBrush = new LinearGradientBrush(cellRect, colorGrid[x, y], colorGrid[x + 1, y + 1], LinearGradientMode.ForwardDiagonal))
-                    {
-                        g.FillRectangle(cellBrush, cellRect);
-                    }
+                    using var cellBrush = new LinearGradientBrush(cellRect, colorGrid[x, y], colorGrid[x + 1, y + 1], LinearGradientMode.ForwardDiagonal);
+                    g.FillRectangle(cellBrush, cellRect);
                 }
             }
         }
 
-        private void ApplyGlassmorphism(Graphics g, Rectangle rect)
+        public static void ApplyGlassmorphism(Graphics g, Rectangle rect, float opacity)
         {
-            using (var glassBrush = new SolidBrush(Color.FromArgb((int)(255 * _owner.GlassmorphismOpacity), Color.White)))
+            using var glassBrush = new SolidBrush(Color.FromArgb((int)(255 * opacity), Color.White));
+            var random = new Random(42);
+            for (int i = 0; i < rect.Width * rect.Height / 1000; i++)
             {
-                var random = new Random(42);
-                for (int i = 0; i < rect.Width * rect.Height / 1000; i++)
-                {
-                    int x = random.Next(rect.X, rect.X + rect.Width);
-                    int y = random.Next(rect.Y, rect.Y + rect.Height);
-                    using (var noiseBrush = new SolidBrush(Color.FromArgb(random.Next(5, 15), Color.White)))
-                    {
-                        g.FillRectangle(noiseBrush, x, y, 1, 1);
-                    }
-                }
-                FillShape(g, glassBrush, rect);
+                int x = random.Next(rect.X, rect.X + rect.Width);
+                int y = random.Next(rect.Y, rect.Y + rect.Height);
+                using var noiseBrush = new SolidBrush(Color.FromArgb(random.Next(5, 15), Color.White));
+                g.FillRectangle(noiseBrush, x, y, 1, 1);
             }
+            FillShape(g, glassBrush, rect, 0, false);
         }
-        #endregion
 
-    
-        #region Helper Methods
-        private void FillShape(Graphics g, Brush brush, Rectangle rect)
+        // Helper Methods
+        private static void FillShape(Graphics g, Brush brush, Rectangle rect, int radius = 0, bool rounded = false)
         {
-            if (_owner.IsRounded)
+            if (rounded && radius > 0)
             {
-                using (var path = GetRoundedRectPath(rect, _owner.BorderRadius))
-                {
-                    g.FillPath(brush, path);
-                }
+                using var path = GetRoundedRectPath(rect, radius);
+                g.FillPath(brush, path);
             }
             else
             {
@@ -698,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
         }
 
-        private LinearGradientBrush CreateAngledGradientBrush(Rectangle rect, Color color1, Color color2, float angleRadians)
+        private static LinearGradientBrush CreateAngledGradientBrush(Rectangle rect, Color color1, Color color2, float angleRadians)
         {
             float cos = (float)Math.Cos(angleRadians);
             float sin = (float)Math.Sin(angleRadians);
@@ -714,12 +153,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             return new LinearGradientBrush(start, end, color1, color2);
         }
 
-        private Color ModifyColorBrightness(Color color, float brightness)
+        public static Color ModifyColorBrightness(Color color, float brightness)
         {
             return Color.FromArgb(color.A, (int)(color.R * brightness), (int)(color.G * brightness), (int)(color.B * brightness));
         }
 
-        private Color BlendColors(Color color1, Color color2, float amount)
+        public static Color BlendColors(Color color1, Color color2, float amount)
         {
             return Color.FromArgb(
                 (int)(color1.R + (color2.R - color1.R) * amount),
@@ -727,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 (int)(color1.B + (color2.B - color1.B) * amount));
         }
 
-        private Color ColorFromHSV(float hue, float saturation, double brightness)
+        public static Color ColorFromHSV(float hue, float saturation, double brightness)
         {
             hue = hue * 360f;
             int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
@@ -749,51 +188,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
         }
 
-        private void ApplyGradientStops(LinearGradientBrush brush)
+        private static void ApplyGradientStops(LinearGradientBrush brush, List<GradientStop> stops)
         {
-            if (_owner.GradientStops.Count < 2) return;
-
-            var sortedStops = _owner.GradientStops.OrderBy(s => s.Position).ToList();
-            var blend = new ColorBlend();
-            blend.Colors = sortedStops.Select(s => s.Color).ToArray();
-            blend.Positions = sortedStops.Select(s => s.Position).ToArray();
+            var sortedStops = stops.OrderBy(s => s.Position).ToList();
+            var blend = new ColorBlend
+            {
+                Colors = sortedStops.Select(s => s.Color).ToArray(),
+                Positions = sortedStops.Select(s => s.Position).ToArray()
+            };
             brush.InterpolationColors = blend;
-        }
-
-        private Font GetScaledBadgeFont(Graphics g, string text, Size maxSize, Font originalFont)
-        {
-            if (string.IsNullOrEmpty(text) || maxSize.Width <= 0 || maxSize.Height <= 0)
-                return new Font(originalFont.FontFamily, 8, FontStyle.Bold);
-
-            if (text.Length == 1)
-            {
-                float fontSize = Math.Max(6, Math.Min(maxSize.Height * 0.65f, 10));
-                return new Font(originalFont.FontFamily, fontSize, FontStyle.Bold);
-            }
-
-            for (float size = originalFont.Size; size >= 6; size -= 0.5f)
-            {
-                using (var testFont = new Font(originalFont.FontFamily, size, FontStyle.Bold))
-                {
-                    var measuredSize = TextRenderer.MeasureText(g, text, testFont);
-                    if (measuredSize.Width <= maxSize.Width && measuredSize.Height <= maxSize.Height)
-                    {
-                        return new Font(originalFont.FontFamily, size, FontStyle.Bold);
-                    }
-                }
-            }
-
-            return new Font(originalFont.FontFamily, 6, FontStyle.Bold);
-        }
-
-        public void AddGradientStop(float position, Color color)
-        {
-            _owner.GradientStops.Add(new GradientStop(position, color));
-        }
-
-        public void ClearGradientStops()
-        {
-            _owner.GradientStops.Clear();
         }
 
         public static GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
@@ -812,6 +215,73 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             path.CloseFigure();
             return path;
         }
-        #endregion
+
+        /// <summary>
+        /// Creates a DPI-scaled font based on the control's scaling factor
+        /// </summary>
+        /// <param name="baseFont">Base font to scale</param>
+        /// <param name="scaleFactor">DPI scale factor (1.0 = 100%, 1.25 = 125%, etc.)</param>
+        /// <returns>Scaled font</returns>
+        public static Font GetScaledFont(Font baseFont, float scaleFactor = 1.0f)
+        {
+            if (baseFont == null) return SystemFonts.DefaultFont;
+            if (Math.Abs(scaleFactor - 1.0f) < 0.01f) return baseFont;
+
+            try
+            {
+                float scaledSize = baseFont.Size * scaleFactor;
+                // Ensure minimum readable size
+                scaledSize = Math.Max(6f, scaledSize);
+                return new Font(baseFont.FontFamily, scaledSize, baseFont.Style, baseFont.Unit);
+            }
+            catch
+            {
+                return baseFont; // Return original if scaling fails
+            }
+        }
+
+        /// <summary>
+        /// Creates a DPI-scaled font with specified size
+        /// </summary>
+        /// <param name="fontFamily">Font family</param>
+        /// <param name="baseSize">Base font size</param>
+        /// <param name="style">Font style</param>
+        /// <param name="scaleFactor">DPI scale factor</param>
+        /// <returns>Scaled font</returns>
+        public static Font GetScaledFont(FontFamily fontFamily, float baseSize, FontStyle style, float scaleFactor = 1.0f)
+        {
+            try
+            {
+                float scaledSize = baseSize * scaleFactor;
+                scaledSize = Math.Max(6f, scaledSize);
+                return new Font(fontFamily, scaledSize, style);
+            }
+            catch
+            {
+                return SystemFonts.DefaultFont;
+            }
+        }
+
+        /// <summary>
+        /// Creates a DPI-scaled font from font family name
+        /// </summary>
+        /// <param name="fontFamilyName">Font family name</param>
+        /// <param name="baseSize">Base font size</param>
+        /// <param name="style">Font style</param>
+        /// <param name="scaleFactor">DPI scale factor</param>
+        /// <returns>Scaled font</returns>
+        public static Font GetScaledFont(string fontFamilyName, float baseSize, FontStyle style, float scaleFactor = 1.0f)
+        {
+            try
+            {
+                float scaledSize = baseSize * scaleFactor;
+                scaledSize = Math.Max(6f, scaledSize);
+                return new Font(fontFamilyName, scaledSize, style);
+            }
+            catch
+            {
+                return SystemFonts.DefaultFont;
+            }
+        }
     }
 }

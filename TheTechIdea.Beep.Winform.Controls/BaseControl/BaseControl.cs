@@ -160,6 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Initialize helpers in the correct order to avoid circular dependencies
             try
             {
+                IsChild=true;
                 // 1. Initialize core helpers first (no dependencies)
                 // IMPORTANT: Do not create DPI helper by default; let framework scale.
                 if (!DisableDpiAndScaling)

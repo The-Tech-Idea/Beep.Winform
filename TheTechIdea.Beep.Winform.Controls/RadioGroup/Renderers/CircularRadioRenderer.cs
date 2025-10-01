@@ -50,19 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            
-            if (_theme != null)
-            {
-                _textFont = _theme.LabelMedium != null ? 
-                    new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize) :
-                    new Font("Segoe UI", 12f);
-            }
-            else
-            {
-                _textFont = new Font("Segoe UI", 12f);
-            }
-
-            // Note: BeepImage theme will be handled when drawing
+            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
+                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize)
+                : new Font("Segoe UI", 12f));
         }
         #endregion
 
@@ -200,12 +190,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawFocusIndicator(Graphics graphics, Rectangle rectangle, RadioColors colors)
         {
-            using (var pen = new Pen(colors.FocusBorder, 1f))
-            {
-                pen.DashStyle = DashStyle.Dot;
-                var focusRect = Rectangle.Inflate(rectangle, -2, -2);
-                graphics.DrawRectangle(pen, focusRect);
-            }
+            using var pen = new Pen(colors.FocusBorder, 1f) { DashStyle = DashStyle.Dot };
+            var focusRect = Rectangle.Inflate(rectangle, -2, -2);
+            graphics.DrawRectangle(pen, focusRect);
         }
         #endregion
 

@@ -28,7 +28,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             NeoBrutalist,
             ReadingCard,
             SimpleButton,
-            KeyboardShortcut
+            KeyboardShortcut,
+            Minimalist,
+            Glassmorphism,
+            Neumorphism,
+            FluentAcrylic // NEW
         }
 
         private BaseControlPainterKind _painterKind = BaseControlPainterKind.Auto;
@@ -66,10 +70,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 case BaseControlPainterKind.ReadingCard:
                     _painter = new ReadingCardBaseControlPainter();
                     break;
+                case BaseControlPainterKind.Minimalist:
+                    _painter = new MinimalistBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Glassmorphism:
+                    _painter = new GlassmorphismBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Neumorphism:
+                    _painter = new NeumorphismBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.FluentAcrylic:
+                    _painter = new FluentAcrylicBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.SimpleButton:
+                    _painter = new ButtonBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.KeyboardShortcut:
+                    _painter = new ShortcutCardBaseControlPainter();
+                    break;
                 case BaseControlPainterKind.Auto:
                 default:
                     // Auto defaults to Classic painter
-                    _painter = new ClassicBaseControlPainter();
+                    _painter = new MinimalistBaseControlPainter();
                     break;
             }
         }

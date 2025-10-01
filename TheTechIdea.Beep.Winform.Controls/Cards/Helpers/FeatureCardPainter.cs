@@ -11,33 +11,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 20;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
-            
-            // Icon at top center
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 8);
+
+            // Icon centered at top
             int iconSize = 64;
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + (ctx.DrawingRect.Width - iconSize) / 2,
-                ctx.DrawingRect.Top + pad,
-                iconSize, iconSize
-            );
-            
-            // Title below icon
-            ctx.HeaderRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ImageRect.Bottom + 16,
-                ctx.DrawingRect.Width - pad * 2,
-                28
-            );
-            
-            // Description below title
-            ctx.ParagraphRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.HeaderRect.Bottom + 8,
-                ctx.DrawingRect.Width - pad * 2,
-                ctx.DrawingRect.Height - (ctx.HeaderRect.Bottom + 8 - ctx.DrawingRect.Top) - pad * 2
-            );
-            
+            var iconArea = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, iconSize);
+            ctx.ImageRect = AlignToContent(iconArea, new Size(iconSize, iconSize), ContentAlignment.MiddleCenter);
+
+            var content = new Rectangle(ctx.DrawingRect.Left + pad, ctx.ImageRect.Bottom + pad, ctx.DrawingRect.Width - pad * 2, Math.Max(0, ctx.DrawingRect.Bottom - (ctx.ImageRect.Bottom + pad)));
+
+            ctx.HeaderRect = new Rectangle(content.Left, content.Top, content.Width, HeaderHeight);
+            ctx.ParagraphRect = new Rectangle(content.Left, ctx.HeaderRect.Bottom + 6, content.Width, Math.Max(0, content.Height - HeaderHeight - pad));
+
             ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;

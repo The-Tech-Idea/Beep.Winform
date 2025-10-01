@@ -11,30 +11,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -6, -6);
-            
-            // Smaller circular avatar on left
-            int avatarSize = 48;
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
-                avatarSize, avatarSize
-            );
-            
-            // Content area to the right
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 6);
+
+            int avatar = 48;
+            ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, avatar, avatar);
+
             int contentLeft = ctx.ImageRect.Right + 12;
-            int contentWidth = ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - pad;
-            
+            int contentWidth = Math.Max(0, ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - pad);
+
             ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, 20);
             ctx.StatusRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 2, contentWidth, 16);
-            
-            // Badge in top-right
+
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(ctx.DrawingRect.Right - pad - 40, ctx.DrawingRect.Top + pad, 35, 16);
+                ctx.BadgeRect = new Rectangle(Math.Max(ctx.DrawingRect.Right - pad - 40, contentLeft), ctx.DrawingRect.Top + pad, 35, 16);
             }
-            
+
             ctx.ShowSecondaryButton = false;
             ctx.ShowButton = false;
             return ctx;

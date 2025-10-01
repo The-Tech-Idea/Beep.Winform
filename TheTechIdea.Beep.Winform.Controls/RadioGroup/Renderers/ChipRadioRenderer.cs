@@ -51,19 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            
-            if (_theme != null)
-            {
-                _textFont = _theme.LabelMedium != null ? 
-                    new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize) :
-                    new Font("Segoe UI", 11f);
-            }
-            else
-            {
-                _textFont = new Font("Segoe UI", 11f);
-            }
-
-            // Note: BeepImage theme will be handled when drawing
+            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
+                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize)
+                : new Font("Segoe UI", 11f));
         }
         #endregion
 
@@ -148,9 +138,10 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                 chipRect.Height
             );
 
-            DrawContent(graphics, item, contentRect, state, colors);
+            int reserveRight = (state.IsSelected && AllowsDeselection()) ? (CloseButtonSize + 6) : 0;
+            var contentClip = new Rectangle(contentRect.X, contentRect.Y, Math.Max(0, contentRect.Width - reserveRight), contentRect.Height);
+            DrawContent(graphics, item, contentClip, state, colors);
 
-            // Draw close/deselect button for selected items in multiple selection mode
             if (state.IsSelected && AllowsDeselection())
             {
                 var closeRect = new Rectangle(
@@ -159,56 +150,29 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     CloseButtonSize,
                     CloseButtonSize
                 );
-
                 DrawCloseButton(graphics, closeRect, colors.SelectedText);
             }
         }
 
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, RadioItemState state, ChipColors colors)
         {
-            int currentX = contentArea.X + ItemPadding;
-            
-            // Draw icon if present
+            int currentX = contentArea.X;
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var iconRect = new Rectangle(
-                    currentX,
-                    contentArea.Y + (contentArea.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize
-                );
-
+                int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
+                var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
                 _imageRenderer.ImagePath = item.ImagePath;
                 _imageRenderer.Draw(graphics, iconRect);
-                
-                currentX += IconSize + ComponentSpacing;
+                currentX += sz + ComponentSpacing;
             }
 
-            // Draw text
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textRect = new Rectangle(
-                    currentX,
-                    contentArea.Y,
-                    Math.Max(0, contentArea.Right - currentX - ItemPadding),
-                    contentArea.Height
-                );
-
-                Color textColor = state.IsEnabled ? 
-                    (state.IsSelected ? colors.SelectedText : colors.Text) : 
-                    colors.DisabledText;
-                
-                using (var brush = new SolidBrush(textColor))
-                {
-                    var stringFormat = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
-
-                    graphics.DrawString(item.Text, _textFont, brush, textRect, stringFormat);
-                }
+                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, contentArea.Right - currentX), contentArea.Height);
+                var color = state.IsEnabled ? (state.IsSelected ? colors.SelectedText : colors.Text) : colors.DisabledText;
+                using var brush = new SolidBrush(color);
+                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
             }
         }
 

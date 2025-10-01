@@ -11,43 +11,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
-            
-            // Avatar/icon on left
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 6);
+
             int avatarSize = 40;
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + (ctx.DrawingRect.Height - avatarSize) / 2,
-                avatarSize, avatarSize
-            );
-            
-            // Content in middle
+            ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + (ctx.DrawingRect.Height - avatarSize) / 2, avatarSize, avatarSize);
+
             int contentLeft = ctx.ImageRect.Right + 12;
-            int contentWidth = ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - 120 - pad;
-            
+            int contentWidth = Math.Max(0, ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - 120 - pad);
+
             ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, 20);
             ctx.SubtitleRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 2, contentWidth, 16);
-            ctx.ParagraphRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 4, contentWidth, 20);
-            
-            // Badge/rating on right
+            ctx.ParagraphRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 4, contentWidth, Math.Max(0, ctx.DrawingRect.Bottom - (ctx.SubtitleRect.Bottom + 4) - pad));
+
             if (ctx.ShowRating)
             {
-                ctx.RatingRect = new Rectangle(
-                    ctx.DrawingRect.Right - pad - 100,
-                    ctx.DrawingRect.Top + pad,
-                    95, 16
-                );
+                ctx.RatingRect = new Rectangle(ctx.DrawingRect.Right - pad - 100, ctx.DrawingRect.Top + pad, 95, 16);
             }
             else if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(
-                    ctx.DrawingRect.Right - pad - 80,
-                    ctx.DrawingRect.Top + pad,
-                    75, 18
-                );
+                ctx.BadgeRect = new Rectangle(ctx.DrawingRect.Right - pad - 80, ctx.DrawingRect.Top + pad, 75, 18);
             }
-            
+
             ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;

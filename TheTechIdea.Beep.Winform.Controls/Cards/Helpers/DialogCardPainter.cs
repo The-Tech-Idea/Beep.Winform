@@ -11,59 +11,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 24;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -4, -4);
-            
-            // Icon at top if present
+            int pad = DefaultPad + 4;
+            ctx.DrawingRect = Inset(drawingRect, 6);
+
+            int top = ctx.DrawingRect.Top + pad;
             if (ctx.ShowImage)
             {
-                int iconSize = 48;
-                ctx.ImageRect = new Rectangle(
-                    ctx.DrawingRect.Left + (ctx.DrawingRect.Width - iconSize) / 2,
-                    ctx.DrawingRect.Top + pad,
-                    iconSize, iconSize
-                );
-                
-                ctx.HeaderRect = new Rectangle(
-                    ctx.DrawingRect.Left + pad,
-                    ctx.ImageRect.Bottom + 16,
-                    ctx.DrawingRect.Width - pad * 2,
-                    28
-                );
+                int icon = 48;
+                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + (ctx.DrawingRect.Width - icon) / 2, top, icon, icon);
+                top = ctx.ImageRect.Bottom + 16;
             }
-            else
-            {
-                ctx.HeaderRect = new Rectangle(
-                    ctx.DrawingRect.Left + pad,
-                    ctx.DrawingRect.Top + pad,
-                    ctx.DrawingRect.Width - pad * 2,
-                    28
-                );
-            }
-            
-            // Description
-            ctx.ParagraphRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.HeaderRect.Bottom + 12,
-                ctx.DrawingRect.Width - pad * 2,
-                60
-            );
-            
-            // Buttons at bottom
-            int buttonHeight = 36;
-            int buttonWidth = 100;
-            ctx.SecondaryButtonRect = new Rectangle(
-                ctx.DrawingRect.Right - pad - buttonWidth * 2 - 12,
-                ctx.DrawingRect.Bottom - pad - buttonHeight,
-                buttonWidth, buttonHeight
-            );
-            
-            ctx.ButtonRect = new Rectangle(
-                ctx.DrawingRect.Right - pad - buttonWidth,
-                ctx.DrawingRect.Bottom - pad - buttonHeight,
-                buttonWidth, buttonHeight
-            );
-            
+
+            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, top, ctx.DrawingRect.Width - pad * 2, HeaderHeight);
+            ctx.ParagraphRect = new Rectangle(ctx.HeaderRect.Left, ctx.HeaderRect.Bottom + 12, ctx.HeaderRect.Width, 60);
+
+            ctx.SecondaryButtonRect = new Rectangle(ctx.DrawingRect.Right - pad - 100 * 2 - 12, ctx.DrawingRect.Bottom - pad - ButtonHeight, 100, ButtonHeight);
+            ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Right - pad - 100, ctx.DrawingRect.Bottom - pad - ButtonHeight, 100, ButtonHeight);
+
             ctx.ShowSecondaryButton = true;
             return ctx;
         }

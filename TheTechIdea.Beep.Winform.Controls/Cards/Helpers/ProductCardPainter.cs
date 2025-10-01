@@ -11,66 +11,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
-            
-            // Product image at top (square aspect ratio)
-            int imageHeight = Math.Min(ctx.DrawingRect.Width - pad * 2, (int)(ctx.DrawingRect.Height * 0.5));
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
-                ctx.DrawingRect.Width - pad * 2,
-                imageHeight
-            );
-            
-            // Badge (Sale, New, etc.) in top-left corner
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 8);
+
+            int imageHeight = Math.Min(ctx.DrawingRect.Width - pad * 2, Math.Max(80, (int)(ctx.DrawingRect.Height * 0.5)));
+            ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, imageHeight);
+
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(
-                    ctx.DrawingRect.Left + pad + 8,
-                    ctx.DrawingRect.Top + pad + 8,
-                    50, 20
-                );
+                ctx.BadgeRect = new Rectangle(ctx.ImageRect.Left + 8, ctx.ImageRect.Top + 8, 50, 20);
             }
-            
-            // Product title below image
-            ctx.HeaderRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ImageRect.Bottom + 12,
-                ctx.DrawingRect.Width - pad * 2,
-                24
-            );
-            
-            // Brand/category subtitle
-            ctx.SubtitleRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.HeaderRect.Bottom + 4,
-                ctx.DrawingRect.Width - pad * 2,
-                16
-            );
-            
-            // Rating stars
-            ctx.RatingRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.SubtitleRect.Bottom + 8,
-                100, 16
-            );
-            
-            // Price area (right side of rating row)
-            ctx.ParagraphRect = new Rectangle(
-                ctx.DrawingRect.Right - pad - 80,
-                ctx.RatingRect.Top,
-                75, 20
-            );
-            
-            // Add to cart button at bottom
-            ctx.ButtonRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Bottom - pad - 32,
-                ctx.DrawingRect.Width - pad * 2,
-                28
-            );
-            
+
+            var content = new Rectangle(ctx.DrawingRect.Left + pad, ctx.ImageRect.Bottom + 10, ctx.DrawingRect.Width - pad * 2, Math.Max(0, ctx.DrawingRect.Bottom - (ctx.ImageRect.Bottom + 10)));
+
+            ctx.HeaderRect = new Rectangle(content.Left, content.Top, content.Width, HeaderHeight);
+            ctx.SubtitleRect = new Rectangle(content.Left, ctx.HeaderRect.Bottom + 4, content.Width, 16);
+            ctx.RatingRect = new Rectangle(content.Left, ctx.SubtitleRect.Bottom + 6, 100, 16);
+            ctx.ParagraphRect = new Rectangle(content.Right - 80, ctx.RatingRect.Top, 75, 20); // price at right
+
+            ctx.ButtonRect = new Rectangle(content.Left, Math.Max(content.Bottom - ButtonHeight, ctx.RatingRect.Bottom + 10), content.Width, ButtonHeight);
             ctx.ShowSecondaryButton = false;
             return ctx;
         }

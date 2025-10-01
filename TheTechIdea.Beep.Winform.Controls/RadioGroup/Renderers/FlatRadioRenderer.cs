@@ -51,19 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            
-            if (_theme != null)
-            {
-                _textFont = _theme.LabelMedium != null ? 
-                    new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize) :
-                    new Font("Segoe UI", 14f);
-            }
-            else
-            {
-                _textFont = new Font("Segoe UI", 14f);
-            }
-
-            // Note: BeepImage theme will be handled when drawing
+            _textFont = _owner?.Font ?? (_theme?.LabelMedium != null
+                ? new Font(_theme.LabelMedium.FontFamily, _theme.LabelMedium.FontSize)
+                : new Font("Segoe UI", 12f));
         }
         #endregion
 
@@ -241,71 +231,33 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle selectorArea, RadioItemState state, FlatColors colors)
         {
-            int currentX = selectorArea.Right + ComponentSpacing;
-            
-            // Draw icon if present
+            int currentX = Math.Max(selectorArea.Right + ComponentSpacing, contentArea.Left);
+
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var iconRect = new Rectangle(
-                    currentX,
-                    contentArea.Y + (contentArea.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize
-                );
-
+                int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
+                var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
                 _imageRenderer.ImagePath = item.ImagePath;
                 _imageRenderer.Draw(graphics, iconRect);
-                
-                currentX += IconSize + ComponentSpacing;
+                currentX += sz + ComponentSpacing;
             }
 
-            // Draw main text
+            var half = contentArea.Height / 2;
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textRect = new Rectangle(
-                    currentX,
-                    contentArea.Y,
-                    Math.Max(0, contentArea.Right - currentX),
-                    contentArea.Height / 2
-                );
-
-                Color textColor = state.IsEnabled ? colors.Text : colors.DisabledText;
-                
-                using (var brush = new SolidBrush(textColor))
-                {
-                    var stringFormat = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
-
-                    graphics.DrawString(item.Text, _textFont, brush, textRect, stringFormat);
-                }
+                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, contentArea.Right - currentX), half);
+                using var brush = new SolidBrush(state.IsEnabled ? colors.Text : colors.DisabledText);
+                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
             }
 
-            // Draw subtitle/description if present
             if (!string.IsNullOrEmpty(item.SubText))
             {
-                var subtitleRect = new Rectangle(
-                    currentX,
-                    contentArea.Y + contentArea.Height / 2,
-                    Math.Max(0, contentArea.Right - currentX),
-                    contentArea.Height / 2
-                );
-
-                using (var subtitleFont = new Font(_textFont.FontFamily, _textFont.Size * 0.85f))
-                using (var brush = new SolidBrush(colors.SubtitleText))
-                {
-                    var stringFormat = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
-
-                    graphics.DrawString(item.SubText, subtitleFont, brush, subtitleRect, stringFormat);
-                }
+                using var subtitleFont = new Font(_textFont.FontFamily, Math.Max(6f, _textFont.Size * 0.85f));
+                var subtitleRect = new Rectangle(currentX, contentArea.Y + half, Math.Max(0, contentArea.Right - currentX), half);
+                using var brush = new SolidBrush(colors.SubtitleText);
+                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                graphics.DrawString(item.SubText, subtitleFont, brush, subtitleRect, fmt);
             }
         }
 

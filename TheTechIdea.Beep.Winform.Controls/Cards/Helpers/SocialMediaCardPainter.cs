@@ -11,50 +11,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -6, -6);
-            
-            // User avatar in top-left
-            int avatarSize = 40;
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
-                avatarSize, avatarSize
-            );
-            
-            // User name and handle beside avatar
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 6);
+
+            int avatar = 40;
+            ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, avatar, avatar);
+
             int headerLeft = ctx.ImageRect.Right + 12;
-            ctx.HeaderRect = new Rectangle(headerLeft, ctx.DrawingRect.Top + pad, 200, 18);
-            ctx.SubtitleRect = new Rectangle(headerLeft, ctx.HeaderRect.Bottom + 2, 200, 14);
-            
-            // Time/date in top-right
-            ctx.StatusRect = new Rectangle(
-                ctx.DrawingRect.Right - pad - 80,
-                ctx.DrawingRect.Top + pad,
-                75, 16
-            );
-            
-            // Post content
-            ctx.ParagraphRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ImageRect.Bottom + 12,
-                ctx.DrawingRect.Width - pad * 2,
-                Math.Max(40, ctx.DrawingRect.Height - (ctx.ImageRect.Bottom + 12 - ctx.DrawingRect.Top) - 60)
-            );
-            
-            // Action buttons row at bottom (like, share, comment)
+            int headerRight = Math.Max(headerLeft, ctx.DrawingRect.Right - pad - 80 - 8);
+            int headerWidth = Math.Max(0, headerRight - headerLeft);
+            ctx.HeaderRect = new Rectangle(headerLeft, ctx.DrawingRect.Top + pad, headerWidth, 18);
+            ctx.SubtitleRect = new Rectangle(headerLeft, ctx.HeaderRect.Bottom + 2, headerWidth, 14);
+
+            ctx.StatusRect = new Rectangle(ctx.DrawingRect.Right - pad - 80, ctx.DrawingRect.Top + pad, 75, 16);
+
+            int contentTop = ctx.ImageRect.Bottom + 12;
+            ctx.ParagraphRect = new Rectangle(ctx.DrawingRect.Left + pad, contentTop, ctx.DrawingRect.Width - pad * 2, Math.Max(40, ctx.DrawingRect.Bottom - contentTop - pad - 28));
+
             int buttonY = ctx.DrawingRect.Bottom - pad - 24;
-            ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Left + pad, buttonY, 60, 20); // Like
-            ctx.SecondaryButtonRect = new Rectangle(ctx.ButtonRect.Right + 12, buttonY, 60, 20); // Share
-            
-            // Hashtags/mentions
-            ctx.TagsRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ParagraphRect.Bottom + 8,
-                ctx.DrawingRect.Width - pad * 2,
-                20
-            );
-            
+            ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Left + pad, buttonY, 60, 20);
+            ctx.SecondaryButtonRect = new Rectangle(ctx.ButtonRect.Right + 12, buttonY, 60, 20);
+
+            ctx.TagsRect = new Rectangle(ctx.DrawingRect.Left + pad, Math.Min(ctx.ParagraphRect.Bottom + 8, buttonY - 24), ctx.DrawingRect.Width - pad * 2, 20);
+
             ctx.ShowSecondaryButton = true;
             return ctx;
         }

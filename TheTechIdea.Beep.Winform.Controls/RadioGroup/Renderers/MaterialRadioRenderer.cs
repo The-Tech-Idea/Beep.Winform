@@ -51,16 +51,18 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            
-            if (_theme != null)
+            // Prefer owner's current font for consistency with control
+            if (_owner != null && _owner.Font != null)
             {
-                _textFont = _theme.BodyMedium != null ? 
-                    new Font(_theme.BodyMedium.FontFamily, _theme.BodyMedium.FontSize) :
-                    new Font("Segoe UI", 14f);
+                _textFont = _owner.Font;
+            }
+            else if (_theme != null && _theme.BodyMedium != null)
+            {
+                _textFont = new Font(_theme.BodyMedium.FontFamily, _theme.BodyMedium.FontSize);
             }
             else
             {
-                _textFont = new Font("Segoe UI", 14f);
+                _textFont = new Font("Segoe UI", 12f);
             }
 
             // Note: BeepImage theme will be handled when drawing
@@ -223,21 +225,21 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle radioArea, RadioItemState state, MaterialColors colors)
         {
             int currentX = radioArea.Right + ComponentSpacing;
-            
+            currentX = Math.Max(currentX, contentArea.Left);
             // Draw icon if present
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
+                int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 4));
                 var iconRect = new Rectangle(
                     currentX,
-                    contentArea.Y + (contentArea.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize
+                    contentArea.Y + (contentArea.Height - sz) / 2,
+                    sz,
+                    sz
                 );
 
                 _imageRenderer.ImagePath = item.ImagePath;
                 _imageRenderer.Draw(graphics, iconRect);
-                
-                currentX += IconSize + ComponentSpacing;
+                currentX += sz + ComponentSpacing;
             }
 
             // Draw text
@@ -250,10 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                     contentArea.Height
                 );
 
-                Color textColor = state.IsEnabled ? 
-                    (state.IsSelected ? colors.OnSurface : colors.OnSurface) : 
-                    colors.OnSurfaceVariant;
-                
+                var textColor = state.IsEnabled ? colors.OnSurface : colors.OnSurfaceVariant;
                 using (var brush = new SolidBrush(textColor))
                 {
                     var stringFormat = new StringFormat
@@ -262,7 +261,6 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
                         LineAlignment = StringAlignment.Center,
                         Trimming = StringTrimming.EllipsisCharacter
                     };
-
                     graphics.DrawString(item.Text, _textFont, brush, textRect, stringFormat);
                 }
             }
@@ -315,12 +313,11 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         public Rectangle GetContentArea(Rectangle itemRectangle)
         {
-            return new Rectangle(
-                itemRectangle.X + ItemPadding / 2,
-                itemRectangle.Y + ItemPadding / 2,
-                itemRectangle.Width - ItemPadding,
-                itemRectangle.Height - ItemPadding
-            );
+            var left = itemRectangle.X + Math.Max(4, ItemPadding / 2);
+            var top = itemRectangle.Y + Math.Max(2, ItemPadding / 2);
+            var width = Math.Max(0, itemRectangle.Width - Math.Max(8, ItemPadding));
+            var height = Math.Max(0, itemRectangle.Height - Math.Max(4, ItemPadding));
+            return new Rectangle(left, top, width, height);
         }
 
         public Rectangle GetRadioArea(Rectangle itemRectangle)

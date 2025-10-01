@@ -52,19 +52,9 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         public void UpdateTheme(IBeepTheme theme)
         {
             _theme = theme;
-            
-            if (_theme != null)
-            {
-                _textFont = _theme.BodySmall != null ? 
-                    new Font(_theme.BodySmall.FontFamily, _theme.BodySmall.FontSize) :
-                    new Font("Segoe UI", 10f);
-            }
-            else
-            {
-                _textFont = new Font("Segoe UI", 10f);
-            }
-
-            // Note: BeepImage theme will be handled when drawing
+            _textFont = _owner?.Font ?? (_theme?.BodySmall != null
+                ? new Font(_theme.BodySmall.FontFamily, _theme.BodySmall.FontSize)
+                : new Font("Segoe UI", 10f));
         }
         #endregion
 
@@ -180,46 +170,24 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private void DrawContent(Graphics graphics, SimpleItem item, Rectangle contentArea, Rectangle selectorArea, RadioItemState state, CardColors colors)
         {
             int currentX = selectorArea.Right + ComponentSpacing;
-            
-            // Draw icon if present
+            currentX = Math.Max(currentX, contentArea.Left);
+            int rightCap = contentArea.Right;
+
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var iconRect = new Rectangle(
-                    currentX,
-                    contentArea.Y + (contentArea.Height - IconSize) / 2,
-                    IconSize,
-                    IconSize
-                );
-
+                int sz = Math.Min(IconSize, Math.Max(12, contentArea.Height - 6));
+                var iconRect = new Rectangle(currentX, contentArea.Y + (contentArea.Height - sz) / 2, sz, sz);
                 _imageRenderer.ImagePath = item.ImagePath;
                 _imageRenderer.Draw(graphics, iconRect);
-                
-                currentX += IconSize + ComponentSpacing;
+                currentX += sz + ComponentSpacing;
             }
 
-            // Draw text
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textRect = new Rectangle(
-                    currentX,
-                    contentArea.Y,
-                    Math.Max(0, contentArea.Right - currentX),
-                    contentArea.Height
-                );
-
-                Color textColor = state.IsEnabled ? colors.Text : _theme.DisabledForeColor;
-                
-                using (var brush = new SolidBrush(textColor))
-                {
-                    var stringFormat = new StringFormat
-                    {
-                        Alignment = StringAlignment.Near,
-                        LineAlignment = StringAlignment.Center,
-                        Trimming = StringTrimming.EllipsisCharacter
-                    };
-
-                    graphics.DrawString(item.Text, _textFont, brush, textRect, stringFormat);
-                }
+                var textRect = new Rectangle(currentX, contentArea.Y, Math.Max(0, rightCap - currentX), contentArea.Height);
+                using var brush = new SolidBrush(state.IsEnabled ? colors.Text : _theme.DisabledForeColor);
+                var fmt = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                graphics.DrawString(item.Text, _textFont, brush, textRect, fmt);
             }
         }
 

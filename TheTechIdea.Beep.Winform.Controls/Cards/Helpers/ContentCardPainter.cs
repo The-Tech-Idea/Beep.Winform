@@ -11,42 +11,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
-            
-            // Banner image at top
-            int bannerHeight = (int)(ctx.DrawingRect.Height * 0.45);
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 8);
+
+            // Banner image top area ~45%
+            int bannerHeight = Math.Max(60, (int)(ctx.DrawingRect.Height * 0.45));
             ctx.ImageRect = new Rectangle(
                 ctx.DrawingRect.Left,
                 ctx.DrawingRect.Top,
                 ctx.DrawingRect.Width,
-                bannerHeight
+                Math.Min(bannerHeight, ctx.DrawingRect.Height - (pad * 3))
             );
-            
-            // Content area below banner
-            int contentTop = ctx.ImageRect.Bottom + pad;
-            int contentLeft = ctx.DrawingRect.Left + pad;
-            int contentWidth = ctx.DrawingRect.Width - pad * 2;
-            
-            ctx.HeaderRect = new Rectangle(contentLeft, contentTop, contentWidth, 24);
-            ctx.ParagraphRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 8, contentWidth, 40);
-            
-            // Tags/chips row
-            ctx.TagsRect = new Rectangle(contentLeft, ctx.ParagraphRect.Bottom + 8, contentWidth - 120, 24);
-            
-            // Badge in top-right corner of banner
+
+            // Content below
+            var content = new Rectangle(ctx.DrawingRect.Left + pad, ctx.ImageRect.Bottom + pad, ctx.DrawingRect.Width - pad * 2, Math.Max(0, ctx.DrawingRect.Bottom - (ctx.ImageRect.Bottom + pad)));
+
+            ctx.HeaderRect = new Rectangle(content.Left, content.Top, content.Width, HeaderHeight);
+            ctx.ParagraphRect = new Rectangle(content.Left, ctx.HeaderRect.Bottom + 6, content.Width, Math.Max(0, content.Height - HeaderHeight - ButtonHeight - 18));
+
+            // Tags row under paragraph
+            ctx.TagsRect = new Rectangle(content.Left, Math.Min(content.Bottom - ButtonHeight - 8, ctx.ParagraphRect.Bottom + 6), Math.Max(0, content.Width - 120), 22);
+
+            // Badge in top-right of banner
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(ctx.DrawingRect.Right - pad - 50, ctx.DrawingRect.Top + pad, 45, 20);
+                ctx.BadgeRect = new Rectangle(Math.Max(ctx.DrawingRect.Right - pad - 50, ctx.ImageRect.Left + 8), ctx.ImageRect.Top + pad, 45, 20);
             }
-            
-            // Action button at bottom-right
-            ctx.ButtonRect = new Rectangle(
-                ctx.DrawingRect.Right - pad - 100,
-                ctx.DrawingRect.Bottom - pad - 32,
-                95, 28
-            );
-            
+
+            // Primary button bottom-right
+            ctx.ButtonRect = new Rectangle(Math.Max(content.Right - 100, content.Left), Math.Max(content.Bottom - ButtonHeight, ctx.TagsRect.Bottom + 6), 95, ButtonHeight);
+
             ctx.ShowSecondaryButton = false;
             return ctx;
         }

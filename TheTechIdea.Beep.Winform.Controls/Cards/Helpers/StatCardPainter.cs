@@ -11,54 +11,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 20;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -6, -6);
-            
-            // Icon in top-left
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 6);
+
             if (ctx.ShowImage)
             {
                 int iconSize = 32;
-                ctx.ImageRect = new Rectangle(
-                    ctx.DrawingRect.Left + pad,
-                    ctx.DrawingRect.Top + pad,
-                    iconSize, iconSize
-                );
+                ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, iconSize, iconSize);
             }
-            
-            // Main value (large number) - center focus
-            ctx.HeaderRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad + (ctx.ShowImage ? 40 : 0),
-                ctx.DrawingRect.Width - pad * 2,
-                36
-            );
-            
-            // Label/description below value
-            ctx.ParagraphRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.HeaderRect.Bottom + 4,
-                ctx.DrawingRect.Width - pad * 2,
-                20
-            );
-            
-            // Trend indicator (percentage change) in bottom-right
-            ctx.SubtitleRect = new Rectangle(
-                ctx.DrawingRect.Right - pad - 80,
-                ctx.DrawingRect.Bottom - pad - 18,
-                75, 16
-            );
-            
-            // Status indicator (optional)
+
+            int headerTop = ctx.DrawingRect.Top + pad + (ctx.ShowImage ? 40 : 0);
+            ctx.HeaderRect = new Rectangle(ctx.DrawingRect.Left + pad, headerTop, ctx.DrawingRect.Width - pad * 2, 36);
+            ctx.ParagraphRect = new Rectangle(ctx.HeaderRect.Left, ctx.HeaderRect.Bottom + 4, ctx.HeaderRect.Width, 20);
+
+            ctx.SubtitleRect = new Rectangle(Math.Max(ctx.DrawingRect.Right - pad - 80, ctx.HeaderRect.Left), Math.Max(ctx.DrawingRect.Bottom - pad - 16, ctx.ParagraphRect.Bottom + 4), 75, 16);
+
             if (ctx.ShowStatus)
             {
-                ctx.StatusRect = new Rectangle(
-                    ctx.DrawingRect.Left,  // Full width accent line
-                    ctx.DrawingRect.Bottom - 4,
-                    ctx.DrawingRect.Width,
-                    4
-                );
+                ctx.StatusRect = new Rectangle(ctx.DrawingRect.Left, ctx.DrawingRect.Bottom - 4, ctx.DrawingRect.Width, 4);
             }
-            
+
             ctx.ShowButton = false;
             ctx.ShowSecondaryButton = false;
             return ctx;

@@ -97,8 +97,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Constructor
         public BeepCard():base()
         {
-            IsChild = false;
+            IsChild = true;
             Padding = new Padding(5);
+            PainterKind= BaseControlPainterKind.Classic;
             BoundProperty = "ParagraphText";
             InitializeComponents();
             this.Size = new Size(400, 300);

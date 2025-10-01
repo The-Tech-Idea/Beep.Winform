@@ -11,53 +11,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 20;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -8, -8);
-            
-            // Large image at top (40% of height)
-            int imageHeight = (int)(ctx.DrawingRect.Height * 0.4);
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Top + pad,
-                ctx.DrawingRect.Width - pad * 2,
-                imageHeight
-            );
-            
-            // Header below image
-            ctx.HeaderRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.ImageRect.Bottom + 16,
-                ctx.DrawingRect.Width - pad * 2,
-                28
-            );
-            
-            // Status below header
-            ctx.StatusRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.HeaderRect.Bottom + 4,
-                ctx.DrawingRect.Width - pad * 2,
-                20
-            );
-            
-            // Badge in top-right corner
+            int pad = DefaultPad + 4;
+            ctx.DrawingRect = Inset(drawingRect, 8);
+
+            // Hero image area ~40% of card height, clamped
+            int imgH = Math.Max(80, Math.Min((int)(ctx.DrawingRect.Height * 0.4), ctx.DrawingRect.Height - (pad * 4)));
+            ctx.ImageRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Top + pad, ctx.DrawingRect.Width - pad * 2, imgH);
+
+            // Header under image
+            ctx.HeaderRect = new Rectangle(ctx.ImageRect.Left, ctx.ImageRect.Bottom + 12, ctx.ImageRect.Width, HeaderHeight);
+
+            // Optional status line under header
+            ctx.StatusRect = new Rectangle(ctx.HeaderRect.Left, ctx.HeaderRect.Bottom + 4, ctx.HeaderRect.Width, 18);
+
+            // Badge top-right over image
             if (!string.IsNullOrEmpty(ctx.BadgeText1))
             {
-                ctx.BadgeRect = new Rectangle(
-                    ctx.DrawingRect.Right - pad - 60,
-                    ctx.DrawingRect.Top + pad + 12,
-                    50, 20
-                );
+                ctx.BadgeRect = new Rectangle(ctx.ImageRect.Right - 60, ctx.ImageRect.Top + 12, 50, 20);
             }
-            
-            // Button at bottom
-            int buttonHeight = 40;
-            ctx.ButtonRect = new Rectangle(
-                ctx.DrawingRect.Left + pad,
-                ctx.DrawingRect.Bottom - pad - buttonHeight,
-                ctx.DrawingRect.Width - pad * 2,
-                buttonHeight
-            );
-            
+
+            // Primary button at bottom with full width minus padding
+            int btnH = Math.Min(40, Math.Max(ButtonHeight, 32));
+            ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Left + pad, ctx.DrawingRect.Bottom - pad - btnH, ctx.DrawingRect.Width - pad * 2, btnH);
+
             ctx.ShowSecondaryButton = false;
             return ctx;
         }

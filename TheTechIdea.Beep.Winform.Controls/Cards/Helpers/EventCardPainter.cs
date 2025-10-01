@@ -11,50 +11,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
     {
         public override LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx)
         {
-            int pad = 16;
-            ctx.DrawingRect = Rectangle.Inflate(drawingRect, -6, -6);
-            
-            // Colored accent bar on left edge
-            ctx.StatusRect = new Rectangle(
-                ctx.DrawingRect.Left,
-                ctx.DrawingRect.Top,
-                4,
-                ctx.DrawingRect.Height
-            );
-            
-            // Date/time block on left
-            ctx.ImageRect = new Rectangle(
-                ctx.DrawingRect.Left + 12,
-                ctx.DrawingRect.Top + pad,
-                60, 50
-            );
-            
-            // Event content to the right
+            int pad = DefaultPad;
+            ctx.DrawingRect = Inset(drawingRect, 6);
+
+            // Accent bar on left
+            ctx.StatusRect = new Rectangle(ctx.DrawingRect.Left, ctx.DrawingRect.Top, 4, ctx.DrawingRect.Height);
+
+            // Date block at top-left after accent
+            ctx.ImageRect = new Rectangle(ctx.StatusRect.Right + 8, ctx.DrawingRect.Top + pad, 60, 50);
+
             int contentLeft = ctx.ImageRect.Right + 12;
-            int contentWidth = ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - pad;
-            
-            // Event title
+            int contentWidth = Math.Max(0, ctx.DrawingRect.Width - (contentLeft - ctx.DrawingRect.Left) - pad);
+
             ctx.HeaderRect = new Rectangle(contentLeft, ctx.DrawingRect.Top + pad, contentWidth, 20);
-            
-            // Time/location info
             ctx.SubtitleRect = new Rectangle(contentLeft, ctx.HeaderRect.Bottom + 4, contentWidth, 16);
-            
-            // Event description
-            ctx.ParagraphRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 6, contentWidth, 30);
-            
-            // Tags for event categories
-            ctx.TagsRect = new Rectangle(contentLeft, ctx.ParagraphRect.Bottom + 8, contentWidth - 80, 20);
-            
-            // RSVP/Action button in bottom-right
+            ctx.ParagraphRect = new Rectangle(contentLeft, ctx.SubtitleRect.Bottom + 6, contentWidth, Math.Max(20, ctx.DrawingRect.Bottom - (ctx.SubtitleRect.Bottom + 6) - pad - ButtonHeight));
+            ctx.TagsRect = new Rectangle(contentLeft, ctx.ParagraphRect.Bottom + 8, Math.Max(0, contentWidth - 100), 20);
+
             if (ctx.ShowButton)
             {
-                ctx.ButtonRect = new Rectangle(
-                    ctx.DrawingRect.Right - pad - 70,
-                    ctx.DrawingRect.Bottom - pad - 24,
-                    65, 20
-                );
+                ctx.ButtonRect = new Rectangle(ctx.DrawingRect.Right - pad - 85, ctx.DrawingRect.Bottom - pad - 28, 80, 24);
             }
-            
+
             ctx.ShowSecondaryButton = false;
             return ctx;
         }

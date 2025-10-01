@@ -152,9 +152,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 DrawBorders(g, owner);
             }
 
-         
-                DrawLabelAndHelperNonMaterial(g, owner);
-          
+            // Material-like label/helper positioning for classic too
+            DrawLabelAndHelperNonMaterial(g, owner);
 
             // Draw icons if any
             bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
@@ -165,8 +164,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 icons.UpdateLayout(_drawingRect);
                 icons.Draw(g);
             }
-
-            // Main text is drawn centrally by BaseControl.DrawContent to avoid duplicates.
         }
 
         public void UpdateHitAreas(Base.BaseControl owner, Action<string, Rectangle, Action> register)
@@ -335,6 +332,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
         private void DrawLabelAndHelperNonMaterial(Graphics g, Base.BaseControl owner)
         {
+            // Draw label text just above the top border
             if (!string.IsNullOrEmpty(owner.LabelText))
             {
                 float labelSize = Math.Max(8f, owner.Font.Size - 1f);
@@ -345,6 +343,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
+            // Draw helper or error text just below the bottom border
             string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
             if (!string.IsNullOrEmpty(supporting))
             {

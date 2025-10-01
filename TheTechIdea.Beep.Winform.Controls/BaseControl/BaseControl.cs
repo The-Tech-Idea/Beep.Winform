@@ -299,7 +299,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         private void ClearChildExternalDrawing(BaseControl baseControl)
         {
-           _externalDrawing.ClearAllChildExternalDrawing();
+           // Fix: only clear registrations for the specified child on this parent
+           _externalDrawing.ClearChildExternalDrawing(baseControl);
         }
         #endregion
 

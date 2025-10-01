@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.EnableSplashEffect = false;
             _titleLabel.ErrorColor = Color.FromArgb(176, 0, 32);
             _titleLabel.ErrorText = "";
-            _titleLabel.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+         
             _titleLabel.FieldID = null;
             _titleLabel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             _titleLabel.FloatingLabel = true;
@@ -371,7 +371,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.SubHeaderText = "";
             _titleLabel.TabIndex = 1;
             _titleLabel.Tag = this;
-            _titleLabel.TempBackColor = Color.Empty;
+        
             _titleLabel.Text = "beepLabel1";
             _titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             _titleLabel.TextFont = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);

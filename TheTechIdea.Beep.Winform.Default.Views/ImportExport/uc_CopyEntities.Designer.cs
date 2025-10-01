@@ -318,7 +318,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             progressBar1.StaticNotMoving = false;
             progressBar1.Step = 10;
             progressBar1.TabIndex = 1;
-            progressBar1.TempBackColor = Color.Empty;
+        
             progressBar1.Text = "beepProgressBar1";
             progressBar1.TextColor = Color.Black;
             progressBar1.TextFont = new Font("Times New Roman", 11F, FontStyle.Bold | FontStyle.Italic);
@@ -459,7 +459,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             LogtextBox.SlideFrom = Vis.Modules.SlideDirection.Left;
             LogtextBox.StaticNotMoving = false;
             LogtextBox.TabIndex = 2;
-            LogtextBox.TempBackColor = Color.Empty;
+        
             LogtextBox.TextAlignment = HorizontalAlignment.Left;
             LogtextBox.TextFont = new Font("Arial", 10F);
             LogtextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -583,7 +583,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepPanel1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 3;
-            beepPanel1.TempBackColor = Color.Empty;
+           
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Arial", 16F);
             beepPanel1.Theme = "DefaultTheme";

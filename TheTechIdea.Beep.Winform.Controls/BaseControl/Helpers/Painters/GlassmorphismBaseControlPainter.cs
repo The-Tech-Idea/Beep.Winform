@@ -23,6 +23,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private const float GLASS_OPACITY = 0.15f;
         private const float BORDER_OPACITY = 0.3f;
 
+        // Reserved label/helper space
+        private int _reserveTop;
+        private int _reserveBottom;
+
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _borderRect;
         public Rectangle ContentRect => _contentRect;
@@ -32,22 +36,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner == null)
             {
                 _drawingRect = _borderRect = _contentRect = Rectangle.Empty;
+                _reserveTop = _reserveBottom = 0;
                 return;
             }
+
+            _reserveTop = 0;
+            _reserveBottom = 0;
+
+            // Measure label/helper for reserved space
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveTop = h + 4;
+                }
+
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveBottom = h + 6;
+                }
+            }
+            catch { }
 
             // Calculate rects with glassmorphism spacing
             _borderRect = new Rectangle(
                 2,
-                2,
+                2 + _reserveTop,
                 Math.Max(0, owner.Width - 4),
-                Math.Max(0, owner.Height - 4)
+                Math.Max(0, owner.Height - 4 - _reserveTop - _reserveBottom)
             );
 
             _drawingRect = new Rectangle(
-                CONTENT_PADDING,
-                CONTENT_PADDING,
-                Math.Max(0, owner.Width - (CONTENT_PADDING * 2)),
-                Math.Max(0, owner.Height - (CONTENT_PADDING * 2))
+                _borderRect.Left + CONTENT_PADDING,
+                _borderRect.Top + CONTENT_PADDING,
+                Math.Max(0, _borderRect.Width - (CONTENT_PADDING * 2)),
+                Math.Max(0, _borderRect.Height - (CONTENT_PADDING * 2))
             );
 
             _contentRect = _drawingRect;
@@ -90,7 +121,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                     DrawInnerGlow(g, owner);
                 }
 
-                // 4. Draw icons if any
+                // 4. Draw label/helper
+                DrawLabelAndHelper(g, owner);
+
+                // 5. Draw icons if any
                 bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
                 bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
                 if (hasLeading || hasTrailing)
@@ -168,6 +202,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             g.FillPath(glowBrush, glowPath);
         }
 
+        private void DrawLabelAndHelper(Graphics g, Base.BaseControl owner)
+        {
+            // Label (above border)
+            if (!string.IsNullOrEmpty(owner.LabelText))
+            {
+                float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var labelRect = new Rectangle(_borderRect.Left + 6, Math.Max(0, _borderRect.Top - labelHeight - 2), Math.Max(10, _borderRect.Width - 12), labelHeight);
+                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? owner.ForeColor : owner.ErrorColor;
+                TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            // Helper/Error (below border)
+            string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                int supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportRect = new Rectangle(_borderRect.Left + 6, _borderRect.Bottom + 2, Math.Max(10, _borderRect.Width - 12), supportHeight);
+                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
+                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+        }
+
         private Color GetGlassBackgroundColor(Base.BaseControl owner, TheTechIdea.Beep.Vis.Modules.IBeepTheme theme)
         {
             if (!owner.Enabled)
@@ -227,9 +287,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int minWidth = 120 + totalPadding;
             int minHeight = owner.Font.Height + totalPadding;
 
+            int extraTop = 0, extraBottom = 0;
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraTop = h + 4;
+                }
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraBottom = h + 6;
+                }
+            }
+            catch { }
+
             return new Size(
                 Math.Max(minWidth, proposedSize.Width),
-                Math.Max(minHeight, proposedSize.Height)
+                Math.Max(minHeight + extraTop + extraBottom, proposedSize.Height)
             );
         }
 

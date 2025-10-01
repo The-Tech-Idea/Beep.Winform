@@ -52,7 +52,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
     internal class ControlExternalDrawingHelper
     {
         private readonly BaseControl _owner;
-        private readonly Dictionary<Control, ExternalDrawingFunction> _childExternalDrawers = new();
+        // Support multiple external drawing functions per child (e.g., label before, badge after)
+        private readonly Dictionary<Control, List<ExternalDrawingFunction>> _childExternalDrawers = new();
 
         public ControlExternalDrawingHelper(BaseControl owner)
         {
@@ -67,6 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public void AddChildExternalDrawing(Control child, DrawExternalHandler handler, DrawingLayer layer = DrawingLayer.AfterAll)
         {
             if (child == null) throw new ArgumentNullException(nameof(child));
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
 
             var drawingFunction = new ExternalDrawingFunction(handler, layer)
             {
@@ -74,22 +76,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 Redraw = true
             };
 
-            if (_childExternalDrawers.ContainsKey(child))
+            if (!_childExternalDrawers.TryGetValue(child, out var list))
             {
-                _childExternalDrawers[child] = drawingFunction;
-                _childExternalDrawers[child].Redraw = true;
+                list = new List<ExternalDrawingFunction>();
+                _childExternalDrawers.Add(child, list);
             }
-            else
+
+            // Allow multiple functions per layer; avoid exact duplicates of the same handler+layer
+            bool exists = list.Exists(f => f.Layer == layer && f.Handler == handler);
+            if (!exists)
             {
-                _childExternalDrawers.Add(child, drawingFunction);
+                list.Add(drawingFunction);
             }
         }
 
         public void SetChildExternalDrawingRedraw(Control child, bool redraw)
         {
-            if (child != null && _childExternalDrawers.TryGetValue(child, out var function))
+            if (child != null && _childExternalDrawers.TryGetValue(child, out var list))
             {
-                function.Redraw = redraw;
+                foreach (var function in list)
+                {
+                    function.Redraw = redraw;
+                }
             }
         }
 
@@ -97,9 +105,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             if (child == null) return;
 
-            if (_childExternalDrawers.TryGetValue(child, out var function))
+            if (_childExternalDrawers.TryGetValue(child, out var list))
             {
-                function.Dispose();
+                foreach (var function in list)
+                {
+                    function.Dispose();
+                }
                 _childExternalDrawers.Remove(child);
                 _owner.Invalidate();
             }
@@ -107,9 +118,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public void ClearAllChildExternalDrawing()
         {
-            foreach (var function in _childExternalDrawers.Values)
+            foreach (var list in _childExternalDrawers.Values)
             {
-                function.Dispose();
+                foreach (var function in list)
+                {
+                    function.Dispose();
+                }
             }
 
             _childExternalDrawers.Clear();
@@ -123,14 +137,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             foreach (var kvp in _childExternalDrawers)
             {
                 Control childControl = kvp.Key;
-                ExternalDrawingFunction drawingFunction = kvp.Value;
+                var list = kvp.Value;
 
-                if (childControl.Visible &&
-                    drawingFunction.Layer == layer &&
-                    drawingFunction.Redraw &&
-                    drawingFunction.IsValid)
+                if (!childControl.Visible) continue;
+
+                foreach (var drawingFunction in list)
                 {
-                    drawingFunction.Invoke(g, childControl.Bounds);
+                    if (drawingFunction.Layer == layer && drawingFunction.Redraw && drawingFunction.IsValid)
+                    {
+                        drawingFunction.Invoke(g, childControl.Bounds);
+                    }
                 }
             }
         }

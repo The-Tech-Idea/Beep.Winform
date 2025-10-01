@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
         {
             var radioGroup = new BeepRadioGroup
             {
-                RenderStyle = RadioGroupRenderStyle.Material,
+                RadioGroupStyle = RadioGroupRenderStyle.Material,
                 Orientation = RadioGroupOrientation.Vertical,
                 AllowMultipleSelection = false,
                 AutoSizeItems = true,
@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
         {
             var radioGroup = new BeepRadioGroup
             {
-                RenderStyle = RadioGroupRenderStyle.Card,
+                RadioGroupStyle = RadioGroupRenderStyle.Card,
                 Orientation = RadioGroupOrientation.Vertical,
                 AllowMultipleSelection = true,
                 AutoSizeItems = true,
@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
         {
             var radioGroup = new BeepRadioGroup
             {
-                RenderStyle = RadioGroupRenderStyle.Chip,
+                RadioGroupStyle = RadioGroupRenderStyle.Chip,
                 Orientation = RadioGroupOrientation.Flow,
                 AllowMultipleSelection = true,
                 AutoSizeItems = true,
@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
         {
             var radioGroup = new BeepRadioGroup
             {
-                RenderStyle = RadioGroupRenderStyle.Circular,
+                RadioGroupStyle = RadioGroupRenderStyle.Circular,
                 Orientation = RadioGroupOrientation.Vertical,
                 AllowMultipleSelection = false,
                 AutoSizeItems = true,
@@ -321,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
             var currentGroup = GetCurrentDemoGroup();
             if (currentGroup != null)
             {
-                currentGroup.RenderStyle = renderStyle;
+                currentGroup.RadioGroupStyle = renderStyle;
             }
         }
 

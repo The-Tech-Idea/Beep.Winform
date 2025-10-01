@@ -168,7 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.EnableSplashEffect = false;
             cmbFilterCol1.ErrorColor = Color.FromArgb(211, 47, 47);
             cmbFilterCol1.ErrorText = "";
-            cmbFilterCol1.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+         
             cmbFilterCol1.FieldID = null;
             cmbFilterCol1.FilledBackgroundColor = Color.White;
             cmbFilterCol1.FloatingLabel = true;
@@ -281,7 +281,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.StaticNotMoving = false;
             cmbFilterCol1.TabIndex = 1;
             cmbFilterCol1.Tag = root;
-            cmbFilterCol1.TempBackColor = Color.Empty;
+     
             cmbFilterCol1.TextFont = new Font("Arial", 10F);
             cmbFilterCol1.Theme = null;
             cmbFilterCol1.ToolTipText = null;
@@ -346,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.EnableSplashEffect = false;
             cmbFilterVal1.ErrorColor = Color.FromArgb(211, 47, 47);
             cmbFilterVal1.ErrorText = "";
-            cmbFilterVal1.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+
             cmbFilterVal1.FieldID = null;
             cmbFilterVal1.FilledBackgroundColor = Color.White;
             cmbFilterVal1.FloatingLabel = true;
@@ -459,7 +459,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.StaticNotMoving = false;
             cmbFilterVal1.TabIndex = 3;
             cmbFilterVal1.Tag = root;
-            cmbFilterVal1.TempBackColor = Color.Empty;
+          
             cmbFilterVal1.TextFont = new Font("Arial", 10F);
             cmbFilterVal1.Theme = null;
             cmbFilterVal1.ToolTipText = null;
@@ -524,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.EnableSplashEffect = false;
             cmbFilterCol2.ErrorColor = Color.FromArgb(211, 47, 47);
             cmbFilterCol2.ErrorText = "";
-            cmbFilterCol2.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+          
             cmbFilterCol2.FieldID = null;
             cmbFilterCol2.FilledBackgroundColor = Color.White;
             cmbFilterCol2.FloatingLabel = true;
@@ -637,7 +637,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.StaticNotMoving = false;
             cmbFilterCol2.TabIndex = 5;
             cmbFilterCol2.Tag = root;
-            cmbFilterCol2.TempBackColor = Color.Empty;
+           
             cmbFilterCol2.TextFont = new Font("Arial", 10F);
             cmbFilterCol2.Theme = null;
             cmbFilterCol2.ToolTipText = null;
@@ -702,7 +702,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.EnableSplashEffect = false;
             cmbFilterVal2.ErrorColor = Color.FromArgb(211, 47, 47);
             cmbFilterVal2.ErrorText = "";
-            cmbFilterVal2.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+         
             cmbFilterVal2.FieldID = null;
             cmbFilterVal2.FilledBackgroundColor = Color.White;
             cmbFilterVal2.FloatingLabel = true;
@@ -815,7 +815,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.StaticNotMoving = false;
             cmbFilterVal2.TabIndex = 7;
             cmbFilterVal2.Tag = root;
-            cmbFilterVal2.TempBackColor = Color.Empty;
+         
             cmbFilterVal2.TextFont = new Font("Arial", 10F);
             cmbFilterVal2.Theme = null;
             cmbFilterVal2.ToolTipText = null;
@@ -880,7 +880,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.EnableSplashEffect = false;
             cmbGroupBy.ErrorColor = Color.FromArgb(211, 47, 47);
             cmbGroupBy.ErrorText = "";
-            cmbGroupBy.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+       
             cmbGroupBy.FieldID = null;
             cmbGroupBy.FilledBackgroundColor = Color.White;
             cmbGroupBy.FloatingLabel = true;
@@ -993,7 +993,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.StaticNotMoving = false;
             cmbGroupBy.TabIndex = 9;
             cmbGroupBy.Tag = root;
-            cmbGroupBy.TempBackColor = Color.Empty;
+          
             cmbGroupBy.TextFont = new Font("Arial", 10F);
             cmbGroupBy.Theme = null;
             cmbGroupBy.ToolTipText = null;
@@ -1058,7 +1058,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.EnableSplashEffect = false;
             cmbOrderBy.ErrorColor = Color.FromArgb(211, 47, 47);
             cmbOrderBy.ErrorText = "";
-            cmbOrderBy.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+         
             cmbOrderBy.FieldID = null;
             cmbOrderBy.FilledBackgroundColor = Color.White;
             cmbOrderBy.FloatingLabel = true;
@@ -1171,7 +1171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.StaticNotMoving = false;
             cmbOrderBy.TabIndex = 11;
             cmbOrderBy.Tag = root;
-            cmbOrderBy.TempBackColor = Color.Empty;
+           
             cmbOrderBy.TextFont = new Font("Arial", 10F);
             cmbOrderBy.Theme = null;
             cmbOrderBy.ToolTipText = null;
@@ -1230,7 +1230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             rbOrder.EnableHighQualityRendering = true;
             rbOrder.EnableRippleEffect = false;
             rbOrder.EnableSplashEffect = true;
-            rbOrder.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+          
             rbOrder.FieldID = null;
             rbOrder.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             rbOrder.FloatingLabel = true;
@@ -1320,7 +1320,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             rbOrder.StaticNotMoving = false;
             rbOrder.TabIndex = 13;
             rbOrder.Tag = root;
-            rbOrder.TempBackColor = Color.Empty;
+         
             rbOrder.TextFont = new Font("Arial", 10F);
             rbOrder.Theme = null;
             rbOrder.ToolTipText = "";
@@ -1367,7 +1367,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             chkShowHeaders.EnableSplashEffect = false;
             chkShowHeaders.ErrorColor = Color.FromArgb(176, 0, 32);
             chkShowHeaders.ErrorText = "";
-            chkShowHeaders.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+          
             chkShowHeaders.FieldID = null;
             chkShowHeaders.FilledBackgroundColor = Color.FromArgb(238, 234, 240);
             chkShowHeaders.FloatingLabel = true;
@@ -1481,7 +1481,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             chkShowHeaders.StylePreset = Models.MaterialTextFieldStylePreset.MaterialStandard;
             chkShowHeaders.TabIndex = 14;
             chkShowHeaders.Tag = root;
-            chkShowHeaders.TempBackColor = Color.Empty;
+          
             chkShowHeaders.Text = "Show column headers";
             chkShowHeaders.TextFont = new Font("Arial", 10F);
             chkShowHeaders.Theme = null;
@@ -1582,7 +1582,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.EnableSplashEffect = false;
             btnExport.ErrorColor = Color.FromArgb(176, 0, 32);
             btnExport.ErrorText = "";
-            btnExport.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+       
             btnExport.FieldID = null;
             btnExport.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             btnExport.FloatingLabel = true;
@@ -1710,7 +1710,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
             btnExport.TabIndex = 0;
             btnExport.Tag = buttons;
-            btnExport.TempBackColor = Color.Empty;
+           
             btnExport.Text = "Export (.csv)";
             btnExport.TextAlign = ContentAlignment.MiddleCenter;
             btnExport.TextFont = new Font("Arial", 10F);
@@ -1776,7 +1776,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.EnableSplashEffect = false;
             btnApply.ErrorColor = Color.FromArgb(176, 0, 32);
             btnApply.ErrorText = "";
-            btnApply.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+      
             btnApply.FieldID = null;
             btnApply.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             btnApply.FloatingLabel = true;
@@ -1904,7 +1904,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
             btnApply.TabIndex = 1;
             btnApply.Tag = buttons;
-            btnApply.TempBackColor = Color.Empty;
+      
             btnApply.Text = "Apply";
             btnApply.TextAlign = ContentAlignment.MiddleCenter;
             btnApply.TextFont = new Font("Arial", 10F);
@@ -1970,7 +1970,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.EnableSplashEffect = false;
             btnReset.ErrorColor = Color.FromArgb(176, 0, 32);
             btnReset.ErrorText = "";
-            btnReset.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+          
             btnReset.FieldID = null;
             btnReset.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             btnReset.FloatingLabel = true;
@@ -2098,7 +2098,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
             btnReset.TabIndex = 2;
             btnReset.Tag = buttons;
-            btnReset.TempBackColor = Color.Empty;
+        
             btnReset.Text = "Reset";
             btnReset.TextAlign = ContentAlignment.MiddleCenter;
             btnReset.TextFont = new Font("Arial", 10F);
@@ -2164,7 +2164,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.EnableSplashEffect = false;
             btnClose.ErrorColor = Color.FromArgb(176, 0, 32);
             btnClose.ErrorText = "";
-            btnClose.ExternalDrawingLayer = Models.DrawingLayer.AfterAll;
+          
             btnClose.FieldID = null;
             btnClose.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             btnClose.FloatingLabel = true;
@@ -2292,7 +2292,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
             btnClose.TabIndex = 3;
             btnClose.Tag = buttons;
-            btnClose.TempBackColor = Color.Empty;
+        
             btnClose.Text = "Close";
             btnClose.TextAlign = ContentAlignment.MiddleCenter;
             btnClose.TextFont = new Font("Arial", 10F);

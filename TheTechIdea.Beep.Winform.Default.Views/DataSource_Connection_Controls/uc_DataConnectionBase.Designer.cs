@@ -218,7 +218,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 0;
             beepPanel1.Tag = MainTemplatePanel;
-            beepPanel1.TempBackColor = Color.Empty;
+            
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Arial", 16F);
             beepPanel1.Theme = "DefaultTheme";
@@ -448,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionNamebeepTextBox.StaticNotMoving = false;
             ConnectionNamebeepTextBox.TabIndex = 0;
             ConnectionNamebeepTextBox.Tag = tabPage1;
-            ConnectionNamebeepTextBox.TempBackColor = Color.Empty;
+           
             ConnectionNamebeepTextBox.TextAlignment = HorizontalAlignment.Left;
             ConnectionNamebeepTextBox.TextFont = new Font("Arial", 10F);
             ConnectionNamebeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -806,7 +806,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionStringbeepTextBox.StaticNotMoving = false;
             ConnectionStringbeepTextBox.TabIndex = 5;
             ConnectionStringbeepTextBox.Tag = tabPage1;
-            ConnectionStringbeepTextBox.TempBackColor = Color.Empty;
+          
             ConnectionStringbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             ConnectionStringbeepTextBox.TextFont = new Font("Arial", 10F);
             ConnectionStringbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;

@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 {
@@ -19,12 +20,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private const int RADIUS = 12;          // rounded corners
         private const int SHADOW_OFFSET = 4;    // soft shadow offset
 
+        // Reserved label/helper space
+        private int _reserveTop;
+        private int _reserveBottom;
+
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _outerRect;
         public Rectangle ContentRect => _drawingRect;
 
         public void UpdateLayout(Base.BaseControl owner)
         {
+            _reserveTop = 0;
+            _reserveBottom = 0;
+
             if (owner == null || owner.Width <= 0 || owner.Height <= 0)
             {
                 _outerRect = Rectangle.Empty;
@@ -32,12 +40,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 return;
             }
 
-            // Reserve space for shadow
+            // Measure label/helper to reserve space
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveTop = h + 4;
+                }
+
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveBottom = h + 6;
+                }
+            }
+            catch { }
+
+            // Reserve space for shadow and labels
             _outerRect = new Rectangle(
                 CARD_PADDING,
-                CARD_PADDING,
+                CARD_PADDING + _reserveTop,
                 Math.Max(0, owner.Width - (CARD_PADDING * 2) - SHADOW_OFFSET),
-                Math.Max(0, owner.Height - (CARD_PADDING * 2) - SHADOW_OFFSET));
+                Math.Max(0, owner.Height - (CARD_PADDING * 2) - SHADOW_OFFSET - _reserveTop - _reserveBottom));
 
             // Inner content area
             _drawingRect = Rectangle.Inflate(_outerRect, -CONTENT_PADDING, -CONTENT_PADDING);
@@ -102,6 +133,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 {
                     g.DrawPath(pen, path);
                 }
+
+                // Label/helper
+                DrawLabelAndHelper(g, owner);
             }
             finally
             {
@@ -123,7 +157,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner == null) return Size.Empty;
             int minW = 180; // sensible min for a card/control
             int minH = 60;
-            int requiredH = (CARD_PADDING * 2) + (CONTENT_PADDING * 2) + SHADOW_OFFSET + 20;
+
+            int extraTop = 0, extraBottom = 0;
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraTop = h + 4;
+                }
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraBottom = h + 6;
+                }
+            }
+            catch { }
+
+            int requiredH = (CARD_PADDING * 2) + (CONTENT_PADDING * 2) + SHADOW_OFFSET + 20 + extraTop + extraBottom;
             return new Size(
                 Math.Max(minW, proposedSize.Width),
                 Math.Max(Math.Max(minH, requiredH), proposedSize.Height));
@@ -160,6 +217,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 {
                     g.DrawPath(pen, path);
                 }
+            }
+        }
+
+        private static void DrawLabelAndHelper(Graphics g, Base.BaseControl owner)
+        {
+            if (!string.IsNullOrEmpty(owner.LabelText))
+            {
+                float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                // Use owner's painter rect if possible
+                var painter = owner._painter as FluentAcrylicBaseControlPainter;
+                var rectRef = painter?._outerRect ?? owner.ClientRectangle;
+                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var labelRect = new Rectangle(rectRef.Left + 6, Math.Max(0, rectRef.Top - labelHeight - 2), Math.Max(10, rectRef.Width - 12), labelHeight);
+                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? owner.ForeColor : owner.ErrorColor;
+                TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                var painter = owner._painter as FluentAcrylicBaseControlPainter;
+                var rectRef = painter?._outerRect ?? owner.ClientRectangle;
+                int supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportRect = new Rectangle(rectRef.Left + 6, rectRef.Bottom + 2, Math.Max(10, rectRef.Width - 12), supportHeight);
+                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
+                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
         }
     }

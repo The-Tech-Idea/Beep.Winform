@@ -410,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.StaticNotMoving = false;
             beepTextBox1.TabIndex = 15;
             beepTextBox1.Tag = MainTemplatePanel;
-            beepTextBox1.TempBackColor = Color.Empty;
+           
             beepTextBox1.TextAlignment = HorizontalAlignment.Left;
             beepTextBox1.TextFont = new Font("Arial", 10F);
             beepTextBox1.TextImageRelation = TextImageRelation.ImageBeforeText;

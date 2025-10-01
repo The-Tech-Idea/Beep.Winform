@@ -81,6 +81,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Respect IsChild same as base BeepControl
                 if (IsChild)
                 {
+                    if(Parent==null)
+                    {
+                        ParentBackColor = SystemColors.Control;
+                    }
+                    else
+                        ParentBackColor = Parent.BackColor;
                     BackColor = ParentBackColor;
                 }
                 else

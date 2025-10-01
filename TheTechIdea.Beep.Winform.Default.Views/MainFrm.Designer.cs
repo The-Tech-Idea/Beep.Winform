@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             splitContainer2.Panel1.Controls.Add(beepMenuAppBar1);
             beepMenuAppBar1.Tag = splitContainer2.Panel1;
-            beepMenuAppBar1.TempBackColor = Color.Empty;
+          
             beepMenuAppBar1.Text = "beepMenuAppBar1";
             beepMenuAppBar1.TextFont = new Font("Arial", 12F);
             beepMenuAppBar1.Theme = "DefaultTheme";

@@ -609,7 +609,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 2;
             beepPanel1.Tag = MainTemplatePanel;
-            beepPanel1.TempBackColor = Color.Empty;
+          
             beepPanel1.Text = "Entity";
             beepPanel1.TextFont = new Font("Arial", 14F);
             beepPanel1.Theme = "DefaultTheme";
@@ -977,7 +977,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel2.SubHeaderText = "";
             beepLabel2.TabIndex = 2;
             beepLabel2.Tag = beepPanel1;
-            beepLabel2.TempBackColor = Color.FromArgb(255, 255, 255);
+           
             beepLabel2.Text = "Entity";
             beepLabel2.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel2.TextFont = new Font("Arial", 10F);

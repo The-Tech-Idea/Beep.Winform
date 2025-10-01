@@ -21,6 +21,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private const int SHADOW_OFFSET = 8;
         private const int CONTENT_PADDING = 16;
 
+        // Reserved label/helper space computed during layout
+        private int _reserveTop;
+        private int _reserveBottom;
+
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _borderRect;
         public Rectangle ContentRect => _contentRect;
@@ -30,27 +34,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             if (owner == null)
             {
                 _drawingRect = _borderRect = _contentRect = Rectangle.Empty;
+                _reserveTop = _reserveBottom = 0;
                 return;
             }
+
+            _reserveTop = 0;
+            _reserveBottom = 0;
+
+            // Pre-measure label/helper to reserve space above/below brutalist area
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveTop = h + 4;
+                }
+
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveBottom = h + 6;
+                }
+            }
+            catch { /* best-effort */ }
 
             // Calculate rects with brutalist spacing
             int totalPadding = BORDER_WIDTH + CONTENT_PADDING;
             int shadowSpace = SHADOW_OFFSET;
 
-            // Drawing rect with content padding
-            _drawingRect = new Rectangle(
-                totalPadding,
-                totalPadding,
-                Math.Max(0, owner.Width - (totalPadding * 2) - shadowSpace),
-                Math.Max(0, owner.Height - (totalPadding * 2) - shadowSpace)
-            );
-
-            // Border rect for the main border
+            // Border rect for the main border (account for reserved label/helper space)
             _borderRect = new Rectangle(
                 BORDER_WIDTH / 2,
-                BORDER_WIDTH / 2,
+                (BORDER_WIDTH / 2) + _reserveTop,
                 Math.Max(0, owner.Width - BORDER_WIDTH - shadowSpace),
-                Math.Max(0, owner.Height - BORDER_WIDTH - shadowSpace)
+                Math.Max(0, owner.Height - BORDER_WIDTH - shadowSpace - _reserveTop - _reserveBottom)
+            );
+
+            // Drawing rect with content padding inside the border rect
+            _drawingRect = new Rectangle(
+                _borderRect.X + totalPadding,
+                _borderRect.Y + totalPadding,
+                Math.Max(0, _borderRect.Width - (totalPadding * 2)),
+                Math.Max(0, _borderRect.Height - (totalPadding * 2))
             );
 
             // Content rect is same as drawing rect for brutalist style
@@ -88,7 +119,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 // 3. Draw thick border
                 DrawBrutalistBorder(g, owner);
 
-                // 4. Draw icons if any
+                // 4. Draw label/helper like other painters
+                DrawLabelAndHelper(g, owner);
+
+                // 5. Draw icons if any
                 bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
                 bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
                 if (hasLeading || hasTrailing)
@@ -162,6 +196,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
         }
 
+        private void DrawLabelAndHelper(Graphics g, Base.BaseControl owner)
+        {
+            // Label (caption above brutalist border)
+            if (!string.IsNullOrEmpty(owner.LabelText))
+            {
+                float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Bold);
+                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var labelRect = new Rectangle(_borderRect.Left + 6, Math.Max(0, _borderRect.Top - labelHeight - 2), Math.Max(10, _borderRect.Width - 12), labelHeight);
+                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? (owner.ForeColor) : owner.ErrorColor;
+                TextRenderer.DrawText(g, owner.LabelText.ToUpperInvariant(), lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            // Helper/Error text (below brutalist border)
+            string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                int supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportRect = new Rectangle(_borderRect.Left + 6, _borderRect.Bottom + 2, Math.Max(10, _borderRect.Width - 12), supportHeight);
+                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : (owner.ForeColor);
+                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+        }
+
         private Color GetBrutalistBackgroundColor(Base.BaseControl owner, TheTechIdea.Beep.Vis.Modules.IBeepTheme theme)
         {
             // Neo-brutalist uses high contrast colors
@@ -232,9 +292,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int minWidth = 100 + totalPadding;
             int minHeight = owner.Font.Height + totalPadding;
 
+            // Add extra height for reserved label/helper
+            int extraTop = 0;
+            int extraBottom = 0;
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraTop = h + 4;
+                }
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraBottom = h + 6;
+                }
+            }
+            catch { }
+
+            int finalMinHeight = minHeight + extraTop + extraBottom;
+
             return new Size(
                 Math.Max(minWidth, proposedSize.Width),
-                Math.Max(minHeight, proposedSize.Height)
+                Math.Max(finalMinHeight, proposedSize.Height)
             );
         }
     }

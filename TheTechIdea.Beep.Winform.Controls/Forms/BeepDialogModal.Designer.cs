@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.DrawingRect = new Rectangle(1, 1, 619, 54);
             panel1.Easing = EasingType.Linear;
             panel1.EnableRippleEffect = true;
-            panel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
+         
             panel1.FieldID = null;
             panel1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             panel1.FloatingLabel = true;
@@ -174,7 +174,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.StaticNotMoving = false;
             panel1.TabIndex = 0;
             panel1.Tag = this;
-            panel1.TempBackColor = Color.Empty;
+           
             panel1.TextFont = new Font("Arial", 14F);
             panel1.Theme = "DefaultTheme";
             panel1.TitleAlignment = ContentAlignment.TopLeft;
@@ -377,7 +377,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.DrawingRect = new Rectangle(1, 1, 38, 38);
             CloseButton.Easing = EasingType.Linear;
             CloseButton.EnableRippleEffect = true;
-            CloseButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
+       
             CloseButton.FieldID = null;
             CloseButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             CloseButton.FloatingLabel = true;
@@ -478,7 +478,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.StaticNotMoving = false;
             CloseButton.TabIndex = 1;
             CloseButton.Tag = panel1;
-            CloseButton.TempBackColor = Color.White;
+       
             CloseButton.Text = "beepButton1";
             CloseButton.TextAlign = ContentAlignment.MiddleCenter;
             CloseButton.TextFont = new Font("Arial", 14F);
@@ -524,7 +524,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.DrawingRect = new Rectangle(2, 2, 427, 36);
             TitleLabel.Easing = EasingType.Linear;
             TitleLabel.EnableRippleEffect = true;
-            TitleLabel.ExternalDrawingLayer = DrawingLayer.AfterAll;
+        
             TitleLabel.FieldID = null;
             TitleLabel.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             TitleLabel.FloatingLabel = true;
@@ -618,7 +618,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.SubHeaderText = "";
             TitleLabel.TabIndex = 0;
             TitleLabel.Tag = panel1;
-            TitleLabel.TempBackColor = Color.FromArgb(255, 255, 255);
+         
             TitleLabel.Text = "Title";
             TitleLabel.TextAlign = ContentAlignment.MiddleCenter;
             TitleLabel.TextFont = new Font("Arial Black", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -669,7 +669,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.DrawingRect = new Rectangle(1, 1, 619, 238);
             panel3.Easing = EasingType.Linear;
             panel3.EnableRippleEffect = true;
-            panel3.ExternalDrawingLayer = DrawingLayer.AfterAll;
+         
             panel3.FieldID = null;
             panel3.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             panel3.FloatingLabel = true;
@@ -754,7 +754,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.StaticNotMoving = false;
             panel3.TabIndex = 2;
             panel3.Tag = this;
-            panel3.TempBackColor = Color.Empty;
+      
             panel3.TextFont = new Font("Arial", 14F);
             panel3.Theme = "DefaultTheme";
             panel3.TitleAlignment = ContentAlignment.TopLeft;
@@ -802,7 +802,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.DrawingRect = new Rectangle(1, 1, 127, 30);
             MiddleButton.Easing = EasingType.Linear;
             MiddleButton.EnableRippleEffect = true;
-            MiddleButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
+       
             MiddleButton.FieldID = null;
             MiddleButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             MiddleButton.FloatingLabel = true;
@@ -903,7 +903,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.StaticNotMoving = false;
             MiddleButton.TabIndex = 9;
             MiddleButton.Tag = panel3;
-            MiddleButton.TempBackColor = Color.White;
+          
             MiddleButton.TextAlign = ContentAlignment.MiddleCenter;
             MiddleButton.TextFont = new Font("Arial", 14F);
             MiddleButton.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -949,7 +949,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.DrawingRect = new Rectangle(1, 1, 127, 30);
             RightButton.Easing = EasingType.Linear;
             RightButton.EnableRippleEffect = true;
-            RightButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
+        
             RightButton.FieldID = null;
             RightButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             RightButton.FloatingLabel = true;
@@ -1050,7 +1050,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.StaticNotMoving = false;
             RightButton.TabIndex = 8;
             RightButton.Tag = panel3;
-            RightButton.TempBackColor = Color.White;
+       
             RightButton.TextAlign = ContentAlignment.MiddleCenter;
             RightButton.TextFont = new Font("Arial", 14F);
             RightButton.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -1096,7 +1096,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.DrawingRect = new Rectangle(1, 1, 127, 30);
             LeftButton.Easing = EasingType.Linear;
             LeftButton.EnableRippleEffect = true;
-            LeftButton.ExternalDrawingLayer = DrawingLayer.AfterAll;
+         
             LeftButton.FieldID = null;
             LeftButton.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             LeftButton.FloatingLabel = true;
@@ -1197,7 +1197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.StaticNotMoving = false;
             LeftButton.TabIndex = 7;
             LeftButton.Tag = panel3;
-            LeftButton.TempBackColor = Color.White;
+          
             LeftButton.TextAlign = ContentAlignment.MiddleCenter;
             LeftButton.TextFont = new Font("Arial", 14F);
             LeftButton.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -1249,7 +1249,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.DrawingRect = new Rectangle(4, 4, 589, 107);
             CaptionTextBox.Easing = EasingType.Linear;
             CaptionTextBox.EnableRippleEffect = true;
-            CaptionTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
+          
             CaptionTextBox.FieldID = null;
             CaptionTextBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             CaptionTextBox.FloatingLabel = true;
@@ -1348,7 +1348,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.StaticNotMoving = false;
             CaptionTextBox.TabIndex = 5;
             CaptionTextBox.Tag = panel3;
-            CaptionTextBox.TempBackColor = Color.FromArgb(255, 255, 255);
+      
             CaptionTextBox.TextAlignment = HorizontalAlignment.Left;
             CaptionTextBox.TextFont = new Font("Arial", 10F);
             CaptionTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -1394,7 +1394,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.DrawingRect = new Rectangle(1, 1, 268, 20);
             SelectFromListComboBox.Easing = EasingType.Linear;
             SelectFromListComboBox.EnableRippleEffect = true;
-            SelectFromListComboBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
+      
             SelectFromListComboBox.FieldID = null;
             SelectFromListComboBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             SelectFromListComboBox.FloatingLabel = true;
@@ -1480,7 +1480,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.StaticNotMoving = false;
             SelectFromListComboBox.TabIndex = 2;
             SelectFromListComboBox.Tag = panel3;
-            SelectFromListComboBox.TempBackColor = Color.Empty;
+         
             SelectFromListComboBox.Text = "beepComboBox1";
             SelectFromListComboBox.TextFont = new Font("Arial", 10F);
             SelectFromListComboBox.Theme = "DefaultTheme";
@@ -1530,7 +1530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.DrawingRect = new Rectangle(4, 4, 262, 28);
             InputTextBox.Easing = EasingType.Linear;
             InputTextBox.EnableRippleEffect = true;
-            InputTextBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
+       
             InputTextBox.FieldID = null;
             InputTextBox.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
             InputTextBox.FloatingLabel = true;
@@ -1629,7 +1629,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.StaticNotMoving = false;
             InputTextBox.TabIndex = 6;
             InputTextBox.Tag = panel3;
-            InputTextBox.TempBackColor = Color.Empty;
+           
             InputTextBox.TextAlignment = HorizontalAlignment.Left;
             InputTextBox.TextFont = new Font("Arial", 10F);
             InputTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;

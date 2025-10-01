@@ -245,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             CancelbeepButton.TabIndex = 23;
             CancelbeepButton.Tag = MainTemplatePanel;
-            CancelbeepButton.TempBackColor = Color.Empty;
+           
             CancelbeepButton.Text = "Cancel";
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             CancelbeepButton.TextFont = new Font("Arial", 15F);
@@ -437,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             SavebeepButton.TabIndex = 22;
             SavebeepButton.Tag = MainTemplatePanel;
-            SavebeepButton.TempBackColor = Color.Empty;
+          
             SavebeepButton.Text = "Save";
             SavebeepButton.TextAlign = ContentAlignment.MiddleCenter;
             SavebeepButton.TextFont = new Font("Arial", 15F);
@@ -609,7 +609,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.StaticNotMoving = false;
             SystemFolderbeepComboBox.TabIndex = 14;
             SystemFolderbeepComboBox.Tag = MainTemplatePanel;
-            SystemFolderbeepComboBox.TempBackColor = Color.White;
+          
             SystemFolderbeepComboBox.Text = "beepComboBox1";
             SystemFolderbeepComboBox.TextFont = new Font("Arial", 10F);
             SystemFolderbeepComboBox.Theme = "DefaultTheme";
@@ -800,7 +800,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             databaseTextBox.TabIndex = 20;
             databaseTextBox.Tag = MainTemplatePanel;
-            databaseTextBox.TempBackColor = Color.White;
+          
             databaseTextBox.TextAlignment = HorizontalAlignment.Left;
             databaseTextBox.TextFont = new Font("Arial", 10F);
             databaseTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -995,7 +995,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             PasswordbeepTextBox.TabIndex = 21;
             PasswordbeepTextBox.Tag = MainTemplatePanel;
-            PasswordbeepTextBox.TempBackColor = Color.White;
+           
             PasswordbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             PasswordbeepTextBox.TextFont = new Font("Arial", 10F);
             PasswordbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
@@ -1190,7 +1190,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
             OtherFolderbeepTextBox.TabIndex = 19;
             OtherFolderbeepTextBox.Tag = MainTemplatePanel;
-            OtherFolderbeepTextBox.TempBackColor = Color.White;
+        
             OtherFolderbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             OtherFolderbeepTextBox.TextFont = new Font("Arial", 10F);
             OtherFolderbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;

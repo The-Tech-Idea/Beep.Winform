@@ -24,7 +24,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
         }
 
         public abstract LayoutContext AdjustLayout(Rectangle drawingRect, LayoutContext ctx);
-        public abstract void DrawBackground(Graphics g, LayoutContext ctx);
+
+        // BaseControl now draws the container background, border, and shadow.
+        // DrawBackground is kept for optional inner backgrounds or section fills only.
+        // Default implementation does nothing to avoid double-drawing.
+        public virtual void DrawBackground(Graphics g, LayoutContext ctx) { }
+
         public abstract void DrawForegroundAccents(Graphics g, LayoutContext ctx);
 
         public virtual void UpdateHitAreas(BaseControl owner, LayoutContext ctx, System.Action<string, Rectangle> notifyAreaHit)
@@ -36,6 +41,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
         protected GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
             => CardRenderingHelpers.CreateRoundedPath(rect, radius);
 
+        // Note: Prefer not to draw outer container shadows from card painters.
+        // This helper remains for inner element elevation if needed.
         protected void DrawSoftShadow(Graphics g, Rectangle rect, int radius, int layers = 6, int offset = 3)
             => CardRenderingHelpers.DrawSoftShadow(g, rect, radius, layers, offset);
 

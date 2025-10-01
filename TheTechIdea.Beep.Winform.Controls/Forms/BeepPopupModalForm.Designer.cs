@@ -143,7 +143,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepPanel1.SlideFrom = SlideDirection.Left;
             beepPanel1.StaticNotMoving = false;
             beepPanel1.TabIndex = 0;
-            beepPanel1.TempBackColor = Color.Empty;
+        
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Segoe UI", 14F);
             beepPanel1.Theme = "DefaultTheme";

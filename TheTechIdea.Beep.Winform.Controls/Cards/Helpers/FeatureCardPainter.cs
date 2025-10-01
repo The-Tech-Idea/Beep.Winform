@@ -29,13 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             return ctx;
         }
 
-        public override void DrawBackground(Graphics g, LayoutContext ctx)
-        {
-            DrawSoftShadow(g, ctx.DrawingRect, 16, layers: 5, offset: 3);
-            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Color.White);
-            using var bgPath = CreateRoundedPath(ctx.DrawingRect, 16);
-            g.FillPath(bgBrush, bgPath);
-        }
+        // Container background/shadow handled by BaseControl
+        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {

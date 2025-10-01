@@ -22,12 +22,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private const int SHADOW_OFFSET = 2;
         private const int BORDER_WIDTH = 2;
 
+        // Reserved label/helper space
+        private int _reserveTop;
+        private int _reserveBottom;
+
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _buttonRect;
         public Rectangle ContentRect => _drawingRect;
 
         public void UpdateLayout(Base.BaseControl owner)
         {
+            _reserveTop = 0;
+            _reserveBottom = 0;
+
             if (owner == null || owner.Width <= 0 || owner.Height <= 0)
             {
                 _buttonRect = Rectangle.Empty;
@@ -35,12 +42,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 return;
             }
 
-            // Main button rectangle with padding for shadow
+           
+
+            // Main button rectangle with padding for shadow and reserved label/helper
             _buttonRect = new Rectangle(
                 BUTTON_PADDING,
-                BUTTON_PADDING,
+                BUTTON_PADDING + _reserveTop,
                 owner.Width - (BUTTON_PADDING * 2) - SHADOW_OFFSET,
-                owner.Height - (BUTTON_PADDING * 2) - SHADOW_OFFSET
+                owner.Height - (BUTTON_PADDING * 2) - SHADOW_OFFSET - _reserveTop - _reserveBottom
             );
 
             if (_buttonRect.Width <= 0 || _buttonRect.Height <= 0) 
@@ -82,6 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
                 // 2. Draw button background and border
                 DrawButton(g, owner);
+
+              
             }
             finally
             {
@@ -142,6 +153,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 }
             }
         }
+
+   
 
         private Color GetButtonBackgroundColor(Base.BaseControl owner)
         {
@@ -223,9 +236,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             int minWidth = 80;
             int minHeight = 32;
 
+            // Add extra for label/helper only when not using external drawing
+            int extraTop = 0, extraBottom = 0;
+          
+
             return new Size(
                 Math.Max(minWidth, proposedSize.Width),
-                Math.Max(minHeight, proposedSize.Height)
+                Math.Max(minHeight + extraTop + extraBottom, proposedSize.Height)
             );
         }
 

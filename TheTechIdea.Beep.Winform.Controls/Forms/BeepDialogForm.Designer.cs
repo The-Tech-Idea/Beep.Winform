@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDialogBox1.SlideFrom = SlideDirection.Left;
             beepDialogBox1.StaticNotMoving = false;
             beepDialogBox1.TabIndex = 0;
-            beepDialogBox1.TempBackColor = Color.Empty;
+          
             beepDialogBox1.Text = "beepDialogBox1";
             beepDialogBox1.TextFont = new Font("Segoe UI", 14F);
            

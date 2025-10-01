@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _specialFoldersComboBox.SlideFrom = SlideDirection.Left;
             _specialFoldersComboBox.StaticNotMoving = false;
             _specialFoldersComboBox.TabIndex = 0;
-            _specialFoldersComboBox.TempBackColor = Color.Empty;
+         
             _specialFoldersComboBox.Text = "beepComboBox1";
             _specialFoldersComboBox.Theme = "DefaultTheme";
             _specialFoldersComboBox.ToolTipText = "";
@@ -377,7 +377,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _searchBox.SlideFrom = SlideDirection.Left;
             _searchBox.StaticNotMoving = false;
             _searchBox.TabIndex = 0;
-            _searchBox.TempBackColor = Color.Empty;
+          
             _searchBox.Text = "beepTextBox1";
             _searchBox.TextAlignment = HorizontalAlignment.Left;
             _searchBox.TextFont = new Font("Segoe UI", 9F);
@@ -531,7 +531,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _okButton.SlideFrom = SlideDirection.Left;
             _okButton.StaticNotMoving = false;
             _okButton.TabIndex = 2;
-            _okButton.TempBackColor = Color.Empty;
+        
             _okButton.Text = "OK";
             _okButton.TextAlign = ContentAlignment.MiddleCenter;
             _okButton.TextFont = new Font("Segoe UI", 9F);
@@ -661,7 +661,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _cancelButton.SlideFrom = SlideDirection.Left;
             _cancelButton.StaticNotMoving = false;
             _cancelButton.TabIndex = 1;
-            _cancelButton.TempBackColor = Color.Empty;
+           
             _cancelButton.Text = "Cancel";
             _cancelButton.TextAlign = ContentAlignment.MiddleCenter;
             _cancelButton.TextFont = new Font("Segoe UI", 9F);
@@ -798,7 +798,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _fileNameTextBox.SlideFrom = SlideDirection.Left;
             _fileNameTextBox.StaticNotMoving = false;
             _fileNameTextBox.TabIndex = 0;
-            _fileNameTextBox.TempBackColor = Color.Empty;
+    
             _fileNameTextBox.TextAlignment = HorizontalAlignment.Left;
             _fileNameTextBox.TextFont = new Font("Segoe UI", 9F);
             _fileNameTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;

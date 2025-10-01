@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.EnableSplashEffect = false;
             _beepListBox.ErrorColor = Color.FromArgb(176, 0, 32);
             _beepListBox.ErrorText = "";
-            _beepListBox.ExternalDrawingLayer = DrawingLayer.AfterAll;
+            
             _beepListBox.FieldID = null;
             _beepListBox.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             _beepListBox.FloatingLabel = true;
@@ -199,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.StaticNotMoving = false;
             _beepListBox.TabIndex = 0;
             _beepListBox.Tag = this;
-            _beepListBox.TempBackColor = Color.Empty;
+           
             _beepListBox.TextFont = new Font("Arial", 12F);
             _beepListBox.Theme = "DefaultTheme";
             _beepListBox.TitleAlignment = ContentAlignment.TopLeft;

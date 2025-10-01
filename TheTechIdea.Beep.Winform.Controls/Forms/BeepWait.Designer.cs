@@ -428,7 +428,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.EnableSplashEffect = false;
             Title.ErrorColor = Color.FromArgb(176, 0, 32);
             Title.ErrorText = "";
-            Title.ExternalDrawingLayer = DrawingLayer.AfterAll;
+          
             Title.FieldID = null;
             Title.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             Title.FloatingLabel = true;
@@ -547,7 +547,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.SubHeaderText = "";
             Title.TabIndex = 13;
             Title.Tag = this;
-            Title.TempBackColor = Color.Empty;
+         
             Title.Text = "Beep";
             Title.TextAlign = ContentAlignment.MiddleCenter;
             Title.TextFont = new Font("Arial", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
@@ -604,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.EnableSplashEffect = false;
             beepLabel1.ErrorColor = Color.FromArgb(176, 0, 32);
             beepLabel1.ErrorText = "";
-            beepLabel1.ExternalDrawingLayer = DrawingLayer.AfterAll;
+          
             beepLabel1.FieldID = null;
             beepLabel1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepLabel1.FloatingLabel = true;
@@ -723,7 +723,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.SubHeaderText = "";
             beepLabel1.TabIndex = 14;
             beepLabel1.Tag = this;
-            beepLabel1.TempBackColor = Color.Empty;
+         
             beepLabel1.Text = "The Tech Idea";
             beepLabel1.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel1.TextFont = new Font("Arial", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -786,7 +786,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.EnableSplashEffect = false;
             messege.ErrorColor = Color.FromArgb(176, 0, 32);
             messege.ErrorText = "";
-            messege.ExternalDrawingLayer = DrawingLayer.AfterAll;
+          
             messege.FieldID = null;
             messege.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             messege.FloatingLabel = true;
@@ -913,7 +913,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.TabIndex = 15;
             messege.TabStop = false;
             messege.Tag = "";
-            messege.TempBackColor = Color.Empty;
+      
             messege.Text = "beepTextBox1";
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Arial", 10F);

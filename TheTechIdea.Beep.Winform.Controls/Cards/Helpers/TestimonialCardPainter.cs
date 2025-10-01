@@ -30,21 +30,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             return ctx;
         }
 
-        public override void DrawBackground(Graphics g, LayoutContext ctx)
-        {
-            DrawSoftShadow(g, ctx.DrawingRect, 16, layers: 5, offset: 3);
-            using var bgBrush = new SolidBrush(Theme?.CardBackColor ?? Color.White);
-            using var bgPath = CreateRoundedPath(ctx.DrawingRect, 16);
-            g.FillPath(bgBrush, bgPath);
-            
-            // Draw quote marks
-            using var quoteBrush = new SolidBrush(Color.FromArgb(30, ctx.AccentColor));
-            using var quoteFont = new Font("Serif", 36, FontStyle.Bold);
-            g.DrawString("''", quoteFont, quoteBrush, ctx.DrawingRect.Left + 20, ctx.DrawingRect.Top + 5);
-        }
+        // Container background/shadow handled by BaseControl
+        public override void DrawBackground(Graphics g, LayoutContext ctx) { }
 
         public override void DrawForegroundAccents(Graphics g, LayoutContext ctx)
         {
+            // Draw quote marks as a subtle background accent inside the content area
+            using (var quoteBrush = new SolidBrush(Color.FromArgb(30, ctx.AccentColor)))
+            using (var quoteFont = new Font("Serif", 36, FontStyle.Bold))
+            {
+                g.DrawString("''", quoteFont, quoteBrush, ctx.DrawingRect.Left + 20, ctx.DrawingRect.Top + 5);
+            }
+
             // Draw rating stars
             if (ctx.ShowRating && ctx.Rating > 0)
             {

@@ -14,12 +14,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private const int RADIUS = 10;
         private const int PADDING = 12;
 
+        // Reserved label/helper space
+        private int _reserveTop;
+        private int _reserveBottom;
+
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _outerRect;
         public Rectangle ContentRect => _drawingRect;
 
         public void UpdateLayout(Base.BaseControl owner)
         {
+            _reserveTop = 0;
+            _reserveBottom = 0;
+
             if (owner == null || owner.Width <= 0 || owner.Height <= 0)
             {
                 _outerRect = Rectangle.Empty;
@@ -27,7 +34,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 return;
             }
 
-            _outerRect = new Rectangle(2, 2, Math.Max(0, owner.Width - 4), Math.Max(0, owner.Height - 4));
+            // Measure label/helper
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveTop = h + 4;
+                }
+
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveBottom = h + 6;
+                }
+            }
+            catch { }
+
+            _outerRect = new Rectangle(2, 2 + _reserveTop, Math.Max(0, owner.Width - 4), Math.Max(0, owner.Height - 4 - _reserveTop - _reserveBottom));
             _drawingRect = Rectangle.Inflate(_outerRect, -PADDING, -PADDING);
             if (_drawingRect.Width <= 0 || _drawingRect.Height <= 0) _drawingRect = Rectangle.Empty;
         }
@@ -62,6 +92,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 {
                     g.DrawPath(pen, path);
                 }
+
+                // Label/helper
+                DrawLabelAndHelper(g, owner);
             }
             finally
             {
@@ -79,7 +112,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         public Size GetPreferredSize(Base.BaseControl owner, Size proposedSize)
         {
             int minW = 140, minH = 44;
-            return new Size(Math.Max(minW, proposedSize.Width), Math.Max(minH, proposedSize.Height));
+
+            int extraTop = 0, extraBottom = 0;
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraTop = h + 4;
+                }
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraBottom = h + 6;
+                }
+            }
+            catch { }
+
+            return new Size(Math.Max(minW, proposedSize.Width), Math.Max(minH + extraTop + extraBottom, proposedSize.Height));
         }
 
         private static GraphicsPath CreateRoundedPath(Rectangle rect, int radius)
@@ -113,6 +169,33 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             using (var pathTL = CreateRoundedPath(tl, radius + 6))
                 g.FillPath(light, pathTL);
+        }
+
+        private static void DrawLabelAndHelper(Graphics g, Base.BaseControl owner)
+        {
+            var painter = owner._painter as NeumorphismBaseControlPainter;
+            var rectRef = painter?._outerRect ?? owner.ClientRectangle;
+
+            if (!string.IsNullOrEmpty(owner.LabelText))
+            {
+                float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var labelRect = new Rectangle(rectRef.Left + 6, Math.Max(0, rectRef.Top - labelHeight - 2), Math.Max(10, rectRef.Width - 12), labelHeight);
+                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? owner.ForeColor : owner.ErrorColor;
+                TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
+
+            string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+            if (!string.IsNullOrEmpty(supporting))
+            {
+                float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                int supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportRect = new Rectangle(rectRef.Left + 6, rectRef.Bottom + 2, Math.Max(10, rectRef.Width - 12), supportHeight);
+                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
+                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
+            }
         }
     }
 }

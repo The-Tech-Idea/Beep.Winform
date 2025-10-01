@@ -609,7 +609,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.StaticNotMoving = false;
             beepMenuAppBar1.TabIndex = 3;
             beepMenuAppBar1.Tag = this;
-            beepMenuAppBar1.TempBackColor = Color.Empty;
+        
             beepMenuAppBar1.Text = "beepMenuAppBar1";
             beepMenuAppBar1.TextFont = new Font("Arial", 14F, FontStyle.Bold);
             beepMenuAppBar1.Theme = "DefaultTheme";

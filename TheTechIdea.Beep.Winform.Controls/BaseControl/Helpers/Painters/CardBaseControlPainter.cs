@@ -6,9 +6,8 @@ using System.Windows.Forms;
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 {
     /// <summary>
-    /// Card painter: provides outer card styling (border, background, shadow) 
-    /// while leaving inner content (DrawingRect) for inheriting controls to handle.
-    /// Based on card design with rounded corners and subtle elevation.
+    /// Card painter: lays out card content and renders label/helper text.
+    /// Border, background and shadow are rendered by BaseControl's painter to avoid duplication.
     /// </summary>
     internal sealed class CardBaseControlPainter : IBaseControlPainter
     {
@@ -19,7 +18,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         private const int CARD_PADDING = 8;
         private const int CONTENT_PADDING = 16;
         private const int BORDER_RADIUS = 12;
-        private const int SHADOW_OFFSET = 2;
+        private const int SHADOW_OFFSET = 2; // kept for compatibility; not used for layout anymore
+
+        // Reserved label/helper space computed during layout
+        private int _reserveTop;
+        private int _reserveBottom;
 
         public Rectangle DrawingRect => _drawingRect;
         public Rectangle BorderRect => _cardRect;
@@ -27,6 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
         public void UpdateLayout(Base.BaseControl owner)
         {
+            _reserveTop = 0;
+            _reserveBottom = 0;
+
             if (owner == null || owner.Width <= 0 || owner.Height <= 0)
             {
                 _cardRect = Rectangle.Empty;
@@ -34,12 +40,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 return;
             }
 
-            // Main card rectangle with padding for shadow
+            // Pre-measure label/helper to reserve space above/below card area
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    // Slight extra padding so label doesn't touch the card border
+                    _reserveTop = h + 4;
+                }
+
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    _reserveBottom = h + 6;
+                }
+            }
+            catch { /* best-effort */ }
+
+            // Main card rectangle with padding and reserved top/bottom label areas
+            // Do not subtract shadow offset: BaseControl handles any shadow rendering.
             _cardRect = new Rectangle(
                 CARD_PADDING,
-                CARD_PADDING,
-                owner.Width - (CARD_PADDING * 2) - SHADOW_OFFSET,
-                owner.Height - (CARD_PADDING * 2) - SHADOW_OFFSET
+                CARD_PADDING + _reserveTop,
+                owner.Width - (CARD_PADDING * 2),
+                owner.Height - (CARD_PADDING * 2) - _reserveTop - _reserveBottom
             );
 
             if (_cardRect.Width <= 0 || _cardRect.Height <= 0) 
@@ -67,8 +98,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         {
             if (g == null || owner == null || _cardRect.IsEmpty) return;
 
-            var theme = owner._currentTheme;
-
             // Enable high-quality rendering
             var oldSmoothingMode = g.SmoothingMode;
             var oldInterpolationMode = g.InterpolationMode;
@@ -78,9 +107,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             try
             {
-                // Only draw card shadow, background and border - inheriting controls handle all inner content
-                DrawCardShadow(g, owner);
-                DrawCardBackground(g, owner);
+                // Do NOT draw card shadow/background/border here. BaseControl's painter handles that.
+                // Only render label/helper text positioning around the content area.
+                DrawLabelAndHelper(g, owner);
             }
             finally
             {
@@ -90,63 +119,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
             }
         }
 
-        private void DrawCardShadow(Graphics g, Base.BaseControl owner)
+     
+
+        private void DrawLabelAndHelper(Graphics g, Base.BaseControl owner)
         {
-            Rectangle shadowRect = new Rectangle(
-                _cardRect.X + SHADOW_OFFSET, 
-                _cardRect.Y + SHADOW_OFFSET, 
-                _cardRect.Width, 
-                _cardRect.Height
-            );
-
-            var theme = owner._currentTheme;
-            Color shadowColor = theme?.ShadowColor ?? Color.FromArgb(30, Color.Black);
-
-            using (var shadowBrush = new SolidBrush(shadowColor))
-            using (var shadowPath = CreateRoundedPath(shadowRect, BORDER_RADIUS))
+            // Label (caption above card border)
+            if (!string.IsNullOrEmpty(owner.LabelText))
             {
-                g.FillPath(shadowBrush, shadowPath);
-            }
-        }
-
-        private void DrawCardBackground(Graphics g, Base.BaseControl owner)
-        {
-            var theme = owner._currentTheme;
-
-            // Determine background color - use owner's BackColor if set, otherwise theme
-            Color backgroundColor = owner.BackColor != Color.Transparent && owner.BackColor != SystemColors.Control 
-                ? owner.BackColor 
-                : (theme?.CardBackColor ?? Color.White);
-
-            // Determine border color - use owner's BorderColor if set, otherwise theme
-            Color borderColor = owner.BorderColor != Color.Black && owner.BorderColor != Color.Empty
-                ? owner.BorderColor
-                : (theme?.BorderColor ?? Color.FromArgb(220, 220, 220));
-
-            // Apply state-based modifications
-            if (!owner.Enabled)
-            {
-                backgroundColor = Color.FromArgb(180, backgroundColor);
-                borderColor = Color.FromArgb(180, borderColor);
-            }
-            else if (owner.IsPressed)
-            {
-                backgroundColor = Color.FromArgb(230, backgroundColor.R, backgroundColor.G, backgroundColor.B);
-            }
-            else if (owner.IsHovered)
-            {
-                backgroundColor = theme?.CardBackColor != null ? 
-                    Blend(backgroundColor, theme?.MenuItemHoverBackColor ?? Color.White, 0.12f) :
-                    Color.FromArgb(255, Math.Min(255, backgroundColor.R + 10), 
-                        Math.Min(255, backgroundColor.G + 10), Math.Min(255, backgroundColor.B + 10));
+                float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                int labelHeight = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var labelRect = new Rectangle(_cardRect.Left + 6, Math.Max(0, _cardRect.Top - labelHeight - 2), Math.Max(10, _cardRect.Width - 12), labelHeight);
+                Color labelColor = string.IsNullOrEmpty(owner.ErrorText) ? owner.ForeColor : owner.ErrorColor;
+                TextRenderer.DrawText(g, owner.LabelText, lf, labelRect, labelColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
 
-            using (var backgroundBrush = new SolidBrush(backgroundColor))
-            using (var borderPen = new Pen(borderColor, 1))
-            using (var cardPath = CreateRoundedPath(_cardRect, BORDER_RADIUS))
+            // Helper/Error text (below card border)
+            string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+            if (!string.IsNullOrEmpty(supporting))
             {
-                g.FillPath(backgroundBrush, cardPath);
-                g.DrawPath(borderPen, cardPath);
+                float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                int supportHeight = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                var supportRect = new Rectangle(_cardRect.Left + 6, _cardRect.Bottom + 2, Math.Max(10, _cardRect.Width - 12), supportHeight);
+                Color supportColor = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorColor : owner.ForeColor;
+                TextRenderer.DrawText(g, supporting, sf, supportRect, supportColor, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
             }
         }
 
@@ -178,13 +175,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
         {
             if (owner == null) return Size.Empty;
 
-            // Minimum size to accommodate the card design
+            // Minimum size to accommodate the card design + potential label/helper text
             int minWidth = 150;
             int minHeight = 100;
 
+            // Add extra height to account for label/helper if provided
+            int extraTop = 0;
+            int extraBottom = 0;
+            try
+            {
+                using var g = owner.CreateGraphics();
+                if (!string.IsNullOrEmpty(owner.LabelText))
+                {
+                    float labelSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var lf = new Font(owner.Font.FontFamily, labelSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", lf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraTop = h + 4;
+                }
+                string supporting = !string.IsNullOrEmpty(owner.ErrorText) ? owner.ErrorText : owner.HelperText;
+                if (!string.IsNullOrEmpty(supporting))
+                {
+                    float supSize = Math.Max(8f, owner.Font.Size - 1f);
+                    using var sf = new Font(owner.Font.FontFamily, supSize, FontStyle.Regular);
+                    int h = TextRenderer.MeasureText(g, "Ag", sf, new Size(int.MaxValue, int.MaxValue), TextFormatFlags.NoPadding).Height;
+                    extraBottom = h + 6;
+                }
+            }
+            catch { }
+
+            int finalMinHeight = minHeight + extraTop + extraBottom;
+
             return new Size(
                 Math.Max(minWidth, proposedSize.Width),
-                Math.Max(minHeight, proposedSize.Height)
+                Math.Max(finalMinHeight, proposedSize.Height)
             );
         }
 

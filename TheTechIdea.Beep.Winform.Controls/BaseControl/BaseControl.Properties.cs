@@ -138,7 +138,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(false)]
         public bool UseRichToolTip { get; set; } = true;
         #endregion
-
+        public DrawingLayer ExternalDrawingLayer { get; set; } =  DrawingLayer.AfterAll;  
         #region Static/Location Control
         [Browsable(true)]
         [Category("Behavior")]
@@ -356,17 +356,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
       
         [Browsable(true)]
         [Category("Appearance")]
-        public Color TempBackColor
-        {
-            get => _tempBackColor;
-            set
-            {
-                _tempBackColor = value;
-            }
-        }
-
-        [Browsable(true)]
-        [Category("Appearance")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         public bool IsChild
         {
@@ -401,14 +390,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
       
         public bool HitAreaEventOn { get { return _hitTest.HitAreaEventOn; } set { _hitTest.HitAreaEventOn = value; } }
        
-        #endregion
-
-        #region External Drawing Properties
-        public DrawingLayer ExternalDrawingLayer 
-        { 
-            get => _externalDrawing.ExternalDrawingLayer; 
-            set => _externalDrawing.ExternalDrawingLayer = value; 
-        }
         #endregion
 
         #region Direct Appearance Properties (Previously Delegated)
@@ -748,15 +729,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private Color _filledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
         // Badge
         private string _badgeText = "";
-        [Browsable(true)]
-        public virtual string BadgeText
+        [Browsable(true)] public virtual string BadgeText
         {
             get => _badgeText;
             set
             {
                 if(value.Equals(_badgeText)) return;
                 _badgeText = value;
-                RegisterBadgeDrawer();
                 UpdateRegionForBadge();
                 Invalidate();
             }
@@ -781,7 +760,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true)] public Color SelectedBackColor { get; set; } = Color.LightGreen;
         [Browsable(true)] public Color SelectedBorderColor { get; set; } = Color.Green;
         [Browsable(true)] public Color SelectedForeColor { get; set; } = Color.Black;
-
+        [Browsable(true)] public Color TempBackColor { get; set; }= Color.LightGray;
         // Effects
         [Browsable(true)] public bool ShowFocusIndicator { get => _effects.ShowFocusIndicator; set { _effects.ShowFocusIndicator = value; Invalidate(); } }
         [Browsable(true)] public Color FocusIndicatorColor { get => _effects.FocusIndicatorColor; set { _effects.FocusIndicatorColor = value; Invalidate(); } }

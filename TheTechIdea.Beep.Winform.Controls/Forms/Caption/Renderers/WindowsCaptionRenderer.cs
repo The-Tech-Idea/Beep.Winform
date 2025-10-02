@@ -26,34 +26,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 8 * scale)) : 0;
+            // Standardize computation across renderers
             int pad = (int)(8 * scale);
-            rightInset = _showButtons ? (btn * 3 + pad * 3) : pad;
+            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 8 * scale)) : 0;
+            int buttons = _showButtons ? 3 : 0;
+            rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad;
             leftInset = pad;
         }
 
         public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
             invalidatedArea = Rectangle.Empty;
-            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
+            int pad = (int)(8 * scale);
             int btn = Math.Max(24, (int)(_captionHeight() - 8 * scale));
-            int top = (int)(4 * scale);
-            _closeRect = new Rectangle(captionBounds.Right - btn - 8, top, btn, btn);
-            _maxRect   = new Rectangle(_closeRect.Left - btn - 6, top, btn, btn);
-            _minRect   = new Rectangle(_maxRect.Left   - btn - 6, top, btn, btn);
+            int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
+            
+            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
 
-            using var pen = new Pen(theme?.AppBarButtonForeColor ?? _host.ForeColor, 1.5f) { Alignment = PenAlignment.Center };
+            int x = captionBounds.Right - pad - btn;
+            _closeRect = new Rectangle(x, top, btn, btn);
+            x -= (btn + pad);
+            _maxRect   = new Rectangle(x, top, btn, btn);
+            x -= (btn + pad);
+            _minRect   = new Rectangle(x, top, btn, btn);
+
+            // Use AppBarTitleForeColor for icons to ensure contrast with caption bar background
+            // AppBarTitleForeColor is designed to contrast with AppBarBackColor (the caption bar),
+            // while AppBarButtonForeColor might be intended for buttons on the main form body
+            Color iconColor = theme?.AppBarTitleForeColor ?? Color.Empty;
+            if (iconColor == Color.Empty)
+            {
+                var styleColor = theme?.AppBarTitleStyle?.TextColor;
+                iconColor = styleColor.HasValue && styleColor.Value.A != 0 ? styleColor.Value : _host.ForeColor;
+            }
+            using var pen = new Pen(iconColor, 1.5f) { Alignment = PenAlignment.Center };
             // Minimize
-            if (_hoverMin) { using var hb = new SolidBrush(theme?.ButtonHoverBackColor ?? Color.LightGray); g.FillRectangle(hb, _minRect); }
+            if (_hoverMin) { using var hb = new SolidBrush(theme?.ButtonHoverBackColor ?? Color.FromArgb(30, Color.Gray)); g.FillRectangle(hb, _minRect); }
             CaptionGlyphProvider.DrawMinimize(g, pen, _minRect, scale);
             // Maximize/Restore
-            if (_hoverMax) { using var hb = new SolidBrush(theme?.ButtonHoverBackColor ?? Color.LightGray); g.FillRectangle(hb, _maxRect); }
+            if (_hoverMax) { using var hb = new SolidBrush(theme?.ButtonHoverBackColor ?? Color.FromArgb(30, Color.Gray)); g.FillRectangle(hb, _maxRect); }
             if (windowState == FormWindowState.Maximized)
                 CaptionGlyphProvider.DrawRestore(g, pen, _maxRect, scale);
             else
                 CaptionGlyphProvider.DrawMaximize(g, pen, _maxRect, scale);
             // Close
-            if (_hoverClose) { using var hb = new SolidBrush(theme?.ButtonErrorBackColor ?? Color.IndianRed); g.FillRectangle(hb, _closeRect); }
+            if (_hoverClose) 
+            { 
+                using var hb = new SolidBrush(theme?.ButtonErrorBackColor ?? Color.IndianRed); 
+                g.FillRectangle(hb, _closeRect);
+                // Use white for close icon when hovered for maximum contrast with red background
+                pen.Color = Color.White;
+            }
             CaptionGlyphProvider.DrawClose(g, pen, _closeRect, scale);
         }
 

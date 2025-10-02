@@ -6,9 +6,12 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
     /// <summary>
-    /// Elementary-like: centered title, thin glyphs, larger header spacing.
+    /// Office-like caption renderer (inspired by DevExpress/Office Blue):
+    /// - Right-aligned buttons
+    /// - Azure hover fills, red close hover
+    /// - Slightly thicker glyphs
     /// </summary>
-    internal sealed class ElementaryCaptionRenderer : ICaptionRenderer
+    internal sealed class OfficeCaptionRenderer : ICaptionRenderer
     {
         private Form _host;
         private Func<IBeepTheme> _theme;
@@ -25,8 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int pad = (int)(12 * scale);
-            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 10 * scale)) : 0;
+            int pad = (int)(8 * scale);
+            int btn = _showButtons ? Math.Max(26, (int)(_captionHeight() - 6 * scale)) : 0; // a little bigger
             int buttons = _showButtons ? 3 : 0;
             rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad;
             leftInset = pad;
@@ -36,8 +39,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         {
             invalidatedArea = Rectangle.Empty;
             if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(12 * scale);
-            int btn = Math.Max(24, (int)(_captionHeight() - 10 * scale));
+            int pad = (int)(8 * scale);
+            int btn = Math.Max(28, (int)(_captionHeight() - 4 * scale)); // Larger buttons
             int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
 
             int x = captionBounds.Right - pad - btn;
@@ -47,44 +50,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             x -= (btn + pad);
             _minRect = new Rectangle(x, top, btn, btn);
 
-            var fore = theme?.AppBarButtonForeColor ?? _host.ForeColor;
-            var hoverColor = theme?.ButtonHoverBackColor ?? Color.FromArgb(100, 170, 255);
-            using var p = new Pen(fore, 1.4f * scale);
+            // Modern Office 365/Microsoft 365 colors
+            Color officeBlue = Color.FromArgb(0, 120, 212); // Microsoft Blue
+            Color hoverBlue = Color.FromArgb(243, 242, 241); // Neutral gray for light theme
+            Color closeRed = Color.FromArgb(196, 43, 28); // Microsoft Red
 
-            // Modern Elementary OS: ultra-clean with subtle circular hover states
-            int radius = (int)(12 * scale); // Larger radius for softer look
-            
-            if (_hoverMin)
-            {
-                using var hb = new SolidBrush(Color.FromArgb(20, hoverColor));
-                g.FillRoundedRectangle(hb, _minRect, radius);
-            }
-            int y = _minRect.Y + (int)(_minRect.Height * 0.58f);
-            g.DrawLine(p, _minRect.Left + (int)(7 * scale), y, _minRect.Right - (int)(7 * scale), y);
+            using var pen = new Pen(theme?.AppBarButtonForeColor == Color.Empty ? Color.FromArgb(50, 49, 48) : theme.AppBarButtonForeColor, 1.6f * scale);
 
-            if (_hoverMax)
-            {
-                using var hb = new SolidBrush(Color.FromArgb(20, hoverColor));
-                g.FillRoundedRectangle(hb, _maxRect, radius);
+            // Modern Office: subtle square hover with professional spacing
+            if (_hoverMin) 
+            { 
+                using var hb = new SolidBrush(hoverBlue); 
+                g.FillRectangle(hb, _minRect);
+                // Subtle border on hover
+                using var borderPen = new Pen(Color.FromArgb(200, 198, 196), 1f);
+                g.DrawRectangle(borderPen, _minRect);
             }
-            int w = (int)Math.Max(10 * scale, _maxRect.Width / 2.8f);
-            int cx = _maxRect.X + _maxRect.Width / 2; int cy = _maxRect.Y + _maxRect.Height / 2;
-            var rect = new Rectangle(cx - w / 2, cy - w / 2, w, w);
-            if (windowState == FormWindowState.Maximized) 
-                g.DrawRectangle(p, Rectangle.Inflate(rect, -2, -2)); 
-            else 
-                g.DrawRectangle(p, rect);
+            CaptionGlyphProvider.DrawMinimize(g, pen, _minRect, scale);
 
-            if (_hoverClose)
-            {
-                var closeColor = theme?.AppBarCloseButtonColor ?? Color.FromArgb(220, 80, 80);
-                using var hb = new SolidBrush(closeColor);
-                g.FillRoundedRectangle(hb, _closeRect, radius);
-                p.Color = Color.White;
+            if (_hoverMax) 
+            { 
+                using var hb = new SolidBrush(hoverBlue); 
+                g.FillRectangle(hb, _maxRect);
+                using var borderPen = new Pen(Color.FromArgb(200, 198, 196), 1f);
+                g.DrawRectangle(borderPen, _maxRect);
             }
-            int inset = (int)(7 * scale);
-            g.DrawLine(p, _closeRect.Left + inset, _closeRect.Top + inset, _closeRect.Right - inset, _closeRect.Bottom - inset);
-            g.DrawLine(p, _closeRect.Right - inset, _closeRect.Top + inset, _closeRect.Left + inset, _closeRect.Bottom - inset);
+            if (windowState == FormWindowState.Maximized)
+                CaptionGlyphProvider.DrawRestore(g, pen, _maxRect, scale);
+            else
+                CaptionGlyphProvider.DrawMaximize(g, pen, _maxRect, scale);
+
+            if (_hoverClose) 
+            { 
+                using var hb = new SolidBrush(closeRed); 
+                g.FillRectangle(hb, _closeRect);
+                pen.Color = Color.White; // White icon on red background
+            }
+            CaptionGlyphProvider.DrawClose(g, pen, _closeRect, scale);
         }
 
         public bool OnMouseMove(Point location, out Rectangle invalidatedArea)
@@ -94,21 +96,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             _hoverMax = _maxRect.Contains(location);
             _hoverMin = _minRect.Contains(location);
             if (prev != (_hoverClose, _hoverMax, _hoverMin))
-            {
-                invalidatedArea = Rectangle.Union(Rectangle.Union(_closeRect, _maxRect), _minRect);
-                return true;
-            }
+            { invalidatedArea = Rectangle.Union(Rectangle.Union(_closeRect, _maxRect), _minRect); return true; }
             invalidatedArea = Rectangle.Empty; return false;
         }
 
         public void OnMouseLeave(out Rectangle invalidatedArea)
         {
             if (_hoverClose || _hoverMax || _hoverMin)
-            {
-                _hoverClose = _hoverMax = _hoverMin = false;
-                invalidatedArea = Rectangle.Union(Rectangle.Union(_closeRect, _maxRect), _minRect);
-                return;
-            }
+            { _hoverClose = _hoverMax = _hoverMin = false; invalidatedArea = Rectangle.Union(Rectangle.Union(_closeRect, _maxRect), _minRect); return; }
             invalidatedArea = Rectangle.Empty;
         }
 

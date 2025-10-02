@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         private Rectangle _themeButtonRect;
         private bool _themeHover;
 
-        public bool ShowStyleButton { get; set; } = false; // switches caption renderer (Windows/Mac/GNOME/KDE)
+        public bool ShowStyleButton { get; set; } = false; // switches form style
         public string StyleButtonIconPath { get; set; } = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.024-dashboard.svg";
         private Rectangle _styleButtonRect;
         private bool _styleHover;
@@ -44,9 +44,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         public Font? TitleFontOverride { get; set; }
         public Color? TitleForeColorOverride { get; set; }
         
-        // Renderer strategy
+        // Renderer strategy - now based on BeepFormStyle
         private ICaptionRenderer _renderer;
-        public CaptionRendererKind RendererKind { get; private set; } = CaptionRendererKind.Windows;
+        public BeepFormStyle CurrentStyle { get; private set; } = BeepFormStyle.Modern;
+
+        // Legacy compatibility property
+        [Obsolete("Use CurrentStyle instead. This property maps to BeepFormStyle for compatibility.")]
+        public CaptionRendererKind RendererKind 
+        { 
+            get => MapFormStyleToCaptionKind(CurrentStyle);
+            private set => CurrentStyle = MapCaptionKindToFormStyle(value);
+        }
 
         // Logo/Icon properties
         public string LogoImagePath
@@ -118,28 +126,148 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             _overlayRegistry.Add(PaintOverlay);
             _registerPaddingProvider((ref Padding p) => { if (ShowCaptionBar) p.Top += CaptionHeight; });
 
-            SetRenderer(CaptionRendererKind.Windows);
+            SetStyle(BeepFormStyle.Modern);
         }
 
-        private void SetRenderer(CaptionRendererKind kind)
+        private void ForceCaptionRepaint()
         {
-            RendererKind = kind;
-            _renderer = kind switch
+            try
             {
-                CaptionRendererKind.MacLike => new MacLikeCaptionRenderer(),
-                CaptionRendererKind.Gnome => new GnomeCaptionRenderer(),
-                CaptionRendererKind.Kde => new KdeCaptionRenderer(),
-                CaptionRendererKind.Cinnamon => new CinnamonCaptionRenderer(),
-                CaptionRendererKind.Elementary => new ElementaryCaptionRenderer(),
+                // Clear any hover state from previous renderer to avoid stale visuals
+                _hoverClose = _hoverMax = _hoverMin = false;
+                var top = new Rectangle(0, 0, Form.ClientSize.Width, Math.Max(CaptionHeight, 24));
+                Form.Invalidate(top, true);
+                Form.Refresh();
+            }
+            catch
+            {
+                Form.Invalidate();
+                Form.Refresh();
+            }
+        }
+
+        // Main method to set style - replaces SetRenderer
+        public void SetStyle(BeepFormStyle style)
+        {
+            CurrentStyle = style;
+            _renderer = CreateRendererForStyle(style);
+            _renderer.UpdateHost(Form, () => Theme, () => CaptionHeight);
+            _renderer.UpdateTheme(Theme);
+            _renderer.SetShowSystemButtons(ShowSystemButtons);
+
+            // Apply renderer-specific visual preferences (border, shadow, glow)
+            ApplyRendererVisualPreferences(style);
+
+            // Apply defaults (may change CaptionHeight)
+            int oldCaptionHeight = CaptionHeight;
+            ApplyStyleVisualDefaults(style);
+            TryApplyStylePreset(style);
+
+            // If caption metrics changed, ensure layout updates now
+            if (CaptionHeight != oldCaptionHeight && Form.IsHandleCreated)
+            {
+                try { Form.PerformLayout(); } catch { }
+            }
+
+            // Force immediate repaint of the caption (no click needed)
+            ForceCaptionRepaint();
+        }
+
+        /// <summary>
+        /// Applies renderer-specific border, shadow, and glow preferences to the form.
+        /// Each renderer has its own optimal visual settings.
+        /// </summary>
+        private void ApplyRendererVisualPreferences(BeepFormStyle style)
+        {
+            // Get preferences for this style
+            var pref = CaptionRendererPreferences.GetPreference(style);
+
+            // Apply to BeepiForm if possible
+            if (Form is BeepiForm beepiForm)
+            {
+                // Don't override BorderThickness - let user control it manually
+                // beepiForm.BorderThickness = pref.BorderThickness;
+                beepiForm.BorderRadius = pref.BorderRadius;
+                beepiForm.ShadowDepth = pref.ShadowDepth;
+                beepiForm.EnableGlow = pref.EnableGlow;
+                beepiForm.GlowSpread = pref.GlowSpread;
+            }
+        }
+
+        // Legacy compatibility method
+        [Obsolete("Use SetStyle(BeepFormStyle) instead.")]
+        public void SwitchRenderer(CaptionRendererKind kind)
+        {
+            SetStyle(MapCaptionKindToFormStyle(kind));
+        }
+
+        private ICaptionRenderer CreateRendererForStyle(BeepFormStyle style)
+        {
+            return style switch
+            {
+                BeepFormStyle.Material => new MacLikeCaptionRenderer(),
+                BeepFormStyle.Gnome => new GnomeCaptionRenderer(),
+                BeepFormStyle.Kde => new KdeCaptionRenderer(),
+                BeepFormStyle.Cinnamon => new CinnamonCaptionRenderer(),
+                BeepFormStyle.Elementary => new ElementaryCaptionRenderer(),
+                BeepFormStyle.Neon => new NeonCaptionRenderer(),
+                BeepFormStyle.Retro => new RetroCaptionRenderer(),
+                BeepFormStyle.Gaming => new GamingCaptionRenderer(),
+                BeepFormStyle.Corporate => new CorporateCaptionRenderer(),
+                BeepFormStyle.Artistic => new ArtisticCaptionRenderer(),
+                BeepFormStyle.HighContrast => new HighContrastCaptionRenderer(),
+                BeepFormStyle.Soft => new SoftCaptionRenderer(),
+                BeepFormStyle.Industrial => new IndustrialCaptionRenderer(),
+                BeepFormStyle.Office => new OfficeCaptionRenderer(),
+                BeepFormStyle.Metro => new MetroCaptionRenderer(),
                 _ => new WindowsCaptionRenderer()
             };
-            _renderer.UpdateHost(Form, () => Theme, () => CaptionHeight);
-            _renderer.SetShowSystemButtons(ShowSystemButtons);
-            ApplyRendererVisualDefaults(kind);
-            TryMapFormStyleAndPreset(kind);
         }
 
-        private void TryMapFormStyleAndPreset(CaptionRendererKind kind)
+        // Legacy mapping methods for compatibility
+        private static CaptionRendererKind MapFormStyleToCaptionKind(BeepFormStyle style)
+        {
+            return style switch
+            {
+                BeepFormStyle.Material => CaptionRendererKind.MacLike,
+                BeepFormStyle.Gnome => CaptionRendererKind.Gnome,
+                BeepFormStyle.Kde => CaptionRendererKind.Kde,
+                BeepFormStyle.Cinnamon => CaptionRendererKind.Cinnamon,
+                BeepFormStyle.Elementary => CaptionRendererKind.Elementary,
+                BeepFormStyle.Neon => CaptionRendererKind.Neon,
+                BeepFormStyle.Retro => CaptionRendererKind.Retro,
+                BeepFormStyle.Gaming => CaptionRendererKind.Gaming,
+                BeepFormStyle.Corporate => CaptionRendererKind.Corporate,
+                BeepFormStyle.Artistic => CaptionRendererKind.Artistic,
+                BeepFormStyle.HighContrast => CaptionRendererKind.HighContrast,
+                BeepFormStyle.Soft => CaptionRendererKind.Soft,
+                BeepFormStyle.Industrial => CaptionRendererKind.Industrial,
+                _ => CaptionRendererKind.Windows
+            };
+        }
+
+        private static BeepFormStyle MapCaptionKindToFormStyle(CaptionRendererKind kind)
+        {
+            return kind switch
+            {
+                CaptionRendererKind.MacLike => BeepFormStyle.Material,
+                CaptionRendererKind.Gnome => BeepFormStyle.Gnome,
+                CaptionRendererKind.Kde => BeepFormStyle.Kde,
+                CaptionRendererKind.Cinnamon => BeepFormStyle.Cinnamon,
+                CaptionRendererKind.Elementary => BeepFormStyle.Elementary,
+                CaptionRendererKind.Neon => BeepFormStyle.Neon,
+                CaptionRendererKind.Retro => BeepFormStyle.Retro,
+                CaptionRendererKind.Gaming => BeepFormStyle.Gaming,
+                CaptionRendererKind.Corporate => BeepFormStyle.Corporate,
+                CaptionRendererKind.Artistic => BeepFormStyle.Artistic,
+                CaptionRendererKind.HighContrast => BeepFormStyle.HighContrast,
+                CaptionRendererKind.Soft => BeepFormStyle.Soft,
+                CaptionRendererKind.Industrial => BeepFormStyle.Industrial,
+                _ => BeepFormStyle.Modern
+            };
+        }
+
+        private void TryApplyStylePreset(BeepFormStyle style)
         {
             try
             {
@@ -153,30 +281,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 var autoDarkProp = formType.GetProperty("AutoPickDarkPresets");
                 if (autoApplyProp != null) autoApply = (bool)(autoApplyProp.GetValue(form) ?? true);
                 if (autoDarkProp != null) autoPickDark = (bool)(autoDarkProp.GetValue(form) ?? true);
-
-                // Map FormStyle
-                var formStyleProp = formType.GetProperty("FormStyle");
-                if (formStyleProp != null)
-                {
-                    var enumType = formStyleProp.PropertyType;
-                    string targetStyleName = kind switch
-                    {
-                        CaptionRendererKind.MacLike => "Material",
-                        CaptionRendererKind.Gnome => "Gnome",
-                        CaptionRendererKind.Kde => "Kde",
-                        CaptionRendererKind.Cinnamon => "Cinnamon",
-                        CaptionRendererKind.Elementary => "Elementary",
-                        _ => "Modern"
-                    };
-                    foreach (var v in Enum.GetValues(enumType))
-                    {
-                        if (string.Equals(v.ToString(), targetStyleName, StringComparison.OrdinalIgnoreCase))
-                        {
-                            formStyleProp.SetValue(form, v);
-                            break;
-                        }
-                    }
-                }
 
                 if (!autoApply) return;
 
@@ -196,54 +300,83 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                     catch { }
                 }
 
-                // ApplyPreset based on renderer
+                // ApplyPreset based on style
                 var applyPreset = formType.GetMethod("ApplyPreset", new[] { typeof(string) });
                 if (applyPreset != null)
                 {
-                    string baseKey = kind switch
+                    string baseKey = style switch
                     {
-                        CaptionRendererKind.MacLike => "macos",
-                        CaptionRendererKind.Gnome => "gnome.adwaita",
-                        CaptionRendererKind.Kde => "kde.breeze",
-                        CaptionRendererKind.Cinnamon => "cinnamon.mint",
-                        CaptionRendererKind.Elementary => "elementary",
+                        BeepFormStyle.Material => "macos",
+                        BeepFormStyle.Gnome => "gnome.adwaita",
+                        BeepFormStyle.Kde => "kde.breeze",
+                        BeepFormStyle.Cinnamon => "cinnamon.mint",
+                        BeepFormStyle.Elementary => "elementary",
+                        // For newer styles, we might not have presets yet, so they'll use the FormStyle defaults
+                        BeepFormStyle.Neon => "neon",
+                        BeepFormStyle.Gaming => "gaming",
+                        BeepFormStyle.Industrial => "industrial",
                         _ => string.Empty
                     };
                     if (!string.IsNullOrEmpty(baseKey))
                     {
                         string key = baseKey + suffix;
-                        try { applyPreset.Invoke(form, new object[] { key }); } catch { }
+                        try 
+                        { 
+                            applyPreset.Invoke(form, new object[] { key }); 
+                            
+                            // Force form region and visual update after preset application
+                            var updateRegionMethod = formType.GetMethod("UpdateFormRegion", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                            updateRegionMethod?.Invoke(form, null);
+                            
+                            // Force a full repaint
+                            form.Invalidate();
+                            form.Update();
+                        } 
+                        catch { }
                       }
                 }
             }
             catch { }
         }
 
-        private void ApplyRendererVisualDefaults(CaptionRendererKind kind)
+        private void ApplyStyleVisualDefaults(BeepFormStyle style)
         {
-            switch (kind)
+            switch (style)
             {
-                case CaptionRendererKind.Gnome:
+                case BeepFormStyle.Gnome:
                     EnableCaptionGradient = false; if (CaptionHeight < 34) CaptionHeight = 34; break;
-                case CaptionRendererKind.Kde:
+                case BeepFormStyle.Kde:
                     EnableCaptionGradient = true; if (CaptionHeight < 36) CaptionHeight = 36; break;
-                case CaptionRendererKind.Cinnamon:
+                case BeepFormStyle.Cinnamon:
                     EnableCaptionGradient = true; if (CaptionHeight < 38) CaptionHeight = 38; break;
-                case CaptionRendererKind.Elementary:
+                case BeepFormStyle.Elementary:
                     EnableCaptionGradient = false; if (CaptionHeight < 40) CaptionHeight = 40; break;
-                case CaptionRendererKind.MacLike:
+                case BeepFormStyle.Material:
                     EnableCaptionGradient = false; if (CaptionHeight < 36) CaptionHeight = 36; break;
-                case CaptionRendererKind.Windows:
+                case BeepFormStyle.Neon:
+                    EnableCaptionGradient = true; if (CaptionHeight < 38) CaptionHeight = 38; break;
+                case BeepFormStyle.Retro:
+                    EnableCaptionGradient = true; if (CaptionHeight < 42) CaptionHeight = 42; break;
+                case BeepFormStyle.Gaming:
+                    EnableCaptionGradient = false; if (CaptionHeight < 36) CaptionHeight = 36; break;
+                case BeepFormStyle.Corporate:
+                    EnableCaptionGradient = false; if (CaptionHeight < 32) CaptionHeight = 32; break;
+                case BeepFormStyle.Artistic:
+                    EnableCaptionGradient = true; if (CaptionHeight < 44) CaptionHeight = 44; break;
+                case BeepFormStyle.HighContrast:
+                    EnableCaptionGradient = false; if (CaptionHeight < 36) CaptionHeight = 36; break;
+                case BeepFormStyle.Soft:
+                    EnableCaptionGradient = true; if (CaptionHeight < 38) CaptionHeight = 38; break;
+                case BeepFormStyle.Industrial:
+                    EnableCaptionGradient = false; if (CaptionHeight < 34) CaptionHeight = 34; break;
+                case BeepFormStyle.Modern:
+                case BeepFormStyle.Classic:
+                case BeepFormStyle.Metro:
+                case BeepFormStyle.Glass:
+                case BeepFormStyle.Office:
                 default:
                     break;
             }
-        }
-
-        public void SwitchRenderer(CaptionRendererKind kind)
-        {
-            if (RendererKind == kind) return;
-            SetRenderer(kind);
-            Form.Invalidate();
         }
 
         private void InitializeLogoPainter()
@@ -337,7 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             }
             if (ShowStyleButton && _styleButtonRect.Contains(e.Location))
             {
-                ShowRendererMenu();
+                ShowStyleMenu();
                 Form.Invalidate(_styleButtonRect);
                 return;
             }
@@ -377,50 +510,251 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             menu.Show(pt);
         }
 
-        private void ShowRendererMenu()
+        private void ShowStyleMenu()
         {
             var menu = new ContextMenuStrip();
-            void add(CaptionRendererKind k, string text)
+            void add(BeepFormStyle style, string text)
             {
-                var item = new ToolStripMenuItem(text) { Checked = (RendererKind == k) };
-                item.Click += (s, e) => SwitchRenderer(k);
+                var item = new ToolStripMenuItem(text) { Checked = (CurrentStyle == style) };
+                item.Click += (s, e) => { SetStyle(style); ForceCaptionRepaint(); };
                 menu.Items.Add(item);
             }
-            add(CaptionRendererKind.Windows, "Windows");
-            add(CaptionRendererKind.MacLike, "macOS-like");
-            add(CaptionRendererKind.Gnome,   "GNOME / Adwaita");
-            add(CaptionRendererKind.Kde,     "KDE / Breeze");
-            add(CaptionRendererKind.Cinnamon,"Cinnamon");
-            add(CaptionRendererKind.Elementary, "Elementary");
+            
+            // System-inspired styles
+            add(BeepFormStyle.Modern, "Modern");
+            add(BeepFormStyle.Material, "macOS-like");
+            add(BeepFormStyle.Gnome, "GNOME / Adwaita");
+            add(BeepFormStyle.Kde, "KDE / Breeze");
+            add(BeepFormStyle.Cinnamon, "Cinnamon");
+            add(BeepFormStyle.Elementary, "Elementary");
+            
+            menu.Items.Add(new ToolStripSeparator());
+            
+            // Modern visual styles
+            add(BeepFormStyle.Neon, "Neon");
+            add(BeepFormStyle.Retro, "Retro");
+            add(BeepFormStyle.Gaming, "Gaming");
+            add(BeepFormStyle.Corporate, "Corporate");
+            add(BeepFormStyle.Artistic, "Artistic");
+            add(BeepFormStyle.HighContrast, "High Contrast");
+            add(BeepFormStyle.Soft, "Soft");
+            add(BeepFormStyle.Industrial, "Industrial");
+            
+            menu.Items.Add(new ToolStripSeparator());
+            
+            // Classic styles
+            add(BeepFormStyle.Classic, "Classic");
+            add(BeepFormStyle.Metro, "Metro");
+            add(BeepFormStyle.Glass, "Glass");
+            add(BeepFormStyle.Office, "Office");
+            
             var pt = Form.PointToScreen(new Point(_styleButtonRect.Left, _styleButtonRect.Bottom));
             menu.Show(pt);
         }
         
-        private void LayoutButtons()
-        {
-            // no-op here; renderers compute their own layout during Paint
-        }
-        
-        private void PaintOverlay(Graphics g)
+        /// <summary>
+        /// Paint caption bar in non-client area (called from WM_NCPAINT)
+        /// Uses window coordinates, not client coordinates
+        /// </summary>
+        public void PaintNonClientCaption(Graphics g, int borderThickness)
         {
             if (!ShowCaptionBar) return;
-            var rect = new Rectangle(0, 0, Form.ClientSize.Width, CaptionHeight);
+            
+            // Caption bar in window coordinates (non-client area)
+            // Position INSIDE the border, not overlapping it
+            // Left edge: borderThickness (inside left border)
+            // Top edge: borderThickness (inside top border)
+            // Width: Window width minus BOTH left and right borders
+            var rect = new Rectangle(
+                borderThickness, 
+                borderThickness, 
+                Form.Width - (borderThickness * 2), 
+                CaptionHeight
+            );
+            
             if (rect.Width <= 0 || rect.Height <= 0) return;
             
             // Draw caption background
-            if (EnableCaptionGradient && Theme != null)
+            Color start, end; LinearGradientMode dir;
+            GetCaptionBackground(Theme, out start, out end, out dir);
+            using (var brush = new LinearGradientBrush(rect, start, end, dir))
             {
-                // Prefer theme-provided gradient tokens
-                var start = Theme.AppBarGradiantStartColor != Color.Empty ? Theme.AppBarGradiantStartColor : (Theme.AppBarBackColor != Color.Empty ? Theme.AppBarBackColor : SystemColors.ControlDark);
-                var end   = Theme.AppBarGradiantEndColor   != Color.Empty ? Theme.AppBarGradiantEndColor   : (Theme.AppBarBackColor != Color.Empty ? ControlPaint.Dark(Theme.AppBarBackColor, .05f) : SystemColors.ControlDark);
-                var dir   = Theme.AppBarGradiantDirection;
-                using var brush = new LinearGradientBrush(rect, start, end, dir);
                 g.FillRectangle(brush, rect);
+            }
+
+            // Draw logo/icon
+            int titleStartX = rect.Left + 10;
+            if (_showLogo && _logoPainter != null && _logoPainter.HasImage)
+            {
+                var logoRect = new Rectangle(
+                    rect.Left + _logoMargin.Left,
+                    rect.Top + _logoMargin.Top + (CaptionHeight - _logoSize.Height) / 2,
+                    _logoSize.Width,
+                    _logoSize.Height
+                );
+                try
+                {
+                    _logoPainter.DrawImage(g, logoRect);
+                    titleStartX = logoRect.Right + _logoMargin.Right;
+                }
+                catch { }
+            }
+
+            // System buttons via renderer
+            float scale = Form.DeviceDpi / 96f;
+            _renderer?.Paint(g, rect, scale, Theme, Form.WindowState, out var invArea);
+
+            // Calculate positions for extra buttons (theme/style)
+            int btnSize = Math.Max(24, (int)(CaptionHeight - 8 * scale));
+            var margin = (int)(8 * scale);
+            _themeButtonRect = Rectangle.Empty;
+            _styleButtonRect = Rectangle.Empty;
+
+            bool leftClusterStyle = CurrentStyle == BeepFormStyle.Material;
+            int y = rect.Top + (rect.Height - btnSize) / 2;
+
+            int rendererLeftInset = 0, rendererRightInset = 0;
+            _renderer?.GetTitleInsets(rect, scale, out rendererLeftInset, out rendererRightInset);
+
+            if (leftClusterStyle)
+            {
+                int x = rect.Left + rendererLeftInset;
+                if (ShowStyleButton) 
+                { 
+                    _styleButtonRect = new Rectangle(x, y, btnSize, btnSize); 
+                    x += btnSize + margin; 
+                }
+                if (ShowThemeButton) 
+                { 
+                    _themeButtonRect = new Rectangle(x, y, btnSize, btnSize); 
+                    x += btnSize + margin; 
+                }
             }
             else
             {
-                using var b = new SolidBrush(Theme?.AppBarBackColor ?? SystemColors.ControlDark);
-                g.FillRectangle(b, rect);
+                int x = rect.Right - rendererRightInset - margin;
+                if (ShowThemeButton)
+                {
+                    x -= btnSize;
+                    _themeButtonRect = new Rectangle(x, y, btnSize, btnSize);
+                    x -= margin;
+                }
+                if (ShowStyleButton)
+                {
+                    x -= btnSize;
+                    _styleButtonRect = new Rectangle(x, y, btnSize, btnSize);
+                    x -= margin;
+                }
+            }
+
+            // Paint extra buttons - inline code from PaintOverlay
+            Color iconColor = Theme?.AppBarTitleForeColor ?? Color.Empty;
+            if (iconColor == Color.Empty)
+            {
+                var styleColor = Theme?.AppBarTitleStyle?.TextColor;
+                iconColor = styleColor.HasValue && styleColor.Value.A != 0 ? styleColor.Value : Form.ForeColor;
+            }
+            using (var p = new Pen(iconColor, 1.6f))
+            {
+                if (ShowThemeButton && _themeButtonRect != Rectangle.Empty)
+                {
+                    if (_themeHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _themeButtonRect); }
+                    int inset = (int)(6 * scale);
+                    int dy = (int)(4 * scale);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int yLine = _themeButtonRect.Top + inset + i * dy;
+                        g.DrawLine(p, _themeButtonRect.Left + inset, yLine, _themeButtonRect.Right - inset, yLine);
+                    }
+                }
+                if (ShowStyleButton && _styleButtonRect != Rectangle.Empty)
+                {
+                    if (_styleHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _styleButtonRect); }
+                    int inset = (int)(6 * scale);
+                    var r = Rectangle.Inflate(_styleButtonRect, -inset, -inset);
+                    int cx = r.Left + r.Width / 2;
+                    int cy = r.Top + r.Height / 2;
+                    g.DrawRectangle(p, r);
+                    g.DrawLine(p, cx, r.Top, cx, r.Bottom);
+                    g.DrawLine(p, r.Left, cy, r.Right, cy);
+                }
+            }
+
+            // Paint title text - inline code from PaintOverlay
+            // Note: btnSize, margin, and leftClusterStyle already calculated above
+            
+            int leftInset = rendererLeftInset;
+            int rightInset = rendererRightInset;
+            
+            int extraButtonSpace = 0;
+            if (ShowThemeButton) extraButtonSpace += btnSize + margin;
+            if (ShowStyleButton) extraButtonSpace += btnSize + margin;
+            
+            if (leftClusterStyle)
+            {
+                leftInset += extraButtonSpace;
+            }
+            else
+            {
+                rightInset += extraButtonSpace;
+            }
+
+            int logoRight = titleStartX;
+            leftInset = Math.Max(leftInset, logoRight);
+
+            using var sf = new StringFormat { LineAlignment = StringAlignment.Center };
+            var titleFont = TitleFontOverride ?? BeepThemesManager.ToFont(Theme?.AppBarTitleStyle) ?? Form.Font;
+            Color titleColor = TitleForeColorOverride ?? (Theme?.AppBarTitleForeColor ?? Color.Empty);
+            if (titleColor == Color.Empty)
+            {
+                var styleColor = Theme?.AppBarTitleStyle?.TextColor;
+                titleColor = styleColor.HasValue && styleColor.Value.A != 0 ? styleColor.Value : Form.ForeColor;
+            }
+            using var titleBrush = new SolidBrush(titleColor);
+
+            Rectangle titleRect;
+            if (CurrentStyle == BeepFormStyle.Gnome || CurrentStyle == BeepFormStyle.Material)
+            {
+                sf.Alignment = StringAlignment.Center;
+                titleRect = new Rectangle(rect.Left + leftInset, rect.Top, rect.Width - leftInset - rightInset, rect.Height);
+            }
+            else
+            {
+                sf.Alignment = StringAlignment.Near;
+                titleRect = new Rectangle(rect.Left + leftInset, rect.Top, rect.Width - leftInset - rightInset, rect.Height);
+            }
+            g.DrawString(Form.Text, titleFont, titleBrush, titleRect, sf);
+        }
+        
+        public void PaintOverlay(Graphics g)
+        {
+            if (!ShowCaptionBar) return;
+            
+            // Caption bar painted in client area for proper mouse interaction
+            // Border is painted in non-client area via WM_NCPAINT
+            if (Form is BeepiForm beepiForm && beepiForm.WindowState != FormWindowState.Maximized)
+            {
+                return; // Non-client painting active, don't paint in client area
+            }
+            
+            // Get border thickness to avoid overlapping
+            int borderThickness = 0;
+            if (Form is BeepiForm beepiForm2)
+            {
+                borderThickness = beepiForm2.BorderThickness;
+            }
+            
+            // Start caption bar below the top border
+            var rect = new Rectangle(borderThickness, borderThickness, 
+                Form.ClientSize.Width - (borderThickness * 2), CaptionHeight);
+            if (rect.Width <= 0 || rect.Height <= 0) return;
+            
+            // Draw caption background (style-aware fallbacks)
+            Color start, end; LinearGradientMode dir;
+            GetCaptionBackground(Theme, out start, out end, out dir);
+            using (var brush = new LinearGradientBrush(rect, start, end, dir))
+            {
+                g.FillRectangle(brush, rect);
             }
 
             // Draw logo/icon
@@ -441,35 +775,75 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 catch { }
             }
 
-            // System buttons via renderer
+            // System buttons via renderer - let it paint first
             float scale = Form.DeviceDpi / 96f;
             _renderer?.Paint(g, rect, scale, Theme, Form.WindowState, out var invArea);
 
-            // Layout our extra buttons (to the left of system buttons cluster)
+            // Now calculate positions for our extra buttons (theme/style)
+            // These go to the LEFT of system buttons on the right side
+            // or to the RIGHT of system buttons on the left side (Mac)
             int btnSize = Math.Max(24, (int)(CaptionHeight - 8 * scale));
             var margin = (int)(8 * scale);
             _themeButtonRect = Rectangle.Empty;
             _styleButtonRect = Rectangle.Empty;
 
-            int sysClusterWidth = ShowSystemButtons ? (btnSize * 3 + margin * 3) : 0;
-            int right = rect.Right - margin - sysClusterWidth;
+            bool leftClusterStyle = CurrentStyle == BeepFormStyle.Material; // mac-like has left system buttons
             int y = rect.Top + (rect.Height - btnSize) / 2;
 
-            if (ShowThemeButton)
+            // Get the space renderer uses for system buttons
+            int rendererLeftInset = 0, rendererRightInset = 0;
+            _renderer?.GetTitleInsets(rect, scale, out rendererLeftInset, out rendererRightInset);
+
+            if (leftClusterStyle)
             {
-                _themeButtonRect = new Rectangle(right - btnSize, y, btnSize, btnSize);
-                right = _themeButtonRect.Left - margin;
+                // Mac-like: system buttons on LEFT, our extra buttons go to their RIGHT
+                // Start from where renderer's buttons end
+                int x = rect.Left + rendererLeftInset;
+                
+                if (ShowStyleButton) 
+                { 
+                    _styleButtonRect = new Rectangle(x, y, btnSize, btnSize); 
+                    x += btnSize + margin; 
+                }
+                if (ShowThemeButton) 
+                { 
+                    _themeButtonRect = new Rectangle(x, y, btnSize, btnSize); 
+                    x += btnSize + margin; 
+                }
             }
-            if (ShowStyleButton)
+            else
             {
-                _styleButtonRect = new Rectangle(right - btnSize, y, btnSize, btnSize);
-                right = _styleButtonRect.Left - margin;
+                // Windows-like: system buttons on RIGHT, our extra buttons go to their LEFT
+                // Start from where renderer's buttons begin (right side minus renderer's right inset)
+                int x = rect.Right - rendererRightInset - margin;
+                
+                // Place buttons from right to left
+                if (ShowThemeButton)
+                {
+                    x -= btnSize;
+                    _themeButtonRect = new Rectangle(x, y, btnSize, btnSize);
+                    x -= margin;
+                }
+                
+                if (ShowStyleButton)
+                {
+                    x -= btnSize;
+                    _styleButtonRect = new Rectangle(x, y, btnSize, btnSize);
+                    x -= margin;
+                }
             }
 
-            // Paint theme button glyph
-            using (var p = new Pen(Theme?.AppBarButtonForeColor ?? Form.ForeColor, 1.6f))
+            // Paint our extra buttons AFTER renderer
+            // Use AppBarTitleForeColor for icons to match title text and ensure contrast with caption bar
+            Color iconColor = Theme?.AppBarTitleForeColor ?? Color.Empty;
+            if (iconColor == Color.Empty)
             {
-                if (ShowThemeButton)
+                var styleColor = Theme?.AppBarTitleStyle?.TextColor;
+                iconColor = styleColor.HasValue && styleColor.Value.A != 0 ? styleColor.Value : Form.ForeColor;
+            }
+            using (var p = new Pen(iconColor, 1.6f))
+            {
+                if (ShowThemeButton && _themeButtonRect != Rectangle.Empty)
                 {
                     if (_themeHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _themeButtonRect); }
                     int inset = (int)(6 * scale);
@@ -480,7 +854,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                         g.DrawLine(p, _themeButtonRect.Left + inset, yLine, _themeButtonRect.Right - inset, yLine);
                     }
                 }
-                if (ShowStyleButton)
+                if (ShowStyleButton && _styleButtonRect != Rectangle.Empty)
                 {
                     if (_styleHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _styleButtonRect); }
                     int inset = (int)(6 * scale);
@@ -493,50 +867,156 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 }
             }
 
-            // Compute title insets from renderer to avoid overlap
-            int leftInset = 0, rightInset = 0;
-            _renderer?.GetTitleInsets(rect, scale, out leftInset, out rightInset);
-            // Reserve space for our buttons on the right
-            int extraRight = 0;
-            if (ShowThemeButton) extraRight += _themeButtonRect.Width + margin;
-            if (ShowStyleButton) extraRight += _styleButtonRect.Width + margin;
-            rightInset += extraRight;
-            titleStartX = Math.Max(titleStartX, rect.Left + leftInset);
+            // Compute title insets - start with renderer's insets, then add extra button space
+            int leftInset = rendererLeftInset;
+            int rightInset = rendererRightInset;
+            
+            // Add space for our extra buttons
+            int extraButtonSpace = 0;
+            if (ShowThemeButton) extraButtonSpace += btnSize + margin;
+            if (ShowStyleButton) extraButtonSpace += btnSize + margin;
+            
+            if (leftClusterStyle)
+            {
+                // Left side (Mac style): extra buttons are to the right of system buttons
+                leftInset += extraButtonSpace;
+            }
+            else
+            {
+                // Right side: extra buttons are to the left of system buttons
+                rightInset += extraButtonSpace;
+            }
 
-            // Draw form title
+            // Respect logo width at left
+            int logoRight = titleStartX; // updated from logo draw
+            leftInset = Math.Max(leftInset, logoRight);
+
+            // Title rectangle
             using var sf = new StringFormat { LineAlignment = StringAlignment.Center };
-            // Title font and color from overrides/theme if available
             var titleFont = TitleFontOverride ?? BeepThemesManager.ToFont(Theme?.AppBarTitleStyle) ?? Form.Font;
             Color titleColor = TitleForeColorOverride ?? (Theme?.AppBarTitleForeColor ?? Color.Empty);
             if (titleColor == Color.Empty)
             {
                 var styleColor = Theme?.AppBarTitleStyle?.TextColor;
-                if (styleColor.HasValue && styleColor.Value.A != 0)
-                    titleColor = styleColor.Value;
-                else
-                    titleColor = Form.ForeColor;
+                titleColor = styleColor.HasValue && styleColor.Value.A != 0 ? styleColor.Value : Form.ForeColor;
             }
             using var titleBrush = new SolidBrush(titleColor);
 
             Rectangle titleRect;
-            if (RendererKind == CaptionRendererKind.Gnome || RendererKind == CaptionRendererKind.MacLike)
+            if (CurrentStyle == BeepFormStyle.Gnome || CurrentStyle == BeepFormStyle.Material)
             {
-                // Center title within available caption width (common for GNOME and macOS-like skins)
                 sf.Alignment = StringAlignment.Center;
-                titleRect = new Rectangle(rect.Left + leftInset, 0, rect.Width - leftInset - rightInset, rect.Height);
+                titleRect = new Rectangle(rect.Left + leftInset, rect.Top, rect.Width - leftInset - rightInset, rect.Height);
             }
             else
             {
-                // Left-align title after logo/insets
                 sf.Alignment = StringAlignment.Near;
-                titleRect = new Rectangle(titleStartX, 0, rect.Width - titleStartX - rightInset, rect.Height);
+                titleRect = new Rectangle(rect.Left + leftInset, rect.Top, rect.Width - leftInset - rightInset, rect.Height);
             }
             g.DrawString(Form.Text, titleFont, titleBrush, titleRect, sf);
         }
 
-        public void Dispose()
+        private void GetCaptionBackground(IBeepTheme theme, out Color start, out Color end, out LinearGradientMode dir)
         {
-            _logoPainter?.Dispose();
+            // If theme provides explicit AppBar gradient tokens, use them
+            if (EnableCaptionGradient && theme != null && (theme.AppBarGradiantStartColor != Color.Empty || theme.AppBarGradiantEndColor != Color.Empty))
+            {
+                start = theme.AppBarGradiantStartColor != Color.Empty ? theme.AppBarGradiantStartColor : (theme.AppBarBackColor != Color.Empty ? theme.AppBarBackColor : SystemColors.ControlDark);
+                end   = theme.AppBarGradiantEndColor   != Color.Empty ? theme.AppBarGradiantEndColor   : (theme.AppBarBackColor != Color.Empty ? ControlPaint.Dark(theme.AppBarBackColor, .05f) : SystemColors.ControlDark);
+                dir   = theme.AppBarGradiantDirection;
+                return;
+            }
+
+            // Style-specific fallbacks to give strong identity even without theme tokens
+            dir = LinearGradientMode.Vertical;
+            switch (CurrentStyle)
+            {
+                case BeepFormStyle.Material: // flat light/dark based on theme
+                    start = end = theme?.BackColor != Color.Empty ? theme.BackColor : Color.FromArgb(240, 240, 240);
+                    break;
+                case BeepFormStyle.Gnome:
+                    start = end = theme?.AppBarBackColor != Color.Empty ? theme.AppBarBackColor : Color.FromArgb(238, 238, 238);
+                    break;
+                case BeepFormStyle.Kde:
+                    start = Color.FromArgb(246, 248, 251);
+                    end   = Color.FromArgb(232, 238, 247);
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Cinnamon:
+                    start = Color.FromArgb(243, 246, 250);
+                    end   = Color.FromArgb(225, 230, 240);
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Elementary:
+                    start = end = Color.FromArgb(245, 245, 245);
+                    break;
+                case BeepFormStyle.Neon:
+                    start = Color.FromArgb(20, 20, 24);
+                    end   = Color.FromArgb(10, 10, 12);
+                    dir   = LinearGradientMode.Horizontal;
+                    break;
+                case BeepFormStyle.Retro:
+                    start = Color.FromArgb(50, 30, 60);
+                    end   = Color.FromArgb(30, 15, 40);
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Gaming:
+                    start = Color.FromArgb(18, 20, 26);
+                    end   = Color.FromArgb(10, 12, 14);
+                    dir   = LinearGradientMode.Horizontal;
+                    break;
+                case BeepFormStyle.Corporate: // Office-like light
+                    start = Color.FromArgb(252, 252, 252);
+                    end   = Color.FromArgb(236, 236, 236);
+                    break;
+                case BeepFormStyle.HighContrast:
+                    start = end = Color.Black;
+                    break;
+                case BeepFormStyle.Soft:
+                    start = Color.FromArgb(235, 245, 255);
+                    end   = Color.FromArgb(220, 235, 255);
+                    break;
+                case BeepFormStyle.Industrial:
+                    start = Color.FromArgb(68, 70, 80);
+                    end   = Color.FromArgb(54, 56, 64);
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Modern: // VS Blue-like
+                    start = Color.FromArgb(60, 125, 217);  // #3C7DD9
+                    end   = Color.FromArgb(43, 91, 168);   // #2B5BA8
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.ModernDark: // VS Dark-like
+                    start = Color.FromArgb(45, 45, 48);    // #2D2D30
+                    end   = Color.FromArgb(30, 30, 30);    // #1E1E1E
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Office: // Office 2019 Blue-like
+                    start = Color.FromArgb(0, 120, 215);   // #0078D7
+                    end   = Color.FromArgb(0, 90, 158);    // #005A9E
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Metro: // flat metro
+                    start = end = Color.FromArgb(0, 122, 204);
+                    break;
+                case BeepFormStyle.Fluent: // very light with subtle gradient
+                    start = Color.FromArgb(248, 250, 255);
+                    end   = Color.FromArgb(238, 244, 255);
+                    dir   = LinearGradientMode.Vertical;
+                    break;
+                case BeepFormStyle.Glass: // glass-like light gray
+                    start = Color.FromArgb(245, 248, 255);
+                    end   = Color.FromArgb(230, 236, 250);
+                    break;
+                case BeepFormStyle.Classic:
+                    start = SystemColors.Control;
+                    end   = ControlPaint.Dark(SystemColors.Control, .05f);
+                    break;
+                default:
+                    start = theme?.AppBarBackColor != Color.Empty ? theme.AppBarBackColor : SystemColors.ControlDark;
+                    end   = ControlPaint.Dark(start, .05f);
+                    break;
+            }
         }
     }
 }

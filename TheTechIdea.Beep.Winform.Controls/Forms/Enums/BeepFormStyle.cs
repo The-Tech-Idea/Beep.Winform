@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         ModernDark,
 
         /// <summary>
-        /// Material design inspired look
+        /// Material design inspired look (also used for macOS-like)
         /// </summary>
         Material,
 
@@ -72,6 +72,46 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// Neo-brutalist: no shadows, thick borders
         /// </summary>
         NeoBrutalist,
+
+        /// <summary>
+        /// Neon style with vibrant glow effects
+        /// </summary>
+        Neon,
+
+        /// <summary>
+        /// Retro 80s inspired design with gradients
+        /// </summary>
+        Retro,
+
+        /// <summary>
+        /// Gaming-inspired style with angular edges
+        /// </summary>
+        Gaming,
+
+        /// <summary>
+        /// Corporate professional style
+        /// </summary>
+        Corporate,
+
+        /// <summary>
+        /// Artistic style with creative visual elements
+        /// </summary>
+        Artistic,
+
+        /// <summary>
+        /// High contrast accessibility focused design
+        /// </summary>
+        HighContrast,
+
+        /// <summary>
+        /// Soft rounded design with gentle shadows
+        /// </summary>
+        Soft,
+
+        /// <summary>
+        /// Bold industrial design with metallic effects
+        /// </summary>
+        Industrial,
 
         /// <summary>
         /// Custom style defined by theme

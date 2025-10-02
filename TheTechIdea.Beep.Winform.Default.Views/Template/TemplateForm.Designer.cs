@@ -28,10 +28,28 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "TemplateForm";
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TemplateForm));
+            SuspendLayout();
+            // 
+            // TemplateForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BorderColor = Color.FromArgb(200, 200, 200);
+            BorderRadius = 0;
+            CaptionHeight = 44;
+            CaptionRenderer = Winform.Controls.Forms.Caption.CaptionRendererKind.Artistic;
+            ClientSize = new Size(816, 492);
+            FormStyle = Winform.Controls.BeepFormStyle.Artistic;
+            GlowColor = Color.FromArgb(140, 200, 50, 150);
+            GlowSpread = 25F;
+            Name = "TemplateForm";
+            Padding = new Padding(3);
+            ShadowDepth = 15;
+            StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("TemplateForm.StylePresets.Presets");
+            Text = "TemplateForm";
+            Theme = "DefaultTheme";
+            ResumeLayout(false);
         }
 
         #endregion

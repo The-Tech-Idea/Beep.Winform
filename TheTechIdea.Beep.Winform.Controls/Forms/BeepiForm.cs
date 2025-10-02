@@ -59,8 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls
        // private FormStyleHelper _styleHelper;
         private FormHitTestHelper _hitTestHelper;
         private FormCaptionBarHelper _captionHelper;
+        private FormBorderPainter _borderPainter;  // *** ADDED: Border painting helper
         // Helpers (add this near the other helpers)
-       
+
 
 
         // IBeepModernFormHost implementation
@@ -71,8 +72,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Fields
         protected int _resizeMargin = 8;
-        protected int _borderRadius = 0;
-        protected int _borderThickness = 1;
+        protected int _borderRadius = 8;
+        protected int _borderThickness = 3;
         private Color _borderColor = Color.Red;
         private bool _inpopupmode = false;
         private string _title = "BeepiForm";
@@ -88,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler OnFormShown;
         public event EventHandler<FormClosingEventArgs> PreClose;
         private int _savedBorderRadius = 0;
-        private int _savedBorderThickness = 1;
+        private int _savedBorderThickness = 3; // Match default _borderThickness
         #endregion
 
         #region STYLE (merged from Style partial)
@@ -99,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _glowSpread = 8f;
         private int _shadowDepth = 6;
 
-        [Category("Beep Style")][DefaultValue(BeepFormStyle.Modern)] public BeepFormStyle FormStyle { get => _formStyle; set { if (_formStyle == value) return; _formStyle = value; try { ApplyFormStyle(); } catch (Exception ex) { Debug.WriteLine($"FormStyle apply error: {ex.Message}"); } Invalidate(); } }
+        [Category("Beep Style")][DefaultValue(BeepFormStyle.Modern)] public BeepFormStyle FormStyle { get => _formStyle; set { if (_formStyle == value) return; _formStyle = value; try { ApplyFormStyle(); _captionHelper?.SetStyle(value); } catch (Exception ex) { Debug.WriteLine($"FormStyle apply error: {ex.Message}"); } Invalidate(); } }
         [Category("Beep Style")] public Color ShadowColor { get => _shadowColor; set { if (_shadowColor != value) { _shadowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
         [Category("Beep Style"), DefaultValue(6)] public int ShadowDepth { get => _shadowDepth; set { if (_shadowDepth != value) { _shadowDepth = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
         [Category("Beep Style"), DefaultValue(true)] public bool EnableGlow { get => _enableGlow; set { if (_enableGlow != value) { _enableGlow = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
@@ -162,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)] public BeepFormStylePresets StylePresets { get; } = new();
         public void ApplyPreset(string key) { if (StylePresets.TryGet(key, out var m)) { _borderRadius = m.BorderRadius; _borderThickness = m.BorderThickness; _shadowDepth = m.ShadowDepth; _enableGlow = m.EnableGlow; _glowSpread = m.GlowSpread; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } }
         private void SyncStyleToHelpers() { if (InDesignHost || !UseHelperInfrastructure || _shadowGlow == null) return; _shadowGlow.ShadowColor = _shadowColor; _shadowGlow.ShadowDepth = _shadowDepth; _shadowGlow.EnableGlow = _enableGlow; _shadowGlow.GlowColor = _glowColor; _shadowGlow.GlowSpread = _glowSpread; }
-        private void ApplyMetrics(BeepFormStyle style) { if (InDesignHost) return; if (!BeepFormStyleMetricsDefaults.Map.TryGetValue(style, out var m)) return; _borderRadius = m.BorderRadius; _borderThickness = m.BorderThickness; _shadowDepth = m.ShadowDepth; _enableGlow = m.EnableGlow; _glowSpread = m.GlowSpread; SyncStyleToHelpers(); }
+        private void ApplyMetrics(BeepFormStyle style) { if (InDesignHost) return; if (!BeepFormStyleMetricsDefaults.Map.TryGetValue(style, out var m)) return; _borderRadius = m.BorderRadius; /* Don't override user's BorderThickness: _borderThickness = m.BorderThickness; */ _shadowDepth = m.ShadowDepth; _enableGlow = m.EnableGlow; _glowSpread = m.GlowSpread; SyncStyleToHelpers(); }
         private void ApplyThemeMapping() { if (InDesignHost || _currentTheme == null) return; BackColor = _currentTheme.ButtonBackColor; BorderColor = _currentTheme.BorderColor; }
         #endregion
 
@@ -195,41 +196,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         [StructLayout(LayoutKind.Sequential)] private struct WINDOWCOMPOSITIONATTRIBDATA { public WINDOWCOMPOSITIONATTRIB Attribute; public IntPtr Data; public int SizeOfData; }
         private enum DWMWINDOWATTRIBUTE { DWMWA_USE_IMMERSIVE_DARK_MODE = 20, DWMWA_MICA_EFFECT = 1029 }
         [DllImport("dwmapi.dll")] private static extern int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
-        #endregion
-
-        #region Ribbon (merged)
-        private bool _showRibbonPlaceholder = false; private int _ribbonHeight = 80; private bool _showQuickAccess = true; private BeepRibbonControl? _ribbon;
-        [Category("Beep Ribbon"), DefaultValue(false)]
-        public bool ShowRibbonPlaceholder
-        {
-            get => _showRibbonPlaceholder;
-            set
-            {
-                _showRibbonPlaceholder = value;
-                if (InDesignHost) { Invalidate(); return; }
-
-                if (value)
-                {
-                    EnsureRibbon();
-                    if (_ribbon != null) _ribbon.Visible = true;
-                }
-                else
-                {
-                    if (_ribbon != null)
-                    {
-                        Controls.Remove(_ribbon);
-                        _ribbon.Dispose();
-                        _ribbon = null;
-                    }
-                }
-                Invalidate();
-            }
-        }
-
-        [Browsable(false)] public BeepRibbonControl? Ribbon => _ribbon;
-        [Category("Beep Ribbon"), DefaultValue(80)] public int RibbonHeight { get => _ribbonHeight; set { _ribbonHeight = Math.Max(40, value); if (_ribbon != null) _ribbon.Height = _ribbonHeight; Invalidate(); } }
-        [Category("Beep Ribbon"), DefaultValue(true)] public bool ShowQuickAccess { get => _showQuickAccess; set { _showQuickAccess = value; if (_ribbon != null) _ribbon.QuickAccess.Visible = value; Invalidate(); } }
-        private void EnsureRibbon() { if (InDesignHost) return; if (_ribbon != null) return; _ribbon = new BeepRibbonControl { Left = 0, Top = (_captionHelper?.CaptionHeight ?? 36), Width = Width, Height = _ribbonHeight, Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right }; _ribbon.QuickAccess.Visible = _showQuickAccess; _ribbon.ApplyThemeFromBeep(_currentTheme); Controls.Add(_ribbon); _ribbon.BringToFront(); }
         #endregion
 
         #region Snap Hints (merged)
@@ -275,11 +241,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void ApplyImmersiveDarkMode() { if (InDesignHost || !IsHandleCreated) return; try { int value = _useImmersiveDarkMode ? 1 : 0; DwmSetWindowAttribute(Handle, DWMWINDOWATTRIBUTE.DWMWA_USE_IMMERSIVE_DARK_MODE, ref value, Marshal.SizeOf<int>()); } catch { } }
         private void InitializeCaptionHelperWithLegacyState() { if (_captionHelper != null) { _captionHelper.ShowCaptionBar = _legacyShowCaptionBar; _captionHelper.ShowSystemButtons = _legacyShowSystemButtons; _captionHelper.EnableCaptionGradient = _legacyEnableCaptionGradient; _captionHelper.CaptionHeight = _legacyCaptionHeight; } }
 
-        // New: expose CaptionRendererKind
+        // New: expose CaptionRendererKind (deprecated - use FormStyle instead)
         [Category("Beep Caption")]
         [DefaultValue(Forms.Caption.CaptionRendererKind.Windows)]
         [TypeConverter(typeof(TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design.CaptionRendererKindConverter))]
         [Editor(typeof(TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design.CaptionRendererKindEditor), typeof(System.Drawing.Design.UITypeEditor))]
+        [Obsolete("Use FormStyle property instead. CaptionRenderer is deprecated and will be removed in a future version.")]
         public Forms.Caption.CaptionRendererKind CaptionRenderer
         {
             get => _captionHelper?.RendererKind ?? Forms.Caption.CaptionRendererKind.Windows;
@@ -354,7 +321,27 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
         [Browsable(true)][Category("Appearance")] public bool ApplyThemeToChilds { get => _applythemetochilds; set => _applythemetochilds = value; }
-        [Browsable(true)][Category("Appearance"), Description("The Thickness of the form's border."), DefaultValue(3), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] public int BorderThickness { get => _borderThickness; set { _borderThickness = value; if (!InDesignHost && UseHelperInfrastructure) _state.RegionDirty = true; Invalidate(); } }
+        [Browsable(true)][Category("Appearance"), Description("The Thickness of the form's border."), DefaultValue(3), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
+        public int BorderThickness
+        {
+            get => _borderThickness;
+            set
+            {
+                _borderThickness = value;
+                if (!InDesignHost && UseHelperInfrastructure)
+                    _state.RegionDirty = true;
+                if (!InDesignHost && WindowState != FormWindowState.Maximized)
+                    Padding = new Padding(Math.Max(0, _borderThickness));
+                
+                // Trigger non-client area repaint when border thickness changes
+                if (IsHandleCreated && WindowState != FormWindowState.Maximized)
+                {
+                    RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                }
+                
+                Invalidate();
+            }
+        }
         [Browsable(true)][Category("Appearance"), Description("The radius of the form's border."), DefaultValue(5), DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] public int BorderRadius { get => _borderRadius; set { _borderRadius = Math.Max(0, value); if (!InDesignHost && UseHelperInfrastructure) { _state.RegionDirty = true; _regionHelper?.InvalidateRegion(); } if (!InDesignHost && IsHandleCreated && ClientSize.Width > 0 && ClientSize.Height > 0) UpdateFormRegion(); Invalidate(); } }
         [Browsable(true)][Category("Appearance")] public bool InPopMode { get => _inpopupmode; set { _inpopupmode = value; Invalidate(); } }
         private string _theme = string.Empty;
@@ -405,6 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _layoutHelper = new FormLayoutHelper(this);
                     _themeHelper = new FormThemeHelper(this);
                 //    _styleHelper = new FormStyleHelper(this, _shadowGlow);
+                    _borderPainter = new FormBorderPainter(this);  // *** ADDED: Initialize border painter
                     _captionHelper = new FormCaptionBarHelper(this, _overlayRegistry, padAdj => RegisterPaddingProvider((ref Padding p) => padAdj(ref p)));
                    
                     //-------------
@@ -417,11 +405,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     RegisterMouseMoveHandler(e => _captionHelper.OnMouseMove(e));
                     RegisterMouseLeaveHandler(() => _captionHelper.OnMouseLeave());
                     RegisterMouseDownHandler(e => _captionHelper.OnMouseDown(e));
-                    RegisterPaddingProvider((ref Padding p) => { if (_showRibbonPlaceholder) p.Top += _ribbonHeight; });
-                    RegisterOverlayPainter(RibbonOverlay);
                     RegisterMouseMoveHandler(SnapHints_OnMouseMove);
                     RegisterMouseLeaveHandler(SnapHints_OnMouseLeave);
                     RegisterOverlayPainter(SnapHints_OnPaintOverlay);
+                    // Caption bar painted in client area as overlay for proper mouse interaction
+                    RegisterOverlayPainter(g => _captionHelper.PaintOverlay(g));
                 }
             }
             catch (Exception ex)
@@ -436,7 +424,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-        private void RibbonOverlay(Graphics g) { if (!_showRibbonPlaceholder || InDesignHost) return; EnsureRibbon(); }
         #endregion
 
         #region Lifecycle
@@ -445,7 +432,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnShown(EventArgs e) { base.OnShown(e); if (InDesignHost) return; try { beepuiManager1.Initialize(this); } catch { } OnFormShown?.Invoke(this, EventArgs.Empty); }
         protected override void OnLoad(EventArgs e) { base.OnLoad(e); if (InDesignHost) return; }
         protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified) { base.SetBoundsCore(x, y, width, height, specified); if (!InDesignHost && (specified & BoundsSpecified.Size) != 0) { PerformLayout(); } }
-        protected override void OnResize(EventArgs e) { base.OnResize(e); if (InDesignHost) return; if (UseHelperInfrastructure && _regionHelper != null) _regionHelper.EnsureRegion(); else if (!UseHelperInfrastructure) UpdateFormRegion(); Invalidate(); }
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            if (InDesignHost) return;
+            
+            ApplyMaximizedWindowFix();
+            
+            if (UseHelperInfrastructure && _regionHelper != null)
+                _regionHelper.EnsureRegion();
+            else if (!UseHelperInfrastructure)
+                UpdateFormRegion();
+            
+            // Invalidate non-client area to repaint border
+            if (IsHandleCreated && WindowState != FormWindowState.Maximized)
+            {
+                RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+            }
+            
+            Invalidate();
+        }
         #endregion
 
         #region Apply Theme / Style
@@ -461,7 +467,6 @@ namespace TheTechIdea.Beep.Winform.Controls
                 BorderColor = _currentTheme?.BorderColor ?? SystemColors.ControlDark;
                 _captionHelper?.UpdateTheme();
                 ApplyFormStyle();
-                try { _ribbon?.ApplyThemeFromBeep(_currentTheme); } catch { }
             }
             finally
             {
@@ -525,6 +530,84 @@ namespace TheTechIdea.Beep.Winform.Controls
                     BorderColor = SystemColors.ActiveBorder;
                     break;
 
+                case BeepFormStyle.Gnome:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(60, 100, 100, 100);
+                    break;
+
+                case BeepFormStyle.Kde:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(80, 0, 120, 200);
+                    break;
+
+                case BeepFormStyle.Cinnamon:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(90, 200, 100, 50);
+                    break;
+
+                case BeepFormStyle.Elementary:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(70, 150, 150, 150);
+                    break;
+
+                case BeepFormStyle.Fluent:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(120, 0, 120, 255);
+                    break;
+
+                case BeepFormStyle.NeoBrutalist:
+                    BackColor = Color.White;
+                    BorderColor = Color.Black;
+                    _glowColor = Color.Transparent;
+                    break;
+
+                // New styles
+                case BeepFormStyle.Neon:
+                    BackColor = Color.FromArgb(20, 20, 20);
+                    BorderColor = Color.FromArgb(0, 255, 255);
+                    _glowColor = Color.FromArgb(150, 0, 255, 255);
+                    break;
+
+                case BeepFormStyle.Retro:
+                    BackColor = Color.FromArgb(45, 25, 45);
+                    BorderColor = Color.FromArgb(255, 100, 200);
+                    _glowColor = Color.FromArgb(120, 255, 50, 150);
+                    break;
+
+                case BeepFormStyle.Gaming:
+                    BackColor = Color.FromArgb(15, 15, 25);
+                    BorderColor = Color.FromArgb(0, 255, 0);
+                    _glowColor = Color.FromArgb(100, 0, 255, 0);
+                    break;
+
+                case BeepFormStyle.Corporate:
+                    BackColor = Color.FromArgb(248, 248, 248);
+                    BorderColor = Color.FromArgb(180, 180, 180);
+                    _glowColor = Color.FromArgb(40, 100, 100, 100);
+                    break;
+
+                case BeepFormStyle.Artistic:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(140, 200, 50, 150);
+                    break;
+
+                case BeepFormStyle.HighContrast:
+                    BackColor = Color.Black;
+                    BorderColor = Color.White;
+                    _glowColor = Color.Transparent;
+                    break;
+
+                case BeepFormStyle.Soft:
+                    ApplyThemeMapping();
+                    _glowColor = Color.FromArgb(80, 200, 200, 255);
+                    break;
+
+                case BeepFormStyle.Industrial:
+                    BackColor = Color.FromArgb(60, 60, 70);
+                    BorderColor = Color.FromArgb(120, 120, 130);
+                    _glowColor = Color.FromArgb(100, 200, 200, 200);
+                    break;
+
                 case BeepFormStyle.Custom:
                     ApplyThemeMapping();
                     break;
@@ -534,6 +617,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             SyncStyleToHelpers();
             UpdateLogoPainterTheme();
             ApplyAcrylicEffectIfNeeded();
+
+            // Ensure padding reflects border thickness when not maximized
+            if (WindowState != FormWindowState.Maximized)
+                Padding = new Padding(Math.Max(0, _borderThickness));
 
             if (UseHelperInfrastructure && _regionHelper != null)
                 _regionHelper.InvalidateRegion();
@@ -555,7 +642,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Shapes/Regions
         private GraphicsPath GetRoundedRectanglePath(Rectangle rect, int radius) { GraphicsPath path = new GraphicsPath(); if (radius <= 0 || rect.Width <= 0 || rect.Height <= 0) { if (rect.Width > 0 && rect.Height > 0) path.AddRectangle(rect); return path; } int diameter = Math.Min(rect.Width, rect.Height); diameter = Math.Min(diameter, radius * 2); if (diameter <= 0) { path.AddRectangle(rect); return path; } try { Rectangle arcRect = new Rectangle(rect.X, rect.Y, diameter, diameter); path.AddArc(arcRect, 180, 90); arcRect.X = rect.Right - diameter; path.AddArc(arcRect, 270, 90); arcRect.Y = rect.Bottom - diameter; path.AddArc(arcRect, 0, 90); arcRect.X = rect.Left; path.AddArc(arcRect, 90, 90); path.CloseFigure(); } catch (ArgumentException) { path.Reset(); if (rect.Width > 0 && rect.Height > 0) path.AddRectangle(rect); } return path; }
-        private void UpdateFormRegion() { if (InDesignHost || !IsHandleCreated) return; if (WindowState == FormWindowState.Maximized || _borderRadius <= 0) { Region = null; return; } if (ClientSize.Width <= 0 || ClientSize.Height <= 0) { Region = null; return; } using var path = GetRoundedRectanglePath(new Rectangle(0, 0, ClientSize.Width, ClientSize.Height), _borderRadius); Region = new Region(path); }
+        private void UpdateFormRegion() 
+        { 
+            if (InDesignHost || !IsHandleCreated) return; 
+            
+            if (WindowState == FormWindowState.Maximized || _borderRadius <= 0) 
+            { 
+                Region = null; 
+                return; 
+            } 
+            
+            if (ClientSize.Width <= 0 || ClientSize.Height <= 0) 
+            { 
+                Region = null; 
+                return; 
+            } 
+            
+            // Use the full client rectangle for the Region
+            // The border will be painted INSIDE this region
+            using var path = GetRoundedRectanglePath(
+                new Rectangle(0, 0, ClientSize.Width, ClientSize.Height), 
+                _borderRadius); 
+            Region = new Region(path); 
+        }
         #endregion
 
         #region Layout helpers
@@ -590,9 +699,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.OnPaint(e);
             if (InDesignHost)
             {
-                // Simple design-time representation (avoid heavy effects / PInvoke)
                 e.Graphics.Clear(BackColor);
-                using var pen = new Pen(Color.Gray, 1);
+                using var pen = new Pen(Color.Gray, 1) { Alignment = PenAlignment.Inset };
                 e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
                 TextRenderer.DrawText(e.Graphics, Text, Font, new Point(8, 8), ForeColor);
                 return;
@@ -603,6 +711,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_inMoveOrResize) { g.Clear(BackColor); return; }
             if (UseHelperInfrastructure && _shadowGlow != null && _regionHelper != null && _overlayRegistry != null)
             {
+                System.Diagnostics.Debug.WriteLine("[BeepiForm.OnPaint] Using helper infrastructure");
                 var formPath = GetFormPath();
                 using (formPath)
                 {
@@ -613,11 +722,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
                     using var backBrush = new SolidBrush(BackColor);
                     g.FillPath(backBrush, formPath);
-                    if (_borderThickness > 0)
-                    {
-                        using var borderPen = new Pen(BorderColor, _borderThickness);
-                        g.DrawPath(borderPen, formPath);
-                    }
+                    
+                    // *** Border painting moved to WM_NCPAINT (non-client area)
+                    // Border is now painted in PaintNonClientBorder() via WndProc
+                    // System.Diagnostics.Debug.WriteLine($"[BeepiForm.OnPaint] About to call _borderPainter.PaintBorder, _borderPainter is null? {_borderPainter == null}");
+                    // _borderPainter?.PaintBorder(g, formPath);
                 }
                 _overlayRegistry.PaintOverlays(g);
             }
@@ -651,31 +760,42 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 using var backBrush = new SolidBrush(BackColor);
                 g.FillPath(backBrush, formPath);
-                if (_borderThickness > 0)
-                {
-                    using var borderPen = new Pen(BorderColor, _borderThickness);
-                    g.DrawPath(borderPen, formPath);
-                }
+                
+                // *** Border painting moved to WM_NCPAINT (non-client area)
+                // Border is now painted in PaintNonClientBorder() via WndProc
+                // _borderPainter?.PaintBorder(g, formPath);
             }
         }
         private GraphicsPath GetFormPath()
         {
             var path = new GraphicsPath();
-            int currentWidth = ClientSize.Width;
-            int currentHeight = ClientSize.Height;
-            if (currentWidth <= 0 || currentHeight <= 0) return path;
-            var rect = new Rectangle(0, 0, currentWidth, currentHeight);
+            var rect = new Rectangle(0, 0, ClientSize.Width, ClientSize.Height);
+            if (rect.Width <= 0 || rect.Height <= 0) return path;
+            
             if (_borderRadius > 0 && WindowState != FormWindowState.Maximized)
             {
                 int diameter = Math.Min(_borderRadius * 2, Math.Min(rect.Width, rect.Height));
                 if (diameter > 0)
                 {
-                    var arcRect = new Rectangle(rect.Location, new Size(diameter, diameter));
-                    path.AddArc(arcRect, 180, 90); arcRect.X = rect.Right - diameter; path.AddArc(arcRect, 270, 90); arcRect.Y = rect.Bottom - diameter; path.AddArc(arcRect, 0, 90); arcRect.X = rect.Left; path.AddArc(arcRect, 90, 90); path.CloseFigure();
+                    var arcRect = new Rectangle(rect.X, rect.Y, diameter, diameter);
+                    path.AddArc(arcRect, 180, 90);
+                    arcRect.X = rect.Right - diameter;
+                    path.AddArc(arcRect, 270, 90);
+                    arcRect.Y = rect.Bottom - diameter;
+                    path.AddArc(arcRect, 0, 90);
+                    arcRect.X = rect.Left;
+                    path.AddArc(arcRect, 90, 90);
+                    path.CloseFigure();
                 }
-                else path.AddRectangle(rect);
+                else
+                {
+                    path.AddRectangle(rect);
+                }
             }
-            else path.AddRectangle(rect);
+            else
+            {
+                path.AddRectangle(rect);
+            }
             return path;
         }
         protected override void OnSizeChanged(EventArgs e) { base.OnSizeChanged(e); if (InDesignHost) return; if (UseHelperInfrastructure && _regionHelper != null) _regionHelper.InvalidateRegion(); Invalidate(); }
@@ -694,15 +814,92 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
 
         #region HitTest / WndProc
-        private const int WM_NCHITTEST = 0x84; private const int WM_ENTERSIZEMOVE = 0x0231; private const int WM_EXITSIZEMOVE = 0x0232; private const int WM_GETMINMAXINFO = 0x0024; private const int HTCLIENT = 1; private const int HTCAPTION = 2; private const int HTLEFT = 10; private const int HTRIGHT = 11; private const int HTTOP = 12; private const int HTTOPLEFT = 13; private const int HTTOPRIGHT = 14; private const int HTBOTTOM = 15; private const int HTBOTTOMLEFT = 16; private const int HTBOTTOMRIGHT = 17; private const int WM_DPICHANGED = 0x02E0;
+        // Windows Messages
+        private const int WM_NCHITTEST = 0x84;
+        private const int WM_NCCALCSIZE = 0x83;
+        private const int WM_NCPAINT = 0x85;
+        private const int WM_NCACTIVATE = 0x86;
+        private const int WM_ENTERSIZEMOVE = 0x0231;
+        private const int WM_EXITSIZEMOVE = 0x0232;
+        private const int WM_GETMINMAXINFO = 0x0024;
+        private const int WM_DPICHANGED = 0x02E0;
+        
+        // Hit Test Constants
+        private const int HTCLIENT = 1;
+        private const int HTCAPTION = 2;
+        private const int HTLEFT = 10;
+        private const int HTRIGHT = 11;
+        private const int HTTOP = 12;
+        private const int HTTOPLEFT = 13;
+        private const int HTTOPRIGHT = 14;
+        private const int HTBOTTOM = 15;
+        private const int HTBOTTOMLEFT = 16;
+        private const int HTBOTTOMRIGHT = 17;
+        
+        // Window Styles
+        private const int WS_SIZEBOX = 0x00040000;
         private bool IsOverChildControl(Point clientPos) { var child = GetChildAtPoint(clientPos, GetChildAtPointSkip.Invisible | GetChildAtPointSkip.Transparent); return child != null; }
         private bool IsInDraggableArea(Point clientPos) { if (UseHelperInfrastructure && _captionHelper != null && _captionHelper.ShowCaptionBar) { if (clientPos.Y <= _captionHelper.CaptionHeight && !_captionHelper.IsPointInSystemButtons(clientPos) && !IsOverChildControl(clientPos)) return true; return false; } return clientPos.Y <= 36 && !IsOverChildControl(clientPos); }
         [DllImport("user32.dll")] private static extern uint GetDpiForWindow(IntPtr hWnd);
+        
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                if (!InDesignHost)
+                {
+                    // Add WS_SIZEBOX to enable snap-to-edge and proper resizing behavior
+                    cp.Style |= WS_SIZEBOX;
+                }
+                return cp;
+            }
+        }
+        
         protected override void WndProc(ref Message m)
         {
             if (InDesignHost) { base.WndProc(ref m); return; }
             switch (m.Msg)
             {
+                case WM_NCCALCSIZE:
+                    // Reserve space for custom border and caption bar in non-client area
+                    if (m.WParam != IntPtr.Zero && WindowState != FormWindowState.Maximized)
+                    {
+                        NCCALCSIZE_PARAMS nccsp = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(m.LParam, typeof(NCCALCSIZE_PARAMS));
+                        
+                        int captionHeight = (_captionHelper?.ShowCaptionBar == true) ? (_captionHelper?.CaptionHeight ?? 0) : 0;
+                        int borderThickness = _borderThickness;
+                        
+                        // Shrink client rect to reserve space for border and caption
+                        nccsp.rgrc[0].top += captionHeight + borderThickness;
+                        nccsp.rgrc[0].left += borderThickness;
+                        nccsp.rgrc[0].right -= borderThickness;
+                        nccsp.rgrc[0].bottom -= borderThickness;
+                        
+                        Marshal.StructureToPtr(nccsp, m.LParam, false);
+                        m.Result = IntPtr.Zero;
+                        return;
+                    }
+                    break;
+                    
+                case WM_NCACTIVATE:
+                    // Prevent default title bar repaint by setting lParam to -1
+                    if (WindowState != FormWindowState.Maximized)
+                    {
+                        m.LParam = new IntPtr(-1);
+                    }
+                    break;
+                    
+                case WM_NCPAINT:
+                    // Paint custom border in non-client area (caption bar painted in client area)
+                    if (WindowState != FormWindowState.Maximized)
+                    {
+                        PaintNonClientBorder();
+                        m.Result = IntPtr.Zero;
+                        return;
+                    }
+                    break;
+                    
                 case WM_DPICHANGED:
                     if (DpiMode == DpiHandlingMode.Manual)
                     {
@@ -739,8 +936,70 @@ namespace TheTechIdea.Beep.Winform.Controls
         [StructLayout(LayoutKind.Sequential)] private struct MINMAXINFO { public POINT ptReserved; public POINT ptMaxSize; public POINT ptMaxPosition; public POINT ptMinTrackSize; public POINT ptMaxTrackSize; }
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)] private struct MONITORINFO { public int cbSize; public RECT rcMonitor; public RECT rcWork; public int dwFlags; }
         [StructLayout(LayoutKind.Sequential)] private struct RECT { public int left; public int top; public int right; public int bottom; }
-        [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi); [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr handle, int flags); private const int MONITOR_DEFAULTTONEAREST = 2;
+        
+        [StructLayout(LayoutKind.Sequential)]
+        private struct NCCALCSIZE_PARAMS
+        {
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 3)]
+            public RECT[] rgrc;
+            public IntPtr lppos;
+        }
+        [DllImport("user32.dll")] private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFO lpmi);
+        [DllImport("user32.dll")] private static extern IntPtr MonitorFromWindow(IntPtr handle, int flags);
+        [DllImport("user32.dll")] private static extern IntPtr GetWindowDC(IntPtr hWnd);
+        [DllImport("user32.dll")] private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+        [DllImport("user32.dll")] private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
+        private const int MONITOR_DEFAULTTONEAREST = 2;
+        private const uint RDW_FRAME = 0x0400;
+        private const uint RDW_INVALIDATE = 0x0001;
+        private const uint RDW_UPDATENOW = 0x0100;
         private void AdjustMaximizedBounds(IntPtr lParam) { MINMAXINFO mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam); IntPtr monitor = MonitorFromWindow(this.Handle, MONITOR_DEFAULTTONEAREST); if (monitor != IntPtr.Zero) { MONITORINFO monitorInfo = new MONITORINFO(); monitorInfo.cbSize = Marshal.SizeOf(typeof(MONITORINFO)); GetMonitorInfo(monitor, ref monitorInfo); Rectangle rcWorkArea = Rectangle.FromLTRB(monitorInfo.rcWork.left, monitorInfo.rcWork.top, monitorInfo.rcWork.right, monitorInfo.rcWork.bottom); Rectangle rcMonitorArea = Rectangle.FromLTRB(monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top, monitorInfo.rcMonitor.right, monitorInfo.rcMonitor.bottom); mmi.ptMaxPosition.x = Math.Abs(rcWorkArea.Left - rcMonitorArea.Left); mmi.ptMaxPosition.y = Math.Abs(rcWorkArea.Top - rcMonitorArea.Top); mmi.ptMaxSize.x = rcWorkArea.Width; mmi.ptMaxSize.y = rcWorkArea.Height; Marshal.StructureToPtr(mmi, lParam, true); } }
+        
+        private void PaintNonClientBorder()
+        {
+            if (InDesignHost || !IsHandleCreated || _borderPainter == null)
+                return;
+                
+            IntPtr hdc = GetWindowDC(this.Handle);
+            if (hdc == IntPtr.Zero)
+                return;
+                
+            try
+            {
+                using (Graphics g = Graphics.FromHdc(hdc))
+                {
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    
+                    // Get window bounds (not client bounds - we're painting non-client area)
+                    Rectangle windowRect = new Rectangle(0, 0, Width, Height);
+                    
+                    // Paint ONLY border (caption painted separately in client area)
+                    using (GraphicsPath borderPath = new GraphicsPath())
+                    {
+                        if (_borderRadius > 0)
+                        {
+                            int radius = _borderRadius * 2;
+                            borderPath.AddArc(windowRect.X, windowRect.Y, radius, radius, 180, 90);
+                            borderPath.AddArc(windowRect.Right - radius, windowRect.Y, radius, radius, 270, 90);
+                            borderPath.AddArc(windowRect.Right - radius, windowRect.Bottom - radius, radius, radius, 0, 90);
+                            borderPath.AddArc(windowRect.X, windowRect.Bottom - radius, radius, radius, 90, 90);
+                            borderPath.CloseFigure();
+                        }
+                        else
+                        {
+                            borderPath.AddRectangle(windowRect);
+                        }
+                        
+                        _borderPainter.PaintBorder(g, borderPath);
+                    }
+                }
+            }
+            finally
+            {
+                ReleaseDC(this.Handle, hdc);
+            }
+        }
         #endregion
 
         private void InitializeComponent()

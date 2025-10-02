@@ -43,7 +43,7 @@
             ShowCaptionBar = false;
             ShowIcon = false;
             ShowInTaskbar = false;
-            ShowQuickAccess = false;
+          
             ShowSnapHints = false;
             ShowSystemButtons = false;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepPopupForm.StylePresets.Presets");

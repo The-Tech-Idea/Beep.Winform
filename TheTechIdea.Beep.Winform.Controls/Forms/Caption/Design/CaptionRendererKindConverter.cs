@@ -14,7 +14,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design
             (CaptionRendererKind.Gnome,   "GNOME / Adwaita"),
             (CaptionRendererKind.Kde,     "KDE / Breeze"),
             (CaptionRendererKind.Cinnamon,"Cinnamon"),
-            (CaptionRendererKind.Elementary,"Elementary")
+            (CaptionRendererKind.Elementary,"Elementary"),
+            (CaptionRendererKind.Neon, "Neon"),
+            (CaptionRendererKind.Retro, "Retro"),
+            (CaptionRendererKind.Gaming, "Gaming"),
+            (CaptionRendererKind.Corporate, "Corporate"),
+            (CaptionRendererKind.Artistic, "Artistic"),
+            (CaptionRendererKind.HighContrast, "High Contrast"),
+            (CaptionRendererKind.Soft, "Soft"),
+            (CaptionRendererKind.Industrial, "Industrial")
         };
 
         public CaptionRendererKindConverter() : base(typeof(CaptionRendererKind)) { }

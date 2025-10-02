@@ -703,15 +703,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 WarningColor = C(245, 124, 0);
                 SuccessColor = C(46, 125, 50);
 
-                BorderColor = C(208, 215, 222);  // neutral border
+                BorderColor = C(100, 116, 139);  // slate-500 - more visible border
                 ActiveBorderColor = C(59, 130, 246);  // blue-500
-                InactiveBorderColor = C(229, 231, 235);
+                InactiveBorderColor = C(148, 163, 184);  // slate-400 - lighter but still visible
 
                 DisabledBackColor = C(243, 244, 246);
                 DisabledForeColor = C(156, 163, 175);
                 DisabledBorderColor = InactiveBorderColor;
 
                 // ── AppBar
+                // For caption bar - use colors that work with BOTH the theme's AppBarBackColor
+                // AND the style-specific caption backgrounds (which may be light or dark)
                 AppBarBackColor = PrimaryColor;
                 AppBarForeColor = OnPrimaryColor;
                 AppBarButtonBackColor = Darken(PrimaryColor, 0.06);
@@ -721,7 +723,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 AppBarLabelBackColor = AppBarBackColor;
                 AppBarLabelForeColor = OnPrimaryColor;
                 AppBarTitleBackColor = AppBarBackColor;
-                AppBarTitleForeColor = OnPrimaryColor;
+                // AppBarTitleForeColor: Dark text that works on light caption bars (Glass, Material, etc.)
+                // FormStyles override caption background colors, so we need text that works on light backgrounds
+                AppBarTitleForeColor = C(17, 24, 39);  // Dark slate-900 for light backgrounds
                 AppBarSubTitleBackColor = AppBarBackColor;
                 AppBarSubTitleForeColor = Blend(OnPrimaryColor, C(224, 231, 255), 0.65);
                 AppBarCloseButtonColor = C(248, 113, 113);

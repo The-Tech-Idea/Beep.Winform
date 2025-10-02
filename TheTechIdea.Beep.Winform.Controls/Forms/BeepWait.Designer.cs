@@ -949,7 +949,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowCaptionBar = false;
             ShowIcon = false;
             ShowInTaskbar = false;
-            ShowQuickAccess = false;
+          
             ShowSystemButtons = false;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepWait.StylePresets.Presets");
             Text = "BeepWait";

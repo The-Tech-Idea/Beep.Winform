@@ -39,7 +39,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 return;
 
             _cachedPath?.Dispose();
-            _cachedPath = BuildPath(form.ClientRectangle, _host.BorderRadius);
+            // Use full ClientRectangle like the old working code
+            var rect = new Rectangle(0, 0, form.ClientSize.Width, form.ClientSize.Height);
+            _cachedPath = BuildPath(rect, _host.BorderRadius);
             _cachedSize = form.ClientSize;
             _cachedRadius = _host.BorderRadius;
 

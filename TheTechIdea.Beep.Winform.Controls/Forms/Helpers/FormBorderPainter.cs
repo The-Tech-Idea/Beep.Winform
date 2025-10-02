@@ -18,7 +18,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         }
 
         /// <summary>
-        /// Paints the border within the specified bounds.
+        /// Paints the border using the provided graphics path.
+        /// Simple approach like old working code - draws border on same path as background.
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="formPath">The form path to draw border on</param>
+        public void PaintBorder(Graphics g, GraphicsPath formPath)
+        {
+            if (g == null || formPath == null) return;
+            if (_host.BorderThickness <= 0 || _host.AsForm.WindowState == FormWindowState.Maximized) return;
+
+            var borderColor = GetBorderColor();
+            // DEBUG: Log what we're getting
+            System.Diagnostics.Debug.WriteLine($"[FormBorderPainter] BorderThickness={_host.BorderThickness}, BorderColor={borderColor}, IsEmpty={borderColor == Color.Empty}, IsTransparent={borderColor == Color.Transparent}");
+            
+            if (borderColor == Color.Transparent || borderColor == Color.Empty) return;
+
+            try
+            {
+                using var pen = new Pen(borderColor, _host.BorderThickness)
+                {
+                    Alignment = PenAlignment.Center  // Simple! Pen centered on path like old code
+                };
+
+                // Draw border on the same path used for background and Region
+                // This is the simple approach that worked perfectly in old code
+                System.Diagnostics.Debug.WriteLine($"[FormBorderPainter] Drawing border with pen width {pen.Width}, color {pen.Color}");
+                g.DrawPath(pen, formPath);
+            }
+            catch (Exception ex)
+            {
+                // Silent fallback - don't crash on border painting errors
+                System.Diagnostics.Debug.WriteLine($"[FormBorderPainter] ERROR: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Paints the border within the specified bounds (legacy method).
         /// </summary>
         /// <param name="g">Graphics context</param>
         /// <param name="bounds">Paint bounds</param>
@@ -33,29 +69,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 
             try
             {
+                // Simplified: Use Center alignment like old code
                 using var pen = new Pen(borderColor, _host.BorderThickness)
                 {
-                    Alignment = PenAlignment.Inset
+                    Alignment = PenAlignment.Center
                 };
-
-                // Adjust bounds for pen thickness
-                var adjustedBounds = new Rectangle(
-                    bounds.X + _host.BorderThickness / 2,
-                    bounds.Y + _host.BorderThickness / 2,
-                    bounds.Width - _host.BorderThickness,
-                    bounds.Height - _host.BorderThickness
-                );
 
                 if (_host.BorderRadius > 0)
                 {
-                    // Paint rounded border
-                    using var path = CreateRoundedRectanglePath(adjustedBounds, _host.BorderRadius);
+                    // Paint rounded border on full bounds
+                    using var path = CreateRoundedRectanglePath(bounds, _host.BorderRadius);
                     g.DrawPath(pen, path);
                 }
                 else
                 {
-                    // Paint rectangular border
-                    g.DrawRectangle(pen, adjustedBounds);
+                    // Paint rectangular border on full bounds
+                    g.DrawRectangle(pen, bounds);
                 }
             }
             catch (Exception)

@@ -23,6 +23,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Design
                 (CaptionRendererKind.MacLike, "macOS-like"),
                 (CaptionRendererKind.Gnome,   "GNOME / Adwaita"),
                 (CaptionRendererKind.Kde,     "KDE / Breeze"),
+                (CaptionRendererKind.Cinnamon,"Cinnamon"),
+                (CaptionRendererKind.Elementary, "Elementary"),
+                (CaptionRendererKind.Neon, "Neon"),
+                (CaptionRendererKind.Retro, "Retro"),
+                (CaptionRendererKind.Gaming, "Gaming"),
+                (CaptionRendererKind.Corporate, "Corporate"),
+                (CaptionRendererKind.Artistic, "Artistic"),
+                (CaptionRendererKind.HighContrast, "High Contrast"),
+                (CaptionRendererKind.Soft, "Soft"),
+                (CaptionRendererKind.Industrial, "Industrial")
             });
             listBox.DisplayMember = "Item2";
             listBox.ValueMember = "Item1";

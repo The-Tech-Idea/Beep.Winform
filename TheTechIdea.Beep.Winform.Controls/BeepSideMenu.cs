@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
-using Timer = System.Windows.Forms.Timer;
-using TheTechIdea.Beep.Winform.Controls.Editors;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
- 
+using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using Timer = System.Windows.Forms.Timer;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -41,12 +40,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         private int _highlightPanelSize = 5;
         private int menuItemHeight = 40;
         private bool ApplyThemeOnImage = false;
-        private  int expandedWidth = 200;
-        private  int collapsedWidth = 64;
-        private  int animationStep = 2;
+        private int expandedWidth = 200;
+        private int collapsedWidth = 64;
+        private int animationStep = 2;
         bool isAnimating = false;
         bool _isExpanedWidthSet = false;
-        int  _tWidth;
+        int _tWidth;
         // New: time-based animation fields
         private int _animationDurationMs = 180; // total animation duration
         private DateTime _animationStartTime;
@@ -131,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _beepappbar = value;
 
-                   
+
                 }
 
             }
@@ -145,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get { return expandedWidth; }
             set { expandedWidth = value; }
         }
-       
+
         [Category("Appearance")]
         [Description("Set the Collapsed Width.")]
 
@@ -174,7 +173,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => logo?.ImagePath;
             set
             {
-               
+
                 if (logo != null)
                 {
                     logo.ImagePath = value;
@@ -228,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             get { return _highlightPanelSize; }
             set { _highlightPanelSize = value; }
         }
-        private string _title ;
+        private string _title;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Set the title of the form.")]
@@ -256,7 +255,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 _listbuttontextFont = value;
                 UseThemeFont = false;
-              // // Console.WriteLine("Font Changed");
+                // // Console.WriteLine("Font Changed");
                 ChangeListFont();
                 Invalidate();
 
@@ -297,7 +296,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             logo = new BeepImage
             {
                 ImagePath = LogoImage,
-              
+
                 ApplyThemeOnImage = ApplyThemeOnImages,
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
@@ -335,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Font = new Font("Segoe UI", 9);
             Init();
             ApplyTheme();
-            if(!isCollapsed) EndMenuCollapseExpand?.Invoke(false);
+            if (!isCollapsed) EndMenuCollapseExpand?.Invoke(false);
             menuItems.ListChanged += MenuItems_ListChanged;
             InitializeExpandedState();
         }
@@ -353,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             StartOnMenuCollapseExpand?.Invoke(isCollapsed);
             isCollapsed = !isCollapsed;
             StartMenuAnimation();
-           
+
         }
         private void StartMenuAnimation()
         {
@@ -385,7 +384,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (this.Parent is BeepiForm parentForm)
                 {
                     // Temporarily disable window updates to reduce flickering
-                  //  parentForm.BeginUpdate();
+                    //  parentForm.BeginUpdate();
                 }
             }
             else
@@ -394,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (this.Parent is BeepiForm parentForm)
                 {
                     // Re-enable window updates
-                  //  parentForm.EndUpdate();
+                    //  parentForm.EndUpdate();
                 }
             }
         }
@@ -531,8 +530,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Dock = DockStyle.Left,
                 BackColor = _currentTheme.SideMenuBackColor,
                 Visible = true,
-                Tag="HiLight"
-                
+                Tag = "HiLight"
+
             };
             Panel spacingpane = new Panel
             {
@@ -543,7 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = "Spacing"
             };
             // Add Beepbutton and highlight panel to the panel
-          
+
             var button = new BeepButton
             {
                 Dock = DockStyle.Fill,
@@ -563,7 +562,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Tag = item,
                 ApplyThemeOnImage = false
             };
-            
+
             button.MouseEnter += (s, e) =>
             {
                 menuItemPanel.BackColor = _currentTheme.SideMenuHoverBackColor;
@@ -601,15 +600,15 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             StartOnMenuCollapseExpand?.Invoke(isCollapsed);
             isCollapsed = !isCollapsed;
-          
+
             StartMenuAnimation();
-          //  EndMenuCollapseExpand?.Invoke(isCollapsed);
+            //  EndMenuCollapseExpand?.Invoke(isCollapsed);
             if (BeepAppBar != null)
             {
                 BeepAppBar.ShowTitle = isCollapsed;
                 BeepAppBar.ShowLogo = false;
             }
-            
+
         }
         public override void ApplyTheme()
         {
@@ -632,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  if (!_isControlinvalidated) return;
             //   base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
-          //  logo.Theme = Theme;
+            //  logo.Theme = Theme;
             toggleButton.Theme = Theme;
             toggleButton.ApplyThemeOnImage = true;
             toggleButton.ImageEmbededin = ImageEmbededin.SideBar;
@@ -655,7 +654,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (subControl is BeepButton button)
                         {
-                           // button.Theme = Theme;
+                            // button.Theme = Theme;
                             button.BackColor = _currentTheme.SideMenuBackColor;
                             button.ForeColor = _currentTheme.SideMenuForeColor;
                             if (UseThemeFont)
@@ -684,7 +683,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         if (subControl is BeepButton button)
                         {
                             button.TextFont = ListButtonFont;
-                            
+
                         }
                     }
                 }

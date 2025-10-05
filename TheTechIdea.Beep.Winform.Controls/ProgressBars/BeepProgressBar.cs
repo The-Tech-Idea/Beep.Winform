@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters;
 using Timer = System.Windows.Forms.Timer;
@@ -81,6 +82,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
         internal float GlowIntensity => _glowIntensity;
 
         #region Public API
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
+
+                    Invalidate();
+                }
+            }
+        }
         [Category("Behavior")]
         [DefaultValue(10)]
         public int Step { get => _step; set { _step = value; Invalidate(); } }
@@ -145,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarStyle.Gradient)]
-        public ProgressBarStyle Style { get => _style; set { _style = value; if (_style == ProgressBarStyle.Animated) StartAnimation(); else StopAnimation(); if (_style == ProgressBarStyle.Segmented) UpdateSizeForStyle(); Invalidate(); } }
+        public ProgressBarStyle ProgressBarStyle { get => _style; set { _style = value; if (_style == ProgressBarStyle.Animated) StartAnimation(); else StopAnimation(); if (_style == ProgressBarStyle.Segmented) UpdateSizeForStyle(); Invalidate(); } }
 
         [Category("Appearance")]
         [DefaultValue(ProgressBarSize.Medium)]

@@ -1,11 +1,46 @@
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Winform.Controls.Charts.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Charts
 {
     public partial class BeepChart
     {
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
+
+                    Invalidate();
+                }
+            }
+        }
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
@@ -26,8 +61,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             // Initialize and adjust layout
             _painter?.Initialize(this, _currentTheme);
             ctx = _painter?.AdjustLayout(DrawingRect, ctx) ?? ctx;
-            _painter?.DrawBackground(g, ctx);
-
+         
+            if (UseThemeColors && _currentTheme != null)
+            {
+                _painter?.DrawBackground(g, ctx);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
             var bounds = ctx.PlotRect != Rectangle.Empty ? ctx.PlotRect : ctx.DrawingRect;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 

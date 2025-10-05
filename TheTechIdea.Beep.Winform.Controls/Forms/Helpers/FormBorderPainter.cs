@@ -38,7 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             {
                 using var pen = new Pen(borderColor, _host.BorderThickness)
                 {
-                    Alignment = PenAlignment.Center  // Simple! Pen centered on path like old code
+                    // Draw fully inside the window bounds so all sides look identical
+                    Alignment = PenAlignment.Inset
                 };
 
                 // Draw border on the same path used for background and Region
@@ -100,11 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         /// </summary>
         private Color GetBorderColor()
         {
-            // Try to get border color from theme first
-            if (_host.CurrentTheme?.BorderColor != Color.Empty)
-                return _host.CurrentTheme.BorderColor;
-
-            // Try to get from form if it has BorderColor property
+            // Prefer explicit form BorderColor if set (lets runtime changes win)
             var form = _host.AsForm;
             var borderColorProperty = form.GetType().GetProperty("BorderColor");
             if (borderColorProperty != null && borderColorProperty.PropertyType == typeof(Color))
@@ -113,6 +110,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 if (color != Color.Empty)
                     return color;
             }
+
+            // Otherwise fall back to theme
+            if (_host.CurrentTheme?.BorderColor != Color.Empty)
+                return _host.CurrentTheme.BorderColor;
 
             // Default border color
             return SystemColors.ControlDark;
@@ -173,6 +174,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         {
             // Trigger repaint to apply new theme colors
             _host.Invalidate();
+        }
+
+        /// <summary>
+        /// Paints the non-client window border for the form using window coordinates.
+        /// All geometry (inset to avoid clipping, rounded path, and pen alignment) lives here
+        /// so that BeepiForm only delegates work to helpers.
+        /// </summary>
+        /// <param name="g">Graphics from GetWindowDC</param>
+        /// <param name="windowBounds">Full window bounds (0,0,Width,Height)</param>
+        /// <param name="borderRadius">Corner radius</param>
+        /// <param name="borderThickness">Border thickness</param>
+        public void PaintWindowBorder(Graphics g, Rectangle windowBounds, int borderRadius, int borderThickness)
+        {
+            if (g == null) return;
+            if (borderThickness <= 0 || _host.AsForm.WindowState == FormWindowState.Maximized) return;
+
+            var color = GetBorderColor();
+            if (color == Color.Empty || color == Color.Transparent) return;
+
+            // Inset by half the thickness so the stroke remains fully inside the window
+            int half = Math.Max(0, borderThickness / 2);
+            var inset = new Rectangle(
+                windowBounds.X + half,
+                windowBounds.Y + half,
+                Math.Max(0, windowBounds.Width - half * 2),
+                Math.Max(0, windowBounds.Height - half * 2)
+            );
+
+            using var pen = new Pen(color, borderThickness) { Alignment = PenAlignment.Inset };
+
+            if (borderRadius > 0)
+            {
+                using var path = CreateRoundedRectanglePath(inset, borderRadius);
+                g.DrawPath(pen, path);
+            }
+            else
+            {
+                // Using DrawRectangle with Inset alignment keeps consistent thickness visually
+                g.DrawRectangle(pen, inset);
+            }
         }
     }
 }

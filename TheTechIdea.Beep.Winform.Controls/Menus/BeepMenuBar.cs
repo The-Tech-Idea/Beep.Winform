@@ -1,12 +1,14 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
-using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.ConfigUtil;
+using TheTechIdea.Beep.Desktop.Common.Util;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
- 
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -15,9 +17,41 @@ namespace TheTechIdea.Beep.Winform.Controls
     [DisplayName("Beep Menu Bar")]
     [Category("Beep Controls")]
     [Description("A menu bar control that displays a list of items.")]
-    public class BeepMenuBar : BaseControl
+    public partial class BeepMenuBar : BaseControl
     {
         #region "Fields and Properties"
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
+
+                    Invalidate();
+                }
+            }
+        }
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
 
@@ -218,6 +252,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             CanBeHovered = false;
             ListForms = new LinkedList<MenuitemTracking>();
 
+            // Initialize painter system
+            InitializePainter();
+            
             InitializeDrawingComponents();
             RefreshHitAreas();
         }
@@ -284,6 +321,20 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
 
+            // Use painter system if available, otherwise fall back to legacy method
+            if (_painter != null && _context != null)
+            {
+                RefreshPainterHitAreas();
+            }
+            else
+            {
+                // Legacy hit area method
+                RefreshLegacyHitAreas();
+            }
+        }
+
+        private void RefreshLegacyHitAreas()
+        {
             UpdateDrawingRect();
             ClearHitList();
 
@@ -305,6 +356,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
             }
         }
+
+        // Removed duplicate RefreshPainterHitAreas() here; painter-based version lives in BeepMenuBar.Painters.cs
 
         private List<Rectangle> CalculateMenuItemRects()
         {
@@ -449,7 +502,30 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.DrawContent(g);
 
             if (items == null || items.Count == 0) return;
+            if (UseThemeColors && _currentTheme != null)
+            {
+                BackColor = _currentTheme.SideMenuBackColor;
+                g.Clear(BackColor);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
+            // Use painter system if available, otherwise fall back to legacy drawing
+            if (_painter != null && _context != null)
+            {
+                DrawWithPainter(g);
+            }
+            else
+            {
+                // Legacy drawing method
+                DrawLegacyContent(g);
+            }
+        }
 
+        private void DrawLegacyContent(Graphics g)
+        {
             UpdateDrawingRect();
 
             // Calculate layout positions
@@ -566,9 +642,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "DPI and Resize Handling"
         protected override void OnResize(EventArgs e)
         {
-            
-
             base.OnResize(e);
+
+            // Update painter layout if available
+            if (_painter != null)
+            {
+                UpdateMenuBarLayout();
+            }
 
             // Reinitialize components with new DPI scaling
             InitializeDrawingComponents();
@@ -653,6 +733,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null)
                 return;
 
+            // Apply theme to painter if available
+            ApplyThemeToPainter();
+
             // Apply MenuBar-specific colors
             if (IsChild && Parent != null)
             {
@@ -690,7 +773,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                // SafeApplyFont(_textFont);
             }
 
-            // Apply theme to drawing components
+            // Apply theme to drawing components (for legacy fallback)
             if (_menuButton != null)
             {
                 _menuButton.Theme = Theme;
@@ -734,6 +817,23 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Theme Application"
 
         #region "Utility Methods"
+        /// <summary>
+        /// Populates the menu bar with sample items for testing different styles
+        /// </summary>
+        public void LoadSampleMenuItems()
+        {
+            var sampleItems = new BindingList<SimpleItem>
+            {
+                new SimpleItem { Text = "File", Description = "File operations", ImagePath = "file" },
+                new SimpleItem { Text = "Edit", Description = "Edit operations", ImagePath = "edit" },
+                new SimpleItem { Text = "View", Description = "View options", ImagePath = "view" },
+                new SimpleItem { Text = "Tools", Description = "Tool options", ImagePath = "tools" },
+                new SimpleItem { Text = "Help", Description = "Help and support", ImagePath = "help" }
+            };
+
+            MenuItems = sampleItems;
+        }
+
         public IErrorsInfo RunMethodFromGlobalFunctions(SimpleItem item, string MethodName)
         {
             ErrorsInfo errorsInfo = new ErrorsInfo();
@@ -762,6 +862,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 // Close any open popups
                 CloseAllPopups();
+                
+                // Dispose painter resources
+                DisposePainter();
                 
                 // Dispose drawing components
                 _menuButton?.Dispose();

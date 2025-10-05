@@ -219,19 +219,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
         public BindingList<SimpleItem> SelectedItems { get => _selectedItems; set { _selectedItems = value; UpdateSelectedChips(); Invalidate(); } }
 
         [Browsable(true)]
-        [Category("Chip Style")]
+        [Category("Chip ProgressBarStyle")]
         [Description("Predefined styling preset for chips.")]
         [DefaultValue(ChipStyle.Default)]
         public ChipStyle ChipStyle { get => _chipStyle; set { _chipStyle = value; ApplyChipStyle(value); Invalidate(); } }
 
         [Browsable(true)]
-        [Category("Chip Style")]
+        [Category("Chip ProgressBarStyle")]
         [Description("Width of chip borders.")]
         [DefaultValue(1)]
         public int ChipBorderWidth { get => _chipBorderWidth; set { _chipBorderWidth = Math.Max(0, value); Invalidate(); } }
 
         [Browsable(true)]
-        [Category("Chip Style")]
+        [Category("Chip ProgressBarStyle")]
         [Description("Whether to show borders around chips.")]
         [DefaultValue(true)]
         public bool ShowChipBorders { get => _showChipBorders; set { _showChipBorders = value; Invalidate(); } }

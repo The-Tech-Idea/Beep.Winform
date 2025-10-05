@@ -63,9 +63,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
             _circularRadioGroup = CreateCircularRadioGroup();
 
             // Create control panels
-            var materialPanel = CreateGroupPanel("Material Design Style", _materialRadioGroup);
-            var cardPanel = CreateGroupPanel("Card Style", _cardRadioGroup);
-            var chipPanel = CreateGroupPanel("Chip Style", _chipRadioGroup);
+            var materialPanel = CreateGroupPanel("Material Design ProgressBarStyle", _materialRadioGroup);
+            var cardPanel = CreateGroupPanel("Card ProgressBarStyle", _cardRadioGroup);
+            var chipPanel = CreateGroupPanel("Chip ProgressBarStyle", _chipRadioGroup);
             var circularPanel = CreateGroupPanel("Traditional Circular", _circularRadioGroup);
 
             // Add to layout
@@ -209,10 +209,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Padding = new Padding(10)
             };
 
-            // Style selector
+            // ProgressBarStyle selector
             var styleLabel = new Label
             {
-                Text = "Demo Style:",
+                Text = "Demo ProgressBarStyle:",
                 Location = new Point(10, 20),
                 AutoSize = true
             };

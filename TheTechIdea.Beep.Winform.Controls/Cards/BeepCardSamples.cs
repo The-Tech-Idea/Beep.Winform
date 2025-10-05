@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             var form = new Form
             {
-                Text = "BeepCard Style Demo - All 13 Styles",
+                Text = "BeepCard ProgressBarStyle Demo - All 13 Styles",
                 Size = new Size(1400, 900),
                 StartPosition = FormStartPosition.CenterScreen
             };

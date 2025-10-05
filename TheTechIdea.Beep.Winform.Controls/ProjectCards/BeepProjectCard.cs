@@ -5,12 +5,14 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Desktop.Common.Util;
-using TheTechIdea.Beep.Winform.Controls.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Icons;
- 
+using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
 {
@@ -66,7 +68,38 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
         #endregion
 
         #region Public Properties
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
+        private BeepControlStyle _style = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _style;
+            set
+            {
+                if (_style != value)
+                {
+                    _style = value;
 
+                    Invalidate();
+                }
+            }
+        }
         [Category("Project Info")]
         [Description("Main project title.")]
         public string ProjectTitle
@@ -332,6 +365,16 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards
             int padding = _compactMode ? 8 : 12;
             int currentY = clientRect.Top + padding;
 
+            if (UseThemeColors && _currentTheme != null)
+            {
+                BackColor = _currentTheme.CardBackColor;
+                g.Clear(BackColor);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
             // Draw in sections
             currentY = DrawHeader(g, clientRect, padding, currentY);
             currentY = DrawContent(g, clientRect, padding, currentY);

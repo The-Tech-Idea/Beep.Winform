@@ -1,19 +1,65 @@
+using System.ComponentModel;
 using System.Drawing;
+using System.Windows;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Chips.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using Size = System.Drawing.Size;
 
 namespace TheTechIdea.Beep.Winform.Controls.Chips
 {
     public partial class BeepMultiChipGroup
     {
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
+
+                    Invalidate();
+                }
+            }
+        }
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
 
             var availableRect = DrawingRect;
-            _painter?.RenderGroupBackground(g, availableRect, _renderOptions);
 
+         //   _painter?.RenderGroupBackground(g, availableRect, _renderOptions);
+            if (UseThemeColors && _currentTheme != null)
+            {
+                _painter?.RenderGroupBackground(g, availableRect, _renderOptions);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
             if (!string.IsNullOrEmpty(_titleText))
             {
                 var titleRect = new Rectangle(availableRect.X, availableRect.Y, availableRect.Width, _titleHeight);

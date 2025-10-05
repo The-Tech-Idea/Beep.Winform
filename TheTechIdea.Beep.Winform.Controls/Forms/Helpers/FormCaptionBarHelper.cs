@@ -124,7 +124,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             _overlayRegistry = overlayRegistry ?? throw new ArgumentNullException(nameof(overlayRegistry));
             _registerPaddingProvider = registerPaddingProvider ?? throw new ArgumentNullException(nameof(registerPaddingProvider));
             _overlayRegistry.Add(PaintOverlay);
-            _registerPaddingProvider((ref Padding p) => { if (ShowCaptionBar) p.Top += CaptionHeight; });
+            _registerPaddingProvider((ref Padding p) =>
+            {
+                if (ShowCaptionBar)
+                {
+                    // Ensure exactly CaptionHeight is reserved at top for the client-area caption.
+                    // Do not add any extra padding for non-client borders.
+                    if (p.Top < CaptionHeight) p.Top = CaptionHeight; else p.Top = CaptionHeight;
+                }
+            });
 
             SetStyle(BeepFormStyle.Modern);
         }
@@ -659,19 +667,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 if (ShowThemeButton && _themeButtonRect != Rectangle.Empty)
                 {
                     if (_themeHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _themeButtonRect); }
-                    int inset = (int)(6 * scale);
+                    int btnInset = (int)(6 * scale);
                     int dy = (int)(4 * scale);
                     for (int i = 0; i < 3; i++)
                     {
-                        int yLine = _themeButtonRect.Top + inset + i * dy;
-                        g.DrawLine(p, _themeButtonRect.Left + inset, yLine, _themeButtonRect.Right - inset, yLine);
+                        int yLine = _themeButtonRect.Top + btnInset + i * dy;
+                        g.DrawLine(p, _themeButtonRect.Left + btnInset, yLine, _themeButtonRect.Right - btnInset, yLine);
                     }
                 }
                 if (ShowStyleButton && _styleButtonRect != Rectangle.Empty)
                 {
                     if (_styleHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _styleButtonRect); }
-                    int inset = (int)(6 * scale);
-                    var r = Rectangle.Inflate(_styleButtonRect, -inset, -inset);
+                    int btnInset = (int)(6 * scale);
+                    var r = Rectangle.Inflate(_styleButtonRect, -btnInset, -btnInset);
                     int cx = r.Left + r.Width / 2;
                     int cy = r.Top + r.Height / 2;
                     g.DrawRectangle(p, r);
@@ -732,21 +740,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             
             // Caption bar painted in client area for proper mouse interaction
             // Border is painted in non-client area via WM_NCPAINT
-            if (Form is BeepiForm beepiForm && beepiForm.WindowState != FormWindowState.Maximized)
-            {
-                return; // Non-client painting active, don't paint in client area
-            }
             
-            // Get border thickness to avoid overlapping
-            int borderThickness = 0;
+            // Determine any inset only if the host is actually drawing custom window borders
+            int borderInset = 0;
             if (Form is BeepiForm beepiForm2)
             {
-                borderThickness = beepiForm2.BorderThickness;
+                // Only respect BorderThickness when custom window borders are enabled
+                borderInset = beepiForm2.DrawCustomWindowBorder ? beepiForm2.BorderThickness : 0;
             }
-            
-            // Start caption bar below the top border
-            var rect = new Rectangle(borderThickness, borderThickness, 
-                Form.ClientSize.Width - (borderThickness * 2), CaptionHeight);
+
+            // Caption bar rectangle in client coordinates
+            var rect = new Rectangle(borderInset, borderInset,
+                Form.ClientSize.Width - (borderInset * 2), CaptionHeight);
             if (rect.Width <= 0 || rect.Height <= 0) return;
             
             // Draw caption background (style-aware fallbacks)
@@ -846,19 +851,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 if (ShowThemeButton && _themeButtonRect != Rectangle.Empty)
                 {
                     if (_themeHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _themeButtonRect); }
-                    int inset = (int)(6 * scale);
+                    int btnInset = (int)(6 * scale);
                     int dy = (int)(4 * scale);
                     for (int i = 0; i < 3; i++)
                     {
-                        int yLine = _themeButtonRect.Top + inset + i * dy;
-                        g.DrawLine(p, _themeButtonRect.Left + inset, yLine, _themeButtonRect.Right - inset, yLine);
+                        int yLine = _themeButtonRect.Top + btnInset + i * dy;
+                        g.DrawLine(p, _themeButtonRect.Left + btnInset, yLine, _themeButtonRect.Right - btnInset, yLine);
                     }
                 }
                 if (ShowStyleButton && _styleButtonRect != Rectangle.Empty)
                 {
                     if (_styleHover) { using var hb = new SolidBrush(Theme?.ButtonHoverBackColor ?? Color.FromArgb(40, Color.Gray)); g.FillRectangle(hb, _styleButtonRect); }
-                    int inset = (int)(6 * scale);
-                    var r = Rectangle.Inflate(_styleButtonRect, -inset, -inset);
+                    int btnInset = (int)(6 * scale);
+                    var r = Rectangle.Inflate(_styleButtonRect, -btnInset, -btnInset);
                     int cx = r.Left + r.Width / 2;
                     int cy = r.Top + r.Height / 2;
                     g.DrawRectangle(p, r);
@@ -927,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 return;
             }
 
-            // Style-specific fallbacks to give strong identity even without theme tokens
+            // ProgressBarStyle-specific fallbacks to give strong identity even without theme tokens
             dir = LinearGradientMode.Vertical;
             switch (CurrentStyle)
             {

@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
+using TheTechIdea.Beep.Winform.Controls.Numerics;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
@@ -1005,7 +1006,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
         private BeepTextBox LogtextBox;
         private Controls.BeepPanel beepPanel1;
         private BeepButton RunScriptsbeepButton;
-        private Controls.BeepNumericUpDown beepNumericUpDown1;
+        private BeepNumericUpDown beepNumericUpDown1;
         private BeepButton StopbeepButton;
     }
 }

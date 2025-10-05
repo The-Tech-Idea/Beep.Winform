@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         #region Properties
         public string StyleName => "Card";
-        public string DisplayName => "Material Card Style";
+        public string DisplayName => "Material Card ProgressBarStyle";
         public bool SupportsMultipleSelection => true;
 
         public Size MaxImageSize 

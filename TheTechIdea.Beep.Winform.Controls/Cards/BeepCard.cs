@@ -1,15 +1,17 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using System.Collections.Generic;
-using System.Drawing;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Editor;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
- 
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -93,7 +95,38 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> ButtonClicked;
         // Remove CardAreaClickedEventArgs - use BaseControl's HitDetected event instead
         #endregion
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
 
+                    Invalidate();
+                }
+            }
+        }
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
         // Constructor
         public BeepCard():base()
         {
@@ -263,8 +296,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             _painter?.Initialize(this, _currentTheme);
             ctx = _painter?.AdjustLayout(DrawingRect, ctx) ?? ctx;
 
-            _painter?.DrawBackground(g, ctx);
-
+           // _painter?.DrawBackground(g, ctx);
+            if (UseThemeColors && _currentTheme != null)
+            {
+                _painter?.DrawBackground(g, ctx);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
             if (ctx.ShowImage && imageBox.Visible && ctx.ImageRect != Rectangle.Empty)
             {
                 imageBox.Draw(g, ctx.ImageRect);
@@ -386,7 +427,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Enhanced Properties
         [Category("Appearance")]
         [Description("Visual style of the card layout and design.")]
-        public CardStyle Style
+        public CardStyle CardStyle
         {
             get => _style;
             set { _style = value; InitializePainter(); Invalidate(); }

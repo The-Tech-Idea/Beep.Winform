@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _textFont = value ?? new Font("Arial", 10);
                 UseThemeFont = false;
-                Font = _textFont;
+              //  Font = _textFont;
                 GetControlHeight();
                 Invalidate();
             }
@@ -784,7 +784,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                    
                 }
             }
-            SafeApplyFont(_textFont);
+        //    SafeApplyFont(_textFont);
             // Apply theme to the dropdown button
             if (_dropDownButton != null)
             {

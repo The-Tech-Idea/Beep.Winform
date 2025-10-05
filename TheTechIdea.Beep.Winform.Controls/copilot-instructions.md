@@ -25,7 +25,7 @@ Purpose
 
 Workspace rules
 - Do not run a solution-wide build unless explicitly requested. Implement and validate file-level changes only.
-- Projects target .NET 8 or .NET 9. Prefer C# 12. Match each project’s TFM when adding code.
+- Projects target .NET 8 or .NET 9. Prefer C# 12. Match each projectï¿½s TFM when adding code.
 - Use partial classes to separate Core/Registry/Painters/Helpers.
 
 BaseControl painting pipeline
@@ -84,6 +84,78 @@ Testing checklist
 - Theming: `ApplyTheme()` updates colors/fonts consistently.
 
 When adding a new painter
-- Implement both `Paint` and `UpdateHitAreas` and register in the owner’s registry.
+- Implement both `Paint` and `UpdateHitAreas` and register in the ownerï¿½s registry.
 - Reuse existing parameter keys where possible; document any new keys here.
 - Provide sample defaults in the owner constructor so it previews at design-time.
+
+---
+
+## BeepSideBar Painter Architecture (CRITICAL REQUIREMENTS)
+
+**Painter Pattern for SideBar:**
+- Interface: `ISideBarPainter` with methods: `Paint()`, `PaintToggleButton()`, `PaintSelection()`, `PaintHover()`, `PaintMenuItem()`, `PaintChildItem()`
+- Context: `ISideBarPainterContext` provides all state (Graphics, Bounds, Theme, UseThemeColors, Items, ExpandedState, etc.)
+- Base class: `BaseSideBarPainter` provides helper methods (`CreateRoundedPath`, `GetEffectiveColor`)
+
+**MANDATORY REQUIREMENTS FOR ALL SIDEBAR PAINTERS:**
+1. **ImagePainter Usage**: MUST use `static readonly ImagePainter _imagePainter = new ImagePainter();` for ALL icons
+   ```csharp
+   _imagePainter.ImagePath = item.ImagePath;
+   if (context.Theme != null && context.UseThemeColors) {
+       _imagePainter.CurrentTheme = context.Theme;
+       _imagePainter.ApplyThemeOnImage = true;
+       _imagePainter.ImageEmbededin = ImageEmbededin.SideBar;
+   }
+   _imagePainter.DrawImage(g, iconRect);
+   ```
+
+2. **UseThemeColors Check**: MUST check `context.UseThemeColors` for EVERY color decision
+   ```csharp
+   Color someColor = context.UseThemeColors && context.Theme != null
+       ? context.Theme.ThemeColor      // Use theme
+       : Color.FromArgb(...);           // Design system fallback
+   ```
+
+3. **Custom Drawing**: Each painter MUST draw everything itself with custom code
+   - NO calls to `base.PaintMenuItem()` or `base.PaintChildItem()`
+   - Draw icons using `_imagePainter.DrawImage()` (NOT base methods)
+   - Draw text with custom fonts and colors
+   - Draw selection indicators, hover effects, expand/collapse icons
+   - Draw connector lines for child items
+
+4. **Distinct Visual Appearance**: Each painter MUST have unique visual style
+   - Custom colors matching design system (Material, Fluent, iOS, etc.)
+   - Custom fonts (Segoe UI, Roboto, SF Pro, etc.)
+   - Custom border radius (0px to 28px)
+   - Custom selection style (background, left accent, pill, etc.)
+   - Custom hover effects
+   - Custom spacing/padding
+
+**16 Design Systems:**
+iOS15, Material3, Fluent2, Minimal, AntDesign, MaterialYou, Windows11Mica, MacOSBigSur, ChakraUI, TailwindCard, NotionMinimal, VercelClean, StripeDashboard, DarkGlow, DiscordStyle, GradientModern
+
+**Reference Implementation:**
+- `iOS15SideBarPainter.cs` is the DEFINITIVE reference showing correct pattern
+- ~100-150 lines per painter
+- Structure: Paint() â†’ PaintMenuItems() â†’ PaintChildItems() (recursive)
+
+**Partial Class Structure:**
+- `BeepSideBar.cs` - Main file (properties only)
+- `BeepSideBar.Painters.cs` - Style property, InitializePainter() with 16-case switch
+- `BeepSideBar.Drawing.cs` - OnPaint(), layout, hit testing
+- `BeepSideBar.Events.cs` - Mouse/keyboard handlers
+- `BeepSideBar.Helpers.cs` - Accordion state management
+- `BeepSideBar.Animation.cs` - Smooth collapse/expand animation
+- `BeepSideBar.Accordion.cs` - Menu expansion logic
+
+**Testing Checklist Per Painter:**
+- [ ] Uses static readonly ImagePainter
+- [ ] Checks UseThemeColors for ALL colors (background, text, icons, borders, hover, selection, connectors)
+- [ ] NO calls to base.PaintMenuItem/PaintChildItem
+- [ ] Visually distinct from other painters
+- [ ] Icons render with ImagePainter.DrawImage()
+- [ ] Text renders with custom fonts
+- [ ] Selection indicator works
+- [ ] Hover effect works
+- [ ] Expand/collapse icons work
+- [ ] Child items with indentation and connector lines

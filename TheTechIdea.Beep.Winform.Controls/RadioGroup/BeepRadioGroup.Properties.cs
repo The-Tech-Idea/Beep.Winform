@@ -6,14 +6,47 @@ using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers;
+using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 {
     public partial class BeepRadioGroup
     {
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
+        private BeepControlStyle _style = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _style;
+            set
+            {
+                if (_style != value)
+                {
+                    _style = value;
+
+                    Invalidate();
+                }
+            }
+        }
         #region Data Properties
         private Font _textFont = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
         [Browsable(true)]

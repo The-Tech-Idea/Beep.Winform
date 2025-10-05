@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Windows;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+using Point = System.Drawing.Point;
 
 namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 {
@@ -96,7 +99,16 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup
 
             // Update states before drawing
             UpdateItemStates();
-
+            if (UseThemeColors && _currentTheme != null)
+            {
+                BackColor = _currentTheme.SideMenuBackColor;
+                g.Clear(BackColor);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
             // Use DrawingRect from BaseControl for proper bounds
             var drawingBounds = DrawingRect;
             if (drawingBounds.IsEmpty)

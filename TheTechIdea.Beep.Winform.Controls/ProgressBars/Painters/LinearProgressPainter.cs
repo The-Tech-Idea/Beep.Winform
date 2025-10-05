@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                     g.SetClip(clipPath, CombineMode.Replace);
                 }
 
-                switch (owner.Style)
+                switch (owner.ProgressBarStyle)
                 {
                     case ProgressBarStyle.Flat:
                         using (var brush = new SolidBrush(owner.ProgressColor)) g.FillRectangle(brush, progressRect);

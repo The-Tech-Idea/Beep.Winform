@@ -95,8 +95,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
             panel.Controls.Add(requiredField);
             yPosition += spacing;
 
-            // 4. Search Box Style with Dual Icons
-            AddSectionTitle(panel, "4. Search Box Style with Dual Icons", ref yPosition);
+            // 4. Search Box ProgressBarStyle with Dual Icons
+            AddSectionTitle(panel, "4. Search Box ProgressBarStyle with Dual Icons", ref yPosition);
             var searchField = new BeepMaterialTextField
             {
                 Location = new Point(20, yPosition),

@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules.Managers;
  
 using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using ContentAlignment = System.Drawing.ContentAlignment;

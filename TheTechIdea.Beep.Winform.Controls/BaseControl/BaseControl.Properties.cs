@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private BaseControlPainterKind _painterKind = BaseControlPainterKind.Auto;
         [Browsable(true)]
         [Category("Appearance")]
-        [Description("Select the painter (renderer) used to draw the control. Auto picks Material when Material Style is enabled, otherwise Classic.")]
+        [Description("Select the painter (renderer) used to draw the control. Auto picks Material when Material ProgressBarStyle is enabled, otherwise Classic.")]
         public BaseControlPainterKind PainterKind
         {
             get => _painterKind;
@@ -782,7 +782,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(false)] // Hidden - use StylePreset instead
         [EditorBrowsable(EditorBrowsableState.Never)]
         [Category("Material Design")]
-        [Description("Determines how the area outside the material field is painted when Material Style is enabled.")]
+        [Description("Determines how the area outside the material field is painted when Material ProgressBarStyle is enabled.")]
         [DefaultValue(MaterialOutsideBackgroundMode.ParentBackColor)]
         public MaterialOutsideBackgroundMode MaterialOutsideBackground { get; set; } = MaterialOutsideBackgroundMode.ParentBackColor;
         // Additional BeepControl parity properties

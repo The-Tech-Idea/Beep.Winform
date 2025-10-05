@@ -1,18 +1,19 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Desktop.Common.Util;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
+using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.Caption;
 using TheTechIdea.Beep.Winform.Controls.Forms.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Managers;
-using TheTechIdea.Beep.Winform.Controls.BaseImage;
-using System.Diagnostics;
-using TheTechIdea.Beep.Winform.Controls.Forms.Caption;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -60,9 +61,40 @@ namespace TheTechIdea.Beep.Winform.Controls
         private FormHitTestHelper _hitTestHelper;
         private FormCaptionBarHelper _captionHelper;
         private FormBorderPainter _borderPainter;  // *** ADDED: Border painting helper
-        // Helpers (add this near the other helpers)
+                                                   // Helpers (add this near the other helpers)
 
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
 
+                    Invalidate();
+                }
+            }
+        }
 
         // IBeepModernFormHost implementation
         Form IBeepModernFormHost.AsForm => this;
@@ -100,18 +132,18 @@ namespace TheTechIdea.Beep.Winform.Controls
         private float _glowSpread = 8f;
         private int _shadowDepth = 6;
 
-        [Category("Beep Style")][DefaultValue(BeepFormStyle.Modern)] public BeepFormStyle FormStyle { get => _formStyle; set { if (_formStyle == value) return; _formStyle = value; try { ApplyFormStyle(); _captionHelper?.SetStyle(value); } catch (Exception ex) { Debug.WriteLine($"FormStyle apply error: {ex.Message}"); } Invalidate(); } }
-        [Category("Beep Style")] public Color ShadowColor { get => _shadowColor; set { if (_shadowColor != value) { _shadowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
-        [Category("Beep Style"), DefaultValue(6)] public int ShadowDepth { get => _shadowDepth; set { if (_shadowDepth != value) { _shadowDepth = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
-        [Category("Beep Style"), DefaultValue(true)] public bool EnableGlow { get => _enableGlow; set { if (_enableGlow != value) { _enableGlow = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
-        [Category("Beep Style")] public Color GlowColor { get => _glowColor; set { if (_glowColor != value) { _glowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
-        [Category("Beep Style"), DefaultValue(8f)] public float GlowSpread { get => _glowSpread; set { if (Math.Abs(_glowSpread - value) > float.Epsilon) { _glowSpread = Math.Max(0f, value); if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
+        [Category("Beep ProgressBarStyle")][DefaultValue(BeepFormStyle.Modern)] public BeepFormStyle FormStyle { get => _formStyle; set { if (_formStyle == value) return; _formStyle = value; try { ApplyFormStyle(); _captionHelper?.SetStyle(value); } catch (Exception ex) { Debug.WriteLine($"FormStyle apply error: {ex.Message}"); } Invalidate(); } }
+        [Category("Beep ProgressBarStyle")] public Color ShadowColor { get => _shadowColor; set { if (_shadowColor != value) { _shadowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
+        [Category("Beep ProgressBarStyle"), DefaultValue(6)] public int ShadowDepth { get => _shadowDepth; set { if (_shadowDepth != value) { _shadowDepth = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
+        [Category("Beep ProgressBarStyle"), DefaultValue(true)] public bool EnableGlow { get => _enableGlow; set { if (_enableGlow != value) { _enableGlow = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
+        [Category("Beep ProgressBarStyle")] public Color GlowColor { get => _glowColor; set { if (_glowColor != value) { _glowColor = value; if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
+        [Category("Beep ProgressBarStyle"), DefaultValue(8f)] public float GlowSpread { get => _glowSpread; set { if (Math.Abs(_glowSpread - value) > float.Epsilon) { _glowSpread = Math.Max(0f, value); if (!InDesignHost) SyncStyleToHelpers(); Invalidate(); } } }
 
         // New: auto mapping/preset toggles
-        [Category("Beep Style"), DefaultValue(true), Description("If true, when the current theme is dark, renderer preset keys with .dark will be applied (if available).")]
+        [Category("Beep ProgressBarStyle"), DefaultValue(true), Description("If true, when the current theme is dark, renderer preset keys with .dark will be applied (if available).")]
         public bool AutoPickDarkPresets { get; set; } = true;
 
-        [Category("Beep Style"), DefaultValue(true), Description("If true, switching CaptionRenderer maps FormStyle and tries to apply a matching preset.")]
+        [Category("Beep ProgressBarStyle"), DefaultValue(true), Description("If true, switching CaptionRenderer maps FormStyle and tries to apply a matching preset.")]
         public bool AutoApplyRendererPreset { get; set; } = true;
         // Logo properties now delegated to FormCaptionBarHelper
         [Category("Beep Logo")]
@@ -276,7 +308,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set { if (_captionHelper != null) { _captionHelper.ThemeButtonIconPath = value; Invalidate(); } }
         }
 
-        [Category("Beep Caption"), Description("Icon path for the Style button (optional)"), Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))
+        [Category("Beep Caption"), Description("Icon path for the ProgressBarStyle button (optional)"), Editor(typeof(System.Windows.Forms.Design.FileNameEditor), typeof(System.Drawing.Design.UITypeEditor))
         ]
         public string StyleButtonIconPath
         {
@@ -333,9 +365,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (!InDesignHost && WindowState != FormWindowState.Maximized)
                     Padding = new Padding(Math.Max(0, _borderThickness));
                 
-                // Trigger non-client area repaint when border thickness changes
+                // Force WM_NCCALCSIZE recalculation and repaint when border thickness changes
                 if (IsHandleCreated && WindowState != FormWindowState.Maximized)
                 {
+                    // Force Windows to recalculate non-client area
+                    SetWindowPos(Handle, IntPtr.Zero, 0, 0, 0, 0, 
+                        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+                    // Repaint the non-client area
                     RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
                 }
                 
@@ -346,7 +382,21 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Browsable(true)][Category("Appearance")] public bool InPopMode { get => _inpopupmode; set { _inpopupmode = value; Invalidate(); } }
         private string _theme = string.Empty;
         [Browsable(true)][TypeConverter(typeof(ThemeConverter))][DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)] public string Theme { get => _theme; set { if (value != _theme) { _theme = value; if (!InDesignHost) { _currentTheme = BeepThemesManager.GetTheme(value); ApplyTheme(); } } } }
-        [Browsable(true)][Category("Appearance"), Description("Sets the color of the form's border.")] public Color BorderColor { get => _borderColor; set { _borderColor = value; Invalidate(); } }
+        [Browsable(true)][Category("Appearance"), Description("Sets the color of the form's border.")]
+        public Color BorderColor
+        {
+            get => _borderColor;
+            set
+            {
+                _borderColor = value;
+                Invalidate();
+                // Ensure non-client (custom) border repaints with new color
+                if (IsHandleCreated && WindowState != FormWindowState.Maximized)
+                {
+                    RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                }
+            }
+        }
         public bool UseHelperInfrastructure { get; set; } = true;
         #endregion
 
@@ -472,6 +522,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ResumeLayout(true);
                 Invalidate();
+                // Repaint non-client area (border) when theme changes
+                if (IsHandleCreated && WindowState != FormWindowState.Maximized)
+                {
+                    RedrawWindow(Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                }
                 Update();
             }
         }
@@ -824,6 +879,24 @@ namespace TheTechIdea.Beep.Winform.Controls
         private const int WM_GETMINMAXINFO = 0x0024;
         private const int WM_DPICHANGED = 0x02E0;
         
+        // Toggle to completely disable any custom window border drawing/spacing
+        private bool _drawCustomWindowBorder = false;
+        public bool DrawCustomWindowBorder
+        {
+            get => _drawCustomWindowBorder;
+            set
+            {
+                if (_drawCustomWindowBorder == value) return;
+                _drawCustomWindowBorder = value;
+                if (!InDesignHost && IsHandleCreated)
+                {
+                    // Force frame recalculation and repaint when toggled
+                    SetWindowPos(this.Handle, IntPtr.Zero, 0, 0, 0, 0, (uint)(SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED));
+                    RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+                }
+            }
+        }
+        
         // Hit Test Constants
         private const int HTCLIENT = 1;
         private const int HTCAPTION = 2;
@@ -849,7 +922,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 CreateParams cp = base.CreateParams;
                 if (!InDesignHost)
                 {
-                    // Add WS_SIZEBOX to enable snap-to-edge and proper resizing behavior
+                    // Always add WS_SIZEBOX so Windows accepts HT* sizing codes on borderless forms
                     cp.Style |= WS_SIZEBOX;
                 }
                 return cp;
@@ -862,16 +935,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (m.Msg)
             {
                 case WM_NCCALCSIZE:
-                    // Reserve space for custom border and caption bar in non-client area
-                    if (m.WParam != IntPtr.Zero && WindowState != FormWindowState.Maximized)
+                    // Reserve space for custom border in non-client area (caption is in client area)
+                    if (_drawCustomWindowBorder && m.WParam != IntPtr.Zero && WindowState != FormWindowState.Maximized)
                     {
                         NCCALCSIZE_PARAMS nccsp = (NCCALCSIZE_PARAMS)Marshal.PtrToStructure(m.LParam, typeof(NCCALCSIZE_PARAMS));
                         
-                        int captionHeight = (_captionHelper?.ShowCaptionBar == true) ? (_captionHelper?.CaptionHeight ?? 0) : 0;
                         int borderThickness = _borderThickness;
                         
-                        // Shrink client rect to reserve space for border and caption
-                        nccsp.rgrc[0].top += captionHeight + borderThickness;
+                        // Shrink client rect to reserve space for border only (not caption)
+                        nccsp.rgrc[0].top += borderThickness;
                         nccsp.rgrc[0].left += borderThickness;
                         nccsp.rgrc[0].right -= borderThickness;
                         nccsp.rgrc[0].bottom -= borderThickness;
@@ -884,7 +956,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                 case WM_NCACTIVATE:
                     // Prevent default title bar repaint by setting lParam to -1
-                    if (WindowState != FormWindowState.Maximized)
+                    if (_drawCustomWindowBorder && WindowState != FormWindowState.Maximized)
                     {
                         m.LParam = new IntPtr(-1);
                     }
@@ -892,7 +964,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                 case WM_NCPAINT:
                     // Paint custom border in non-client area (caption bar painted in client area)
-                    if (WindowState != FormWindowState.Maximized)
+                    if (_drawCustomWindowBorder && WindowState != FormWindowState.Maximized)
                     {
                         PaintNonClientBorder();
                         m.Result = IntPtr.Zero;
@@ -949,15 +1021,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         [DllImport("user32.dll")] private static extern IntPtr GetWindowDC(IntPtr hWnd);
         [DllImport("user32.dll")] private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
         [DllImport("user32.dll")] private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
+        [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
         private const int MONITOR_DEFAULTTONEAREST = 2;
         private const uint RDW_FRAME = 0x0400;
         private const uint RDW_INVALIDATE = 0x0001;
         private const uint RDW_UPDATENOW = 0x0100;
+        private const uint SWP_NOMOVE = 0x0002;
+        private const uint SWP_NOSIZE = 0x0001;
+        private const uint SWP_NOZORDER = 0x0004;
+        private const uint SWP_FRAMECHANGED = 0x0020;
         private void AdjustMaximizedBounds(IntPtr lParam) { MINMAXINFO mmi = Marshal.PtrToStructure<MINMAXINFO>(lParam); IntPtr monitor = MonitorFromWindow(this.Handle, MONITOR_DEFAULTTONEAREST); if (monitor != IntPtr.Zero) { MONITORINFO monitorInfo = new MONITORINFO(); monitorInfo.cbSize = Marshal.SizeOf(typeof(MONITORINFO)); GetMonitorInfo(monitor, ref monitorInfo); Rectangle rcWorkArea = Rectangle.FromLTRB(monitorInfo.rcWork.left, monitorInfo.rcWork.top, monitorInfo.rcWork.right, monitorInfo.rcWork.bottom); Rectangle rcMonitorArea = Rectangle.FromLTRB(monitorInfo.rcMonitor.left, monitorInfo.rcMonitor.top, monitorInfo.rcMonitor.right, monitorInfo.rcMonitor.bottom); mmi.ptMaxPosition.x = Math.Abs(rcWorkArea.Left - rcMonitorArea.Left); mmi.ptMaxPosition.y = Math.Abs(rcWorkArea.Top - rcMonitorArea.Top); mmi.ptMaxSize.x = rcWorkArea.Width; mmi.ptMaxSize.y = rcWorkArea.Height; Marshal.StructureToPtr(mmi, lParam, true); } }
         
         private void PaintNonClientBorder()
         {
-            if (InDesignHost || !IsHandleCreated || _borderPainter == null)
+            if (InDesignHost || !IsHandleCreated || _borderPainter == null || !_drawCustomWindowBorder)
                 return;
                 
             IntPtr hdc = GetWindowDC(this.Handle);
@@ -970,29 +1047,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     g.SmoothingMode = SmoothingMode.AntiAlias;
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    
-                    // Get window bounds (not client bounds - we're painting non-client area)
+
+                    // Delegate border painting to helper (single source of truth)
                     Rectangle windowRect = new Rectangle(0, 0, Width, Height);
-                    
-                    // Paint ONLY border (caption painted separately in client area)
-                    using (GraphicsPath borderPath = new GraphicsPath())
-                    {
-                        if (_borderRadius > 0)
-                        {
-                            int radius = _borderRadius * 2;
-                            borderPath.AddArc(windowRect.X, windowRect.Y, radius, radius, 180, 90);
-                            borderPath.AddArc(windowRect.Right - radius, windowRect.Y, radius, radius, 270, 90);
-                            borderPath.AddArc(windowRect.Right - radius, windowRect.Bottom - radius, radius, radius, 0, 90);
-                            borderPath.AddArc(windowRect.X, windowRect.Bottom - radius, radius, radius, 90, 90);
-                            borderPath.CloseFigure();
-                        }
-                        else
-                        {
-                            borderPath.AddRectangle(windowRect);
-                        }
-                        
-                        _borderPainter.PaintBorder(g, borderPath);
-                    }
+                    _borderPainter.PaintWindowBorder(g, windowRect, _borderRadius, _borderThickness);
                 }
             }
             finally

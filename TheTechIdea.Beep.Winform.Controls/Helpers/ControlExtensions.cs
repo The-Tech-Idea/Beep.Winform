@@ -14,6 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
+using TheTechIdea.Beep.Winform.Controls.Numerics;
 
 
 

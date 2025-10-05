@@ -402,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
 
         private ColumnHeaderStyle _headerStyle;
         [Category("Appearance")]
-        [Description("Style settings for the column header.")]
+        [Description("ProgressBarStyle settings for the column header.")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public ColumnHeaderStyle HeaderStyle
         {

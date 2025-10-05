@@ -158,10 +158,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Examples
                 Padding = new Padding(10)
             };
 
-            // Style selector
+            // ProgressBarStyle selector
             var styleLabel = new Label
             {
-                Text = "Style:",
+                Text = "ProgressBarStyle:",
                 Location = new Point(10, 20),
                 AutoSize = true
             };

@@ -21,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
 
         #region Properties
         public string StyleName => "Chip";
-        public string DisplayName => "Chip/Pill Style";
+        public string DisplayName => "Chip/Pill ProgressBarStyle";
         public bool SupportsMultipleSelection => true;
 
         public Size MaxImageSize 

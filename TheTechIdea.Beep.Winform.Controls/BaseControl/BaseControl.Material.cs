@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Material properties
 
-        [Browsable(true), Category("Material Style"), DefaultValue(true)]
+        [Browsable(true), Category("Material ProgressBarStyle"), DefaultValue(true)]
         public bool MaterialUseVariantPadding
         {
             get => _bcUseVariantPadding;
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
-        [Browsable(true), Category("Material Style"), DefaultValue(MaterialTextFieldVariant.Outlined)]
+        [Browsable(true), Category("Material ProgressBarStyle"), DefaultValue(MaterialTextFieldVariant.Outlined)]
         public MaterialTextFieldVariant MaterialVariant
         {
             get => _bcMaterialVariant;
@@ -102,7 +102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
-        [Browsable(true), Category("Material Style"), DefaultValue(8)]
+        [Browsable(true), Category("Material ProgressBarStyle"), DefaultValue(8)]
         public int MaterialBorderRadius
         {
             get => _bcMaterialRadius;
@@ -118,10 +118,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
-        [Browsable(true), Category("Material Style"), DefaultValue(false)]
+        [Browsable(true), Category("Material ProgressBarStyle"), DefaultValue(false)]
         public bool MaterialShowFill { get => _bcShowFill; set { _bcShowFill = value; Invalidate(); } }
 
-        [Browsable(true), Category("Material Style")]
+        [Browsable(true), Category("Material ProgressBarStyle")]
         public Color MaterialFillColor
         {
             get => _bcFillColor;
@@ -133,8 +133,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
-        [Browsable(true), Category("Material Style")] public Color MaterialOutlineColor { get => _bcOutlineColor; set { _bcOutlineColor = value; Invalidate(); } }
-        [Browsable(true), Category("Material Style")] public Color MaterialPrimaryColor { get => _bcPrimaryColor; set { _bcPrimaryColor = value; Invalidate(); } }
+        [Browsable(true), Category("Material ProgressBarStyle")] public Color MaterialOutlineColor { get => _bcOutlineColor; set { _bcOutlineColor = value; Invalidate(); } }
+        [Browsable(true), Category("Material ProgressBarStyle")] public Color MaterialPrimaryColor { get => _bcPrimaryColor; set { _bcPrimaryColor = value; Invalidate(); } }
 
         [Browsable(true), Category("Icons")]
         [Description("SVG path for the leading (left) icon.")]
@@ -207,13 +207,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         #region Material properties
 
-        [Browsable(true), Category("Material Style - Validation")]
+        [Browsable(true), Category("Material ProgressBarStyle - Validation")]
         public string ErrorText { get => _bcErrorText; set { _bcErrorText = value ?? string.Empty; _bcHasError = !string.IsNullOrEmpty(value); Invalidate(); } }
 
-        [Browsable(true), Category("Material Style - Validation")]
+        [Browsable(true), Category("Material ProgressBarStyle - Validation")]
         public bool HasError { get => _bcHasError; set { _bcHasError = value; Invalidate(); } }
 
-        [Browsable(true), Category("Material Style - Validation")]
+        [Browsable(true), Category("Material ProgressBarStyle - Validation")]
         public Color ErrorColor { get => _bcErrorColor; set { _bcErrorColor = value; Invalidate(); } }
 
         // Important: expose the preset exactly like BeepMaterialTextField
@@ -388,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        [Browsable(false), Category("Material Style")]
+        [Browsable(false), Category("Material ProgressBarStyle")]
         [Description("Override Material internal content padding. When not empty, this padding is used instead of variant defaults.")]
         public Padding MaterialCustomPadding
         {

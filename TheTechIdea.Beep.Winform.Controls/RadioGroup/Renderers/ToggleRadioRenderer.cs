@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private Size _maxImageSize = new Size(24, 24);
 
         public string StyleName => "Toggle";
-        public string DisplayName => "Toggle Switch Style";
+        public string DisplayName => "Toggle Switch ProgressBarStyle";
         public bool SupportsMultipleSelection => true;
 
         public Size MaxImageSize { get => _maxImageSize; set => _maxImageSize = value; }

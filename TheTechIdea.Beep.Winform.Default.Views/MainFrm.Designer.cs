@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // splitContainer2
             // 
-            splitContainer2.Dock = DockStyle.Top;
+            splitContainer2.Dock = DockStyle.Fill;
             splitContainer2.Location = new Point(0, 44);
             splitContainer2.Name = "splitContainer2";
             splitContainer2.Orientation = Orientation.Horizontal;
@@ -73,8 +73,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // splitContainer2.Panel2
             // 
             splitContainer2.Panel2.Controls.Add(splitContainer1);
-            splitContainer2.Size = new Size(1216, 762);
-            splitContainer2.SplitterDistance = 46;
+            splitContainer2.Size = new Size(1216, 780);
+            splitContainer2.SplitterDistance = 47;
             splitContainer2.TabIndex = 9;
             // 
             // beepMenuAppBar1
@@ -190,6 +190,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepMenuAppBar1.MaterialVariant = MaterialTextFieldVariant.Standard;
             beepMenuAppBar1.MaxHitListDrawPerFrame = 0;
+            beepMenuAppBar1.MenuBarStyle = Winform.Controls.Menus.MenuBarStyle.Fluent;
             beepMenuAppBar1.MenuItemHeight = 20;
             beepMenuAppBar1.MenuItemWidth = 60;
             beepMenuAppBar1.ModernGradientType = ModernGradientType.None;
@@ -246,7 +247,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // splitContainer1
             // 
-            splitContainer1.BorderStyle = BorderStyle.FixedSingle;
             splitContainer1.Dock = DockStyle.Fill;
             splitContainer1.Location = new Point(0, 0);
             splitContainer1.Name = "splitContainer1";
@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(beepDisplayContainer1);
-            splitContainer1.Size = new Size(1216, 712);
+            splitContainer1.Size = new Size(1216, 729);
             splitContainer1.SplitterDistance = 404;
             splitContainer1.SplitterWidth = 10;
             splitContainer1.TabIndex = 8;
@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.DisableDpiAndScaling = true;
             beepAppTree1.DMEEditor = null;
             beepAppTree1.Dock = DockStyle.Fill;
-            beepAppTree1.DrawingRect = new Rectangle(1, 1, 400, 708);
+            beepAppTree1.DrawingRect = new Rectangle(1, 1, 402, 727);
             beepAppTree1.DropHandler = null;
             beepAppTree1.Easing = EasingType.Linear;
             beepAppTree1.EnableHighQualityRendering = true;
@@ -393,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 5;
+            beepAppTree1.SeqID = 1;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 0;
             beepAppTree1.ShadowOpacity = 0.5F;
@@ -407,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.ShowShadow = false;
             beepAppTree1.ShowTopBorder = false;
             beepAppTree1.ShowVerticalScrollBar = true;
-            beepAppTree1.Size = new Size(402, 710);
+            beepAppTree1.Size = new Size(404, 729);
             beepAppTree1.SlideFrom = SlideDirection.Left;
             beepAppTree1.StaticNotMoving = false;
             beepAppTree1.TabIndex = 6;
@@ -456,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.BorderColor = Color.FromArgb(200, 200, 200);
             beepDisplayContainer1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
             beepDisplayContainer1.BorderRadius = 8;
-            beepDisplayContainer1.BorderStyle = BorderStyle.FixedSingle;
+            beepDisplayContainer1.BorderStyle = BorderStyle.None;
             beepDisplayContainer1.BorderThickness = 1;
             beepDisplayContainer1.BottomoffsetForDrawingRect = 0;
             beepDisplayContainer1.BoundProperty = null;
@@ -472,7 +472,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.DisabledForeColor = Color.Black;
             beepDisplayContainer1.DisableDpiAndScaling = true;
             beepDisplayContainer1.Dock = DockStyle.Fill;
-            beepDisplayContainer1.DrawingRect = new Rectangle(2, 2, 796, 706);
+            beepDisplayContainer1.DrawingRect = new Rectangle(2, 2, 798, 725);
             beepDisplayContainer1.Easing = EasingType.Linear;
             beepDisplayContainer1.EnableHighQualityRendering = true;
             beepDisplayContainer1.EnableRippleEffect = false;
@@ -560,7 +560,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.ShowRightBorder = false;
             beepDisplayContainer1.ShowShadow = false;
             beepDisplayContainer1.ShowTopBorder = false;
-            beepDisplayContainer1.Size = new Size(800, 710);
+            beepDisplayContainer1.Size = new Size(802, 729);
             beepDisplayContainer1.SlideFrom = SlideDirection.Left;
             beepDisplayContainer1.StaticNotMoving = false;
             beepDisplayContainer1.TabIndex = 7;
@@ -590,7 +590,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             AutoScaleDimensions = new SizeF(96F, 96F);
             AutoScaleMode = AutoScaleMode.Dpi;
             BorderRadius = 0;
-            ClientSize = new Size(1216, 728);
+            ClientSize = new Size(1216, 824);
             Controls.Add(splitContainer2);
             Name = "MainFrm";
             ShowStyleButton = true;

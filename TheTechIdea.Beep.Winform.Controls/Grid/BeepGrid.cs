@@ -619,7 +619,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             }
         }
 
-        // Grid Style Properties
+        // Grid ProgressBarStyle Properties
         [Browsable(true)]
         [Category("Appearance")]
         [DefaultValue(BeepGridStyle.Classic)]

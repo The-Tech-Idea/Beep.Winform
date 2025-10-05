@@ -1,10 +1,14 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.InteropServices.JavaScript;
+using System.Windows;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.StatusCards
 {
@@ -21,13 +25,44 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
         private string trendDownSvgPath = "trenddown.svg";
         private string cardiconSvgPath = "simpleinfoapps.svg";
         #endregion
-
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
+        private BeepControlStyle _style = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle Style
+        {
+            get => _style;
+            set
+            {
+                if (_style != value)
+                {
+                    _style = value;
+                
+                    Invalidate();
+                }
+            }
+        }
         public BeepStatCard()
         {
             IsChild = false;
             Padding = new Padding(10);
             BoundProperty = "ValueText";
-            Size = new Size(300, 150);
+            Size = new System.Drawing.Size(300, 150);
             ApplyThemeToChilds = false;
             ApplyTheme();
 
@@ -84,6 +119,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
 
         protected override void DrawContent(Graphics g)
         {
+            base.DrawContent(g);
             // Let BaseControl paint background via PaintInnerShape already called in OnPaint pipeline.
             var painter = GetActivePainter();
             if (painter == null) return;
@@ -98,7 +134,16 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards
             if (!Parameters.ContainsKey(ParamValue) && !string.IsNullOrEmpty(ValueText)) Parameters[ParamValue] = ValueText;
             if (!Parameters.ContainsKey(ParamDelta) && !string.IsNullOrEmpty(PercentageText)) Parameters[ParamDelta] = PercentageText;
             if (!Parameters.ContainsKey(ParamInfo) && !string.IsNullOrEmpty(InfoText)) Parameters[ParamInfo] = InfoText;
-
+            if (UseThemeColors && _currentTheme != null)
+            {
+                BackColor = _currentTheme.CardBackColor;
+                g.Clear(BackColor);
+            }
+            else
+            {
+                // Paint background based on selected style
+                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+            }
             painter.Paint(g, rect, _currentTheme, this, Parameters);
         }
 

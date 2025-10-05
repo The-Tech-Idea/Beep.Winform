@@ -387,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void ApplyChildControlStyling()
         {
-            // Style buttons based on their purpose
+            // ProgressBarStyle buttons based on their purpose
             btnLogin.ModernGradientType = ModernGradientType.Linear;
           //  btnLogin.BorderRadius = 8;
            // btnLogin.ShowShadow = true;

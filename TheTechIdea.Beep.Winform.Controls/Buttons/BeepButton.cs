@@ -481,8 +481,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ControlHitTest beepImageHitTest;
         private Color _originalForColor;
 
-        // Material Design Style Preset property
-        [Browsable(true), Category("Material Style"), DefaultValue(MaterialTextFieldStylePreset.Default)]
+        // Material Design ProgressBarStyle Preset property
+        [Browsable(true), Category("Material ProgressBarStyle"), DefaultValue(MaterialTextFieldStylePreset.Default)]
         [Description("Applies a predefined style preset that configures variant, radius, fill, and other Material Design properties.")]
         public MaterialTextFieldStylePreset StylePreset
         {

@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private readonly FlatRadioRenderer _inner = new FlatRadioRenderer();
 
         public string StyleName => "Checkbox";
-        public string DisplayName => "Checkbox Style";
+        public string DisplayName => "Checkbox ProgressBarStyle";
         public bool SupportsMultipleSelection => true;
 
         public Size MaxImageSize

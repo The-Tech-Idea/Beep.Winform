@@ -627,7 +627,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
 
         private BeepAppBar beepAppBar1;
         private BeepDisplayContainer beepDisplayContainer1;
-        private Controls.BeepSideMenu beepSideMenu1;
+        private BeepSideMenu beepSideMenu1;
         private Controls.BeepMenuBar beepMenuBar1;
     }
 }

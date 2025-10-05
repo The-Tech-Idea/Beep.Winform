@@ -419,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         //    {
         //        var cp = base.CreateParams;
         //        // Temporarily remove these flags to fix editor host visibility issues
-        //        // cp.Style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+        //        // cp.ProgressBarStyle |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
         //        return cp;
         //    }
         //}

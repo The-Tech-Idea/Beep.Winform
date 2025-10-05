@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
         private readonly CardRadioRenderer _inner = new CardRadioRenderer();
 
         public string StyleName => "Button";
-        public string DisplayName => "Button Group Style";
+        public string DisplayName => "Button Group ProgressBarStyle";
         public bool SupportsMultipleSelection => true;
 
         public Size MaxImageSize

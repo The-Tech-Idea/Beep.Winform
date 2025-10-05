@@ -85,9 +85,7 @@
 	  <Compile Update="ITrees\BeepTreeView\BeepAppTree.cs">
 	    <SubType>Component</SubType>
 	  </Compile>
-	  <Compile Update="MenuBar\BeepMenuAppBar.cs">
-	    <SubType>Component</SubType>
-	  </Compile>
+	  <Compile Update="MenuBar\BeepMenuAppBar.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

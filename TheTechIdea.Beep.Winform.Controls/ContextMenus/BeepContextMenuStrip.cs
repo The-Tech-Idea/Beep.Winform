@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
- 
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
-namespace TheTechIdea.Beep.Winform.Controls
+namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
 {
     [ToolboxItem(true)]
     [DisplayName("Beep Context Menu")]
@@ -66,8 +65,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Determine size of the popup form
             // After calling InitializeMenu, the items are placed as controls
             // You can measure the required size
-            int width = this.Width;
-            int height = this.Controls.OfType<Panel>().Sum(p => p.Height) + TitleBottomY + 4;
+            int width = Width;
+            int height = Controls.OfType<Panel>().Sum(p => p.Height) + TitleBottomY + 4;
 
             // Adjust popupForm size
             popupForm.Size = new Size(width, height);
@@ -77,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Add current control to popupForm
             popupForm.Controls.Add(this);
-            this.Dock = DockStyle.Fill;
+            Dock = DockStyle.Fill;
 
             // Handle click outside and lose focus to close menu
             popupForm.Deactivate += (s, e) => { Hide(); };

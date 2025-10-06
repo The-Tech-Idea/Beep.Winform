@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
     /// </summary>
     public static class StripeDashboardPathPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, PathPainterHelpers.ControlState state = PathPainterHelpers.ControlState.Normal)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState .Normal)
         {
             Color fillColor = PathPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(99, 91, 255));
 

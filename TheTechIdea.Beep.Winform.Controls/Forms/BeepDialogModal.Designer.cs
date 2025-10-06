@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel1.Tag = this;
            
             panel1.TextFont = new Font("Arial", 14F);
-            panel1.Theme = "DefaultTheme";
+            panel1.Theme = "DefaultType";
             panel1.TitleAlignment = ContentAlignment.TopLeft;
             panel1.TitleBottomY = 0;
             panel1.TitleLineColor = Color.Gray;
@@ -326,7 +326,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.Tag = panel1;
             DialogImage.TempBackColor = Color.FromArgb(108, 117, 125);
             DialogImage.Text = "beepImage1";
-            DialogImage.Theme = "DefaultTheme";
+            DialogImage.Theme = "DefaultType";
             DialogImage.ToolTipText = "";
             DialogImage.TopoffsetForDrawingRect = 0;
             DialogImage.UIAnimation = ReactUIAnimation.None;
@@ -483,7 +483,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CloseButton.TextAlign = ContentAlignment.MiddleCenter;
             CloseButton.TextFont = new Font("Arial", 14F);
             CloseButton.TextImageRelation = TextImageRelation.ImageAboveText;
-            CloseButton.Theme = "DefaultTheme";
+            CloseButton.Theme = "DefaultType";
             CloseButton.ToolTipText = "";
             CloseButton.TopoffsetForDrawingRect = 0;
           
@@ -623,7 +623,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             TitleLabel.TextAlign = ContentAlignment.MiddleCenter;
             TitleLabel.TextFont = new Font("Arial Black", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             TitleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            TitleLabel.Theme = "DefaultTheme";
+            TitleLabel.Theme = "DefaultType";
             TitleLabel.ToolTipText = "";
             TitleLabel.TopoffsetForDrawingRect = 0;
          
@@ -756,7 +756,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             panel3.Tag = this;
       
             panel3.TextFont = new Font("Arial", 14F);
-            panel3.Theme = "DefaultTheme";
+            panel3.Theme = "DefaultType";
             panel3.TitleAlignment = ContentAlignment.TopLeft;
             panel3.TitleBottomY = 0;
             panel3.TitleLineColor = Color.Gray;
@@ -907,7 +907,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             MiddleButton.TextAlign = ContentAlignment.MiddleCenter;
             MiddleButton.TextFont = new Font("Arial", 14F);
             MiddleButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            MiddleButton.Theme = "DefaultTheme";
+            MiddleButton.Theme = "DefaultType";
             MiddleButton.ToolTipText = "";
             MiddleButton.TopoffsetForDrawingRect = 0;
           
@@ -1054,7 +1054,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RightButton.TextAlign = ContentAlignment.MiddleCenter;
             RightButton.TextFont = new Font("Arial", 14F);
             RightButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            RightButton.Theme = "DefaultTheme";
+            RightButton.Theme = "DefaultType";
             RightButton.ToolTipText = "";
             RightButton.TopoffsetForDrawingRect = 0;
          
@@ -1201,7 +1201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LeftButton.TextAlign = ContentAlignment.MiddleCenter;
             LeftButton.TextFont = new Font("Arial", 14F);
             LeftButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            LeftButton.Theme = "DefaultTheme";
+            LeftButton.Theme = "DefaultType";
             LeftButton.ToolTipText = "";
             LeftButton.TopoffsetForDrawingRect = 0;
          
@@ -1352,7 +1352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CaptionTextBox.TextAlignment = HorizontalAlignment.Left;
             CaptionTextBox.TextFont = new Font("Arial", 10F);
             CaptionTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CaptionTextBox.Theme = "DefaultTheme";
+            CaptionTextBox.Theme = "DefaultType";
             CaptionTextBox.TimeFormat = "HH:mm:ss";
             CaptionTextBox.ToolTipText = "";
             CaptionTextBox.TopoffsetForDrawingRect = 0;
@@ -1483,7 +1483,7 @@ namespace TheTechIdea.Beep.Winform.Controls
          
             SelectFromListComboBox.Text = "beepComboBox1";
             SelectFromListComboBox.TextFont = new Font("Arial", 10F);
-            SelectFromListComboBox.Theme = "DefaultTheme";
+            SelectFromListComboBox.Theme = "DefaultType";
             SelectFromListComboBox.ToolTipText = "";
             SelectFromListComboBox.TopoffsetForDrawingRect = 0;
            
@@ -1633,7 +1633,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             InputTextBox.TextAlignment = HorizontalAlignment.Left;
             InputTextBox.TextFont = new Font("Arial", 10F);
             InputTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            InputTextBox.Theme = "DefaultTheme";
+            InputTextBox.Theme = "DefaultType";
             InputTextBox.TimeFormat = "HH:mm:ss";
             InputTextBox.ToolTipText = "";
             InputTextBox.TopoffsetForDrawingRect = 0;
@@ -1654,7 +1654,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Name = "BeepDialogModal";
             Padding = new Padding(1);
             Text = "BeepDialogModal";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             panel1.ResumeLayout(false);
             panel3.ResumeLayout(false);
             ResumeLayout(false);

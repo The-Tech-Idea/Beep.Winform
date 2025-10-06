@@ -234,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.TempBackColor = Color.LightGray;
             beepMenuAppBar1.Text = "beepMenuAppBar1";
             beepMenuAppBar1.TextFont = new Font("Arial", 12F);
-            beepMenuAppBar1.Theme = "DefaultTheme";
+            beepMenuAppBar1.Theme = "DefaultType";
             beepMenuAppBar1.ToolTipText = null;
             beepMenuAppBar1.TopoffsetForDrawingRect = 0;
             beepMenuAppBar1.TrailingIconPath = "";
@@ -416,7 +416,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Text = "beepAppTree1";
             beepAppTree1.TextAlignment = TextAlignment.Left;
             beepAppTree1.TextFont = new Font("Arial", 12F);
-            beepAppTree1.Theme = "DefaultTheme";
+            beepAppTree1.Theme = "DefaultType";
             beepAppTree1.ToolTipText = "";
             beepAppTree1.TopoffsetForDrawingRect = 0;
             beepAppTree1.Treebranchhandler = null;
@@ -567,7 +567,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Tag = splitContainer1.Panel2;
             beepDisplayContainer1.TempBackColor = Color.Empty;
             beepDisplayContainer1.Text = "beepDisplayContainer21";
-            beepDisplayContainer1.Theme = "DefaultTheme";
+            beepDisplayContainer1.Theme = "DefaultType";
             beepDisplayContainer1.ToolTipText = "";
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
             beepDisplayContainer1.UIAnimation = ReactUIAnimation.None;

@@ -7,10 +7,10 @@ using System.Drawing.Imaging;
 using System.Drawing.Text;
 using System.Text.RegularExpressions;
 using Svg;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

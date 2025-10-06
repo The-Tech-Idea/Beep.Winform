@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -15,7 +15,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using ContentAlignment = System.Drawing.ContentAlignment;
 using TextImageRelation = System.Windows.Forms.TextImageRelation;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 
 namespace TheTechIdea.Beep.Winform.Controls

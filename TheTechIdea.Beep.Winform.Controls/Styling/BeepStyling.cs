@@ -206,10 +206,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             // Draw shadow first (behind background)
             if (StyleShadows.HasShadow(style))
             {
-                if (StyleShadows.UsesDualShadows(style))
-                    NeumorphismShadowPainter.Paint(g, bounds, style, null);
-                else
-                    StandardShadowPainter.Paint(g, bounds, style, null);
+                using (var shadowPath = CreateRoundedRectangle(bounds, radius))
+                {
+                    if (StyleShadows.UsesDualShadows(style))
+                        NeumorphismShadowPainter.Paint(g, bounds, radius, style, CurrentTheme, UseThemeColors);
+                    else
+                        StandardShadowPainter.Paint(g, bounds, style, shadowPath);
+                }
             }
             
             using (var path = CreateRoundedRectangle(bounds, radius))

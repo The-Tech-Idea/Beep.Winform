@@ -202,15 +202,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
                 {
                     var offset = (int)(fromControl.Width * progress * (forward ? -1 : 1));
                     fromControl.Left = offset;
-                    fromControl.Opacity = 1.0 - progress;
+                    // Note: Control.Opacity doesn't exist in WinForms - opacity handled at Form level
                 }
 
                 if (toControl != null && toControl.Parent != null)
                 {
                     var offset = (int)(toControl.Width * (1 - progress) * (forward ? 1 : -1));
                     toControl.Left = offset;
-                    toControl.Opacity = progress;
                     toControl.Visible = true;
+                    // Note: Control.Opacity doesn't exist in WinForms - opacity handled at Form level
                 }
 
                 if (elapsed >= duration)
@@ -222,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
                     if (toControl != null)
                     {
                         toControl.Left = 0;
-                        toControl.Opacity = 1.0;
+                        // Note: Control.Opacity doesn't exist in WinForms - opacity handled at Form level
                     }
 
                     onComplete?.Invoke();

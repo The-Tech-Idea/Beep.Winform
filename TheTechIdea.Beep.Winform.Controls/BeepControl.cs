@@ -3,7 +3,7 @@ using System.Drawing.Design;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.IO;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -12,7 +12,7 @@ using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using LinearGradientMode = System.Drawing.Drawing2D.LinearGradientMode;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 
 
@@ -3757,7 +3757,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepComponentEventArgs> PropertyChanged; // Event to notify that a property has changed
         public List<object> Items { get { return _items; } set { _items = value; } }
 
-        //protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultTheme;
+        //protected EnumBeepThemes _themeEnum = EnumBeepThemes.DefaultType;
         protected IBeepTheme _currentTheme = BeepThemesManager.GetDefaultTheme();
         public event EventHandler<BeepComponentEventArgs> OnSelected;
         public event EventHandler<BeepComponentEventArgs> OnValidate;

@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
- 
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     {
         public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            BorderPainterHelpers.ControlState state = BorderPainterHelpers.ControlState.Normal)
+            ControlState state = ControlState.Normal)
         {
             // Neumorphism doesn't use visible borders - the embossed effect is created by the background
             // No border painting needed

@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 
 namespace TheTechIdea.Beep.Winform.Controls

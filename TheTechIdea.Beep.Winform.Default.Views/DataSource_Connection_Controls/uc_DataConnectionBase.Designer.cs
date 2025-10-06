@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Arial", 16F);
-            beepPanel1.Theme = "DefaultTheme";
+            beepPanel1.Theme = "DefaultType";
             beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
             beepPanel1.TitleBottomY = 0;
             beepPanel1.TitleLineColor = Color.FromArgb(33, 33, 33);
@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepTabs1.Size = new Size(610, 642);
             beepTabs1.SizeMode = TabSizeMode.Fixed;
             beepTabs1.TabIndex = 9;
-            beepTabs1.Theme = "DefaultTheme";
+            beepTabs1.Theme = "DefaultType";
             // 
             // tabPage1
             // 
@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionNamebeepTextBox.TextAlignment = HorizontalAlignment.Left;
             ConnectionNamebeepTextBox.TextFont = new Font("Arial", 10F);
             ConnectionNamebeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            ConnectionNamebeepTextBox.Theme = "DefaultTheme";
+            ConnectionNamebeepTextBox.Theme = "DefaultType";
             ConnectionNamebeepTextBox.TimeFormat = "HH:mm:ss";
             ConnectionNamebeepTextBox.ToolTipText = null;
             ConnectionNamebeepTextBox.TopoffsetForDrawingRect = 0;
@@ -623,7 +623,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.TempBackColor = Color.Empty;
             DriverbeepComboBox.Text = "beepComboBox1";
             DriverbeepComboBox.TextFont = new Font("Arial", 10F);
-            DriverbeepComboBox.Theme = "DefaultTheme";
+            DriverbeepComboBox.Theme = "DefaultType";
             DriverbeepComboBox.ToolTipText = null;
             DriverbeepComboBox.TopoffsetForDrawingRect = 0;
             DriverbeepComboBox.TrailingIconPath = "";
@@ -810,7 +810,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionStringbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             ConnectionStringbeepTextBox.TextFont = new Font("Arial", 10F);
             ConnectionStringbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            ConnectionStringbeepTextBox.Theme = "DefaultTheme";
+            ConnectionStringbeepTextBox.Theme = "DefaultType";
             ConnectionStringbeepTextBox.TimeFormat = "HH:mm:ss";
             ConnectionStringbeepTextBox.ToolTipText = null;
             ConnectionStringbeepTextBox.TopoffsetForDrawingRect = 0;
@@ -980,7 +980,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox.Tag = tabPage1;
             DriverVersionbeepComboBox.TempBackColor = Color.Empty;
             DriverVersionbeepComboBox.TextFont = new Font("Arial", 10F);
-            DriverVersionbeepComboBox.Theme = "DefaultTheme";
+            DriverVersionbeepComboBox.Theme = "DefaultType";
             DriverVersionbeepComboBox.ToolTipText = null;
             DriverVersionbeepComboBox.TopoffsetForDrawingRect = 0;
             DriverVersionbeepComboBox.TrailingIconPath = "";
@@ -1171,7 +1171,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             CancelbeepButton.TextFont = new Font("Arial", 15F);
             CancelbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CancelbeepButton.Theme = "DefaultTheme";
+            CancelbeepButton.Theme = "DefaultType";
             CancelbeepButton.ToolTipText = null;
             CancelbeepButton.TopoffsetForDrawingRect = 0;
             CancelbeepButton.TrailingIconPath = "";
@@ -1363,7 +1363,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             SavebeepButton.TextAlign = ContentAlignment.MiddleCenter;
             SavebeepButton.TextFont = new Font("Arial", 15F);
             SavebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            SavebeepButton.Theme = "DefaultTheme";
+            SavebeepButton.Theme = "DefaultType";
             SavebeepButton.ToolTipText = null;
             SavebeepButton.TopoffsetForDrawingRect = 0;
             SavebeepButton.TrailingIconPath = "";

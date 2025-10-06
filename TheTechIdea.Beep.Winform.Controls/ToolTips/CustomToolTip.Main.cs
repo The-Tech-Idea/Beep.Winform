@@ -122,8 +122,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             TransparencyKey = Color.Magenta;
             BackColor = Color.Magenta;
             
-            // Default painter
-            _painter = new StandardToolTipPainter();
+            // Default painter - use BeepStyled for unified design system
+            _painter = new BeepStyledToolTipPainter();
             
             // Animation timer
             _animationTimer = new System.Windows.Forms.Timer { Interval = 16 }; // ~60 FPS
@@ -164,22 +164,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
 
         private void SelectPainter(ToolTipConfig config)
         {
-            // Select painter based on style
-            _painter = config.Style switch
-            {
-                ToolTipStyle.Standard => new StandardToolTipPainter(),
-                ToolTipStyle.Premium => new PremiumToolTipPainter(),
-                ToolTipStyle.Alert => new AlertToolTipPainter(),
-                ToolTipStyle.Notification => new NotificationToolTipPainter(),
-                ToolTipStyle.Step => new StepToolTipPainter
-                {
-                    CurrentStep = config.CurrentStep,
-                    TotalSteps = config.TotalSteps,
-                    StepTitle = config.StepTitle,
-                    ShowNavigationButtons = config.ShowNavigationButtons
-                },
-                _ => new StandardToolTipPainter()
-            };
+            // Use BeepStyledToolTipPainter for all BeepControlStyle-based tooltips
+            // This provides unified styling across all 20+ design systems
+            _painter = new BeepStyledToolTipPainter();
+            
+            // Legacy compatibility: if someone explicitly created old painters, respect that
+            // But by default, everything goes through BeepStyledToolTipPainter
         }
 
         private void ApplyTheme(IBeepTheme theme)

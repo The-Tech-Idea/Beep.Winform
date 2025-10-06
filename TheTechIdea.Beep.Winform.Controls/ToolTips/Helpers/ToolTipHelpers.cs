@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
@@ -207,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
         /// <summary>
         /// Get theme colors for tooltip from IBeepTheme
         /// </summary>
-        public static (Color backColor, Color foreColor, Color borderColor) GetThemeColors(IBeepTheme theme, ToolTipTheme tooltipTheme)
+        public static (Color backColor, Color foreColor, Color borderColor) GetThemeColors(IBeepTheme theme, ToolTipType tooltipType)
         {
             if (theme == null)
             {
@@ -215,15 +216,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Helpers
                 return (Color.FromArgb(45, 45, 48), Color.FromArgb(241, 241, 241), Color.FromArgb(60, 60, 60));
             }
 
-            return tooltipTheme switch
+            return tooltipType switch
             {
-                ToolTipTheme.Light => (theme.BackColor, theme.ForeColor, theme.BorderColor),
-                ToolTipTheme.Dark => (theme.SecondaryBackColor, theme.ForeColor, theme.BorderColor),
-                ToolTipTheme.Primary => (theme.AccentColor, Color.White, theme.AccentColor),
-                ToolTipTheme.Success => (theme.SuccessColor, Color.White, theme.SuccessColor),
-                ToolTipTheme.Warning => (theme.WarningColor, theme.ForeColor, theme.WarningColor),
-                ToolTipTheme.Error => (theme.ErrorColor, Color.White, theme.ErrorColor),
-                ToolTipTheme.Info => (theme.InfoColor, Color.White, theme.InfoColor),
+                ToolTipType.Default => (theme.ToolTipBackColor, theme.ToolTipForeColor, theme.BorderColor),
+                ToolTipType.Info => (theme.DialogInformationButtonForeColor, theme.DialogInformationButtonForeColor, theme.BorderColor),
+                ToolTipType.Warning => (theme.WarningColor, theme.WarningColor, theme.BorderColor),
+                ToolTipType.Error => (theme.ErrorColor, theme.ErrorColor, theme.BorderColor),
+                ToolTipType.Success => (theme.SuccessColor, theme.SuccessColor, theme.BorderColor),
+
                 _ => (theme.ButtonBackColor, theme.ButtonForeColor, theme.BorderColor)
             };
         }

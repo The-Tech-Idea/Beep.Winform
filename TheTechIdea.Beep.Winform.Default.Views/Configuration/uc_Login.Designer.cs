@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel1.TextFont = new Font("Arial", 10F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = "DefaultTheme";
+            beepLabel1.Theme = "DefaultType";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.TrailingIconPath = "";
@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLogin1.TabIndex = 1;
             beepLogin1.Tag = MainTemplatePanel;
             beepLogin1.TempBackColor = Color.Empty;
-            beepLogin1.Theme = "DefaultTheme";
+            beepLogin1.Theme = "DefaultType";
             beepLogin1.ToolTipText = "";
             beepLogin1.TopoffsetForDrawingRect = 0;
             beepLogin1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
@@ -549,7 +549,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             CancelbeepButton.TextFont = new Font("Arial", 15F);
             CancelbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CancelbeepButton.Theme = "DefaultTheme";
+            CancelbeepButton.Theme = "DefaultType";
             CancelbeepButton.ToolTipText = "";
             CancelbeepButton.TopoffsetForDrawingRect = 0;
             CancelbeepButton.TrailingIconPath = "";

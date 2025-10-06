@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.TempBackColor = Color.Empty;
             beepAppBar1.Text = "beepAppBar1";
             beepAppBar1.TextFont = new Font("Arial", 18F);
-            beepAppBar1.Theme = "DefaultTheme";
+            beepAppBar1.Theme = "DefaultType";
             beepAppBar1.ToolTipText = "";
             beepAppBar1.TopoffsetForDrawingRect = 0;
             beepAppBar1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
@@ -328,7 +328,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.Tag = this;
             beepSideMenu1.TempBackColor = Color.Empty;
             beepSideMenu1.Text = "beepSideMenu1";
-            beepSideMenu1.Theme = "DefaultTheme";
+            beepSideMenu1.Theme = "DefaultType";
             beepSideMenu1.Title = "Beep Form";
             beepSideMenu1.TitleSize = new Size(87, 74);
             beepSideMenu1.ToolTipText = "";
@@ -462,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Tag = this;
             beepDisplayContainer1.TempBackColor = Color.Empty;
             beepDisplayContainer1.Text = "beepDisplayContainer1";
-            beepDisplayContainer1.Theme = "DefaultTheme";
+            beepDisplayContainer1.Theme = "DefaultType";
             beepDisplayContainer1.ToolTipText = "";
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
             beepDisplayContainer1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
@@ -600,7 +600,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuBar1.TempBackColor = Color.Empty;
             beepMenuBar1.Text = "beepMenuBar1";
             beepMenuBar1.TextFont = new Font("Arial", 14F, FontStyle.Bold);
-            beepMenuBar1.Theme = "DefaultTheme";
+            beepMenuBar1.Theme = "DefaultType";
             beepMenuBar1.ToolTipText = "";
             beepMenuBar1.TopoffsetForDrawingRect = 0;
        
@@ -619,7 +619,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepSideMenu1);
             Name = "MainFrm_SideBar";
             Text = "MainFrm_SideBar";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             ResumeLayout(false);
         }
 

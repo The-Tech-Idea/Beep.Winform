@@ -9,6 +9,7 @@ using TheTechIdea.Beep.Winform.Controls.TextFields;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ControlExtensions = TheTechIdea.Beep.Winform.Controls.Helpers.ControlExtensions;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

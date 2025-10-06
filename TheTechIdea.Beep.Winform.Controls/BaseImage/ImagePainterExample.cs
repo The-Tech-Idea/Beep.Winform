@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.BaseImage
 {
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
                         painters[e.Index].ClipShape = ImageClipShape.Circle;
                         
                         // Apply theme if available
-                        var theme = BeepThemesManager.GetTheme("DefaultTheme");
+                        var theme = BeepThemesManager.GetTheme("DefaultType");
                         if (theme != null)
                         {
                             painters[e.Index].CurrentTheme = theme;

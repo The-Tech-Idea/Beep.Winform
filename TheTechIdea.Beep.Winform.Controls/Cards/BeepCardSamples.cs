@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.ProfileCard,
+                CardStyle = CardStyle.ProfileCard,
                 HeaderText = "Corey Tawney",
                 StatusText = "Available for work",
                 ShowStatus = true,
@@ -44,7 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.ContentCard,
+                CardStyle = CardStyle.ContentCard,
                 HeaderText = "Film Coverage — A Step-By-Step Guide To Shot Listing Efficiently",
                 ParagraphText = "by Cameron P. West • Apr 10, 2020",
                 Tags = new List<string> { "Production", "Film" },
@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.ListCard,
+                CardStyle = CardStyle.ListCard,
                 HeaderText = "James T. Graham",
                 SubtitleText = "Producer, Director",
                 ParagraphText = "Robin Sharma, Fred Quinn and 12 more",
@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.TestimonialCard,
+                CardStyle = CardStyle.TestimonialCard,
                 HeaderText = "Emma",
                 ParagraphText = "\"Emma is an amazing producer.\" She put together one of the best sets that I've ever been on!",
                 Rating = 5,
@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.FeatureCard,
+                CardStyle = CardStyle.FeatureCard,
                 HeaderText = "Unlock magic features",
                 ParagraphText = "Discover the amazing features we designed to empower your customization experience",
                 ImagePath = "", // Set to feature icon
@@ -126,7 +126,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.DialogCard,
+                CardStyle = CardStyle.DialogCard,
                 HeaderText = "Delete content",
                 ParagraphText = "Are you sure to remove this content? You can access this file for 7 days in your trash.",
                 ButtonText = "Confirm",
@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.ContentCard,
+                CardStyle = CardStyle.ContentCard,
                 HeaderText = "NYC Coders",
                 ParagraphText = "We are a community of developers prepping for coding interviews, participating in hackathons...",
                 Tags = new List<string> { "Coding", "Community", "NYC" },
@@ -169,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.CompactProfile,
+                CardStyle = CardStyle.CompactProfile,
                 HeaderText = "Richard Wyatt",
                 SubtitleText = "Director, Producer",
                 StatusText = "Online",
@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.BasicCard,
+                CardStyle = CardStyle.BasicCard,
                 HeaderText = "Basic Card Title",
                 ParagraphText = "This is a simple, clean card layout suitable for general content and basic information display.",
                 ButtonText = "Action",
@@ -210,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.ProductCard,
+                CardStyle = CardStyle.ProductCard,
                 HeaderText = "Wireless Bluetooth Headphones",
                 ParagraphText = "Sony",
                 SubtitleText = "$149.99", // Price in SubtitleText
@@ -235,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.ProductCompactCard,
+                CardStyle = CardStyle.ProductCompactCard,
                 HeaderText = "MacBook Pro 14-inch",
                 ParagraphText = "Apple",
                 SubtitleText = "$1,999.00", // Price
@@ -258,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.StatCard,
+                CardStyle = CardStyle.StatCard,
                 HeaderText = "Total Sales", // Label
                 SubtitleText = "$127,340", // Main value
                 StatusText = "+12.5%", // Trend indicator
@@ -278,7 +278,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.EventCard,
+                CardStyle = CardStyle.EventCard,
                 HeaderText = "Design System Workshop",
                 SubtitleText = "2:00 PM - 4:00 PM • Conference Room A",
                 ParagraphText = "Learn to build and maintain consistent design systems for modern web applications.",
@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                Style = CardStyle.SocialMediaCard,
+                CardStyle = CardStyle.SocialMediaCard,
                 HeaderText = "Sarah Johnson",
                 SubtitleText = "@sarahdesigns", // Handle
                 ParagraphText = "Just finished an amazing design sprint with the team! 🎨 The new user dashboard is looking incredible. Can't wait to share it with everyone soon.",
@@ -431,7 +431,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 var card = new BeepCard
                 {
-                    Style = CardStyle.ProductCard,
+                    CardStyle = CardStyle.ProductCard,
                     HeaderText = name,
                     ParagraphText = brand,
                     SubtitleText = price,
@@ -489,7 +489,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
             {
                 var card = new BeepCard
                 {
-                    Style = CardStyle.StatCard,
+                    CardStyle = CardStyle.StatCard,
                     HeaderText = label,
                     SubtitleText = value,
                     StatusText = trend,

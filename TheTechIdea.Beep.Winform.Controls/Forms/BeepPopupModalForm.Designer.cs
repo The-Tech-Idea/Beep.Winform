@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // beepuiManager1
             // 
             beepuiManager1.BeepiForm = this;
-            beepuiManager1.Theme = "DefaultTheme";
+            beepuiManager1.Theme = "DefaultType";
             // 
             // beepPanel1
             // 
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Segoe UI", 14F);
-            beepPanel1.Theme = "DefaultTheme";
+            beepPanel1.Theme = "DefaultType";
             beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
             beepPanel1.TitleBottomY = 0;
             beepPanel1.TitleLineColor = Color.Gray;

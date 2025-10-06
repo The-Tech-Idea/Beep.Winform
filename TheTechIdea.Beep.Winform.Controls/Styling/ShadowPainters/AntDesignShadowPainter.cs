@@ -1,6 +1,7 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -10,11 +11,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class AntDesignShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
-            ShadowPainterHelpers.MaterialElevation elevation = ShadowPainterHelpers.MaterialElevation.Level1)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            MaterialElevation elevation = MaterialElevation.Level1,
+            ControlState state = ControlState.Normal)
         {
-            // Ant Design uses subtle shadow
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, 0, 2, Color.Black, 0.16f, 4);
+            // Ant Design UX: Proper shadow hierarchy with elevation levels
+            if (!StyleShadows.HasShadow(style)) return;
+
+            // Ant Design shadow hierarchy based on elevation and state
+            float shadowOpacity = 0.16f; // Base Ant Design shadow
+            int shadowLayers = 4;
+
+            if (state == ControlState.Hovered)
+            {
+                shadowOpacity = 0.24f; // Increased on hover
+                shadowLayers = 5;
+            }
+            else if (state == ControlState.Focused)
+            {
+                shadowOpacity = 0.20f; // Moderate increase on focus
+                shadowLayers = 5;
+            }
+            else if (state == ControlState.Pressed)
+            {
+                shadowOpacity = 0.12f; // Reduced on press
+                shadowLayers = 3;
+            }
+
+            // Adjust based on elevation level
+            if (elevation >= MaterialElevation.Level3)
+            {
+                shadowOpacity += 0.08f;
+                shadowLayers += 2;
+            }
+
+            // Use StyleShadows for consistent Ant Design shadows
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int blur = StyleShadows.GetShadowBlur(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int offsetX = StyleShadows.GetShadowOffsetX(style);
+
+            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, shadowOpacity, shadowLayers);
         }
     }
 }

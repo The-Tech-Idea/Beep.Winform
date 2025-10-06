@@ -3,6 +3,8 @@ using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -12,17 +14,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class NeumorphismShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, BeepControlStyle style, GraphicsPath borderPath)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            MaterialElevation elevation = MaterialElevation.Level2,
+            ControlState state = ControlState.Normal)
         {
-            if (!StyleShadows.UsesDualShadows(style))
-                return;
-            
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            // Neumorphism UX: Dual shadow system (light top-left, dark bottom-right) with state support
+            if (!StyleShadows.UsesDualShadows(style)) return;
+
+            // Adjust shadow intensity based on state
+            float shadowIntensity = 1.0f; // Base neumorphic intensity
+            switch (state)
+            {
+                case ControlState.Hovered:
+                    shadowIntensity = 1.3f; // More pronounced on hover
+                    break;
+                case ControlState.Pressed:
+                    shadowIntensity = 0.7f; // Less pronounced on press (pressed in effect)
+                    break;
+                case ControlState.Focused:
+                    shadowIntensity = 1.1f; // Slightly more on focus
+                    break;
+                case ControlState.Disabled:
+                    shadowIntensity = 0.5f; // Much reduced when disabled
+                    break;
+                default: // Normal
+                    break;
+            }
+
+            int offsetY = (int)(StyleShadows.GetShadowOffsetY(style) * shadowIntensity);
+            int offsetX = (int)(StyleShadows.GetShadowOffsetX(style) * shadowIntensity);
             Color shadowColor = StyleShadows.GetShadowColor(style);
             Color highlightColor = StyleShadows.GetNeumorphismHighlight(style);
-            int radius = StyleBorders.GetRadius(style);
-            
+
+            // Adjust alpha based on intensity
+            shadowColor = Color.FromArgb((int)(shadowColor.A * shadowIntensity), shadowColor);
+            highlightColor = Color.FromArgb((int)(highlightColor.A * shadowIntensity), highlightColor);
+
             // Dark shadow (bottom-right)
             Rectangle shadowBounds = new Rectangle(
                 bounds.X + offsetX,
@@ -30,13 +57,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 bounds.Width,
                 bounds.Height
             );
-            
+
             using (var shadowBrush = new SolidBrush(shadowColor))
             using (var path = CreateRoundedRectangle(shadowBounds, radius))
             {
                 g.FillPath(shadowBrush, path);
             }
-            
+
             // Light highlight (top-left)
             Rectangle highlightBounds = new Rectangle(
                 bounds.X - offsetX,
@@ -44,7 +71,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 bounds.Width,
                 bounds.Height
             );
-            
+
             using (var highlightBrush = new SolidBrush(highlightColor))
             using (var path = CreateRoundedRectangle(highlightBounds, radius))
             {

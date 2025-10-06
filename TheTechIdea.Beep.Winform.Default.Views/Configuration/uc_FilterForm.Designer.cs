@@ -222,7 +222,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel1.TextFont = new Font("Arial", 10F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = "DefaultTheme";
+            beepLabel1.Theme = "DefaultType";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.TrailingIconPath = "";
@@ -414,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.TextAlignment = HorizontalAlignment.Left;
             beepTextBox1.TextFont = new Font("Arial", 10F);
             beepTextBox1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepTextBox1.Theme = "DefaultTheme";
+            beepTextBox1.Theme = "DefaultType";
             beepTextBox1.TimeFormat = "HH:mm:ss";
             beepTextBox1.ToolTipText = "";
             beepTextBox1.TopoffsetForDrawingRect = 0;
@@ -760,7 +760,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
-            beepSimpleGrid1.Theme = "DefaultTheme";
+            beepSimpleGrid1.Theme = "DefaultType";
             beepSimpleGrid1.TitleHeaderImage = "simpleinfoapps.svg";
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);

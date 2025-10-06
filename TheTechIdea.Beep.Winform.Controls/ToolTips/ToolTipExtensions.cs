@@ -21,14 +21,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// <summary>
         /// Add a rich tooltip with title and custom styling
         /// </summary>
-        public static void SetRichTooltip(this Control control, string text, string title = null, 
-            ToolTipTheme theme = ToolTipTheme.Auto)
+        public static void SetRichTooltip(this Control control, string text, string title = null,
+            ToolTipType type = ToolTipType.Info)
         {
             var config = new ToolTipConfig
             {
                 Text = text,
                 Title = title,
-                Theme = theme,
+                Type = type,
                 ShowArrow = true,
                 EnableShadow = true
             };
@@ -55,13 +55,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// Show a temporary notification-style tooltip
         /// </summary>
         public static async Task<string> ShowNotificationAsync(this Control control, string text, 
-            ToolTipTheme theme = ToolTipTheme.Info, int duration = 3000)
+            ToolTipType type = ToolTipType.Info, int duration = 3000)
         {
             var location = control.PointToScreen(new Point(control.Width / 2, 0));
             var config = new ToolTipConfig
             {
                 Text = text,
-                Theme = theme,
+                Type = type,
                 Duration = duration,
                 Position = location,
                 Placement = ToolTipPlacement.Top,
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static async Task<string> ShowSuccessAsync(this Control control, string text, int duration = 2000)
         {
-            return await control.ShowNotificationAsync(text, ToolTipTheme.Success, duration);
+            return await control.ShowNotificationAsync(text, ToolTipType.Success, duration);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static async Task<string> ShowErrorAsync(this Control control, string text, int duration = 4000)
         {
-            return await control.ShowNotificationAsync(text, ToolTipTheme.Error, duration);
+            return await control.ShowNotificationAsync(text, ToolTipType.Error, duration);
         }
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static async Task<string> ShowWarningAsync(this Control control, string text, int duration = 3000)
         {
-            return await control.ShowNotificationAsync(text, ToolTipTheme.Warning, duration);
+            return await control.ShowNotificationAsync(text, ToolTipType.Warning, duration);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
         /// </summary>
         public static async Task<string> ShowInfoAsync(this Control control, string text, int duration = 3000)
         {
-            return await control.ShowNotificationAsync(text, ToolTipTheme.Info, duration);
+            return await control.ShowNotificationAsync(text, ToolTipType.Info, duration);
         }
     }
 
@@ -126,15 +126,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
             return this;
         }
 
-        public ToolTipBuilder WithTheme(ToolTipTheme theme)
+        public ToolTipBuilder WithTheme(ToolTipType theme)
         {
-            _config.Theme = theme;
+            _config.Type = theme;
             return this;
         }
 
         public ToolTipBuilder WithCustomColors(Color backColor, Color foreColor, Color? borderColor = null)
         {
-            _config.Theme = ToolTipTheme.Custom;
+            _config.Type = ToolTipType.Custom;
             _config.BackColor = backColor;
             _config.ForeColor = foreColor;
             _config.BorderColor = borderColor;

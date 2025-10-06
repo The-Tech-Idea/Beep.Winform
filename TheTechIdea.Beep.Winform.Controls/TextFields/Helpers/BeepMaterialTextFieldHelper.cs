@@ -7,7 +7,7 @@ using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Vis.Modules;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {

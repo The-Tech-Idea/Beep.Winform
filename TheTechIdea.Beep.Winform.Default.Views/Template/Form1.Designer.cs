@@ -201,7 +201,7 @@
             beepComboBox1.TempBackColor = Color.Empty;
             beepComboBox1.Text = "beepComboBox1";
             beepComboBox1.TextFont = new Font("Arial", 10F);
-            beepComboBox1.Theme = "DefaultTheme";
+            beepComboBox1.Theme = "DefaultType";
             beepComboBox1.ToolTipText = null;
             beepComboBox1.TopoffsetForDrawingRect = 0;
             beepComboBox1.TrailingIconPath = "";
@@ -363,7 +363,7 @@
             beepCheckBoxBool1.TempBackColor = Color.Empty;
             beepCheckBoxBool1.Text = "beepCheckBoxBool1";
             beepCheckBoxBool1.TextFont = new Font("Arial", 9.75F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            beepCheckBoxBool1.Theme = "DefaultTheme";
+            beepCheckBoxBool1.Theme = "DefaultType";
             beepCheckBoxBool1.ToolTipText = null;
             beepCheckBoxBool1.TopoffsetForDrawingRect = 0;
             beepCheckBoxBool1.TrailingIconPath = "";
@@ -503,7 +503,7 @@
             beepLogin1.Tag = this;
             beepLogin1.TempBackColor = Color.Empty;
             beepLogin1.Text = "beepLogin1";
-            beepLogin1.Theme = "DefaultTheme";
+            beepLogin1.Theme = "DefaultType";
             beepLogin1.ToolTipText = null;
             beepLogin1.TopoffsetForDrawingRect = 0;
             beepLogin1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
@@ -674,7 +674,7 @@
             beepChevronButton1.TempBackColor = Color.Empty;
             beepChevronButton1.Text = "beepChevronButton1";
             beepChevronButton1.TextFont = new Font("Arial", 10F);
-            beepChevronButton1.Theme = "DefaultTheme";
+            beepChevronButton1.Theme = "DefaultType";
             beepChevronButton1.ToolTipText = null;
             beepChevronButton1.TopoffsetForDrawingRect = 0;
             beepChevronButton1.TrailingIconPath = "";
@@ -847,7 +847,7 @@
             beepListBox1.TempBackColor = Color.LightGray;
             beepListBox1.Text = "beepListBox1";
             beepListBox1.TextFont = new Font("Arial", 12F);
-            beepListBox1.Theme = "DefaultTheme";
+            beepListBox1.Theme = "DefaultType";
             beepListBox1.TitleAlignment = ContentAlignment.TopLeft;
             beepListBox1.TitleBottomY = 32;
             beepListBox1.TitleLineColor = Color.FromArgb(33, 33, 33);
@@ -1041,7 +1041,7 @@
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Arial", 15F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton1.Theme = "DefaultTheme";
+            beepButton1.Theme = "DefaultType";
             beepButton1.ToolTipText = null;
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.TrailingIconPath = "";
@@ -1222,7 +1222,7 @@
             beepCard1.TempBackColor = Color.LightGray;
             beepCard1.Text = "beepCard1";
             beepCard1.TextAlignment = ContentAlignment.TopLeft;
-            beepCard1.Theme = "DefaultTheme";
+            beepCard1.Theme = "DefaultType";
             beepCard1.ToolTipText = null;
             beepCard1.TopoffsetForDrawingRect = 0;
             beepCard1.TrailingIconPath = "";
@@ -1410,7 +1410,7 @@
             beepTextBox1.TextAlignment = HorizontalAlignment.Left;
             beepTextBox1.TextFont = new Font("Arial", 10F);
             beepTextBox1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepTextBox1.Theme = "DefaultTheme";
+            beepTextBox1.Theme = "DefaultType";
             beepTextBox1.TimeFormat = "HH:mm:ss";
             beepTextBox1.ToolTipText = null;
             beepTextBox1.TopoffsetForDrawingRect = 0;
@@ -1575,7 +1575,7 @@
             beepNavBar1.Tag = this;
             beepNavBar1.TempBackColor = Color.LightGray;
             beepNavBar1.Text = "beepNavBar1";
-            beepNavBar1.Theme = "DefaultTheme";
+            beepNavBar1.Theme = "DefaultType";
             beepNavBar1.ToolTipText = null;
             beepNavBar1.TopoffsetForDrawingRect = 0;
             beepNavBar1.TrailingIconPath = "";
@@ -1736,7 +1736,7 @@
             beepSideBar1.Tag = this;
             beepSideBar1.TempBackColor = Color.LightGray;
             beepSideBar1.Text = "beepSideBar1";
-            beepSideBar1.Theme = "DefaultTheme";
+            beepSideBar1.Theme = "DefaultType";
             beepSideBar1.ToolTipText = null;
             beepSideBar1.TopoffsetForDrawingRect = 0;
             beepSideBar1.TrailingIconPath = "";
@@ -1775,7 +1775,7 @@
             ShowCaptionBar = false;
             StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("Form1.StylePresets.Presets");
             Text = "Form1";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             ResumeLayout(false);
         }
 

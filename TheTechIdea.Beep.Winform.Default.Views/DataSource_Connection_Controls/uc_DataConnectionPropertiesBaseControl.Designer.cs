@@ -61,7 +61,7 @@
             beepTabs1.Size = new Size(547, 669);
             beepTabs1.SizeMode = TabSizeMode.Fixed;
             beepTabs1.TabIndex = 0;
-            beepTabs1.Theme = "DefaultTheme";
+            beepTabs1.Theme = "DefaultType";
             // 
             // ConnectionPropertytabPage
             // 

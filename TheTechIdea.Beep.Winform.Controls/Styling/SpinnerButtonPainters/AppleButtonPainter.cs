@@ -16,8 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
     {
         public static void PaintButtons(Graphics g, Rectangle upRect, Rectangle downRect, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            SpinnerButtonPainterHelpers.ControlState upState = SpinnerButtonPainterHelpers.ControlState.Normal,
-            SpinnerButtonPainterHelpers.ControlState downState = SpinnerButtonPainterHelpers.ControlState.Normal)
+            ControlState upState = ControlState.Normal,
+            ControlState downState = ControlState.Normal)
         {
             Color borderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
             Color arrowColor = GetColor(style, StyleColors.GetForeground, "Foreground", theme, useThemeColors);
@@ -64,8 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
                 }
             }
             
-            SpinnerButtonPainterHelpers.DrawArrow(g, upRect, SpinnerButtonPainterHelpers.ArrowDirection.Up, arrowColor);
-            SpinnerButtonPainterHelpers.DrawArrow(g, downRect, SpinnerButtonPainterHelpers.ArrowDirection.Down, arrowColor);
+            SpinnerButtonPainterHelpers.DrawArrow(g, upRect, ArrowDirection.Up, arrowColor);
+            SpinnerButtonPainterHelpers.DrawArrow(g, downRect, ArrowDirection.Down, arrowColor);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)

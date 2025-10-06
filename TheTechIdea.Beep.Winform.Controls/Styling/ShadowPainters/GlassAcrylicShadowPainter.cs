@@ -1,6 +1,7 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -10,11 +11,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class GlassAcrylicShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
-            ShadowPainterHelpers.MaterialElevation elevation = ShadowPainterHelpers.MaterialElevation.Level2)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            MaterialElevation elevation = MaterialElevation.Level2,
+            ControlState state = ControlState.Normal)
         {
-            // Glass acrylic uses soft, diffused shadow
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, 0, 6, Color.Black, 0.2f, 8);
+            // Glass Acrylic UX: Glass effects don't need traditional shadows
+            // Glass gets its depth from the background blur effect, not shadows
+            if (!StyleShadows.HasShadow(style))
+            {
+                // Explicitly no shadow for glass styles - intentionally empty
+                return;
+            }
+
+            // If for some reason HasShadow returns true, use very minimal shadow
+            // But this should not happen for glass styles
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int blur = StyleShadows.GetShadowBlur(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int offsetX = StyleShadows.GetShadowOffsetX(style);
+
+            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, 0.08f, blur / 6);
         }
     }
 }

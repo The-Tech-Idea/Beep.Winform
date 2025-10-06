@@ -14,8 +14,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
     {
         public static void PaintButtons(Graphics g, Rectangle upButtonRect, Rectangle downButtonRect,
             bool isFocused, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            SpinnerButtonPainterHelpers.ControlState upState = SpinnerButtonPainterHelpers.ControlState.Normal,
-            SpinnerButtonPainterHelpers.ControlState downState = SpinnerButtonPainterHelpers.ControlState.Normal)
+            ControlState upState = ControlState.Normal,
+            ControlState downState = ControlState.Normal)
         {
             // Windows 11 Mica: Subtle gradient material effect
             Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 120, 212);
@@ -59,8 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
                 }
             }
 
-            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Up, Color.White);
-            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Down, Color.White);
+            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, ArrowDirection.Up, Color.White);
+            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, ArrowDirection.Down, Color.White);
         }
     }
 }

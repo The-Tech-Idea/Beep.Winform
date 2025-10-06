@@ -15,8 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
     {
         public static void PaintButtons(Graphics g, Rectangle upButtonRect, Rectangle downButtonRect,
             bool isFocused, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            SpinnerButtonPainterHelpers.ControlState upState = SpinnerButtonPainterHelpers.ControlState.Normal,
-            SpinnerButtonPainterHelpers.ControlState downState = SpinnerButtonPainterHelpers.ControlState.Normal)
+            ControlState upState = ControlState.Normal,
+            ControlState downState = ControlState.Normal)
         {
             // Neumorphism: Soft 3D embossed effect
             Color baseColor = useThemeColors ? theme.BackColor : Color.FromArgb(230, 230, 230);
@@ -41,11 +41,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             var upHighlight = new Rectangle(upButtonRect.X + 2, upButtonRect.Y + 2, upButtonRect.Width - 4, upButtonRect.Height / 2);
             var downHighlight = new Rectangle(downButtonRect.X + 2, downButtonRect.Y + 2, downButtonRect.Width - 4, downButtonRect.Height / 2);
             
-            Color upHighlightColor = upState == SpinnerButtonPainterHelpers.ControlState.Pressed
+            Color upHighlightColor = upState == ControlState.Pressed
                 ? SpinnerButtonPainterHelpers.Darken(upBaseColor, 0.1f)  // Darker when pressed (debossed)
                 : SpinnerButtonPainterHelpers.Lighten(upBaseColor, 0.1f); // Lighter normally (embossed)
             
-            Color downHighlightColor = downState == SpinnerButtonPainterHelpers.ControlState.Pressed
+            Color downHighlightColor = downState == ControlState.Pressed
                 ? SpinnerButtonPainterHelpers.Darken(downBaseColor, 0.1f)
                 : SpinnerButtonPainterHelpers.Lighten(downBaseColor, 0.1f);
             
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             }
 
             // State overlays (skip for pressed to preserve inverted effect)
-            if (upState != SpinnerButtonPainterHelpers.ControlState.Pressed)
+            if (upState != ControlState.Pressed)
             {
                 Color upOverlay = SpinnerButtonPainterHelpers.GetStateOverlay(upState);
                 if (upOverlay != Color.Transparent)
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
                 }
             }
 
-            if (downState != SpinnerButtonPainterHelpers.ControlState.Pressed)
+            if (downState != ControlState.Pressed)
             {
                 Color downOverlay = SpinnerButtonPainterHelpers.GetStateOverlay(downState);
                 if (downOverlay != Color.Transparent)
@@ -86,8 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
                 }
             }
 
-            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Up, Color.FromArgb(120, 120, 120));
-            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Down, Color.FromArgb(120, 120, 120));
+            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, ArrowDirection.Up, Color.FromArgb(120, 120, 120));
+            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, ArrowDirection.Down, Color.FromArgb(120, 120, 120));
         }
     }
 }

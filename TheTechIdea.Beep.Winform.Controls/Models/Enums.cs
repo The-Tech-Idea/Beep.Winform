@@ -8,6 +8,33 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Models
 {
+    public enum ArrowDirection { Up, Down }
+    /// <summary>
+    /// Material elevation levels (0-5)
+    /// </summary>
+    public enum MaterialElevation
+    {
+        Level0 = 0,  // No shadow
+        Level1 = 1,  // 1dp elevation
+        Level2 = 2,  // 2dp elevation
+        Level3 = 3,  // 4dp elevation
+        Level4 = 4,  // 8dp elevation
+        Level5 = 5   // 16dp elevation
+    }
+
+    /// <summary>
+    /// Control state enum for consistent state handling
+    /// </summary>
+    public enum ControlState
+    {
+        Normal,
+        Hovered,
+        Pressed,
+        Selected,
+        Disabled,
+        Focused,
+        Hover
+    }
     /// <summary>
     /// Enum for external drawing layers
     /// </summary>

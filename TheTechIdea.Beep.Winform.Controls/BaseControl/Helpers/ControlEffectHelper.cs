@@ -5,7 +5,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 {

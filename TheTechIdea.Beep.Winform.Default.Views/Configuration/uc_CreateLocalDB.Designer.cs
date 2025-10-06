@@ -251,7 +251,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             CancelbeepButton.TextFont = new Font("Arial", 15F);
             CancelbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            CancelbeepButton.Theme = "DefaultTheme";
+            CancelbeepButton.Theme = "DefaultType";
             CancelbeepButton.ToolTipText = null;
             CancelbeepButton.TopoffsetForDrawingRect = 0;
             CancelbeepButton.TrailingIconPath = "";
@@ -443,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.TextAlign = ContentAlignment.MiddleCenter;
             SavebeepButton.TextFont = new Font("Arial", 15F);
             SavebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            SavebeepButton.Theme = "DefaultTheme";
+            SavebeepButton.Theme = "DefaultType";
             SavebeepButton.ToolTipText = null;
             SavebeepButton.TopoffsetForDrawingRect = 0;
             SavebeepButton.TrailingIconPath = "";
@@ -613,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.TempBackColor = Color.LightGray;
             SystemFolderbeepComboBox.Text = "beepComboBox1";
             SystemFolderbeepComboBox.TextFont = new Font("Arial", 10F);
-            SystemFolderbeepComboBox.Theme = "DefaultTheme";
+            SystemFolderbeepComboBox.Theme = "DefaultType";
             SystemFolderbeepComboBox.ToolTipText = "";
             SystemFolderbeepComboBox.TopoffsetForDrawingRect = 0;
             SystemFolderbeepComboBox.TrailingIconPath = "";
@@ -805,7 +805,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.TextAlignment = HorizontalAlignment.Left;
             databaseTextBox.TextFont = new Font("Arial", 10F);
             databaseTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            databaseTextBox.Theme = "DefaultTheme";
+            databaseTextBox.Theme = "DefaultType";
             databaseTextBox.TimeFormat = "HH:mm:ss";
             databaseTextBox.ToolTipText = "";
             databaseTextBox.TopoffsetForDrawingRect = 0;
@@ -1000,7 +1000,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             PasswordbeepTextBox.TextFont = new Font("Arial", 10F);
             PasswordbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            PasswordbeepTextBox.Theme = "DefaultTheme";
+            PasswordbeepTextBox.Theme = "DefaultType";
             PasswordbeepTextBox.TimeFormat = "HH:mm:ss";
             PasswordbeepTextBox.ToolTipText = "";
             PasswordbeepTextBox.TopoffsetForDrawingRect = 0;
@@ -1195,7 +1195,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.TextAlignment = HorizontalAlignment.Left;
             OtherFolderbeepTextBox.TextFont = new Font("Arial", 10F);
             OtherFolderbeepTextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            OtherFolderbeepTextBox.Theme = "DefaultTheme";
+            OtherFolderbeepTextBox.Theme = "DefaultType";
             OtherFolderbeepTextBox.TimeFormat = "HH:mm:ss";
             OtherFolderbeepTextBox.ToolTipText = "";
             OtherFolderbeepTextBox.TopoffsetForDrawingRect = 0;
@@ -1367,7 +1367,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.TempBackColor = Color.White;
             LocalDbTypebeepComboBox.Text = "beepComboBox1";
             LocalDbTypebeepComboBox.TextFont = new Font("Arial", 10F);
-            LocalDbTypebeepComboBox.Theme = "DefaultTheme";
+            LocalDbTypebeepComboBox.Theme = "DefaultType";
             LocalDbTypebeepComboBox.ToolTipText = "";
             LocalDbTypebeepComboBox.TopoffsetForDrawingRect = 0;
             LocalDbTypebeepComboBox.TrailingIconPath = "";
@@ -1559,7 +1559,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Arial", 15F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton1.Theme = "DefaultTheme";
+            beepButton1.Theme = "DefaultType";
             beepButton1.ToolTipText = null;
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.TrailingIconPath = "";

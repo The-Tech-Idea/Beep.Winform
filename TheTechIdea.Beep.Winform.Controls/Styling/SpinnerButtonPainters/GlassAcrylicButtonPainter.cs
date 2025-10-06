@@ -15,12 +15,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
     {
         public static void PaintButtons(Graphics g, Rectangle upButtonRect, Rectangle downButtonRect,
             bool isFocused, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            SpinnerButtonPainterHelpers.ControlState upState = SpinnerButtonPainterHelpers.ControlState.Normal,
-            SpinnerButtonPainterHelpers.ControlState downState = SpinnerButtonPainterHelpers.ControlState.Normal)
+            ControlState upState = ControlState.Normal,
+            ControlState downState = ControlState.Normal)
         {
             // Glass Acrylic: Frosted translucent glass
-            int upBaseAlpha = upState == SpinnerButtonPainterHelpers.ControlState.Pressed ? 70 : 50;
-            int downBaseAlpha = downState == SpinnerButtonPainterHelpers.ControlState.Pressed ? 70 : 50;
+            int upBaseAlpha = upState == ControlState.Pressed ? 70 : 50;
+            int downBaseAlpha = downState == ControlState.Pressed ? 70 : 50;
             
             Color upGlassBase = SpinnerButtonPainterHelpers.WithAlpha(Color.White, upBaseAlpha);
             Color downGlassBase = SpinnerButtonPainterHelpers.WithAlpha(Color.White, downBaseAlpha);
@@ -46,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
 
             // State overlays with REDUCED alpha to preserve glass effect
             Color upOverlay = SpinnerButtonPainterHelpers.GetStateOverlay(upState);
-            if (upOverlay != Color.Transparent && upState != SpinnerButtonPainterHelpers.ControlState.Disabled)
+            if (upOverlay != Color.Transparent && upState != ControlState.Disabled)
             {
                 Color reducedOverlay = SpinnerButtonPainterHelpers.WithAlpha(upOverlay.R, upOverlay.G, upOverlay.B, upOverlay.A / 2);
                 using (var brush = new SolidBrush(reducedOverlay))
@@ -57,7 +57,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             }
 
             Color downOverlay = SpinnerButtonPainterHelpers.GetStateOverlay(downState);
-            if (downOverlay != Color.Transparent && downState != SpinnerButtonPainterHelpers.ControlState.Disabled)
+            if (downOverlay != Color.Transparent && downState != ControlState.Disabled)
             {
                 Color reducedOverlay = SpinnerButtonPainterHelpers.WithAlpha(downOverlay.R, downOverlay.G, downOverlay.B, downOverlay.A / 2);
                 using (var brush = new SolidBrush(reducedOverlay))
@@ -67,8 +67,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
                 }
             }
 
-            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Up, Color.White);
-            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Down, Color.White);
+            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, ArrowDirection.Up, Color.White);
+            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, ArrowDirection.Down, Color.White);
         }
     }
 }

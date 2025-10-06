@@ -15,8 +15,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
     {
         public static void PaintButtons(Graphics g, Rectangle upButtonRect, Rectangle downButtonRect,
             bool isFocused, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            SpinnerButtonPainterHelpers.ControlState upState = SpinnerButtonPainterHelpers.ControlState.Normal,
-            SpinnerButtonPainterHelpers.ControlState downState = SpinnerButtonPainterHelpers.ControlState.Normal)
+            ControlState upState = ControlState.Normal,
+            ControlState downState = ControlState.Normal)
         {
             // Dark Glow: Cyberpunk neon style
             Color glowColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 255, 255);
@@ -27,21 +27,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             // Glow intensity multipliers based on state
             float upGlowMultiplier = upState switch
             {
-                SpinnerButtonPainterHelpers.ControlState.Hovered => 1.3f,
-                SpinnerButtonPainterHelpers.ControlState.Pressed => 0.7f,
-                SpinnerButtonPainterHelpers.ControlState.Selected => 1.2f,
-                SpinnerButtonPainterHelpers.ControlState.Disabled => 0.4f,
-                SpinnerButtonPainterHelpers.ControlState.Focused => 1.1f,
+                ControlState.Hovered => 1.3f,
+                ControlState.Pressed => 0.7f,
+                ControlState.Selected => 1.2f,
+                ControlState.Disabled => 0.4f,
+                ControlState.Focused => 1.1f,
                 _ => 1.0f
             };
 
             float downGlowMultiplier = downState switch
             {
-                SpinnerButtonPainterHelpers.ControlState.Hovered => 1.3f,
-                SpinnerButtonPainterHelpers.ControlState.Pressed => 0.7f,
-                SpinnerButtonPainterHelpers.ControlState.Selected => 1.2f,
-                SpinnerButtonPainterHelpers.ControlState.Disabled => 0.4f,
-                SpinnerButtonPainterHelpers.ControlState.Focused => 1.1f,
+                ControlState.Hovered => 1.3f,
+                ControlState.Pressed => 0.7f,
+                ControlState.Selected => 1.2f,
+                ControlState.Disabled => 0.4f,
+                ControlState.Focused => 1.1f,
                 _ => 1.0f
             };
 
@@ -81,7 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
 
             // State overlays with REDUCED alpha for dark backgrounds
             Color upOverlay = SpinnerButtonPainterHelpers.GetStateOverlay(upState);
-            if (upOverlay != Color.Transparent && upState != SpinnerButtonPainterHelpers.ControlState.Disabled)
+            if (upOverlay != Color.Transparent && upState != ControlState.Disabled)
             {
                 Color reducedOverlay = SpinnerButtonPainterHelpers.WithAlpha(upOverlay.R, upOverlay.G, upOverlay.B, upOverlay.A / 3);
                 using (var brush = new SolidBrush(reducedOverlay))
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
             }
 
             Color downOverlay = SpinnerButtonPainterHelpers.GetStateOverlay(downState);
-            if (downOverlay != Color.Transparent && downState != SpinnerButtonPainterHelpers.ControlState.Disabled)
+            if (downOverlay != Color.Transparent && downState != ControlState.Disabled)
             {
                 Color reducedOverlay = SpinnerButtonPainterHelpers.WithAlpha(downOverlay.R, downOverlay.G, downOverlay.B, downOverlay.A / 3);
                 using (var brush = new SolidBrush(reducedOverlay))
@@ -102,8 +102,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
                 }
             }
 
-            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Up, glowColor);
-            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, SpinnerButtonPainterHelpers.ArrowDirection.Down, glowColor);
+            SpinnerButtonPainterHelpers.DrawArrow(g, upButtonRect, ArrowDirection.Up, glowColor);
+            SpinnerButtonPainterHelpers.DrawArrow(g, downButtonRect, ArrowDirection.Down, glowColor);
         }
     }
 }

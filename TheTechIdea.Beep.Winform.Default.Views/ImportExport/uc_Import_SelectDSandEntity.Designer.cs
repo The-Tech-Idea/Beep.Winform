@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             SourcebeepComboBox.TempBackColor = Color.Empty;
             SourcebeepComboBox.Text = "beepComboBox1";
             SourcebeepComboBox.TextFont = new Font("Arial", 11F);
-            SourcebeepComboBox.Theme = "DefaultTheme";
+            SourcebeepComboBox.Theme = "DefaultType";
             SourcebeepComboBox.ToolTipText = "";
             SourcebeepComboBox.TopoffsetForDrawingRect = 0;
             SourcebeepComboBox.UseGradientBackground = false;
@@ -274,7 +274,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepLabel1.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel1.TextFont = new Font("Arial", 12F);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = "DefaultTheme";
+            beepLabel1.Theme = "DefaultType";
             beepLabel1.ToolTipText = "";
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.UseGradientBackground = false;
@@ -390,7 +390,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepComboBox1.TempBackColor = Color.Empty;
             beepComboBox1.Text = "beepComboBox1";
             beepComboBox1.TextFont = new Font("Arial", 11F);
-            beepComboBox1.Theme = "DefaultTheme";
+            beepComboBox1.Theme = "DefaultType";
             beepComboBox1.ToolTipText = "";
             beepComboBox1.TopoffsetForDrawingRect = 0;
             beepComboBox1.UseGradientBackground = false;
@@ -514,7 +514,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepLabel2.TextAlign = ContentAlignment.MiddleLeft;
             beepLabel2.TextFont = new Font("Arial", 12F);
             beepLabel2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel2.Theme = "DefaultTheme";
+            beepLabel2.Theme = "DefaultType";
             beepLabel2.ToolTipText = "";
             beepLabel2.TopoffsetForDrawingRect = 0;
             beepLabel2.UseGradientBackground = false;
@@ -651,7 +651,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             AddSourcebeepButton.TextAlign = ContentAlignment.MiddleCenter;
             AddSourcebeepButton.TextFont = new Font("Arial", 10F);
             AddSourcebeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            AddSourcebeepButton.Theme = "DefaultTheme";
+            AddSourcebeepButton.Theme = "DefaultType";
             AddSourcebeepButton.ToolTipText = "";
             AddSourcebeepButton.TopoffsetForDrawingRect = 0;
             AddSourcebeepButton.UseGradientBackground = false;
@@ -767,7 +767,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepCheckBoxBool1.TabIndex = 4;
             beepCheckBoxBool1.TempBackColor = Color.Empty;
             beepCheckBoxBool1.Text = "Create Entity if it not Exist";
-            beepCheckBoxBool1.Theme ="DefaultTheme";
+            beepCheckBoxBool1.Theme ="DefaultType";
             beepCheckBoxBool1.ToolTipText = "";
             beepCheckBoxBool1.TopoffsetForDrawingRect = 0;
             beepCheckBoxBool1.UseGradientBackground = false;

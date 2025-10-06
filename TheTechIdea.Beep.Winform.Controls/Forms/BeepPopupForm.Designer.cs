@@ -48,7 +48,7 @@
             ShowSystemButtons = false;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepPopupForm.StylePresets.Presets");
             Text = "BeepPopupForm";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             ResumeLayout(false);
         }
 

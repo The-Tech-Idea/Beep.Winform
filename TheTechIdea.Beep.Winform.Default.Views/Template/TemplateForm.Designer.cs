@@ -48,7 +48,7 @@
             ShadowDepth = 15;
             StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("TemplateForm.StylePresets.Presets");
             Text = "TemplateForm";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             ResumeLayout(false);
         }
 

@@ -1,6 +1,8 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -10,11 +12,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class Material3ShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
-            ShadowPainterHelpers.MaterialElevation elevation = ShadowPainterHelpers.MaterialElevation.Level2)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            MaterialElevation elevation = MaterialElevation.Level2,
+            ControlState state = ControlState.Normal)
         {
-            // Material3 uses elevation-based shadows
-            ShadowPainterHelpers.PaintMaterialShadow(g, bounds, radius, elevation);
+            // Material3 UX: Elevation-based shadows with state awareness
+            if (!StyleShadows.HasShadow(style)) return;
+
+            // Adjust elevation based on state
+            var actualElevation = elevation;
+            switch (state)
+            {
+                case ControlState.Hovered:
+                    actualElevation = (MaterialElevation)Math.Min(5, (int)elevation + 1);
+                    break;
+                case ControlState.Pressed:
+                    actualElevation = (MaterialElevation)Math.Max(0, (int)elevation - 1);
+                    break;
+                case ControlState.Focused:
+                    actualElevation = (MaterialElevation)Math.Min(5, (int)elevation + 1);
+                    break;
+                case ControlState.Disabled:
+                    actualElevation = MaterialElevation.Level0; // No elevation when disabled
+                    break;
+                default: // Normal
+                    break;
+            }
+
+            // Use StyleShadows for consistent Material3 shadows
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int blur = StyleShadows.GetShadowBlur(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int offsetX = StyleShadows.GetShadowOffsetX(style);
+
+            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, 0.6f, blur / 2);
         }
     }
 }

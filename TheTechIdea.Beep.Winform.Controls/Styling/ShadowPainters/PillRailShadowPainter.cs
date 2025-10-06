@@ -1,6 +1,8 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -11,9 +13,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     public static class PillRailShadowPainter
     {
         public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
-            ShadowPainterHelpers.MaterialElevation elevation = ShadowPainterHelpers.MaterialElevation.Level0)
+            ControlState state = ControlState.Normal,
+            MaterialElevation elevation = MaterialElevation.Level0)
         {
-            // Pill rail style has no shadows - intentionally empty
+            // Pill rail style has no shadows for clean flat appearance
+            if (!StyleShadows.HasShadow(style))
+                return;
+
+            // This should not execute for PillRail style, but structure is in place for consistency
         }
     }
 }

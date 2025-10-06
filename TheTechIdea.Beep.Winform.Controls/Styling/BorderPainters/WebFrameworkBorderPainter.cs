@@ -9,42 +9,67 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
     /// Border painter for web framework styles (Bootstrap, Tailwind, Stripe, Figma, Discord, AntDesign, Chakra)
+    /// Web Framework UX: Standardized state behaviors across frameworks
     /// </summary>
     public static class WebFrameworkBorderPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, bool isFocused, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            ControlState state = ControlState.Normal)
         {
-            // Most web frameworks use outlined borders
+            // Web Framework UX: Outlined borders with standardized ring effects
             if (StyleBorders.IsFilled(style))
                 return;
+
+            Color baseBorderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
+            Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
             
-            Color borderColor = isFocused ? 
-                GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors) : 
-                GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
-            
+            Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
-            
-            if (borderWidth > 0)
+            bool showRing = false;
+
+            // Web Framework: Standardized state behaviors
+            switch (state)
             {
-                using (var borderPen = new Pen(borderColor, borderWidth))
-                {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.DrawPath(borderPen, path);
-                }
+                case ControlState.Hovered:
+                    // Web Framework: Subtle hover tint (50 alpha standard)
+                    borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 50);
+                    showRing = true; // Preview ring
+                    break;
+                    
+                case ControlState.Pressed:
+                    // Web Framework: Primary border with ring
+                    borderColor = primaryColor;
+                    borderWidth = Math.Max(borderWidth * 1.2f, 1.5f);
+                    showRing = true;
+                    break;
+                    
+                case ControlState.Selected:
+                    // Web Framework: Full primary + ring
+                    borderColor = primaryColor;
+                    showRing = true;
+                    break;
+                    
+                case ControlState.Disabled:
+                    // Web Framework: Standard disabled
+                    borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 50);
+                    break;
             }
-            
-            // Tailwind ring effect when focused
-            if (isFocused && style == BeepControlStyle.TailwindCard)
+
+            // Focus overrides state
+            if (isFocused)
             {
-                Color ringColor = Color.FromArgb(40, GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors));
-                Rectangle ringBounds = new Rectangle(bounds.X - 2, bounds.Y - 2, bounds.Width + 4, bounds.Height + 4);
-                int ringRadius = StyleBorders.GetRadius(style) + 2;
-                
-                using (var ringPath = CreateRoundedRectangle(ringBounds, ringRadius))
-                using (var ringPen = new Pen(ringColor, 3f))
-                {
-                    g.DrawPath(ringPen, ringPath);
-                }
+                showRing = true;
+            }
+
+            // Paint border
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
+
+            // Web Framework: Standardized focus ring effects for all frameworks
+            if (showRing)
+            {
+                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 60); // Standardized opacity
+                BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
         }
         

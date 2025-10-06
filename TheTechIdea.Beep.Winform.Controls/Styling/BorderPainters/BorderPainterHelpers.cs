@@ -11,19 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class BorderPainterHelpers
     {
-        /// <summary>
-        /// Control state for border painting
-        /// </summary>
-        public enum ControlState
-        {
-            Normal,
-            Hovered,
-            Pressed,
-            Selected,
-            Disabled,
-            Focused
-        }
-
+       
         /// <summary>
         /// Paint a simple border with the given color and width
         /// </summary>
@@ -140,6 +128,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         public static Color WithAlpha(Color color, int alpha)
         {
             return Color.FromArgb(Math.Max(0, Math.Min(255, alpha)), color.R, color.G, color.B);
+        }
+
+        /// <summary>
+        /// Blend two colors together by a specified amount
+        /// </summary>
+        /// <param name="baseColor">The base color</param>
+        /// <param name="blendColor">The color to blend with</param>
+        /// <param name="blendAmount">Amount of blend color (0.0 = all base, 1.0 = all blend)</param>
+        public static Color BlendColors(Color baseColor, Color blendColor, float blendAmount)
+        {
+            blendAmount = Math.Max(0f, Math.Min(1f, blendAmount));
+            int r = (int)(baseColor.R * (1 - blendAmount) + blendColor.R * blendAmount);
+            int g = (int)(baseColor.G * (1 - blendAmount) + blendColor.G * blendAmount);
+            int b = (int)(baseColor.B * (1 - blendAmount) + blendColor.B * blendAmount);
+            int a = (int)(baseColor.A * (1 - blendAmount) + blendColor.A * blendAmount);
+            return Color.FromArgb(a, r, g, b);
         }
 
         /// <summary>

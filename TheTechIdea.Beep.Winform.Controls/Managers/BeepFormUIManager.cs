@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -88,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         [Browsable(true), Category("Appearance"), Description("Tint/adjust images according to theme when supported.")]
         public bool ApplyThemeOnImage { get => _applyThemeOnImage; set { _applyThemeOnImage = value; TryInvoke(ApplyImage); } }
 
-        private string _theme = "DefaultTheme";
+        private string _theme = "DefaultType";
         [Browsable(true), Category("Theme"), Description("Current theme name. Setting updates form and Beep controls.")]
         public string Theme
         {
@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             set
             {
                 if (string.Equals(_theme, value, StringComparison.Ordinal)) return;
-                _theme = value ?? "DefaultTheme";
+                _theme = value ?? "DefaultType";
                 OnThemeChanged?.Invoke(_theme);
                 TryInvoke(() => { ApplyThemeToForm(); ApplyThemeToAll(_form); });
             }

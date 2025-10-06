@@ -1,6 +1,9 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
+using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -11,10 +14,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     public static class FigmaCardShadowPainter
     {
         public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
-            ShadowPainterHelpers.MaterialElevation elevation = ShadowPainterHelpers.MaterialElevation.Level1)
+            ControlState state = ControlState.Normal,
+            MaterialElevation elevation = MaterialElevation.Level1)
         {
-            // Figma uses subtle card shadow
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, 0, 3, Color.Black, 0.16f, 4);
+            if (!StyleShadows.HasShadow(style))
+                return;
+
+            // Figma cards use subtle shadows that become more prominent on interaction
+            float opacity = state switch
+            {
+                ControlState.Hovered => 0.20f,    // More visible on hover
+                ControlState.Focused => 0.18f,  // Slightly more visible when focused
+                ControlState.Pressed => 0.12f,  // Less visible when pressed
+                ControlState.Disabled => 0.08f, // Very subtle when disabled
+                _ => 0.16f  // Normal state
+            };
+
+            int blur = StyleShadows.GetShadowBlur(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+
+            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, opacity, blur);
         }
     }
 }

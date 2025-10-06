@@ -1,0 +1,12 @@
+﻿global using System;
+global using System.Drawing;
+global using System.Drawing.Drawing2D;
+global using System.Windows.Forms;
+global using TheTechIdea.Beep.Winform.Controls.Common;
+global using TheTechIdea.Beep.Winform.Controls.Helpers;
+global using TheTechIdea.Beep.Winform.Controls.BaseImage;
+global using TheTechIdea.Beep.Vis.Modules;
+global using TheTechIdea.Beep.Desktop.Common.Util;
+global using TheTechIdea.Beep.Winform.Controls.Models;
+global using Timer = System.Windows.Forms.Timer;
+global using ArrowDirection = TheTechIdea.Beep.Winform.Controls.Models.ArrowDirection;

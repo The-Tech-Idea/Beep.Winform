@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepSimpleGrid1.TempBackColor = Color.Empty;
             beepSimpleGrid1.Text = "beepSimpleGrid1";
             beepSimpleGrid1.TextImageRelation = TextImageRelation.ImageAboveText;
-            beepSimpleGrid1.Theme = "DefaultTheme";
+            beepSimpleGrid1.Theme = "DefaultType";
             beepSimpleGrid1.TitleHeaderImage = "simpleinfoapps.svg";
             beepSimpleGrid1.TitleText = "";
             beepSimpleGrid1.TitleTextFont = new Font("Arial", 16F);
@@ -323,7 +323,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             progressBar1.Text = "beepProgressBar1";
             progressBar1.TextColor = Color.Black;
             progressBar1.TextFont = new Font("Times New Roman", 11F, FontStyle.Bold | FontStyle.Italic);
-            progressBar1.Theme = "DefaultTheme";
+            progressBar1.Theme = "DefaultType";
             progressBar1.ToolTipText = "";
             progressBar1.TopoffsetForDrawingRect = 0;
             progressBar1.UseGradientBackground = false;
@@ -464,7 +464,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             LogtextBox.TextAlignment = HorizontalAlignment.Left;
             LogtextBox.TextFont = new Font("Arial", 10F);
             LogtextBox.TextImageRelation = TextImageRelation.ImageBeforeText;
-            LogtextBox.Theme = "DefaultTheme";
+            LogtextBox.Theme = "DefaultType";
             LogtextBox.TimeFormat = "HH:mm:ss";
             LogtextBox.ToolTipText = "";
             LogtextBox.TopoffsetForDrawingRect = 0;
@@ -587,7 +587,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
            
             beepPanel1.Text = "beepPanel1";
             beepPanel1.TextFont = new Font("Arial", 16F);
-            beepPanel1.Theme = "DefaultTheme";
+            beepPanel1.Theme = "DefaultType";
             beepPanel1.TitleAlignment = ContentAlignment.TopLeft;
             beepPanel1.TitleBottomY = 30;
             beepPanel1.TitleLineColor = Color.Gray;
@@ -705,7 +705,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepNumericUpDown1.StaticNotMoving = false;
             beepNumericUpDown1.TabIndex = 2;
             beepNumericUpDown1.TempBackColor = Color.Empty;
-            beepNumericUpDown1.Theme = "DefaultTheme";
+            beepNumericUpDown1.Theme = "DefaultType";
             beepNumericUpDown1.ToolTipText = "";
             beepNumericUpDown1.TopoffsetForDrawingRect = 0;
             beepNumericUpDown1.UseGradientBackground = false;
@@ -842,7 +842,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             RunScriptsbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             RunScriptsbeepButton.TextFont = new Font("Arial", 16F);
             RunScriptsbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            RunScriptsbeepButton.Theme = "DefaultTheme";
+            RunScriptsbeepButton.Theme = "DefaultType";
             RunScriptsbeepButton.ToolTipText = "";
             RunScriptsbeepButton.TopoffsetForDrawingRect = 0;
             RunScriptsbeepButton.UseGradientBackground = false;
@@ -979,7 +979,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             StopbeepButton.TextAlign = ContentAlignment.MiddleCenter;
             StopbeepButton.TextFont = new Font("Arial", 16F);
             StopbeepButton.TextImageRelation = TextImageRelation.ImageBeforeText;
-            StopbeepButton.Theme = "DefaultTheme";
+            StopbeepButton.Theme = "DefaultType";
             StopbeepButton.ToolTipText = "";
             StopbeepButton.TopoffsetForDrawingRect = 0;
             StopbeepButton.UseGradientBackground = false;

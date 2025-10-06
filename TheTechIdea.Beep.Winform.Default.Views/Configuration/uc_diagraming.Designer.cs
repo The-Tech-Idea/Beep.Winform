@@ -248,7 +248,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.TempBackColor = Color.Empty;
             beepComboBox1.Text = "beepComboBox1";
             beepComboBox1.TextFont = new Font("Arial", 10F);
-            beepComboBox1.Theme = "DefaultTheme";
+            beepComboBox1.Theme = "DefaultType";
             beepComboBox1.ToolTipText = "";
             beepComboBox1.TopoffsetForDrawingRect = 0;
             beepComboBox1.TrailingIconPath = "";
@@ -438,7 +438,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
             beepButton1.TextFont = new Font("Arial", 15F);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton1.Theme = "DefaultTheme";
+            beepButton1.Theme = "DefaultType";
             beepButton1.ToolTipText = "";
             beepButton1.TopoffsetForDrawingRect = 0;
             beepButton1.TrailingIconPath = "";
@@ -1843,7 +1843,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.Tag = MainTemplatePanel;
             beepGridPro1.TempBackColor = Color.Empty;
             beepGridPro1.Text = "beepGridPro2";
-            beepGridPro1.Theme = "DefaultTheme";
+            beepGridPro1.Theme = "DefaultType";
             beepGridPro1.ToolTipText = null;
             beepGridPro1.TopoffsetForDrawingRect = 0;
             beepGridPro1.TrailingIconPath = "";
@@ -2033,7 +2033,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.TextAlign = ContentAlignment.MiddleCenter;
             beepButton2.TextFont = new Font("Arial", 15F);
             beepButton2.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepButton2.Theme = "DefaultTheme";
+            beepButton2.Theme = "DefaultType";
             beepButton2.ToolTipText = null;
             beepButton2.TopoffsetForDrawingRect = 0;
             beepButton2.TrailingIconPath = "";
@@ -2214,7 +2214,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.TempBackColor = Color.White;
             beepCard1.Text = "beepCard1";
             beepCard1.TextAlignment = ContentAlignment.TopLeft;
-            beepCard1.Theme = "DefaultTheme";
+            beepCard1.Theme = "DefaultType";
             beepCard1.ToolTipText = null;
             beepCard1.TopoffsetForDrawingRect = 0;
             beepCard1.TrailingIconPath = "";

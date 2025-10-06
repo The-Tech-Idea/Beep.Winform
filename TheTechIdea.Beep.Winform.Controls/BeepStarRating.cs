@@ -3,8 +3,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
-using TheTechIdea.Beep.Desktop.Common.Util;
-using Timer = System.Windows.Forms.Timer;
+ 
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

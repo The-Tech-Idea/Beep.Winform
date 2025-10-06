@@ -1,6 +1,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
 {
@@ -9,21 +11,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters
     /// </summary>
     public static class SpinnerButtonPainterHelpers
     {
-        public enum ArrowDirection { Up, Down }
+    
 
-        /// <summary>
-        /// Control state for visual feedback
-        /// </summary>
-        public enum ControlState
-        {
-            Normal,    // Default state
-            Hovered,   // Mouse over the control
-            Pressed,   // Mouse button down
-            Selected,  // Control is selected/active
-            Disabled,  // Control is disabled
-            Focused    // Control has keyboard focus
-        }
-
+   
         /// <summary>
         /// Create a rounded rectangle path
         /// </summary>

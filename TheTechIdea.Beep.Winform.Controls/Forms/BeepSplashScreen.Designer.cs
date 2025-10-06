@@ -190,7 +190,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.Tag = this;
             _logoImage.TempBackColor = Color.Empty;
             _logoImage.Text = "beepImage1";
-            _logoImage.Theme = "DefaultTheme";
+            _logoImage.Theme = "DefaultType";
             _logoImage.ToolTipText = "";
             _logoImage.TopoffsetForDrawingRect = 0;
             _logoImage.UIAnimation = ReactUIAnimation.None;
@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.TextAlign = ContentAlignment.MiddleCenter;
             _titleLabel.TextFont = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
             _titleLabel.TextImageRelation = TextImageRelation.ImageBeforeText;
-            _titleLabel.Theme = "DefaultTheme";
+            _titleLabel.Theme = "DefaultType";
             _titleLabel.ToolTipText = "";
             _titleLabel.TopoffsetForDrawingRect = 0;
             _titleLabel.TrailingIconPath = "";
@@ -407,7 +407,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowCaptionBar = false;
             StartPosition = FormStartPosition.CenterScreen;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepSplashScreen.StylePresets.Presets");
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             TopMost = true;
             ResumeLayout(false);
         }

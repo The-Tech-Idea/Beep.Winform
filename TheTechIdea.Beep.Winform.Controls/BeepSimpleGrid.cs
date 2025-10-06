@@ -8,7 +8,7 @@ using System.Drawing.Printing;
 using System.Globalization;
 using System.Reflection;
 using TheTechIdea.Beep.DataBase;
-using TheTechIdea.Beep.Desktop.Common.Util;
+
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
@@ -19,7 +19,7 @@ using TheTechIdea.Beep.Winform.Controls.Numerics;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
-using Timer = System.Windows.Forms.Timer;
+
 
 
 
@@ -4115,7 +4115,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                             UpdateCellFromParent(cell);
                         }
                     }
-                    image.ImagePath = ImageListHelper.GetImagePathFromName(cell.CellValue.ToString());
+                  //  image.ImagePath = ImageListHelper.GetImagePathFromName(cell.CellValue.ToString());
                     break;
 
                 case BeepButton button:
@@ -9169,7 +9169,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             
             base.ResumeFormLayout();
-            this.ResumeDrawing();
+           // this.ResumeDrawing();
 
             // resume all child controls
             foreach (Control ctrl in this.Controls)

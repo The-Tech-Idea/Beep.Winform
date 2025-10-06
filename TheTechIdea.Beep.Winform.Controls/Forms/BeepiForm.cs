@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
@@ -408,7 +408,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var container = new System.ComponentModel.Container();
                 beepuiManager1 = new BeepFormUIManager(container)
                 {
-                    Theme = "DefaultTheme",
+                    Theme = "DefaultType",
                     Title = "Beep Form",
                     BeepiForm = this,
                     IsRounded = true,

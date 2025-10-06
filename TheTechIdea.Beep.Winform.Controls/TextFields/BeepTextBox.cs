@@ -9,11 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

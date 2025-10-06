@@ -6,19 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 {
-    /// <summary>
-    /// Control state for background painting
-    /// </summary>
-    public enum ControlState
-    {
-        Normal,
-        Hovered,
-        Pressed,
-        Selected,
-        Disabled,
-        Focused
-    }
-
+  
     /// <summary>
     /// Shared helper methods for all background painters
     /// </summary>

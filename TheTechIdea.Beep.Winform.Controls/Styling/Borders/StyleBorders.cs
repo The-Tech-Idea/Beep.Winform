@@ -150,5 +150,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 _ => 0                                          // No accent bar
             };
         }
+
+        /// <summary>
+        /// Get glow border width (for glow effect styles)
+        /// </summary>
+        public static float GetGlowWidth(BeepControlStyle style)
+        {
+            return style switch
+            {
+                BeepControlStyle.DarkGlow => 2.0f,              // Dark glow signature
+                BeepControlStyle.GlassAcrylic => 1.5f,          // Subtle glass glow
+                _ => 0.0f                                       // No glow
+            };
+        }
+
+        /// <summary>
+        /// Get ring effect width (for Tailwind-style focus rings)
+        /// </summary>
+        public static float GetRingWidth(BeepControlStyle style)
+        {
+            return style switch
+            {
+                BeepControlStyle.TailwindCard => 3.0f,          // Tailwind ring
+                BeepControlStyle.ChakraUI => 2.0f,              // Chakra ring
+                _ => 0.0f                                       // No ring
+            };
+        }
+
+        /// <summary>
+        /// Get ring effect offset (for Tailwind-style focus rings)
+        /// </summary>
+        public static float GetRingOffset(BeepControlStyle style)
+        {
+            return style switch
+            {
+                BeepControlStyle.TailwindCard => 2.0f,          // Tailwind offset
+                BeepControlStyle.ChakraUI => 1.5f,              // Chakra offset
+                _ => 0.0f                                       // No offset
+            };
+        }
     }
 }

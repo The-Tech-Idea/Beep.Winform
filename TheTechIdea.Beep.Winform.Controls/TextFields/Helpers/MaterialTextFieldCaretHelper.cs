@@ -2,7 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {

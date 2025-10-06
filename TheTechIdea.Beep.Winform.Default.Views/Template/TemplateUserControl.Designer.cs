@@ -187,7 +187,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
            
             MainTemplatePanel.Text = "beepPanel1";
             MainTemplatePanel.TextFont = new Font("Arial", 16F);
-            MainTemplatePanel.Theme = "DefaultTheme";
+            MainTemplatePanel.Theme = "DefaultType";
             MainTemplatePanel.TitleAlignment = ContentAlignment.TopLeft;
             MainTemplatePanel.TitleBottomY = 0;
             MainTemplatePanel.TitleLineColor = Color.Gray;

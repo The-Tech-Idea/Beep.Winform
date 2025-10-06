@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Desktop.Common.Util;
+ 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis.Modules.Managers;
 using TheTechIdea.Beep.Winform.Controls.Base;
@@ -193,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Likes = "5,678 Likes";
             Website = "www.sampleinc.com";
             LogoPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.cat.svg";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
         }
 
         protected override void OnHandleCreated(EventArgs e)

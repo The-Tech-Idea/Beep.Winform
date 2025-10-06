@@ -201,7 +201,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.Tag = this;
            
             _beepListBox.TextFont = new Font("Arial", 12F);
-            _beepListBox.Theme = "DefaultTheme";
+            _beepListBox.Theme = "DefaultType";
             _beepListBox.TitleAlignment = ContentAlignment.TopLeft;
             _beepListBox.TitleBottomY = 0;
             _beepListBox.TitleLineColor = Color.Gray;
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Name = "BeepPopupListForm";
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepPopupListForm.StylePresets.Presets");
             Text = "BeepPopupListForm";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             ResumeLayout(false);
         }
 

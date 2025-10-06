@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
     /// </summary>
     public static class GlassAcrylicPathPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, PathPainterHelpers.ControlState state = PathPainterHelpers.ControlState.Normal)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState .Normal)
         {
             // Semi-transparent white fill for frosted glass effect
             Color fillColor = PathPainterHelpers.WithAlpha(255, 255, 255, 180);

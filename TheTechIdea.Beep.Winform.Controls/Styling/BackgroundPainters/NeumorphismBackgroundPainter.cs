@@ -1,7 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Common;
- 
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
@@ -18,8 +18,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             ControlState state = ControlState.Normal)
         {
             // Neumorphism: Soft 3D embossed effect
-            Color baseColor = useThemeColors ? theme.BackColor : Color.FromArgb(230, 230, 230);
-            baseColor = BackgroundPainterHelpers.ApplyState(baseColor, state);
+            Color baseColor = useThemeColors ? theme.BackColor : StyleColors.GetBackground(BeepControlStyle.Neumorphism);
+            
+            // INLINE STATE HANDLING - Neumorphism: Subtle soft embossed tinting (3% hover, 6% press darkened for depth, 5% selected, 2% focus, 110 alpha disabled)
+            baseColor = state switch
+            {
+                ControlState.Hovered => Color.FromArgb(baseColor.A,
+                    Math.Min(255, baseColor.R + (int)(baseColor.R * 0.03)),
+                    Math.Min(255, baseColor.G + (int)(baseColor.G * 0.03)),
+                    Math.Min(255, baseColor.B + (int)(baseColor.B * 0.03))),
+                ControlState.Pressed => Color.FromArgb(baseColor.A,
+                    Math.Max(0, baseColor.R - (int)(baseColor.R * 0.06)),
+                    Math.Max(0, baseColor.G - (int)(baseColor.G * 0.06)),
+                    Math.Max(0, baseColor.B - (int)(baseColor.B * 0.06))),
+                ControlState.Selected => Color.FromArgb(baseColor.A,
+                    Math.Min(255, baseColor.R + (int)(baseColor.R * 0.05)),
+                    Math.Min(255, baseColor.G + (int)(baseColor.G * 0.05)),
+                    Math.Min(255, baseColor.B + (int)(baseColor.B * 0.05))),
+                ControlState.Disabled => Color.FromArgb(110, baseColor),
+                ControlState.Focused => Color.FromArgb(baseColor.A,
+                    Math.Min(255, baseColor.R + (int)(baseColor.R * 0.02)),
+                    Math.Min(255, baseColor.G + (int)(baseColor.G * 0.02)),
+                    Math.Min(255, baseColor.B + (int)(baseColor.B * 0.02))),
+                _ => baseColor
+            };
 
             using (var brush = new SolidBrush(baseColor))
             {
@@ -29,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     g.FillRectangle(brush, bounds);
             }
 
-            // Inner highlight (top half) - inverted when pressed
+            // INLINE INNER HIGHLIGHT - Neumorphism: Top half highlight, INVERTED when pressed (10% darken vs 10% lighten)
             Rectangle highlightRect = new Rectangle(
                 bounds.X + 2,
                 bounds.Y + 2,
@@ -37,38 +59,53 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 bounds.Height / 2
             );
 
-            Color highlightColor = state == ControlState.Pressed 
-                ? BackgroundPainterHelpers.Darken(baseColor, 0.1f)
-                : BackgroundPainterHelpers.Lighten(baseColor, 0.1f);
+            // INLINE LIGHTEN/DARKEN CALCULATION - Pressed inverts to darken (-10%), otherwise lighten (+10%)
+            Color highlightColor;
+            if (state == ControlState.Pressed)
+            {
+                // INLINE Darken 10%
+                highlightColor = Color.FromArgb(
+                    Math.Max(0, baseColor.R - (int)(baseColor.R * 0.1)),
+                    Math.Max(0, baseColor.G - (int)(baseColor.G * 0.1)),
+                    Math.Max(0, baseColor.B - (int)(baseColor.B * 0.1))
+                );
+            }
+            else
+            {
+                // INLINE Lighten 10%
+                highlightColor = Color.FromArgb(
+                    Math.Min(255, baseColor.R + (int)(baseColor.R * 0.1)),
+                    Math.Min(255, baseColor.G + (int)(baseColor.G * 0.1)),
+                    Math.Min(255, baseColor.B + (int)(baseColor.B * 0.1))
+                );
+            }
             
-            using (var brush = new SolidBrush(BackgroundPainterHelpers.WithAlpha(highlightColor, 60)))
+            // INLINE WithAlpha 60
+            Color highlightColorWithAlpha = Color.FromArgb(60, highlightColor);
+            
+            using (var brush = new SolidBrush(highlightColorWithAlpha))
             {
                 if (path != null)
                 {
-                    using (var highlightPath = BackgroundPainterHelpers.CreateRoundedRectangle(highlightRect, 6))
+                    // INLINE CreateRoundedRectangle for highlight
+                    using (var highlightPath = new GraphicsPath())
                     {
-                        g.FillPath(brush, highlightPath);
+                        int radius = 6;
+                        int diameter = radius * 2;
+                        if (highlightRect.Width > 0 && highlightRect.Height > 0)
+                        {
+                            highlightPath.AddArc(highlightRect.X, highlightRect.Y, diameter, diameter, 180, 90);
+                            highlightPath.AddArc(highlightRect.Right - diameter, highlightRect.Y, diameter, diameter, 270, 90);
+                            highlightPath.AddArc(highlightRect.Right - diameter, highlightRect.Bottom - diameter, diameter, diameter, 0, 90);
+                            highlightPath.AddArc(highlightRect.X, highlightRect.Bottom - diameter, diameter, diameter, 90, 90);
+                            highlightPath.CloseFigure();
+                            g.FillPath(brush, highlightPath);
+                        }
                     }
                 }
                 else
                 {
                     g.FillRectangle(brush, highlightRect);
-                }
-            }
-
-            // Apply state overlay
-            if (state != ControlState.Pressed) // Skip overlay for pressed (has inverted highlight)
-            {
-                Color stateOverlay = BackgroundPainterHelpers.GetStateOverlay(state);
-                if (stateOverlay != Color.Transparent)
-                {
-                    using (var brush = new SolidBrush(stateOverlay))
-                    {
-                        if (path != null)
-                            g.FillPath(brush, path);
-                        else
-                            g.FillRectangle(brush, bounds);
-                    }
                 }
             }
         }

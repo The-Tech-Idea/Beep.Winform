@@ -11,7 +11,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
 {

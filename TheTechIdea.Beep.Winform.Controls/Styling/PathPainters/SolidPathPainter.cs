@@ -15,10 +15,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.PathPainters
     {
         public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
-            Paint(g, bounds, radius, style, theme, useThemeColors, PathPainterHelpers.ControlState.Normal);
+            Paint(g, bounds, radius, style, theme, useThemeColors, ControlState .Normal);
         }
 
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, PathPainterHelpers.ControlState state)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             switch (style)
             {

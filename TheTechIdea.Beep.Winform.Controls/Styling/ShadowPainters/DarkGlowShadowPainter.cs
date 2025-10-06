@@ -1,6 +1,8 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
 {
@@ -10,12 +12,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class DarkGlowShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
-            ShadowPainterHelpers.MaterialElevation elevation = ShadowPainterHelpers.MaterialElevation.Level0)
+        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            MaterialElevation elevation = MaterialElevation.Level0,
+            ControlState state = ControlState.Normal)
         {
-            // DarkGlow uses cyan glow instead of shadow
-            Color glowColor = Color.FromArgb(0, 255, 255); // Cyan glow
-            
+            // DarkGlow UX: Colored glow effect with state-aware intensity
+            if (!StyleShadows.HasShadow(style)) return;
+
+            // DarkGlow uses colored glow instead of traditional shadow
+            Color glowColor = StyleShadows.GetShadowColor(style); // Purple glow from StyleShadows
+
             // Get glow color from theme if available
             if (useThemeColors && theme != null)
             {
@@ -24,7 +30,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     glowColor = themeColor;
             }
 
-            ShadowPainterHelpers.PaintGlow(g, bounds, radius, glowColor, 0.8f);
+            // State-aware glow intensity
+            float glowIntensity = 0.6f; // Normal state
+            if (state == ControlState.Hovered)
+                glowIntensity = 1.1f; // Hover: brighter glow
+            else if (state == ControlState.Focused)
+                glowIntensity = 1.5f; // Focus: brightest glow
+            else if (state == ControlState.Pressed)
+                glowIntensity = 0.8f; // Press: moderate glow
+
+            ShadowPainterHelpers.PaintGlow(g, bounds, radius, glowColor, glowIntensity);
         }
     }
 }

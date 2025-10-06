@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.Tag = this;
             LogopictureBox.TempBackColor = Color.White;
             LogopictureBox.Text = "beepImage1";
-            LogopictureBox.Theme = "DefaultTheme";
+            LogopictureBox.Theme = "DefaultType";
             LogopictureBox.ToolTipText = "";
             LogopictureBox.TopoffsetForDrawingRect = 0;
             LogopictureBox.UIAnimation = ReactUIAnimation.None;
@@ -368,7 +368,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Tag = this;
             _spinnerImage.TempBackColor = Color.FromArgb(108, 117, 125);
             _spinnerImage.Text = "beepImage1";
-            _spinnerImage.Theme = "DefaultTheme";
+            _spinnerImage.Theme = "DefaultType";
             _spinnerImage.ToolTipText = "";
             _spinnerImage.TopoffsetForDrawingRect = 0;
             _spinnerImage.UIAnimation = ReactUIAnimation.None;
@@ -552,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.TextAlign = ContentAlignment.MiddleCenter;
             Title.TextFont = new Font("Arial", 20.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
             Title.TextImageRelation = TextImageRelation.ImageBeforeText;
-            Title.Theme = "DefaultTheme";
+            Title.Theme = "DefaultType";
             Title.ToolTipText = null;
             Title.TopoffsetForDrawingRect = 0;
             Title.TrailingIconPath = "";
@@ -728,7 +728,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.TextAlign = ContentAlignment.MiddleCenter;
             beepLabel1.TextFont = new Font("Arial", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             beepLabel1.TextImageRelation = TextImageRelation.ImageBeforeText;
-            beepLabel1.Theme = "DefaultTheme";
+            beepLabel1.Theme = "DefaultType";
             beepLabel1.ToolTipText = null;
             beepLabel1.TopoffsetForDrawingRect = 0;
             beepLabel1.TrailingIconPath = "";
@@ -918,7 +918,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.TextAlignment = HorizontalAlignment.Left;
             messege.TextFont = new Font("Arial", 10F);
             messege.TextImageRelation = TextImageRelation.ImageBeforeText;
-            messege.Theme = "DefaultTheme";
+            messege.Theme = "DefaultType";
             messege.TimeFormat = "HH:mm:ss";
             messege.ToolTipText = null;
             messege.TopoffsetForDrawingRect = 0;
@@ -953,7 +953,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ShowSystemButtons = false;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepWait.StylePresets.Presets");
             Text = "BeepWait";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             TopMost = true;
             UseWaitCursor = true;
             ResumeLayout(false);

@@ -10,28 +10,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
 {
     /// <summary>
     /// Border painter for Apple styles (iOS15, MacOSBigSur)
+    /// Apple UX: Minimal, refined state changes with subtle focus rings
     /// </summary>
     public static class AppleBorderPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, bool isFocused, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+            BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+            ControlState state = ControlState.Normal)
         {
-            // Apple styles use subtle outlined borders
+            // Apple UX: Subtle outlined borders with focus rings
             if (StyleBorders.IsFilled(style))
                 return;
+
+            Color baseBorderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
+            Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
             
-            Color borderColor = isFocused ? 
-                GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors) : 
-                GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
-            
+            Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
-            
-            if (borderWidth > 0)
+
+            // Apple UX: Minimal, refined state changes (very subtle)
+            switch (state)
             {
-                using (var borderPen = new Pen(borderColor, borderWidth))
-                {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.DrawPath(borderPen, path);
-                }
+                case ControlState.Hovered:
+                    // Apple: Very subtle hover tint (30 alpha for minimal feedback)
+                    borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 30);
+                    break;
+                    
+                case ControlState.Pressed:
+                    // Apple: Slightly stronger tint (60 alpha, still minimal)
+                    borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 60);
+                    break;
+                    
+                case ControlState.Selected:
+                    // Apple: Subtle primary with transparency (120 alpha)
+                    borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 120);
+                    break;
+                    
+                case ControlState.Disabled:
+                    // Apple: Very light disabled (40 alpha for refined disabled state)
+                    borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 40);
+                    break;
+            }
+
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
+
+            // Apple: Add subtle focus rings (Apple blue)
+            if (isFocused)
+            {
+                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 50); // Subtle Apple focus ring
+                BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
         }
         

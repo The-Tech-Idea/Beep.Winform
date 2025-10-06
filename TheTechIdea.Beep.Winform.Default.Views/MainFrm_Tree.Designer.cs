@@ -181,7 +181,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppBar1.TempBackColor = Color.Empty;
             beepAppBar1.Text = "beepAppBar1";
             beepAppBar1.TextFont = new Font("Arial", 18F);
-            beepAppBar1.Theme = "DefaultTheme";
+            beepAppBar1.Theme = "DefaultType";
             beepAppBar1.ToolTipText = "";
             beepAppBar1.TopoffsetForDrawingRect = 0;
             beepAppBar1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.Text = "beepAppTree1";
             beepAppTree1.TextAlignment = Vis.Modules.TextAlignment.Left;
             beepAppTree1.TextFont = new Font("Arial", 10F);
-            beepAppTree1.Theme = "DefaultTheme";
+            beepAppTree1.Theme = "DefaultType";
             beepAppTree1.ToolTipText = "";
             beepAppTree1.TopoffsetForDrawingRect = 0;
             beepAppTree1.Treebranchhandler = null;
@@ -473,7 +473,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Tag = this;
             beepDisplayContainer1.TempBackColor = Color.Empty;
             beepDisplayContainer1.Text = "beepDisplayContainer1";
-            beepDisplayContainer1.Theme = "DefaultTheme";
+            beepDisplayContainer1.Theme = "DefaultType";
             beepDisplayContainer1.ToolTipText = "";
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
             beepDisplayContainer1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
@@ -612,7 +612,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         
             beepMenuAppBar1.Text = "beepMenuAppBar1";
             beepMenuAppBar1.TextFont = new Font("Arial", 14F, FontStyle.Bold);
-            beepMenuAppBar1.Theme = "DefaultTheme";
+            beepMenuAppBar1.Theme = "DefaultType";
             beepMenuAppBar1.ToolTipText = "";
             beepMenuAppBar1.TopoffsetForDrawingRect = 0;
         
@@ -631,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepAppBar1);
             Name = "MainFrm_Tree";
             Text = "MainFrm_Tree1";
-            Theme = "DefaultTheme";
+            Theme = "DefaultType";
             ResumeLayout(false);
         }
 

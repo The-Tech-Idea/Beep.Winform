@@ -2,7 +2,7 @@
 using System.ComponentModel;
 
 using TheTechIdea.Beep.Vis.Modules;
-using Timer = System.Windows.Forms.Timer;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

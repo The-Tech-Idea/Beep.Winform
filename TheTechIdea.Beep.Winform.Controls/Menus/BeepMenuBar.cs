@@ -3,7 +3,7 @@ using System.Diagnostics;
 using TheTechIdea.Beep.ConfigUtil;
  
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -20,38 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     public partial class BeepMenuBar : BaseControl
     {
         #region "Fields and Properties"
-        private bool _useThemeColors = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                _useThemeColors = value;
-                Invalidate();
-            }
-        }
-        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
-        [DefaultValue(BeepControlStyle.Material3)]
-        public BeepControlStyle Style
-        {
-            get => _controlstyle;
-            set
-            {
-                if (_controlstyle != value)
-                {
-                    _controlstyle = value;
-
-                    Invalidate();
-                }
-            }
-        }
+      
         private BindingList<SimpleItem> items = new BindingList<SimpleItem>();
         private BindingList<SimpleItem> currentMenu = new BindingList<SimpleItem>();
 
@@ -510,7 +479,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Paint background based on selected style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+                BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             // Use painter system if available, otherwise fall back to legacy drawing
             if (_painter != null && _context != null)

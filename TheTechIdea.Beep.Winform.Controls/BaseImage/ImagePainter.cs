@@ -9,7 +9,7 @@ using System.IO;
 using System.Linq;
  
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.Converters;
 
 namespace TheTechIdea.Beep.Winform.Controls.BaseImage

@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             MaterialElevation elevation = MaterialElevation.Level1,
             ControlState state = ControlState.Normal)
         {
-            // Discord Style UX: Flat design with minimal state shadows
+            // Discord ControlStyle UX: Flat design with minimal state shadows
             if (!StyleShadows.HasShadow(style)) return;
 
             // Only show shadow on interaction states (Discord's subtle depth)

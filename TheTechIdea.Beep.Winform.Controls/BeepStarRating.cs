@@ -2,7 +2,7 @@
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
  
  
 

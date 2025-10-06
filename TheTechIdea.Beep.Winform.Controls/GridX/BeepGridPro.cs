@@ -5,9 +5,10 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Vis.Modules;
 using Math = System.Math;
+using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
@@ -273,6 +274,50 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     }
                 }
             }
+        }
+
+        private GridLayoutPreset _layoutPreset = GridLayoutPreset.Default;
+        [Browsable(true)]
+        [Category("Layout")]
+        [Description("Structural layout preset (spacing, stripes, header effects). Not colors.")]
+        [DefaultValue(GridLayoutPreset.Default)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        public GridLayoutPreset LayoutPreset
+        {
+            get => _layoutPreset;
+            set
+            {
+                if (_layoutPreset == value) return;
+                _layoutPreset = value;
+                ApplyLayoutPreset(value);
+                Invalidate();
+                Refresh();
+                if (DesignMode && Site != null)
+                {
+                    var changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
+                    changeService?.OnComponentChanged(this, null, null, null);
+                }
+            }
+        }
+
+        public void ApplyLayoutPreset(GridLayoutPreset preset)
+        {
+            IGridLayoutPreset impl = preset switch
+            {
+                GridLayoutPreset.Clean => new CleanTableLayoutHelper(),
+                GridLayoutPreset.Dense => new DenseTableLayoutHelper(),
+                GridLayoutPreset.Striped => new StripedTableLayoutHelper(),
+                GridLayoutPreset.Borderless => new BorderlessTableLayoutHelper(),
+                GridLayoutPreset.HeaderBold => new HeaderBoldTableLayoutHelper(),
+                GridLayoutPreset.MaterialHeader => new MaterialHeaderTableLayoutHelper(),
+                GridLayoutPreset.Card => new CardTableLayoutHelper(),
+                GridLayoutPreset.ComparisonTable => new ComparisonTableLayoutHelper(),
+                GridLayoutPreset.MatrixSimple => new MatrixSimpleTableLayoutHelper(),
+                GridLayoutPreset.MatrixStriped => new MatrixStripedTableLayoutHelper(),
+                GridLayoutPreset.PricingTable => new PricingTableLayoutHelper(),
+                _ => new DefaultTableLayoutHelper()
+            };
+            this.ApplyLayoutPreset(impl);
         }
 
         [Browsable(true)]
@@ -841,6 +886,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             .Where(x => x.r.IsSelected)
             .Select(x => x.i)
             .ToList();
+
+        public bool ShowGridLines { get; internal set; }
+        public bool AlternateRowColor { get; internal set; }
 
         [Browsable(true)]
         [Category("Behavior")]

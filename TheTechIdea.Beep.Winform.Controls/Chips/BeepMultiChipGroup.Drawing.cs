@@ -11,38 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
 {
     public partial class BeepMultiChipGroup
     {
-        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
-        [DefaultValue(BeepControlStyle.Material3)]
-        public BeepControlStyle Style
-        {
-            get => _controlstyle;
-            set
-            {
-                if (_controlstyle != value)
-                {
-                    _controlstyle = value;
-
-                    Invalidate();
-                }
-            }
-        }
-        private bool _useThemeColors = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                _useThemeColors = value;
-                Invalidate();
-            }
-        }
+      
         protected override void DrawContent(Graphics g)
         {
             base.DrawContent(g);
@@ -58,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Chips
             else
             {
                 // Paint background based on selected style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+                BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             if (!string.IsNullOrEmpty(_titleText))
             {

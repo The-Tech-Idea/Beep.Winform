@@ -5,7 +5,7 @@ using System.Data;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
  
 
 namespace TheTechIdea.Beep.Winform.Controls

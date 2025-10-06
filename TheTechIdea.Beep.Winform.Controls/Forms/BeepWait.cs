@@ -3,7 +3,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
  
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 
 
 namespace TheTechIdea.Beep.Winform.Controls

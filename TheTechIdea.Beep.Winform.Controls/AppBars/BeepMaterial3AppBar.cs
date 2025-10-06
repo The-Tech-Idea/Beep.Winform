@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.Models;

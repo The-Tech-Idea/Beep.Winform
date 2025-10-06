@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;

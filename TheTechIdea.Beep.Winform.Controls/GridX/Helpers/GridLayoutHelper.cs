@@ -12,12 +12,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public int ColumnHeaderHeight { get; set; } = 28;
         public bool ShowColumnHeaders { get; set; } = true;
         public Rectangle HeaderRect { get; private set; }
+        public Rectangle ColumnsHeaderRect { get; private set; }
+        public Rectangle FooterRect { get; private set; }
+        public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
         public Rectangle RowsRect { get; private set; }
+        public Rectangle SelectAllCheckRect { get; private set; } = Rectangle.Empty;
         public Rectangle[] HeaderCellRects { get; private set; } = System.Array.Empty<Rectangle>();
         public int NavigatorHeight { get; set; } = 36;
-        public Rectangle NavigatorRect { get; private set; } = Rectangle.Empty;
+        
         public int CheckBoxColumnWidth { get; set; } = 30; // Add checkbox column width like BeepSimpleGrid
-        public Rectangle SelectAllCheckRect { get; private set; } = Rectangle.Empty;
+     
         public bool IsCalculating { get; private set; }
         public int HoveredHeaderColumnIndex { get; internal set; }
 

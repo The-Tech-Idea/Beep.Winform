@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.Converters
 {

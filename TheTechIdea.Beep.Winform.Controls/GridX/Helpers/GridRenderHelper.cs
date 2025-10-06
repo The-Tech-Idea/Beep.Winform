@@ -7,7 +7,7 @@ using System.Windows.Forms;
  
 using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+
  
 using TheTechIdea.Beep.Winform.Controls.Helpers; // Svgs
 using TheTechIdea.Beep.Winform.Controls.Models;

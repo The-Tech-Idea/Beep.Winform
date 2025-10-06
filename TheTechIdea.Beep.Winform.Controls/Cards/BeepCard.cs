@@ -6,7 +6,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Cards.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Common;
@@ -95,38 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         public event EventHandler<BeepEventDataArgs> ButtonClicked;
         // Remove CardAreaClickedEventArgs - use BaseControl's HitDetected event instead
         #endregion
-        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("The visual style/painter to use for rendering the sidebar.")]
-        [DefaultValue(BeepControlStyle.Material3)]
-        public BeepControlStyle Style
-        {
-            get => _controlstyle;
-            set
-            {
-                if (_controlstyle != value)
-                {
-                    _controlstyle = value;
-
-                    Invalidate();
-                }
-            }
-        }
-        private bool _useThemeColors = true;
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Use theme colors instead of custom accent color.")]
-        [DefaultValue(true)]
-        public bool UseThemeColors
-        {
-            get => _useThemeColors;
-            set
-            {
-                _useThemeColors = value;
-                Invalidate();
-            }
-        }
+       
         // Constructor
         public BeepCard():base()
         {
@@ -304,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Paint background based on selected style
-                BeepStyling.PaintStyleBackground(g, DrawingRect, Style);
+                BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
             }
             if (ctx.ShowImage && imageBox.Visible && ctx.ImageRect != Rectangle.Empty)
             {

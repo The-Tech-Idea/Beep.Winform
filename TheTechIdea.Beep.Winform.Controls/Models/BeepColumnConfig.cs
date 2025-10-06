@@ -603,6 +603,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
             set { _sortDirection = value; OnPropertyChanged(nameof(SortDirection)); }
         }
         private bool _allowsortDirection = true;
+        internal Action<Graphics, Rectangle, BeepCellConfig, IBeepTheme> CustomRenderer;
+
         [Category("Sorting")]
         [Description("The Allow sort  for the column.")]
         public bool AllowSort
@@ -613,6 +615,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
 
         public ContentAlignment CellTextAlignment { get; internal set; }
         public ContentAlignment HeaderTextAlignment { get; internal set; }
+      
+        public bool AllowFilter { get; internal set; }
+        public Type DataType { get; internal set; }
+        public bool IsResizable { get; internal set; }
+        public bool IsFrozen { get; internal set; }
 
         #endregion
 

@@ -1,6 +1,6 @@
 using System.Drawing;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {

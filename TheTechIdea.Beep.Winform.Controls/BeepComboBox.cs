@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Utilities;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
  
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Icons;

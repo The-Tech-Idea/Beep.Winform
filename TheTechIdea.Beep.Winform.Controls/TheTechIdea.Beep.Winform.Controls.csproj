@@ -1029,7 +1029,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Update="BeepBindingNavigator.cs" />
-    <Compile Update="Managers\Wizards\Frm_Wizard.cs" />
     <Compile Update="BeepCheckBox.cs" />
     <Compile Update="ProgressBars\BeepProgressBar.cs">
       <SubType>Component</SubType>
@@ -1047,9 +1046,6 @@
     <Compile Update="Forms\BeepWait.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Managers\Wizards\Frm_Wizard.resx">
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -1071,9 +1067,11 @@
     <Folder Include="DialogsManagers\Forms\" />
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
+    <Folder Include="Examples\" />
     <Folder Include="Forms\Adapters\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="Icons\" />
+    <Folder Include="Layouts\Painters\" />
     <Folder Include="Menus\ModelsandEnums\" />
     <Folder Include="NavBars\Helpers\" />
     <Folder Include="NavBars\Painters\" />
@@ -1102,12 +1100,10 @@
     <EmbeddedResource Include="GFX\SVG\NAV\005-back arrow.svg" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyModel" Version="9.0.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Svg" Version="3.4.7" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Beep.Desktop\TheTechIdea.Beep.Desktop.Common.Util\TheTechIdea.Beep.Desktop.Common.Util.csproj" />
     <ProjectReference Include="..\TheTechIdea.Beep.Vis.Modules2.0\TheTechIdea.Beep.Vis.Modules.csproj" />
   </ItemGroup>
 </Project>

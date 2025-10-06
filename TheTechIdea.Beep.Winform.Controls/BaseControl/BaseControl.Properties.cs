@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Converters;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
 
 
@@ -1068,6 +1068,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             remove => _input.DialogKeyDetected -= value;
         }
         #endregion
+        #endregion
+
+        #region Painting and Layout
+        private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("The visual style/painter to use for rendering the sidebar.")]
+        [DefaultValue(BeepControlStyle.Material3)]
+        public BeepControlStyle ControlStyle
+        {
+            get => _controlstyle;
+            set
+            {
+                if (_controlstyle != value)
+                {
+                    _controlstyle = value;
+
+                    Invalidate();
+                }
+            }
+        }
+        private bool _useThemeColors = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use theme colors instead of custom accent color.")]
+        [DefaultValue(true)]
+        public bool UseThemeColors
+        {
+            get => _useThemeColors;
+            set
+            {
+                _useThemeColors = value;
+                Invalidate();
+            }
+        }
         #endregion
     }
 }

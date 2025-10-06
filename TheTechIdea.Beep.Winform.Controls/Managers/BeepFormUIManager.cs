@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
  
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Models;
 

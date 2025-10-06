@@ -7,7 +7,7 @@ using System.Linq;
 using System.Windows.Forms;
  
 using TheTechIdea.Beep.Icons;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+ 
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Helpers;

@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
             if (tags.Length > 0)
             {
                 int x = inner.X;
-                using var fr = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+                using var fr =  BeepThemesManager.ToFont(theme.SmallText);
                 foreach (var t in tags)
                 {
                     var size = TextRenderer.MeasureText(t, fr);
@@ -53,7 +53,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
                 g.FillRectangle(fore, new Rectangle(barRect.X, barRect.Y, w, barRect.Height));
 
             // progress text right
-            using var fr2 = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var fr2 =  BeepThemesManager.ToFont(theme.SmallText);
             var trect = new Rectangle(barRect.Right - 40, barRect.Y - fr2.Height - 2, 40, fr2.Height + 2);
             TextRenderer.DrawText(g, $"{progress:F0}%", fr2, trect, theme.CardTextForeColor, TextFormatFlags.Right);
         }

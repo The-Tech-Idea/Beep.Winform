@@ -451,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 this.EnableExcelFilter();
             }
             //PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
-            StylePreset = MaterialTextFieldStylePreset.Default;
+           
             RowHeight = 25;
             ColumnHeaderHeight = 28;
             ShowColumnHeaders = true;

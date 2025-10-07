@@ -909,7 +909,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.Size = new Size(807, 425);
             messege.SlideFrom = SlideDirection.Left;
             messege.StaticNotMoving = false;
-            messege.StylePreset = MaterialTextFieldStylePreset.MaterialStandard;
+           
             messege.TabIndex = 15;
             messege.TabStop = false;
             messege.Tag = "";

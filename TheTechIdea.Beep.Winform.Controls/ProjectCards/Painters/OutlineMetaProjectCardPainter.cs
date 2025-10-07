@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
             DrawTitle(g, new Rectangle(inner.X, inner.Y, inner.Width, 24), theme, title);
             DrawSubtitle(g, new Rectangle(inner.X, inner.Y + 22, inner.Width, 18), theme, subtitle);
 
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             TextRenderer.DrawText(g, status, small, new Rectangle(inner.X, inner.Bottom - small.Height - 26, inner.Width/2, small.Height + 2), theme.CardTextForeColor);
 
             var bar = new Rectangle(inner.X, inner.Bottom - 14, inner.Width, 6);

@@ -1,6 +1,7 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -243,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.SplashColor = Color.Gray;
             CancelbeepButton.StandardImages = null;
             CancelbeepButton.StaticNotMoving = false;
-            CancelbeepButton.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+         
             CancelbeepButton.TabIndex = 23;
             CancelbeepButton.Tag = MainTemplatePanel;
             CancelbeepButton.TempBackColor = Color.LightGray;
@@ -435,7 +436,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.SplashColor = Color.Gray;
             SavebeepButton.StandardImages = null;
             SavebeepButton.StaticNotMoving = false;
-            SavebeepButton.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+         
             SavebeepButton.TabIndex = 22;
             SavebeepButton.Tag = MainTemplatePanel;
             SavebeepButton.TempBackColor = Color.LightGray;
@@ -481,10 +482,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.CanBePressed = true;
             SystemFolderbeepComboBox.CanBeSelected = true;
             SystemFolderbeepComboBox.Category = Utilities.DbFieldCategory.Numeric;
-            SystemFolderbeepComboBox.ComboBoxErrorText = "";
-            SystemFolderbeepComboBox.ComboBoxHasError = false;
-            SystemFolderbeepComboBox.ComboBoxHelperText = "";
-            SystemFolderbeepComboBox.ComboBoxLabel = "";
+           
             SystemFolderbeepComboBox.ComponentName = "beepComboBox1";
             SystemFolderbeepComboBox.DataContext = null;
             SystemFolderbeepComboBox.DataSourceProperty = null;
@@ -798,7 +796,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.Size = new Size(235, 56);
             databaseTextBox.SlideFrom = SlideDirection.Left;
             databaseTextBox.StaticNotMoving = false;
-            databaseTextBox.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+          
             databaseTextBox.TabIndex = 20;
             databaseTextBox.Tag = MainTemplatePanel;
             databaseTextBox.TempBackColor = Color.LightGray;
@@ -993,7 +991,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.Size = new Size(235, 56);
             PasswordbeepTextBox.SlideFrom = SlideDirection.Left;
             PasswordbeepTextBox.StaticNotMoving = false;
-            PasswordbeepTextBox.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+           
             PasswordbeepTextBox.TabIndex = 21;
             PasswordbeepTextBox.Tag = MainTemplatePanel;
             PasswordbeepTextBox.TempBackColor = Color.LightGray;
@@ -1188,7 +1186,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.Size = new Size(235, 56);
             OtherFolderbeepTextBox.SlideFrom = SlideDirection.Left;
             OtherFolderbeepTextBox.StaticNotMoving = false;
-            OtherFolderbeepTextBox.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+          
             OtherFolderbeepTextBox.TabIndex = 19;
             OtherFolderbeepTextBox.Tag = MainTemplatePanel;
             OtherFolderbeepTextBox.TempBackColor = Color.LightGray;
@@ -1235,10 +1233,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.CanBePressed = true;
             LocalDbTypebeepComboBox.CanBeSelected = true;
             LocalDbTypebeepComboBox.Category = Utilities.DbFieldCategory.Numeric;
-            LocalDbTypebeepComboBox.ComboBoxErrorText = "";
-            LocalDbTypebeepComboBox.ComboBoxHasError = false;
-            LocalDbTypebeepComboBox.ComboBoxHelperText = "";
-            LocalDbTypebeepComboBox.ComboBoxLabel = "";
+      
             LocalDbTypebeepComboBox.ComponentName = "beepComboBox1";
             LocalDbTypebeepComboBox.DataContext = null;
             LocalDbTypebeepComboBox.DataSourceProperty = null;
@@ -1552,7 +1547,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = null;
             beepButton1.StaticNotMoving = false;
-            beepButton1.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+      
             beepButton1.TabIndex = 24;
             beepButton1.Tag = MainTemplatePanel;
             beepButton1.TempBackColor = Color.Empty;

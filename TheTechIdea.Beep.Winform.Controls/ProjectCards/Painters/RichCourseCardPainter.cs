@@ -17,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
 
             var inner = Inset(bounds, 12);
 
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             TextRenderer.DrawText(g, subtitle, small, new Rectangle(inner.X, inner.Y, inner.Width - 20, small.Height + 2), theme.CardTextForeColor);
 
             var tRect = new Rectangle(inner.X, inner.Y + small.Height + 6, inner.Width, 28);
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
         public override void UpdateHitAreas(BeepProjectCard owner, Rectangle bounds, IBeepTheme theme, System.Collections.Generic.IReadOnlyDictionary<string, object> p, System.Action<string, Rectangle> register)
         {
             var inner = Inset(bounds, 12);
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             int chipH = small.Height + 6;
             var chipRect = new Rectangle(inner.X, inner.Bottom - chipH - 28, 140, chipH);
             var barRect = new Rectangle(inner.X, inner.Bottom - 18, inner.Width, 6);

@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
             var subRect = new Rectangle(inner.X + 8, textRect.Bottom - 4, inner.Width - 8, 20);
             DrawSubtitle(g, subRect, theme, subtitle);
 
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             int x = inner.X + 8; int y = subRect.Bottom + 4;
             foreach (var t in tags)
             {

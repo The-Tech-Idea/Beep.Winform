@@ -32,7 +32,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             var valueArea = new Rectangle(inner.X, inner.Y + headerHeight + 4, inner.Width, (int)(inner.Height * 0.4));
             DrawValue(g, valueArea, theme, valueText, 1.8f);
 
-            using var smallFontRaw = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var smallFontRaw =  BeepThemesManager.ToFont(theme.SmallText);
             using var smallFont = new Font(smallFontRaw.FontFamily, smallFontRaw.Size, FontStyle.Regular);
             using var deltaBrush = new SolidBrush(owner.IsTrendingUp ? Color.Green : Color.Red);
             var deltaSize = TextRenderer.MeasureText(deltaText, smallFont);

@@ -99,7 +99,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             // x labels (optional)
             if (labels != null && labels.Length > 0)
             {
-                using var smallFontRaw = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+                using var smallFontRaw =  BeepThemesManager.ToFont(theme.SmallText);
                 using var small = new Font(smallFontRaw.FontFamily, smallFontRaw.Size, FontStyle.Regular);
                 for (int i = 0, xi = plot.X + gap; i < n && i < labels.Length; i++, xi += barW + gap)
                 {

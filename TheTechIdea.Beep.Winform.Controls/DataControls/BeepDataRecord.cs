@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ControlExtensions = TheTechIdea.Beep.Winform.Controls.Helpers.ControlExtensions;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

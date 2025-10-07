@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views
+﻿using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+
+namespace TheTechIdea.Beep.Winform.Default.Views
 {
     partial class Form1
     {
@@ -205,7 +208,7 @@
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
-            beepButton1.StylePreset = Winform.Controls.Models.MaterialTextFieldStylePreset.MaterialOutlined;
+           
             beepButton1.TabIndex = 0;
             beepButton1.Tag = this;
             beepButton1.TempBackColor = Color.Empty;
@@ -250,10 +253,7 @@
             beepComboBox1.CanBePressed = true;
             beepComboBox1.CanBeSelected = true;
             beepComboBox1.Category = Utilities.DbFieldCategory.Numeric;
-            beepComboBox1.ComboBoxErrorText = "";
-            beepComboBox1.ComboBoxHasError = false;
-            beepComboBox1.ComboBoxHelperText = "";
-            beepComboBox1.ComboBoxLabel = "";
+          
             beepComboBox1.ComponentName = "BaseControl";
             beepComboBox1.DataContext = null;
             beepComboBox1.DataSourceProperty = null;
@@ -554,7 +554,7 @@
             beepCard1.StaticNotMoving = false;
             beepCard1.StatusColor = Color.Green;
             beepCard1.StatusText = "";
-            beepCard1.Style = Winform.Controls.CardStyle.EventCard;
+            beepCard1.CardStyle = Winform.Controls.CardStyle.EventCard;
             beepCard1.SubtitleText = "";
             beepCard1.TabIndex = 4;
             beepCard1.Tag = this;
@@ -781,7 +781,7 @@
 
         private Controls.BeepButton beepButton1;
         private Controls.BeepCard beepCard1;
-        private Controls.BeepComboBox beepComboBox1;
+        private BeepComboBox beepComboBox1;
         private Controls.BeepTextBox beepTextBox1;
     }
 }

@@ -109,10 +109,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             else if (!string.IsNullOrEmpty(item.Text))
             {
                 // Only show text if no icon available
-                using var tempBitmap = new Bitmap(1, 1);
-                using var tempGraphics = Graphics.FromImage(tempBitmap);
-                var textSize = tempGraphics.MeasureString(item.Text, font);
-                width += (int)Math.Ceiling(textSize.Width);
+                // Use TextRenderer.MeasureText for safer measurement without Graphics context
+                var textSize = TextRenderer.MeasureText(item.Text, font);
+                width += textSize.Width;
             }
 
             // Apply padding and ensure minimum width

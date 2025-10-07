@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
             int barHeight = Math.Max(6, rowH - 8);
             int y = area.Y + 4;
 
-            using var fntRaw = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var fntRaw =  BeepThemesManager.ToFont(theme.SmallText);
             using var fnt = new System.Drawing.Font(fntRaw.FontFamily, fntRaw.Size, System.Drawing.FontStyle.Regular);
             var c1 = theme.PrimaryColor.IsEmpty ? System.Drawing.Color.RoyalBlue : theme.PrimaryColor;
             var c2 = theme.SecondaryColor.IsEmpty ? System.Drawing.Color.MediumPurple : theme.SecondaryColor;

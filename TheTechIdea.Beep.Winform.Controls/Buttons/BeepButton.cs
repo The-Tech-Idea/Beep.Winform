@@ -481,14 +481,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ControlHitTest beepImageHitTest;
         private Color _originalForColor;
 
-        // Material Design ProgressBarStyle Preset property
-        [Browsable(true), Category("Material ProgressBarStyle"), DefaultValue(MaterialTextFieldStylePreset.Default)]
-        [Description("Applies a predefined style preset that configures variant, radius, fill, and other Material Design properties.")]
-        public MaterialTextFieldStylePreset StylePreset
-        {
-            get => base.StylePreset;
-            set => base.StylePreset = value;
-        }
+     
 
         // Material Design convenience properties
         [Browsable(true)]
@@ -619,7 +612,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Enable material style for modern button appearance, but keep it compact
             //EnableMaterialStyle = true;
-            StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+          
             ButtonAutoSizeForMaterial = false; // Default to false to prevent large buttons
             MaterialPreserveContentArea = true; // Preserve content area instead of expanding
 
@@ -705,7 +698,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                HandlersFactory.RunMethodFromObjectHandler(item, MethodName);
+                SimpleItemFactory.RunMethodFromObjectHandler(item, MethodName);
 
             }
             catch (Exception ex)
@@ -755,7 +748,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region "Theme"
         protected override void OnFontChanged(EventArgs e)
         {
-            base.OnFontChanged(e);
+     //       base.OnFontChanged(e);
             _textFont = Font;
             
             // Apply Material Design size compensation if enabled

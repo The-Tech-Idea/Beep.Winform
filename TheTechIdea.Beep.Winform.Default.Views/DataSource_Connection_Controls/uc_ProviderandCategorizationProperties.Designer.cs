@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
+﻿using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     partial class uc_ProviderandCategorizationProperties
     {
@@ -82,8 +85,8 @@
         #endregion
 
         private TheTechIdea.Beep.Winform.Controls.BeepPanel Provider_propertiesPanel;
-        private TheTechIdea.Beep.Winform.Controls.BeepComboBox Provider_CategorybeepComboBox;
-        private TheTechIdea.Beep.Winform.Controls.BeepComboBox Provider_DatabaseTypebeepComboBox;
+        private BeepComboBox Provider_CategorybeepComboBox;
+        private BeepComboBox Provider_DatabaseTypebeepComboBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox Provider_DriverNamebeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox Provider_DriverVersionbeepTextBox;
     }

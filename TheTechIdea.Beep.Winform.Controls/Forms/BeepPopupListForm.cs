@@ -51,17 +51,21 @@ namespace TheTechIdea.Beep.Winform.Controls
             get => _beepListBox.ListItems;
             set => _beepListBox.ListItems = value;
         }
+        // Event for item selection compatibility with BeepComboBox
+        public event EventHandler<SimpleItem> ItemSelected;
+        
         // The item currently chosen by the user
         private SimpleItem _selectedItem;
         public SimpleItem SelectedItem
         {
             get => _selectedItem;
-            private set
+            set
             {
                 if (_selectedItem != value)
                 {
                     _selectedItem = value;
                     OnSelectedItemChanged(_selectedItem); //
+                    ItemSelected?.Invoke(this, _selectedItem);
                 }
             }
         }
@@ -268,6 +272,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectedItem = (SimpleItem)e.SelectedItem;
             
         }
+        /// <summary>
+        /// Gets or sets the maximum height for the popup list
+        /// </summary>
+        public int MaxHeight { get; set; } = 300;
+        
         public int GetMaxHeight()
         {
             if (_beepListBox == null) return -1;

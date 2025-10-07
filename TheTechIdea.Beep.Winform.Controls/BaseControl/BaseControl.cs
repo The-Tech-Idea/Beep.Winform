@@ -21,6 +21,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     public partial class BaseControl : ContainerControl, IBeepUIComponent, IDisposable
     {
         #region Private Fields
+        // Add these safety utilities at the class level in BaseControl
+        protected bool IsReadyForDrawing => !IsDisposed && IsHandleCreated && Width > 0 && Height > 0 && !_isInitializing;
+
+        protected static bool IsValidRectangle(Rectangle rect) => rect.Width > 0 && rect.Height > 0;
+
         private string _themeName;
         internal IBeepTheme _currentTheme; // defer initialization to runtime-safe paths
         private string _guidId = Guid.NewGuid().ToString();
@@ -378,7 +383,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
             }
         }
+        protected static Rectangle EnsureValidRectangle(Rectangle rect, int minSize = 1)
+        {
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                return new Rectangle(rect.X, rect.Y,
+                    Math.Max(minSize, rect.Width),
+                    Math.Max(minSize, rect.Height));
+            }
+            return rect;
+        }
 
+        protected static Font GetSafeFont(Font preferredFont)
+        {
+            if (preferredFont == null)
+                return SystemFonts.DefaultFont;
+            return preferredFont;
+        }
+
+        // Add cached font metrics to avoid repeated measurements
+        private int _cachedFontHeight = -1;
+        private Font _lastMeasuredFont;
+
+        protected int GetCachedFontHeight(Font font)
+        {
+            font = GetSafeFont(font);
+            if (_cachedFontHeight < 0 || _lastMeasuredFont != font)
+            {
+                _lastMeasuredFont = font;
+                _cachedFontHeight = TextRenderer.MeasureText("Aj", font).Height;
+            }
+            return _cachedFontHeight;
+        }
         protected override void OnHandleCreated(EventArgs e)
         {
             // Add design-time safety

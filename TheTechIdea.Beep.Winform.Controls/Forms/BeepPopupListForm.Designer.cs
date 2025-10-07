@@ -61,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.CanBeHovered = false;
             _beepListBox.CanBePressed = true;
             _beepListBox.Category = Utilities.DbFieldCategory.String;
-            _beepListBox.Collapsed = false;
+           
             _beepListBox.ComponentName = "beepListBox1";
             _beepListBox.DataSourceProperty = null;
             _beepListBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.IsFrameless = false;
             _beepListBox.IsHovered = false;
 
-            _beepListBox.IsItemChilds = true;
+     
             _beepListBox.IsNew = false;
             _beepListBox.IsPressed = false;
          
@@ -168,8 +168,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.SavedGuidID = null;
             _beepListBox.SavedID = null;
             _beepListBox.ScaleMode = ImageScaleMode.KeepAspectRatio;
-            _beepListBox.SearchAreaHeight = 26;
-            _beepListBox.SearchPlaceholderText = "Search...";
+          
             _beepListBox.SearchText = "";
             _beepListBox.SelectedBackColor = Color.DodgerBlue;
             _beepListBox.SelectedBorderColor = Color.RoyalBlue;

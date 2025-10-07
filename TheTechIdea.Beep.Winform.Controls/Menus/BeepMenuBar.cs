@@ -365,15 +365,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (item == null) return ScaleValue(80);
 
-            // Measure text width
+            // Measure text width using safer TextRenderer.MeasureText without Graphics object
             int textWidth = 0;
             if (!string.IsNullOrEmpty(item.Text))
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    var textSize = TextRenderer.MeasureText(g, item.Text, _textFont);
-                    textWidth = textSize.Width;
-                }
+                // Use TextRenderer.MeasureText overload that doesn't require Graphics
+                // This is safer as it works during initialization and doesn't require a Windows handle
+                var textSize = TextRenderer.MeasureText(item.Text, _textFont);
+                textWidth = textSize.Width;
             }
 
             // Add space for image if present
@@ -808,7 +807,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             ErrorsInfo errorsInfo = new ErrorsInfo();
             try
             {
-                HandlersFactory.RunFunctionWithTreeHandler(item, MethodName);
+                SimpleItemFactory.RunFunctionWithTreeHandler(item, MethodName);
             }
             catch (Exception ex)
             {

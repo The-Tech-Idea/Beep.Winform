@@ -71,43 +71,152 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
                 var fore = enabled ? (isSelected ? GetAccentColor() : GetItemForegroundColor()) : ctx.ItemDisabledForeColor;
 
-                if (ctx.ShowIcons && !string.IsNullOrEmpty(item.ImagePath) && !layout.IconRect.IsEmpty)
+                // Draw icon safely
+                if (ctx.ShowIcons && !string.IsNullOrEmpty(item.ImagePath) && !layout.IconRect.IsEmpty && layout.IconRect.Width > 0 && layout.IconRect.Height > 0)
                 {
                     try
                     {
-                        // Use ImagePainter for proper image rendering
                         using var imagePainter = new TheTechIdea.Beep.Winform.Controls.BaseImage.ImagePainter(item.ImagePath);
-                        imagePainter.ApplyThemeOnImage = false; // Don't apply theme color by default
+                        imagePainter.ApplyThemeOnImage = false;
                         imagePainter.DrawImage(g, layout.IconRect);
                     }
                     catch
                     {
-                        // Fallback to Fluent placeholder
                         using var b = new SolidBrush(Color.FromArgb(isSelected ? 220 : 150, fore));
                         using var p = new Pen(fore, 1.5f);
                         var inner = Rectangle.Inflate(layout.IconRect, -3, -3);
-                        g.FillEllipse(b, inner);
-                        g.DrawEllipse(p, inner);
+                        if (inner.Width > 0 && inner.Height > 0)
+                        {
+                            g.FillEllipse(b, inner);
+                            g.DrawEllipse(p, inner);
+                        }
                     }
                 }
-                if (!string.IsNullOrEmpty(item.Text) && !layout.TextRect.IsEmpty)
+
+                // Draw text safely
+                // Inside DrawContent where you were drawing text:
+                if (ctx.ShowText)
                 {
-                    using var tb = new SolidBrush(fore);
-                    var sf = new StringFormat{ Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
-                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-                    g.DrawString(item.Text, ctx.TextFont, tb, layout.TextRect, sf);
+                    var text = !string.IsNullOrEmpty(item.Text) ? item.Text : ctx.GetItemText(item);
+                    var textRect = layout.TextRect;
+                    if (!string.IsNullOrEmpty(text) && textRect.Width > 0 && textRect.Height > 0)
+                    {
+                        using var tb = new SolidBrush(fore);
+                        using var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center, Trimming = StringTrimming.EllipsisCharacter };
+                        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+                        // Replace this problematic line:
+                        // g.DrawString(text, font, tb, textRect, sf);
+
+                        // With this ultra-safe version:
+                        UltraSafeDrawString(g, text, ctx.TextFont ?? SystemFonts.MenuFont, tb, textRect, sf);
+                    }
                 }
-                if (ctx.ShowDropdownIndicators && item.Children?.Count > 0 && !layout.DropdownRect.IsEmpty)
+
+                // Dropdown indicator
+                if (ctx.ShowDropdownIndicators && item.Children?.Count > 0 && !layout.DropdownRect.IsEmpty && layout.DropdownRect.Width > 0 && layout.DropdownRect.Height > 0)
                 {
-                    using var p = new Pen(fore, 1.5f){ StartCap = System.Drawing.Drawing2D.LineCap.Round, EndCap = System.Drawing.Drawing2D.LineCap.Round };
-                    int cx = layout.DropdownRect.X + layout.DropdownRect.Width/2;
-                    int cy = layout.DropdownRect.Y + layout.DropdownRect.Height/2;
-                    g.DrawLine(p, cx-3, cy-1, cx, cy+2);
-                    g.DrawLine(p, cx, cy+2, cx+3, cy-1);
+                    using var p = new Pen(fore, 1.5f) { StartCap = System.Drawing.Drawing2D.LineCap.Round, EndCap = System.Drawing.Drawing2D.LineCap.Round };
+                    int cx = layout.DropdownRect.X + layout.DropdownRect.Width / 2;
+                    int cy = layout.DropdownRect.Y + layout.DropdownRect.Height / 2;
+                    g.DrawLine(p, cx - 3, cy - 1, cx, cy + 2);
+                    g.DrawLine(p, cx, cy + 2, cx + 3, cy - 1);
                 }
             }
         }
+        // Add this helper method to FluentMenuBarPainter class
+        private void UltraSafeDrawString(Graphics g, string text, Font font, Brush brush, Rectangle rect, StringFormat format)
+        {
+            if (g == null || string.IsNullOrEmpty(text)) return;
+            if (rect.Width <= 0 || rect.Height <= 0) return;
 
+            // Skip any drawing attempts with zero-sized rectangles or empty strings
+            if (rect.Width < 2 || rect.Height < 2 || text.Trim().Length == 0) return;
+
+            // Get a valid color from the brush
+            Color textColor = Color.Black;
+            try {
+                if (brush is SolidBrush solidBrush && solidBrush.Color != Color.Transparent)
+                    textColor = solidBrush.Color;
+            } catch { /* Use default color */ }
+
+            // Convert StringFormat alignment to TextFormatFlags
+            TextFormatFlags flags = TextFormatFlags.NoPrefix | TextFormatFlags.WordBreak;
+            
+            if (format != null) {
+                try {
+                    if (format.Alignment == StringAlignment.Center) 
+                        flags |= TextFormatFlags.HorizontalCenter;
+                    else if (format.Alignment == StringAlignment.Far)
+                        flags |= TextFormatFlags.Right;
+                        
+                    if (format.LineAlignment == StringAlignment.Center)
+                        flags |= TextFormatFlags.VerticalCenter;
+                    else if (format.LineAlignment == StringAlignment.Far)
+                        flags |= TextFormatFlags.Bottom;
+                        
+                    if (format.Trimming == StringTrimming.EllipsisCharacter)
+                        flags |= TextFormatFlags.EndEllipsis;
+                } catch { /* Use default flags */ }
+            }
+
+            // Create a brand new font object to avoid any corruption
+            Font drawFont = null;
+            try {
+                // Try to extract font info without accessing potentially corrupt properties
+                string fontName = "Arial";
+                float fontSize = 9f;
+                FontStyle fontStyle = FontStyle.Regular;
+                
+                // Carefully extract font information
+                try {
+                    if (font != null) {
+                        // Use reflection to safely get font name without triggering Height access
+                        var nameField = typeof(Font).GetProperty("Name");
+                        if (nameField != null)
+                            fontName = (string)nameField.GetValue(font) ?? "Arial";
+                        
+                        var sizeField = typeof(Font).GetProperty("Size");
+                        if (sizeField != null)
+                            fontSize = (float)sizeField.GetValue(font);
+                        
+                        var styleField = typeof(Font).GetProperty("Style");
+                        if (styleField != null)
+                            fontStyle = (FontStyle)styleField.GetValue(font);
+                    }
+                } catch {
+                    // If extraction fails, use defaults
+                }
+
+                // Create a completely fresh font object
+                drawFont = new Font(fontName, fontSize, fontStyle, GraphicsUnit.Point);
+                
+                // Use the most reliable drawing method - TextRenderer
+                TextRenderer.DrawText(g, text, drawFont, rect, textColor, flags);
+            }
+            catch (Exception ex1)
+            {
+                System.Diagnostics.Debug.WriteLine($"TextRenderer failed: {ex1.Message}");
+                
+                // Last resort - use absolute minimum guaranteed font
+                try
+                {
+                    // Use SystemFonts.DefaultFont which is guaranteed to be valid
+                    var systemFont = SystemFonts.DefaultFont;
+                    TextRenderer.DrawText(g, text, systemFont, rect, textColor, TextFormatFlags.Left | TextFormatFlags.Top);
+                }
+                catch 
+                {
+                    // Complete failure - text won't be drawn
+                    System.Diagnostics.Debug.WriteLine("Complete font drawing failure - text skipped");
+                }
+            }
+            finally
+            {
+                // Dispose our temporary font
+                drawFont?.Dispose();
+            }
+        }
         public override void DrawForegroundAccents(Graphics g, MenuBarContext ctx)
         {
             // No separate accents needed; selection/hover handled in content for Fluent
@@ -145,12 +254,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             }
 
             // Text width - measure actual text with font
+            // Use TextRenderer.MeasureText for safer measurement without Graphics context
             if (!string.IsNullOrEmpty(item.Text))
             {
-                using var tempBitmap = new Bitmap(1, 1);
-                using var tempGraphics = Graphics.FromImage(tempBitmap);
-                var textSize = tempGraphics.MeasureString(item.Text, font);
-                width += (int)Math.Ceiling(textSize.Width);
+                var textSize = TextRenderer.MeasureText(item.Text, font);
+                width += textSize.Width;
             }
 
             // Dropdown indicator width

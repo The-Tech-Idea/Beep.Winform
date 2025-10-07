@@ -1,5 +1,6 @@
 ﻿using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -796,7 +797,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
-            beepButton1.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+ 
             beepButton1.TabIndex = 3;
             beepButton1.Tag = beepPanel1;
             beepButton1.TempBackColor = Color.White;
@@ -1018,10 +1019,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.CanBeHovered = false;
             EntitiesbeepComboBox.CanBePressed = true;
             EntitiesbeepComboBox.Category = Utilities.DbFieldCategory.Numeric;
-            EntitiesbeepComboBox.ComboBoxErrorText = "";
-            EntitiesbeepComboBox.ComboBoxHasError = false;
-            EntitiesbeepComboBox.ComboBoxHelperText = "";
-            EntitiesbeepComboBox.ComboBoxLabel = "";
+           
             EntitiesbeepComboBox.ComponentName = "EntitiesbeepComboBox";
             EntitiesbeepComboBox.DataSourceProperty = null;
             EntitiesbeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -1363,10 +1361,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.CanBeHovered = false;
             DatasourcebeepComboBox.CanBePressed = true;
             DatasourcebeepComboBox.Category = Utilities.DbFieldCategory.Numeric;
-            DatasourcebeepComboBox.ComboBoxErrorText = "";
-            DatasourcebeepComboBox.ComboBoxHasError = false;
-            DatasourcebeepComboBox.ComboBoxHelperText = "";
-            DatasourcebeepComboBox.ComboBoxLabel = "";
+          
             DatasourcebeepComboBox.ComponentName = "DatasourcebeepComboBox";
             DatasourcebeepComboBox.DataSourceProperty = null;
             DatasourcebeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -1521,9 +1516,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         private Controls.BeepSimpleGrid beepSimpleGrid1;
         private Controls.BeepPanel beepPanel1;
         private Controls.BeepLabel beepLabel1;
-        private Controls.BeepComboBox DatasourcebeepComboBox;
+        private BeepComboBox DatasourcebeepComboBox;
         private Controls.BeepLabel beepLabel2;
-        private Controls.BeepComboBox EntitiesbeepComboBox;
+        private BeepComboBox EntitiesbeepComboBox;
         private BeepButton beepButton1;
     }
 }

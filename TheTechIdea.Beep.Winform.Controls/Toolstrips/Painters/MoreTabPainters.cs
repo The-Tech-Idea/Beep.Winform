@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             int iconGap = GetInt(parameters, "IconGap", DefaultIconGap);
             string iconPlacement = GetString(parameters, "IconPlacement", DefaultIconPlacement);
 
-            using var font = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.ComboBoxItemFont);
+            using var font =  BeepThemesManager.ToFont(theme.ComboBoxItemFont);
 
             if (owner.Orientation == ToolStripOrientation.Vertical)
             {

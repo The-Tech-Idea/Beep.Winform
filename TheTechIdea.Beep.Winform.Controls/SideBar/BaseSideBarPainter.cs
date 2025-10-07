@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
 
             // Use theme font if available
             Font textFont = context.Theme != null ?
-                Vis.Modules.Managers.BeepThemesManager.ToFont(context.Theme.GetAnswerFont()) :
+               BeepThemesManager.ToFont(context.Theme.GetAnswerFont()) :
                 new Font("Segoe UI", 9f);
 
             // Use TextRenderer for better quality
@@ -171,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
 
             // Use smaller font for children
             Font textFont = context.Theme != null ?
-                Vis.Modules.Managers.BeepThemesManager.ToFont(context.Theme.GetAnswerFont()) :
+                BeepThemesManager.ToFont(context.Theme.GetAnswerFont()) :
                 new Font("Segoe UI", 8.5f);
 
             // Make it slightly smaller

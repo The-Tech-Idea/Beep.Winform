@@ -28,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 using var b = new SolidBrush(fill);
                 using var pth = MakeChevron(new Rectangle(x, bounds.Y + 2, chevronW, chevronH), i == steps - 1);
                 g.FillPath(b, pth);
-                using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+                using var small =  BeepThemesManager.ToFont(theme.SmallText);
                 var text = labels[i] ?? $"Step {i+1}";
                 var sz = TextRenderer.MeasureText(text, small);
                 TextRenderer.DrawText(g, text, small, new Rectangle(x, bounds.Y + (chevronH - sz.Height)/2 + 2, chevronW, sz.Height), Color.White, TextFormatFlags.HorizontalCenter);

@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 using (var b = new SolidBrush(color)) g.FillEllipse(b, cx - radius/2, cy - radius/2, radius, radius);
                 if (labels != null && i < labels.Length)
                 {
-                    using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+                    using var small =  BeepThemesManager.ToFont(theme.SmallText);
                     var sz = TextRenderer.MeasureText(labels[i], small);
                     TextRenderer.DrawText(g, labels[i], small, new Point(cx - sz.Width/2, cy + radius), theme.CardTextForeColor);
                 }

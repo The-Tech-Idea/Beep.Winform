@@ -1058,9 +1058,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="BaseControl\Adapters\" />
-    <Folder Include="BaseControl\Properties\" />
     <Folder Include="BaseImage\Helpers\" />
+    <Folder Include="ComboBoxes\Helpers\" />
+    <Folder Include="ComboBoxes\Painters\" />
     <Folder Include="Containers\" />
     <Folder Include="ContextMenus\Helpers\" />
     <Folder Include="ContextMenus\Painters\" />
@@ -1070,6 +1070,9 @@
     <Folder Include="Examples\" />
     <Folder Include="Forms\Adapters\" />
     <Folder Include="Forms\Properties\" />
+    <Folder Include="GridX\Layouts\FooterLayouts\" />
+    <Folder Include="GridX\Layouts\HeaderLayouts\" />
+    <Folder Include="GridX\Layouts\NavigationLayouts\" />
     <Folder Include="Icons\" />
     <Folder Include="Layouts\Painters\" />
     <Folder Include="Menus\ModelsandEnums\" />

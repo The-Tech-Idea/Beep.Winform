@@ -39,137 +39,224 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
 
         }
-
         protected override void OnPaint(PaintEventArgs e)
         {
             // Early out for safety during design-time removal/dispose
             if (IsDisposed || !IsHandleCreated)
                 return;
 
+            // Add comprehensive validation
+            if (e == null || e.Graphics == null || !IsReadyForDrawing)
+            {
+                base.OnPaint(e);
+                return;
+            }
+
+            // Always ensure clip rectangle is valid
+            var clipRect = EnsureValidRectangle(e.ClipRectangle);
 
             // Respect IsChild same as base BeepControl
-            if (IsChild)
+            try
             {
-                if (Parent == null)
+                if (IsChild)
                 {
-                    ParentBackColor = SystemColors.Control;
+                    ParentBackColor = Parent?.BackColor ?? SystemColors.Control;
+                    BackColor = ParentBackColor;
                 }
                 else
-                    ParentBackColor = Parent.BackColor;
-                BackColor = ParentBackColor;
+                {
+                    BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                }
+
+                e.Graphics.Clear(BackColor);
             }
-            else
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {
-                if(_currentTheme!=null)
-                    BackColor = _currentTheme.BackColor;
-                else
-                    BackColor = SystemColors.Control;
+                // Silently fail on color operations
+                System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
             }
-            e.Graphics.Clear(BackColor);
+
             if (UseExternalBufferedGraphics)
             {
-                BufferedGraphicsContext context = BufferedGraphicsManager.Current;
-                using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
+                try
                 {
-                    Graphics g = buffer.Graphics;
+                    BufferedGraphicsContext context = BufferedGraphicsManager.Current;
+                    if (context != null)
+                    {
+                        using (BufferedGraphics buffer = context.Allocate(e.Graphics, EnsureValidRectangle(this.ClientRectangle)))
+                        {
+                            Graphics g = buffer.Graphics;
 
-                    // Paint the inner area using the new PaintInnerShape method
-                    PaintInnerShape(g, BackColor);
+                            // Paint the inner area using the new PaintInnerShape method
+                            SafePaintInnerShape(g);
 
-                    // External drawing hooks BEFORE content (e.g., for notched label on outlined variant)
-                    _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+                            // External drawing hooks BEFORE content
+                            SafeExternalDrawing(g, DrawingLayer.BeforeContent);
 
-                    // Main content and painter
-                    DrawContent(g);
+                            // Main content and painter
+                            DrawContent(g);
 
-                    // Universal label/helper drawing fallback so every painter shows them
-               
-                     //DrawLabelAndHelperUniversal(g);
+                            // After-all external drawings
+                            SafeExternalDrawing(g, DrawingLayer.AfterAll);
 
-                    // After-all external drawings (e.g., badges or overlays registered on parent)
-                    _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.AfterAll);
+                            // Effects
+                            SafeDrawEffects(g);
 
-                    _effects?.DrawOverlays(g);
-                    buffer.Render(e.Graphics);
+                            buffer.Render(e.Graphics);
+                        }
+                    }
+                }
+                catch (Exception ex) when (ex is ArgumentException || ex is OutOfMemoryException)
+                {
+                    // Fall back to direct drawing if buffering fails
+                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint buffered error: {ex.Message}");
+                    SafeDraw(e.Graphics);
                 }
             }
             else
             {
-                Graphics g = e.Graphics;
+                SafeDraw(e.Graphics);
+            }
+        }
 
+        // Safe drawing without buffering
+        private void SafeDraw(Graphics g)
+        {
+            try
+            {
                 // Paint the inner area using the new PaintInnerShape method
-                PaintInnerShape(g, BackColor);
+                SafePaintInnerShape(g);
 
-                // External drawing hooks BEFORE content (e.g., for notched label on outlined variant)
-                _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.BeforeContent);
+                // External drawing hooks BEFORE content
+                SafeExternalDrawing(g, DrawingLayer.BeforeContent);
 
                 // Main content and painter
                 DrawContent(g);
 
-              
-                //    DrawLabelAndHelperUniversal(g);
+                // After-all external drawings
+                SafeExternalDrawing(g, DrawingLayer.AfterAll);
 
-                // After-all external drawings (e.g., badges or overlays registered on parent)
-                _externalDrawing?.PerformExternalDrawing(g, DrawingLayer.AfterAll);
-
-                _effects?.DrawOverlays(g);
+                // Effects
+                SafeDrawEffects(g);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.SafeDraw error: {ex.Message}");
             }
         }
+
+        private void SafePaintInnerShape(Graphics g)
+        {
+            try
+            {
+                PaintInnerShape(g, BackColor);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.SafePaintInnerShape error: {ex.Message}");
+            }
+        }
+
+        private void SafeExternalDrawing(Graphics g, DrawingLayer layer)
+        {
+            try
+            {
+                _externalDrawing?.PerformExternalDrawing(g, layer);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.SafeExternalDrawing error: {ex.Message}");
+            }
+        }
+
+        private void SafeDrawEffects(Graphics g)
+        {
+            try
+            {
+                _effects?.DrawOverlays(g);
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.SafeDrawEffects error: {ex.Message}");
+            }
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            UpdateDrawingRect();
-            UpdateControlRegion();
-            UpdateRegionForBadge();
-            Invalidate();
+
+            // Avoid updating regions/layout if dimensions aren't positive
+            if (Width <= 0 || Height <= 0) return;
+
+            try
+            {
+                UpdateDrawingRect();
+                UpdateControlRegion();
+                UpdateRegionForBadge();
+                Invalidate();
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.OnResize error: {ex.Message}");
+            }
         }
 
         private void UpdateControlRegion()
         {
             if (Width <= 0 || Height <= 0) return;
 
-            Region controlRegion;
-            var regionRect = new Rectangle(0, 0, Width, Height);
-
-            if (IsRounded && BorderRadius > 0)
+            try
             {
-                using (var path = ControlPaintHelper.GetRoundedRectPath(regionRect, BorderRadius))
+                Region controlRegion;
+                var regionRect = new Rectangle(0, 0, Width, Height);
+
+                if (IsRounded && BorderRadius > 0)
                 {
-                    controlRegion = new Region(path);
-                }
-            }
-            else
-            {
-                controlRegion = new Region(regionRect);
-            }
-
-            // Include badge area if present
-            if (!string.IsNullOrEmpty(BadgeText))
-            {
-                const int badgeSize = 22;
-                int badgeX = Width - badgeSize / 2;
-                int badgeY = -badgeSize / 2;
-                var badgeRect = new Rectangle(badgeX, badgeY, badgeSize, badgeSize);
-
-                using (var badgePath = new System.Drawing.Drawing2D.GraphicsPath())
-                {
-                    switch (BadgeShape)
+                    using (var path = ControlPaintHelper.GetRoundedRectPath(regionRect, BorderRadius))
                     {
-                        case BadgeShape.Circle:
-                            badgePath.AddEllipse(badgeRect);
-                            break;
-                        case BadgeShape.Rectangle:
-                            badgePath.AddRectangle(badgeRect);
-                            break;
-                        case BadgeShape.RoundedRectangle:
-                            badgePath.AddPath(ControlPaintHelper.GetRoundedRectPath(badgeRect, badgeRect.Height / 4), false);
-                            break;
+                        controlRegion = new Region(path);
                     }
-                    controlRegion.Union(badgePath);
                 }
-            }
+                else
+                {
+                    controlRegion = new Region(regionRect);
+                }
 
-            Region = controlRegion;
+                // Include badge area if present
+                if (!string.IsNullOrEmpty(BadgeText))
+                {
+                    const int badgeSize = 22;
+                    int badgeX = Width - badgeSize / 2;
+                    int badgeY = -badgeSize / 2;
+                    var badgeRect = new Rectangle(badgeX, badgeY, badgeSize, badgeSize);
+
+                    using (var badgePath = new GraphicsPath())
+                    {
+                        switch (BadgeShape)
+                        {
+                            case BadgeShape.Circle:
+                                badgePath.AddEllipse(badgeRect);
+                                break;
+                            case BadgeShape.Rectangle:
+                                badgePath.AddRectangle(badgeRect);
+                                break;
+                            case BadgeShape.RoundedRectangle:
+                                badgePath.AddPath(ControlPaintHelper.GetRoundedRectPath(badgeRect, badgeRect.Height / 4), false);
+                                break;
+                        }
+                        controlRegion.Union(badgePath);
+                    }
+                }
+
+                Region = controlRegion;
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is OutOfMemoryException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.UpdateControlRegion error: {ex.Message}");
+                // Fallback to rectangular region
+                try { Region = new Region(new Rectangle(0, 0, Width, Height)); }
+                catch { /* last resort - leave region as-is */ }
+            }
         }
         #endregion
 

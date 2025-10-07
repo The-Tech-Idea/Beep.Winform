@@ -6,9 +6,9 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls; // BeepButton, BeepComboBox, BeepCheckBoxBool
 using TheTechIdea.Beep.Vis.Modules;
 using Math = System.Math;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
 {
@@ -47,8 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             foreach (var cmb in new[] { cmbFilterCol1, cmbFilterVal1, cmbFilterCol2, cmbFilterVal2, cmbGroupBy, cmbOrderBy })
             {
                 cmb.Theme = _grid.Theme;
-                cmb.AutoWidthToContent = false;
-                cmb.ComboBoxAutoSizeForMaterial = false;
+              
+              
             }
             foreach (var btn in new[] { btnExport, btnApply, btnReset, btnClose })
             {

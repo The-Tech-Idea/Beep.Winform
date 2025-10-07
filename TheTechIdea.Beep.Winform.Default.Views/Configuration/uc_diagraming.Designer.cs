@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Winform.Controls;
 
 using TheTechIdea.Beep.Winform.Controls.Calendar;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
@@ -117,10 +118,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.CanBePressed = true;
             beepComboBox1.CanBeSelected = true;
             beepComboBox1.Category = Utilities.DbFieldCategory.Numeric;
-            beepComboBox1.ComboBoxErrorText = "";
-            beepComboBox1.ComboBoxHasError = false;
-            beepComboBox1.ComboBoxHelperText = "";
-            beepComboBox1.ComboBoxLabel = "";
+           
             beepComboBox1.ComponentName = "BeepControl";
             beepComboBox1.DataContext = null;
             beepComboBox1.DataSourceProperty = null;
@@ -242,7 +240,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepComboBox1.Size = new Size(304, 57);
             beepComboBox1.SlideFrom = SlideDirection.Left;
             beepComboBox1.StaticNotMoving = false;
-            beepComboBox1.StylePreset = MaterialTextFieldStylePreset.DenseOutlined;
+          
             beepComboBox1.TabIndex = 5;
             beepComboBox1.Tag = MainTemplatePanel;
             beepComboBox1.TempBackColor = Color.Empty;
@@ -430,7 +428,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = null;
             beepButton1.StaticNotMoving = false;
-            beepButton1.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+        
             beepButton1.TabIndex = 9;
             beepButton1.Tag = MainTemplatePanel;
             beepButton1.TempBackColor = Color.Empty;
@@ -2025,7 +2023,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton2.SplashColor = Color.Gray;
             beepButton2.StandardImages = (List<SimpleItem>)resources.GetObject("beepButton2.StandardImages");
             beepButton2.StaticNotMoving = false;
-            beepButton2.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+         
             beepButton2.TabIndex = 14;
             beepButton2.Tag = MainTemplatePanel;
             beepButton2.TempBackColor = Color.White;
@@ -2206,7 +2204,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepCard1.StaticNotMoving = false;
             beepCard1.StatusColor = Color.Green;
             beepCard1.StatusText = "";
-            beepCard1.Style = CardStyle.ProfileCard;
+            beepCard1.CardStyle = CardStyle.ProfileCard;
             beepCard1.SubtitleText = "";
             beepCard1.TabIndex = 15;
             beepCard1.Tag = MainTemplatePanel;

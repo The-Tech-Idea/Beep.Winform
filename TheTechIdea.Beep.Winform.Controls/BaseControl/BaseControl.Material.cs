@@ -61,8 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         private string _bcErrorText = string.Empty;
         private bool _bcHasError = false;
         private Color _bcErrorColor = Color.FromArgb(176, 0, 32); // Material Design error color
-        private MaterialTextFieldStylePreset _stylePreset = MaterialTextFieldStylePreset.Default;
-
+     
         // Material Design 3.0 elevation properties
         private int _bcElevationLevel = 0;
         private bool _bcUseElevation = true;
@@ -216,21 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Browsable(true), Category("Material ProgressBarStyle - Validation")]
         public Color ErrorColor { get => _bcErrorColor; set { _bcErrorColor = value; Invalidate(); } }
 
-        // Important: expose the preset exactly like BeepMaterialTextField
-        [Browsable(true)]
-        [Category("Material Design")]
-        [Description("Applies a predefined style preset that configures variant, density, radius, fill, and helper/label behavior.")]
-        [DefaultValue(MaterialTextFieldStylePreset.Default)]
-        public MaterialTextFieldStylePreset StylePreset
-        {
-            get => _stylePreset;
-            set
-            {
-                if (_stylePreset == value) return;
-                _stylePreset = value;
-                ApplyStylePreset(_stylePreset);
-            }
-        }
+       
 
         [Browsable(true), Category("Material Design 3.0")]
         [Description("Elevation level for shadow effects (0-5). Higher values create more pronounced shadows.")]
@@ -260,76 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region Preset application
-        public void ApplyStylePreset(MaterialTextFieldStylePreset preset)
-        {
-            switch (preset)
-            {
-                case MaterialTextFieldStylePreset.MaterialOutlined:
-                    MaterialVariant = MaterialTextFieldVariant.Outlined;
-                    MaterialBorderRadius = 8;
-                    MaterialShowFill = false;
-                    break;
-                case MaterialTextFieldStylePreset.MaterialFilled:
-                    MaterialVariant = MaterialTextFieldVariant.Filled;
-                    MaterialBorderRadius = 8;
-                    MaterialShowFill = true;
-                    MaterialFillColor = Color.FromArgb(0xEE, 0xEA, 0xF0);
-                    break;
-                case MaterialTextFieldStylePreset.MaterialStandard:
-                    MaterialVariant = MaterialTextFieldVariant.Standard;
-                    MaterialBorderRadius = 4;
-                    MaterialShowFill = false;
-                    break;
-                case MaterialTextFieldStylePreset.PillOutlined:
-                    MaterialVariant = MaterialTextFieldVariant.Outlined;
-                    MaterialBorderRadius = Math.Max(Height / 2, 20);
-                    MaterialShowFill = false;
-                    break;
-                case MaterialTextFieldStylePreset.PillFilled:
-                    MaterialVariant = MaterialTextFieldVariant.Filled;
-                    MaterialBorderRadius = Math.Max(Height / 2, 20);
-                    MaterialShowFill = true;
-                    MaterialFillColor = Color.FromArgb(245, 245, 245);
-                    break;
-                case MaterialTextFieldStylePreset.DenseOutlined:
-                    MaterialVariant = MaterialTextFieldVariant.Outlined;
-                    MaterialBorderRadius = 6;
-                    MaterialShowFill = false;
-                    break;
-                case MaterialTextFieldStylePreset.DenseFilled:
-                    MaterialVariant = MaterialTextFieldVariant.Filled;
-                    MaterialBorderRadius = 6;
-                    MaterialShowFill = true;
-                    MaterialFillColor = Color.FromArgb(245, 245, 245);
-                    break;
-                case MaterialTextFieldStylePreset.ComfortableOutlined:
-                    MaterialVariant = MaterialTextFieldVariant.Outlined;
-                    MaterialBorderRadius = 10;
-                    MaterialShowFill = false;
-                    break;
-                case MaterialTextFieldStylePreset.ComfortableFilled:
-                    MaterialVariant = MaterialTextFieldVariant.Filled;
-                    MaterialBorderRadius = 10;
-                    MaterialShowFill = true;
-                    MaterialFillColor = Color.FromArgb(245, 245, 245);
-                    break;
-                case MaterialTextFieldStylePreset.Default:
-                default:
-                    // Apply a sane baseline instead of doing nothing
-                    MaterialVariant = MaterialTextFieldVariant.Outlined;
-                    MaterialBorderRadius = 8;
-                    MaterialShowFill = false;
-                    break;
-            }
-
-            // Sync helper painter
-            MaterialBorderVariant = MaterialVariant;
-            FilledBackgroundColor = MaterialFillColor;
-            BorderRadius = MaterialBorderRadius;
-            UpdateMaterialLayout();
-             Invalidate();
-        }
-
+    
         /// <summary>
         /// Gets the adjusted content rectangle that excludes icon areas for proper content drawing
         /// </summary>
@@ -377,15 +293,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             base.OnSizeChanged(e);
             // Update painter layout when control size changes
-            UpdateMaterialLayout();
+     //       UpdateMaterialLayout();
         }
 
-        protected override void OnFontChanged(EventArgs e)
-        {
-            base.OnFontChanged(e);
-            // Update painter layout when font changes
-            UpdateMaterialLayout();
-        }
+   
         #endregion
 
         [Browsable(false), Category("Material ProgressBarStyle")]

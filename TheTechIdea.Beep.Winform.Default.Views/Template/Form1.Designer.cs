@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Template
+﻿using TheTechIdea.Beep.Winform.Controls;
+
+
+namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
     partial class Form1
     {
@@ -69,10 +72,7 @@
             beepComboBox1.CanBePressed = true;
             beepComboBox1.CanBeSelected = true;
             beepComboBox1.Category = Utilities.DbFieldCategory.Numeric;
-            beepComboBox1.ComboBoxErrorText = "";
-            beepComboBox1.ComboBoxHasError = false;
-            beepComboBox1.ComboBoxHelperText = "";
-            beepComboBox1.ComboBoxLabel = "";
+            
             beepComboBox1.ComponentName = "BaseControl";
             beepComboBox1.DataContext = null;
             beepComboBox1.DataSourceProperty = null;
@@ -195,7 +195,7 @@
             beepComboBox1.Size = new Size(329, 46);
             beepComboBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepComboBox1.StaticNotMoving = false;
-            beepComboBox1.StylePreset = Winform.Controls.Models.MaterialTextFieldStylePreset.DenseOutlined;
+           
             beepComboBox1.TabIndex = 2;
             beepComboBox1.Tag = this;
             beepComboBox1.TempBackColor = Color.Empty;
@@ -711,7 +711,7 @@
             beepListBox1.CanBePressed = true;
             beepListBox1.CanBeSelected = false;
             beepListBox1.Category = Utilities.DbFieldCategory.String;
-            beepListBox1.Collapsed = false;
+          
             beepListBox1.ComponentName = "BeepControl";
             beepListBox1.DataContext = null;
             beepListBox1.DataSourceProperty = null;
@@ -771,7 +771,7 @@
             beepListBox1.IsFocused = false;
             beepListBox1.IsFrameless = false;
             beepListBox1.IsHovered = false;
-            beepListBox1.IsItemChilds = true;
+         
             beepListBox1.IsNew = false;
             beepListBox1.IsPressed = false;
             beepListBox1.IsReadOnly = false;
@@ -813,8 +813,7 @@
             beepListBox1.SavedGuidID = null;
             beepListBox1.SavedID = null;
             beepListBox1.ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio;
-            beepListBox1.SearchAreaHeight = 26;
-            beepListBox1.SearchPlaceholderText = "Search...";
+          
             beepListBox1.SearchText = "";
             beepListBox1.SelectedBackColor = Color.DodgerBlue;
             beepListBox1.SelectedBorderColor = Color.RoyalBlue;
@@ -1033,7 +1032,7 @@
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
-            beepButton1.StylePreset = Winform.Controls.Models.MaterialTextFieldStylePreset.MaterialOutlined;
+          
             beepButton1.TabIndex = 12;
             beepButton1.Tag = this;
             beepButton1.TempBackColor = Color.Empty;
@@ -1214,7 +1213,7 @@
             beepCard1.StaticNotMoving = false;
             beepCard1.StatusColor = Color.Green;
             beepCard1.StatusText = "";
-            beepCard1.Style = Winform.Controls.CardStyle.ContentCard;
+            beepCard1.CardStyle = Winform.Controls.CardStyle.ContentCard;
             beepCard1.SubtitleText = "";
             beepCard1.TabIndex = 14;
             beepCard1.Tag = this;
@@ -1402,7 +1401,7 @@
             beepTextBox1.Size = new Size(162, 88);
             beepTextBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepTextBox1.StaticNotMoving = false;
-            beepTextBox1.StylePreset = Winform.Controls.Models.MaterialTextFieldStylePreset.DenseOutlined;
+           
             beepTextBox1.TabIndex = 15;
             beepTextBox1.Tag = this;
             beepTextBox1.TempBackColor = Color.Empty;
@@ -1782,7 +1781,7 @@
         #endregion
 
         private Controls.MDI.BeepMdiManager beepMdiManager1;
-        private Controls.BeepComboBox beepComboBox1;
+        private BeepComboBox beepComboBox1;
         private Controls.BeepCheckBoxBool beepCheckBoxBool1;
         private Controls.BeepLogin beepLogin1;
         private Controls.BeepListBox beepListBox1;

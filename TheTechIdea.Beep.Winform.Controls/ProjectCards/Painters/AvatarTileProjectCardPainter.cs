@@ -31,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
             DrawSubtitle(g, subRect, theme, subtitle);
 
             // bottom status + small progress
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             TextRenderer.DrawText(g, status, small, new Rectangle(textRect.X, inner.Bottom - small.Height - 2, 120, small.Height), theme.CardTextForeColor);
             var bar = new Rectangle(textRect.Right - 100, inner.Bottom - 6, 100, 4);
             using (var bb = new SolidBrush(System.Drawing.Color.FromArgb(40, theme.CardTextForeColor))) g.FillRectangle(bb, bar);

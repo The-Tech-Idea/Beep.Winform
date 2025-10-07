@@ -7,11 +7,12 @@ using TheTechIdea.Beep.Container.Services;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Vis.Modules.Managers;
+
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Editor.UOW;
+using TheTechIdea.Beep.Winform.Controls.ThemeManagement;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {

@@ -43,7 +43,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
         protected static void DrawHeader(Graphics g, Rectangle bounds, IBeepTheme theme, string header)
         {
             if (string.IsNullOrEmpty(header)) return;
-            using var font = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.CardHeaderStyle);
+            using var font =  BeepThemesManager.ToFont(theme.CardHeaderStyle);
             using var brush = new SolidBrush(theme.CardTextForeColor.IsEmpty ? Color.Black : theme.CardTextForeColor);
             var textRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, (int)(font.Size * 1.6f));
             TextRenderer.DrawText(g, header, font, textRect, brush.Color, TextFormatFlags.Left | TextFormatFlags.EndEllipsis);
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.StatusCards.Painters
         protected static void DrawValue(Graphics g, Rectangle bounds, IBeepTheme theme, string valueText, float scale = 1.6f)
         {
             if (string.IsNullOrEmpty(valueText)) return;
-            using var fontRaw = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.CardparagraphStyle);
+            using var fontRaw =  BeepThemesManager.ToFont(theme.CardparagraphStyle);
             using var font = new Font(fontRaw.FontFamily, Math.Max(8, fontRaw.Size * scale), FontStyle.Bold);
             using var brush = new SolidBrush(theme.CardTextForeColor.IsEmpty ? Color.Black : theme.CardTextForeColor);
             TextRenderer.DrawText(g, valueText, font, bounds, brush.Color, TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);

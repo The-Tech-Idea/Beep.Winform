@@ -25,7 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Toolstrips.Painters
             string iconPlacement = GetString(parameters, "IconPlacement", DefaultIconPlacement);
             int corner = GetCorner(parameters, "CornerRadius", DefaultCornerRadius);
 
-            using var font = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.ComboBoxItemFont);
+            using var font =  BeepThemesManager.ToFont(theme.ComboBoxItemFont);
             var itemRects = owner.GetItemRects(bounds, font, padH, padV, spacing, iconSize, iconGap, iconPlacement);
             if (itemRects.Count == 0) return;
 

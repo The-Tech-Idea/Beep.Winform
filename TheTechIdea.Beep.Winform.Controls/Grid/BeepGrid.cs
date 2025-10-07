@@ -18,7 +18,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
  
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Base;
- 
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+
 
 // Add enum for sort direction
 

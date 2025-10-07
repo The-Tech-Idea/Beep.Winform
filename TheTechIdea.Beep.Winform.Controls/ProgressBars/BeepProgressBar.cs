@@ -346,7 +346,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars
             if (UseThemeFont)
             {
                 TextFont = _currentTheme.ProgressBarFont != null ? BeepThemesManager.ToFont(_currentTheme.ProgressBarFont) : new Font(_currentTheme.FontFamily, _currentTheme.FontSizeCaption, FontStyle.Regular);
-                Font = TextFont;
+              
             }
             _secondaryProgressColor = Color.FromArgb(50, _currentTheme.SecondaryColor.R, _currentTheme.SecondaryColor.G, _currentTheme.SecondaryColor.B);
             if (_currentTheme.ProgressBarSuccessColor != Color.Empty) _successColor = _currentTheme.ProgressBarSuccessColor;

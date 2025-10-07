@@ -1,5 +1,6 @@
 ﻿
 using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
@@ -491,10 +492,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.CanBeHovered = true;
             DriverbeepComboBox.CanBePressed = true;
             DriverbeepComboBox.Category = Utilities.DbFieldCategory.Numeric;
-            DriverbeepComboBox.ComboBoxErrorText = "";
-            DriverbeepComboBox.ComboBoxHasError = false;
-            DriverbeepComboBox.ComboBoxHelperText = "";
-            DriverbeepComboBox.ComboBoxLabel = "";
+     
             DriverbeepComboBox.ComponentName = "BaseControl";
             DriverbeepComboBox.DataSourceProperty = null;
             DriverbeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -849,10 +847,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox.CanBeHovered = true;
             DriverVersionbeepComboBox.CanBePressed = true;
             DriverVersionbeepComboBox.Category = Utilities.DbFieldCategory.Numeric;
-            DriverVersionbeepComboBox.ComboBoxErrorText = "";
-            DriverVersionbeepComboBox.ComboBoxHasError = false;
-            DriverVersionbeepComboBox.ComboBoxHelperText = "";
-            DriverVersionbeepComboBox.ComboBoxLabel = "";
+          
             DriverVersionbeepComboBox.ComponentName = "BaseControl";
             DriverVersionbeepComboBox.DataSourceProperty = null;
             DriverVersionbeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -1163,7 +1158,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CancelbeepButton.SplashColor = Color.Gray;
             CancelbeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("CancelbeepButton.StandardImages");
             CancelbeepButton.StaticNotMoving = false;
-            CancelbeepButton.StylePreset = Winform.Controls.Models.MaterialTextFieldStylePreset.MaterialOutlined;
+          
             CancelbeepButton.TabIndex = 7;
             CancelbeepButton.Tag = beepPanel1;
             CancelbeepButton.TempBackColor = Color.Empty;
@@ -1355,7 +1350,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             SavebeepButton.SplashColor = Color.Gray;
             SavebeepButton.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("SavebeepButton.StandardImages");
             SavebeepButton.StaticNotMoving = false;
-            SavebeepButton.StylePreset = Winform.Controls.Models.MaterialTextFieldStylePreset.MaterialOutlined;
+           
             SavebeepButton.TabIndex = 6;
             SavebeepButton.Tag = beepPanel1;
             SavebeepButton.TempBackColor = Color.Empty;
@@ -1395,8 +1390,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
         protected Controls.BeepPanel beepPanel1;
         protected Controls.BeepTextBox ConnectionNamebeepTextBox;
         protected Controls.BeepTextBox ConnectionStringbeepTextBox;
-        protected Controls.BeepComboBox DriverVersionbeepComboBox;
-        protected Controls.BeepComboBox DriverbeepComboBox;
+        protected BeepComboBox DriverVersionbeepComboBox;
+        protected BeepComboBox DriverbeepComboBox;
         protected BeepButton CancelbeepButton;
         protected BeepButton SavebeepButton;
         public Controls.BeepTabs beepTabs1;

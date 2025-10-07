@@ -40,24 +40,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (headerRect.Height <= 0 || headerRect.Width <= 0) return;
 
             // If a custom painter is assigned, delegate to it
-            if (_grid.head != null)
-            {
-                try
-                {
-                    _grid.HeaderPainter.Paint(g, headerRect, _grid);
-                }
-                catch (Exception ex)
-                {
-                    // Fallback to default rendering if painter fails
-                    System.Diagnostics.Debug.WriteLine($"HeaderPainter failed: {ex.Message}");
-                    DrawDefaultHeaderToolbar(g, headerRect);
-                }
-            }
-            else
-            {
-                // No painter assigned, use default rendering
-                DrawDefaultHeaderToolbar(g, headerRect);
-            }
+            //if (_grid.HeaderPainter != null)
+            //{
+            //    try
+            //    {
+            //        _grid.HeaderPainter.Paint(g, headerRect, _grid);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        // Fallback to default rendering if painter fails
+            //        System.Diagnostics.Debug.WriteLine($"HeaderPainter failed: {ex.Message}");
+            //        DrawDefaultHeaderToolbar(g, headerRect);
+            //    }
+            //}
+            //else
+            //{
+            //    // No painter assigned, use default rendering
+            //    DrawDefaultHeaderToolbar(g, headerRect);
+            //}
         }
 
         /// <summary>
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Optional: Draw placeholder text indicating no painter is assigned
-            if (_grid.DesignMode)
+            if (_grid.IsAncestorSiteInDesignMode)
             {
                 DrawDesignModeHint(g, headerRect);
             }

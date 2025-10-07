@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             ApplyTheme(); // apply current theme
 
             SelectedItemChanged += BeepContextMenuStrip_SelectedIndexChanged;
+            base.ItemClicked += OnListItemClicked;
         }
 
         private void BeepContextMenuStrip_SelectedIndexChanged(object sender, EventArgs e)
@@ -99,16 +100,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             }
         }
 
-        // Override ItemClicked or other event from BeepListBox if needed
-        public override void ListItemClicked(object sender)
+        // Handle item clicks from BeepListBox
+        private void OnListItemClicked(object sender, SimpleItem item)
         {
-
-            base.ListItemClicked(sender);
-            if (sender is BeepButton btn && btn.Tag is SimpleItem item)
-            {
-                ItemClicked?.Invoke(this, item);
-                Hide();
-            }
+            ItemClicked?.Invoke(this, item);
+            Hide();
         }
 
         public override void ApplyTheme()

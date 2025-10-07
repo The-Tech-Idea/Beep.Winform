@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             progressBar1 = new BeepProgressBar();
             LogtextBox = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
             beepPanel1 = new TheTechIdea.Beep.Winform.Controls.BeepPanel();
-            beepNumericUpDown1 = new TheTechIdea.Beep.Winform.Controls.BeepNumericUpDown();
+            beepNumericUpDown1 = new TheTechIdea.Beep.Winform.Controls.Numerics.BeepNumericUpDown();
             RunScriptsbeepButton = new BeepButton();
             StopbeepButton = new BeepButton();
             beepPanel1.SuspendLayout();

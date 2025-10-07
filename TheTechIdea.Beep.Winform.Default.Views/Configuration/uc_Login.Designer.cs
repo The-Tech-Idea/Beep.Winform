@@ -541,7 +541,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.SplashColor = Color.Gray;
             CancelbeepButton.StandardImages = null;
             CancelbeepButton.StaticNotMoving = false;
-            CancelbeepButton.StylePreset = MaterialTextFieldStylePreset.MaterialOutlined;
+
             CancelbeepButton.TabIndex = 2;
             CancelbeepButton.Tag = MainTemplatePanel;
             CancelbeepButton.TempBackColor = Color.Empty;

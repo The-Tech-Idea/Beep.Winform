@@ -1,4 +1,7 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
+﻿using TheTechIdea.Beep.Winform.Controls;
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+
+namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     partial class uc_webapiAuthenticationProperties
     {
@@ -157,7 +160,7 @@
         #endregion
 
         private TheTechIdea.Beep.Winform.Controls.BeepPanel WebApiAuth_propertiesPanel;
-        private TheTechIdea.Beep.Winform.Controls.BeepComboBox WebApiAuth_AuthTypebeepComboBox;
+        private BeepComboBox WebApiAuth_AuthTypebeepComboBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ApiKeybeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ApiKeyHeaderbeepTextBox;
         private TheTechIdea.Beep.Winform.Controls.BeepTextBox WebApiAuth_ClientIdbeepTextBox;

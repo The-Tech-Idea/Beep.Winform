@@ -348,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void GoToLine(int lineNumber)
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null || !control.Multiline) return;
             
             var lines = control.GetLines();
@@ -388,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void NextBookmark()
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null || _bookmarks.Count == 0) return;
             
             int currentLine = GetCurrentLineNumber();
@@ -402,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void PreviousBookmark()
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null || _bookmarks.Count == 0) return;
             
             int currentLine = GetCurrentLineNumber();
@@ -435,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void CommentSelection()
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null) return;
             
             string commentPrefix = GetCommentPrefix();
@@ -458,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         public void UncommentSelection()
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null) return;
             
             string commentPrefix = GetCommentPrefix();
@@ -575,7 +575,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private int GetCurrentLineNumber()
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null) return 1;
             
             // Calculate current line number
@@ -584,7 +584,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private string GetLineText(int lineNumber)
         {
-            var control = _textBox as BeepSimpleTextBox;
+            var control = _textBox as BeepTextBox;
             if (control == null) return string.Empty;
             
             var lines = control.GetLines();

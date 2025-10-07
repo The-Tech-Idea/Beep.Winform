@@ -17,23 +17,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderThickness = 1;
             BorderRadius = 3;
             InitializeComponent();
+            
             Progress.ProgressChanged += (sender, args) =>
             {
                     UpdateProgress(args.Progress, args.Messege);
             };
+            
             _spinnerImage.IsChild = true;
             LogopictureBox.IsChild = true;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
+            
             StartSpinner();
             Theme=BeepThemesManager.CurrentThemeName;
             ApplyTheme();
             
-            // Ensure multiline is properly configured
-            messege.Multiline = true;
-            messege.AcceptsReturn = true;
-            messege.WordWrap = true;
-            messege.ScrollBars = ScrollBars.Vertical;
+            // NOTE: messege control configuration moved to OnShown event for safety
             
            // _spinnerImage.ApplyThemeOnImage = true;
           //  _spinnerImage.Theme = Theme;
@@ -42,6 +41,39 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            
+            // Configure messege control after form is fully shown and initialized
+            if (messege != null)
+            {
+                try
+                {
+                    messege.Multiline = true;
+                    messege.AcceptsReturn = true;
+                    messege.WordWrap = true;
+                    messege.ScrollBars = ScrollBars.Vertical;
+                    
+                    System.Diagnostics.Debug.WriteLine("Successfully configured messege control in OnShown");
+                }
+                catch (Exception ex)
+                {
+                    // Log the error but don't crash the form
+                    System.Diagnostics.Debug.WriteLine($"Error configuring messege control in OnShown: {ex.Message}");
+                    // Set fallback configuration if needed
+                    try
+                    {
+                        messege.ReadOnly = true; // Ensure it's at least usable
+                    }
+                    catch
+                    {
+                        // If even basic configuration fails, we'll continue without it
+                    }
+                }
+            }
+        }
+       
         private void StartSpinner()
         {
             SafeInvoke(() =>

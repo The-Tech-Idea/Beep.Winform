@@ -307,7 +307,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             featuresListBox.BackColor = _currentTheme.CardBackColor;
             featuresListBox.TextFont = BeepThemesManager.ToFont(_currentTheme.CardparagraphStyle);
             featuresListBox.ForeColor = _currentTheme.CardTextForeColor;
-            featuresListBox.SetColors();
+         
             featuresListBox.Invalidate();
             actionIcon1.FillColor = Color.White;
             actionIcon1.StrokeColor = Color.White;

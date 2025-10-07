@@ -7,9 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
 {
-    /// <summary>
-    /// Interface for textbox controls that can use the helper system
-    /// </summary>
+
     public interface IBeepTextBox
     {
         // Core Text Properties
@@ -42,6 +40,12 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         TextImageRelation TextImageRelation { get; set; }
         ContentAlignment ImageAlign { get; set; }
         BeepImage BeepImage { get; }
+        bool ImageVisible { get; set; }
+        Padding ImageMargin { get; set; }
+        
+        // Password Properties
+        bool UseSystemPasswordChar { get; set; }
+        char PasswordChar { get; set; }
         
         // Masking
         TextBoxMaskFormat MaskFormat { get; set; }
@@ -52,7 +56,6 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         string GetDisplayText();
         void ScrollToCaret();
         void Invalidate();
-        new void Focus(); // Use 'new' to hide the base Control.Focus()
         
         // Control Properties
         Rectangle ClientRectangle { get; }
@@ -230,10 +233,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         public void MoveCaretVertical(int direction, bool extend) 
         {
             // Basic vertical movement for multiline
-            var beepTextBox = _textBox as BeepSimpleTextBox;
-            if (beepTextBox?.Multiline != true) return;
+            if (!_textBox.Multiline) return;
             
-            var lines = beepTextBox.GetLines();
+            var lines = _textBox.GetLines();
             if (lines.Count <= 1) return;
             
             // Find current line and position
@@ -351,17 +353,13 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         {
             string text = _textBox.Text ?? "";
             // Use displayed text for width (respect password masking)
-            var beepTextBox = _textBox as BeepSimpleTextBox;
-            if (beepTextBox != null)
+            if (_textBox.UseSystemPasswordChar && !string.IsNullOrEmpty(text))
             {
-                if (beepTextBox.UseSystemPasswordChar && !string.IsNullOrEmpty(text))
-                {
-                    text = new string('•', text.Length);
-                }
-                else if (beepTextBox.PasswordChar != '\0' && !string.IsNullOrEmpty(text))
-                {
-                    text = new string(beepTextBox.PasswordChar, text.Length);
-                }
+                text = new string('ï¿½', text.Length);
+            }
+            else if (_textBox.PasswordChar != '\0' && !string.IsNullOrEmpty(text))
+            {
+                text = new string(_textBox.PasswordChar, text.Length);
             }
             
             Font font = _textBox.TextFont ?? new Font("Segoe UI", 9f);
@@ -416,10 +414,9 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         private Rectangle GetActualTextRect(Graphics g, Rectangle textRect)
         {
             // Check if there's an image that affects layout using strict visibility
-            var beepTextBox = _textBox as BeepSimpleTextBox;
             bool hasVisibleImage = _textBox.BeepImage != null && 
                                    !string.IsNullOrWhiteSpace(_textBox.ImagePath) && 
-                                   (beepTextBox?.ImageVisible ?? false) &&
+                                   _textBox.ImageVisible &&
                                    _textBox.BeepImage.Visible;
             if (!hasVisibleImage)
                 return textRect;
@@ -446,7 +443,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             
             // Include image margin if any
-            Padding margin = beepTextBox != null ? beepTextBox.ImageMargin : new Padding(0);
+            Padding margin = _textBox.ImageMargin;
             
             Rectangle adjustedTextRect = textRect;
             

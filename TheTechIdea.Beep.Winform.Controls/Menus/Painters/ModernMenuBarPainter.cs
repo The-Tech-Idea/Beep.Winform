@@ -291,12 +291,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             }
 
             // Text width - measure actual text with font
+            // Use TextRenderer.MeasureText for safer measurement without Graphics context
             if (!string.IsNullOrEmpty(item.Text))
             {
-                using var tempBitmap = new Bitmap(1, 1);
-                using var tempGraphics = Graphics.FromImage(tempBitmap);
-                var textSize = tempGraphics.MeasureString(item.Text, font);
-                width += (int)Math.Ceiling(textSize.Width);
+                var textSize = TextRenderer.MeasureText(item.Text, font);
+                width += textSize.Width;
             }
 
             // Dropdown indicator width

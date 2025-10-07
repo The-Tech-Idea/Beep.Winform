@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 
 namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
@@ -443,17 +444,6 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             // Only draw caret if no selection is active
             if (_textBox.SelectionLength > 0) return;
             
-            // Check if caret should be visible based on timer
-            var beepTextBox = _textBox as BeepSimpleTextBox;
-            bool shouldDrawCaret = true;
-            
-            if (beepTextBox?.Helper?.Caret != null)
-            {
-                shouldDrawCaret = beepTextBox.Helper.Caret.CaretVisible;
-            }
-            
-            if (!shouldDrawCaret) return;
-            
             string text = GetActualText();
             int caretPosition = _textBox.SelectionStart;
             
@@ -546,23 +536,22 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         /// </summary>
         private void DrawLineNumbers(Graphics g, Rectangle clientRect, Rectangle textRect)
         {
-            var control = _textBox as BeepSimpleTextBox;
-            if (control == null || !control.ShowLineNumbers || !control.Multiline) return;
+            if (!_textBox.ShowLineNumbers || !_textBox.Multiline) return;
             
             // Get line number area
             Rectangle lineNumberRect = new Rectangle(
                 clientRect.X, clientRect.Y,
-                control.LineNumberMarginWidth, clientRect.Height);
+                _textBox.LineNumberMarginWidth, clientRect.Height);
             
             // Fill line number background
-            using (var brush = new SolidBrush(control.LineNumberBackColor))
+            using (var brush = new SolidBrush(_textBox.LineNumberBackColor))
             {
                 g.FillRectangle(brush, lineNumberRect);
             }
             
             // Draw line numbers
-            var lines = control.GetLines();
-            Font lineFont = control.LineNumberFont ?? control.TextFont ?? new Font("Consolas", 8f);
+            var lines = _textBox.GetLines();
+            Font lineFont = _textBox.LineNumberFont ?? _textBox.TextFont ?? new Font("Consolas", 8f);
             
             for (int i = 0; i < lines.Count; i++)
             {
@@ -574,11 +563,11 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
                     GetLineHeight(g, lineFont));
                 
                 TextRenderer.DrawText(g, lineNumber, lineFont, lineRect,
-                    control.LineNumberForeColor, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
+                    _textBox.LineNumberForeColor, TextFormatFlags.Right | TextFormatFlags.VerticalCenter);
             }
             
             // Draw separator line
-            using (var pen = new Pen(Color.FromArgb(100, control.LineNumberForeColor)))
+            using (var pen = new Pen(Color.FromArgb(100, _textBox.LineNumberForeColor)))
             {
                 g.DrawLine(pen, lineNumberRect.Right - 1, lineNumberRect.Top,
                     lineNumberRect.Right - 1, lineNumberRect.Bottom);
@@ -589,8 +578,7 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private bool ShouldDrawLineNumbers()
         {
-            var control = _textBox as BeepSimpleTextBox;
-            return control?.ShowLineNumbers == true && control.Multiline;
+            return _textBox.ShowLineNumbers && _textBox.Multiline;
         }
         
         private bool ShouldDrawPlaceholder()
@@ -601,12 +589,11 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
         
         private bool HasImage()
         {
-            var control = _textBox as BeepSimpleTextBox;
             var beepImg = _textBox.BeepImage;
             if (beepImg == null) return false;
             
             // Require: ImageVisible flag, control BeepImage.Visible, non-empty path, and actual image loaded
-            bool imageVisibleFlags = (control?.ImageVisible ?? false) && beepImg.Visible;
+            bool imageVisibleFlags = _textBox.ImageVisible && beepImg.Visible;
             bool hasPath = !string.IsNullOrWhiteSpace(_textBox.ImagePath);
             bool hasLoadedImage = false;
             try
@@ -674,17 +661,13 @@ namespace TheTechIdea.Beep.Winform.Controls.TextFields.Helpers
             }
             
             // Handle password characters
-            var beepTextBox = _textBox as BeepSimpleTextBox;
-            if (beepTextBox != null)
+            if (_textBox.UseSystemPasswordChar && !string.IsNullOrEmpty(text))
             {
-                if (beepTextBox.UseSystemPasswordChar && !string.IsNullOrEmpty(text))
-                {
-                    return new string('•', text.Length);
-                }
-                else if (beepTextBox.PasswordChar != '\0' && !string.IsNullOrEmpty(text))
-                {
-                    return new string(beepTextBox.PasswordChar, text.Length);
-                }
+                return new string('ï¿½', text.Length);
+            }
+            else if (_textBox.PasswordChar != '\0' && !string.IsNullOrEmpty(text))
+            {
+                return new string(_textBox.PasswordChar, text.Length);
             }
             
             // For debugging: add a check to see what text we're getting

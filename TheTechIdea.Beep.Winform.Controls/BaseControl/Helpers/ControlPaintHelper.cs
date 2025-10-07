@@ -15,11 +15,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
     [Obsolete("ControlPaintHelper is deprecated. Use IBaseControlPainter implementations for layout and drawing. This helper remains only for shared utilities (rounded paths, gradients) during transition.")]
     internal static class ControlPaintHelper
     {
-        // Removed instance state. Only utilities remain.
+        // Common guards
+        private static bool IsDrawable(Graphics g, Rectangle rect)
+            => g != null && rect.Width > 0 && rect.Height > 0;
 
         // Modern Gradient Methods (utility overloads)
         public static void DrawSubtleGradient(Graphics g, Rectangle rect, Color baseColor, float angleDegrees = 0f)
         {
+            if (!IsDrawable(g, rect)) return;
+
             Color color1 = baseColor;
             float brightness = baseColor.GetBrightness();
             const float subtleFactor = 0.05f;
@@ -43,6 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public static void DrawLinearGradient(Graphics g, Rectangle rect, Color startColor, Color endColor, LinearGradientMode direction, List<GradientStop> stops = null)
         {
+            if (!IsDrawable(g, rect)) return;
             using (var gradientBrush = new LinearGradientBrush(rect, startColor, endColor, direction))
             {
                 if (stops != null && stops.Count > 1)
@@ -55,9 +60,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public static void DrawRadialGradient(Graphics g, Rectangle rect, Color centerColor, Color edgeColor, PointF center, float radiusFactor = 0.7f)
         {
+            if (!IsDrawable(g, rect)) return;
             using (var path = new GraphicsPath())
             {
-                float radius = Math.Max(rect.Width, rect.Height) * radiusFactor;
+                float radius = Math.Max(rect.Width, rect.Height) * Math.Max(0f, radiusFactor);
+                if (radius <= 0) return;
                 path.AddEllipse(center.X - radius, center.Y - radius, radius * 2, radius * 2);
                 using (var gradientBrush = new PathGradientBrush(path))
                 {
@@ -71,6 +78,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public static void DrawConicGradient(Graphics g, Rectangle rect, Func<float, Color> colorByHue, float startAngleDegrees)
         {
+            if (!IsDrawable(g, rect)) return;
             var center = new PointF(rect.X + rect.Width / 2f, rect.Y + rect.Height / 2f);
             int segments = 36;
             for (int i = 0; i < segments; i++)
@@ -85,6 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public static void DrawMeshGradient(Graphics g, Rectangle rect, Color baseColor, int gridSize = 3)
         {
+            if (!IsDrawable(g, rect) || gridSize < 2) return;
             Color[,] colorGrid = new Color[gridSize, gridSize];
             for (int x = 0; x < gridSize; x++)
             {
@@ -102,7 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             {
                 for (int y = 0; y < gridSize - 1; y++)
                 {
-                    var cellRect = new RectangleF(rect.X + x * cellWidth, rect.Y + y * cellHeight, cellWidth * 1.5f, cellHeight * 1.5f);
+                    var cellRect = new RectangleF(rect.X + x * cellWidth, rect.Y + y * cellHeight, Math.Max(1f, cellWidth * 1.5f), Math.Max(1f, cellHeight * 1.5f));
                     using var cellBrush = new LinearGradientBrush(cellRect, colorGrid[x, y], colorGrid[x + 1, y + 1], LinearGradientMode.ForwardDiagonal);
                     g.FillRectangle(cellBrush, cellRect);
                 }
@@ -111,9 +120,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         public static void ApplyGlassmorphism(Graphics g, Rectangle rect, float opacity)
         {
+            if (!IsDrawable(g, rect)) return;
             using var glassBrush = new SolidBrush(Color.FromArgb((int)(255 * opacity), Color.White));
             var random = new Random(42);
-            for (int i = 0; i < rect.Width * rect.Height / 1000; i++)
+            int particles = Math.Max(0, rect.Width * rect.Height / 1000);
+            for (int i = 0; i < particles; i++)
             {
                 int x = random.Next(rect.X, rect.X + rect.Width);
                 int y = random.Next(rect.Y, rect.Y + rect.Height);
@@ -126,10 +137,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         // Helper Methods
         private static void FillShape(Graphics g, Brush brush, Rectangle rect, int radius = 0, bool rounded = false)
         {
+            if (g == null || brush == null || rect.Width <= 0 || rect.Height <= 0) return;
             if (rounded && radius > 0)
             {
                 using var path = GetRoundedRectPath(rect, radius);
-                g.FillPath(brush, path);
+                if (path.PointCount > 0)
+                    g.FillPath(brush, path);
             }
             else
             {
@@ -139,6 +152,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private static LinearGradientBrush CreateAngledGradientBrush(Rectangle rect, Color color1, Color color2, float angleRadians)
         {
+            // Clamp rect to minimum size to prevent exceptions in brushes
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                rect = new Rectangle(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height));
+            }
             float cos = (float)Math.Cos(angleRadians);
             float sin = (float)Math.Sin(angleRadians);
 
@@ -202,7 +220,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         public static GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
         {
             var path = new GraphicsPath();
-            int d = Math.Min(Math.Min(radius * 2, rect.Width), rect.Height);
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                // avoid invalid path; return empty path
+                return path;
+            }
+            int d = Math.Min(Math.Min(Math.Max(0, radius) * 2, rect.Width), rect.Height);
             if (d <= 0)
             {
                 path.AddRectangle(rect);
@@ -216,12 +239,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             return path;
         }
 
-        /// <summary>
-        /// Creates a DPI-scaled font based on the control's scaling factor
-        /// </summary>
-        /// <param name="baseFont">Base font to scale</param>
-        /// <param name="scaleFactor">DPI scale factor (1.0 = 100%, 1.25 = 125%, etc.)</param>
-        /// <returns>Scaled font</returns>
         public static Font GetScaledFont(Font baseFont, float scaleFactor = 1.0f)
         {
             if (baseFont == null) return SystemFonts.DefaultFont;
@@ -230,24 +247,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             try
             {
                 float scaledSize = baseFont.Size * scaleFactor;
-                // Ensure minimum readable size
                 scaledSize = Math.Max(6f, scaledSize);
                 return new Font(baseFont.FontFamily, scaledSize, baseFont.Style, baseFont.Unit);
             }
             catch
             {
-                return baseFont; // Return original if scaling fails
+                return baseFont;
             }
         }
 
-        /// <summary>
-        /// Creates a DPI-scaled font with specified size
-        /// </summary>
-        /// <param name="fontFamily">Font family</param>
-        /// <param name="baseSize">Base font size</param>
-        /// <param name="style">Font style</param>
-        /// <param name="scaleFactor">DPI scale factor</param>
-        /// <returns>Scaled font</returns>
         public static Font GetScaledFont(FontFamily fontFamily, float baseSize, FontStyle style, float scaleFactor = 1.0f)
         {
             try
@@ -262,14 +270,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
         }
 
-        /// <summary>
-        /// Creates a DPI-scaled font from font family name
-        /// </summary>
-        /// <param name="fontFamilyName">Font family name</param>
-        /// <param name="baseSize">Base font size</param>
-        /// <param name="style">Font style</param>
-        /// <param name="scaleFactor">DPI scale factor</param>
-        /// <returns>Scaled font</returns>
         public static Font GetScaledFont(string fontFamilyName, float baseSize, FontStyle style, float scaleFactor = 1.0f)
         {
             try

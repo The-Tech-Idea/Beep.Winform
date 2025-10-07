@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
             DrawTitle(g, new Rectangle(inner.X, inner.Y, inner.Width, 24), theme, title);
             DrawSubtitle(g, new Rectangle(inner.X, inner.Y + 20, inner.Width, 18), theme, subtitle);
 
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             int x = inner.X; int y = inner.Y + 44; int h = small.Height + 6;
             for (int i = 0; i < tags.Length; i++)
             {
@@ -47,7 +47,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProjectCards.Painters
         {
             var tags = GetStringArray(p, BeepProjectCard.ParamTags);
             var inner = Inset(bounds, 12);
-            using var small = TheTechIdea.Beep.Vis.Modules.Managers.BeepThemesManager.ToFont(theme.SmallText);
+            using var small =  BeepThemesManager.ToFont(theme.SmallText);
             int x = inner.X; int y = inner.Y + 44; int h = small.Height + 6;
             for (int i = 0; i < tags.Length; i++)
             {

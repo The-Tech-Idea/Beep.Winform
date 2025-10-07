@@ -24,8 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         // A simple incremental index
         private static int index = -1;
 
-        // Cache created fonts to reduce allocations
-        private static readonly Dictionary<string, Font> fontCache = new(StringComparer.OrdinalIgnoreCase);
+        // Cache created fonts to reduce allocations - but track if they're still valid
+        private static readonly Dictionary<string, WeakReference<Font>> fontCache = new(StringComparer.OrdinalIgnoreCase);
+        private static readonly object fontCacheLock = new object();
 
         #region "System Font Discovery"
         /// <summary>
@@ -428,26 +429,24 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         {
             if (string.IsNullOrWhiteSpace(fontName))
             {
-                // Fallback to Arial if no font name is provided
-                return new Font("Arial", size, style);
+                return GetOrCreateFont("Arial|" + size + "|" + (int)style, 
+                    () => new Font("Arial", size, style));
             }
 
             string cacheKey = $"{fontName}|{size}|{(int)style}";
-            if (fontCache.TryGetValue(cacheKey, out var cached))
-                return cached;
-
-            // Try exact configuration match
-            var fontConfig = FontConfigurations.FirstOrDefault(
-                f => f.Name.Equals(fontName, StringComparison.OrdinalIgnoreCase));
-
-            try
+            
+            return GetOrCreateFont(cacheKey, () =>
             {
+                // Try exact configuration match
+                var fontConfig = FontConfigurations.FirstOrDefault(
+                    f => f.Name.Equals(fontName, StringComparison.OrdinalIgnoreCase));
+
                 // For system fonts, create from name
                 if (fontConfig != null && fontConfig.IsSystemFont)
                 {
-                    var f = new Font(fontName, size, style);
-                    fontCache[cacheKey] = f; return f;
+                    return new Font(fontName, size, style);
                 }
+                
                 // For private fonts, try by stored index, else by name lookup in private collection
                 if (fontConfig != null && fontConfig.IsPrivateFont)
                 {
@@ -456,8 +455,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                         var fam = privateFontCollection.Families[fontConfig.PrivateFontIndex];
                         if (fam != null)
                         {
-                            var f = new Font(fam, size, style);
-                            fontCache[cacheKey] = f; return f;
+                            return new Font(fam, size, style);
                         }
                     }
 
@@ -465,8 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     var pfam = FindPrivateFamilyByName(fontName);
                     if (pfam != null)
                     {
-                        var f = new Font(pfam, size, style);
-                        fontCache[cacheKey] = f; return f;
+                        return new Font(pfam, size, style);
                     }
                 }
 
@@ -477,41 +474,25 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                     // system or private
                     if (alt.IsSystemFont)
                     {
-                        var f = new Font(alt.Name, size, style);
-                        fontCache[cacheKey] = f; return f;
+                        return new Font(alt.Name, size, style);
                     }
                     var pfam2 = FindPrivateFamilyByName(alt.Name);
                     if (pfam2 != null)
                     {
-                        var f = new Font(pfam2, size, style);
-                        fontCache[cacheKey] = f; return f;
+                        return new Font(pfam2, size, style);
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Failed to create font {fontName}: {ex.Message}");
-            }
 
-            // Fallback: Try Arial, then GenericSansSerif
-            try
-            {
-                var f = new Font("Arial", size, style);
-                fontCache[cacheKey] = f; return f;
-            }
-            catch
-            {
+                // Fallback: Try Arial, then GenericSansSerif
                 try
                 {
-                    var f = new Font(FontFamily.GenericSansSerif, size, style);
-                    fontCache[cacheKey] = f; return f;
+                    return new Font("Arial", size, style);
                 }
                 catch
                 {
-                    // As a last resort, return null (should be extremely rare)
-                    return null;
+                    return new Font(FontFamily.GenericSansSerif, size, style);
                 }
-            }
+            });
         }
 
         private static string NormalizeFontName(string name)
@@ -616,6 +597,91 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
                 {
                     // If all else fails, return null
                     return null;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Safely gets a font from cache or creates a new one. Never returns null or disposed fonts.
+        /// </summary>
+        private static Font GetOrCreateFont(string cacheKey, Func<Font> fontFactory)
+        {
+            lock (fontCacheLock)
+            {
+                // Try to get from cache
+                if (fontCache.TryGetValue(cacheKey, out var weakRef))
+                {
+                    if (weakRef.TryGetTarget(out var cachedFont))
+                    {
+                        // Validate the font is still usable
+                        try
+                        {
+                            // Test if font is valid by accessing a property
+                            var _ = cachedFont.Size;
+                            return cachedFont;
+                        }
+                        catch
+                        {
+                            // Font is disposed or invalid, remove from cache
+                            fontCache.Remove(cacheKey);
+                        }
+                    }
+                    else
+                    {
+                        // WeakReference lost the font, remove from cache
+                        fontCache.Remove(cacheKey);
+                    }
+                }
+
+                // Create new font
+                try
+                {
+                    Font newFont = fontFactory();
+                    if (newFont != null)
+                    {
+                        // Validate new font before caching
+                        try
+                        {
+                            var _ = newFont.Size; // Test if valid
+                            fontCache[cacheKey] = new WeakReference<Font>(newFont);
+                            return newFont;
+                        }
+                        catch
+                        {
+                            newFont?.Dispose();
+                            throw;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Font creation failed: {ex.Message}");
+                }
+
+                // Ultimate fallback - always return a valid font
+                return GetUltimateFallbackFont();
+            }
+        }
+
+        /// <summary>
+        /// Returns a guaranteed valid font as last resort
+        /// </summary>
+        private static Font GetUltimateFallbackFont()
+        {
+            try
+            {
+                return new Font(FontFamily.GenericSansSerif, 9f, FontStyle.Regular);
+            }
+            catch
+            {
+                try
+                {
+                    return SystemFonts.DefaultFont;
+                }
+                catch
+                {
+                    // Absolute last resort - this should never fail
+                    return new Font("Arial", 9f);
                 }
             }
         }

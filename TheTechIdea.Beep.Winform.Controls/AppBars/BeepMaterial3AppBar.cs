@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 IsFrameless = true,
                 IsShadowAffectedByTheme = false,
                 IsBorderAffectedByTheme = false,
-                StylePreset = MaterialTextFieldStylePreset.DenseOutlined,
+              
                 TrailingIconPath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.NAV.079-search.svg"
             };
 

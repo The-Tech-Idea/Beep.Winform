@@ -1,6 +1,6 @@
 using System.Drawing;
 using System.Windows.Forms;
-
+using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.RadioGroup;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
@@ -150,10 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.CanBeHovered = true;
             cmbFilterCol1.CanBePressed = true;
             cmbFilterCol1.Category = Utilities.DbFieldCategory.Numeric;
-            cmbFilterCol1.ComboBoxErrorText = "";
-            cmbFilterCol1.ComboBoxHasError = false;
-            cmbFilterCol1.ComboBoxHelperText = "";
-            cmbFilterCol1.ComboBoxLabel = "";
+          
             cmbFilterCol1.ComponentName = "BaseControl";
             cmbFilterCol1.DataSourceProperty = null;
             cmbFilterCol1.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -328,10 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.CanBeHovered = true;
             cmbFilterVal1.CanBePressed = true;
             cmbFilterVal1.Category = Utilities.DbFieldCategory.Numeric;
-            cmbFilterVal1.ComboBoxErrorText = "";
-            cmbFilterVal1.ComboBoxHasError = false;
-            cmbFilterVal1.ComboBoxHelperText = "";
-            cmbFilterVal1.ComboBoxLabel = "";
+          
             cmbFilterVal1.ComponentName = "BaseControl";
             cmbFilterVal1.DataSourceProperty = null;
             cmbFilterVal1.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -506,10 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.CanBeHovered = true;
             cmbFilterCol2.CanBePressed = true;
             cmbFilterCol2.Category = Utilities.DbFieldCategory.Numeric;
-            cmbFilterCol2.ComboBoxErrorText = "";
-            cmbFilterCol2.ComboBoxHasError = false;
-            cmbFilterCol2.ComboBoxHelperText = "";
-            cmbFilterCol2.ComboBoxLabel = "";
+          
             cmbFilterCol2.ComponentName = "BaseControl";
             cmbFilterCol2.DataSourceProperty = null;
             cmbFilterCol2.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -684,10 +675,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.CanBeHovered = true;
             cmbFilterVal2.CanBePressed = true;
             cmbFilterVal2.Category = Utilities.DbFieldCategory.Numeric;
-            cmbFilterVal2.ComboBoxErrorText = "";
-            cmbFilterVal2.ComboBoxHasError = false;
-            cmbFilterVal2.ComboBoxHelperText = "";
-            cmbFilterVal2.ComboBoxLabel = "";
+           
             cmbFilterVal2.ComponentName = "BaseControl";
             cmbFilterVal2.DataSourceProperty = null;
             cmbFilterVal2.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -862,10 +850,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.CanBeHovered = true;
             cmbGroupBy.CanBePressed = true;
             cmbGroupBy.Category = Utilities.DbFieldCategory.Numeric;
-            cmbGroupBy.ComboBoxErrorText = "";
-            cmbGroupBy.ComboBoxHasError = false;
-            cmbGroupBy.ComboBoxHelperText = "";
-            cmbGroupBy.ComboBoxLabel = "";
+          
             cmbGroupBy.ComponentName = "BaseControl";
             cmbGroupBy.DataSourceProperty = null;
             cmbGroupBy.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -1040,10 +1025,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.CanBeHovered = true;
             cmbOrderBy.CanBePressed = true;
             cmbOrderBy.Category = Utilities.DbFieldCategory.Numeric;
-            cmbOrderBy.ComboBoxErrorText = "";
-            cmbOrderBy.ComboBoxHasError = false;
-            cmbOrderBy.ComboBoxHelperText = "";
-            cmbOrderBy.ComboBoxLabel = "";
+           
             cmbOrderBy.ComponentName = "BaseControl";
             cmbOrderBy.DataSourceProperty = null;
             cmbOrderBy.DisabledBackColor = Color.FromArgb(200, 200, 200);
@@ -1478,7 +1460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             chkShowHeaders.SlideFrom = Vis.Modules.SlideDirection.Left;
             chkShowHeaders.Spacing = 5;
             chkShowHeaders.StaticNotMoving = false;
-            chkShowHeaders.StylePreset = Models.MaterialTextFieldStylePreset.MaterialStandard;
+           
             chkShowHeaders.TabIndex = 14;
             chkShowHeaders.Tag = root;
           
@@ -1707,7 +1689,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.SplashColor = Color.Gray;
             btnExport.StandardImages = (List<Models.SimpleItem>)resources.GetObject("btnExport.StandardImages");
             btnExport.StaticNotMoving = false;
-            btnExport.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
+  
             btnExport.TabIndex = 0;
             btnExport.Tag = buttons;
            
@@ -1901,7 +1883,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.SplashColor = Color.Gray;
             btnApply.StandardImages = (List<Models.SimpleItem>)resources.GetObject("btnApply.StandardImages");
             btnApply.StaticNotMoving = false;
-            btnApply.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
+          
             btnApply.TabIndex = 1;
             btnApply.Tag = buttons;
       
@@ -2095,7 +2077,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.SplashColor = Color.Gray;
             btnReset.StandardImages = (List<Models.SimpleItem>)resources.GetObject("btnReset.StandardImages");
             btnReset.StaticNotMoving = false;
-            btnReset.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
+        
             btnReset.TabIndex = 2;
             btnReset.Tag = buttons;
         
@@ -2289,7 +2271,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.SplashColor = Color.Gray;
             btnClose.StandardImages = (List<Models.SimpleItem>)resources.GetObject("btnClose.StandardImages");
             btnClose.StaticNotMoving = false;
-            btnClose.StylePreset = Models.MaterialTextFieldStylePreset.MaterialOutlined;
+         
             btnClose.TabIndex = 3;
             btnClose.Tag = buttons;
         

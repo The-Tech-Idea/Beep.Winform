@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
@@ -21,9 +22,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             _theme = theme ?? throw new ArgumentNullException(nameof(theme));
         }
 
-        public abstract void Paint(Graphics g, BeepTree owner, Rectangle bounds);
+        // Default implementation: no-op. Concrete painters may override.
+        public virtual void Paint(Graphics g, BeepTree owner, Rectangle bounds)
+        {
+            // Intentionally left blank. The BeepTree control orchestrates node painting
+            // via PaintNode/segment methods. Some painters call base.Paint; making this
+            // virtual avoids abstract base member call errors and keeps behavior consistent.
+        }
 
-        public abstract void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected);
+        // Provide a default implementation so concrete painters are not forced to override
+        public virtual void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null) return;
+
+            // Background (selection/hover)
+            PaintNodeBackground(g, nodeBounds, isHovered, isSelected);
+
+            // Toggle (only if has children)
+            bool hasChildren = node.Item?.Children != null && node.Item.Children.Count > 0;
+            if (hasChildren && !node.ToggleRectContent.IsEmpty)
+            {
+                PaintToggle(g, node.ToggleRectContent, node.Item.IsExpanded, hasChildren, isHovered);
+            }
+
+            // Checkbox (if enabled on owner)
+            if (_owner != null && _owner.ShowCheckBox && !node.CheckRectContent.IsEmpty)
+            {
+                PaintCheckbox(g, node.CheckRectContent, node.Item.IsChecked, isHovered);
+            }
+
+            // Icon
+            if (!string.IsNullOrEmpty(node.Item?.ImagePath) && !node.IconRectContent.IsEmpty)
+            {
+                PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+            }
+
+            // Text
+            if (!node.TextRectContent.IsEmpty)
+            {
+                var font = _owner?.UseThemeFont == true ? (BeepThemesManager.ToFont(_owner?._currentTheme?.LabelFont) ?? _owner.TextFont) : _owner?.TextFont;
+                font ??= SystemFonts.DefaultFont;
+                PaintText(g, node.TextRectContent, node.Item?.Text ?? string.Empty, font, isSelected, isHovered);
+            }
+        }
 
         public virtual void PaintToggle(Graphics g, Rectangle toggleRect, bool isExpanded, bool hasChildren, bool isHovered)
         {
@@ -31,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 return;
 
             // Default implementation: draw simple +/- or >/v
-            var color = isHovered ? _theme.AccentColor : _theme.ForeColor;
+            var color = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
             using (var pen = new Pen(color, 2f))
             {
                 var center = new Point(toggleRect.X + toggleRect.Width / 2, toggleRect.Y + toggleRect.Height / 2);
@@ -59,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             // Default implementation: simple checkbox
             var borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
-            var bgColor = isChecked ? _theme.AccentColor : _theme.BackColor;
+            var bgColor = isChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
             using (var bgBrush = new SolidBrush(bgColor))
             using (var borderPen = new Pen(borderColor, 1f))
@@ -90,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 return;
 
             // Use StyledImagePainter for consistent image rendering with caching
-            StyledImagePainter.Paint(g, iconRect, imagePath, _owner.ControlStyle);
+            StyledImagePainter.Paint(g, iconRect, imagePath);
         }
 
         public virtual void PaintText(Graphics g, Rectangle textRect, string text, Font font, bool isSelected, bool isHovered)
@@ -98,7 +139,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             if (string.IsNullOrEmpty(text) || textRect.Width <= 0 || textRect.Height <= 0)
                 return;
 
-            var textColor = isSelected ? _theme.AccentForeColor : _theme.ForeColor;
+            var textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
             TextRenderer.DrawText(g, text, font, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
@@ -110,14 +151,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             if (isSelected)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(40, _theme.AccentColor)))
+                using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
                 {
                     g.FillRectangle(brush, nodeBounds);
                 }
             }
             else if (isHovered)
             {
-                using (var brush = new SolidBrush(Color.FromArgb(20, _theme.ForeColor)))
+                using (var brush = new SolidBrush(_theme.TreeNodeHoverBackColor))
                 {
                     g.FillRectangle(brush, nodeBounds);
                 }
@@ -137,7 +178,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         /// </summary>
         protected int Scale(int value)
         {
-            return (int)(value * _owner.DpiScaleFactor);
+            // Use owner's scaling helper to avoid accessing protected DpiScaleFactor directly
+            return _owner != null ? _owner.ScaleValue(value) : value;
         }
 
         /// <summary>

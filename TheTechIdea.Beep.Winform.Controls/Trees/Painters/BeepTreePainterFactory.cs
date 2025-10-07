@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
-using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
     /// <summary>
-    /// Factory for creating tree painters based on control style.
+    /// Factory for creating tree painters based on TreeStyle.
+    /// Each TreeStyle represents a distinct visual design pattern.
     /// </summary>
     public static class BeepTreePainterFactory
     {
-        private static readonly Dictionary<BeepControlStyle, ITreePainter> _painterCache = new();
+        private static readonly Dictionary<TreeStyle, ITreePainter> _painterCache = new();
 
         /// <summary>
-        /// Create or retrieve a cached painter for the specified style.
+        /// Create or retrieve a cached painter for the specified TreeStyle.
         /// </summary>
-        public static ITreePainter CreatePainter(BeepControlStyle style, BeepTree owner, IBeepTheme theme)
+        public static ITreePainter CreatePainter(TreeStyle style, BeepTree owner, IBeepTheme theme)
         {
             if (_painterCache.TryGetValue(style, out var cached))
             {
@@ -24,27 +25,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
             ITreePainter painter = style switch
             {
-                BeepControlStyle.Material3 => new Material3TreePainter(),
-                BeepControlStyle.MaterialYou => new MaterialYouTreePainter(),
-                BeepControlStyle.iOS15 => new iOS15TreePainter(),
-                BeepControlStyle.MacOSBigSur => new MacOSBigSurTreePainter(),
-                BeepControlStyle.Fluent2 => new Fluent2TreePainter(),
-                BeepControlStyle.Windows11Mica => new Windows11MicaTreePainter(),
-                BeepControlStyle.Minimal => new MinimalTreePainter(),
-                BeepControlStyle.NotionMinimal => new NotionMinimalTreePainter(),
-                BeepControlStyle.VercelClean => new VercelCleanTreePainter(),
-                BeepControlStyle.Neumorphism => new NeumorphismTreePainter(),
-                BeepControlStyle.GlassAcrylic => new GlassAcrylicTreePainter(),
-                BeepControlStyle.DarkGlow => new DarkGlowTreePainter(),
-                BeepControlStyle.GradientModern => new GradientModernTreePainter(),
-                BeepControlStyle.Bootstrap => new BootstrapTreePainter(),
-                BeepControlStyle.TailwindCard => new TailwindCardTreePainter(),
-                BeepControlStyle.StripeDashboard => new StripeDashboardTreePainter(),
-                BeepControlStyle.FigmaCard => new FigmaCardTreePainter(),
-                BeepControlStyle.DiscordStyle => new DiscordStyleTreePainter(),
-                BeepControlStyle.AntDesign => new AntDesignTreePainter(),
-                BeepControlStyle.ChakraUI => new ChakraUITreePainter(),
-                BeepControlStyle.PillRail => new PillRailTreePainter(),
+                // Application-specific styles (from reference images)
+                TreeStyle.InfrastructureTree => new InfrastructureTreePainter(),
+                TreeStyle.PortfolioTree => new PortfolioTreePainter(),
+                TreeStyle.FileManagerTree => new FileManagerTreePainter(),
+                TreeStyle.ActivityLogTree => new ActivityLogTreePainter(),
+                TreeStyle.ComponentTree => new ComponentTreePainter(),
+                TreeStyle.FileBrowserTree => new FileBrowserTreePainter(),
+                TreeStyle.DocumentTree => new DocumentTreePainter(),
+
+                // Modern framework styles
+                TreeStyle.Material3 => new Material3TreePainter(),
+                TreeStyle.Fluent2 => new Fluent2TreePainter(),
+                TreeStyle.iOS15 => new iOS15TreePainter(),
+                TreeStyle.MacOSBigSur => new MacOSBigSurTreePainter(),
+                TreeStyle.NotionMinimal => new NotionMinimalTreePainter(),
+                TreeStyle.VercelClean => new VercelCleanTreePainter(),
+                TreeStyle.Discord => new DiscordTreePainter(),
+                TreeStyle.AntDesign => new AntDesignTreePainter(),
+                TreeStyle.ChakraUI => new ChakraUITreePainter(),
+                TreeStyle.Bootstrap => new BootstrapTreePainter(),
+                TreeStyle.TailwindCard => new TailwindCardTreePainter(),
+
+                // Enterprise component library styles
+                TreeStyle.DevExpress => new DevExpressTreePainter(),
+                TreeStyle.Syncfusion => new SyncfusionTreePainter(),
+                TreeStyle.Telerik => new TelerikTreePainter(),
+
+                // Layout-specific styles
+                TreeStyle.PillRail => new PillRailTreePainter(),
+                TreeStyle.StripeDashboard => new StripeDashboardTreePainter(),
+                TreeStyle.FigmaCard => new FigmaCardTreePainter(),
+
+                // Default
                 _ => new StandardTreePainter()
             };
 
@@ -62,3 +75,4 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         }
     }
 }
+

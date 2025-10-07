@@ -361,22 +361,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             Size textSize = Size.Empty;
             if (!string.IsNullOrEmpty(Text))
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    var measuredSize = g.MeasureString(Text, _textFont ?? Font);
-                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
-                }
+                var font = _textFont ?? Font;
+                var measuredSize = System.Windows.Forms.TextRenderer.MeasureText(Text, font);
+                textSize = measuredSize;
             }
             
             // Add subheader text size if present
             if (!string.IsNullOrEmpty(SubHeaderText))
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    var subHeaderMeasuredSize = g.MeasureString(SubHeaderText, SubHeaderFont ?? Font);
-                    textSize.Width = Math.Max(textSize.Width, (int)Math.Ceiling(subHeaderMeasuredSize.Width));
-                    textSize.Height += HeaderSubheaderSpacing + (int)Math.Ceiling(subHeaderMeasuredSize.Height);
-                }
+                var subFont = SubHeaderFont ?? Font;
+                var subHeaderMeasuredSize = System.Windows.Forms.TextRenderer.MeasureText(SubHeaderText, subFont);
+                textSize.Width = Math.Max(textSize.Width, subHeaderMeasuredSize.Width);
+                textSize.Height += HeaderSubheaderSpacing + subHeaderMeasuredSize.Height;
             }
             
             // Use a reasonable default content size if no text

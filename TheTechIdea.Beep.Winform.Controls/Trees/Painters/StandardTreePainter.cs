@@ -22,13 +22,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             // Paint toggle if has children
             if (node.Item.Children != null && node.Item.Children.Count > 0)
             {
-                PaintToggle(g, node.ToggleRectContent, node.Item.Expanded, true, isHovered);
+                PaintToggle(g, node.ToggleRectContent, node.Item.IsExpanded, true, isHovered);
             }
 
             // Paint checkbox if enabled
             if (_owner.ShowCheckBox)
             {
-                PaintCheckbox(g, node.CheckRectContent, node.Item.Checked, isHovered);
+                PaintCheckbox(g, node.CheckRectContent, node.Item.IsChecked, isHovered);
             }
 
             // Paint icon if exists

@@ -478,23 +478,19 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             if (PainterKind != BaseControlPainterKind.Material || !DatePickerAutoSizeForMaterial) return;
             
+            // Use TextRenderer to measure without creating a Graphics
             Size contentSize;
-            using (Graphics g = CreateGraphics())
-            {
-                // Use the same sample text logic as UpdateMinimumSize for consistency
-                string sample = GetSampleTextForFormat(GetCurrentFormat());
-                if (string.IsNullOrEmpty(sample)) 
-                    sample = GetPlaceholderText();
-                
-                var measured = g.MeasureString(sample + "  ", _textFont);
-                
-                // Include dropdown button space in the calculation
-                int buttonSpace = _showDropDown ? _buttonWidth + (_padding * 2) : 0;
-                
-                contentSize = new Size(
-                    (int)Math.Ceiling(measured.Width) + buttonSpace, 
-                    (int)Math.Ceiling(measured.Height));
-            }
+            // Use the same sample text logic as UpdateMinimumSize for consistency
+            string sample = GetSampleTextForFormat(GetCurrentFormat());
+            if (string.IsNullOrEmpty(sample)) 
+                sample = GetPlaceholderText();
+
+            var measured = System.Windows.Forms.TextRenderer.MeasureText(sample + "  ", _textFont);
+
+            // Include dropdown button space in the calculation
+            int buttonSpace = _showDropDown ? _buttonWidth + (_padding * 2) : 0;
+
+            contentSize = new Size(measured.Width + buttonSpace, measured.Height);
             
             AdjustSizeForMaterial(contentSize, true);
         }

@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             if (item == null)
                 return;
 
-            item.Checked = isChecked;
+            item.IsChecked = isChecked;
         }
 
         /// <summary>

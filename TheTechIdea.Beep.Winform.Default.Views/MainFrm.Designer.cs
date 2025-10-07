@@ -421,16 +421,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.TopoffsetForDrawingRect = 0;
             beepAppTree1.Treebranchhandler = null;
             beepAppTree1.TreeType = "Beep";
-            beepAppTree1.UIAnimation = ReactUIAnimation.None;
-            beepAppTree1.UIColor = ReactUIColor.Primary;
-            beepAppTree1.UICustomElevation = 0;
-            beepAppTree1.UIDensity = ReactUIDensity.Standard;
-            beepAppTree1.UIDisabled = false;
-            beepAppTree1.UIElevation = ReactUIElevation.None;
-            beepAppTree1.UIFullWidth = false;
-            beepAppTree1.UIShape = ReactUIShape.Rounded;
-            beepAppTree1.UISize = ReactUISize.Medium;
-            beepAppTree1.UIVariant = ReactUIVariant.Default;
+          
             beepAppTree1.UseExternalBufferedGraphics = false;
             beepAppTree1.UseGlassmorphism = false;
             beepAppTree1.UseGradientBackground = false;

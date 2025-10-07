@@ -45,7 +45,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 g.ResetClip();
             }
         }
-        
+
+        public static void Paint(Graphics g, Rectangle bounds, string imagePath)
+        {
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+
+            // Get or create ImagePainter from cache
+            ImagePainter painter = GetOrCreatePainter(imagePath);
+            if (painter == null)
+                return;
+            using (var path = CreateRoundedRectangle(bounds, 0))
+                {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.SetClip(path);
+                
+                // Use ImagePainter to draw
+                painter.DrawImage(g, bounds);
+                
+                g.ResetClip();
+            }
+
+        }
+
         /// <summary>
         /// Get or create ImagePainter from cache
         /// </summary>

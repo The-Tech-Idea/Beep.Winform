@@ -374,16 +374,14 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Month/year centered
             string monthYear = _currentMonth.ToString("MMMM yyyy");
-            SizeF textSize = g.MeasureString(monthYear, HeaderFont);
-            PointF textPos = new PointF(
+            var textSize = System.Windows.Forms.TextRenderer.MeasureText(monthYear, HeaderFont);
+            var textPos = new Point(
                 _headerRect.Left + (_headerRect.Width - textSize.Width) / 2,
                 _headerRect.Top + (_headerRect.Height - textSize.Height) / 2
             );
 
-            using (Brush brush = new SolidBrush(_currentTheme?.CalendarTitleForColor ?? ForeColor))
-            {
-                g.DrawString(monthYear, HeaderFont, brush, textPos);
-            }
+            var textColor = _currentTheme?.CalendarTitleForColor ?? ForeColor;
+            System.Windows.Forms.TextRenderer.DrawText(g, monthYear, HeaderFont, textPos, textColor);
 
             var navColor = _currentTheme?.CalendarForeColor ?? ForeColor;
             // Hover/press backgrounds for chevrons

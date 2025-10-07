@@ -532,11 +532,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             Size textSize = Size.Empty;
             if (!string.IsNullOrEmpty(Text))
             {
-                using (Graphics g = CreateGraphics())
-                {
-                    var measuredSize = g.MeasureString(Text, Font);
-                    textSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
-                }
+                // Use TextRenderer to measure without creating a Graphics
+                var measuredSize = System.Windows.Forms.TextRenderer.MeasureText(Text, Font);
+                textSize = measuredSize;
             }
             
             // Use a reasonable default content size if no text

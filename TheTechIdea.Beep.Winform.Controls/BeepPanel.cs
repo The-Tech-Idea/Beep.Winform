@@ -314,7 +314,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             try
             {
-                SizeF titleSize = g.MeasureString(_titleText, _textFont);
+                var titleSize = System.Windows.Forms.TextRenderer.MeasureText(_titleText, _textFont);
                 float textTop = DrawingRect.Top + padding;
                 float textLeft = 0;
 

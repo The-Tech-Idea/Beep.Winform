@@ -59,9 +59,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Helpers
             if (_owner.ListItems == null || _owner.ListItems.Count == 0)
                 return new System.Collections.Generic.List<SimpleItem>();
             
-            var items = _owner.ListItems
-                .Where(p => p.ItemType == MenuItemType.Main)
-                .ToList();
+            // Use all items by default; do not filter by ItemType to ensure popup menus work for any item type
+            var items = _owner.ListItems.ToList();
             
             // Apply search filter if needed
             if (_owner.ShowSearch && !string.IsNullOrWhiteSpace(_owner.SearchText))

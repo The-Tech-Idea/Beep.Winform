@@ -45,42 +45,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 2: Draw timeline dot with glow (distinctive feature)
+                // STEP 2: Draw timeline dot or image (transform to viewport)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
-                    
-                    // Determine status color (simulated - in real scenario from node.Item metadata)
-                    Color dotColor = node.Item.IsExpanded ? 
-                        Color.FromArgb(76, 175, 80) :  // Green for "created"
-                        Color.FromArgb(33, 150, 243);   // Blue for "updated"
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
 
-                    int centerX = iconRect.Left + iconRect.Width / 2;
-                    int centerY = iconRect.Top + iconRect.Height / 2;
-                    int dotRadius = DotSize / 2;
-
-                    // Outer glow (PathGradientBrush for radial effect)
-                    using (var glowPath = new GraphicsPath())
+                    if (!string.IsNullOrEmpty(node.Item.ImagePath))
                     {
-                        glowPath.AddEllipse(centerX - dotRadius - 2, centerY - dotRadius - 2, DotSize + 4, DotSize + 4);
-                        using (var glowBrush = new PathGradientBrush(glowPath))
+                        // Use configured image if provided
+                        PaintIcon(g, iconRect, node.Item.ImagePath);
+                    }
+                    else
+                    {
+                        // Determine status color (simulated - in real scenario from node.Item metadata)
+                        Color dotColor = node.Item.IsExpanded ?
+                            Color.FromArgb(76, 175, 80) :  // Green for "created"
+                            Color.FromArgb(33, 150, 243);   // Blue for "updated"
+
+                        int centerX = iconRect.Left + iconRect.Width / 2;
+                        int centerY = iconRect.Top + iconRect.Height / 2;
+                        int dotRadius = DotSize / 2;
+
+                        // Outer glow (PathGradientBrush for radial effect)
+                        using (var glowPath = new GraphicsPath())
                         {
-                            glowBrush.CenterColor = Color.FromArgb(100, dotColor);
-                            glowBrush.SurroundColors = new[] { Color.FromArgb(0, dotColor) };
-                            g.FillPath(glowBrush, glowPath);
+                            glowPath.AddEllipse(centerX - dotRadius - 2, centerY - dotRadius - 2, DotSize + 4, DotSize + 4);
+                            using (var glowBrush = new PathGradientBrush(glowPath))
+                            {
+                                glowBrush.CenterColor = Color.FromArgb(100, dotColor);
+                                glowBrush.SurroundColors = new[] { Color.FromArgb(0, dotColor) };
+                                g.FillPath(glowBrush, glowPath);
+                            }
                         }
-                    }
 
-                    // Solid timeline dot
-                    using (var dotBrush = new SolidBrush(dotColor))
-                    {
-                        g.FillEllipse(dotBrush, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
-                    }
+                        // Solid timeline dot
+                        using (var dotBrush = new SolidBrush(dotColor))
+                        {
+                            g.FillEllipse(dotBrush, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
+                        }
 
-                    // White border for contrast
-                    using (var borderPen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
-                    {
-                        g.DrawEllipse(borderPen, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
+                        // White border for contrast
+                        using (var borderPen = new Pen(Color.FromArgb(200, 255, 255, 255), 1.5f))
+                        {
+                            g.DrawEllipse(borderPen, centerX - dotRadius, centerY - dotRadius, DotSize, DotSize);
+                        }
                     }
                 }
 
@@ -88,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
                     using (var pen = new Pen(toggleColor, 1.5f))
@@ -114,7 +122,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw activity checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -146,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw activity text
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     using (var renderFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))

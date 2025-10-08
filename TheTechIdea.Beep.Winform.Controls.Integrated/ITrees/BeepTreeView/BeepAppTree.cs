@@ -31,6 +31,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
             {
                 AddDesignTimeSampleNodes();
+                // Force rebuild/paint so nodes actually show in the designer
+                base.RefreshTree();
+                this.Update();
+                TreeStyle = Trees.Models.TreeStyle.Standard;
             }
         }
         public BeepAppTree(IBeepService service)
@@ -74,6 +78,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             rootNode.Children.Add(child2);
 
             Nodes.Add(rootNode);
+            // Ensure the newly added nodes are processed for layout at design-time
+            // (Nodes.Add does not auto-refresh in the new BeepTree)
+            // Caller will also call base.RefreshTree() in constructor.
         }
         public void init(IBeepService service)
         {
@@ -631,6 +638,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 
                 // Call base BeepTree's RefreshTree to rebuild visible nodes and update display
                 base.RefreshTree();
+                // Ensure the tree is expanded so users can see the content
+                ExpandAll();
                 
                 // CRITICAL FIX: Force immediate paint update
                 Update();
@@ -679,6 +688,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 item.GuidId = br.GuidID;
                 item.ContainerGuidID = br.GuidID;
                 item.IsDrawn = false;
+                // Make newly added branches expanded by default so content is visible
+                item.IsExpanded = true;
 
                // Console.WriteLine(br.BranchText);
                 DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
@@ -768,6 +779,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             SimpleItem item = ControlExtensions.CreateNode(this, id, br);
             item.GuidId = br.GuidID;
             item.ContainerGuidID = br.GuidID;
+            // Expand new root by default
+            item.IsExpanded = true;
             //n.ContextMenuStrip = 
            // Console.WriteLine(br.BranchText);
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);

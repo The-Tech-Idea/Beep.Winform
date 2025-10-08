@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using System.ComponentModel;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -13,25 +14,41 @@ namespace TheTechIdea.Beep.Winform.Controls
     /// </summary>
     public partial class BeepTree
     {
+        // Stores the last right-clicked row's viewport Y (client coordinates), if available
+        private int? _lastContextMenuViewportY;
         #region Mouse Event Handlers
 
         private void OnMouseDownHandler(object sender, MouseEventArgs e)
         {
             NodeMouseDown?.Invoke(this, new BeepMouseEventArgs("MouseDown", null));
+            // Ensure DrawingRect is current for viewport transforms
+            UpdateDrawingRect();
             Point point = e.Location;
 
             // Right-click context menu
-            if (e.Button == MouseButtons.Right && LocalHitTest(point, out string htName, out var htItem, out var htRect) && htName.StartsWith("row_"))
+            string htName; SimpleItem htItem; Rectangle htRect;
+            bool hasHit = false;
+            // Prefer BaseControl-based hit testing via helper
+            if (_treeHitTestHelper != null && _treeHitTestHelper.HitTest(point, out htName, out htItem, out htRect))
+                hasHit = true;
+            else if (LocalHitTest(point, out htName, out htItem, out htRect))
+                hasHit = true;
+
+            if (e.Button == MouseButtons.Right && hasHit && htName.StartsWith("row_"))
             {
                 var guid = htName.Substring(4); // everything after "row_"
                 var item = _treeHelper?.FindByGuid(guid);
                 if (item != null)
                 {
                     ClickedNode = item;
+                    // Capture viewport Y from hit rectangle for precise popup placement
+                    _lastContextMenuViewportY = htRect.Top;
                     var args = new BeepMouseEventArgs("RightClick", item);
                     NodeRightClicked?.Invoke(this, args);
 
-                    var menuItems = SimpleItemFactory.GlobalMenuItemsProvider(item);
+                    // Resolve menu items provider from either SimpleItemFactory or HandlersFactory (fallback)
+                    var provider = SimpleItemFactory.GlobalMenuItemsProvider;
+                    var menuItems = provider != null ? provider(item) : null;
                     if (menuItems != null && menuItems.Count > 0)
                     {
                         CurrentMenutems = new BindingList<SimpleItem>(menuItems);
@@ -42,9 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Left or middle click on toggle/check/row
-            if (LocalHitTest(point, out var hitName, out var hitItem, out var hitRect))
+            if (hasHit)
             {
-                var parts = hitName.Split('_');
+                var parts = htName.Split('_');
                 if (parts.Length == 2)
                 {
                     string type = parts[0], guid = parts[1];
@@ -137,6 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void OnMouseMoveHandler(object s, MouseEventArgs e)
         {
+            UpdateDrawingRect();
             GetHover();
             NodeMouseMove?.Invoke(this, new BeepMouseEventArgs("MouseMove", null));
         }
@@ -144,7 +162,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void OnMouseDoubleClickHandler(object s, MouseEventArgs e)
         {
             Point point = e.Location;
-            if (LocalHitTest(point, out var hitName, out var hitItem, out var hitRect))
+            if ((_treeHitTestHelper != null && _treeHitTestHelper.HitTest(point, out var hitName, out var hitItem, out var hitRect)) || LocalHitTest(point, out hitName, out hitItem, out hitRect))
             {
                 NodeDoubleClicked?.Invoke(this, new BeepMouseEventArgs("NodeDoubleClick", hitItem));
             }
@@ -181,7 +199,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Point mousePosition = PointToClient(MousePosition);
 
             // Find the node at the current mouse position
-            if (LocalHitTest(mousePosition, out var hitName, out var hitItem, out var targetRect))
+            if ((_treeHitTestHelper != null && _treeHitTestHelper.HitTest(mousePosition, out var hitName, out var hitItem, out var targetRect)) || LocalHitTest(mousePosition, out hitName, out hitItem, out targetRect))
             {
                 string[] parts = hitName.Split('_');
                 if (parts.Length == 2)
@@ -374,10 +392,28 @@ namespace TheTechIdea.Beep.Winform.Controls
             _menuDialog.Theme = Theme;
             _menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
 
-            // Show popup near the clicked node
-            Point popupLocation = new Point(10, ClickedNode != null ? ClickedNode.Y : 0);
-            SimpleItem selectedItem = _menuDialog.ShowPopup(Text, this, popupLocation, BeepPopupFormPosition.Right, false, true);
+            // Show popup aligned with the clicked row; compute adjustment in SCREEN coordinates to be DPI-correct
+            int adjY = 0;
+            // Prefer exact viewport Y captured from hit-test; fallback to computing from content Y
+            int? viewportY = _lastContextMenuViewportY;
+            if (viewportY == null && ClickedNode != null)
+            {
+                viewportY = DrawingRect.Top + Math.Max(0, ClickedNode.Y - _yOffset);
+            }
+
+            if (viewportY != null)
+            {
+                // Convert client viewportY to screen and get delta from control's top
+                Point clientAnchor = new Point(0, viewportY.Value);
+                Point screenAnchor = PointToScreen(clientAnchor);
+                Point triggerScreenTopLeft = PointToScreen(Point.Empty);
+                adjY = screenAnchor.Y - triggerScreenTopLeft.Y;
+            }
+            // Small X gap to the right of the control
+            Point popupAdjustment = new Point(10, adjY);
+            SimpleItem selectedItem = _menuDialog.ShowPopup(Text, this, popupAdjustment, BeepPopupFormPosition.Right, false, true);
             _isPopupOpen = true;
+            _lastContextMenuViewportY = null; // reset after use
             Invalidate();
         }
 

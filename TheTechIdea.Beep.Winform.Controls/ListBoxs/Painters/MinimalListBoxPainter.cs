@@ -11,10 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (isHovered || isSelected)
             {
-                Color bgColor = isSelected 
-                    ? Color.FromArgb(240, 240, 245)
-                    : Color.FromArgb(250, 250, 250);
-                
+                Color bgColor = isSelected ? _helper.GetSelectedBackColor() : _helper.GetHoverBackColor();
                 using (var brush = new SolidBrush(bgColor))
                 {
                     g.FillRectangle(brush, itemRect);

@@ -67,6 +67,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 System.Diagnostics.Debug.WriteLine($"[BeepTree] Calling painter.Paint() to draw entire tree");
                 painter.Paint(g, this, drawingArea);
+                // After painting, refresh hit areas for BaseControl hit-test infra
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             }
             catch (Exception ex)
             {
@@ -147,6 +149,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Recalculate layout (fonts may have changed)
                 RecalculateLayoutCache();
+                // Theme/font can change metrics - rebuild hit areas
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             }
 
             Invalidate();

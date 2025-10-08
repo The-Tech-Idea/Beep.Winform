@@ -58,7 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    // Transform to viewport coordinates before drawing
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
 
                     using (var toggleBrush = new SolidBrush(toggleColor))
@@ -96,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw checkbox (compact style)
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -128,7 +129,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw folder/file icon (Windows Explorer style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     bool isFolder = hasChildren;
 
                     if (isFolder)
@@ -187,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 6: Draw text (compact font for deep hierarchies)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     // Slightly smaller font for compact display
@@ -206,11 +207,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 
                     if (!string.IsNullOrEmpty(extension))
                     {
+                        // Start from transformed text rect for proper placement
+                        var textRectVp = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                         Rectangle badgeRect = new Rectangle(
-                            node.TextRectContent.Right + 4,
-                            node.TextRectContent.Y + node.TextRectContent.Height / 4,
+                            textRectVp.Right + 4,
+                            textRectVp.Y + textRectVp.Height / 4,
                             32,
-                            node.TextRectContent.Height / 2);
+                            textRectVp.Height / 2);
 
                         if (badgeRect.Width > 0 && badgeRect.Height > 0)
                         {

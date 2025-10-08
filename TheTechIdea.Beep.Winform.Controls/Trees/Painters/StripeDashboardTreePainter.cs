@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw Stripe-style icon (clean rounded with lines)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     Color iconColor = _theme.AccentColor;
 
                     using (var iconPath = CreateRoundedRectangle(iconRect, iconRect.Width / 4))

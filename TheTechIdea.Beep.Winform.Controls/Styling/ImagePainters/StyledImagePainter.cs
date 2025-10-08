@@ -29,7 +29,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             // Get or create ImagePainter from cache
             ImagePainter painter = GetOrCreatePainter(imagePath);
             if (painter == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
                 return;
+            }
             
             int radius = StyleBorders.GetRadius(style);
             
@@ -54,7 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             // Get or create ImagePainter from cache
             ImagePainter painter = GetOrCreatePainter(imagePath);
             if (painter == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
                 return;
+            }
             using (var path = CreateRoundedRectangle(bounds, 0))
                 {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -76,16 +82,34 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
         {
             if (_painterCache.ContainsKey(imagePath))
                 return _painterCache[imagePath];
-            
-            // Load image from path
-            Image image = LoadImage(imagePath);
-            if (image == null)
+
+            // Prefer ImagePainter's own resolution logic (handles filenames, mapped paths, and embedded resources)
+            var painter = new ImagePainter(imagePath);
+            if (!painter.HasImage)
+            {
+                try
+                {
+                    // Attempt name-to-path mapping via ImageListHelper if a short name was provided
+                    bool looksLikePath = imagePath.Contains("/") || imagePath.Contains("\\") || Path.GetExtension(imagePath).Length > 0;
+                    if (!looksLikePath)
+                    {
+                        string mapped = ImageManagement.ImageListHelper.GetImagePathFromName(imagePath);
+                        if (!string.IsNullOrEmpty(mapped))
+                        {
+                            painter.ImagePath = mapped;
+                        }
+                    }
+                }
+                catch { /* best-effort mapping */ }
+            }
+
+            if (!painter.HasImage)
+            {
+                // Give up if painter still couldn't resolve an image
                 return null;
-            
-            // Create new ImagePainter
-            ImagePainter painter = new ImagePainter(imagePath);
+            }
+
             _painterCache[imagePath] = painter;
-            
             return painter;
         }
         
@@ -94,22 +118,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
         /// </summary>
         private static Image LoadImage(string imagePath)
         {
+            // Retained for backward compatibility; prefer ImagePainter-based loading.
             if (_imageCache.ContainsKey(imagePath))
                 return _imageCache[imagePath];
-            
+
             try
             {
-                if (!File.Exists(imagePath))
-                    return null;
-                
-                Image image = Image.FromFile(imagePath);
-                _imageCache[imagePath] = image;
-                return image;
+                if (File.Exists(imagePath))
+                {
+                    Image image = Image.FromFile(imagePath);
+                    _imageCache[imagePath] = image;
+                    return image;
+                }
+
+                // Try to map short names to physical paths
+                bool looksLikePath = imagePath.Contains("/") || imagePath.Contains("\\") || Path.GetExtension(imagePath).Length > 0;
+                if (!looksLikePath)
+                {
+                    string mapped = ImageManagement.ImageListHelper.GetImagePathFromName(imagePath);
+                    if (!string.IsNullOrEmpty(mapped) && File.Exists(mapped))
+                    {
+                        Image image = Image.FromFile(mapped);
+                        _imageCache[imagePath] = image;
+                        return image;
+                    }
+                }
             }
             catch
             {
-                return null;
+                // swallow; caller will fall back to ImagePainter path
             }
+            return null;
         }
         
         /// <summary>

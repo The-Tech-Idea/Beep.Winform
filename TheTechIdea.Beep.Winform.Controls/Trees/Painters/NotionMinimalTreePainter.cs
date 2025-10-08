@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color arrowColor = _theme.TreeForeColor;
 
                     using (var pen = new Pen(arrowColor, 1.5f))
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw Notion minimal checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -120,12 +120,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw Notion emoji-style icon
                 if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
                 {
-                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+                    PaintIcon(g, iconRect, node.Item.ImagePath);
                 }
                 else if (node.IconRectContent != Rectangle.Empty)
                 {
                     // Draw default emoji-style icon
-                    var iconRect = node.IconRectContent;
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     Color iconBg = Color.FromArgb(40, _theme.AccentColor);
 
                     using (var brush = new SolidBrush(iconBg))
@@ -152,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 6: Draw text with Notion clean typography
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     // Notion uses clean sans-serif fonts

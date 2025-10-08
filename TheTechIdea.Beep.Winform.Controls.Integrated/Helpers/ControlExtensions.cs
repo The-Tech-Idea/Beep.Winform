@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Xml.Linq;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Desktop.Common.Helpers;
 using TheTechIdea.Beep.Desktop.Common.Util;
@@ -81,6 +82,8 @@ public static partial class ControlExtensions
             node.GuidId = br.GuidID;
             node.PointType = br.BranchType;
             node.ParentID = 0;
+            node.IsVisible = true;
+            node.Guid = Guid.TryParse(br.GuidID.ToString(), out Guid guid) ? guid : Guid.Empty;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
             DynamicMenuManager.CreateMenuMethods(tree.DMEEditor,br);
@@ -100,6 +103,8 @@ public static partial class ControlExtensions
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
             node.ParentID = 0;
+            node.IsVisible = true;
+            node.Guid = Guid.TryParse(br.GuidID.ToString(), out Guid guid) ? guid : Guid.Empty;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
             DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
@@ -126,10 +131,11 @@ public static partial class ControlExtensions
             node.ParentID = 0;
             node.ObjectType = br.ObjectType;
             node.BranchClass = br.BranchClass;
-          
+            node.Guid = Guid.TryParse(br.GuidID.ToString(), out Guid guid) ? guid : Guid.Empty;
             node.PointType = br.BranchType;
             node.AssemblyClassDefinitionID = br.MiscStringID; ;
             node.Children = new BindingList<SimpleItem>();
+            node.IsVisible = true;
             node.Children = GetChildBranch(tree, br);
             DynamicMenuManager.CreateMenuMethods(tree.DMEEditor,br);
             if (br.ObjectType != null && br.BranchClass != null)
@@ -149,6 +155,8 @@ public static partial class ControlExtensions
             node.GuidId = br.GuidID;
             node.PointType = br.BranchType;
             node.ParentID = 0;
+            node.IsVisible = true;
+            node.Guid = Guid.TryParse(br.GuidID.ToString(), out Guid guid) ? guid : Guid.Empty;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
             DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);
@@ -173,11 +181,13 @@ public static partial class ControlExtensions
             node1.ID = item1.ID;
             node1.ImagePath = ImageListHelper.GetImagePathFromName(item1.IconImageName);
             node1.GuidId = item1.GuidID;
+            node1.Guid = Guid.TryParse(item1.GuidID.ToString(), out Guid guid) ? guid : Guid.Empty;
             node1.ObjectType = item1.ObjectType;
             node1.BranchClass = item1.BranchClass;
             node1.PointType = item1.BranchType;
             node1.AssemblyClassDefinitionID = item1.MiscStringID; ;
             node1.ParentID = br.ID;
+            node1.IsVisible = true;
             node1.Children = new BindingList<SimpleItem>();
             node1.Children = GetChildBranch(tree, item1);
             DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, item1);
@@ -675,8 +685,10 @@ public static partial class ControlExtensions
             node.ClassDefinitionID = br.MiscStringID;
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
+            node.Guid = Guid.TryParse(br.GuidID.ToString(), out Guid guid) ? guid : Guid.Empty;
             node.ContainerGuidID = br.GuidID;
             node.ParentID = 0;
+            node.IsVisible = true;
             node.Children = new BindingList<SimpleItem>();
             node.Children = GetChildBranch(tree, br);
             DynamicMenuManager.CreateMenuMethods(tree.DMEEditor, br);

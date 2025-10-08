@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -21,20 +22,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             }
             
             DrawItemBackground(g, rect, isHovered, isSelected);
-            
-            int currentX = rect.Left + 12;
-            
-            // Draw image if enabled
-            if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath))
+
+            // Use layout rects for content
+            var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
+            var iconRect = info?.IconRect ?? Rectangle.Empty;
+            var textRect = info?.TextRect ?? rect;
+
+            if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath) && !iconRect.IsEmpty)
             {
-                int imgSize = Math.Min(rect.Height - 8, 32);
-                Rectangle imgRect = new Rectangle(currentX, rect.Y + (rect.Height - imgSize) / 2, imgSize, imgSize);
-                DrawItemImage(g, imgRect, item.ImagePath);
-                currentX += imgSize + 12;
+                DrawItemImage(g, iconRect, item.ImagePath);
             }
-            
-            // Draw text
-            Rectangle textRect = new Rectangle(currentX, rect.Y, rect.Right - currentX - 12, rect.Height);
+
             Color textColor = isSelected ? Color.White : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }

@@ -123,7 +123,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw circular icon (pill rail sidebar style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     Color iconColor = _theme.AccentColor;
 
                     // Circular icon background

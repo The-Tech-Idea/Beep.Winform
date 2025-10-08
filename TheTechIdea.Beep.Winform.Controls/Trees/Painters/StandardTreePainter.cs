@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
 {
@@ -41,7 +42,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    // Transform content rects to viewport coordinates before drawing
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     
                     // Draw box
                     using (var boxBrush = new SolidBrush(_theme.TreeBackColor))
@@ -75,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 3: Draw standard checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -104,28 +106,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                     }
                 }
 
-                // STEP 4: Draw simple icon
+                // STEP 4: Draw icon from ImagePath (fallback to simple icon)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
-                    Color iconColor = _theme.AccentColor;
-
-                    // Simple square icon with border
-                    using (var bgBrush = new SolidBrush(Color.FromArgb(50, iconColor)))
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+                    if (!string.IsNullOrEmpty(node.Item.ImagePath))
                     {
-                        g.FillRectangle(bgBrush, iconRect);
+                        // Primary: draw the node's image by path
+                        try { StyledImagePainter.Paint(g, iconRect, node.Item.ImagePath); }
+                        catch { /* fallback below on error */ }
                     }
-
-                    using (var borderPen = new Pen(iconColor, 1f))
+                    else
                     {
-                        g.DrawRectangle(borderPen, iconRect);
+                        // Fallback: simple square icon with border
+                        Color iconColor = _theme.AccentColor;
+                        using (var bgBrush = new SolidBrush(Color.FromArgb(50, iconColor)))
+                        {
+                            g.FillRectangle(bgBrush, iconRect);
+                        }
+                        using (var borderPen = new Pen(iconColor, 1f))
+                        {
+                            g.DrawRectangle(borderPen, iconRect);
+                        }
                     }
                 }
 
                 // STEP 5: Draw text
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, _owner.TextFont, textRect, textColor,

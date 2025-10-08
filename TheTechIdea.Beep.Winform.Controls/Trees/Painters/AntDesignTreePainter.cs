@@ -138,9 +138,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 }
 
                 // STEP 4: Draw Ant Design folder icon
-                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                if (node.IconRectContent != Rectangle.Empty)
                 {
-                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+                    if (!string.IsNullOrEmpty(node.Item.ImagePath))
+                        PaintIcon(g, iconRect, node.Item.ImagePath);
                 }
 
                 // STEP 5: Draw text with Ant Design typography

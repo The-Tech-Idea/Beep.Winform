@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -12,6 +13,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         public override System.Windows.Forms.Padding GetPreferredPadding()
         {
             return new System.Windows.Forms.Padding(12, 6, 12, 6);
+        }
+
+        public override int GetPreferredItemHeight()
+        {
+            // Slightly taller for better checkbox targeting
+            return 32;
         }
     }
 }

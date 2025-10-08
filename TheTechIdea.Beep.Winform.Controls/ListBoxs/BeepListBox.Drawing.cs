@@ -30,6 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_needsLayoutUpdate)
             {
                 UpdateLayout();
+                _layoutHelper.CalculateLayout();
+                _hitHelper.RegisterHitAreas();
                 _needsLayoutUpdate = false;
             }
 
@@ -40,8 +42,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Let the list box painter draw everything
             _listBoxPainter.Paint(g, this, drawingRect);
             
-            // Register hit areas for interaction
-            RegisterHitAreas();
+            // Hit areas are registered by helpers above
         }
         
         #endregion
@@ -100,17 +101,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// <summary>
         /// Registers interactive areas for hit testing
         /// </summary>
-        private void RegisterHitAreas()
-        {
-            // Clear previous hit areas
-            // Note: BeepPanel doesn't have HitAreas like BaseControl
-            // This is a placeholder for potential future implementation
-            
-            // TODO: If BeepPanel gets hit area support, register:
-            // - Search box area
-            // - Individual item areas
-            // - Checkbox areas
-        }
+        // Hit areas are managed by BeepListBoxHitTestHelper via BaseControl._hitTest
         
         #endregion
     }

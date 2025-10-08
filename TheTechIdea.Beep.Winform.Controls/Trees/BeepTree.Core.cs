@@ -27,6 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 		private readonly List<NodeInfo> _visibleNodes = new();
 		private BeepTreeHelper _treeHelper;
 		private BeepTreeLayoutHelper _layoutHelper;
+		private BeepTreeHitTestHelper _treeHitTestHelper;
 
 		// Scrollbars and offsets
 		private BeepScrollBar _verticalScrollBar;
@@ -110,6 +111,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 			// Initialize helpers
 			_treeHelper = new BeepTreeHelper(this);
 			_layoutHelper = new BeepTreeLayoutHelper(this, _treeHelper);
+			_treeHitTestHelper = new BeepTreeHitTestHelper(this, _layoutHelper);
 
 			// Initialize render helpers
 			_toggleRenderer.IsChild = true;
@@ -156,6 +158,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 			InitializePainter();
 			RebuildVisible();
 			UpdateScrollBars();
+			// Build initial hit areas for BaseControl hit-test infra
+			try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
 			
 			// CRITICAL FIX: Handle visibility changes to ensure initial paint
 			this.HandleCreated += (s, e) =>
@@ -165,6 +169,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 				UpdateScrollBars();
 				Invalidate();
 				Update(); // Force immediate paint
+				// Ensure hit areas exist once handle is created
+				try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
 			};
 			
 			this.VisibleChanged += (s, e) =>
@@ -198,6 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 		private ITreePainter GetCurrentPainter()
 		{
 			return _currentPainter;
+					try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
 		}
 		#endregion
 

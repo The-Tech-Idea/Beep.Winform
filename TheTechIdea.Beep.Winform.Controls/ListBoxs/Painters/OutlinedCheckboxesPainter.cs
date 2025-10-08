@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -14,17 +15,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             DrawItemBackground(g, itemRect, isHovered, isSelected);
-            
-            int currentX = itemRect.Left + 12;
-            
-            // Draw outlined checkbox
-            Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - 24) / 2, 24, 24);
-            bool isChecked = _owner.SelectedItems?.Contains(item) == true;
-            DrawOutlinedCheckbox(g, checkRect, isChecked, isHovered, item);
-            currentX += 32;
-            
+
+            // Use layout-provided rectangles for consistent UX
+            var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
+            var checkRect = info?.CheckRect ?? Rectangle.Empty;
+            var textRect = info?.TextRect ?? new Rectangle(itemRect.Left + 12, itemRect.Y, itemRect.Width - 24, itemRect.Height);
+
+            // Draw outlined checkbox inside provided rect if available
+            if (!checkRect.IsEmpty)
+            {
+                bool isChecked = _owner.SelectedItems?.Contains(item) == true;
+                DrawOutlinedCheckbox(g, checkRect, isChecked, isHovered, item);
+            }
+
             // Draw text
-            Rectangle textRect = new Rectangle(currentX, itemRect.Y, itemRect.Right - currentX - 12, itemRect.Height);
             Color textColor = _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }

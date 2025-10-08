@@ -16,22 +16,41 @@ namespace TheTechIdea.Beep.Winform.Controls
     /// </summary>
     public partial class BeepListBox : BeepPanel
     {
+#pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
         #region Helper and Painter
         
         /// <summary>
         /// The main helper that manages list box logic
         /// </summary>
-        private BeepListBoxHelper _helper;
+    private BeepListBoxHelper _helper;
+    private BeepListBoxLayoutHelper _layoutHelper;
+    private BeepListBoxHitTestHelper _hitHelper;
         
         /// <summary>
         /// Gets the helper instance for internal use
         /// </summary>
-        internal BeepListBoxHelper Helper => _helper;
+    internal BeepListBoxHelper Helper => _helper;
+    internal BeepListBoxLayoutHelper LayoutHelper => _layoutHelper;
         
         /// <summary>
         /// The painter instance (will be recreated when ListBoxType changes)
         /// </summary>
-        private ListBoxs.Painters.IListBoxPainter _listBoxPainter;
+    private ListBoxs.Painters.IListBoxPainter _listBoxPainter;
+    /// <summary>
+    /// Returns the preferred item height from the active painter, or fallback to MenuItemHeight.
+    /// Provides a safe public accessor to avoid touching private painter in helpers.
+    /// </summary>
+    public int PreferredItemHeight
+    {
+        get
+        {
+            if (_listBoxPainter != null)
+            {
+                try { return _listBoxPainter.GetPreferredItemHeight(); } catch { }
+            }
+            return _menuItemHeight;
+        }
+    }
         
         #endregion
         
@@ -41,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private ListBoxType _listBoxType = ListBoxType.Standard;
         
         // List management
-        private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
+    private BindingList<SimpleItem> _listItems = new BindingList<SimpleItem>();
         private SimpleItem _selectedItem;
         private List<SimpleItem> _selectedItems = new List<SimpleItem>();
         private int _selectedIndex = -1;
@@ -112,6 +131,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             // Initialize helper
             _helper = new BeepListBoxHelper(this);
+            _layoutHelper = new BeepListBoxLayoutHelper(this);
+            _hitHelper = new BeepListBoxHitTestHelper(this, _layoutHelper);
             
             // Initialize list
             if (_listItems == null)
@@ -145,6 +166,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             _delayedInvalidateTimer.Tick += (s, e) =>
             {
                 _delayedInvalidateTimer.Stop();
+                if (_listBoxPainter != null)
+                {
+                    UpdateLayout();
+                    _layoutHelper.CalculateLayout();
+                    _hitHelper.RegisterHitAreas();
+                }
                 Invalidate();
             };
             
@@ -155,6 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                      ControlStyles.ResizeRedraw, true);
             UpdateStyles();
         }
+#pragma warning restore IL2026
         
         private void ListItems_ListChanged(object sender, System.ComponentModel.ListChangedEventArgs e)
         {

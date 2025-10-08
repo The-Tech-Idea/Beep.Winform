@@ -17,15 +17,17 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
     /// </summary>
     internal abstract class BaseListBoxPainter : IListBoxPainter
     {
-        protected BeepListBox _owner;
-        protected IBeepTheme _theme;
-        protected BeepListBoxHelper _helper;
+    protected BeepListBox _owner;
+    protected IBeepTheme _theme;
+    protected BeepListBoxHelper _helper;
+    protected BeepListBoxLayoutHelper _layout;
         
         public virtual void Initialize(BeepListBox owner, IBeepTheme theme)
         {
             _owner = owner ?? throw new ArgumentNullException(nameof(owner));
             _theme = theme;
             _helper = new BeepListBoxHelper(owner);
+            _layout = owner.LayoutHelper;
         }
         
         public virtual void Paint(Graphics g, BeepListBox owner, Rectangle drawingRect)
@@ -42,20 +44,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             g.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
             
-            // Get visible items
-            var visibleItems = _helper.GetVisibleItems();
-            
-            // Calculate starting Y position
+            // Get layout and items
+            var items = _helper.GetVisibleItems();
+            _layout.CalculateLayout();
+            var cache = _layout.GetCachedLayout();
+
+            // Optionally draw search at top (kept simple)
             int yOffset = drawingRect.Y;
-            
-            // Draw search area if enabled
             if (_owner.ShowSearch && SupportsSearch())
             {
                 yOffset = DrawSearchArea(g, drawingRect, yOffset);
             }
-            
-            // Draw items
-            DrawItems(g, drawingRect, visibleItems, yOffset);
+
+            DrawItems(g, drawingRect, items, yOffset);
         }
         
         public virtual int GetPreferredItemHeight()
@@ -118,20 +119,24 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (items == null || items.Count == 0)
                 return;
-            
-            int itemHeight = GetPreferredItemHeight();
+
+            var layout = _layout.GetCachedLayout();
+            if (layout == null || layout.Count == 0)
+                return;
+
             Point mousePoint = _owner.PointToClient(Control.MousePosition);
-            
-            foreach (var item in items)
+
+            foreach (var info in layout)
             {
-                Rectangle itemRect = new Rectangle(drawingRect.X, yOffset, drawingRect.Width, itemHeight);
-                
-                bool isHovered = itemRect.Contains(mousePoint);
+                var item = info.Item;
+                var rowRect = info.RowRect;
+                if (rowRect.IsEmpty) continue;
+
+                bool isHovered = rowRect.Contains(mousePoint);
                 bool isSelected = item == _owner.SelectedItem;
-                
-                DrawItem(g, itemRect, item, isHovered, isSelected);
-                
-                yOffset += itemHeight;
+
+                // Let concrete painter draw using the row rect
+                DrawItem(g, rowRect, item, isHovered, isSelected);
             }
         }
         

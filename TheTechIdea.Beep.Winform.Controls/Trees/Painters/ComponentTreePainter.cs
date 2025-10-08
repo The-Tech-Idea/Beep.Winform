@@ -153,9 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 }
 
                 // STEP 6: Draw layered component icon
-                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                if (node.IconRectContent != Rectangle.Empty && !string.IsNullOrEmpty(node.Item.ImagePath))
                 {
-                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+                    PaintIcon(g, iconRect, node.Item.ImagePath);
                 }
 
                 // STEP 7: Draw text with component tree typography (monospace bold on selection)

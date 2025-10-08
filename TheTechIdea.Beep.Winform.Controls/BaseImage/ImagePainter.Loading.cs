@@ -52,18 +52,41 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
         {
             try
             {
+                // Heuristic: if caller passed a short name (e.g., "icon.svg") or an embedded resource key,
+                // try mapping via ImageListHelper first, then fall back to embedded-resource probing.
                 if (IsEmbeddedResource(path))
                 {
                     bool isJustFileName = !path.Contains("\\") && !path.Contains("/") && path.Count(c => c == '.') == 1;
                     if (isJustFileName)
                     {
-                        string newpath = ImageListHelper.GetImagePathFromName(path);
-                        if (newpath != null)
+                        string mapped = ImageListHelper.GetImagePathFromName(path);
+                        if (!string.IsNullOrEmpty(mapped))
                         {
-                            path = newpath;
+                            // If the mapping resolves to a physical file, load from disk.
+                            if (File.Exists(mapped))
+                            {
+                                return LoadImageFromFile(mapped);
+                            }
+
+                            // Otherwise, the mapping might still be an embedded resource key.
+                            if (LoadImageFromEmbeddedResource(mapped))
+                            {
+                                return true;
+                            }
                         }
                     }
-                    return LoadImageFromEmbeddedResource(path);
+
+                    // Try original path as embedded resource (supports dotted resource names)
+                    if (LoadImageFromEmbeddedResource(path))
+                    {
+                        return true;
+                    }
+
+                    // As a last resort, if the original path points to a file, try loading it.
+                    if (File.Exists(path))
+                    {
+                        return LoadImageFromFile(path);
+                    }
                 }
                 else
                 {

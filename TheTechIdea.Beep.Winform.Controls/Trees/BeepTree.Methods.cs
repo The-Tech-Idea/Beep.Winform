@@ -225,6 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public SimpleItem AddNodeWithBranch(SimpleItem newItem, string parentGuidId = null)
         {
+            System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Start adding node '{newItem?.Text}' with parentGuidId = {parentGuidId ?? "null (root)"}"); 
             if (newItem == null) return null;
 
             try

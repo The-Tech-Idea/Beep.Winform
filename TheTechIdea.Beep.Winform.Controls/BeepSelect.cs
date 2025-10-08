@@ -1025,6 +1025,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _popupListForm.IsTitleVisible = !string.IsNullOrEmpty(_dropdownTitle);
                     _popupListForm.SelectedItemChanged += PopupListForm_SelectedItemChanged;
                     _popupListForm.FormClosed += PopupListForm_FormClosed;
+                    // Close-on-selection mirrors BeepTree menu behavior for single-select
+                    _popupListForm.CloseOnSelection = !AllowMultipleSelection;
                 }
                 else
                 {

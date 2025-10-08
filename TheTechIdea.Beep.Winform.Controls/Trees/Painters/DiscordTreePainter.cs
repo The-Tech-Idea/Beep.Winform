@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
                 if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
                 {
-                    var toggleRect = node.ToggleRectContent;
+                    var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
                     Color arrowColor = _theme.TreeForeColor;
 
                     using (var pen = new Pen(arrowColor, 1.5f))
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw Discord checkbox
                 if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
                 {
-                    var checkRect = node.CheckRectContent;
+                    var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
                     var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
                     var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
 
@@ -147,20 +147,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw Discord hashtag icon
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
-                    Color iconColor = _theme.AccentColor;
-
-                    using (var iconPath = CreateRoundedRectangle(iconRect, iconRect.Width / 4))
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+                    if (!string.IsNullOrEmpty(node.Item.ImagePath))
                     {
-                        // Background
-                        using (var bgBrush = new SolidBrush(Color.FromArgb(60, iconColor)))
+                        PaintIcon(g, iconRect, node.Item.ImagePath);
+                    }
+                    else
+                    {
+                        Color iconColor = _theme.AccentColor;
+                        using (var iconPath = CreateRoundedRectangle(iconRect, iconRect.Width / 4))
                         {
-                            g.FillPath(bgBrush, iconPath);
-                        }
+                            using (var bgBrush = new SolidBrush(Color.FromArgb(60, iconColor)))
+                            {
+                                g.FillPath(bgBrush, iconPath);
+                            }
 
-                        // Hashtag symbol (#)
-                        using (var hashFont = new Font("Segoe UI", iconRect.Height * 0.5f, FontStyle.Bold))
-                        {
+                            using (var hashFont = new Font("Segoe UI", iconRect.Height * 0.5f, FontStyle.Bold))
                             using (var textBrush = new SolidBrush(iconColor))
                             {
                                 StringFormat sf = new StringFormat
@@ -178,7 +180,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 6: Draw text with Discord typography (bold on selection)
                 if (node.TextRectContent != Rectangle.Empty)
                 {
-                    var textRect = node.TextRectContent;
+                    var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
                     Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
 
                     // Discord uses Whitney/Segoe UI, bold on selection

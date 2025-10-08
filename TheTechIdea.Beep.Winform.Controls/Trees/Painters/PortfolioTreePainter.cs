@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 5: Draw epic/story icon (Jira style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     Color iconColor = Color.FromArgb(
                         (_theme.AccentColor.R + _theme.TreeForeColor.R) / 2,
                         (_theme.AccentColor.G + _theme.TreeForeColor.G) / 2,

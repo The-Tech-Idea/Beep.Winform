@@ -1069,6 +1069,8 @@
     <Folder Include="DialogsManagers\Models\" />
     <Folder Include="Examples\" />
     <Folder Include="Forms\Adapters\" />
+    <Folder Include="Forms\ModernForm\Helpers\" />
+    <Folder Include="Forms\ModernForm\Painters\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="GridX\Layouts\FooterLayouts\" />
     <Folder Include="GridX\Layouts\HeaderLayouts\" />

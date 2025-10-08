@@ -11,8 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             base.DrawItemBackground(g, itemRect, isHovered, isSelected);
             
-            // Draw subtle divider
-            using (var pen = new Pen(Color.FromArgb(230, 230, 230), 1f))
+            // Draw subtle divider using theme border color
+            using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(230, 230, 230), 1f))
             {
                 g.DrawLine(pen, itemRect.Left + 8, itemRect.Bottom - 1, itemRect.Right - 8, itemRect.Bottom - 1);
             }

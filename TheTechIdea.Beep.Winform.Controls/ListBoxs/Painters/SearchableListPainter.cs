@@ -16,7 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Rectangle searchRect = new Rectangle(drawingRect.X + 8, yOffset + 8, drawingRect.Width - 16, searchHeight);
             
             // Draw search box background with rounded corners
-            using (var brush = new SolidBrush(Color.FromArgb(245, 245, 245)))
+            Color searchBg = Color.FromArgb(245, 245, 245);
+            using (var brush = new SolidBrush(searchBg))
             using (var path = GetRoundedRectPath(searchRect, 8))
             {
                 g.FillPath(brush, path);
@@ -30,7 +31,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw placeholder or search text
             string displayText = string.IsNullOrEmpty(_owner.SearchText) ? "Search..." : _owner.SearchText;
             Rectangle textRect = new Rectangle(searchRect.Left + 40, searchRect.Y, searchRect.Width - 50, searchRect.Height);
-            Color textColor = string.IsNullOrEmpty(_owner.SearchText) ? Color.Gray : Color.Black;
+            Color textColor = string.IsNullOrEmpty(_owner.SearchText) ? Color.Gray : (_theme?.PrimaryTextColor ?? Color.Black);
             
             System.Windows.Forms.TextRenderer.DrawText(g, displayText, _owner.TextFont, textRect, textColor,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);

@@ -11,12 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         {
             if (isSelected || isHovered)
             {
-                Color bgColor = isSelected
-                    ? Color.FromArgb(230, (_theme?.PrimaryColor ?? Color.Blue).R, 
-                                    (_theme?.PrimaryColor ?? Color.Blue).G,
-                                    (_theme?.PrimaryColor ?? Color.Blue).B)
-                    : Color.FromArgb(250, 250, 250);
-                
+                Color bgColor = isSelected ? _helper.GetSelectedBackColor() : _helper.GetHoverBackColor();
                 using (var brush = new SolidBrush(bgColor))
                 {
                     g.FillRectangle(brush, itemRect);
@@ -26,7 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw ripple effect on selected
             if (isSelected)
             {
-                using (var pen = new Pen(_theme?.PrimaryColor ?? Color.Blue, 2f))
+                using (var pen = new Pen(_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.Blue, 2f))
                 {
                     g.DrawLine(pen, itemRect.Left, itemRect.Top, itemRect.Left, itemRect.Bottom);
                 }

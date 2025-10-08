@@ -153,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
                 // STEP 4: Draw colorful gradient folder icon (Google Drive style)
                 if (node.IconRectContent != Rectangle.Empty)
                 {
-                    var iconRect = node.IconRectContent;
+                    var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
                     int tabHeight = iconRect.Height / 4;
                     int tabWidth = iconRect.Width / 2;
 

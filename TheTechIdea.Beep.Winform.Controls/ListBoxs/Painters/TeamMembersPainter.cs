@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -13,45 +14,59 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
+            // Background and divider come from OutlinedListBoxPainter base
             DrawItemBackground(g, itemRect, isHovered, isSelected);
-            
-            int currentX = itemRect.Left + 12;
-            
-            // Draw checkbox
-            if (_owner.ShowCheckBox && SupportsCheckboxes())
+
+            // Use precomputed layout for checkbox, but custom text to reserve right avatar space
+            var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
+            Rectangle checkRect = info?.CheckRect ?? Rectangle.Empty;
+
+            // Checkbox (left)
+            if (_owner.ShowCheckBox && SupportsCheckboxes() && !checkRect.IsEmpty)
             {
-                Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - 16) / 2, 16, 16);
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 DrawCheckbox(g, checkRect, isChecked, isHovered);
-                currentX += 24;
             }
-            
-            // Draw text
-            int avatarSpace = 40; // Reserve space for avatar on right
-            Rectangle textRect = new Rectangle(currentX, itemRect.Y, itemRect.Width - currentX - avatarSpace, itemRect.Height);
-            Color textColor = _helper.GetTextColor();
+
+            // Compute text rect starting after checkbox area and reserving space for right-side avatar
+            int leftStart = !checkRect.IsEmpty ? (checkRect.Right + 8) : (itemRect.Left + 12);
+
+            // Avatar space on the right
+            int baseAvatar = (_owner.ImageSize > 0 ? _owner.ImageSize : 28);
+            int avatarSize = Math.Max(20, Math.Min(40, baseAvatar));
+            int avatarPadding = 12;
+            int avatarSpace = !string.IsNullOrEmpty(item.ImagePath) ? (avatarSize + avatarPadding) : 0;
+
+            Rectangle textRect = new Rectangle(leftStart, itemRect.Y, Math.Max(0, itemRect.Right - leftStart - avatarSpace), itemRect.Height);
+            Color textColor = isSelected ? Color.White : _helper.GetTextColor();
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
-            
-            // Draw avatar circle on right
+
+            // Draw circular avatar on the right using StyledImagePainter
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int avatarSize = 28;
-                Rectangle avatarRect = new Rectangle(itemRect.Right - avatarSize - 12, 
+                Rectangle avatarRect = new Rectangle(itemRect.Right - avatarSize - avatarPadding,
                     itemRect.Y + (itemRect.Height - avatarSize) / 2, avatarSize, avatarSize);
-                
+
+                var state = g.Save();
                 using (var path = new System.Drawing.Drawing2D.GraphicsPath())
                 {
                     path.AddEllipse(avatarRect);
                     g.SetClip(path);
                     DrawItemImage(g, avatarRect, item.ImagePath);
-                    g.ResetClip();
                 }
+                g.Restore(state);
             }
         }
         
         public override int GetPreferredItemHeight()
         {
-            return 48; // Taller for avatar display
+            // Slightly taller for avatar display
+            int baseH = 48;
+            if (_owner != null && _owner.ImageSize > 0)
+            {
+                baseH = Math.Max(baseH, _owner.ImageSize + 16);
+            }
+            return baseH;
         }
     }
 }

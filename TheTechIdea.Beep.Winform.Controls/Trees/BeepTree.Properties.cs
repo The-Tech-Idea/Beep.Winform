@@ -118,6 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _showCheckBox = value;
                 RecalculateLayoutCache();
                 UpdateScrollBars();
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
                 Invalidate();
             }
         }

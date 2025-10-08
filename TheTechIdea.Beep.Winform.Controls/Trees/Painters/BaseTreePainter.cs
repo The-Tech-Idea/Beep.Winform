@@ -126,19 +126,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             bool hasChildren = node.Item?.Children != null && node.Item.Children.Count > 0;
             if (hasChildren && !node.ToggleRectContent.IsEmpty)
             {
-                PaintToggle(g, node.ToggleRectContent, node.Item.IsExpanded, hasChildren, isHovered);
+                // Transform to viewport coordinates before drawing
+                var toggleRect = _owner.LayoutHelper.TransformToViewport(node.ToggleRectContent);
+                PaintToggle(g, toggleRect, node.Item.IsExpanded, hasChildren, isHovered);
             }
 
             // Checkbox (if enabled on owner)
             if (_owner != null && _owner.ShowCheckBox && !node.CheckRectContent.IsEmpty)
             {
-                PaintCheckbox(g, node.CheckRectContent, node.Item.IsChecked, isHovered);
+                var checkRect = _owner.LayoutHelper.TransformToViewport(node.CheckRectContent);
+                PaintCheckbox(g, checkRect, node.Item.IsChecked, isHovered);
             }
 
             // Icon
             if (!string.IsNullOrEmpty(node.Item?.ImagePath) && !node.IconRectContent.IsEmpty)
             {
-                PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                var iconRect = _owner.LayoutHelper.TransformToViewport(node.IconRectContent);
+                PaintIcon(g, iconRect, node.Item.ImagePath);
             }
 
             // Text
@@ -146,7 +150,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             {
                 var font = _owner?.UseThemeFont == true ? (BeepThemesManager.ToFont(_owner?._currentTheme?.LabelFont) ?? _owner.TextFont) : _owner?.TextFont;
                 font ??= SystemFonts.DefaultFont;
-                PaintText(g, node.TextRectContent, node.Item?.Text ?? string.Empty, font, isSelected, isHovered);
+                var textRect = _owner.LayoutHelper.TransformToViewport(node.TextRectContent);
+                PaintText(g, textRect, node.Item?.Text ?? string.Empty, font, isSelected, isHovered);
             }
         }
 

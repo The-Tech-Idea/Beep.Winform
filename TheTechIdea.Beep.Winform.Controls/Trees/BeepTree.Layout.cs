@@ -74,6 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (!DesignMode && IsHandleCreated)
             {
                 UpdateScrollBars();
+                // Update hit areas because layout changed
+                try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             }
         }
 

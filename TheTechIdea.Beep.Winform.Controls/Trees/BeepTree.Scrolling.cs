@@ -184,6 +184,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _yOffset = sb.Value;
             }
+            try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
 
@@ -196,6 +197,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 _xOffset = sb.Value;
             }
+            try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             Invalidate();
         }
 
@@ -218,6 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     _yOffset = newValue;
                     _verticalScrollBar.Value = newValue;
+                    try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
                     Invalidate();
                 }
             }

@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 yOffset = chipY + 32;
                 
                 // Draw separator line
-                using (var pen = new Pen(Color.FromArgb(220, 220, 220), 1f))
+                using (var pen = new Pen(_theme?.BorderColor ?? Color.FromArgb(220, 220, 220), 1f))
                 {
                     g.DrawLine(pen, drawingRect.Left, yOffset, drawingRect.Right, yOffset);
                 }
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             Rectangle chipRect = new Rectangle(x, y, chipWidth, chipHeight);
             
             // Draw chip background
-            Color chipBg = _theme?.PrimaryColor ?? Color.FromArgb(33, 150, 243);
+            Color chipBg = _theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.FromArgb(33, 150, 243);
             using (var brush = new SolidBrush(Color.FromArgb(230, chipBg.R, chipBg.G, chipBg.B)))
             {
                 using (var path = GetRoundedRectPath(chipRect, chipHeight / 2))
@@ -75,7 +75,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             
             // Draw text
             var textRect = new Rectangle(x + 12, y, chipWidth - 24, chipHeight);
-            System.Windows.Forms.TextRenderer.DrawText(g, text, _owner.TextFont, textRect, Color.White,
+            Color chipText = _theme?.OnPrimaryColor ?? Color.White;
+            System.Windows.Forms.TextRenderer.DrawText(g, text, _owner.TextFont, textRect, chipText,
                 System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.VerticalCenter);
             
             // Draw X button

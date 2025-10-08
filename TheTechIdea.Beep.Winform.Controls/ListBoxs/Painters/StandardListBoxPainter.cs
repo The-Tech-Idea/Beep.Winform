@@ -1,5 +1,6 @@
 using System.Drawing;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using System.Linq;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
 {
@@ -11,29 +12,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
             DrawItemBackground(g, itemRect, isHovered, isSelected);
-            
-            int currentX = itemRect.Left + 8;
-            
-            // Draw checkbox if enabled
-            if (_owner.ShowCheckBox && SupportsCheckboxes())
+
+            // Use precomputed rects for best consistency
+            var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
+            Rectangle checkRect = info?.CheckRect ?? Rectangle.Empty;
+            Rectangle iconRect = info?.IconRect ?? Rectangle.Empty;
+            Rectangle textRect = info?.TextRect ?? itemRect;
+
+            // Checkbox
+            if (_owner.ShowCheckBox && SupportsCheckboxes() && !checkRect.IsEmpty)
             {
-                Rectangle checkRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - 16) / 2, 16, 16);
                 bool isChecked = _owner.SelectedItems?.Contains(item) == true;
                 DrawCheckbox(g, checkRect, isChecked, isHovered);
-                currentX += 20;
             }
-            
-            // Draw image if enabled
-            if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath))
+
+            // Icon
+            if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath) && !iconRect.IsEmpty)
             {
-                int imgSize = Math.Min(itemRect.Height - 8, 24);
-                Rectangle imgRect = new Rectangle(currentX, itemRect.Y + (itemRect.Height - imgSize) / 2, imgSize, imgSize);
-                DrawItemImage(g, imgRect, item.ImagePath);
-                currentX += imgSize + 8;
+                DrawItemImage(g, iconRect, item.ImagePath);
             }
-            
-            // Draw text
-            Rectangle textRect = new Rectangle(currentX, itemRect.Y, itemRect.Right - currentX - 8, itemRect.Height);
+
+            // Text
             Color textColor = isSelected ? Color.White : (_helper.GetTextColor());
             DrawItemText(g, textRect, item.Text, textColor, _owner.TextFont);
         }

@@ -18,6 +18,13 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SelectedItemChanged?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
         }
+        // Controls whether the popup should close immediately after an item is selected (default true)
+        public bool CloseOnSelection { get; set; } = true;
+        // Public notifier to allow hosted controls to signal selection changes safely
+        public void NotifySelectedItemChanged(SimpleItem selectedItem)
+        {
+            OnSelectedItemChanged(selectedItem);
+        }
         public Control TriggerControl { get; set; }
         public event EventHandler OnLeave;
         public event EventHandler OnClose;

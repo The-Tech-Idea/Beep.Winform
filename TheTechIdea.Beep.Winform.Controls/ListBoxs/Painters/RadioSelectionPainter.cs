@@ -1,5 +1,7 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Linq;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
@@ -14,54 +16,91 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         protected override void DrawItem(Graphics g, Rectangle itemRect, SimpleItem item, bool isHovered, bool isSelected)
         {
+            // Slight inset for this style
             var rect = itemRect;
             rect.Inflate(-6, -3);
-            
+
             DrawItemBackground(g, rect, isHovered, isSelected);
-            
-            int currentX = rect.Left + 16;
-            
-            // Draw main text
-            Rectangle textRect = new Rectangle(currentX, rect.Y + 10, rect.Width - currentX - 50, rect.Height / 2);
-            Color textColor = isSelected ? Color.White : Color.FromArgb(40, 40, 40);
-            Font mainFont = isSelected ? new Font(_owner.TextFont, FontStyle.Bold) : _owner.TextFont;
-            DrawItemText(g, textRect, item.Text, textColor, mainFont);
-            
-            // Draw description if available
-            if (!string.IsNullOrEmpty(item.Description))
+
+            // Use layout rects as base, then reserve area for radio on the right
+            var info = _layout.GetCachedLayout().FirstOrDefault(i => i.Item == item);
+            var textBase = info?.TextRect ?? rect;
+            var iconRect = info?.IconRect ?? Rectangle.Empty;
+
+            // Size radio relative to row height to behave well on DPI/varied heights
+            int radioSize = Math.Min(20, Math.Max(14, rect.Height - 12));
+            var radioRect = new Rectangle(rect.Right - radioSize - 16, rect.Y + (rect.Height - radioSize) / 2, radioSize, radioSize);
+
+            // Shrink text area to avoid radio overlap
+            var textAvail = new Rectangle(textBase.Left, textBase.Top, Math.Max(0, radioRect.Left - 12 - textBase.Left), textBase.Height);
+
+            // Optional icon (left) if provided
+            if (_owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath) && !iconRect.IsEmpty)
             {
-                Font smallFont = new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size - 1);
-                Rectangle descRect = new Rectangle(currentX, rect.Y + rect.Height / 2 + 2, rect.Width - currentX - 50, rect.Height / 2 - 10);
-                Color descColor = isSelected ? Color.FromArgb(220, 220, 255) : Color.FromArgb(120, 120, 120);
-                System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
-                    System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top);
+                DrawItemImage(g, iconRect, item.ImagePath);
             }
-            
-            // Draw radio button on right
-            int radioSize = 20;
-            Rectangle radioRect = new Rectangle(rect.Right - radioSize - 16, rect.Y + (rect.Height - radioSize) / 2, radioSize, radioSize);
+
+            // Layout: if description is present, use two lines; otherwise center the main text
+            bool hasDesc = !string.IsNullOrEmpty(item.Description);
+            int topPadding = Math.Max(4, rect.Height / 8);
+            int split = textAvail.Height / 2;
+            var mainRect = hasDesc
+                ? new Rectangle(textAvail.Left, textAvail.Top + topPadding, textAvail.Width, Math.Max(0, split - topPadding))
+                : textAvail;
+            var descRect = hasDesc
+                ? new Rectangle(textAvail.Left, textAvail.Top + split, textAvail.Width, Math.Max(0, textAvail.Height - split - 6))
+                : Rectangle.Empty;
+
+            bool disabled = item?.IsEnabled == false;
+            Color mainColor = isSelected
+                ? (_theme?.OnPrimaryColor ?? Color.White)
+                : (disabled ? Color.FromArgb(160, 160, 160) : _helper.GetTextColor());
+
+            // Use bold font only when selected; avoid cloning owner's font
+            Font mainFont = _owner.TextFont;
+            bool disposeMain = false;
+            if (isSelected)
+            {
+                mainFont = new Font(_owner.TextFont, FontStyle.Bold);
+                disposeMain = true;
+            }
+            try
+            {
+                if (mainRect.Height > 0)
+                    DrawItemText(g, mainRect, item.Text, mainColor, mainFont);
+            }
+            finally
+            {
+                if (disposeMain) mainFont.Dispose();
+            }
+
+            if (hasDesc && descRect.Height > 0)
+            {
+                using (var smallFont = new Font(_owner.TextFont.FontFamily, Math.Max(6, _owner.TextFont.Size - 1)))
+                {
+                    Color onPrimary = _theme?.OnPrimaryColor ?? Color.White;
+                    Color secondary = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
+                    Color disabledColor = Color.FromArgb(180, 180, 180);
+                    Color descColor = isSelected ? Color.FromArgb(220, onPrimary) : (disabled ? disabledColor : secondary);
+                    System.Windows.Forms.TextRenderer.DrawText(g, item.Description, smallFont, descRect, descColor,
+                        System.Windows.Forms.TextFormatFlags.Left | System.Windows.Forms.TextFormatFlags.Top | System.Windows.Forms.TextFormatFlags.EndEllipsis);
+                }
+            }
+
+            // Right-aligned radio control
             DrawRadioButton(g, radioRect, isSelected, isHovered, item);
         }
         
         protected override void DrawItemBackground(Graphics g, Rectangle itemRect, bool isHovered, bool isSelected)
         {
-            Color bgColor;
-            if (isSelected)
-            {
-                // Purple/Blue gradient background
-                bgColor = Color.FromArgb(120, 81, 238); // Purple
-            }
-            else if (isHovered)
-            {
-                bgColor = Color.FromArgb(248, 248, 252);
-            }
-            else
-            {
-                bgColor = Color.White;
-            }
+            // Use helper/theme-driven colors for consistency
+            Color bgColor = isSelected
+                ? _helper.GetSelectedBackColor()
+                : (isHovered ? _helper.GetHoverBackColor() : _helper.GetBackgroundColor());
             
+            int radius = Math.Min(8, Math.Max(4, itemRect.Height / 6));
             using (var brush = new SolidBrush(bgColor))
-            using (var path = GetRoundedRectPath(itemRect, 8))
+            using (var path = GetRoundedRectPath(itemRect, radius))
             {
                 g.FillPath(brush, path);
             }
@@ -69,9 +108,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
             // Draw border
             if (!isSelected)
             {
-                Color borderColor = isHovered ? Color.FromArgb(200, 200, 210) : Color.FromArgb(220, 220, 230);
+                Color borderColor = isHovered
+                    ? (_theme?.AccentColor ?? Color.FromArgb(200, 200, 210))
+                    : (_theme?.BorderColor ?? Color.FromArgb(220, 220, 230));
                 using (var pen = new Pen(borderColor, 1f))
-                using (var path = GetRoundedRectPath(itemRect, 8))
+                using (var path = GetRoundedRectPath(itemRect, radius))
                 {
                     g.DrawPath(pen, path);
                 }
@@ -80,48 +121,36 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         private void DrawRadioButton(Graphics g, Rectangle radioRect, bool isSelected, bool isHovered, SimpleItem item)
         {
-            bool isDisabled = item.Text?.ToLower().Contains("poor") == true;
-            Color borderColor = isSelected ? Color.White : (isDisabled ? Color.FromArgb(200, 200, 200) : Color.FromArgb(180, 180, 180));
-            Color bgColor = isSelected ? Color.FromArgb(120, 81, 238) : (isDisabled ? Color.FromArgb(240, 240, 240) : Color.White);
-            
-            // Draw outer circle
-            using (var brush = new SolidBrush(bgColor))
+            bool isDisabled = item?.IsEnabled == false;
+
+            // Outer circle fill and border
+            Color outerFill = Color.White;
+            Color borderColor = isDisabled
+                ? Color.FromArgb(200, 200, 200)
+                : (isSelected || isHovered) ? (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.SteelBlue)
+                                             : (_theme?.BorderColor ?? Color.FromArgb(180, 180, 180));
+
+            using (var brush = new SolidBrush(outerFill))
             {
                 g.FillEllipse(brush, radioRect);
             }
-            
             using (var pen = new Pen(borderColor, 2f))
             {
                 g.DrawEllipse(pen, radioRect.X + 1, radioRect.Y + 1, radioRect.Width - 3, radioRect.Height - 3);
             }
-            
-            // Draw inner circle if selected
+
+            // Inner dot when selected
             if (isSelected)
             {
                 var innerRect = radioRect;
-                innerRect.Inflate(-6, -6);
-                
-                using (var brush = new SolidBrush(Color.White))
+                innerRect.Inflate(-(Math.Max(4, radioRect.Width / 4)), -(Math.Max(4, radioRect.Height / 4)));
+
+                Color dotColor = isDisabled
+                    ? Color.FromArgb(180, 180, 180)
+                    : (_theme?.PrimaryColor ?? _theme?.AccentColor ?? Color.SteelBlue);
+                using (var brush = new SolidBrush(dotColor))
                 {
                     g.FillEllipse(brush, innerRect);
-                }
-            }
-            
-            // Draw checkmark for selected
-            if (isSelected)
-            {
-                var checkRect = radioRect;
-                checkRect.Inflate(-4, -4);
-                
-                using (var pen = new Pen(Color.White, 2f))
-                {
-                    Point[] checkPoints = new Point[]
-                    {
-                        new Point(checkRect.Left + 2, checkRect.Top + checkRect.Height / 2),
-                        new Point(checkRect.Left + checkRect.Width / 2, checkRect.Bottom - 2),
-                        new Point(checkRect.Right - 1, checkRect.Top + 2)
-                    };
-                    g.DrawLines(pen, checkPoints);
                 }
             }
         }
@@ -142,7 +171,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
         
         public override int GetPreferredItemHeight()
         {
-            return 68; // Taller for two-line display with radio button
+            int fontH = _owner?.TextFont?.Height ?? 16;
+            int descH = Math.Max(10, fontH - 2);
+            int contentTwoLine = fontH + descH + 12; // paddings
+            int radioTarget = Math.Max(14, Math.Min(20, contentTwoLine - 12));
+            int height = Math.Max(contentTwoLine, radioTarget + 12);
+            return Math.Max(48, height);
         }
     }
 }

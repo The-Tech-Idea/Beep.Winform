@@ -22,27 +22,53 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private void RebuildVisible()
         {
+            System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: Starting with {_nodes.Count} root nodes");
             _visibleNodes.Clear();
 
-            void Recurse(SimpleItem item, int level)
+            void Recurse(SimpleItem item, int level, SimpleItem parent = null)
             {
+                // Ensure ParentItem linkage is correct for helpers relying on it
+                if (item != null && parent != null && item.ParentItem != parent)
+                {
+                    item.ParentItem = parent;
+                }
                 _visibleNodes.Add(new NodeInfo { Item = item, Level = level });
                 if (item.IsExpanded && item.Children?.Count > 0)
                 {
                     foreach (var child in item.Children)
                     {
-                        Recurse(child, level + 1);
+                        Recurse(child, level + 1, item);
                     }
                 }
             }
 
             foreach (var root in _nodes)
             {
-                Recurse(root, 0);
+                Recurse(root, 0, null);
             }
+            
+            System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: Created {_visibleNodes.Count} visible nodes");
 
             // Recalculate layout after rebuilding
             RecalculateLayoutCache();
+
+            // Keep the layout helper's cache in sync so DrawVisibleNodes() has data
+            try
+            {
+                _layoutHelper?.InvalidateCache();
+                var cached = _layoutHelper?.RecalculateLayout();
+                if (cached != null)
+                {
+                    // Recompute virtual size from helper cache for accurate scrollbars
+                    _virtualSize = new Size(
+                        _layoutHelper.CalculateTotalContentWidth(),
+                        _layoutHelper.CalculateTotalContentHeight());
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: LayoutHelper sync failed: {ex.Message}");
+            }
 
             // Update scrollbars
             if (!DesignMode && IsHandleCreated)
@@ -61,8 +87,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         internal void RecalculateLayoutCache()
         {
+            System.Diagnostics.Debug.WriteLine($"BeepTree.RecalculateLayoutCache: Processing {_visibleNodes.Count} nodes");
             if (_visibleNodes.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine("BeepTree.RecalculateLayoutCache: No visible nodes to process");
                 return;
+            }
 
             int y = 0;
             int maxWidth = 0;
@@ -135,14 +165,19 @@ namespace TheTechIdea.Beep.Winform.Controls
                 );
                 currentX += nodeInfo.TextSize.Width + 10;
 
-                // Row bounds
-                nodeInfo.RowRectContent = new Rectangle(0, y, currentX, nodeInfo.RowHeight);
+                // Row bounds - use DrawingRect width as default (nodes span full width)
+                int minRowWidth = currentX;  // Minimum needed for content
+                int rowWidth = Math.Max(minRowWidth, DrawingRect.Width);  // At least DrawingRect width
+                nodeInfo.RowRectContent = new Rectangle(0, y, rowWidth, nodeInfo.RowHeight);
                 nodeInfo.Y = y;
-                nodeInfo.RowWidth = currentX;
+                nodeInfo.RowWidth = rowWidth;
 
-                // Track maximum width
-                if (currentX > maxWidth)
-                    maxWidth = currentX;
+                // CRITICAL: Write the modified struct back to the list!
+                _visibleNodes[i] = nodeInfo;
+
+                // Track maximum width (use minRowWidth for actual content width)
+                if (minRowWidth > maxWidth)
+                    maxWidth = minRowWidth;
 
                 y += nodeInfo.RowHeight;
 
@@ -317,8 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _visibleNodes.Clear();
             SelectedNodes.Clear();
             _lastSelectedNode = null;
-            RebuildVisible();
-            Invalidate();
+            RefreshTree();
         }
 
         /// <summary>

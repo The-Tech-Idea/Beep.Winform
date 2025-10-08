@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                     RemoveEntityFromCategory(ParentBranchNode.BranchClass, currentParentFolder, CurrentBranch.BranchText);
                 }
                 SimpleItem CurrentNode = beepTreeControl.GetNodeByGuidID(CurrentBranch.GuidID);
-                Tree.RemoveNode(CurrentNode.Id);
+                Tree.RemoveNode(CurrentNode.ID);
                 CategoryFolder CurFodler = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.RootName == CategoryBranch.BranchClass && y.FolderName == CategoryBranch.BranchText).FirstOrDefault();
                 if (CurFodler != null)
                 {
@@ -254,13 +254,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 //if (CategoryBranch.BranchType == EnumPointType.Entity && CategoryBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && CategoryBranch.DataSourceName == CurrentBranch.DataSourceName)
                 //{
                 //    IDataSource vds = DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
-                //    if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
+                //    if (vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].ID == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
                 //    {
 
                 //    }
                 //    else
                 //    {
-                //        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].Id;
+                //        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(CategoryBranch.MiscID)].ID;
                 //    }
 
 
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 }
                 if (CurrentBranchNode != null)
                 {
-                    Tree.RemoveNode(currentitem.Id);
+                    Tree.RemoveNode(currentitem.ID);
 
                 }
 
@@ -322,13 +322,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 //if (ParentBranch.BranchType == EnumPointType.Entity && ParentBranch.BranchClass == "VIEW" && CurrentBranch.BranchClass == "VIEW" && ParentBranch.DataSourceName == CurrentBranch.DataSourceName)
                 //{
                 //    IDataSource vds = DMEEditor.GetDataSource(CurrentBranch.DataSourceName);
-                //    if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
+                //    if (vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].ID == vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId)
                 //    {
 
                 //    }
                 //    else
                 //    {
-                //        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].Id;
+                //        vds.Entities[vds.EntityListIndex(CurrentBranch.MiscID)].ParentId = vds.Entities[vds.EntityListIndex(ParentBranch.MiscID)].ID;
                 //    }
 
 
@@ -376,7 +376,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 }
                 IBranch parentbranch = Branch.ParentBranch;
                 parentbranch.ChildBranchs.Remove(Branch);
-               if (branchitem!=null)     beepTreeControl.RemoveNode(branchitem.Id);
+               if (branchitem!=null)     beepTreeControl.RemoveNode(branchitem.ID);
 
                 // Editor.AddLogMessage("Success", "removed node and childs", DateTime.Now, 0, null, Errors.Ok);
             }
@@ -420,7 +420,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
 
                 //parentitem.Children.Remove(categoryitem);
                 //Tree.Branches.Remove(CategoryBranch);
-                RemoveBranch(categoryitem.Id);
+                RemoveBranch(categoryitem.ID);
                 CategoryFolder Folder = DMEEditor.ConfigEditor.CategoryFolders.Where(y => y.FolderName == CategoryBranch.BranchText && y.RootName == CategoryBranch.BranchClass).FirstOrDefault();
                 DMEEditor.ConfigEditor.CategoryFolders.Remove(Folder);
 

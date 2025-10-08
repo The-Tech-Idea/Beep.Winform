@@ -19,6 +19,170 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int PillPadding = 6;
         private const int BadgeSize = 16;
 
+        /// <summary>
+        /// Infrastructure-specific node painting with VMware vSphere style.
+        /// Features: Colored status pills (Running/Stopped/Warning), resource icons, metric badges, hierarchical dotted lines.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for infrastructure clarity
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw infrastructure background
+                if (isSelected || isHovered)
+                {
+                    Color backColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    using (var bgBrush = new SolidBrush(backColor))
+                    {
+                        g.FillRectangle(bgBrush, nodeBounds);
+                    }
+
+                    // STEP 2: Infrastructure border (accent on selection)
+                    if (isSelected)
+                    {
+                        using (var borderPen = new Pen(_theme.AccentColor, 1f))
+                        {
+                            Rectangle borderRect = new Rectangle(
+                                nodeBounds.X,
+                                nodeBounds.Y,
+                                nodeBounds.Width - 1,
+                                nodeBounds.Height - 1);
+                            g.DrawRectangle(borderPen, borderRect);
+                        }
+                    }
+                }
+
+                // STEP 3: Draw chevron toggle (infrastructure style)
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color chevronColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
+
+                    using (var pen = new Pen(chevronColor, 2f))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Chevron down (v)
+                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                        }
+                        else
+                        {
+                            // Chevron right (>)
+                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw infrastructure checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    using (var bgBrush = new SolidBrush(bgColor))
+                    {
+                        g.FillRectangle(bgBrush, checkRect);
+                    }
+
+                    using (var borderPen = new Pen(borderColor, 1f))
+                    {
+                        g.DrawRectangle(borderPen, checkRect);
+                    }
+
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 2f))
+                        {
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw resource icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 6: Draw text
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+
+                // STEP 7: Draw infrastructure-specific status pill (right side of node)
+                // Simulate status based on node state (in real scenario, would come from node.Item metadata)
+                if (isSelected || isHovered)
+                {
+                    int pillX = nodeBounds.Right - 70;
+                    int pillY = nodeBounds.Y + (nodeBounds.Height - PillHeight) / 2;
+                    Rectangle pillRect = new Rectangle(pillX, pillY, 60, PillHeight);
+
+                    // Determine status color (simulated - in real scenario would check node.Item properties)
+                    Color statusColor = node.Item.IsExpanded ? Color.FromArgb(76, 175, 80) :  // Green = Running
+                                       Color.FromArgb(33, 150, 243);  // Blue = Stopped
+                    string statusText = node.Item.IsExpanded ? "ON" : "OFF";
+
+                    // Draw status pill
+                    using (var pillPath = CreateRoundedRectangle(pillRect, 3))
+                    {
+                        using (var pillBrush = new SolidBrush(Color.FromArgb(120, statusColor)))
+                        {
+                            g.FillPath(pillBrush, pillPath);
+                        }
+
+                        using (var pillPen = new Pen(statusColor, 1f))
+                        {
+                            g.DrawPath(pillPen, pillPath);
+                        }
+                    }
+
+                    // Draw status text
+                    using (var pillFont = new Font("Segoe UI", 7f, FontStyle.Bold))
+                    {
+                        TextRenderer.DrawText(g, statusText, pillFont, pillRect, Color.White,
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

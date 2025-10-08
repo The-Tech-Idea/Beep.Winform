@@ -19,6 +19,153 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int GroupPadding = 8;
         private const float ShadowOpacity = 0.1f;
 
+        /// <summary>
+        /// iOS15-specific node painting with rounded groups and drop shadows.
+        /// Features: Large rounded corners (10px), drop shadows on selection, SF Symbols style, comfortable spacing.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for iOS smooth appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw drop shadow FIRST (only on selection)
+                if (isSelected)
+                {
+                    var shadowRect = new Rectangle(
+                        nodeBounds.X,
+                        nodeBounds.Y + 2,  // iOS drop shadow offset
+                        nodeBounds.Width,
+                        nodeBounds.Height);
+
+                    using (var shadowPath = CreateRoundedRectangle(shadowRect, CornerRadius))
+                    {
+                        using (var shadowBrush = new SolidBrush(Color.FromArgb((int)(255 * ShadowOpacity), 0, 0, 0)))
+                        {
+                            g.FillPath(shadowBrush, shadowPath);
+                        }
+                    }
+                }
+
+                // STEP 2: Draw rounded background (large iOS corners)
+                if (isSelected || isHovered)
+                {
+                    using (var bgPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
+                    {
+                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, bgPath);
+                        }
+                    }
+                }
+
+                // STEP 3: Draw SF Symbols style chevron toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color chevronColor = _theme.AccentColor;  // iOS uses accent color for chevrons
+
+                    using (var pen = new Pen(chevronColor, 2f))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // iOS chevron down
+                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                        }
+                        else
+                        {
+                            // iOS chevron right
+                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw iOS-style rounded checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = isHovered ? _theme.AccentColor : Color.FromArgb(200, 200, 200);
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : Color.White;
+
+                    // iOS checkbox with round corners (almost circular)
+                    using (var checkPath = CreateRoundedRectangle(checkRect, 5))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        using (var borderPen = new Pen(borderColor, 2f))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    // iOS-style checkmark (smooth)
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 2.5f))
+                        {
+                            checkPen.StartCap = LineCap.Round;
+                            checkPen.EndCap = LineCap.Round;
+                            checkPen.LineJoin = LineJoin.Round;
+
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 2 / 3 + 1),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 3)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw SF Symbols style icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 6: Draw text with SF Pro typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // SF Pro style (Segoe UI is closest on Windows)
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

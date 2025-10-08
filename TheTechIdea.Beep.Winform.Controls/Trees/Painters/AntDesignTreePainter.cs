@@ -17,6 +17,153 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         private const int ItemPadding = 4;
 
+        /// <summary>
+        /// Ant Design-specific node painting with clean, flat design.
+        /// Features: Flat rectangular backgrounds, caret toggles, clean checkboxes with 1px borders, minimal styling.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable anti-aliasing for clean Ant Design appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw flat rectangular background (no rounded corners)
+                if (isSelected)
+                {
+                    // Ant Design selected: subtle flat background
+                    using (var brush = new SolidBrush(_theme.TreeNodeSelectedBackColor))
+                    {
+                        g.FillRectangle(brush, nodeBounds);
+                    }
+
+                    // Subtle left border accent (1px)
+                    using (var pen = new Pen(_theme.AccentColor, 2f))
+                    {
+                        g.DrawLine(pen, nodeBounds.Left, nodeBounds.Top, nodeBounds.Left, nodeBounds.Bottom);
+                    }
+                }
+                else if (isHovered)
+                {
+                    // Ant Design hover: very subtle background
+                    using (var hoverBrush = new SolidBrush(_theme.TreeNodeHoverBackColor))
+                    {
+                        g.FillRectangle(hoverBrush, nodeBounds);
+                    }
+                }
+
+                // STEP 2: Draw Ant Design caret toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color caretColor = _theme.TreeForeColor;
+
+                    using (var pen = new Pen(caretColor, 1.5f))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Caret down (simple V shape)
+                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                        }
+                        else
+                        {
+                            // Caret right (simple > shape)
+                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
+                        }
+                    }
+                }
+
+                // STEP 3: Draw Ant Design checkbox (clean rectangular with thin border)
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkboxRect = node.CheckRectContent;
+                    Color borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
+                    Color fillColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    // Clean 1px border rectangle
+                    Rectangle checkRect = new Rectangle(
+                        checkboxRect.X + 2,
+                        checkboxRect.Y + 2,
+                        checkboxRect.Width - 4,
+                        checkboxRect.Height - 4);
+
+                    using (var pen = new Pen(borderColor, 1f))
+                    {
+                        g.DrawRectangle(pen, checkRect);
+                    }
+
+                    // Fill if checked
+                    if (node.Item.IsChecked)
+                    {
+                        using (var brush = new SolidBrush(fillColor))
+                        {
+                            Rectangle fillRect = new Rectangle(
+                                checkboxRect.X + 3,
+                                checkboxRect.Y + 3,
+                                checkboxRect.Width - 5,
+                                checkboxRect.Height - 5);
+
+                            g.FillRectangle(brush, fillRect);
+                        }
+
+                        // Clean checkmark
+                        using (var pen = new Pen(Color.White, 2f))
+                        {
+                            pen.StartCap = LineCap.Round;
+                            pen.EndCap = LineCap.Round;
+
+                            int centerX = checkboxRect.Left + checkboxRect.Width / 2;
+                            int centerY = checkboxRect.Top + checkboxRect.Height / 2;
+
+                            // Ant Design checkmark shape
+                            g.DrawLine(pen, centerX - 4, centerY, centerX - 1, centerY + 3);
+                            g.DrawLine(pen, centerX - 1, centerY + 3, centerX + 4, centerY - 3);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw Ant Design folder icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 5: Draw text with Ant Design typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Ant Design typography (clean sans-serif)
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

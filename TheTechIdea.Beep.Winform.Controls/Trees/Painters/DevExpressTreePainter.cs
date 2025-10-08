@@ -17,6 +17,178 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         private const int CornerRadius = 2;
 
+        /// <summary>
+        /// DevExpress-specific node painting with professional enterprise styling.
+        /// Features: Professional vertical gradients, plus/minus box toggles, focus borders, gloss effects on icons, polished appearance.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for DevExpress polished appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw DevExpress professional gradient background
+                if (isSelected || isHovered)
+                {
+                    Color topColor, bottomColor;
+
+                    if (isSelected)
+                    {
+                        // Selected: gradient from light to slightly darker
+                        topColor = _theme.TreeNodeSelectedBackColor;
+                        bottomColor = ControlPaint.Dark(_theme.TreeNodeSelectedBackColor, 0.05f);
+                    }
+                    else
+                    {
+                        // Hover: subtle gradient
+                        topColor = _theme.TreeNodeHoverBackColor;
+                        bottomColor = ControlPaint.Light(_theme.TreeNodeHoverBackColor, 0.02f);
+                    }
+
+                    using (var gradientBrush = new LinearGradientBrush(
+                        nodeBounds,
+                        topColor,
+                        bottomColor,
+                        LinearGradientMode.Vertical))
+                    {
+                        g.FillRectangle(gradientBrush, nodeBounds);
+                    }
+
+                    // STEP 2: DevExpress focus border (professional indicator)
+                    if (isSelected)
+                    {
+                        Rectangle focusRect = new Rectangle(
+                            nodeBounds.X + 1,
+                            nodeBounds.Y,
+                            nodeBounds.Width - 2,
+                            nodeBounds.Height - 1);
+
+                        using (var focusPen = new Pen(_theme.AccentColor, 1f))
+                        {
+                            g.DrawRectangle(focusPen, focusRect);
+                        }
+                    }
+                }
+
+                // STEP 3: Draw DevExpress plus/minus box toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color boxColor = _theme.BorderColor;
+                    Color signColor = _theme.TreeForeColor;
+
+                    // Box background
+                    using (var boxBrush = new SolidBrush(_theme.TreeBackColor))
+                    {
+                        g.FillRectangle(boxBrush, toggleRect);
+                    }
+
+                    // Box border
+                    using (var borderPen = new Pen(boxColor, 1f))
+                    {
+                        g.DrawRectangle(borderPen, toggleRect);
+                    }
+
+                    // Plus/minus sign
+                    using (var signPen = new Pen(signColor, 1.5f))
+                    {
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        // Horizontal line (always present for both + and -)
+                        g.DrawLine(signPen, centerX - size, centerY, centerX + size, centerY);
+
+                        if (!node.Item.IsExpanded)
+                        {
+                            // Vertical line (only for collapsed = plus sign)
+                            g.DrawLine(signPen, centerX, centerY - size, centerX, centerY + size);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw DevExpress professional checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    // DevExpress checkbox with slight gradient
+                    if (node.Item.IsChecked)
+                    {
+                        using (var gradientBrush = new LinearGradientBrush(
+                            checkRect,
+                            bgColor,
+                            ControlPaint.Dark(bgColor, 0.05f),
+                            LinearGradientMode.Vertical))
+                        {
+                            g.FillRectangle(gradientBrush, checkRect);
+                        }
+                    }
+                    else
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillRectangle(bgBrush, checkRect);
+                        }
+                    }
+
+                    using (var borderPen = new Pen(borderColor, 1f))
+                    {
+                        g.DrawRectangle(borderPen, checkRect);
+                    }
+
+                    // Professional checkmark
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 1.5f))
+                        {
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw DevExpress icon with gloss effect
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 6: Draw text with DevExpress professional typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // DevExpress uses Tahoma/Segoe UI
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

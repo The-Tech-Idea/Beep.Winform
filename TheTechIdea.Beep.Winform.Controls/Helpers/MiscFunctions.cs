@@ -180,7 +180,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             parameters.Add("ErrorCode", passedArgs.ErrorCode);
             parameters.Add("ErrorObject", passedArgs.ErrorObject);
             parameters.Add("EventType", passedArgs.EventType);
-            parameters.Add("Id", passedArgs.Id);
+            parameters.Add("ID", passedArgs.Id);
             parameters.Add("Messege", passedArgs.Messege);
             parameters.Add("ImagePath", passedArgs.ImagePath);
             parameters.Add("IsError", passedArgs.IsError);
@@ -224,7 +224,7 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             passedArgs.ErrorCode = parameters["ErrorCode"].ToString();
             passedArgs.ErrorObject = (IErrorsInfo)parameters["ErrorObject"];
             passedArgs.EventType = parameters["EventType"].ToString();
-            passedArgs.Id = (int)parameters["Id"];
+            passedArgs.Id = (int)parameters["ID"];
             passedArgs.Messege = parameters["Messege"].ToString();
             passedArgs.ImagePath = parameters["ImagePath"].ToString();
             passedArgs.IsError = (bool)parameters["IsError"];

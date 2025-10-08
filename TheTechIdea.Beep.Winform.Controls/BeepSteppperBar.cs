@@ -458,7 +458,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var item = new SimpleItem
                 {
-                    Id = i,
+                    ID = i,
                     Name = GetStepLabel(i),
                     Text = GetStepLabel(i),
                     IsChecked = GetStepState(i) == StepState.Completed,

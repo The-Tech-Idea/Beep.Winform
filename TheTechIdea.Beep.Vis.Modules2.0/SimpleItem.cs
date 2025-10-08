@@ -9,11 +9,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
 
 {
     [Serializable]
-    public class SimpleItem : IEquatable<SimpleItem>
+    public class SimpleItem : IEquatable<SimpleItem>, INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged Implementation
+
+        [field: NonSerialized]
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        protected bool SetProperty<T>(ref T field, T value, string propertyName)
+        {
+            if (Equals(field, value))
+                return false;
+
+            field = value;
+            OnPropertyChanged(propertyName);
+            return true;
+        }
+
+        #endregion
+
         public SimpleItem()
         {
-            GuidId = Guid.NewGuid().ToString();
+            Guid = Guid.NewGuid();
+            GuidId = Guid.ToString();
+           
         }
         public bool Equals(SimpleItem other)
         {
@@ -22,7 +46,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
 
             return this.Name == other.Name; // Assuming Name is unique
         }
-
+        public Guid Guid { get; set; } 
         // Override Equals
         public override bool Equals(object obj)
         {
@@ -37,7 +61,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         {
             return GuidId.GetHashCode();
         }
-        public int Id { get; set; }
+        public int ID { get; set; }
         public string GuidId { get; set; }
         public string Description { get; set; } // used for to store the selected item
         public string SubText { get; set; } // used for to store the selected item
@@ -45,49 +69,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string SubText3 { get; set; } // used for to store the selected item
         public string Name { get; set; }
         public string MenuName { get; set; }
-        public string Text { get; set; }
-       [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
+        
+        private string _text = string.Empty;
+        public string Text
+        {
+            get => _text;
+            set => SetProperty(ref _text, value, nameof(Text));
+        }
+
+        [Description("Select the image file (SVG, PNG, JPG, etc.) to load")]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Visible)]
         [Category("Appearance")]
-        public string ImagePath { get; set; }
-        private string _displayField; // used for to store the name of field that has value to display
+        private string _imagePath = string.Empty;
+        public string ImagePath
+        {
+            get => _imagePath;
+            set => SetProperty(ref _imagePath, value, nameof(ImagePath));
+        }
+        private string _displayField = string.Empty; // used for to store the name of field that has value to display
         public string DisplayField
         {
             get { return string.IsNullOrEmpty(_displayField) ? Text : _displayField; }
             set { _displayField = value; }
         }
-        private string _valueField; // used for to store the name of field that has value to store
+        
+        private string _valueField = string.Empty; // used for to store the name of field that has value to store
         public string ValueField
         {
-            get { return _valueField; }
-            set { _valueField = value; }
+            get => _valueField;
+            set => SetProperty(ref _valueField, value, nameof(ValueField));
         }
-        private string _parentvalue; // used for to store the name of field that has value to store
+        
+        private string _parentvalue = string.Empty; // used for to store the name of field that has value to store
         public string ParentValue
         {
-            get { return _parentvalue; }
-            set { _parentvalue = value; }
+            get => _parentvalue;
+            set => SetProperty(ref _parentvalue, value, nameof(ParentValue));
         }
+        
         [NonSerialized]
         private SimpleItem _parentItem; // used for to store the parent item
         public SimpleItem ParentItem
         {
-            get { return _parentItem; }
-            set { _parentItem = value; }
+            get => _parentItem;
+            set => SetProperty(ref _parentItem, value, nameof(ParentItem));
         }
+        
         [NonSerialized]
         private object _value; // used for to store the Value item
         public object Value
         {
-            get { return _value; }
-            set { _value = value; }
+            get => _value;
+            set => SetProperty(ref _value, value, nameof(Value));
         }
+        
         [NonSerialized]
         private object _selecteditem; // used for to store the Selected Value item
         public object Item
         {
-            get { return _selecteditem; }
-            set { _selecteditem = value; }
+            get => _selecteditem;
+            set => SetProperty(ref _selecteditem, value, nameof(Item));
         }
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
         public BindingList<SimpleItem> Children { get; set; } = new BindingList<SimpleItem>();
@@ -112,11 +153,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string PackageName { get; set; }
         public string BranchID { get; set; }
 
-        public bool IsSelected { get; set; } = false; // used for to store the selected item
-        public bool IsChecked { get; set; } = false; // used for to store the selected item
-        public bool IsExpanded { get; set; } = false; // used for to store the selected item
-        public bool IsVisible { get; set; } = true; // used for to store the selected item
-        public bool IsEnabled { get; set; } = true; // used for to store the selected item
+        private bool _isSelected = false;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value, nameof(IsSelected));
+        }
+
+        private bool _isChecked = false;
+        public bool IsChecked
+        {
+            get => _isChecked;
+            set => SetProperty(ref _isChecked, value, nameof(IsChecked));
+        }
+
+        private bool _isExpanded = false;
+        public bool IsExpanded
+        {
+            get => _isExpanded;
+            set => SetProperty(ref _isExpanded, value, nameof(IsExpanded));
+        }
+
+        private bool _isVisible = true;
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set => SetProperty(ref _isVisible, value, nameof(IsVisible));
+        }
+
+        private bool _isEnabled = true;
+        public bool IsEnabled
+        {
+            get => _isEnabled;
+            set => SetProperty(ref _isEnabled, value, nameof(IsEnabled));
+        }
+
         public bool IsEditable { get; set; } = true; // used for to store the selected item
         public bool IsVisibleInTree { get; set; } = true; // used for to store the selected item
         public int X { get; set; }

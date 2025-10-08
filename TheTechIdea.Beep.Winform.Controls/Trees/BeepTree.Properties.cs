@@ -5,6 +5,8 @@ using System.Linq;
 using System.Collections.Generic;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
+using TheTechIdea.Beep.Winform.Controls.Editors;
+using System.Drawing.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -160,20 +162,44 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         /// <summary>
         /// Gets or sets the collection of root nodes in the tree.
+        /// Setting this property will automatically rebuild the visible nodes and refresh the display.
         /// </summary>
-        [Browsable(false)]
-        public IList<SimpleItem> Nodes
+        [Browsable(true)]
+        [Category("Data")]
+        [Description("The collection of root nodes displayed in the tree.")]
+        [Localizable(true)]
+        [MergableProperty(false)]
+        [Editor(typeof(MenuItemCollectionEditor), typeof(UITypeEditor))]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public List<SimpleItem> Nodes
         {
             get => _nodes;
             set
             {
-                _nodes.Clear();
-                if (value != null)
-                {
-                    _nodes.AddRange(value);
-                }
-                RebuildVisible();
-                Invalidate();
+                System.Diagnostics.Debug.WriteLine($"BeepTree.Nodes setter called with {value?.Count ?? 0} items");
+                
+                // Replace the list
+                _nodes = value ?? new List<SimpleItem>();
+                
+                System.Diagnostics.Debug.WriteLine($"BeepTree._nodes now has {_nodes.Count} items");
+                RefreshTree();
+            }
+        }
+        
+        /// <summary>
+        /// Refreshes the entire tree by rebuilding visible nodes and invalidating display.
+        /// Call this method after making changes to node properties or structure.
+        /// </summary>
+        public void RefreshTree()
+        {
+            RebuildVisible();
+            UpdateScrollBars();
+            Invalidate();
+            
+            // Force update in design mode
+            if (DesignMode)
+            {
+                Refresh();
             }
         }
         

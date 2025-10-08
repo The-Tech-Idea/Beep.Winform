@@ -14,3 +14,6 @@ global using TheTechIdea.Beep.Winform.Controls.FontManagement;
 global using ArrowDirection = TheTechIdea.Beep.Winform.Controls.Models.ArrowDirection;
 global using TheTechIdea.Beep.Winform.Controls.Styling;
 global using  TheTechIdea.Beep.Icons;
+global using TheTechIdea.Beep.Winform.Controls.Models;
+global using TheTechIdea.Beep.Winform.Controls.Trees.Helpers;
+global using TheTechIdea.Beep.Winform.Controls.Trees.Models;

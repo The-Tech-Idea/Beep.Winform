@@ -27,13 +27,53 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
     {
         public BeepAppTree()
         {
-            
+            // In design mode, add sample nodes so the tree is visible
+            if (LicenseManager.UsageMode == LicenseUsageMode.Designtime)
+            {
+                AddDesignTimeSampleNodes();
+            }
         }
         public BeepAppTree(IBeepService service)
         {
             BeepService = service;
            
           
+        }
+
+        private void AddDesignTimeSampleNodes()
+        {
+            // Add sample nodes for design-time visualization
+            var rootNode = new SimpleItem
+            {
+                Text = "Root Node",
+                GuidId = Guid.NewGuid().ToString(),
+                IsExpanded = true
+            };
+
+            var child1 = new SimpleItem
+            {
+                Text = "Child Node 1",
+                GuidId = Guid.NewGuid().ToString(),
+                IsExpanded = true
+            };
+
+            var child2 = new SimpleItem
+            {
+                Text = "Child Node 2",
+                GuidId = Guid.NewGuid().ToString()
+            };
+
+            var grandChild = new SimpleItem
+            {
+                Text = "Grandchild Node",
+                GuidId = Guid.NewGuid().ToString()
+            };
+
+            child1.Children.Add(grandChild);
+            rootNode.Children.Add(child1);
+            rootNode.Children.Add(child2);
+
+            Nodes.Add(rootNode);
         }
         public void init(IBeepService service)
         {
@@ -407,7 +447,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             {
                 Branches = new List<IBranch>();
                 GenerBranchs = new List<Tuple<IBranch, string>>();
+                
+                // Clear nodes properly
                 Nodes.Clear();
+                // Call base BeepTree's RefreshTree to clear visible nodes cache
+                base.RefreshTree();
                
                 IBranch Genrebr = null;
                 foreach (AssemblyClassDefinition GenreBrAssembly in DMEEditor.ConfigEditor.BranchesClasses.Where(p => p.classProperties != null && p.VisSchema != null && p.VisSchema.BranchType == EnumPointType.Genre).OrderBy(x => x.Order))
@@ -577,14 +621,29 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                         }
                     }
                 }
-                Invalidate();
+                
+                // If no nodes were created, check if there's any data available
+                if (Nodes.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine("WARNING: No nodes created. DMEEditor.ConfigEditor.BranchesClasses may be empty or filtered out.");
+                    System.Diagnostics.Debug.WriteLine($"Total BranchesClasses available: {DMEEditor.ConfigEditor.BranchesClasses?.Count ?? 0}");
+                }
+                
+                // Call base BeepTree's RefreshTree to rebuild visible nodes and update display
+                base.RefreshTree();
+                
+                // CRITICAL FIX: Force immediate paint update
+                Update();
+                
+                // Debug: Log how many nodes were created
+                System.Diagnostics.Debug.WriteLine($"CreateRootTree completed: {Nodes.Count} root nodes, {Branches.Count} branches");
             }
             catch (Exception ex)
             {
                 DMEEditor.ErrorObject.Ex = ex;
                 DMEEditor.ErrorObject.Flag = Errors.Failed;
                 DMEEditor.AddLogMessage("Error", $"Creating StandardTree Root Node {packagename} - {ex.Message} ", DateTime.Now, 0, null, Errors.Failed);
-
+                System.Diagnostics.Debug.WriteLine($"CreateRootTree ERROR: {ex.Message}");
             };
             return DMEEditor.ErrorObject;
         }
@@ -746,6 +805,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
             }
             SimpleItem item=ControlExtensions.CreateNode(this,id, br);
             br.GuidID = item.GuidId;
+            
+            // CRITICAL FIX: Expand root nodes by default so their children are visible
+            if (br.ParentBranch == null)
+            {
+                item.IsExpanded = true;
+            }
+            
             //n.ContextMenuStrip = 
            // Console.WriteLine(br.BranchText);
             DynamicMenuManager.CreateMenuMethods(DMEEditor, br);
@@ -932,7 +998,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
         public void RemoveNode(int id)
         {
             // Remove from Nodes (recursively) if it exists
-            var simpleItem = TraverseAllItems(Nodes).FirstOrDefault(n => n.Id == id);
+            var simpleItem = TraverseAllItems(Nodes).FirstOrDefault(n => n.ID == id);
             if (simpleItem != null)
             {
                 RemoveNode(simpleItem); // This will handle child nodes and remove controls if needed

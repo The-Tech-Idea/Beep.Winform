@@ -18,6 +18,169 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int GroupSpacing = 8;
         private const int LayerIndent = 12;
 
+        /// <summary>
+        /// Component tree-specific node painting with Figma/VS Code style.
+        /// Features: Drag handles (3 horizontal lines on hover), left accent stripe (2px on selection), filled triangle toggles, layered square icons.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for component tree clarity
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw component tree background
+                if (isSelected || isHovered)
+                {
+                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+
+                    using (var nodePath = CreateRoundedRectangle(nodeBounds, 3))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, nodePath);
+                        }
+                    }
+
+                    // STEP 2: Left accent stripe (distinctive Figma/VS Code feature)
+                    if (isSelected)
+                    {
+                        using (var accentPen = new Pen(_theme.AccentColor, 2f))
+                        {
+                            g.DrawLine(accentPen, nodeBounds.X, nodeBounds.Y, nodeBounds.X, nodeBounds.Bottom);
+                        }
+                    }
+                }
+
+                // STEP 3: Draw drag handles (3 horizontal lines) on hover
+                if (isHovered)
+                {
+                    int handleX = nodeBounds.X + 4;
+                    int handleY = nodeBounds.Y + (nodeBounds.Height - 12) / 2;
+                    int handleWidth = 10;
+                    int handleSpacing = 2;
+
+                    Color handleColor = Color.FromArgb(120, _theme.TreeForeColor);
+                    using (var handlePen = new Pen(handleColor, 1.5f))
+                    {
+                        handlePen.StartCap = LineCap.Round;
+                        handlePen.EndCap = LineCap.Round;
+
+                        // Three horizontal lines
+                        g.DrawLine(handlePen, handleX, handleY, handleX + handleWidth, handleY);
+                        g.DrawLine(handlePen, handleX, handleY + handleSpacing + 2, handleX + handleWidth, handleY + handleSpacing + 2);
+                        g.DrawLine(handlePen, handleX, handleY + (handleSpacing + 2) * 2, handleX + handleWidth, handleY + (handleSpacing + 2) * 2);
+                    }
+                }
+
+                // STEP 4: Draw Figma-style filled triangle toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color toggleColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
+
+                    using (var brush = new SolidBrush(toggleColor))
+                    {
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        Point[] triangle;
+                        if (node.Item.IsExpanded)
+                        {
+                            // Down triangle
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size, centerY - size / 2),
+                                new Point(centerX + size, centerY - size / 2),
+                                new Point(centerX, centerY + size)
+                            };
+                        }
+                        else
+                        {
+                            // Right triangle
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size / 2, centerY - size),
+                                new Point(centerX + size, centerY),
+                                new Point(centerX - size / 2, centerY + size)
+                            };
+                        }
+
+                        g.FillPolygon(brush, triangle);
+                    }
+                }
+
+                // STEP 5: Draw component checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    using (var checkPath = CreateRoundedRectangle(checkRect, 2))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        using (var borderPen = new Pen(borderColor, 1f))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 1.5f))
+                        {
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 6: Draw layered component icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 7: Draw text with component tree typography (monospace bold on selection)
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Use monospace-style font for component names if selected
+                    using (var renderFont = isSelected ? 
+                        new Font("Consolas", _owner.TextFont.Size, FontStyle.Bold) : 
+                        new Font(_owner.TextFont.FontFamily, _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

@@ -16,7 +16,147 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     public class SyncfusionTreePainter : BaseTreePainter
     {
         private const int CornerRadius = 3;
-        private const int AccentBarWidth = 3;
+        private const int AccentBarWidth = 4;
+
+        /// <summary>
+        /// Syncfusion-specific node painting with modern flat enterprise design.
+        /// Features: Left accent bars (4px on selection), flat backgrounds, rounded arrow toggles, clean checkboxes, bold text on selection.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for Syncfusion clean appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw Syncfusion flat background
+                if (isSelected || isHovered)
+                {
+                    Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                    using (var bgBrush = new SolidBrush(bgColor))
+                    {
+                        g.FillRectangle(bgBrush, nodeBounds);
+                    }
+
+                    // STEP 2: Syncfusion left accent bar (distinctive feature - 4px wide)
+                    if (isSelected)
+                    {
+                        Rectangle accentBar = new Rectangle(
+                            nodeBounds.Left,
+                            nodeBounds.Top,
+                            AccentBarWidth,
+                            nodeBounds.Height);
+
+                        using (var accentBrush = new SolidBrush(_theme.AccentColor))
+                        {
+                            g.FillRectangle(accentBrush, accentBar);
+                        }
+                    }
+                }
+
+                // STEP 3: Draw Syncfusion rounded arrow toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color arrowColor = isHovered ? _theme.AccentColor : _theme.TreeForeColor;
+
+                    using (var pen = new Pen(arrowColor, 2f))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Arrow down
+                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                        }
+                        else
+                        {
+                            // Arrow right
+                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw Syncfusion clean flat checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    // Syncfusion flat checkbox with slight rounding
+                    var checkPath = CreateRoundedRectangle(checkRect, 2);
+                    using (checkPath)
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        using (var borderPen = new Pen(borderColor, 1.5f))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    // Clean checkmark
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 2f))
+                        {
+                            checkPen.StartCap = LineCap.Round;
+                            checkPen.EndCap = LineCap.Round;
+
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw Syncfusion flat rounded icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 6: Draw text with Syncfusion typography (bold on selection)
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Syncfusion uses Roboto/Segoe UI, bold on selection
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, isSelected ? FontStyle.Bold : FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
 
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {

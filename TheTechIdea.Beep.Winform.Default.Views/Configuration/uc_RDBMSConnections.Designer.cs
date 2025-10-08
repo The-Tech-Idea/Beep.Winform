@@ -2194,7 +2194,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepColumnConfig46.Total = new decimal(new int[] { 0, 0, 0, 0 });
             beepColumnConfig47.AggregationType = AggregationType.None;
             beepColumnConfig47.AllowSort = true;
-            beepColumnConfig47.ColumnCaption = "Client Id";
+            beepColumnConfig47.ColumnCaption = "Client ID";
             beepColumnConfig47.ColumnName = "ClientId";
             beepColumnConfig47.CustomControlName = null;
             beepColumnConfig47.Date = new DateTime(0L);

@@ -7,6 +7,8 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Trees.Models;
 using TheTechIdea.Beep.Winform.Controls.Trees.Painters;
+using TheTechIdea.Beep.Winform.Controls.Editors;
+using System.Drawing.Design;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -21,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 		private ITreePainter _currentPainter;
 
 		// Data and layout
-		private readonly List<SimpleItem> _nodes = new();
+		private List<SimpleItem> _nodes = new();
 		private readonly List<NodeInfo> _visibleNodes = new();
 		private BeepTreeHelper _treeHelper;
 		private BeepTreeLayoutHelper _layoutHelper;
@@ -127,22 +129,53 @@ namespace TheTechIdea.Beep.Winform.Controls
 			MouseLeave += (s, e) => NodeMouseLeave?.Invoke(this, new BeepMouseEventArgs("MouseLeave", null));
 			MouseWheel += (s, e) => NodeMouseWheel?.Invoke(this, new BeepMouseEventArgs("MouseWheel", null));
 
-			// Debounce timer for resize
-			_resizeTimer = new System.Windows.Forms.Timer { Interval = 50 };
-			_resizeTimer.Tick += (s, e) =>
+		// Debounce timer for resize
+		_resizeTimer = new System.Windows.Forms.Timer { Interval = 50 };
+		_resizeTimer.Tick += (s, e) =>
+		{
+			_resizeTimer.Stop();
+			// Update DrawingRect first (viewport may have changed)
+			UpdateDrawingRect();
+			// Recalculate layout when size changes (viewport changed)
+			if (_visibleNodes.Count > 0)
 			{
-				_resizeTimer.Stop();
-				UpdateScrollBars();
-				Invalidate();
-			};
-
-			// Initialize scrollbars
+				RecalculateLayoutCache();
+			}
+			// Also sync layout helper's cache
+			if (_layoutHelper != null)
+			{
+				_layoutHelper.InvalidateCache();
+				_layoutHelper.RecalculateLayout();
+			}
+			UpdateScrollBars();
+			Invalidate();
+		};			// Initialize scrollbars
 			InitializeScrollbars();
 
 			// Initialize painter and build initial layout
 			InitializePainter();
 			RebuildVisible();
 			UpdateScrollBars();
+			
+			// CRITICAL FIX: Handle visibility changes to ensure initial paint
+			this.HandleCreated += (s, e) =>
+			{
+				System.Diagnostics.Debug.WriteLine("[BeepTree] HandleCreated - forcing refresh");
+				RebuildVisible();
+				UpdateScrollBars();
+				Invalidate();
+				Update(); // Force immediate paint
+			};
+			
+			this.VisibleChanged += (s, e) =>
+			{
+				if (this.Visible)
+				{
+					System.Diagnostics.Debug.WriteLine("[BeepTree] VisibleChanged to true - forcing refresh");
+					Invalidate();
+					Update(); // Force immediate paint
+				}
+			};
 		}
 		#endregion
 
@@ -151,7 +184,13 @@ namespace TheTechIdea.Beep.Winform.Controls
 		{
 			// Ensure theme exists (BaseControl sets _currentTheme in ctor)
 			if (_currentTheme == null)
-				return;
+			{
+				try
+				{
+					_currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
+				}
+				catch { /* fallback to null-safe painters */ }
+			}
 
 			_currentPainter = BeepTreePainterFactory.CreatePainter(_treeStyle, this, _currentTheme);
 		}
@@ -168,13 +207,14 @@ namespace TheTechIdea.Beep.Winform.Controls
 	internal int GetScaledMinRowHeight() => ScaleValue(24);
 	internal int GetScaledIndentWidth() => ScaleValue(16);
 	internal int GetScaledVerticalPadding() => ScaleValue(4);
-		#endregion
+	#endregion
 
-		#region Accessors used by helpers
-		internal int XOffset => _xOffset;
-		internal int YOffset => _yOffset;
-		internal BeepTreeLayoutHelper LayoutHelper => _layoutHelper;
-		#endregion
-	}
+	#region Accessors used by helpers and painters
+	internal int XOffset => _xOffset;
+	internal int YOffset => _yOffset;
+	internal BeepTreeLayoutHelper LayoutHelper => _layoutHelper;
+	internal SimpleItem LastHoveredItem => _lastHoveredItem;
+	internal List<NodeInfo> VisibleNodes => _visibleNodes;
+	#endregion
 }
-
+}

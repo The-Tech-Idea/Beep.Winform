@@ -25,17 +25,32 @@ Refactor the monolithic `BeepTree.cs` (2045 lines) into a modular architecture u
 - [x] Fix BaseControl integration - Use `_hitTest.AddHitArea()` instead of reimplementing
 - [x] Document BaseControl integration strategy
 
-### 🔄 Phase 3: Partial Classes (IN PROGRESS)
-- [ ] Create `BeepTree.cs` (main entry point, constructor)
-- [ ] Create `BeepTree.Core.cs` (fields, helper instances, initialization)
-- [ ] Create `BeepTree.Properties.cs` (all properties including ControlStyle)
-- [ ] Create `BeepTree.Events.cs` (60+ events)
-- [ ] Create `BeepTree.Methods.cs` (public API methods)
-- [ ] Create `BeepTree.Drawing.cs` (DrawContent override, painter integration)
-- [ ] Create `BeepTree.Scrolling.cs` (scrollbar management)
+### ✅ Phase 3: Partial Classes (COMPLETED - DISCOVERED PRE-EXISTING)
+- [x] `BeepTree.cs` - Main entry point (already exists)
+- [x] `BeepTree.Core.cs` - Fields, helper instances, initialization (already exists)
+- [x] `BeepTree.Properties.cs` - All properties including Nodes (already exists)
+- [x] `BeepTree.Events.cs` - Event declarations (already exists)
+- [x] `BeepTree.Methods.cs` - Public API methods (already exists)
+- [x] `BeepTree.Drawing.cs` - DrawContent override, painter integration (already exists)
+- [x] `BeepTree.Layout.cs` - RebuildVisible, RecalculateLayoutCache (already exists)
+- [x] `BeepTree.Scrolling.cs` - Scrollbar management (already exists)
 
-### ⏳ Phase 4: Painter Implementations (PENDING)
-- [x] StandardTreePainter (default)
+### ✅ Phase 3.1: CRITICAL BUG FIX (COMPLETED)
+- [x] **Identified struct mutation bug in RecalculateLayoutCache()**
+  - Problem: NodeInfo is a struct - modifications to local copies weren't written back
+  - Fix: Added `_visibleNodes[i] = nodeInfo;` to persist layout calculations
+  - Impact: BeepTree now renders correctly
+  - Documentation: `CRITICAL_FIX_STRUCT_MUTATION.md`
+- [x] **Added comprehensive debug output**
+  - Nodes property setter logs item counts
+  - RebuildVisible logs node creation
+  - RecalculateLayoutCache logs processing
+  - DrawContent logs painter and client area
+  - DrawVisibleNodes logs layout data
+- [x] **Created test form**: `TestBeepTreeForm.cs` for verification
+
+### ⏳ Phase 4: Painter Implementations (1/22 COMPLETE)
+- [x] StandardTreePainter (default) ✅
 - [ ] Material3TreePainter
 - [ ] MaterialYouTreePainter
 - [ ] iOS15TreePainter
@@ -57,6 +72,8 @@ Refactor the monolithic `BeepTree.cs` (2045 lines) into a modular architecture u
 - [ ] AntDesignTreePainter
 - [ ] ChakraUITreePainter
 - [ ] PillRailTreePainter
+
+**Note**: All 21 additional painters are pending. Core rendering is now working after struct mutation bug fix.
 
 ### ⏳ Phase 5: Integration & Testing (PENDING)
 - [ ] Wire up BaseControl._input keyboard events (arrow keys, Enter, Escape)

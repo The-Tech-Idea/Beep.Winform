@@ -32,10 +32,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            beepButton1 = new TheTechIdea.Beep.Winform.Controls.BeepButton();
-            beepComboBox1 = new TheTechIdea.Beep.Winform.Controls.BeepComboBox();
-            beepCard1 = new TheTechIdea.Beep.Winform.Controls.BeepCard();
-            beepTextBox1 = new TheTechIdea.Beep.Winform.Controls.BeepTextBox();
+            beepButton1 = new BeepButton();
+            beepComboBox1 = new BeepComboBox();
+            beepCard1 = new BeepCard();
+            beepTextBox1 = new BeepTextBox();
+            beepTree1 = new BeepTree();
             SuspendLayout();
             // 
             // beepButton1
@@ -73,13 +74,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.CanBeSelected = true;
             beepButton1.Category = Utilities.DbFieldCategory.Boolean;
             beepButton1.ComponentName = "BaseControl";
+            beepButton1.ControlStyle = Winform.Controls.Common.BeepControlStyle.MacOSBigSur;
             beepButton1.DataContext = null;
             beepButton1.DataSourceProperty = null;
             beepButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepButton1.DisabledBorderColor = Color.Gray;
             beepButton1.DisabledForeColor = Color.Gray;
             beepButton1.DisableDpiAndScaling = false;
-            beepButton1.DrawingRect = new Rectangle(0, 0, 639, 119);
+            beepButton1.DrawingRect = new Rectangle(0, 0, 188, 36);
             beepButton1.Easing = Vis.Modules.EasingType.Linear;
             beepButton1.EmbeddedImagePath = null;
             beepButton1.EnableHighQualityRendering = true;
@@ -96,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.FocusBorderColor = Color.RoyalBlue;
             beepButton1.FocusForeColor = Color.White;
             beepButton1.FocusIndicatorColor = Color.RoyalBlue;
-            beepButton1.Font = new Font("Arial", 40F);
+            beepButton1.Font = new Font("Arial", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             beepButton1.ForeColor = Color.FromArgb(33, 150, 243);
             beepButton1.Form = null;
             beepButton1.GlassmorphismBlur = 10F;
@@ -158,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.LeadingImagePath = "";
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
-            beepButton1.Location = new Point(616, 160);
+            beepButton1.Location = new Point(488, 75);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
             beepButton1.MaterialCustomPadding = new Padding(0);
@@ -169,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.MaterialPreserveContentArea = true;
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
-            beepButton1.MaxImageSize = new Size(32, 32);
+            beepButton1.MaxImageSize = new Size(32, 9);
             beepButton1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -203,18 +205,17 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.ShowRightBorder = false;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = false;
-            beepButton1.Size = new Size(639, 119);
+            beepButton1.Size = new Size(188, 36);
             beepButton1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton1.StandardImages");
             beepButton1.StaticNotMoving = false;
-           
             beepButton1.TabIndex = 0;
             beepButton1.Tag = this;
             beepButton1.TempBackColor = Color.Empty;
             beepButton1.Text = "beepButton1";
             beepButton1.TextAlign = ContentAlignment.MiddleCenter;
-            beepButton1.TextFont = new Font("Arial", 40F);
+            beepButton1.TextFont = new Font("Arial", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             beepButton1.TextImageRelation = TextImageRelation.ImageBeforeText;
             beepButton1.Theme = null;
             beepButton1.ToolTipText = null;
@@ -226,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.UseGradientBackground = false;
             beepButton1.UseRichToolTip = true;
             beepButton1.UseScaledFont = false;
-            beepButton1.UseThemeFont = true;
+            beepButton1.UseThemeFont = false;
             // 
             // beepComboBox1
             // 
@@ -241,9 +242,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.BadgeShape = Vis.Modules.BadgeShape.Circle;
             beepComboBox1.BadgeText = "";
             beepComboBox1.BlockID = null;
-            beepComboBox1.BorderColor = Color.FromArgb(189, 189, 189);
+            beepComboBox1.BorderColor = Color.FromArgb(200, 200, 200);
             beepComboBox1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
-            beepComboBox1.BorderRadius = 3;
+            beepComboBox1.BorderRadius = 4;
             beepComboBox1.BorderStyle = BorderStyle.FixedSingle;
             beepComboBox1.BorderThickness = 1;
             beepComboBox1.BottomoffsetForDrawingRect = 0;
@@ -253,15 +254,16 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.CanBePressed = true;
             beepComboBox1.CanBeSelected = true;
             beepComboBox1.Category = Utilities.DbFieldCategory.Numeric;
-          
             beepComboBox1.ComponentName = "BaseControl";
+            beepComboBox1.ControlStyle = Winform.Controls.Common.BeepControlStyle.Windows11Mica;
             beepComboBox1.DataContext = null;
             beepComboBox1.DataSourceProperty = null;
             beepComboBox1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepComboBox1.DisabledBorderColor = Color.LightGray;
             beepComboBox1.DisabledForeColor = Color.Gray;
             beepComboBox1.DisableDpiAndScaling = false;
-            beepComboBox1.DrawingRect = new Rectangle(1, 1, 541, 133);
+            beepComboBox1.DrawingRect = new Rectangle(1, 1, 213, 61);
+            beepComboBox1.DropdownIconPath = "dropdown_arrow";
             beepComboBox1.Easing = Vis.Modules.EasingType.Linear;
             beepComboBox1.EnableHighQualityRendering = true;
             beepComboBox1.EnableMaterialStyle = false;
@@ -299,6 +301,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.IconSize = 20;
             beepComboBox1.Id = -1;
             beepComboBox1.InactiveBorderColor = Color.Gray;
+            beepComboBox1.InnerPadding = new Padding(8, 4, 8, 4);
             beepComboBox1.InnerShape = null;
             beepComboBox1.IsAcceptButton = false;
             beepComboBox1.IsBorderAffectedByTheme = true;
@@ -330,8 +333,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.LeadingImagePath = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(850, 700);
-            beepComboBox1.Margin = new Padding(6);
+            beepComboBox1.Location = new Point(458, 328);
             beepComboBox1.MaterialBorderRadius = 4;
             beepComboBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepComboBox1.MaterialCustomPadding = new Padding(0);
@@ -341,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
-            beepComboBox1.MinimumSize = new Size(400, 135);
+            beepComboBox1.MinimumSize = new Size(215, 63);
             beepComboBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -373,14 +375,14 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.ShowRightBorder = false;
             beepComboBox1.ShowShadow = false;
             beepComboBox1.ShowTopBorder = false;
-            beepComboBox1.Size = new Size(543, 135);
+            beepComboBox1.Size = new Size(215, 63);
             beepComboBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepComboBox1.StaticNotMoving = false;
             beepComboBox1.TabIndex = 3;
             beepComboBox1.Tag = this;
             beepComboBox1.TempBackColor = Color.Empty;
             beepComboBox1.Text = "beepComboBox1";
-            beepComboBox1.TextFont = new Font("Arial", 40F);
+            beepComboBox1.TextFont = new Font("Arial", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
             beepComboBox1.Theme = null;
             beepComboBox1.ToolTipText = null;
             beepComboBox1.TopoffsetForDrawingRect = 0;
@@ -390,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.UseGlassmorphism = false;
             beepComboBox1.UseGradientBackground = false;
             beepComboBox1.UseRichToolTip = true;
-            beepComboBox1.UseThemeFont = true;
+            beepComboBox1.UseThemeFont = false;
             // 
             // beepCard1
             // 
@@ -424,6 +426,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.CanBeHovered = true;
             beepCard1.CanBePressed = true;
             beepCard1.CanBeSelected = true;
+            beepCard1.CardStyle = CardStyle.EventCard;
             beepCard1.Category = Utilities.DbFieldCategory.String;
             beepCard1.ComponentName = "BaseControl";
             beepCard1.DataContext = null;
@@ -432,7 +435,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.DisabledBorderColor = Color.Gray;
             beepCard1.DisabledForeColor = Color.DarkGray;
             beepCard1.DisableDpiAndScaling = false;
-            beepCard1.DrawingRect = new Rectangle(28, 28, 392, 389);
+            beepCard1.DrawingRect = new Rectangle(28, 28, 184, 151);
             beepCard1.Easing = Vis.Modules.EasingType.Linear;
             beepCard1.EnableHighQualityRendering = true;
             beepCard1.EnableMaterialStyle = false;
@@ -502,8 +505,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.LeadingImagePath = "";
             beepCard1.LeftoffsetForDrawingRect = 0;
             beepCard1.LinkedProperty = null;
-            beepCard1.Location = new Point(126, 64);
-            beepCard1.Margin = new Padding(6);
+            beepCard1.Location = new Point(642, 421);
             beepCard1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepCard1.MaterialCustomPadding = new Padding(0);
             beepCard1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -549,12 +551,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.ShowShadow = false;
             beepCard1.ShowStatus = false;
             beepCard1.ShowTopBorder = false;
-            beepCard1.Size = new Size(451, 448);
+            beepCard1.Size = new Size(243, 210);
             beepCard1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepCard1.StaticNotMoving = false;
             beepCard1.StatusColor = Color.Green;
             beepCard1.StatusText = "";
-            beepCard1.CardStyle = Winform.Controls.CardStyle.EventCard;
             beepCard1.SubtitleText = "";
             beepCard1.TabIndex = 4;
             beepCard1.Tag = this;
@@ -613,7 +614,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.DisabledBorderColor = Color.LightGray;
             beepTextBox1.DisabledForeColor = Color.Gray;
             beepTextBox1.DisableDpiAndScaling = false;
-            beepTextBox1.DrawingRect = new Rectangle(1, 33, 339, 62);
+            beepTextBox1.DrawingRect = new Rectangle(1, 16, 182, 27);
             beepTextBox1.Easing = Vis.Modules.EasingType.Linear;
             beepTextBox1.EnableHighQualityRendering = true;
             beepTextBox1.EnableMaterialStyle = false;
@@ -651,7 +652,9 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.IconSize = 20;
             beepTextBox1.Id = -1;
             beepTextBox1.ImageAlign = ContentAlignment.MiddleLeft;
+            beepTextBox1.ImageMargin = new Padding(2);
             beepTextBox1.ImagePath = "";
+            beepTextBox1.ImageVisible = false;
             beepTextBox1.InactiveBorderColor = Color.Gray;
             beepTextBox1.InnerShape = null;
             beepTextBox1.IsAcceptButton = false;
@@ -686,7 +689,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.LineNumberFont = new Font("Segoe UI", 10F);
             beepTextBox1.LineNumberForeColor = Color.Gray;
             beepTextBox1.LinkedProperty = null;
-            beepTextBox1.Location = new Point(820, 485);
+            beepTextBox1.Location = new Point(531, 169);
+            beepTextBox1.Margin = new Padding(2, 1, 2, 1);
             beepTextBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepTextBox1.MaterialCustomPadding = new Padding(0);
             beepTextBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -696,7 +700,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(20, 20);
-            beepTextBox1.MinimumSize = new Size(0, 41);
+            beepTextBox1.MinimumSize = new Size(0, 21);
             beepTextBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepTextBox1.Modified = true;
             beepTextBox1.Multiline = false;
@@ -738,7 +742,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.ShowScrollbars = true;
             beepTextBox1.ShowShadow = false;
             beepTextBox1.ShowTopBorder = false;
-            beepTextBox1.Size = new Size(341, 130);
+            beepTextBox1.Size = new Size(184, 61);
             beepTextBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepTextBox1.StaticNotMoving = false;
             beepTextBox1.TabIndex = 5;
@@ -762,16 +766,186 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.UseThemeFont = true;
             beepTextBox1.WordWrap = false;
             // 
+            // beepTree1
+            // 
+            beepTree1.AllowMultiSelect = false;
+            beepTree1.AnimationDuration = 500;
+            beepTree1.AnimationType = Vis.Modules.DisplayAnimationType.None;
+            beepTree1.ApplyThemeToChilds = true;
+            beepTree1.AutoDrawHitListComponents = false;
+            beepTree1.BackColor = SystemColors.Control;
+            beepTree1.BadgeBackColor = Color.FromArgb(33, 150, 243);
+            beepTree1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
+            beepTree1.BadgeForeColor = Color.White;
+            beepTree1.BadgeShape = Vis.Modules.BadgeShape.Circle;
+            beepTree1.BadgeText = "";
+            beepTree1.BlockID = null;
+            beepTree1.BorderColor = Color.FromArgb(200, 200, 200);
+            beepTree1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            beepTree1.BorderRadius = 8;
+            beepTree1.BorderStyle = BorderStyle.FixedSingle;
+            beepTree1.BorderThickness = 1;
+            beepTree1.BottomoffsetForDrawingRect = 0;
+            beepTree1.BoundProperty = null;
+            beepTree1.CanBeFocused = false;
+            beepTree1.CanBeHovered = true;
+            beepTree1.CanBePressed = true;
+            beepTree1.CanBeSelected = true;
+            beepTree1.Category = Utilities.DbFieldCategory.String;
+            beepTree1.ComponentName = "BaseControl";
+            beepTree1.CurrentMenutems = null;
+            beepTree1.DataContext = null;
+            beepTree1.DataSourceProperty = null;
+            beepTree1.DisabledBackColor = Color.FromArgb(200, 200, 200);
+            beepTree1.DisabledBorderColor = Color.LightGray;
+            beepTree1.DisabledForeColor = Color.Gray;
+            beepTree1.DisableDpiAndScaling = false;
+            beepTree1.Dock = DockStyle.Left;
+            beepTree1.DrawingRect = new Rectangle(0, 0, 250, 643);
+            beepTree1.Easing = Vis.Modules.EasingType.Linear;
+            beepTree1.EnableHighQualityRendering = true;
+            beepTree1.EnableMaterialStyle = false;
+            beepTree1.EnableRippleEffect = false;
+            beepTree1.EnableSplashEffect = false;
+            beepTree1.ErrorColor = Color.FromArgb(176, 0, 32);
+            beepTree1.ErrorText = "";
+            beepTree1.ExternalDrawingLayer = Winform.Controls.Models.DrawingLayer.AfterAll;
+            beepTree1.FieldID = null;
+            beepTree1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
+            beepTree1.FloatingLabel = true;
+            beepTree1.FocusBackColor = Color.LightYellow;
+            beepTree1.FocusBorderColor = Color.RoyalBlue;
+            beepTree1.FocusForeColor = Color.Black;
+            beepTree1.FocusIndicatorColor = Color.RoyalBlue;
+            beepTree1.ForeColor = Color.Black;
+            beepTree1.Form = null;
+            beepTree1.GlassmorphismBlur = 10F;
+            beepTree1.GlassmorphismOpacity = 0.1F;
+            beepTree1.GradientAngle = 0F;
+            beepTree1.GradientDirection = System.Drawing.Drawing2D.LinearGradientMode.Horizontal;
+            beepTree1.GradientEndColor = Color.FromArgb(230, 230, 230);
+            beepTree1.GradientStartColor = Color.FromArgb(255, 255, 255);
+            beepTree1.GridMode = false;
+            beepTree1.GuidID = "a23fb223-1a0c-4654-b4e6-c1dc138cf77f";
+            beepTree1.HasError = false;
+            beepTree1.HelperText = "";
+            beepTree1.HitAreaEventOn = false;
+            beepTree1.HitTestControl = null;
+            beepTree1.HoverBackColor = Color.LightBlue;
+            beepTree1.HoverBorderColor = Color.Blue;
+            beepTree1.HoveredBackcolor = Color.LightBlue;
+            beepTree1.HoverForeColor = Color.Black;
+            beepTree1.IconSize = 20;
+            beepTree1.Id = -1;
+            beepTree1.InactiveBorderColor = Color.Gray;
+            beepTree1.InnerShape = null;
+            beepTree1.IsAcceptButton = false;
+            beepTree1.IsBorderAffectedByTheme = true;
+            beepTree1.IsCancelButton = false;
+            beepTree1.IsChild = true;
+            beepTree1.IsCustomeBorder = false;
+            beepTree1.IsDefault = false;
+            beepTree1.IsDeleted = false;
+            beepTree1.IsDirty = false;
+            beepTree1.IsEditable = true;
+            beepTree1.IsFocused = false;
+            beepTree1.IsFrameless = false;
+            beepTree1.IsHovered = false;
+            beepTree1.IsNew = false;
+            beepTree1.IsPressed = false;
+            beepTree1.IsReadOnly = false;
+            beepTree1.IsRequired = false;
+            beepTree1.IsRounded = true;
+            beepTree1.IsRoundedAffectedByTheme = true;
+            beepTree1.IsSelected = false;
+            beepTree1.IsSelectedOptionOn = false;
+            beepTree1.IsShadowAffectedByTheme = true;
+            beepTree1.IsValid = true;
+            beepTree1.IsVisible = true;
+            beepTree1.Items = (List<object>)resources.GetObject("beepTree1.Items");
+            beepTree1.LabelText = "";
+            beepTree1.LeadingIconPath = "";
+            beepTree1.LeadingImagePath = "";
+            beepTree1.LeftoffsetForDrawingRect = 0;
+            beepTree1.LinkedProperty = null;
+            beepTree1.Location = new Point(0, 0);
+            beepTree1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
+            beepTree1.MaterialCustomPadding = new Padding(0);
+            beepTree1.MaterialFillColor = Color.FromArgb(245, 245, 245);
+            beepTree1.MaterialIconPadding = 8;
+            beepTree1.MaterialIconSize = 20;
+            beepTree1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
+            beepTree1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
+            beepTree1.MaxHitListDrawPerFrame = 0;
+            beepTree1.ModernGradientType = Vis.Modules.ModernGradientType.None;
+            beepTree1.Name = "beepTree1";
+            beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes"));
+            beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes1"));
+            beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes2"));
+            beepTree1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
+            beepTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
+            beepTree1.ParentBackColor = SystemColors.Control;
+            beepTree1.ParentControl = null;
+            beepTree1.PopupListForm = null;
+            beepTree1.PressedBackColor = Color.Gray;
+            beepTree1.PressedBorderColor = Color.DarkGray;
+            beepTree1.PressedForeColor = Color.White;
+            beepTree1.RadialCenter = (PointF)resources.GetObject("beepTree1.RadialCenter");
+            beepTree1.RightoffsetForDrawingRect = 0;
+            beepTree1.SavedGuidID = null;
+            beepTree1.SavedID = null;
+            beepTree1.ScaleMode = Vis.Modules.ImageScaleMode.KeepAspectRatio;
+            beepTree1.SelectedBackColor = Color.LightGreen;
+            beepTree1.SelectedBorderColor = Color.Green;
+            beepTree1.SelectedForeColor = Color.Black;
+            beepTree1.SelectedValue = null;
+            beepTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
+            beepTree1.ShadowOffset = 3;
+            beepTree1.ShadowOpacity = 0.25F;
+            beepTree1.ShowAllBorders = false;
+            beepTree1.ShowBottomBorder = false;
+            beepTree1.ShowCheckBox = false;
+            beepTree1.ShowFocusIndicator = false;
+            beepTree1.ShowHorizontalScrollBar = true;
+            beepTree1.ShowLeftBorder = false;
+            beepTree1.ShowRightBorder = false;
+            beepTree1.ShowShadow = false;
+            beepTree1.ShowTopBorder = false;
+            beepTree1.ShowVerticalScrollBar = true;
+            beepTree1.Size = new Size(250, 643);
+            beepTree1.SlideFrom = Vis.Modules.SlideDirection.Left;
+            beepTree1.StaticNotMoving = false;
+            beepTree1.TabIndex = 6;
+            beepTree1.Tag = this;
+            beepTree1.TempBackColor = Color.LightGray;
+            beepTree1.Text = "beepTree1";
+            beepTree1.TextAlignment = Vis.Modules.TextAlignment.Left;
+            beepTree1.TextFont = new Font("Arial", 10F);
+            beepTree1.Theme = null;
+            beepTree1.ToolTipText = null;
+            beepTree1.TopoffsetForDrawingRect = 0;
+            beepTree1.TrailingIconPath = "";
+            beepTree1.TrailingImagePath = "";
+            beepTree1.TreeStyle = Winform.Controls.Trees.Models.TreeStyle.Standard;
+            beepTree1.UseExternalBufferedGraphics = false;
+            beepTree1.UseGlassmorphism = false;
+            beepTree1.UseGradientBackground = false;
+            beepTree1.UseRichToolTip = true;
+            beepTree1.UseScaledFont = false;
+            beepTree1.UseThemeFont = false;
+            beepTree1.VirtualizationBufferRows = 100;
+            beepTree1.VirtualizeLayout = true;
+            // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1665, 960);
+            ClientSize = new Size(897, 643);
+            Controls.Add(beepTree1);
             Controls.Add(beepTextBox1);
             Controls.Add(beepCard1);
             Controls.Add(beepComboBox1);
             Controls.Add(beepButton1);
-            Margin = new Padding(6);
             Name = "Form1";
             Text = "Form1";
             ResumeLayout(false);
@@ -783,5 +957,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private Controls.BeepCard beepCard1;
         private BeepComboBox beepComboBox1;
         private Controls.BeepTextBox beepTextBox1;
+        private BeepTree beepTree1;
     }
 }

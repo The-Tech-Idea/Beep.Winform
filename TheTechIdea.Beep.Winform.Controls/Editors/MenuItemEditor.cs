@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.Design;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using System.ComponentModel;
 
 
 
@@ -19,6 +20,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Editors
         protected override object CreateInstance(Type itemType)
         {
             return new SimpleItem();  // Create an instance of SimpleMenuItem
+        }
+
+        // Ensure the control refreshes after editing the collection at design time
+        public override object EditValue(ITypeDescriptorContext context, IServiceProvider provider, object value)
+        {
+            var result = base.EditValue(context, provider, value);
+
+            try
+            {
+                if (context?.Instance is TheTechIdea.Beep.Winform.Controls.BeepTree tree)
+                {
+                    // Trigger a refresh so newly added nodes are drawn in the designer
+                    tree.RefreshTree();
+                }
+            }
+            catch { /* ignore design-time exceptions */ }
+
+            return result;
         }
     }
 

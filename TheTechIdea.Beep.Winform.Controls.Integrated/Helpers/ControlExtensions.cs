@@ -76,7 +76,7 @@ public static partial class ControlExtensions
             IBranch br = item.Item1;
             node.Text = br.BranchText;
             node.Name = br.Name;
-            node.Id = br.ID; 
+            node.ID = br.ID; 
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
             node.PointType = br.BranchType;
@@ -96,7 +96,7 @@ public static partial class ControlExtensions
             IBranch br = item;
             node.Text = br.BranchText;
             node.Name = br.Name;
-            node.Id = br.ID;
+            node.ID = br.ID;
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
             node.ParentID = 0;
@@ -120,7 +120,7 @@ public static partial class ControlExtensions
             IBranch br = item.Item1;
             node.Text = br.BranchText;
             node.Name = br.Name;
-            node.Id = br.ID;
+            node.ID = br.ID;
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
             node.ParentID = 0;
@@ -144,7 +144,7 @@ public static partial class ControlExtensions
             IBranch br = item;
             node.Text = br.BranchText;
             node.Name = br.Name;
-            node.Id = br.ID;
+            node.ID = br.ID;
             node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
             node.GuidId = br.GuidID;
             node.PointType = br.BranchType;
@@ -170,7 +170,7 @@ public static partial class ControlExtensions
             SimpleItem node1 = new SimpleItem();
             node1.Text = item1.BranchText;
             node1.Name = item1.Name;
-            node1.Id = item1.ID;
+            node1.ID = item1.ID;
             node1.ImagePath = ImageListHelper.GetImagePathFromName(item1.IconImageName);
             node1.GuidId = item1.GuidID;
             node1.ObjectType = item1.ObjectType;
@@ -251,10 +251,10 @@ public static partial class ControlExtensions
         SimpleItem node = new SimpleItem();
         node.Text = br.BranchText;
         node.Name = br.Name;
-        node.Id = br.ID;
+        node.ID = br.ID;
         node.ImagePath = ImageListHelper.GetImagePathFromName(br.IconImageName);
         node.GuidId = br.GuidID;
-        node.ParentID = parent.Id;
+        node.ParentID = parent.ID;
         node.ObjectType = br.ObjectType;
         node.BranchClass = br.BranchClass;
         node.PointType = br.BranchType;
@@ -613,7 +613,7 @@ public static partial class ControlExtensions
             SimpleItem node = new SimpleItem();
             node.Text = br.BranchText;
             node.Name = br.Name;
-            node.Id = id;
+            node.ID = id;
             node.BranchClass = br.BranchClass;
             node.BranchName = br.Name;
             node.PointType = br.BranchType;
@@ -665,7 +665,7 @@ public static partial class ControlExtensions
             SimpleItem node = new SimpleItem();
             node.Text = br.BranchText;
             node.Name = br.Name;
-            node.Id = id;
+            node.ID = id;
             node.BranchClass = br.BranchClass;
             node.BranchName = br.Name;
             node.ObjectType = br.ObjectType;

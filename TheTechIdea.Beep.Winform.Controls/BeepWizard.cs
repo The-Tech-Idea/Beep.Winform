@@ -225,7 +225,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             var items = new BindingList<SimpleItem>();
             for (int i = 0; i < _nodes.Count; i++)
             {
-                items.Add(new SimpleItem { Id = i, Name = $"Step {i + 1}", Text = _nodes[i].Name, IsChecked = i <= _currentIndex });
+                items.Add(new SimpleItem { ID = i, Name = $"Step {i + 1}", Text = _nodes[i].Name, IsChecked = i <= _currentIndex });
             }
             return items;
         }

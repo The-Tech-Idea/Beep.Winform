@@ -19,6 +19,244 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int CardPadding = 4;
         private const int HandleWidth = 16;
 
+        /// <summary>
+        /// Figma Layers panel card style painting.
+        /// Features: Card with accent border (2px on selection), drag handles on hover (3 lines), layer visibility toggle, component/frame icons.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for Figma appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw Figma card background
+                Rectangle cardBounds = new Rectangle(
+                    nodeBounds.X + CardPadding,
+                    nodeBounds.Y + 2,
+                    nodeBounds.Width - CardPadding * 2,
+                    nodeBounds.Height - 4);
+
+                if (isSelected || isHovered)
+                {
+                    using (var cardPath = CreateRoundedRectangle(cardBounds, CornerRadius))
+                    {
+                        // Fill background
+                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, cardPath);
+                        }
+
+                        // Border (2px accent on selection, 1px on hover)
+                        if (isSelected)
+                        {
+                            using (var accentPen = new Pen(_theme.AccentColor, 2f))
+                            {
+                                g.DrawPath(accentPen, cardPath);
+                            }
+                        }
+                        else
+                        {
+                            using (var borderPen = new Pen(_theme.BorderColor, 1f))
+                            {
+                                g.DrawPath(borderPen, cardPath);
+                            }
+                        }
+                    }
+                }
+
+                // STEP 2: Draw drag handle (Figma layers panel feature)
+                if (isSelected || isHovered)
+                {
+                    Rectangle handleRect = new Rectangle(
+                        nodeBounds.Left + 8,
+                        nodeBounds.Top + nodeBounds.Height / 2 - 6,
+                        HandleWidth,
+                        12);
+
+                    Color handleColor = Color.FromArgb(isSelected ? 120 : 80, _theme.TreeForeColor);
+
+                    using (var pen = new Pen(handleColor, 1.5f))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+
+                        // Three horizontal lines (drag handle)
+                        int y1 = handleRect.Top;
+                        int y2 = handleRect.Top + 4;
+                        int y3 = handleRect.Top + 8;
+
+                        g.DrawLine(pen, handleRect.Left, y1, handleRect.Right, y1);
+                        g.DrawLine(pen, handleRect.Left, y2, handleRect.Right, y2);
+                        g.DrawLine(pen, handleRect.Left, y3, handleRect.Right, y3);
+                    }
+                }
+
+                // STEP 3: Draw Figma triangle toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color triangleColor = _theme.TreeForeColor;
+
+                    using (var triangleBrush = new SolidBrush(triangleColor))
+                    {
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        Point[] triangle;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Triangle down
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size, centerY - size / 2),
+                                new Point(centerX + size, centerY - size / 2),
+                                new Point(centerX, centerY + size / 2)
+                            };
+                        }
+                        else
+                        {
+                            // Triangle right
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size / 2, centerY - size),
+                                new Point(centerX + size / 2, centerY),
+                                new Point(centerX - size / 2, centerY + size)
+                            };
+                        }
+
+                        g.FillPolygon(triangleBrush, triangle);
+                    }
+                }
+
+                // STEP 4: Draw Figma checkbox (if enabled)
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    using (var checkPath = CreateRoundedRectangle(checkRect, 2))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        using (var borderPen = new Pen(borderColor, 1.5f))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 1.5f))
+                        {
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw Figma layer/component icon
+                if (node.IconRectContent != Rectangle.Empty)
+                {
+                    var iconRect = node.IconRectContent;
+                    Color iconColor = _theme.AccentColor;
+
+                    // Frame/component outline icon (Figma style)
+                    using (var iconPath = CreateRoundedRectangle(iconRect, 2))
+                    {
+                        // Outline only
+                        using (var pen = new Pen(iconColor, 1.5f))
+                        {
+                            g.DrawPath(pen, iconPath);
+                        }
+
+                        // Inner detail rectangle
+                        int padding = iconRect.Width / 4;
+                        Rectangle innerRect = new Rectangle(
+                            iconRect.X + padding,
+                            iconRect.Y + padding,
+                            iconRect.Width - padding * 2,
+                            iconRect.Height - padding * 2);
+
+                        if (innerRect.Width > 0 && innerRect.Height > 0)
+                        {
+                            using (var innerPen = new Pen(Color.FromArgb(100, iconColor), 1f))
+                            {
+                                g.DrawRectangle(innerPen, innerRect);
+                            }
+                        }
+                    }
+                }
+
+                // STEP 6: Draw visibility toggle (eye icon) - Figma layers feature
+                if (node.IconRectContent != Rectangle.Empty)
+                {
+                    Rectangle eyeRect = new Rectangle(
+                        node.IconRectContent.Right + 4,
+                        node.IconRectContent.Y + node.IconRectContent.Height / 4,
+                        12,
+                        node.IconRectContent.Height / 2);
+
+                    if (eyeRect.Width > 0 && eyeRect.Height > 0)
+                    {
+                        Color eyeColor = Color.FromArgb(120, _theme.TreeForeColor);
+
+                        int centerX = eyeRect.Left + eyeRect.Width / 2;
+                        int centerY = eyeRect.Top + eyeRect.Height / 2;
+
+                        using (var pen = new Pen(eyeColor, 1f))
+                        {
+                            // Eye outline
+                            g.DrawEllipse(pen, centerX - 3, centerY - 2, 6, 4);
+
+                            // Pupil
+                            using (var brush = new SolidBrush(eyeColor))
+                            {
+                                g.FillEllipse(brush, centerX - 1, centerY - 1, 2, 2);
+                            }
+                        }
+                    }
+                }
+
+                // STEP 7: Draw text with Figma typography (Inter/Segoe UI)
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Figma uses Inter font (Segoe UI fallback), regular weight
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

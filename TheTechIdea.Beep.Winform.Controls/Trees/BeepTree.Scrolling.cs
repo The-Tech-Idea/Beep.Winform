@@ -54,51 +54,90 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_verticalScrollBar == null || _horizontalScrollBar == null)
                 return;
 
-            // Get client area (area available for content)
+            // Always base layout on the BaseControl-provided DrawingRect
+            // so we match other controls (ComboBox, Chart, etc.).
+            var inner = DrawingRect; // content area from BaseControl painter
+
+            // Guard: if DrawingRect is not ready yet, defer until next paint/resize
+            if (inner.Width <= 0 || inner.Height <= 0)
+            {
+                _verticalScrollBar.Visible = false;
+                _horizontalScrollBar.Visible = false;
+                return;
+            }
+
+            int availW = inner.Width;
+            int availH = inner.Height;
+            int vBarW = _verticalScrollBar.Width;
+            int hBarH = _horizontalScrollBar.Height;
+
+            // Determine necessity with interplay: adding one scrollbar may force the other
+            bool needsV = ShowVerticalScrollBar && _virtualSize.Height > availH;
+            bool needsH = ShowHorizontalScrollBar && _virtualSize.Width > availW;
+
+            // First pass adjustments
+            if (needsV)
+                availW -= vBarW;
+            if (needsH)
+                availH -= hBarH;
+
+            // Re-evaluate after adjustments
+            if (ShowVerticalScrollBar && !needsV && _virtualSize.Height > availH)
+            {
+                needsV = true;
+                availW -= vBarW;
+            }
+            if (ShowHorizontalScrollBar && !needsH && _virtualSize.Width > availW)
+            {
+                needsH = true;
+                availH -= hBarH;
+            }
+
+            // Apply visibility
+            _verticalScrollBar.Visible = needsV;
+            _horizontalScrollBar.Visible = needsH;
+
+            // Compute final client area after visibility is known
             Rectangle clientArea = GetClientArea();
 
-            // Vertical scrollbar
-            bool needsVerticalScroll = _virtualSize.Height > clientArea.Height && ShowVerticalScrollBar;
-            _verticalScrollBar.Visible = needsVerticalScroll;
-
-            if (needsVerticalScroll)
+            // Configure vertical scrollbar relative to DrawingRect
+            if (needsV)
             {
+                int vHeight = inner.Height - (needsH ? hBarH : 0);
                 _verticalScrollBar.Bounds = new Rectangle(
-                    Width - _verticalScrollBar.Width,
-                    0,
-                    _verticalScrollBar.Width,
-                    Height - (needsVerticalScroll && _horizontalScrollBar.Visible ? _horizontalScrollBar.Height : 0)
+                    inner.Right - vBarW,
+                    inner.Top,
+                    vBarW,
+                    Math.Max(0, vHeight)
                 );
-
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = _virtualSize.Height;
-                _verticalScrollBar.LargeChange = clientArea.Height;
-                _verticalScrollBar.SmallChange = GetScaledMinRowHeight();
-                _verticalScrollBar.Value = Math.Min(_yOffset, Math.Max(0, _virtualSize.Height - clientArea.Height));
+                _verticalScrollBar.Maximum = Math.Max(0, _virtualSize.Height);
+                _verticalScrollBar.LargeChange = Math.Max(1, clientArea.Height);
+                _verticalScrollBar.SmallChange = Math.Max(1, GetScaledMinRowHeight());
+                int vMaxVal = Math.Max(0, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
+                _verticalScrollBar.Value = Math.Min(Math.Max(0, _yOffset), vMaxVal);
             }
             else
             {
                 _yOffset = 0;
             }
 
-            // Horizontal scrollbar
-            bool needsHorizontalScroll = _virtualSize.Width > clientArea.Width && ShowHorizontalScrollBar;
-            _horizontalScrollBar.Visible = needsHorizontalScroll;
-
-            if (needsHorizontalScroll)
+            // Configure horizontal scrollbar relative to DrawingRect
+            if (needsH)
             {
+                int hWidth = inner.Width - (needsV ? vBarW : 0);
                 _horizontalScrollBar.Bounds = new Rectangle(
-                    0,
-                    Height - _horizontalScrollBar.Height,
-                    Width - (needsHorizontalScroll && _verticalScrollBar.Visible ? _verticalScrollBar.Width : 0),
-                    _horizontalScrollBar.Height
+                    inner.Left,
+                    inner.Bottom - hBarH,
+                    Math.Max(0, hWidth),
+                    hBarH
                 );
-
                 _horizontalScrollBar.Minimum = 0;
-                _horizontalScrollBar.Maximum = _virtualSize.Width;
-                _horizontalScrollBar.LargeChange = clientArea.Width;
-                _horizontalScrollBar.SmallChange = GetScaledIndentWidth();
-                _horizontalScrollBar.Value = Math.Min(_xOffset, Math.Max(0, _virtualSize.Width - clientArea.Width));
+                _horizontalScrollBar.Maximum = Math.Max(0, _virtualSize.Width);
+                _horizontalScrollBar.LargeChange = Math.Max(1, clientArea.Width);
+                _horizontalScrollBar.SmallChange = Math.Max(1, GetScaledIndentWidth());
+                int hMaxVal = Math.Max(0, _horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange);
+                _horizontalScrollBar.Value = Math.Min(Math.Max(0, _xOffset), hMaxVal);
             }
             else
             {
@@ -115,14 +154,20 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         private Rectangle GetClientArea()
         {
-            int scrollBarWidth = (_verticalScrollBar?.Visible == true) ? _verticalScrollBar.Width : 0;
-            int scrollBarHeight = (_horizontalScrollBar?.Visible == true) ? _horizontalScrollBar.Height : 0;
+            // Base the client area on BaseControl.DrawingRect (inner content area),
+            // subtracting any visible scrollbars. This matches other controls.
+            var inner = DrawingRect;
+            if (inner.Width <= 0 || inner.Height <= 0)
+                return Rectangle.Empty;
+
+            int vBarW = (_verticalScrollBar?.Visible == true) ? _verticalScrollBar.Width : 0;
+            int hBarH = (_horizontalScrollBar?.Visible == true) ? _horizontalScrollBar.Height : 0;
 
             return new Rectangle(
-                0,
-                0,
-                Width - scrollBarWidth,
-                Height - scrollBarHeight
+                inner.Left,
+                inner.Top,
+                Math.Max(0, inner.Width - vBarW),
+                Math.Max(0, inner.Height - hBarH)
             );
         }
 

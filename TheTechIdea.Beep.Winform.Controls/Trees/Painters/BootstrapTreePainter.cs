@@ -18,6 +18,172 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int CornerRadius = 4;
         private const int CardPadding = 8;
 
+        /// <summary>
+        /// Bootstrap-specific node painting with card-based design.
+        /// Features: Card-style nodes with shadows, thick 2px borders, Bootstrap primary color accents, badge-style icons.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for Bootstrap clean appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw Bootstrap card shadow FIRST (if selected)
+                if (isSelected)
+                {
+                    var shadowRect = new Rectangle(
+                        nodeBounds.X + CardPadding + 1,
+                        nodeBounds.Y + 3,
+                        nodeBounds.Width - CardPadding * 2,
+                        nodeBounds.Height - 2);
+
+                    using (var shadowPath = CreateRoundedRectangle(new Rectangle(
+                        nodeBounds.X, nodeBounds.Y, nodeBounds.Width, nodeBounds.Height), CornerRadius))
+                    {
+                        // Bootstrap box-shadow
+                        using (var shadowBrush = new SolidBrush(Color.FromArgb(25, 0, 0, 0)))
+                        {
+                            g.FillPath(shadowBrush, shadowPath);
+                        }
+                    }
+                }
+
+                // STEP 2: Draw Bootstrap card background
+                if (isSelected || isHovered)
+                {
+                    using (var cardPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
+                    {
+                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, cardPath);
+                        }
+
+                        // STEP 3: Bootstrap thick border (2px on selection, 1px on hover)
+                        Color borderColor = isSelected ? _theme.AccentColor : _theme.BorderColor;
+                        float borderWidth = isSelected ? 2f : 1f;
+
+                        using (var borderPen = new Pen(borderColor, borderWidth))
+                        {
+                            g.DrawPath(borderPen, cardPath);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw Bootstrap caret (filled triangle)
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color caretColor = _theme.TreeForeColor;
+
+                    using (var brush = new SolidBrush(caretColor))
+                    {
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        Point[] caret;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Caret down (filled triangle)
+                            caret = new Point[]
+                            {
+                                new Point(centerX - size, centerY - size / 2),
+                                new Point(centerX + size, centerY - size / 2),
+                                new Point(centerX, centerY + size / 2)
+                            };
+                        }
+                        else
+                        {
+                            // Caret right (filled triangle)
+                            caret = new Point[]
+                            {
+                                new Point(centerX - size / 2, centerY - size),
+                                new Point(centerX + size / 2, centerY),
+                                new Point(centerX - size / 2, centerY + size)
+                            };
+                        }
+
+                        g.FillPolygon(brush, caret);
+                    }
+                }
+
+                // STEP 5: Draw Bootstrap checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = isHovered ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    // Bootstrap rounded checkbox
+                    using (var checkPath = CreateRoundedRectangle(checkRect, 3))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        using (var borderPen = new Pen(borderColor, 1.5f))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    // Bootstrap checkmark
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 2f))
+                        {
+                            checkPen.StartCap = LineCap.Round;
+                            checkPen.EndCap = LineCap.Round;
+
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 6: Draw Bootstrap badge-style icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 7: Draw text with Bootstrap typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Bootstrap uses system fonts
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

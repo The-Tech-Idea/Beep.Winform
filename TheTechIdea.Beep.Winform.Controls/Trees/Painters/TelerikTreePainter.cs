@@ -17,6 +17,205 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
     {
         private const int CornerRadius = 2;
 
+        /// <summary>
+        /// Telerik-specific node painting with professional polished appearance.
+        /// Features: Glass effect gradients, top highlight line, thick borders, filled triangle toggles, shiny icons with gloss.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for Telerik polished appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw Telerik glass effect gradient background
+                if (isSelected || isHovered)
+                {
+                    Color topColor, bottomColor;
+
+                    if (isSelected)
+                    {
+                        // Selected: gradient with glass effect (light to darker)
+                        topColor = ControlPaint.Light(_theme.TreeNodeSelectedBackColor, 0.1f);
+                        bottomColor = _theme.TreeNodeSelectedBackColor;
+                    }
+                    else
+                    {
+                        // Hover: subtle glass gradient
+                        topColor = ControlPaint.Light(_theme.TreeNodeHoverBackColor, 0.05f);
+                        bottomColor = _theme.TreeNodeHoverBackColor;
+                    }
+
+                    using (var gradientBrush = new LinearGradientBrush(
+                        nodeBounds,
+                        topColor,
+                        bottomColor,
+                        LinearGradientMode.Vertical))
+                    {
+                        g.FillRectangle(gradientBrush, nodeBounds);
+                    }
+
+                    // STEP 2: Telerik top highlight (glass/shiny effect)
+                    if (isSelected)
+                    {
+                        using (var highlightPen = new Pen(Color.FromArgb(60, Color.White), 1f))
+                        {
+                            g.DrawLine(highlightPen, nodeBounds.Left, nodeBounds.Top + 1, nodeBounds.Right, nodeBounds.Top + 1);
+                        }
+                    }
+
+                    // STEP 3: Telerik thick border
+                    Rectangle borderRect = new Rectangle(
+                        nodeBounds.X,
+                        nodeBounds.Y,
+                        nodeBounds.Width - 1,
+                        nodeBounds.Height - 1);
+
+                    if (isSelected)
+                    {
+                        using (var borderPen = new Pen(_theme.AccentColor, 1f))
+                        {
+                            g.DrawRectangle(borderPen, borderRect);
+                        }
+                    }
+                    else if (isHovered)
+                    {
+                        using (var borderPen = new Pen(Color.FromArgb(40, _theme.BorderColor), 1f))
+                        {
+                            g.DrawRectangle(borderPen, borderRect);
+                        }
+                    }
+                }
+
+                // STEP 4: Draw Telerik filled triangle toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color triangleColor = _theme.TreeForeColor;
+
+                    // Subtle hover background
+                    if (isHovered)
+                    {
+                        using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
+                        {
+                            g.FillRectangle(hoverBrush, toggleRect);
+                        }
+                    }
+
+                    // Filled triangle
+                    using (var brush = new SolidBrush(triangleColor))
+                    {
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        Point[] triangle;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Triangle pointing down
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size, centerY - size / 2),
+                                new Point(centerX + size, centerY - size / 2),
+                                new Point(centerX, centerY + size / 2)
+                            };
+                        }
+                        else
+                        {
+                            // Triangle pointing right
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size / 2, centerY - size),
+                                new Point(centerX + size / 2, centerY),
+                                new Point(centerX - size / 2, centerY + size)
+                            };
+                        }
+
+                        g.FillPolygon(brush, triangle);
+                    }
+                }
+
+                // STEP 5: Draw Telerik professional checkbox
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+
+                    // Checkbox with gradient
+                    if (node.Item.IsChecked)
+                    {
+                        using (var gradientBrush = new LinearGradientBrush(
+                            checkRect,
+                            ControlPaint.Light(_theme.AccentColor, 0.1f),
+                            _theme.AccentColor,
+                            LinearGradientMode.Vertical))
+                        {
+                            g.FillRectangle(gradientBrush, checkRect);
+                        }
+                    }
+                    else
+                    {
+                        using (var bgBrush = new SolidBrush(_theme.TreeBackColor))
+                        {
+                            g.FillRectangle(bgBrush, checkRect);
+                        }
+                    }
+
+                    using (var borderPen = new Pen(borderColor, 1f))
+                    {
+                        g.DrawRectangle(borderPen, checkRect);
+                    }
+
+                    // Checkmark
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 1.5f))
+                        {
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 6: Draw Telerik shiny icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 7: Draw text with Telerik professional typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Telerik uses Segoe UI
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

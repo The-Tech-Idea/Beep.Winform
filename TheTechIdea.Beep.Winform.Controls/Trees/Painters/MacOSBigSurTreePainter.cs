@@ -19,6 +19,159 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int SidebarPadding = 4;
         private const float VibrancyAlpha = 0.7f;
 
+        /// <summary>
+        /// macOS Big Sur-specific node painting with translucent vibrancy effects.
+        /// Features: Semi-transparent backgrounds (70% opacity), subtle top highlights, disclosure triangles, gradient icons.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for macOS smooth appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw translucent background (vibrancy effect)
+                if (isSelected || isHovered)
+                {
+                    using (var bgPath = CreateRoundedRectangle(nodeBounds, CornerRadius))
+                    {
+                        // Semi-transparent fill for macOS vibrancy
+                        float alpha = isSelected ? VibrancyAlpha : 0.5f;
+                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                        Color translucentColor = Color.FromArgb((int)(255 * alpha), bgColor);
+
+                        using (var bgBrush = new SolidBrush(translucentColor))
+                        {
+                            g.FillPath(bgBrush, bgPath);
+                        }
+
+                        // STEP 2: Subtle highlight on top edge (macOS gloss)
+                        if (isSelected)
+                        {
+                            using (var highlightPen = new Pen(Color.FromArgb(30, Color.White), 1f))
+                            {
+                                g.DrawLine(highlightPen,
+                                    nodeBounds.Left + CornerRadius + SidebarPadding,
+                                    nodeBounds.Top + 3,
+                                    nodeBounds.Right - CornerRadius - SidebarPadding,
+                                    nodeBounds.Top + 3);
+                            }
+                        }
+                    }
+                }
+
+                // STEP 3: Draw macOS disclosure triangle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+                    Color triangleColor = _theme.TreeForeColor;
+
+                    using (var brush = new SolidBrush(triangleColor))
+                    {
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        Point[] triangle;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Triangle pointing down
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size, centerY - size / 2),
+                                new Point(centerX + size, centerY - size / 2),
+                                new Point(centerX, centerY + size / 2)
+                            };
+                        }
+                        else
+                        {
+                            // Triangle pointing right
+                            triangle = new Point[]
+                            {
+                                new Point(centerX - size / 2, centerY - size),
+                                new Point(centerX + size / 2, centerY),
+                                new Point(centerX - size / 2, centerY + size)
+                            };
+                        }
+
+                        g.FillPolygon(brush, triangle);
+                    }
+                }
+
+                // STEP 4: Draw macOS checkbox (rounded square)
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = isHovered ? _theme.AccentColor : Color.FromArgb(180, 180, 180);
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : Color.White;
+
+                    // macOS checkbox with rounded corners
+                    using (var checkPath = CreateRoundedRectangle(checkRect, 4))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        using (var borderPen = new Pen(borderColor, 1.5f))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    // macOS-style checkmark
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 2f))
+                        {
+                            checkPen.StartCap = LineCap.Round;
+                            checkPen.EndCap = LineCap.Round;
+
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 2 / 3),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4 + 1, checkRect.Y + checkRect.Height / 3)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw macOS icon with gradient
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 6: Draw text with macOS typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // SF Pro / Segoe UI
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

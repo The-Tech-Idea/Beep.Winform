@@ -235,17 +235,23 @@ namespace TheTechIdea.Beep.Winform.Controls
                     newItem.GuidId = Guid.NewGuid().ToString();
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Adding node '{newItem.Text}' (GuidId: {newItem.GuidId})");
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] parentGuidId = {parentGuidId ?? "null (root)"}");
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] _nodes count BEFORE = {_nodes.Count}");
+
                 // Handle root or child
                 if (string.IsNullOrEmpty(parentGuidId))
                 {
-                    Nodes.Add(newItem);
+                    _nodes.Add(newItem);
+                    System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Added as ROOT node. _nodes count AFTER = {_nodes.Count}");
                 }
                 else
                 {
                     var parentItem = GetNodeByGuidID(parentGuidId);
                     if (parentItem == null)
                     {
-                        Nodes.Add(newItem);
+                        _nodes.Add(newItem);
+                        System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Parent not found, added as ROOT. _nodes count AFTER = {_nodes.Count}");
                     }
                     else
                     {
@@ -254,19 +260,25 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                         parentItem.Children.Add(newItem);
                         newItem.ParentItem = parentItem;
+                        System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Added as CHILD of '{parentItem.Text}'. Parent now has {parentItem.Children.Count} children");
                     }
                 }
 
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Calling RebuildVisible...");
                 RebuildVisible();
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Calling UpdateScrollBars...");
                 UpdateScrollBars();
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Calling Invalidate...");
                 Invalidate();
 
                 NodeAdded?.Invoke(this, new BeepMouseEventArgs("NodeAdded", newItem));
 
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] Completed for node '{newItem.Text}'");
                 return newItem;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"[AddNodeWithBranch] ERROR: {ex.Message}");
                 return null;
             }
         }
@@ -294,9 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     _nodes.Remove(simpleItem);
                 }
 
-                RebuildVisible();
-                UpdateScrollBars();
-                Invalidate();
+                RefreshTree();
 
                 NodeDeleted?.Invoke(this, new BeepMouseEventArgs("NodeDeleted", simpleItem));
             }
@@ -367,6 +377,100 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.HideToolTip();
         }
 
+        #endregion
+        
+        #region Node Collection Management
+        
+        /// <summary>
+        /// Adds a root node to the tree and refreshes the display.
+        /// </summary>
+        /// <param name="node">The node to add.</param>
+        public void AddNode(SimpleItem node)
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+                
+            _nodes.Add(node);
+            RefreshTree();
+        }
+        
+        /// <summary>
+        /// Adds multiple root nodes to the tree and refreshes the display.
+        /// </summary>
+        /// <param name="nodes">The nodes to add.</param>
+        public void AddNodes(IEnumerable<SimpleItem> nodes)
+        {
+            if (nodes == null)
+                throw new ArgumentNullException(nameof(nodes));
+                
+            foreach (var node in nodes)
+            {
+                _nodes.Add(node);
+            }
+            RefreshTree();
+        }
+        
+        /// <summary>
+        /// Inserts a node at the specified index and refreshes the display.
+        /// </summary>
+        /// <param name="index">The zero-based index at which to insert the node.</param>
+        /// <param name="node">The node to insert.</param>
+        public void InsertNode(int index, SimpleItem node)
+        {
+            if (node == null)
+                throw new ArgumentNullException(nameof(node));
+                
+            _nodes.Insert(index, node);
+            RefreshTree();
+        }
+        
+        /// <summary>
+        /// Adds a child node to a parent node and refreshes the display.
+        /// </summary>
+        /// <param name="parent">The parent node.</param>
+        /// <param name="child">The child node to add.</param>
+        public void AddChildNode(SimpleItem parent, SimpleItem child)
+        {
+            if (parent == null)
+                throw new ArgumentNullException(nameof(parent));
+            if (child == null)
+                throw new ArgumentNullException(nameof(child));
+                
+            if (parent.Children == null)
+            {
+                parent.Children = new System.ComponentModel.BindingList<SimpleItem>();
+            }
+            
+            parent.Children.Add(child);
+            child.ParentItem = parent;
+            RefreshTree();
+        }
+        
+        /// <summary>
+        /// Removes a child node from its parent and refreshes the display.
+        /// </summary>
+        /// <param name="parent">The parent node.</param>
+        /// <param name="child">The child node to remove.</param>
+        /// <returns>True if the child was found and removed; otherwise, false.</returns>
+        public bool RemoveChildNode(SimpleItem parent, SimpleItem child)
+        {
+            if (parent == null)
+                throw new ArgumentNullException(nameof(parent));
+            if (child == null)
+                throw new ArgumentNullException(nameof(child));
+                
+            if (parent.Children == null)
+                return false;
+                
+            bool removed = parent.Children.Remove(child);
+            if (removed)
+            {
+                child.ParentItem = null;
+                RefreshTree();
+            }
+            return removed;
+        }
+        
         #endregion
     }
 }

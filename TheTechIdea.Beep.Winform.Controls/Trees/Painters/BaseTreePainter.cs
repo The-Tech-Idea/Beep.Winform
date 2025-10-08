@@ -22,12 +22,96 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
             _theme = theme ?? throw new ArgumentNullException(nameof(theme));
         }
 
-        // Default implementation: no-op. Concrete painters may override.
+        /// <summary>
+        /// Paint the entire tree - iterates through all visible nodes and calls PaintNode for each.
+        /// Override this to customize tree-wide rendering (backgrounds, grid lines, etc.)
+        /// </summary>
         public virtual void Paint(Graphics g, BeepTree owner, Rectangle bounds)
         {
-            // Intentionally left blank. The BeepTree control orchestrates node painting
-            // via PaintNode/segment methods. Some painters call base.Paint; making this
-            // virtual avoids abstract base member call errors and keeps behavior consistent.
+            System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] START - bounds: {bounds}");
+            if (g == null || owner == null || bounds.Width <= 0 || bounds.Height <= 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] NULL/INVALID CHECK FAILED");
+                return;
+            }
+
+            _owner = owner;
+
+            // Get layout from helper
+            var layoutHelper = owner.LayoutHelper;
+            System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] LayoutHelper: {layoutHelper != null}, VisibleNodes: {owner.VisibleNodes?.Count ?? 0}");
+            
+            if (layoutHelper == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Using VisibleNodes directly");
+                // Fallback: use _visibleNodes directly
+                var visibleNodes = owner.VisibleNodes;
+                if (visibleNodes == null || visibleNodes.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK FAILED: No visible nodes");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Painting {visibleNodes.Count} nodes");
+                foreach (var nodeInfo in visibleNodes)
+                {
+                    var rowRect = nodeInfo.RowRectContent;
+                    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Node: {nodeInfo.Item?.Text}, RowRect: {rowRect}");
+                    bool isSelected = nodeInfo.Item.IsSelected;
+                    bool isHovered = (owner.LastHoveredItem == nodeInfo.Item);
+
+                    PaintNode(g, nodeInfo, rowRect, isHovered, isSelected);
+                }
+                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] FALLBACK: Completed");
+                return;
+            }
+
+            // Get cached layout
+            var layout = layoutHelper.GetCachedLayout();
+            System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Cached layout count: {layout?.Count ?? 0}");
+            
+            if (layout == null || layout.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Recalculating layout...");
+                // Try to recalculate
+                try
+                {
+                    layout = layoutHelper.RecalculateLayout();
+                    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Recalculated layout count: {layout?.Count ?? 0}");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Recalculation FAILED: {ex.Message}");
+                    return;
+                }
+            }
+
+            if (layout == null || layout.Count == 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] No layout available, EXITING");
+                return;
+            }
+
+            // Draw each visible node
+            int drawnCount = 0;
+            foreach (var nodeInfo in layout)
+            {
+                // Check if node is in viewport (for virtualization)
+                if (owner.VirtualizeLayout && !layoutHelper.IsNodeInViewport(nodeInfo))
+                    continue;
+
+                // Transform to viewport coordinates
+                Rectangle rowRect = layoutHelper.TransformToViewport(nodeInfo.RowRectContent);
+
+                // Get node state
+                bool isSelected = nodeInfo.Item.IsSelected;
+                bool isHovered = (owner.LastHoveredItem == nodeInfo.Item);
+
+                // Paint this node
+                PaintNode(g, nodeInfo, rowRect, isHovered, isSelected);
+                drawnCount++;
+            }
+            System.Diagnostics.Debug.WriteLine($"[BaseTreePainter.Paint] Drew {drawnCount} nodes, COMPLETE");
         }
 
         // Provide a default implementation so concrete painters are not forced to override

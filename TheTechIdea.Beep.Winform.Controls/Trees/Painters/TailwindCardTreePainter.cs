@@ -19,6 +19,207 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         private const int CardPadding = 6;
         private const int ShadowOffset = 2;
 
+        /// <summary>
+        /// Tailwind CSS-specific node painting with utility-first design.
+        /// Features: Layered shadows (shadow-lg on selection, shadow-md on hover), ring borders (2px), rounded corners (8px), gradient icons.
+        /// </summary>
+        public override void PaintNode(Graphics g, NodeInfo node, Rectangle nodeBounds, bool isHovered, bool isSelected)
+        {
+            if (g == null || node.Item == null) return;
+
+            // Enable high-quality rendering for Tailwind clean appearance
+            var oldSmoothing = g.SmoothingMode;
+            var oldTextRendering = g.TextRenderingHint;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            try
+            {
+                // STEP 1: Draw Tailwind shadow layers FIRST
+                if (isSelected || isHovered)
+                {
+                    using (var nodePath = CreateRoundedRectangle(nodeBounds, CornerRadius))
+                    {
+                        // Tailwind shadow layers (utility-first approach)
+                        if (isSelected)
+                        {
+                            // shadow-lg: multiple shadow layers
+                            var shadows = new[]
+                            {
+                                new { Offset = 3, Alpha = 35, Color = Color.Black },
+                                new { Offset = 2, Alpha = 25, Color = Color.Black },
+                                new { Offset = 1, Alpha = 15, Color = Color.Black }
+                            };
+
+                            foreach (var shadow in shadows)
+                            {
+                                var shadowRect = new Rectangle(
+                                    nodeBounds.X,
+                                    nodeBounds.Y + shadow.Offset,
+                                    nodeBounds.Width,
+                                    nodeBounds.Height);
+
+                                using (var shadowPath = CreateRoundedRectangle(shadowRect, CornerRadius))
+                                {
+                                    using (var shadowBrush = new SolidBrush(Color.FromArgb(shadow.Alpha, shadow.Color)))
+                                    {
+                                        g.FillPath(shadowBrush, shadowPath);
+                                    }
+                                }
+                            }
+                        }
+                        else if (isHovered)
+                        {
+                            // shadow-md: single subtle shadow
+                            var shadowRect = new Rectangle(
+                                nodeBounds.X,
+                                nodeBounds.Y + 1,
+                                nodeBounds.Width,
+                                nodeBounds.Height);
+
+                            using (var shadowPath = CreateRoundedRectangle(shadowRect, CornerRadius))
+                            {
+                                using (var shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0)))
+                                {
+                                    g.FillPath(shadowBrush, shadowPath);
+                                }
+                            }
+                        }
+
+                        // STEP 2: Draw card background
+                        Color bgColor = isSelected ? _theme.TreeNodeSelectedBackColor : _theme.TreeNodeHoverBackColor;
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, nodePath);
+                        }
+
+                        // STEP 3: Tailwind ring border (utility: ring-2)
+                        if (isSelected)
+                        {
+                            using (var ringPen = new Pen(_theme.AccentColor, 2f))
+                            {
+                                g.DrawPath(ringPen, nodePath);
+                            }
+                        }
+                        else if (isHovered)
+                        {
+                            using (var ringPen = new Pen(Color.FromArgb(100, _theme.AccentColor), 1f))
+                            {
+                                g.DrawPath(ringPen, nodePath);
+                            }
+                        }
+                    }
+                }
+
+                // STEP 4: Draw Tailwind chevron toggle
+                bool hasChildren = node.Item.Children != null && node.Item.Children.Count > 0;
+                if (hasChildren && node.ToggleRectContent != Rectangle.Empty)
+                {
+                    var toggleRect = node.ToggleRectContent;
+
+                    // Hover background (rounded-full bg-opacity-20)
+                    if (isHovered)
+                    {
+                        using (var hoverBrush = new SolidBrush(Color.FromArgb(30, _theme.AccentColor)))
+                        {
+                            g.FillEllipse(hoverBrush, toggleRect);
+                        }
+                    }
+
+                    Color chevronColor = _theme.TreeForeColor;
+                    using (var pen = new Pen(chevronColor, 2f))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+
+                        int centerX = toggleRect.Left + toggleRect.Width / 2;
+                        int centerY = toggleRect.Top + toggleRect.Height / 2;
+                        int size = Math.Min(toggleRect.Width, toggleRect.Height) / 3;
+
+                        if (node.Item.IsExpanded)
+                        {
+                            // Chevron down
+                            g.DrawLine(pen, centerX - size, centerY - size / 2, centerX, centerY + size / 2);
+                            g.DrawLine(pen, centerX, centerY + size / 2, centerX + size, centerY - size / 2);
+                        }
+                        else
+                        {
+                            // Chevron right
+                            g.DrawLine(pen, centerX - size / 2, centerY - size, centerX + size / 2, centerY);
+                            g.DrawLine(pen, centerX + size / 2, centerY, centerX - size / 2, centerY + size);
+                        }
+                    }
+                }
+
+                // STEP 5: Draw Tailwind checkbox (rounded-md border-2)
+                if (_owner.ShowCheckBox && node.CheckRectContent != Rectangle.Empty)
+                {
+                    var checkRect = node.CheckRectContent;
+                    var borderColor = node.Item.IsChecked ? _theme.AccentColor : _theme.BorderColor;
+                    var bgColor = node.Item.IsChecked ? _theme.AccentColor : _theme.TreeBackColor;
+
+                    // Tailwind rounded checkbox
+                    using (var checkPath = CreateRoundedRectangle(checkRect, 3))
+                    {
+                        using (var bgBrush = new SolidBrush(bgColor))
+                        {
+                            g.FillPath(bgBrush, checkPath);
+                        }
+
+                        // Tailwind border-2
+                        float borderWidth = node.Item.IsChecked ? 2f : 1.5f;
+                        using (var borderPen = new Pen(borderColor, borderWidth))
+                        {
+                            g.DrawPath(borderPen, checkPath);
+                        }
+                    }
+
+                    // Tailwind checkmark
+                    if (node.Item.IsChecked)
+                    {
+                        using (var checkPen = new Pen(Color.White, 2f))
+                        {
+                            checkPen.StartCap = LineCap.Round;
+                            checkPen.EndCap = LineCap.Round;
+
+                            var points = new Point[]
+                            {
+                                new Point(checkRect.X + checkRect.Width / 4, checkRect.Y + checkRect.Height / 2),
+                                new Point(checkRect.X + checkRect.Width / 2 - 1, checkRect.Y + checkRect.Height * 3 / 4),
+                                new Point(checkRect.X + checkRect.Width * 3 / 4, checkRect.Y + checkRect.Height / 4)
+                            };
+                            g.DrawLines(checkPen, points);
+                        }
+                    }
+                }
+
+                // STEP 6: Draw Tailwind gradient icon
+                if (!string.IsNullOrEmpty(node.Item.ImagePath) && node.IconRectContent != Rectangle.Empty)
+                {
+                    PaintIcon(g, node.IconRectContent, node.Item.ImagePath);
+                }
+
+                // STEP 7: Draw text with Tailwind typography
+                if (node.TextRectContent != Rectangle.Empty)
+                {
+                    var textRect = node.TextRectContent;
+                    Color textColor = isSelected ? _theme.TreeNodeSelectedForeColor : _theme.TreeForeColor;
+
+                    // Tailwind uses Inter/system fonts, bold on selection
+                    using (var renderFont = new Font("Segoe UI", _owner.TextFont.Size, isSelected ? FontStyle.Bold : FontStyle.Regular))
+                    {
+                        TextRenderer.DrawText(g, node.Item.Text ?? string.Empty, renderFont, textRect, textColor,
+                            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                    }
+                }
+            }
+            finally
+            {
+                g.SmoothingMode = oldSmoothing;
+                g.TextRenderingHint = oldTextRendering;
+            }
+        }
+
         public override void PaintNodeBackground(Graphics g, Rectangle nodeBounds, bool isHovered, bool isSelected)
         {
             if (nodeBounds.Width <= 0 || nodeBounds.Height <= 0) return;

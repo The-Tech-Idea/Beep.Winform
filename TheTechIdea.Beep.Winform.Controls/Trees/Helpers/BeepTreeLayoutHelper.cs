@@ -118,18 +118,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             int iconY = nodeInfo.Y + (rowHeight - _owner.GetScaledImageSize()) / 2;
             Rectangle iconRect = new Rectangle(iconX, iconY, _owner.GetScaledImageSize(), _owner.GetScaledImageSize());
 
-            // Text
+            // Text (add padding to text width for better spacing)
             int textX = iconRect.Right + 8;
             Rectangle textRect = new Rectangle(
                 textX,
                 nodeInfo.Y + _owner.GetScaledVerticalPadding(),
-                textSize.Width,
+                textSize.Width + 10,  // Add 10px padding after text
                 textSize.Height);
 
-            // Row bounds
-            int rowWidth = baseIndent + _owner.GetScaledBoxSize() + 4 +
-                          (_owner.ShowCheckBox ? _owner.GetScaledBoxSize() + 4 : 0) +
-                          _owner.GetScaledImageSize() + 8 + textSize.Width;
+            // Row bounds - use DrawingRect width as default (nodes span full width)
+            int minRowWidth = textX + textSize.Width + 10;  // Minimum needed for content
+            int rowWidth = Math.Max(minRowWidth, _owner.DrawingRect.Width);  // At least DrawingRect width
             Rectangle rowRect = new Rectangle(0, nodeInfo.Y, rowWidth, rowHeight);
 
             // Update node info
@@ -222,8 +221,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         /// </summary>
         public bool IsNodeInViewport(NodeInfo node)
         {
+            // If viewport height isn't established yet, don't filter anything out
+            // This prevents an empty render when DrawingRect is zero-sized early in the paint pipeline
+            int drawingHeight = _owner.DrawingRect.Height;
+            if (drawingHeight <= 0)
+            {
+                return true;
+            }
+
             int viewportTop = _owner.YOffset;
-            int viewportBottom = _owner.YOffset + _owner.DrawingRect.Height;
+            int viewportBottom = _owner.YOffset + drawingHeight;
 
             int nodeBottom = node.Y + node.RowHeight;
             return nodeBottom >= viewportTop && node.Y <= viewportBottom;

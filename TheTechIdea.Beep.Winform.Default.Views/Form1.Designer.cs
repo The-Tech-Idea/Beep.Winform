@@ -32,8 +32,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            Controls.Forms.ModernForm.Painters.MinimalFormPainter minimalFormPainter1 = new Controls.Forms.ModernForm.Painters.MinimalFormPainter();
-            Controls.Forms.ModernForm.FormPainterMetrics formPainterMetrics1 = new Controls.Forms.ModernForm.FormPainterMetrics();
+            
             beepButton1 = new BeepButton();
             beepComboBox1 = new BeepComboBox();
             beepCard1 = new BeepCard();
@@ -523,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.LeadingImagePath = "";
             beepCard1.LeftoffsetForDrawingRect = 0;
             beepCard1.LinkedProperty = null;
-            beepCard1.Location = new Point(642, 421);
+            beepCard1.Location = new Point(622, 442);
             beepCard1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepCard1.MaterialCustomPadding = new Padding(0);
             beepCard1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -821,7 +820,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.DisabledForeColor = Color.Gray;
             beepTree1.DisableDpiAndScaling = false;
             beepTree1.Dock = DockStyle.Left;
-            beepTree1.DrawingRect = new Rectangle(0, 0, 250, 721);
+            beepTree1.DrawingRect = new Rectangle(5, 5, 228, 736);
             beepTree1.Easing = Vis.Modules.EasingType.Linear;
             beepTree1.EnableHighQualityRendering = true;
             beepTree1.EnableMaterialStyle = false;
@@ -888,7 +887,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.LeadingImagePath = "";
             beepTree1.LeftoffsetForDrawingRect = 0;
             beepTree1.LinkedProperty = null;
-            beepTree1.Location = new Point(0, 40);
+            beepTree1.Location = new Point(10, 50);
             beepTree1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepTree1.MaterialCustomPadding = new Padding(0);
             beepTree1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -904,6 +903,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes1"));
             beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes2"));
             beepTree1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
+            beepTree1.Padding = new Padding(5);
             beepTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
             beepTree1.ParentBackColor = Color.White;
             beepTree1.ParentControl = null;
@@ -932,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.ShowShadow = false;
             beepTree1.ShowTopBorder = false;
             beepTree1.ShowVerticalScrollBar = true;
-            beepTree1.Size = new Size(250, 721);
+            beepTree1.Size = new Size(238, 746);
             beepTree1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepTree1.StaticNotMoving = false;
             beepTree1.TabIndex = 6;
@@ -1125,55 +1125,19 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // Form1
             // 
-            ActivePainter = minimalFormPainter1;
+         
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(946, 761);
+            ClientSize = new Size(972, 806);
             Controls.Add(beepListBox1);
             Controls.Add(beepTree1);
             Controls.Add(beepTextBox1);
             Controls.Add(beepCard1);
             Controls.Add(beepComboBox1);
             Controls.Add(beepButton1);
-            ControlStyle = Winform.Controls.Common.BeepControlStyle.Windows11Mica;
-            EnableAcrylicForGlass = false;
-            formPainterMetrics1.beepTheme = null;
-            formPainterMetrics1.BorderColor = Color.FromArgb(200, 200, 200);
-            formPainterMetrics1.BorderRadius = 4;
-            formPainterMetrics1.BorderRadiusWhenMaximized = 0;
-            formPainterMetrics1.BorderWidth = 1;
-            formPainterMetrics1.ButtonSpacing = 4;
-            formPainterMetrics1.ButtonsPlacement = Winform.Controls.Forms.ModernForm.FormPainterMetrics.SystemButtonsSide.Right;
-            formPainterMetrics1.ButtonWidth = 28;
-            formPainterMetrics1.CaptionButtonColor = Color.FromArgb(33, 150, 243);
-            formPainterMetrics1.CaptionButtonHoverColor = Color.FromArgb(33, 150, 243);
-            formPainterMetrics1.CaptionButtonInactiveColor = Color.LightGray;
-            formPainterMetrics1.CaptionButtonMaximizedColor = Color.FromArgb(33, 150, 243);
-            formPainterMetrics1.CaptionButtonPressedColor = Color.FromArgb(21, 101, 192);
-            formPainterMetrics1.CaptionButtonRadius = 6;
-            formPainterMetrics1.CaptionColor = Color.White;
-            formPainterMetrics1.CaptionHeight = 28;
-            formPainterMetrics1.CaptionMargin = 0;
-            formPainterMetrics1.CaptionTextColor = Color.FromArgb(33, 33, 33);
-            formPainterMetrics1.CaptionTextColorInactive = Color.FromArgb(180, 180, 180);
-            formPainterMetrics1.CaptionTextColorMaximized = Color.FromArgb(33, 150, 243);
-            formPainterMetrics1.FontHeightMultiplier = 2.5F;
-            formPainterMetrics1.IconLeftPadding = 8;
-            formPainterMetrics1.IconSize = 20;
-            formPainterMetrics1.InnerMargin = 0;
-            formPainterMetrics1.InnerMarginWhenMaximized = 0;
-            formPainterMetrics1.OuterMargin = 8;
-            formPainterMetrics1.OuterMarginWhenMaximized = 0;
-            formPainterMetrics1.ResizeBorderWidth = 6;
-            formPainterMetrics1.ShowMailButton = false;
-            formPainterMetrics1.ShowProfileButton = false;
-            formPainterMetrics1.ShowSearchButton = false;
-            formPainterMetrics1.ShowStyleButton = false;
-            formPainterMetrics1.ShowThemeButton = false;
-            formPainterMetrics1.TitleLeftPadding = 8;
-            FormPainterMetrics = formPainterMetrics1;
             Location = new Point(0, 0);
             Name = "Form1";
+            Padding = new Padding(10);
             Text = "Form1";
             ResumeLayout(false);
         }

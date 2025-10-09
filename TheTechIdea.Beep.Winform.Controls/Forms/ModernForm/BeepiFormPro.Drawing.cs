@@ -1,5 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
+using System.Diagnostics;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
@@ -7,9 +9,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
     {
+        // Central design-mode detection (more reliable than DesignMode alone)
+        private static bool IsDesignProcess()
+        {
+            try
+            {
+                string proc = Process.GetCurrentProcess().ProcessName;
+                return proc.Equals("devenv", StringComparison.OrdinalIgnoreCase)
+                       || proc.Equals("Blend", StringComparison.OrdinalIgnoreCase)
+                       || proc.Equals("XDesProc", StringComparison.OrdinalIgnoreCase);
+            }
+            catch { return false; }
+        }
+
+        // Design mode check
+        private bool InDesignMode => DesignMode || IsDesignProcess() || LicenseManager.UsageMode == LicenseUsageMode.Designtime;
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
+            
+            // Skip all custom painting in design mode
+            if (InDesignMode)
+            {
+                // Simple design-time rendering
+                e.Graphics.Clear(BackColor);
+                using var pen = new Pen(Color.Gray, 1);
+                e.Graphics.DrawRectangle(pen, new Rectangle(0, 0, Width - 1, Height - 1));
+                TextRenderer.DrawText(e.Graphics, Text ?? "BeepiFormPro", Font, new Point(8, 8), ForeColor);
+                return;
+            }
 
             // Sync global style used by BeepStyling
             BeepStyling.SetControlStyle(ControlStyle);
@@ -51,9 +80,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
 
             // Paint
-            ActivePainter?.PaintBackground(e.Graphics, this);
-            ActivePainter?.PaintCaption(e.Graphics, this, _layout.CaptionRect);
-            ActivePainter?.PaintBorders(e.Graphics, this);
+            if (ActivePainter != null)
+            {
+                // Paint the background excluding ContentRect
+                var backgroundRegion = new Region(ClientRectangle);
+                backgroundRegion.Exclude(_layout.ContentRect);
+                e.Graphics.Clip = backgroundRegion;
+                ActivePainter.PaintBackground(e.Graphics, this);
+                e.Graphics.ResetClip();
+
+                // Paint the caption bar
+                if (ShowCaptionBar)
+                {
+                    var captionRect = _layout.CaptionRect;
+                    ActivePainter.PaintCaption(e.Graphics, this, captionRect);
+                }
+
+                // Paint the borders
+                ActivePainter.PaintBorders(e.Graphics, this);
+            }
 
             // Draw built-in regions
             if (FormStyle == FormStyle.Modern || FormStyle == FormStyle.Minimal || FormStyle == FormStyle.Material)
@@ -101,17 +146,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            _interact.OnMouseMove(e.Location);
+            
+            // Skip interaction in design mode
+            if (InDesignMode) return;
+            
+            // Only handle mouse events outside the content rect
+            if (!_layout.ContentRect.Contains(e.Location))
+            {
+                _interact.OnMouseMove(e.Location);
+            }
         }
+
         protected override void OnMouseDown(MouseEventArgs e)
         {
             base.OnMouseDown(e);
-            _interact.OnMouseDown(e.Location);
+            
+            // Skip interaction in design mode
+            if (InDesignMode) return;
+            
+            // Only handle mouse events outside the content rect
+            if (!_layout.ContentRect.Contains(e.Location))
+            {
+                _interact.OnMouseDown(e.Location);
+            }
         }
+
         protected override void OnMouseUp(MouseEventArgs e)
         {
             base.OnMouseUp(e);
-            _interact.OnMouseUp(e.Location);
+            
+            // Skip interaction in design mode
+            if (InDesignMode) return;
+            
+            // Only handle mouse events outside the content rect
+            if (!_layout.ContentRect.Contains(e.Location))
+            {
+                _interact.OnMouseUp(e.Location);
+            }
         }
     }
 }

@@ -10,6 +10,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     {
         public BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
         private FormPainterMetrics _formpaintermaterics;
+        // Metrics used for layout and painting; can be set externally or lazy-loaded
+        /// <summary>
+        ///     i dont want to be serialized and persisted with the form
+        /// </summary>
+        /// 
+        [System.ComponentModel.Browsable(false)]
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
         public FormPainterMetrics FormPainterMetrics
         {
             get

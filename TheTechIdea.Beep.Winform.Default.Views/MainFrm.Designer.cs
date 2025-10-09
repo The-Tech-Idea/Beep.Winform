@@ -165,6 +165,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.MenuBarStyle = Winform.Controls.Menus.MenuBarStyle.Fluent;
             beepMenuAppBar1.MenuItemHeight = 20;
             beepMenuAppBar1.MenuItemWidth = 60;
+            beepMenuAppBar1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
             beepMenuAppBar1.ModernGradientType = ModernGradientType.None;
             beepMenuAppBar1.Name = "beepMenuAppBar1";
             beepMenuAppBar1.OverrideFontSize = TypeStyleFontSize.None;
@@ -479,6 +480,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepAppTree1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepAppTree1.MaxHitListDrawPerFrame = 0;
+            beepAppTree1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
             beepAppTree1.ModernGradientType = ModernGradientType.None;
             beepAppTree1.Name = "beepAppTree1";
             beepAppTree1.ObjectType = "Beep";
@@ -486,7 +488,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Classic;
             beepAppTree1.ParentBackColor = Color.White;
             beepAppTree1.ParentControl = null;
-        
             beepAppTree1.PressedBackColor = Color.Gray;
             beepAppTree1.PressedBorderColor = Color.DarkGray;
             beepAppTree1.PressedForeColor = Color.White;
@@ -503,7 +504,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.SelectedForeColor = Color.Black;
             beepAppTree1.SelectedValue = null;
             beepAppTree1.SelectIcon = "Select.svg";
-            beepAppTree1.SeqID = 3;
+            beepAppTree1.SeqID = 5;
             beepAppTree1.ShadowColor = Color.FromArgb(50, 0, 0, 0);
             beepAppTree1.ShadowOffset = 3;
             beepAppTree1.ShadowOpacity = 0.25F;
@@ -554,6 +555,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepAppTree1);
             Controls.Add(beepMenuAppBar1);
             Name = "MainFrm";
+            Padding = new Padding(10);
             ShowStyleButton = true;
             ShowThemeButton = true;
             StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("MainFrm.StylePresets.Presets");

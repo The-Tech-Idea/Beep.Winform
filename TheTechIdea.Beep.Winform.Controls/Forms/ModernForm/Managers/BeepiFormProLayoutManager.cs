@@ -36,11 +36,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 var r = _owner.ClientRectangle;
 
                 // Pull metrics from painter if available; otherwise pick defaults per FormStyle
-              _owner.FormPainterMetrics = FormPainterMetrics.DefaultFor(_owner.FormStyle,_owner.CurrentTheme);
+                _owner.FormPainterMetrics = FormPainterMetrics.DefaultFor(_owner.FormStyle, _owner.CurrentTheme);
                 if (_owner.ActivePainter is TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters.IFormPainterMetricsProvider provider)
                 {
                     var pm = provider.GetMetrics(_owner);
-                    if (pm != null)  _owner.FormPainterMetrics = pm;
+                    if (pm != null) _owner.FormPainterMetrics = pm;
                 }
 
                 // Sync painter-controlled visibility flags to owner toggles if desired
@@ -52,15 +52,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 
                 // DPI-aware caption height: use metrics.CaptionHeight when caption is shown
                 int captionH = _owner.ShowCaptionBar
-                    ? System.Math.Max(_owner.ScaleDpi(_owner.FormPainterMetrics.CaptionHeight), (int)(_owner.Font.Height *  _owner.FormPainterMetrics.FontHeightMultiplier))
+                    ? System.Math.Max(_owner.ScaleDpi(_owner.FormPainterMetrics.CaptionHeight), (int)(_owner.Font.Height * _owner.FormPainterMetrics.FontHeightMultiplier))
                     : 0;
 
                 int bottomH = 0; // start at 0; regions can use Bottom dock
+                int borderWidth = _owner.ScaleDpi(_owner.FormPainterMetrics.BorderWidth);
+
                 CaptionRect = new Rectangle(r.Left, r.Top, r.Width, captionH);
                 BottomRect = new Rectangle(r.Left, r.Bottom - bottomH, r.Width, bottomH);
-                LeftRect = new Rectangle(r.Left, CaptionRect.Bottom, 0, r.Height - captionH - bottomH);
-                RightRect = new Rectangle(r.Right, CaptionRect.Bottom, 0, r.Height - captionH - bottomH);
-                ContentRect = Rectangle.FromLTRB(r.Left, CaptionRect.Bottom, r.Right, r.Bottom - bottomH);
+                LeftRect = new Rectangle(r.Left, CaptionRect.Bottom, borderWidth, r.Height - captionH - bottomH);
+                RightRect = new Rectangle(r.Right - borderWidth, CaptionRect.Bottom, borderWidth, r.Height - captionH - bottomH);
+                ContentRect = Rectangle.FromLTRB(r.Left + borderWidth, CaptionRect.Bottom, r.Right - borderWidth, r.Bottom - bottomH);
 
                 if (!_owner.ShowCaptionBar)
                 {

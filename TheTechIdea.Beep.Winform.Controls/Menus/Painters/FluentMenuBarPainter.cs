@@ -20,13 +20,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (ctx == null) ctx = new MenuBarContext();
             UpdateContextColors(ctx);
 
-            ctx.CornerRadius = 10; // softer rounding
+            ctx.CornerRadius = ScaleValue(10); // softer rounding
             ctx.DrawingRect = drawingRect;
-            ctx.ContentRect = Rectangle.Inflate(drawingRect, -8, -6);
+            ctx.ContentRect = Rectangle.Inflate(drawingRect, -ScaleValue(8), -ScaleValue(6));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.ItemHeight = Math.Max(34, ctx.ItemHeight);
-            ctx.ItemSpacing = 6;
-            ctx.ItemPadding = 14;
+            ctx.ItemHeight = Math.Max(ScaleValue(34), ctx.ItemHeight);
+            ctx.ItemSpacing = ScaleValue(6);
+            ctx.ItemPadding = ScaleValue(14);
 
             CalculateItemRects(ctx);
             return ctx;
@@ -83,8 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                     catch
                     {
                         using var b = new SolidBrush(Color.FromArgb(isSelected ? 220 : 150, fore));
-                        using var p = new Pen(fore, 1.5f);
-                        var inner = Rectangle.Inflate(layout.IconRect, -3, -3);
+                        using var p = new Pen(fore, (float)ScaleValue(2) * 0.75f);
+                        var inner = Rectangle.Inflate(layout.IconRect, -ScaleValue(3), -ScaleValue(3));
                         if (inner.Width > 0 && inner.Height > 0)
                         {
                             g.FillEllipse(b, inner);
@@ -239,13 +239,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private int CalculateFluentItemWidth(SimpleItem item, Font font, Size iconSize, bool showIcons, bool showDropdown)
         {
-            if (item == null || font == null) return 100;
+            if (item == null || font == null) return ScaleValue(100);
 
             int width = 0;
-            const int padding = 28; // Fluent design padding
-            const int iconSpacing = 8;
-            const int dropdownSpacing = 6;
-            const int dropdownWidth = 12;
+            int padding = ScaleValue(28); // Fluent design padding
+            int iconSpacing = ScaleValue(8);
+            int dropdownSpacing = ScaleValue(6);
+            int dropdownWidth = ScaleValue(12);
 
             // Icon width
             if (showIcons && !string.IsNullOrEmpty(item.ImagePath))
@@ -269,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Apply padding and ensure minimum width
             width += padding;
-            return Math.Max(width, 90); // Fluent minimum width
+            return Math.Max(width, ScaleValue(90)); // Fluent minimum width
         }
 
         private void CalculateItemRects(MenuBarContext ctx)

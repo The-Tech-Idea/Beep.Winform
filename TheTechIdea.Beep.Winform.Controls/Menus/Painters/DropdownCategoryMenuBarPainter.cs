@@ -29,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             UpdateContextColors(ctx);
             ctx.DrawingRect = drawingRect;
 
-            int padding = 8;
+            int padding = ScaleValue(8);
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
             ctx.MenuItemsRect = ctx.ContentRect;
 
@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Draw border
             using var borderPen = new Pen(GetBorderColor());
             g.DrawRectangle(borderPen, ctx.DrawingRect.X, ctx.DrawingRect.Y,
-                ctx.DrawingRect.Width - 1, ctx.DrawingRect.Height - 1);
+                ctx.DrawingRect.Width - ScaleValue(1), ctx.DrawingRect.Height - ScaleValue(1));
         }
 
         public override void DrawContent(Graphics g, MenuBarContext ctx)
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             {
                 if (IsAreaHovered($"Category_{i}"))
                 {
-                    DrawHoverEffect(g, _categoryRects[i], GetHoverBackgroundColor(), 4);
+                    DrawHoverEffect(g, _categoryRects[i], GetHoverBackgroundColor(), ScaleValue(4));
                 }
             }
 
@@ -94,7 +94,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             {
                 if (IsAreaHovered($"DropdownItem_{i}"))
                 {
-                    DrawHoverEffect(g, _dropdownItemRects[i], GetHoverBackgroundColor(), 2);
+                    DrawHoverEffect(g, _dropdownItemRects[i], GetHoverBackgroundColor(), ScaleValue(2));
                 }
             }
         }
@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int x = ctx.ContentRect.X;
             int y = ctx.ContentRect.Y;
             int height = ctx.ItemHeight;
-            int spacing = 4;
+            int spacing = ScaleValue(4);
 
             foreach (var item in ctx.MenuItems)
             {
@@ -179,19 +179,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private int MeasureCategoryWidth(SimpleItem item, MenuBarContext ctx)
         {
-            if (item == null) return 80;
+            if (item == null) return ScaleValue(80);
 
             using var bmp = new Bitmap(1, 1);
             using var g = Graphics.FromImage(bmp);
             var textSize = g.MeasureString(item.Text ?? "", ctx.TextFont);
 
-            int width = (int)Math.Ceiling(textSize.Width) + 40; // Padding + arrow space
+            int width = (int)Math.Ceiling(textSize.Width) + ScaleValue(40); // Padding + arrow space
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                width += ctx.IconSize.Width + 8;
+                width += ctx.IconSize.Width + ScaleValue(8);
             }
 
-            return Math.Max(width, 80);
+            return Math.Max(width, ScaleValue(80));
         }
 
         private void DrawCategoryButton(Graphics g, Rectangle rect, SimpleItem item, MenuBarContext ctx, int index, bool isOpen)
@@ -211,21 +211,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             }
 
             // Icon
-            int iconX = rect.X + 8;
+            int iconX = rect.X + ScaleValue(8);
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
                 var iconRect = new Rectangle(iconX, rect.Y + (rect.Height - ctx.IconSize.Height) / 2,
                     ctx.IconSize.Width, ctx.IconSize.Height);
                 var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
                 MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
-                iconX += ctx.IconSize.Width + 8;
+                iconX += ctx.IconSize.Width + ScaleValue(8);
             }
 
             // Text
             var textColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
             using (var brush = new SolidBrush(textColor))
             {
-                var textRect = new Rectangle(iconX, rect.Y, rect.Width - (iconX - rect.X) - 20, rect.Height);
+                var textRect = new Rectangle(iconX, rect.Y, rect.Width - (iconX - rect.X) - ScaleValue(20), rect.Height);
                 var sf = new StringFormat { Alignment = StringAlignment.Near, LineAlignment = StringAlignment.Center };
                 g.DrawString(item.Text ?? "", ctx.TextFont, brush, textRect, sf);
             }
@@ -239,11 +239,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawDropdownArrow(Graphics g, Rectangle rect, bool isOpen)
         {
-            int arrowSize = 6;
-            int arrowX = rect.Right - 12;
+            int arrowSize = ScaleValue(6);
+            int arrowX = rect.Right - ScaleValue(12);
             int arrowY = rect.Y + rect.Height / 2;
 
-            using var pen = new Pen(GetItemForegroundColor(), 2);
+            using var pen = new Pen(GetItemForegroundColor(), ScaleValue(2));
             if (isOpen)
             {
                 // Up arrow
@@ -269,10 +269,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             
             // Calculate dropdown position and size
             int dropdownX = categoryRect.X;
-            int dropdownY = categoryRect.Bottom + 2;
-            int dropdownWidth = 200;
+            int dropdownY = categoryRect.Bottom + ScaleValue(2);
+            int dropdownWidth = ScaleValue(200);
             int itemHeight = ctx.ItemHeight;
-            int dropdownHeight = children.Count * itemHeight + 8;
+            int dropdownHeight = children.Count * itemHeight + ScaleValue(8);
 
             var dropdownRect = new Rectangle(dropdownX, dropdownY, dropdownWidth, dropdownHeight);
 
@@ -289,11 +289,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Draw dropdown items
             _dropdownItemRects.Clear();
-            int y = dropdownRect.Y + 4;
+            int y = dropdownRect.Y + ScaleValue(4);
 
             foreach (var child in children)
             {
-                var itemRect = new Rectangle(dropdownRect.X + 4, y, dropdownRect.Width - 8, itemHeight);
+                var itemRect = new Rectangle(dropdownRect.X + ScaleValue(4), y, dropdownRect.Width - ScaleValue(8), itemHeight);
                 _dropdownItemRects.Add(itemRect);
                 DrawDropdownItem(g, itemRect, child, ctx);
                 y += itemHeight;
@@ -303,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         private void DrawDropdownShadow(Graphics g, Rectangle rect)
         {
             // Simple shadow effect
-            var shadowRect = new Rectangle(rect.X + 4, rect.Y + 4, rect.Width, rect.Height);
+            var shadowRect = new Rectangle(rect.X + ScaleValue(4), rect.Y + ScaleValue(4), rect.Width, rect.Height);
             using var shadowBrush = new SolidBrush(Color.FromArgb(50, 0, 0, 0));
             g.FillRectangle(shadowBrush, shadowRect);
         }
@@ -320,13 +320,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             }
 
             // Icon
-            int iconX = rect.X + 4;
+            int iconSize = ScaleValue(16);
+            int iconX = rect.X + ScaleValue(4);
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                var iconRect = new Rectangle(iconX, rect.Y + (rect.Height - 16) / 2, 16, 16);
+                var iconRect = new Rectangle(iconX, rect.Y + (rect.Height - iconSize) / 2, iconSize, iconSize);
                 var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
                 MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
-                iconX += 24;
+                iconX += ScaleValue(24);
             }
 
             // Text

@@ -27,11 +27,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             UpdateContextColors(ctx);
             
             ctx.DrawingRect = drawingRect;
-            ctx.ContentRect = Rectangle.Inflate(drawingRect, -8, -4);
+            ctx.ContentRect = Rectangle.Inflate(drawingRect, -ScaleValue(8), -ScaleValue(4));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.CornerRadius = 4;
+            ctx.CornerRadius = ScaleValue(4);
             ctx.ItemSpacing = 0; // No spacing for breadcrumbs
-            ctx.ItemPadding = 12;
+            ctx.ItemPadding = ScaleValue(12);
 
             CalculateBreadcrumbRects(ctx);
             return ctx;
@@ -133,18 +133,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int itemY = ctx.MenuItemsRect.Y + (ctx.MenuItemsRect.Height - ctx.ItemHeight) / 2;
 
             // Home icon area
-            _homeRect = new Rectangle(currentX, itemY, 24, ctx.ItemHeight);
-            currentX += 32;
+            _homeRect = new Rectangle(currentX, itemY, ScaleValue(24), ctx.ItemHeight);
+            currentX += ScaleValue(32);
 
             // Calculate breadcrumb item rectangles
             foreach (var item in ctx.MenuItems)
             {
                 int itemWidth = MenuBarRenderingHelpers.CalculateMenuItemWidth(item, ctx.ItemHeight, ctx.TextFont);
-                itemWidth += 20; // Extra space for chevron
+                itemWidth += ScaleValue(20); // Extra space for chevron
 
                 var itemRect = new Rectangle(currentX, itemY, itemWidth, ctx.ItemHeight);
                 _itemRects.Add(itemRect);
-                currentX += itemWidth + 4;
+                currentX += itemWidth + ScaleValue(4);
 
                 if (currentX >= ctx.MenuItemsRect.Right) break;
             }
@@ -163,17 +163,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             using var brush = new SolidBrush(color);
             using var pen = new Pen(color, 1.5f);
 
-            var iconRect = new Rectangle(rect.X + 4, rect.Y + rect.Height / 4, 16, 16);
+            var iconRect = new Rectangle(rect.X + ScaleValue(4), rect.Y + rect.Height / 4, ScaleValue(16), ScaleValue(16));
             
             // Draw house shape
             var points = new Point[]
             {
-                new Point(iconRect.X + 8, iconRect.Y + 2),
-                new Point(iconRect.X + 2, iconRect.Y + 8),
-                new Point(iconRect.X + 14, iconRect.Y + 8),
-                new Point(iconRect.X + 14, iconRect.Bottom - 2),
-                new Point(iconRect.X + 2, iconRect.Bottom - 2),
-                new Point(iconRect.X + 2, iconRect.Y + 8)
+                new Point(iconRect.X + ScaleValue(8), iconRect.Y + ScaleValue(2)),
+                new Point(iconRect.X + ScaleValue(2), iconRect.Y + ScaleValue(8)),
+                new Point(iconRect.X + ScaleValue(14), iconRect.Y + ScaleValue(8)),
+                new Point(iconRect.X + ScaleValue(14), iconRect.Bottom - ScaleValue(2)),
+                new Point(iconRect.X + ScaleValue(2), iconRect.Bottom - ScaleValue(2)),
+                new Point(iconRect.X + ScaleValue(2), iconRect.Y + ScaleValue(8))
             };
             g.DrawLines(pen, points);
         }
@@ -196,7 +196,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 LineAlignment = StringAlignment.Center
             };
 
-            var textRect = new Rectangle(rect.X + 8, rect.Y, rect.Width - 28, rect.Height);
+            var textRect = new Rectangle(rect.X + ScaleValue(8), rect.Y, rect.Width - ScaleValue(28), rect.Height);
             g.DrawString(item.Text, ctx.TextFont, brush, textRect, format);
         }
 
@@ -204,7 +204,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             // Draw chevron separator
             MenuBarRenderingHelpers.DrawBreadcrumbSeparator(g, 
-                new Rectangle(itemRect.Right - 16, itemRect.Y + itemRect.Height / 2 - 6, 12, 12), 
+                new Rectangle(itemRect.Right - ScaleValue(16), itemRect.Y + itemRect.Height / 2 - ScaleValue(6), ScaleValue(12), ScaleValue(12)), 
                 Color.FromArgb(150, color));
         }
         #endregion

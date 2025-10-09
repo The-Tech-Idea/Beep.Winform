@@ -221,10 +221,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             _hitTest.AddHitArea(name, component, hitAction);
         public void AddHitArea(string name, Rectangle rect, IBeepUIComponent component = null, Action hitAction = null) => 
             _hitTest.AddHitArea(name, rect, component, hitAction);
-        public void AddHitTest(Control childControl) => _hitTest.AddHitTest(childControl);
-        public void RemoveHitTest(ControlHitTest hitTest) => _hitTest.RemoveHitTest(hitTest);
-        public void ClearHitList() => _hitTest.ClearHitList();
-        public void UpdateHitTest(ControlHitTest hitTest) => _hitTest.UpdateHitTest(hitTest);
+        public void AddHitTest(Control childControl) => _hitTest?.AddHitTest(childControl);
+        public void RemoveHitTest(ControlHitTest hitTest) => _hitTest?.RemoveHitTest(hitTest);
+        public void ClearHitList() => _hitTest?.ClearHitList();
+        public void UpdateHitTest(ControlHitTest hitTest) => _hitTest?.UpdateHitTest(hitTest);
         public bool HitTest(Point location) => _hitTest.HitTest(location);
         public bool HitTest(Point location, out ControlHitTest hitTest) => _hitTest.HitTest(location, out hitTest);
         public bool HitTest(Rectangle rectangle, out ControlHitTest hitTest) => _hitTest.HitTest(rectangle, out hitTest);

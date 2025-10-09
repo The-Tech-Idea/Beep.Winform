@@ -18,9 +18,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         private Dictionary<string, List<SimpleItem>> _categorizedItems = new Dictionary<string, List<SimpleItem>>();
         private List<Rectangle> _iconRects = new List<Rectangle>();
         private List<SimpleItem> _flatItems = new List<SimpleItem>();
-        private const int ICON_SIZE = 48;
-        private const int GRID_SPACING = 16;
-        private const int CATEGORY_HEADER_HEIGHT = 32;
         #endregion
 
         #region MenuBarPainterBase Implementation
@@ -32,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             UpdateContextColors(ctx);
             ctx.DrawingRect = drawingRect;
 
-            int padding = 16;
+            int padding = ScaleValue(16);
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
             ctx.MenuItemsRect = ctx.ContentRect;
 
@@ -71,7 +68,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 // Draw icons in this category
                 y = DrawCategoryIcons(g, category.Value, y, ctx);
 
-                y += GRID_SPACING; // Space between categories
+                y += ScaleValue(16); // Space between categories
             }
         }
 
@@ -158,7 +155,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (ctx.ContentRect.IsEmpty) return;
 
             int availableWidth = ctx.ContentRect.Width;
-            int iconCellWidth = ICON_SIZE + GRID_SPACING;
+            int iconSize = ScaleValue(48);
+            int gridSpacing = ScaleValue(16);
+            int categoryHeaderHeight = ScaleValue(32);
+            int iconCellWidth = iconSize + gridSpacing;
             int iconsPerRow = Math.Max(1, availableWidth / iconCellWidth);
 
             int x = ctx.ContentRect.X;
@@ -167,13 +167,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             foreach (var category in _categorizedItems)
             {
                 // Account for category header
-                y += CATEGORY_HEADER_HEIGHT + 8;
+                y += categoryHeaderHeight + ScaleValue(8);
 
                 int col = 0;
                 foreach (var item in category.Value)
                 {
-                    int iconX = x + col * iconCellWidth + (iconCellWidth - ICON_SIZE) / 2;
-                    var iconRect = new Rectangle(iconX, y, ICON_SIZE, ICON_SIZE + 20); // Extra space for text
+                    int iconX = x + col * iconCellWidth + (iconCellWidth - iconSize) / 2;
+                    var iconRect = new Rectangle(iconX, y, iconSize, iconSize + ScaleValue(20)); // Extra space for text
 
                     _iconRects.Add(iconRect);
                     _flatItems.Add(item);
@@ -182,23 +182,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                     if (col >= iconsPerRow)
                     {
                         col = 0;
-                        y += ICON_SIZE + 24 + GRID_SPACING; // Icon + text + spacing
+                        y += iconSize + ScaleValue(24) + gridSpacing; // Icon + text + spacing
                     }
                 }
 
                 // Move to next row if not at start of row
                 if (col > 0)
                 {
-                    y += ICON_SIZE + 24 + GRID_SPACING;
+                    y += iconSize + ScaleValue(24) + gridSpacing;
                 }
 
-                y += GRID_SPACING; // Extra space between categories
+                y += gridSpacing; // Extra space between categories
             }
         }
 
         private int DrawCategoryHeader(Graphics g, string categoryName, int y, MenuBarContext ctx)
         {
-            var headerRect = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, CATEGORY_HEADER_HEIGHT);
+            int categoryHeaderHeight = ScaleValue(32);
+            var headerRect = new Rectangle(ctx.ContentRect.X, y, ctx.ContentRect.Width, categoryHeaderHeight);
 
             // Draw category name
             using (var font = new Font(ctx.TextFont.FontFamily, ctx.TextFont.Size + 1, FontStyle.Bold))
@@ -223,7 +224,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (items == null || items.Count == 0) return startY;
 
             int availableWidth = ctx.ContentRect.Width;
-            int iconCellWidth = ICON_SIZE + GRID_SPACING;
+            int iconSize = ScaleValue(48);
+            int gridSpacing = ScaleValue(16);
+            int iconCellWidth = iconSize + gridSpacing;
             int iconsPerRow = Math.Max(1, availableWidth / iconCellWidth);
 
             int x = ctx.ContentRect.X;
@@ -232,8 +235,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             foreach (var item in items)
             {
-                int iconX = x + col * iconCellWidth + (iconCellWidth - ICON_SIZE) / 2;
-                var iconRect = new Rectangle(iconX, y, ICON_SIZE, ICON_SIZE);
+                int iconX = x + col * iconCellWidth + (iconCellWidth - iconSize) / 2;
+                var iconRect = new Rectangle(iconX, y, iconSize, iconSize);
 
                 // Draw icon
                 if (!string.IsNullOrEmpty(item.ImagePath))
@@ -251,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 }
 
                 // Draw text below icon
-                var textRect = new Rectangle(iconX - 10, y + ICON_SIZE + 4, ICON_SIZE + 20, 20);
+                var textRect = new Rectangle(iconX - ScaleValue(10), y + iconSize + ScaleValue(4), iconSize + ScaleValue(20), ScaleValue(20));
                 var textColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
                 using (var brush = new SolidBrush(textColor))
                 using (var font = new Font(ctx.TextFont.FontFamily, ctx.TextFont.Size - 1))
@@ -269,14 +272,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 if (col >= iconsPerRow)
                 {
                     col = 0;
-                    y += ICON_SIZE + 24 + GRID_SPACING;
+                    y += iconSize + ScaleValue(24) + gridSpacing;
                 }
             }
 
             // Move to next row if not at start of row
             if (col > 0)
             {
-                y += ICON_SIZE + 24 + GRID_SPACING;
+                y += iconSize + ScaleValue(24) + gridSpacing;
             }
 
             return y;

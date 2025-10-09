@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -16,27 +17,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int pad = (int)(8 * scale); int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 8 * scale)) : 0; int buttons = _showButtons ? 3 : 0; rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; leftInset = pad;
+            int pad = DpiScalingHelper.ScaleValue(8, scale); 
+            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale))) : 0; 
+            int buttons = _showButtons ? 3 : 0; 
+            rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; 
+            leftInset = pad;
         }
         public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
-            invalidatedArea = Rectangle.Empty; if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(10 * scale); int btn = Math.Max(26, (int)(_captionHeight() - 6 * scale)); int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
-            int x = captionBounds.Right - pad - btn; _closeRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _maxRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _minRect = new Rectangle(x, top, btn, btn);
+            invalidatedArea = Rectangle.Empty; 
+            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
+            int pad = DpiScalingHelper.ScaleValue(10, scale); 
+            int btn = Math.Max(26, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(6, scale))); 
+            int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
+            int x = captionBounds.Right - pad - btn; 
+            _closeRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _maxRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _minRect = new Rectangle(x, top, btn, btn);
             
             // Modern Corporate: professional tones with subtle depth using theme colors
             Color foreColor = theme?.AppBarButtonForeColor ?? _host.ForeColor;
             Color hoverColor = theme?.ButtonHoverBackColor ?? Color.FromArgb(224, 224, 224);
             using var pen = new Pen(foreColor, 1.8f * scale);
-            int radius = (int)(4 * scale);
+            int radius = DpiScalingHelper.ScaleValue(4, scale);
 
             if (_hoverMin) 
             { 
                 using var hb = new SolidBrush(hoverColor); 
                 g.FillRoundedRectangle(hb, _minRect, radius);
                 // Subtle shadow for depth
+                int shadowOffset = DpiScalingHelper.ScaleValue(1, scale);
                 using var shadowBrush = new SolidBrush(Color.FromArgb(15, Color.Black));
-                var shadowRect = new Rectangle(_minRect.X + 1, _minRect.Y + 1, _minRect.Width, _minRect.Height);
+                var shadowRect = new Rectangle(_minRect.X + shadowOffset, _minRect.Y + shadowOffset, _minRect.Width, _minRect.Height);
                 g.FillRoundedRectangle(shadowBrush, shadowRect, radius);
             }
             CaptionGlyphProvider.DrawMinimize(g, pen, _minRect, scale);
@@ -45,8 +59,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             { 
                 using var hb = new SolidBrush(hoverColor); 
                 g.FillRoundedRectangle(hb, _maxRect, radius);
+                int shadowOffset = DpiScalingHelper.ScaleValue(1, scale);
                 using var shadowBrush = new SolidBrush(Color.FromArgb(15, Color.Black));
-                var shadowRect = new Rectangle(_maxRect.X + 1, _maxRect.Y + 1, _maxRect.Width, _maxRect.Height);
+                var shadowRect = new Rectangle(_maxRect.X + shadowOffset, _maxRect.Y + shadowOffset, _maxRect.Width, _maxRect.Height);
                 g.FillRoundedRectangle(shadowBrush, shadowRect, radius);
             }
             if (windowState == FormWindowState.Maximized) CaptionGlyphProvider.DrawRestore(g, pen, _maxRect, scale); else CaptionGlyphProvider.DrawMaximize(g, pen, _maxRect, scale);

@@ -29,8 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Main drawing rectangle
             ctx.DrawingRect = drawingRect;
 
-            // Content rectangle with padding
-            int padding = 4;
+            // Content rectangle with DPI-scaled padding
+            int padding = ScaleValue(4);
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
 
             // For classic style, we don't need separate title/actions areas
@@ -130,13 +130,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         #region Private Methods
         private int CalculateClassicItemWidth(SimpleItem item, Font font, Size iconSize, bool showIcons, bool showDropdown)
         {
-            if (item == null || font == null) return 80;
+            if (item == null || font == null) return ScaleValue(80);
 
             int width = 0;
-            const int padding = 24; // Classic design padding
-            const int iconSpacing = 6;
-            const int dropdownSpacing = 6;
-            const int dropdownWidth = 12;
+            // Use DPI-scaled values instead of hardcoded constants
+            int padding = ScaleValue(24); // Classic design padding
+            int iconSpacing = ScaleValue(6);
+            int dropdownSpacing = ScaleValue(6);
+            int dropdownWidth = ScaleValue(12);
 
             // Icon width
             if (showIcons && !string.IsNullOrEmpty(item.ImagePath))
@@ -160,7 +161,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Apply padding and ensure minimum width
             width += padding;
-            return Math.Max(width, 80); // Classic minimum width
+            return Math.Max(width, ScaleValue(80)); // Classic minimum width
         }
 
         private void CalculateMenuItemRects(MenuBarContext ctx)

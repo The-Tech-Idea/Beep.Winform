@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -28,8 +29,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int pad = (int)(8 * scale);
-            int btn = _showButtons ? Math.Max(26, (int)(_captionHeight() - 6 * scale)) : 0; // a little bigger
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = _showButtons ? Math.Max(26, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(6, scale))) : 0; // a little bigger
             int buttons = _showButtons ? 3 : 0;
             rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad;
             leftInset = pad;
@@ -39,8 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         {
             invalidatedArea = Rectangle.Empty;
             if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(8 * scale);
-            int btn = Math.Max(28, (int)(_captionHeight() - 4 * scale)); // Larger buttons
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = Math.Max(28, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(4, scale))); // Larger buttons
             int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
 
             int x = captionBounds.Right - pad - btn;

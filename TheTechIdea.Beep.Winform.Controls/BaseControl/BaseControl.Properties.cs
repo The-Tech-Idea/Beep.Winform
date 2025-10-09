@@ -154,10 +154,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
 
         #region DPI Scaling Support
-        [Browsable(true)]
         [Category("DPI/Scaling")]
+        [Browsable(false)]
         [Description("Disable all DPI/scaling logic for this control (AutoScale, DPI-based size/font scaling).")]
     private bool _disableDpiAndScaling = false; // default opt-out of custom scaling
+        [Category("DPI/Scaling")]
+        [Browsable(false)]
         public bool DisableDpiAndScaling
         {
             get => _disableDpiAndScaling;
@@ -169,6 +171,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
 
+        [Category("DPI/Scaling")]
+        [Browsable(false)]
         protected float DpiScaleFactor => DisableDpiAndScaling || _dpi == null ? 1.0f : _dpi.DpiScaleFactor;
 
         protected virtual void UpdateDpiScaling(Graphics g)
@@ -179,6 +183,141 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public int ScaleValue(int value) => (DisableDpiAndScaling || _dpi == null) ? value : _dpi.ScaleValue(value);
         public Size ScaleSize(Size size) => (DisableDpiAndScaling || _dpi == null) ? size : _dpi.ScaleSize(size);
         public Font ScaleFont(Font font) => (DisableDpiAndScaling || _dpi == null) ? font : _dpi.ScaleFont(font);
+        public Padding ScalePadding(Padding padding) => (DisableDpiAndScaling || _dpi == null) ? padding : _dpi.ScalePadding(padding);
+        public Rectangle ScaleRectangle(Rectangle rect) => (DisableDpiAndScaling || _dpi == null) ? rect : _dpi.ScaleRectangle(rect);
+        public Point ScalePoint(Point point) => (DisableDpiAndScaling || _dpi == null) ? point : new Point(_dpi.ScaleValue(point.X), _dpi.ScaleValue(point.Y));
+        public SizeF ScaleSizeF(SizeF size) => (DisableDpiAndScaling || _dpi == null) ? size : _dpi.ScaleSize(size);
+    public PointF ScalePointF(PointF point) => (DisableDpiAndScaling || _dpi == null) ? point : new PointF(_dpi.ScaleValue(point.X), _dpi.ScaleValue(point.Y));
+
+        /// <summary>
+        /// Returns a scaled image size based on the current DPI scale.
+        /// </summary>
+        public Size GetScaledImageSize(Size baseSize) => (DisableDpiAndScaling || _dpi == null) ? baseSize : _dpi.ScaleSize(baseSize);
+
+        /// <summary>
+        /// Returns a scaled image size based on the current DPI scale.
+        /// </summary>
+        public Size GetScaledImageSize(int width, int height) => GetScaledImageSize(new Size(width, height));
+
+        /// <summary>
+        /// Sets an ImageList's ImageSize to a DPI-scaled size derived from a base design-time size.
+        /// Note: This only updates ImageSize; callers are responsible for providing images at appropriate resolutions if needed.
+        /// </summary>
+        public void SetImageListScaledSize(System.Windows.Forms.ImageList imageList, Size baseImageSize)
+        {
+            if (imageList == null) return;
+            var scaled = GetScaledImageSize(baseImageSize);
+            if (imageList.ImageSize != scaled)
+            {
+                imageList.ImageSize = scaled;
+            }
+        }
+
+        /// <summary>
+        /// Sets an ImageList's ImageSize to a DPI-scaled size using width/height.
+        /// </summary>
+        public void SetImageListScaledSize(System.Windows.Forms.ImageList imageList, int width, int height)
+        {
+            SetImageListScaledSize(imageList, new Size(width, height));
+        }
+
+        /// <summary>
+        /// Rescales the images currently in the ImageList to the specified target size using high-quality resampling,
+        /// preserving image keys when possible. This helps avoid blurring when DPI increases.
+        /// </summary>
+        public void RescaleImageListImages(System.Windows.Forms.ImageList imageList, Size targetSize)
+        {
+            if (imageList == null) return;
+            if (targetSize.Width <= 0 || targetSize.Height <= 0) return;
+
+            // Capture existing images and keys
+            var count = imageList.Images?.Count ?? 0;
+            if (count == 0)
+            {
+                imageList.ImageSize = targetSize;
+                return;
+            }
+
+            var keys = imageList.Images.Keys;
+            var originals = new System.Drawing.Image[count];
+            for (int i = 0; i < count; i++)
+            {
+                try { originals[i] = (System.Drawing.Image)imageList.Images[i]?.Clone(); } catch { originals[i] = imageList.Images[i]; }
+            }
+
+            // Adjust list settings first so newly added images follow the target size
+            var originalColorDepth = imageList.ColorDepth;
+            var originalTransparentColor = imageList.TransparentColor;
+            imageList.ImageSize = targetSize;
+            imageList.ColorDepth = originalColorDepth; // preserve
+            imageList.TransparentColor = originalTransparentColor;
+
+            // Rebuild images at the new size
+            imageList.Images.Clear();
+            for (int i = 0; i < count; i++)
+            {
+                var src = originals[i];
+                if (src == null)
+                {
+                    imageList.Images.Add(new System.Drawing.Bitmap(targetSize.Width, targetSize.Height));
+                    continue;
+                }
+
+                using (var bmp = new System.Drawing.Bitmap(targetSize.Width, targetSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
+                using (var g = System.Drawing.Graphics.FromImage(bmp))
+                {
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                    g.Clear(System.Drawing.Color.Transparent);
+                    g.DrawImage(src, new System.Drawing.Rectangle(0, 0, targetSize.Width, targetSize.Height));
+
+                    var key = (keys != null && i < keys.Count) ? keys[i] : null;
+                    if (!string.IsNullOrEmpty(key))
+                    {
+                        imageList.Images.Add(key, (System.Drawing.Image)bmp.Clone());
+                    }
+                    else
+                    {
+                        imageList.Images.Add((System.Drawing.Image)bmp.Clone());
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Rescales ImageList images based on a base design-time size and current DPI.
+        /// </summary>
+        public void RescaleImageListImagesForCurrentDpi(System.Windows.Forms.ImageList imageList, Size baseImageSize)
+        {
+            var target = GetScaledImageSize(baseImageSize);
+            RescaleImageListImages(imageList, target);
+        }
+
+    [Category("DPI/Scaling")]
+    [Browsable(false)]
+    public int CurrentDpi => (DisableDpiAndScaling || _dpi == null) ? 96 : _dpi.CurrentDpi;
+
+    /// <summary>
+    /// Raised when the DPI scaling factor changes (per-monitor DPI changes, window moved between monitors, etc.).
+    /// Override OnDpiChanged in derived controls to react directly.
+    /// Hidden from the designer's Events list; intended for runtime use.
+    /// </summary>
+    [Category("DPI/Scaling")]
+    [Browsable(false)]
+    public event EventHandler DpiChanged;
+
+        protected virtual void OnDpiChanged()
+        {
+            DpiChanged?.Invoke(this, EventArgs.Empty);
+        }
+
+        // Internal hook used by ControlDpiHelper to raise the public event and virtual method.
+        internal void OnDpiChangedInternal()
+        {
+            OnDpiChanged();
+        }
         #endregion
 
         #region Theme Management

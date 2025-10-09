@@ -193,16 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.Theme = "DefaultType";
             _logoImage.ToolTipText = "";
             _logoImage.TopoffsetForDrawingRect = 0;
-            _logoImage.UIAnimation = ReactUIAnimation.None;
-            _logoImage.UIColor = ReactUIColor.Primary;
-            _logoImage.UICustomElevation = 0;
-            _logoImage.UIDensity = ReactUIDensity.Standard;
-            _logoImage.UIDisabled = false;
-            _logoImage.UIElevation = ReactUIElevation.None;
-            _logoImage.UIFullWidth = false;
-            _logoImage.UIShape = ReactUIShape.Rounded;
-            _logoImage.UISize = ReactUISize.Medium;
-            _logoImage.UIVariant = ReactUIVariant.Default;
+          
             _logoImage.UseExternalBufferedGraphics = false;
             _logoImage.UseGlassmorphism = false;
             _logoImage.UseGradientBackground = false;

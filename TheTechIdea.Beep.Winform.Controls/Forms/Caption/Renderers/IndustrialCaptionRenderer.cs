@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -26,8 +27,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int btn = _showButtons ? Math.Max(30, (int)(_captionHeight() - 4 * scale)) : 0;
-            int pad = (int)(12 * scale);
+            int btn = _showButtons ? Math.Max(30, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(4, scale))) : 0;
+            int pad = DpiScalingHelper.ScaleValue(12, scale);
             rightInset = _showButtons ? (btn * 3 + pad * 4) : pad;
             leftInset = pad;
         }
@@ -37,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             invalidatedArea = Rectangle.Empty;
             if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
             
-            int btn = Math.Max(30, (int)(_captionHeight() - 4 * scale));
-            int pad = (int)(12 * scale);
+            int btn = Math.Max(30, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(4, scale)));
+            int pad = DpiScalingHelper.ScaleValue(12, scale);
             int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
             _closeRect = new Rectangle(captionBounds.Right - btn - pad, top, btn, btn);
             _maxRect   = new Rectangle(_closeRect.Left - btn - pad, top, btn, btn);
@@ -110,12 +111,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             g.DrawLine(shadowPen, rect.Right - 2, rect.Top + 2, rect.Right - 2, rect.Bottom - 2);
             
             // Industrial rivets in corners
-            int rivetSize = (int)(3 * scale);
+            int rivetSize = DpiScalingHelper.ScaleValue(3, scale);
+            int rivetOffset = DpiScalingHelper.ScaleValue(3, scale);
             using var rivetBrush = new SolidBrush(Color.FromArgb(isHover ? 180 : 120, shadow));
-            g.FillEllipse(rivetBrush, rect.Left + 3, rect.Top + 3, rivetSize, rivetSize);
-            g.FillEllipse(rivetBrush, rect.Right - 3 - rivetSize, rect.Top + 3, rivetSize, rivetSize);
-            g.FillEllipse(rivetBrush, rect.Left + 3, rect.Bottom - 3 - rivetSize, rivetSize, rivetSize);
-            g.FillEllipse(rivetBrush, rect.Right - 3 - rivetSize, rect.Bottom - 3 - rivetSize, rivetSize, rivetSize);
+            g.FillEllipse(rivetBrush, rect.Left + rivetOffset, rect.Top + rivetOffset, rivetSize, rivetSize);
+            g.FillEllipse(rivetBrush, rect.Right - rivetOffset - rivetSize, rect.Top + rivetOffset, rivetSize, rivetSize);
+            g.FillEllipse(rivetBrush, rect.Left + rivetOffset, rect.Bottom - rivetOffset - rivetSize, rivetSize, rivetSize);
+            g.FillEllipse(rivetBrush, rect.Right - rivetOffset - rivetSize, rect.Bottom - rivetOffset - rivetSize, rivetSize, rivetSize);
 
             // Draw robust icons with industrial weight
             using var iconPen = new Pen(Color.FromArgb(40, 45, 50), 3f * scale)
@@ -123,7 +125,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 StartCap = LineCap.Round,
                 EndCap = LineCap.Round
             };
-            int inset = (int)(8 * scale);
+            int inset = DpiScalingHelper.ScaleValue(8, scale);
             switch (type)
             {
                 case "minimize":

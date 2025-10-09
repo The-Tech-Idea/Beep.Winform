@@ -43,8 +43,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Use DPI-aware default values that will be scaled
         private int _menuItemWidth = 60;
         private int _imagesize = 20;
-        private int _menuItemHeight = 20;
-        private Size ButtonSize = new Size(60, 20);
+        private int _menuItemHeight = 32; // Increased from 20 to 32 to accommodate text at higher DPI
+        private Size ButtonSize = new Size(60, 32); // Match MenuItemHeight
 
         private LinkedList<MenuitemTracking> ListForms = new LinkedList<MenuitemTracking>();
         private bool childmenusisopen = false;
@@ -173,14 +173,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (value > 0)
                 {
-                    if (value >= MenuItemHeight)
-                    {
-                        _imagesize = MenuItemHeight - 2;
-                    }
-                    else
-                    {
-                        _imagesize = value;
-                    }
+                    // Ensure image size fits within menu item height with padding
+                    int maxSize = Math.Max(16, MenuItemHeight - ScaleValue(4));
+                    _imagesize = Math.Min(value, maxSize);
+                    
                     InitializeDrawingComponents();
                     Invalidate();
                 }
@@ -225,6 +221,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             InitializePainter();
             
             InitializeDrawingComponents();
+            
+            // Calculate proper height based on font size
+            UpdateMenuItemHeightForFont();
+            
             RefreshHitAreas();
         }
 
@@ -816,6 +816,73 @@ namespace TheTechIdea.Beep.Winform.Controls
                 errorsInfo.Ex = ex;
             }
             return errorsInfo;
+        }
+
+        /// <summary>
+        /// Calculate optimal menu item height based on current font size and DPI
+        /// </summary>
+        private void UpdateMenuItemHeightForFont()
+        {
+            if (_textFont == null) return;
+
+            // Measure font height
+            int fontHeight = _textFont.Height;
+
+            // Calculate minimum height needed: font height + padding
+            int minHeight = fontHeight + ScaleValue(8); // 8 pixels padding (4 top + 4 bottom)
+
+            // Update MenuItemHeight if current value is too small
+            if (_menuItemHeight < minHeight)
+            {
+                _menuItemHeight = minHeight;
+                
+                // Update control height
+                int newHeight = ScaledMenuItemHeight + ScaleValue(4);
+                if (Height != newHeight)
+                {
+                    Height = newHeight;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Handle DPI changes to refresh layout and sizes
+        /// </summary>
+        protected override void OnDpiChanged()
+        {
+            base.OnDpiChanged();
+
+            // Recalculate menu item height for new DPI
+            UpdateMenuItemHeightForFont();
+
+            // Reinitialize drawing components with new scaled sizes
+            InitializeDrawingComponents();
+
+            // Refresh hit areas with new scaled positions
+            RefreshHitAreas();
+
+            // Update control height
+            Height = ScaledMenuItemHeight + ScaleValue(4);
+
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Handle font changes to recalculate required height
+        /// </summary>
+        protected override void OnFontChanged(EventArgs e)
+        {
+            base.OnFontChanged(e);
+            
+            if (_textFont == null)
+            {
+                _textFont = Font;
+            }
+
+            UpdateMenuItemHeightForFont();
+            InitializeDrawingComponents();
+            RefreshHitAreas();
+            Invalidate();
         }
 
         protected override void Dispose(bool disposing)

@@ -19,13 +19,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             if (ctx == null) ctx = new MenuBarContext();
             UpdateContextColors(ctx);
-            ctx.CornerRadius = 14;
+            ctx.CornerRadius = ScaleValue(14);
             ctx.DrawingRect = drawingRect;
-            ctx.ContentRect = Rectangle.Inflate(drawingRect, -6, -4);
+            ctx.ContentRect = Rectangle.Inflate(drawingRect, -ScaleValue(6), -ScaleValue(4));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.ItemHeight = Math.Max(38, ctx.ItemHeight);
-            ctx.ItemSpacing = 8;
-            ctx.ItemPadding = 16;
+            ctx.ItemHeight = Math.Max(ScaleValue(38), ctx.ItemHeight);
+            ctx.ItemSpacing = ScaleValue(8);
+            ctx.ItemPadding = ScaleValue(16);
             CalculateItemRects(ctx);
             return ctx;
         }
@@ -97,9 +97,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (ctx.SelectedIndex >= 0 && ctx.SelectedIndex < _itemRects.Count)
             {
                 var r = _itemRects[ctx.SelectedIndex];
-                var pill = new Rectangle(r.X + r.Width/4, r.Bottom - 6, r.Width/2, 4);
+                var pill = new Rectangle(r.X + r.Width/4, r.Bottom - ScaleValue(6), r.Width/2, ScaleValue(4));
                 using var br = new SolidBrush(Color.FromArgb(200, GetAccentColor()));
-                using var path = CreateRoundedPath(pill, 2);
+                using var path = CreateRoundedPath(pill, ScaleValue(2));
                 g.FillPath(br, path);
             }
         }
@@ -118,13 +118,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private int CalculateBubbleItemWidth(SimpleItem item, Font font, Size iconSize, bool showIcons, bool showDropdown)
         {
-            if (item == null || font == null) return 100;
+            if (item == null || font == null) return ScaleValue(100);
 
             int width = 0;
-            const int padding = 24; // Bubble design padding
-            const int iconSpacing = 8;
-            const int dropdownSpacing = 6;
-            const int dropdownWidth = 12;
+            int padding = ScaleValue(24); // Bubble design padding
+            int iconSpacing = ScaleValue(8);
+            int dropdownSpacing = ScaleValue(6);
+            int dropdownWidth = ScaleValue(12);
 
             // Icon width
             if (showIcons && !string.IsNullOrEmpty(item.ImagePath))
@@ -148,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Apply padding and ensure minimum width
             width += padding;
-            return Math.Max(width, 85); // Bubble minimum width
+            return Math.Max(width, ScaleValue(85)); // Bubble minimum width
         }
 
         private void CalculateItemRects(MenuBarContext ctx)
@@ -182,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 
                 for (int i = 0; i < itemWidths.Count; i++)
                 {
-                    itemWidths[i] = Math.Max(itemWidths[i] - reductionPerItem, 70);
+                    itemWidths[i] = Math.Max(itemWidths[i] - reductionPerItem, ScaleValue(70));
                 }
             }
 

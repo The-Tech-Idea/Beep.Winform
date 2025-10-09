@@ -9,6 +9,7 @@ using System.Text.RegularExpressions;
 using Svg;
  
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Converters;
  
 
@@ -18,9 +19,11 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxBitmap(typeof(BeepImage))]
     [Category("Beep Controls")]
     [DisplayName("Beep Image")]
+    [DesignTimeVisible(true)]
     [Description("A control that displays an image (SVG, PNG, JPG, BMP).")]
-    [Designer("TheTechIdea.Beep.Winform.Controls.MDI.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")] // string-based design-time reference
-    public class BeepImage : BeepControl
+    // Temporarily disable custom designer to use default Control designer
+    // [Designer("TheTechIdea.Beep.Winform.Controls.MDI.Designers.BeepImageDesigner, TheTechIdea.Beep.Winform.Controls.Design.Server")]
+    public class BeepImage : BaseControl
     {
         #region "Fields"
         private Image regularImage;
@@ -600,26 +603,31 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             //// Enable double buffering and optimized painting
             SetStyle(ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.AllPaintingInWmPaint |
-                     ControlStyles.UserPaint |
-                     ControlStyles.Selectable |           // ADD: Enable selection in designer
-                     ControlStyles.StandardClick |        // ADD: Enable standard click behavior
-                     ControlStyles.ResizeRedraw|ControlStyles.SupportsTransparentBackColor, true);   // ADD: Redraw on resize
+                       ControlStyles.AllPaintingInWmPaint |
+                       ControlStyles.UserPaint |
+                       ControlStyles.Selectable |
+                       ControlStyles.StandardClick |
+                       ControlStyles.ResizeRedraw |
+                       ControlStyles.SupportsTransparentBackColor, true);
             UpdateStyles();
+
+            // Set default size for designer
+            this.Size = new Size(100, 100);
+            this.MinimumSize = new Size(16, 16);
             
-            if (Width <= 0 || Height <= 0) // Ensure size is only set if not already defined
-            {
-                Width = 100;
-                Height = 100;
-            }
             BoundProperty = "ImagePath";
             fillColor = Color.Black;
             strokeColor = Color.Black;
-            
+            this.Visible = true;
             // Enable tab stop for proper focus behavior
             TabStop = true;
             
             // ImageSelector.SetSelector();
+        }
+
+        protected override Size DefaultSize
+        {
+            get { return new Size(100, 100); }
         }
 
         #region "Theme Handling"
@@ -1652,7 +1660,26 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion "Loading Images"
         #region "Designer Support"
 
+        // Ensure the control reports that it should be visible
+        protected override void SetBoundsCore(int x, int y, int width, int height, BoundsSpecified specified)
+        {
+            // Ensure minimum size
+            if (width < 16) width = 16;
+            if (height < 16) height = 16;
 
+            base.SetBoundsCore(x, y, width, height, specified);
+        }
+
+        // Override CreateParams if needed
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.Style |= 0x10000000; // WS_VISIBLE
+                return cp;
+            }
+        }
         public float GetScaleFactor(SizeF imageSize, Size targetSize)
         {
             float scaleX = targetSize.Width / imageSize.Width;

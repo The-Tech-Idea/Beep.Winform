@@ -27,12 +27,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             
             // Compact spacing
             ctx.DrawingRect = drawingRect;
-            ctx.ContentRect = Rectangle.Inflate(drawingRect, -2, -2);
+            ctx.ContentRect = Rectangle.Inflate(drawingRect, -ScaleValue(2), -ScaleValue(2));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.CornerRadius = 2; // Minimal rounding
-            ctx.ItemSpacing = 2; // Minimal spacing
-            ctx.ItemPadding = 6; // Reduced padding
-            ctx.ItemHeight = Math.Min(ctx.ItemHeight, 24); // Compact height
+            ctx.CornerRadius = ScaleValue(2); // Minimal rounding
+            ctx.ItemSpacing = ScaleValue(2); // Minimal spacing
+            ctx.ItemPadding = ScaleValue(6); // Reduced padding
+            ctx.ItemHeight = Math.Min(ctx.ItemHeight, ScaleValue(24)); // Compact height
 
             CalculateMenuItemRects(ctx);
             return ctx;
@@ -95,11 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         #region Private Methods
         private int CalculateCompactItemWidth(SimpleItem item, Font font, Size iconSize, bool showIcons)
         {
-            if (item == null || font == null) return 50;
+            if (item == null || font == null) return ScaleValue(50);
 
             int width = 0;
-            const int padding = 16; // Compact design padding
-            const int iconSpacing = 6;
+            int padding = ScaleValue(16); // Compact design padding
+            int iconSpacing = ScaleValue(6);
 
             // For compact mode, prefer icons over text
             if (showIcons && !string.IsNullOrEmpty(item.ImagePath))
@@ -116,7 +116,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Apply padding and ensure minimum width
             width += padding;
-            return Math.Max(width, 40); // Compact minimum width
+            return Math.Max(width, ScaleValue(40)); // Compact minimum width
         }
 
         private void CalculateMenuItemRects(MenuBarContext ctx)
@@ -134,7 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             foreach (var item in ctx.MenuItems)
             {
                 int itemWidth = CalculateCompactItemWidth(item, ctx.TextFont, 
-                    new Size(16, 16), ctx.ShowIcons); // Small icons for compact mode
+                    ScaleSize(new Size(16, 16)), ctx.ShowIcons); // Small icons for compact mode
                 itemWidths.Add(itemWidth);
                 totalItemsWidth += itemWidth;
             }
@@ -150,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 
                 for (int i = 0; i < itemWidths.Count; i++)
                 {
-                    itemWidths[i] = Math.Max(itemWidths[i] - reductionPerItem, 30);
+                    itemWidths[i] = Math.Max(itemWidths[i] - reductionPerItem, ScaleValue(30));
                 }
             }
 
@@ -185,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Compact drawing - prefer icons over text in small spaces
             MenuBarRenderingHelpers.DrawMenuItem(g, rect, item, ctx.TextFont,
                 foreColor, Color.Transparent, Color.Transparent,
-                new Size(16, 16), true, false, 0); // Small icons, no dropdown indicators
+                ScaleSize(new Size(16, 16)), true, false, ScaleValue(0)); // Small icons, no dropdown indicators
         }
         #endregion
     }

@@ -284,6 +284,66 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
                 }
             }
         }
+
+        #region DPI Scaling Helpers
+        /// <summary>
+        /// Scales an integer value based on current DPI from owner control
+        /// </summary>
+        protected int ScaleValue(int value)
+        {
+            return Owner?.ScaleValue(value) ?? value;
+        }
+
+        /// <summary>
+        /// Scales a Size based on current DPI from owner control
+        /// </summary>
+        protected Size ScaleSize(Size size)
+        {
+            return Owner?.ScaleSize(size) ?? size;
+        }
+
+        /// <summary>
+        /// Scales a Padding based on current DPI from owner control
+        /// </summary>
+        protected Padding ScalePadding(Padding padding)
+        {
+            return Owner?.ScalePadding(padding) ?? padding;
+        }
+
+        /// <summary>
+        /// Scales a Rectangle based on current DPI from owner control
+        /// </summary>
+        protected Rectangle ScaleRectangle(Rectangle rect)
+        {
+            return Owner?.ScaleRectangle(rect) ?? rect;
+        }
+
+        /// <summary>
+        /// Scales a Point based on current DPI from owner control
+        /// </summary>
+        protected Point ScalePoint(Point point)
+        {
+            return Owner?.ScalePoint(point) ?? point;
+        }
+
+        /// <summary>
+        /// Scales a Font based on current DPI from owner control
+        /// </summary>
+        protected Font ScaleFont(Font font)
+        {
+            return Owner?.ScaleFont(font) ?? font;
+        }
+
+        /// <summary>
+        /// Gets the current DPI from owner control
+        /// </summary>
+        protected int CurrentDpi => Owner?.CurrentDpi ?? 96;
+
+        /// <summary>
+        /// Gets the DPI scale factor from owner control
+        /// </summary>
+        protected float DpiScaleFactor => (float)CurrentDpi / 96f;
+        #endregion
         #endregion
 
         #region IDisposable Implementation

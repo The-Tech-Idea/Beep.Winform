@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -25,13 +26,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         public void SetShowSystemButtons(bool show) => _showButtons = show;
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
-        { int pad = (int)(16 * scale); int btn = _showButtons ? Math.Max(30, (int)(_captionHeight() - 4 * scale)) : 0; int buttons = _showButtons ? 3 : 0; rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; leftInset = pad; }
+        { 
+            int pad = DpiScalingHelper.ScaleValue(16, scale); 
+            int btn = _showButtons ? Math.Max(30, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(4, scale))) : 0; 
+            int buttons = _showButtons ? 3 : 0; 
+            rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; 
+            leftInset = pad; 
+        }
 
         public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
-            invalidatedArea = Rectangle.Empty; if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(16 * scale); int btn = Math.Max(30, (int)(_captionHeight() - 4 * scale)); int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
-            int x = captionBounds.Right - pad - btn; _closeRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _maxRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _minRect = new Rectangle(x, top, btn, btn);
+            invalidatedArea = Rectangle.Empty; 
+            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
+            int pad = DpiScalingHelper.ScaleValue(16, scale); 
+            int btn = Math.Max(30, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(4, scale))); 
+            int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
+            int x = captionBounds.Right - pad - btn; 
+            _closeRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _maxRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _minRect = new Rectangle(x, top, btn, btn);
 
             // Modern gaming RGB palette: neon green, electric blue, hot red
             Color gamingGreen = Color.FromArgb(0, 255, 65); // Razer Green
@@ -50,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             g.PixelOffsetMode = PixelOffsetMode.HighQuality;
             
             // Enhanced hexagonal shape with sharper angles
-            int cut = (int)(4 * scale);
+            int cut = DpiScalingHelper.ScaleValue(4, scale);
             var points = new PointF[] 
             { 
                 new(rect.Left + cut, rect.Top), 
@@ -76,12 +91,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 g.FillPath(brush, path);
                 
                 // Outer glow effect on hover
+                int glowInflate = DpiScalingHelper.ScaleValue(3, scale);
                 using var glowPen = new Pen(Color.FromArgb(80, accentColor), 6f * scale)
                 {
                     LineJoin = LineJoin.Round
                 };
-                var glowRect = Rectangle.Inflate(rect, 3, 3);
-                var glowCut = cut + 2;
+                var glowRect = Rectangle.Inflate(rect, glowInflate, glowInflate);
+                var glowCut = cut + DpiScalingHelper.ScaleValue(2, scale);
                 var glowPoints = new PointF[] 
                 { 
                     new(glowRect.Left + glowCut, glowRect.Top), 
@@ -105,7 +121,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             
             // Tech-inspired corner accents
             using var accentPen = new Pen(Color.FromArgb(isHover ? 255 : 180, accentColor), 1.5f * scale);
-            int cornerLen = (int)(5 * scale);
+            int cornerLen = DpiScalingHelper.ScaleValue(5, scale);
             // Top-left corner
             g.DrawLine(accentPen, rect.Left + cut, rect.Top, rect.Left + cut + cornerLen, rect.Top);
             g.DrawLine(accentPen, rect.Left, rect.Top + cut, rect.Left, rect.Top + cut + cornerLen);
@@ -117,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             pen.Width = 2.5f * scale;
             pen.StartCap = LineCap.Round;
             pen.EndCap = LineCap.Round;
-            int inset = (int)(7 * scale);
+            int inset = DpiScalingHelper.ScaleValue(7, scale);
             switch (type)
             {
                 case "minimize": int y = rect.Y + (int)(rect.Height * 0.58f); g.DrawLine(pen, rect.Left + inset, y, rect.Right - inset, y); break;

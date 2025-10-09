@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -25,8 +26,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int pad = (int)(8 * scale);
-            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 8 * scale)) : 0;
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale))) : 0;
             int buttons = _showButtons ? 3 : 0;
             rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; // cluster + outer pad
             leftInset = pad;
@@ -38,8 +39,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             if (!_showButtons)
             { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
 
-            int pad = (int)(8 * scale);
-            int btn = Math.Max(24, (int)(_captionHeight() - 8 * scale));
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale)));
             int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
 
             int x = captionBounds.Right - pad - btn;
@@ -54,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             using var p = new Pen(fore, 1.6f * scale);
 
             // Modern KDE Breeze: smooth rounded corners with elegant hover
-            int radius = (int)(8 * scale);
+            int radius = DpiScalingHelper.ScaleValue(8, scale);
             
             if (_hoverMin) 
             { 
@@ -64,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 g.DrawRoundedRectangle(borderPen, _minRect, radius);
             }
             int y = _minRect.Y + (int)(_minRect.Height * 0.58f);
-            g.DrawLine(p, _minRect.Left + (int)(6 * scale), y, _minRect.Right - (int)(6 * scale), y);
+            g.DrawLine(p, _minRect.Left + DpiScalingHelper.ScaleValue(6, scale), y, _minRect.Right - DpiScalingHelper.ScaleValue(6, scale), y);
 
             if (_hoverMax) 
             { 
@@ -87,7 +88,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 g.FillRoundedRectangle(hb, _closeRect, radius);
                 p.Color = Color.White;
             }
-            int inset = (int)(6 * scale);
+            int inset = DpiScalingHelper.ScaleValue(6, scale);
             g.DrawLine(p, _closeRect.Left + inset, _closeRect.Top + inset, _closeRect.Right - inset, _closeRect.Bottom - inset);
             g.DrawLine(p, _closeRect.Right - inset, _closeRect.Top + inset, _closeRect.Left + inset, _closeRect.Bottom - inset);
         }

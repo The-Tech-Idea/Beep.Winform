@@ -1,30 +1,19 @@
-using System;
-using System.Drawing;
-using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
+namespace TheTechIdea.Beep.Winform.Controls.Forms.Border
 {
-    /// <summary>
-    /// Strategy interface for painting and interacting with caption system buttons.
-    /// Implementations decide layout (left/right clusters), visuals, and hit tests.
-    /// </summary>
-    internal interface ICaptionRenderer
+    internal interface IBorderRenderer
     {
         void UpdateHost(Form host, Func<IBeepTheme> themeProvider, Func<int> captionHeightProvider);
         void UpdateTheme(IBeepTheme theme);
-        void SetShowSystemButtons(bool show);
-
-        /// <summary>
-        /// Computes the horizontal insets that must be reserved for caption chrome so the title can be drawn.
-        /// </summary>
-        void GetTitleInsets(GraphicsPath captionBounds, float scale, out int leftInset, out int rightInset);
-
         /// <summary>
         /// Paints the caption system buttons and returns the area that should be invalidated.
         /// </summary>
-        void Paint(Graphics g, GraphicsPath captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea);
-
+        void Paint(Graphics g, GraphicsPath BorderPath, float scale, IBeepTheme theme, FormWindowState windowState, out GraphicsPath invalidatedArea);
         /// <summary>
         /// Updates hover state on mouse move. Returns true if state changed and outputs area to invalidate.
         /// </summary>

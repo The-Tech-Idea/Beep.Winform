@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -19,8 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int pad = (int)(8 * scale);
-            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 8 * scale)) : 0;
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale))) : 0;
             int buttons = _showButtons ? 3 : 0;
             rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad;
             leftInset = pad;
@@ -28,11 +29,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 
         public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
-            invalidatedArea = Rectangle.Empty; if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(8 * scale);
-            int btn = Math.Max(24, (int)(_captionHeight() - 8 * scale));
+            invalidatedArea = Rectangle.Empty; 
+            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale)));
             int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
-            int x = captionBounds.Right - pad - btn; _closeRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _maxRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _minRect = new Rectangle(x, top, btn, btn);
+            int x = captionBounds.Right - pad - btn; 
+            _closeRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _maxRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _minRect = new Rectangle(x, top, btn, btn);
 
             var fore = theme?.AppBarButtonForeColor == Color.Empty ? _host.ForeColor : theme.AppBarButtonForeColor;
             var accent = theme?.PrimaryColor != Color.Empty ? theme.PrimaryColor : Color.FromArgb(0, 120, 212);
@@ -48,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 g.DrawLine(underlinePen, _minRect.Left + 4, _minRect.Bottom - 2, _minRect.Right - 4, _minRect.Bottom - 2);
             }
             int y = _minRect.Y + (int)(_minRect.Height * 0.58f); 
-            g.DrawLine(p, _minRect.Left + (int)(6 * scale), y, _minRect.Right - (int)(6 * scale), y);
+            g.DrawLine(p, _minRect.Left + DpiScalingHelper.ScaleValue(6, scale), y, _minRect.Right - DpiScalingHelper.ScaleValue(6, scale), y);
 
             if (_hoverMax) 
             { 
@@ -57,7 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 using var underlinePen = new Pen(accent, 2.5f * scale);
                 g.DrawLine(underlinePen, _maxRect.Left + 4, _maxRect.Bottom - 2, _maxRect.Right - 4, _maxRect.Bottom - 2);
             }
-            int inset = (int)(6 * scale); var r = Rectangle.Inflate(_maxRect, -inset, -inset);
+            int inset = DpiScalingHelper.ScaleValue(6, scale); 
+            var r = Rectangle.Inflate(_maxRect, -inset, -inset);
             if (windowState == FormWindowState.Maximized) g.DrawRectangle(p, Rectangle.Inflate(r, -2, -2)); else g.DrawRectangle(p, r);
 
             if (_hoverClose) 

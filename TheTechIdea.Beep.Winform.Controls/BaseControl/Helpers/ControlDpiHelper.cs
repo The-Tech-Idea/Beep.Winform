@@ -187,6 +187,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 // Trigger a layout pass and redraw
                 _owner.PerformLayout();
                 _owner.Invalidate();
+                // Notify listeners and derived controls
+                _owner.OnDpiChangedInternal();
             }
             catch { /* best-effort */ }
         }

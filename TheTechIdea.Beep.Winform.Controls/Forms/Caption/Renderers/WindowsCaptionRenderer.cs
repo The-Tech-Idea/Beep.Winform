@@ -4,6 +4,7 @@ using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls; // for CaptionGlyphProvider
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -27,8 +28,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
         {
             // Standardize computation across renderers
-            int pad = (int)(8 * scale);
-            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - 8 * scale)) : 0;
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = _showButtons ? Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale))) : 0;
             int buttons = _showButtons ? 3 : 0;
             rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad;
             leftInset = pad;
@@ -37,8 +38,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
             invalidatedArea = Rectangle.Empty;
-            int pad = (int)(8 * scale);
-            int btn = Math.Max(24, (int)(_captionHeight() - 8 * scale));
+            int pad = DpiScalingHelper.ScaleValue(8, scale);
+            int btn = Math.Max(24, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(8, scale)));
             int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
             
             if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }

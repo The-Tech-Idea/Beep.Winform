@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -25,13 +26,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         public void SetShowSystemButtons(bool show) => _showButtons = show;
 
         public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
-        { int pad = (int)(18 * scale); int btn = _showButtons ? Math.Max(32, (int)(_captionHeight() - 2 * scale)) : 0; int buttons = _showButtons ? 3 : 0; rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; leftInset = pad; }
+        { 
+            int pad = DpiScalingHelper.ScaleValue(18, scale); 
+            int btn = _showButtons ? Math.Max(32, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(2, scale))) : 0; 
+            int buttons = _showButtons ? 3 : 0; 
+            rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad; 
+            leftInset = pad; 
+        }
 
         public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
-            invalidatedArea = Rectangle.Empty; if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(18 * scale); int btn = Math.Max(32, (int)(_captionHeight() - 2 * scale)); int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
-            int x = captionBounds.Right - pad - btn; _closeRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _maxRect = new Rectangle(x, top, btn, btn); x -= (btn + pad); _minRect = new Rectangle(x, top, btn, btn);
+            invalidatedArea = Rectangle.Empty; 
+            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
+            int pad = DpiScalingHelper.ScaleValue(18, scale); 
+            int btn = Math.Max(32, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(2, scale))); 
+            int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
+            int x = captionBounds.Right - pad - btn; 
+            _closeRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _maxRect = new Rectangle(x, top, btn, btn); 
+            x -= (btn + pad); 
+            _minRect = new Rectangle(x, top, btn, btn);
 
             // Authentic 80s vaporwave palette: Miami Vice inspired
             DrawRetroButton(g, _minRect, 
@@ -117,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
                 StartCap = LineCap.Round,
                 EndCap = LineCap.Round
             };
-            int inset = (int)(7 * scale);
+            int inset = DpiScalingHelper.ScaleValue(7, scale);
             switch (type)
             {
                 case "minimize": int y = rect.Y + rect.Height / 2; g.DrawLine(glyph, rect.Left + inset, y, rect.Right - inset, y); break;

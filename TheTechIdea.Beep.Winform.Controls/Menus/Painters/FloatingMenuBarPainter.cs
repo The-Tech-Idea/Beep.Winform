@@ -22,14 +22,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             UpdateContextColors(ctx);
 
             // Floating container inside drawing rect
-            _containerRect = Rectangle.Inflate(drawingRect, -8, -6);
+            _containerRect = Rectangle.Inflate(drawingRect, -ScaleValue(8), -ScaleValue(6));
             ctx.DrawingRect = drawingRect;
-            ctx.ContentRect = Rectangle.Inflate(_containerRect, -12, -8);
+            ctx.ContentRect = Rectangle.Inflate(_containerRect, -ScaleValue(12), -ScaleValue(8));
             ctx.MenuItemsRect = ctx.ContentRect;
-            ctx.CornerRadius = 14;
-            ctx.ItemHeight = Math.Max(34, ctx.ItemHeight);
-            ctx.ItemSpacing = 10;
-            ctx.ItemPadding = 12;
+            ctx.CornerRadius = ScaleValue(14);
+            ctx.ItemHeight = Math.Max(ScaleValue(34), ctx.ItemHeight);
+            ctx.ItemSpacing = ScaleValue(10);
+            ctx.ItemPadding = ScaleValue(12);
 
             CalculateItemRects(ctx);
             return ctx;
@@ -40,8 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Shadow
             using (var shadow = new SolidBrush(Color.FromArgb(40, 0, 0, 0)))
             {
-                var sRect = _containerRect; sRect.Offset(0, 3);
-                using var sPath = CreateRoundedPath(sRect, ctx.CornerRadius + 2);
+                var sRect = _containerRect; sRect.Offset(0, ScaleValue(3));
+                using var sPath = CreateRoundedPath(sRect, ctx.CornerRadius + ScaleValue(2));
                 g.FillPath(shadow, sPath);
             }
             // Container
@@ -74,8 +74,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                     catch
                     {
                         // Fallback to Floating placeholder
-                        using var p = new Pen(fore, 1.6f);
-                        var inner = Rectangle.Inflate(layout.IconRect, -3, -3);
+                        using var p = new Pen(fore, (float)ScaleValue(2) * 0.8f);
+                        var inner = Rectangle.Inflate(layout.IconRect, -ScaleValue(3), -ScaleValue(3));
                         g.DrawEllipse(p, inner);
                     }
                 }
@@ -94,8 +94,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             if (ctx.SelectedIndex >= 0 && ctx.SelectedIndex < _itemRects.Count)
             {
                 var r = _itemRects[ctx.SelectedIndex];
-                using var pen = new Pen(GetAccentColor(), 2f){ StartCap = System.Drawing.Drawing2D.LineCap.Round, EndCap = System.Drawing.Drawing2D.LineCap.Round };
-                g.DrawLine(pen, r.Left + 8, r.Bottom - 3, r.Right - 8, r.Bottom - 3);
+                using var pen = new Pen(GetAccentColor(), (float)ScaleValue(2)){ StartCap = System.Drawing.Drawing2D.LineCap.Round, EndCap = System.Drawing.Drawing2D.LineCap.Round };
+                g.DrawLine(pen, r.Left + ScaleValue(8), r.Bottom - ScaleValue(3), r.Right - ScaleValue(8), r.Bottom - ScaleValue(3));
             }
         }
 
@@ -111,13 +111,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private int CalculateFloatingItemWidth(SimpleItem item, Font font, Size iconSize, bool showIcons, bool showDropdown)
         {
-            if (item == null || font == null) return 100;
+            if (item == null || font == null) return ScaleValue(100);
 
             int width = 0;
-            const int padding = 32; // Floating design padding
-            const int iconSpacing = 8;
-            const int dropdownSpacing = 6;
-            const int dropdownWidth = 12;
+            int padding = ScaleValue(32); // Floating design padding
+            int iconSpacing = ScaleValue(8);
+            int dropdownSpacing = ScaleValue(6);
+            int dropdownWidth = ScaleValue(12);
 
             // Icon width
             if (showIcons && !string.IsNullOrEmpty(item.ImagePath))
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             // Apply padding and ensure minimum width
             width += padding;
-            return Math.Max(width, 95); // Floating minimum width
+            return Math.Max(width, ScaleValue(95)); // Floating minimum width
         }
 
         private void CalculateItemRects(MenuBarContext ctx)
@@ -175,7 +175,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 
                 for (int i = 0; i < itemWidths.Count; i++)
                 {
-                    itemWidths[i] = Math.Max(itemWidths[i] - reductionPerItem, 75);
+                    itemWidths[i] = Math.Max(itemWidths[i] - reductionPerItem, ScaleValue(75));
                 }
             }
 

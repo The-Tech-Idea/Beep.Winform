@@ -546,5 +546,305 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         #endregion
         #endregion "Drawing gradiants"
 
+        #region "GraphicsPath-based Caption Button Drawing"
+        
+        /// <summary>
+        /// Creates a circular GraphicsPath from a rectangle bounds
+        /// </summary>
+        public static GraphicsPath CreateCirclePath(RectangleF bounds)
+        {
+            var path = new GraphicsPath();
+            path.AddEllipse(bounds);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a circular GraphicsPath from center point and radius
+        /// </summary>
+        public static GraphicsPath CreateCirclePath(PointF center, float radius)
+        {
+            var path = new GraphicsPath();
+            path.AddEllipse(center.X - radius, center.Y - radius, radius * 2, radius * 2);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a rectangular GraphicsPath
+        /// </summary>
+        public static GraphicsPath CreateRectanglePath(RectangleF bounds)
+        {
+            var path = new GraphicsPath();
+            path.AddRectangle(bounds);
+            return path;
+        }
+
+        /// <summary>
+        /// Creates a rounded rectangle GraphicsPath with uniform radius
+        /// </summary>
+        public static GraphicsPath CreateRoundedRectanglePath(RectangleF bounds, float radius)
+        {
+            return CreateRoundedRectanglePath(bounds, radius, radius, radius, radius);
+        }
+
+        /// <summary>
+        /// Fills a circular path
+        /// </summary>
+        public static void FillCircle(this Graphics graphics, Brush brush, RectangleF bounds)
+        {
+            using (var path = CreateCirclePath(bounds))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Fills a circular path from center and radius
+        /// </summary>
+        public static void FillCircle(this Graphics graphics, Brush brush, PointF center, float radius)
+        {
+            using (var path = CreateCirclePath(center, radius))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Draws a circular outline
+        /// </summary>
+        public static void DrawCircle(this Graphics graphics, Pen pen, RectangleF bounds)
+        {
+            using (var path = CreateCirclePath(bounds))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Draws a circular outline from center and radius
+        /// </summary>
+        public static void DrawCircle(this Graphics graphics, Pen pen, PointF center, float radius)
+        {
+            using (var path = CreateCirclePath(center, radius))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Fills a rectangular path
+        /// </summary>
+        public static void FillRectanglePath(this Graphics graphics, Brush brush, RectangleF bounds)
+        {
+            using (var path = CreateRectanglePath(bounds))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Draws a rectangular outline path
+        /// </summary>
+        public static void DrawRectanglePath(this Graphics graphics, Pen pen, RectangleF bounds)
+        {
+            using (var path = CreateRectanglePath(bounds))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Fills a rounded rectangle path
+        /// </summary>
+        public static void FillRoundedRectanglePath(this Graphics graphics, Brush brush, RectangleF bounds, float radius)
+        {
+            using (var path = CreateRoundedRectanglePath(bounds, radius))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Draws a rounded rectangle outline path
+        /// </summary>
+        public static void DrawRoundedRectanglePath(this Graphics graphics, Pen pen, RectangleF bounds, float radius)
+        {
+            using (var path = CreateRoundedRectanglePath(bounds, radius))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Creates a hexagonal path (for Gaming style)
+        /// </summary>
+        public static GraphicsPath CreateHexagonPath(RectangleF bounds, float cutSize)
+        {
+            var path = new GraphicsPath();
+            var points = new PointF[]
+            {
+                new PointF(bounds.Left + cutSize, bounds.Top),
+                new PointF(bounds.Right - cutSize, bounds.Top),
+                new PointF(bounds.Right, bounds.Top + cutSize),
+                new PointF(bounds.Right, bounds.Bottom - cutSize),
+                new PointF(bounds.Right - cutSize, bounds.Bottom),
+                new PointF(bounds.Left + cutSize, bounds.Bottom),
+                new PointF(bounds.Left, bounds.Bottom - cutSize),
+                new PointF(bounds.Left, bounds.Top + cutSize)
+            };
+            path.AddPolygon(points);
+            return path;
+        }
+
+        /// <summary>
+        /// Fills a hexagonal path
+        /// </summary>
+        public static void FillHexagon(this Graphics graphics, Brush brush, RectangleF bounds, float cutSize)
+        {
+            using (var path = CreateHexagonPath(bounds, cutSize))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        /// <summary>
+        /// Draws a hexagonal outline
+        /// </summary>
+        public static void DrawHexagon(this Graphics graphics, Pen pen, RectangleF bounds, float cutSize)
+        {
+            using (var path = CreateHexagonPath(bounds, cutSize))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Creates a line path for minimize button
+        /// </summary>
+        public static GraphicsPath CreateMinimizeLine(RectangleF bounds, float inset, float yPosition = 0.58f)
+        {
+            var path = new GraphicsPath();
+            float y = bounds.Y + bounds.Height * yPosition;
+            path.AddLine(bounds.Left + inset, y, bounds.Right - inset, y);
+            return path;
+        }
+
+        /// <summary>
+        /// Draws a minimize line
+        /// </summary>
+        public static void DrawMinimizeLine(this Graphics graphics, Pen pen, RectangleF bounds, float inset, float yPosition = 0.58f)
+        {
+            using (var path = CreateMinimizeLine(bounds, inset, yPosition))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Creates a maximize rectangle path
+        /// </summary>
+        public static GraphicsPath CreateMaximizeRect(RectangleF bounds, float inset)
+        {
+            var path = new GraphicsPath();
+            var rect = new RectangleF(
+                bounds.Left + inset,
+                bounds.Top + inset,
+                bounds.Width - inset * 2,
+                bounds.Height - inset * 2);
+            path.AddRectangle(rect);
+            return path;
+        }
+
+        /// <summary>
+        /// Draws a maximize rectangle
+        /// </summary>
+        public static void DrawMaximizeRect(this Graphics graphics, Pen pen, RectangleF bounds, float inset)
+        {
+            using (var path = CreateMaximizeRect(bounds, inset))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Creates a close X path
+        /// </summary>
+        public static GraphicsPath CreateCloseX(RectangleF bounds, float inset)
+        {
+            var path = new GraphicsPath();
+            // Diagonal line 1: top-left to bottom-right
+            path.AddLine(bounds.Left + inset, bounds.Top + inset, bounds.Right - inset, bounds.Bottom - inset);
+            // Start new figure for second line
+            path.StartFigure();
+            // Diagonal line 2: top-right to bottom-left
+            path.AddLine(bounds.Right - inset, bounds.Top + inset, bounds.Left + inset, bounds.Bottom - inset);
+            return path;
+        }
+
+        /// <summary>
+        /// Draws a close X
+        /// </summary>
+        public static void DrawCloseX(this Graphics graphics, Pen pen, RectangleF bounds, float inset)
+        {
+            using (var path = CreateCloseX(bounds, inset))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        /// <summary>
+        /// Creates a union of multiple rectangular paths
+        /// </summary>
+        public static GraphicsPath CreateUnionPath(params RectangleF[] rectangles)
+        {
+            var path = new GraphicsPath();
+            foreach (var rect in rectangles)
+            {
+                path.AddRectangle(rect);
+            }
+            return path;
+        }
+
+        /// <summary>
+        /// Converts a Rectangle to GraphicsPath
+        /// </summary>
+        public static GraphicsPath ToGraphicsPath(this Rectangle rect)
+        {
+            var path = new GraphicsPath();
+            path.AddRectangle(rect);
+            return path;
+        }
+
+        /// <summary>
+        /// Converts a RectangleF to GraphicsPath
+        /// </summary>
+        public static GraphicsPath ToGraphicsPath(this RectangleF rect)
+        {
+            var path = new GraphicsPath();
+            path.AddRectangle(rect);
+            return path;
+        }
+
+        /// <summary>
+        /// Gets bounds from GraphicsPath as Rectangle
+        /// </summary>
+        public static Rectangle GetBoundsRect(this GraphicsPath path)
+        {
+            return Rectangle.Round(path.GetBounds());
+        }
+
+        /// <summary>
+        /// Inflates a GraphicsPath bounds by creating a new path
+        /// </summary>
+        public static GraphicsPath InflatePath(this GraphicsPath originalPath, float x, float y)
+        {
+            var bounds = originalPath.GetBounds();
+            bounds.Inflate(x, y);
+            var path = new GraphicsPath();
+            path.AddRectangle(bounds);
+            return path;
+        }
+
+        #endregion
+
     }
 }

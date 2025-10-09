@@ -17,10 +17,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
     {
         #region Fields
         private List<Rectangle> _cardRects = new List<Rectangle>();
-        private const int CARD_WIDTH = 180;
-        private const int CARD_HEIGHT = 120;
-        private const int CARD_SPACING = 12;
-        private const int CARD_PADDING = 12;
         #endregion
 
         #region MenuBarPainterBase Implementation
@@ -32,7 +28,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             UpdateContextColors(ctx);
             ctx.DrawingRect = drawingRect;
 
-            int padding = 16;
+            int padding = ScaleValue(16);
             ctx.ContentRect = Rectangle.Inflate(drawingRect, -padding, -padding);
             ctx.MenuItemsRect = ctx.ContentRect;
 
@@ -123,18 +119,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             int y = ctx.ContentRect.Y;
             int availableWidth = ctx.ContentRect.Width;
 
+            int cardWidth = ScaleValue(180);
+            int cardHeight = ScaleValue(120);
+            int cardSpacing = ScaleValue(12);
+
             // Calculate how many cards fit per row
-            int cardsPerRow = Math.Max(1, (availableWidth + CARD_SPACING) / (CARD_WIDTH + CARD_SPACING));
+            int cardsPerRow = Math.Max(1, (availableWidth + cardSpacing) / (cardWidth + cardSpacing));
 
             int currentRow = 0;
             int currentCol = 0;
 
             foreach (var item in ctx.MenuItems)
             {
-                int cardX = x + currentCol * (CARD_WIDTH + CARD_SPACING);
-                int cardY = y + currentRow * (CARD_HEIGHT + CARD_SPACING);
+                int cardX = x + currentCol * (cardWidth + cardSpacing);
+                int cardY = y + currentRow * (cardHeight + cardSpacing);
 
-                var cardRect = new Rectangle(cardX, cardY, CARD_WIDTH, CARD_HEIGHT);
+                var cardRect = new Rectangle(cardX, cardY, cardWidth, cardHeight);
                 _cardRects.Add(cardRect);
 
                 currentCol++;
@@ -150,20 +150,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
         {
             if (g == null || item == null) return;
 
+            int cardPadding = ScaleValue(12);
+            int cornerRadius = ScaleValue(8);
+
             // Draw card shadow
-            DrawCardShadow(g, rect);
+            DrawCardShadow(g, rect, cornerRadius);
 
             // Draw card background with rounded corners
             var bgColor = (index == ctx.SelectedIndex) ? GetSelectedBackgroundColor() : GetItemBackgroundColor();
-            using (var path = CreateRoundedPath(rect, 8))
+            using (var path = CreateRoundedPath(rect, cornerRadius))
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillPath(brush, path);
             }
 
             // Draw card border
-            using (var path = CreateRoundedPath(rect, 8))
-            using (var pen = new Pen(GetBorderColor(), 1))
+            using (var path = CreateRoundedPath(rect, cornerRadius))
+            using (var pen = new Pen(GetBorderColor(), ScaleValue(1)))
             {
                 g.DrawPath(pen, path);
             }
@@ -171,10 +174,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             // Draw icon at top
             if (!string.IsNullOrEmpty(item.ImagePath))
             {
-                int iconSize = 48;
+                int iconSize = ScaleValue(48);
                 var iconRect = new Rectangle(
                     rect.X + (rect.Width - iconSize) / 2,
-                    rect.Y + CARD_PADDING,
+                    rect.Y + cardPadding,
                     iconSize, iconSize);
                 var iconColor = item.IsEnabled ? GetItemForegroundColor() : GetDisabledForegroundColor();
                 MenuBarRenderingHelpers.DrawMenuItemIcon(g, iconRect, item.ImagePath, iconColor);
@@ -186,10 +189,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             using (var titleFont = new Font(ctx.TextFont.FontFamily, ctx.TextFont.Size + 1, FontStyle.Bold))
             {
                 var titleRect = new Rectangle(
-                    rect.X + CARD_PADDING,
-                    rect.Y + 70,
-                    rect.Width - CARD_PADDING * 2,
-                    20);
+                    rect.X + cardPadding,
+                    rect.Y + ScaleValue(70),
+                    rect.Width - cardPadding * 2,
+                    ScaleValue(20));
                 var sf = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Near };
                 g.DrawString(item.Text ?? "", titleFont, brush, titleRect, sf);
             }
@@ -201,11 +204,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 using (var brush = new SolidBrush(descColor))
                 using (var descFont = new Font(ctx.TextFont.FontFamily, ctx.TextFont.Size - 1))
                 {
+                    int descY = ScaleValue(92);
                     var descRect = new Rectangle(
-                        rect.X + CARD_PADDING,
-                        rect.Y + 92,
-                        rect.Width - CARD_PADDING * 2,
-                        rect.Height - 92 - CARD_PADDING);
+                        rect.X + cardPadding,
+                        rect.Y + descY,
+                        rect.Width - cardPadding * 2,
+                        rect.Height - descY - cardPadding);
                     var sf = new StringFormat 
                     { 
                         Alignment = StringAlignment.Center, 
@@ -217,10 +221,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
             }
         }
 
-        private void DrawCardShadow(Graphics g, Rectangle rect)
+        private void DrawCardShadow(Graphics g, Rectangle rect, int cornerRadius)
         {
-            var shadowRect = new Rectangle(rect.X + 2, rect.Y + 2, rect.Width, rect.Height);
-            using (var path = CreateRoundedPath(shadowRect, 8))
+            var shadowRect = new Rectangle(rect.X + ScaleValue(2), rect.Y + ScaleValue(2), rect.Width, rect.Height);
+            using (var path = CreateRoundedPath(shadowRect, cornerRadius))
             using (var brush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
             {
                 g.FillPath(brush, path);
@@ -229,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawCardHoverEffect(Graphics g, Rectangle rect)
         {
-            using (var path = CreateRoundedPath(rect, 8))
+            using (var path = CreateRoundedPath(rect, ScaleValue(8)))
             using (var brush = new SolidBrush(Color.FromArgb(30, GetAccentColor())))
             {
                 g.FillPath(brush, path);
@@ -238,8 +242,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
         private void DrawCardSelectionEffect(Graphics g, Rectangle rect, MenuBarContext ctx)
         {
-            using (var path = CreateRoundedPath(rect, 8))
-            using (var pen = new Pen(GetAccentColor(), 3))
+            using (var path = CreateRoundedPath(rect, ScaleValue(8)))
+            using (var pen = new Pen(GetAccentColor(), ScaleValue(3)))
             {
                 g.DrawPath(pen, path);
             }

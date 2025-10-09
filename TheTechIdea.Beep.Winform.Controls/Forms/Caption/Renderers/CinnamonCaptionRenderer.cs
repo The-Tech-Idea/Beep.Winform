@@ -1,7 +1,9 @@
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
 {
@@ -15,7 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         private Func<int> _captionHeight;
         private bool _showButtons = true;
 
-        private Rectangle _closeRect, _maxRect, _minRect;
+        private RectangleF _closeRect, _maxRect, _minRect;
         private bool _hoverClose, _hoverMax, _hoverMin;
 
         public void UpdateHost(Form host, Func<IBeepTheme> themeProvider, Func<int> captionHeightProvider)
@@ -23,70 +25,72 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
         public void UpdateTheme(IBeepTheme theme) { }
         public void SetShowSystemButtons(bool show) => _showButtons = show;
 
-        public void GetTitleInsets(Rectangle captionBounds, float scale, out int leftInset, out int rightInset)
+        public void GetTitleInsets(GraphicsPath captionBounds, float scale, out int leftInset, out int rightInset)
         {
-            int pad = (int)(10 * scale);
-            int btn = _showButtons ? Math.Max(26, (int)(_captionHeight() - 6 * scale)) : 0;
+            int pad = DpiScalingHelper.ScaleValue(10, scale);
+            int btn = _showButtons ? Math.Max(26, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(6, scale))) : 0;
             int buttons = _showButtons ? 3 : 0;
             rightInset = buttons > 0 ? (buttons * btn + (buttons + 1) * pad) : pad;
             leftInset = pad;
         }
 
-        public void Paint(Graphics g, Rectangle captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
+        public void Paint(Graphics g, GraphicsPath captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
         {
             invalidatedArea = Rectangle.Empty;
-            if (!_showButtons) { _closeRect = _maxRect = _minRect = Rectangle.Empty; return; }
-            int pad = (int)(10 * scale);
-            int btn = Math.Max(26, (int)(_captionHeight() - 6 * scale));
-            int top = captionBounds.Top + Math.Max(2, (captionBounds.Height - btn) / 2);
+            var bounds = captionBounds.GetBounds();
+            if (!_showButtons) { _closeRect = _maxRect = _minRect = RectangleF.Empty; return; }
+            int pad = DpiScalingHelper.ScaleValue(10, scale);
+            int btn = Math.Max(26, (int)(_captionHeight() - DpiScalingHelper.ScaleValue(6, scale)));
+            float top = bounds.Top + Math.Max(2, (bounds.Height - btn) / 2);
 
-            int x = captionBounds.Right - pad - btn;
-            _closeRect = new Rectangle(x, top, btn, btn);
+            float x = bounds.Right - pad - btn;
+            _closeRect = new RectangleF(x, top, btn, btn);
             x -= (btn + pad);
-            _maxRect = new Rectangle(x, top, btn, btn);
+            _maxRect = new RectangleF(x, top, btn, btn);
             x -= (btn + pad);
-            _minRect = new Rectangle(x, top, btn, btn);
+            _minRect = new RectangleF(x, top, btn, btn);
 
             var fore = theme?.AppBarButtonForeColor ?? _host.ForeColor;
             var cinnamonOrange = Color.FromArgb(225, 140, 85); // Cinnamon warm accent
             using var p = new Pen(fore, 1.7f * scale);
 
             // Modern Cinnamon: warm colors with soft rounded edges
-            int radius = (int)(7 * scale);
+            int radius = DpiScalingHelper.ScaleValue(7, scale);
             
             if (_hoverMin) 
             { 
                 using var hb = new SolidBrush(Color.FromArgb(45, cinnamonOrange)); 
-                g.FillRoundedRectangle(hb, _minRect, radius);
+                g.FillRoundedRectanglePath(hb, _minRect, radius);
             }
-            int y = _minRect.Y + (int)(_minRect.Height * 0.58f);
-            g.DrawLine(p, _minRect.Left + (int)(6 * scale), y, _minRect.Right - (int)(6 * scale), y);
+            float y = _minRect.Y + _minRect.Height * 0.58f;
+            g.DrawLine(p, _minRect.Left + DpiScalingHelper.ScaleValue(6, scale), y, _minRect.Right - DpiScalingHelper.ScaleValue(6, scale), y);
 
             if (_hoverMax) 
             { 
                 using var hb = new SolidBrush(Color.FromArgb(45, cinnamonOrange)); 
-                g.FillRoundedRectangle(hb, _maxRect, radius);
+                g.FillRoundedRectanglePath(hb, _maxRect, radius);
             }
-            int w = (int)Math.Max(10 * scale, _maxRect.Width / 2.8f);
-            int cx = _maxRect.X + _maxRect.Width / 2; int cy = _maxRect.Y + _maxRect.Height / 2;
-            var rect = new Rectangle(cx - w / 2, cy - w / 2, w, w);
+            float w = Math.Max(10 * scale, _maxRect.Width / 2.8f);
+            float cx = _maxRect.X + _maxRect.Width / 2; 
+            float cy = _maxRect.Y + _maxRect.Height / 2;
+            var rect = new RectangleF(cx - w / 2, cy - w / 2, w, w);
             if (windowState == FormWindowState.Maximized) 
-                g.DrawRectangle(p, Rectangle.Inflate(rect, -2, -2)); 
+                g.DrawRectanglePath(p, new RectangleF(rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4)); 
             else 
-                g.DrawRectangle(p, rect);
+                g.DrawRectanglePath(p, rect);
 
             if (_hoverClose) 
             { 
                 using var hb = new SolidBrush(Color.FromArgb(205, 70, 70)); // Warm red
-                g.FillRoundedRectangle(hb, _closeRect, radius);
+                g.FillRoundedRectanglePath(hb, _closeRect, radius);
                 p.Color = Color.White;
             }
-            int inset = (int)(6 * scale);
+            float inset = DpiScalingHelper.ScaleValue(6, scale);
             g.DrawLine(p, _closeRect.Left + inset, _closeRect.Top + inset, _closeRect.Right - inset, _closeRect.Bottom - inset);
             g.DrawLine(p, _closeRect.Right - inset, _closeRect.Top + inset, _closeRect.Left + inset, _closeRect.Bottom - inset);
         }
 
-        public bool OnMouseMove(Point location, out Rectangle invalidatedArea)
+        public bool OnMouseMove(Point location, out GraphicsPath invalidatedArea)
         {
             var prev = (_hoverClose, _hoverMax, _hoverMin);
             _hoverClose = _closeRect.Contains(location);
@@ -94,29 +98,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption.Renderers
             _hoverMin = _minRect.Contains(location);
             if (prev != (_hoverClose, _hoverMax, _hoverMin))
             {
-                invalidatedArea = Rectangle.Union(Rectangle.Union(_closeRect, _maxRect), _minRect);
+                invalidatedArea = GraphicsExtensions.CreateUnionPath(_closeRect, _maxRect, _minRect);
                 return true;
             }
-            invalidatedArea = Rectangle.Empty; return false;
+            invalidatedArea = new GraphicsPath(); 
+            return false;
         }
 
-        public void OnMouseLeave(out Rectangle invalidatedArea)
+        public void OnMouseLeave(out GraphicsPath invalidatedArea)
         {
             if (_hoverClose || _hoverMax || _hoverMin)
             {
                 _hoverClose = _hoverMax = _hoverMin = false;
-                invalidatedArea = Rectangle.Union(Rectangle.Union(_closeRect, _maxRect), _minRect);
+                invalidatedArea = GraphicsExtensions.CreateUnionPath(_closeRect, _maxRect, _minRect);
                 return;
             }
-            invalidatedArea = Rectangle.Empty;
+            invalidatedArea = new GraphicsPath();
         }
 
-        public bool OnMouseDown(Point location, Form form, out Rectangle invalidatedArea)
+        public bool OnMouseDown(Point location, Form form, out GraphicsPath invalidatedArea)
         {
-            if (_closeRect.Contains(location)) { form.Close(); invalidatedArea = _closeRect; return true; }
-            if (_maxRect.Contains(location)) { form.WindowState = form.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized; invalidatedArea = _maxRect; return true; }
-            if (_minRect.Contains(location)) { form.WindowState = FormWindowState.Minimized; invalidatedArea = _minRect; return true; }
-            invalidatedArea = Rectangle.Empty; return false;
+            invalidatedArea = new GraphicsPath();
+            if (_closeRect.Contains(location)) 
+            { 
+                form.Close(); 
+                invalidatedArea = _closeRect.ToGraphicsPath();
+                return true; 
+            }
+            if (_maxRect.Contains(location)) 
+            { 
+                form.WindowState = form.WindowState == FormWindowState.Maximized ? FormWindowState.Normal : FormWindowState.Maximized; 
+                invalidatedArea = _maxRect.ToGraphicsPath();
+                return true; 
+            }
+            if (_minRect.Contains(location)) 
+            { 
+                form.WindowState = FormWindowState.Minimized; 
+                invalidatedArea = _minRect.ToGraphicsPath();
+                return true; 
+            }
+            return false;
         }
 
         public bool HitTest(Point location) => _closeRect.Contains(location) || _maxRect.Contains(location) || _minRect.Contains(location);

@@ -329,16 +329,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             DialogImage.Theme = "DefaultType";
             DialogImage.ToolTipText = "";
             DialogImage.TopoffsetForDrawingRect = 0;
-            DialogImage.UIAnimation = ReactUIAnimation.None;
-            DialogImage.UIColor = ReactUIColor.Primary;
-            DialogImage.UICustomElevation = 0;
-            DialogImage.UIDensity = ReactUIDensity.Standard;
-            DialogImage.UIDisabled = false;
-            DialogImage.UIElevation = ReactUIElevation.None;
-            DialogImage.UIFullWidth = false;
-            DialogImage.UIShape = ReactUIShape.Rounded;
-            DialogImage.UISize = ReactUISize.Medium;
-            DialogImage.UIVariant = ReactUIVariant.Default;
+         
             DialogImage.UseGradientBackground = false;
             DialogImage.UseThemeFont = true;
             DialogImage.Velocity = 0F;

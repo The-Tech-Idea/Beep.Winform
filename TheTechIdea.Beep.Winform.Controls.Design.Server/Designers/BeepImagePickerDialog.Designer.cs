@@ -288,16 +288,7 @@
             _preview.Theme = null;
             _preview.ToolTipText = "";
             _preview.TopoffsetForDrawingRect = 0;
-            _preview.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            _preview.UIColor = Vis.Modules.ReactUIColor.Primary;
-            _preview.UICustomElevation = 0;
-            _preview.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            _preview.UIDisabled = false;
-            _preview.UIElevation = Vis.Modules.ReactUIElevation.None;
-            _preview.UIFullWidth = false;
-            _preview.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            _preview.UISize = Vis.Modules.ReactUISize.Medium;
-            _preview.UIVariant = Vis.Modules.ReactUIVariant.Default;
+         
             _preview.UseExternalBufferedGraphics = false;
             _preview.UseGlassmorphism = false;
             _preview.UseGradientBackground = false;

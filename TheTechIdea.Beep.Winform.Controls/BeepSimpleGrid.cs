@@ -950,7 +950,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //    ShowShadow = false,
             //    IsBorderAffectedByTheme = false,
             //    IsShadowAffectedByTheme = false,
-            //    Theme = Theme,
+            //    MenuStyle = MenuStyle,
 
             //};
             //AttachNavigatorEvents();
@@ -1022,7 +1022,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //filterButton = new BeepButton
             //{
             //    Text = "Filters",
-            //    Theme = Theme,
+            //    MenuStyle = MenuStyle,
             //    IsChild = true,
             //    Width = 80,
             //    Height = 24,
@@ -7577,7 +7577,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 titleLabel.BackColor = _currentTheme.GridHeaderBackColor; ;
                 titleLabel.IsChild = true;
                 titleLabel.TextFont = BeepThemesManager.ToFont(_currentTheme.CardHeaderStyle);
-             //   titleLabel.Theme = Theme;
+             //   titleLabel.MenuStyle = MenuStyle;
                 titleLabel.ForeColor = _currentTheme.GridForeColor;
                 titleLabel.Invalidate();
             }
@@ -7661,7 +7661,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //{
             //    _currentTheme.ButtonBackColor = _currentTheme.GridBackColor;
             //    _currentTheme.ButtonForeColor = _currentTheme.GridForeColor;
-            //    DataNavigator.Theme = Theme;
+            //    DataNavigator.MenuStyle = MenuStyle;
             //}
             if (_verticalScrollBar != null)
             {

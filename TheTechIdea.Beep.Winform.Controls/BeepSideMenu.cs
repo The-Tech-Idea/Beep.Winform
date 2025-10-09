@@ -632,7 +632,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             //  if (!_isControlinvalidated) return;
             //   base.ApplyTheme();
             BackColor = _currentTheme.SideMenuBackColor;
-            //  logo.Theme = Theme;
+            //  logo.MenuStyle = MenuStyle;
             toggleButton.Theme = Theme;
             toggleButton.ApplyThemeOnImage = true;
             toggleButton.ImageEmbededin = ImageEmbededin.SideBar;
@@ -655,7 +655,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     {
                         if (subControl is BeepButton button)
                         {
-                            // button.Theme = Theme;
+                            // button.MenuStyle = MenuStyle;
                             button.BackColor = _currentTheme.SideMenuBackColor;
                             button.ForeColor = _currentTheme.SideMenuForeColor;
                             if (UseThemeFont)

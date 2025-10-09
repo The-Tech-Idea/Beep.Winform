@@ -406,7 +406,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
        
-        // New Property for Hover Persistence using Theme
+        // New Property for Hover Persistence using MenuStyle
         [Browsable(true)]
         [Category("Behavior")]
         public bool IsStillButton

@@ -242,7 +242,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
             };
 
-            // Theme button (palette icon)
+            // MenuStyle button (palette icon)
             _themeButton = new FormRegion
             {
                 Id = "system:theme",
@@ -360,7 +360,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     break;
 
                 case "region:system:theme":
-                    // Theme button clicked
+                    // MenuStyle button clicked
                     ThemeButtonClicked?.Invoke(this, EventArgs.Empty);
                     break;
 

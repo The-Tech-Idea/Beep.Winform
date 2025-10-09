@@ -247,7 +247,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             _displayContainer?.ResumeFormLayout();
         }
 
-        // ---------------------------- Theme application
+        // ---------------------------- MenuStyle application
         private void BeepThemesManager_ThemeChanged(object sender, EventArgs e)
         {
             TryInvoke(() => { Theme = BeepThemesManager.CurrentThemeName; });
@@ -276,7 +276,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (control == null) return;
 
-            // Set Theme property when available
+            // Set MenuStyle property when available
             var prop = TypeDescriptor.GetProperties(control)["Theme"];
             if (prop != null && prop.PropertyType == typeof(string))
                 prop.SetValue(control, _theme);
@@ -325,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             if (control == null) return;
 
-            // Set Theme property when available
+            // Set MenuStyle property when available
             var prop = TypeDescriptor.GetProperties(control)["Theme"];
             if (prop != null && prop.PropertyType == typeof(string))
                 prop.SetValue(control, theme);

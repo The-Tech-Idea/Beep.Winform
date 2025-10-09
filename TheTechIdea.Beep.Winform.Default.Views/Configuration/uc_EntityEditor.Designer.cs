@@ -1079,7 +1079,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             EntitiesbeepComboBox.IsHovered = false;
            
             EntitiesbeepComboBox.IsNew = false;
-            EntitiesbeepComboBox.IsPopupOpen = false;
+        
             EntitiesbeepComboBox.IsPressed = false;
            
             EntitiesbeepComboBox.IsReadOnly = false;
@@ -1421,7 +1421,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             DatasourcebeepComboBox.IsHovered = false;
           
             DatasourcebeepComboBox.IsNew = false;
-            DatasourcebeepComboBox.IsPopupOpen = false;
+          
             DatasourcebeepComboBox.IsPressed = false;
             
             DatasourcebeepComboBox.IsReadOnly = false;

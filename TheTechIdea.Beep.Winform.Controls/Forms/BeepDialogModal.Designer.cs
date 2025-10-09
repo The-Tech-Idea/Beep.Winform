@@ -1432,7 +1432,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             SelectFromListComboBox.IsFrameless = false;
             SelectFromListComboBox.IsHovered = false;
             SelectFromListComboBox.IsNew = false;
-            SelectFromListComboBox.IsPopupOpen = false;
+           
             SelectFromListComboBox.IsPressed = false;
             SelectFromListComboBox.IsReadOnly = false;
             SelectFromListComboBox.IsRequired = false;

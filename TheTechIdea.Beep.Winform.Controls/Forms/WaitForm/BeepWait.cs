@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // NOTE: messege control configuration moved to OnShown event for safety
             
            // _spinnerImage.ApplyThemeOnImage = true;
-          //  _spinnerImage.Theme = Theme;
+          //  _spinnerImage.MenuStyle = MenuStyle;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
@@ -273,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_currentTheme == null) return;
             if (_spinnerImage == null) return;
          
-           // _spinnerImage.Theme = Theme;
+           // _spinnerImage.MenuStyle = MenuStyle;
             BackColor = _currentTheme.BackColor;
             ForeColor = _currentTheme.TextBoxForeColor;
             messege.Theme = Theme;

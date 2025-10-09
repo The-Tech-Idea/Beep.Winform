@@ -135,7 +135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 btn.Text = "";
                 btn.ToolTipText = text;
             }
-            //  btn.Theme = Theme;
+            //  btn.MenuStyle = MenuStyle;
             ApplyTheme();
             btn.Click += onClick;
             return btn;
@@ -242,13 +242,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                     button.BackColor = BackColor;
                     button.Theme = Theme;
                     button.ForeColor = _currentTheme.ListForeColor;
-                    //((BeepButton)ctrl).Theme = Theme;
+                    //((BeepButton)ctrl).MenuStyle = MenuStyle;
 
                 }
                     //}
                     //else if (ctrl is BeepLabel)
                     //{
-                    //    ((BeepLabel)ctrl).Theme = Theme;
+                    //    ((BeepLabel)ctrl).MenuStyle = MenuStyle;
                     //}
                 }
             Invalidate();

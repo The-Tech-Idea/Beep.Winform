@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips
     /// - Static API for easy access throughout application
     /// - Instance-based lifecycle management
     /// - Painter pattern for flexible rendering
-    /// - Theme integration for consistent styling
+    /// - MenuStyle integration for consistent styling
     /// - Automatic cleanup and resource management
     /// 
     /// Design Patterns Used:

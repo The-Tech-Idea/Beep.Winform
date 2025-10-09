@@ -226,39 +226,39 @@ namespace TheTechIdea.Beep.Winform.Controls
         //    base.ApplyTheme();
             if (_currentTheme == null) return;
 
-            // MessageBox.Config("Applying Theme");
+            // MessageBox.Config("Applying MenuStyle");
 
             // Check if each button is not null before applying theme
             if (_primaryButton != null)
             {
-                //     MessageBox.Config("Applying Theme to button 1");
-             //   _primaryButton.Theme = Theme;
+                //     MessageBox.Config("Applying MenuStyle to button 1");
+             //   _primaryButton.MenuStyle = MenuStyle;
                _primaryButton.BackColor = _currentTheme.ButtonBackColor;
                 _primaryButton.ForeColor = _currentTheme.PrimaryTextColor;
             }
-            // MessageBox.Config("Applying Theme 1");
+            // MessageBox.Config("Applying MenuStyle 1");
             if (_secondaryButton != null)
             {
-                //      MessageBox.Config("Applying Theme to button 2");
+                //      MessageBox.Config("Applying MenuStyle to button 2");
                 _secondaryButton.Theme = Theme;
                 _secondaryButton.BackColor = _currentTheme.ButtonBackColor;
                 _secondaryButton.ForeColor = _currentTheme.SecondaryTextColor;
             }
-            // MessageBox.Config("Applying Theme 2");
+            // MessageBox.Config("Applying MenuStyle 2");
             if (_closeButton != null)
             {
-                //   MessageBox.Config("Applying Theme to button 3");
+                //   MessageBox.Config("Applying MenuStyle to button 3");
                 _closeButton.Theme = Theme;
             //    _closeButton.BackColor = Color.Red;
                 _closeButton.ForeColor = _currentTheme.DialogCloseButtonForeColor ;
             }
-            // MessageBox.Config("Applying Theme 3");
+            // MessageBox.Config("Applying MenuStyle 3");
             // Additional background colors, title lines, etc.
              BackColor = _currentTheme.PanelBackColor;
             _buttonPanel.Theme = Theme;
             Arrange();
 
-            //  MessageBox.Config("Applying Theme 4");
+            //  MessageBox.Config("Applying MenuStyle 4");
             ////base.ApplyTheme();
             // Invalidate(); // Redraw to apply theme changes
         }

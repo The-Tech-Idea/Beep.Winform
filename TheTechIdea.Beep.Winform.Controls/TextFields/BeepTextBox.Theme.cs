@@ -4,7 +4,7 @@ using TheTechIdea.Beep.Vis.Modules;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     /// <summary>
-    /// Theme and style methods for BeepTextBox
+    /// MenuStyle and style methods for BeepTextBox
     /// </summary>
     public partial class BeepTextBox
     {

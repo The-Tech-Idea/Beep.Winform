@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 return;
             
             _owner = owner;
-            // Use the CurrentTheme property instead of Theme string property
+            // Use the CurrentTheme property instead of MenuStyle string property
             _theme = owner._currentTheme;
             
             // Set high-quality rendering

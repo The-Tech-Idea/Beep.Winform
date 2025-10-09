@@ -105,7 +105,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             SourcebeepComboBox.IsFrameless = false;
             SourcebeepComboBox.IsHovered = false;
             SourcebeepComboBox.IsNew = false;
-            SourcebeepComboBox.IsPopupOpen = false;
+         
             SourcebeepComboBox.IsPressed = false;
             SourcebeepComboBox.IsReadOnly = false;
             SourcebeepComboBox.IsRequired = false;
@@ -345,7 +345,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
             beepComboBox1.IsFrameless = false;
             beepComboBox1.IsHovered = false;
             beepComboBox1.IsNew = false;
-            beepComboBox1.IsPopupOpen = false;
+        
             beepComboBox1.IsPressed = false;
             beepComboBox1.IsReadOnly = false;
             beepComboBox1.IsRequired = false;

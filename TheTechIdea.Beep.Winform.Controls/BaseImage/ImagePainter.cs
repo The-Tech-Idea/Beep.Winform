@@ -48,7 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.BaseImage
         protected Color _borderColor = Color.Transparent;
         protected float _borderThickness = 1f;
 
-        // Theme
+        // MenuStyle
         protected IBeepTheme _currentTheme;
         protected ImageEmbededin _imageEmbededin = ImageEmbededin.Button;
         protected bool _applyThemeOnImage = false;

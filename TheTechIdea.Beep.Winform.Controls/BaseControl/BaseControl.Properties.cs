@@ -1070,6 +1070,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #endregion
         #endregion
 
+        #region BeepContextMenu
+        private ContextMenus.BeepContextMenu _beepContextMenu;
+
+        [Browsable(true)]
+        [Category("Beep")]
+        [Description("Context menu for this control. All inherited controls can access this property.")]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Content)]
+        public ContextMenus.BeepContextMenu BeepContextMenu
+        {
+            get => _beepContextMenu;
+            set
+            {
+                _beepContextMenu = value;
+                Invalidate();
+            }
+        }
+        #endregion
+
         #region Painting and Layout
         private BeepControlStyle _controlstyle = BeepControlStyle.Material3;
         [Browsable(true)]

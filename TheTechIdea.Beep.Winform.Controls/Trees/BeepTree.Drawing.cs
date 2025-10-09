@@ -159,37 +159,37 @@ namespace TheTechIdea.Beep.Winform.Controls
                 //// Apply theme to renderers
                 //if (_toggleRenderer != null)
                 //{
-                //    _toggleRenderer.Theme = Theme;
+                //    _toggleRenderer.MenuStyle = MenuStyle;
                 //    _toggleRenderer.ApplyTheme();
                 //}
 
                 //if (_checkRenderer != null)
                 //{
-                //    _checkRenderer.Theme = Theme;
+                //    _checkRenderer.MenuStyle = MenuStyle;
                 //    _checkRenderer.ApplyTheme();
                 //}
 
                 //if (_iconRenderer != null)
                 //{
-                //    _iconRenderer.Theme = Theme;
+                //    _iconRenderer.MenuStyle = MenuStyle;
                 //    _iconRenderer.ApplyTheme();
                 //}
 
                 //if (_buttonRenderer != null)
                 //{
-                //    _buttonRenderer.Theme = Theme;
+                //    _buttonRenderer.MenuStyle = MenuStyle;
                 //    _buttonRenderer.ApplyTheme();
                 //}
 
                 //if (_verticalScrollBar != null)
                 //{
-                //    _verticalScrollBar.Theme = Theme;
+                //    _verticalScrollBar.MenuStyle = MenuStyle;
                 //    _verticalScrollBar.ApplyTheme();
                 //}
 
                 //if (_horizontalScrollBar != null)
                 //{
-                //    _horizontalScrollBar.Theme = Theme;
+                //    _horizontalScrollBar.MenuStyle = MenuStyle;
                 //    _horizontalScrollBar.ApplyTheme();
                 //}
 
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 // Recalculate layout (fonts may have changed)
                 RecalculateLayoutCache();
-                // Theme/font can change metrics - rebuild hit areas
+                // MenuStyle/font can change metrics - rebuild hit areas
                 try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
             }
 

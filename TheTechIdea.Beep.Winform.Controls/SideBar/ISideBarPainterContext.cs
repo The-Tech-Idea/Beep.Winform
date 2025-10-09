@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.SideBar
         Rectangle Bounds { get; }
         Rectangle DrawingRect { get; }
 
-        // Theme and colors
+        // MenuStyle and colors
         IBeepTheme Theme { get; }
         bool UseThemeColors { get; }
         Color AccentColor { get; }

@@ -202,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         // Handle ComboBox popup after focus is established
                         if (_currenteditorUIcomponent is BeepComboBox cb)
                         {
-                            try { cb.IsPopupOpen = true; } catch { }
+                           // try { cb.IsPopupOpen = true; } catch { }
                         }
                     } 
                     catch { }
@@ -306,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 if (_currenteditorUIcomponent is BeepComboBox combo)
                 {
                     combo.PopupClosed -= OnComboPopupClosed;
-                    try { combo.IsPopupOpen = false; } catch { }
+                   // try { combo.IsPopupOpen = false; } catch { }
                 }
 
                 // Detach grid event handlers
@@ -387,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (_suppressLostFocus || _isEndingEdit) return;
             
             // For ComboBox, don't end edit if popup is open
-            if (sender is BeepComboBox combo && combo.IsPopupOpen)
+            if (sender is BeepComboBox combo )
                 return;
                 
             EndEdit(true);

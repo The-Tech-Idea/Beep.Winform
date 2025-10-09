@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 IconLeftPadding = 10,
                 IconSize = 22,
                 FontHeightMultiplier = 2.6f,
-                // Keep extras minimal, but allow Theme as a playful toggle
+                // Keep extras minimal, but allow MenuStyle as a playful toggle
                 ShowThemeButton = true,
                 ShowStyleButton = false,
                 ShowSearchButton = false,

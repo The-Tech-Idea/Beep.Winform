@@ -505,7 +505,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                         {
                             // Set global current theme like AppBar does
                             BeepThemesManager.SetCurrentTheme(theme);
-                            // Set the host's Theme property, which triggers ApplyTheme()
+                            // Set the host's MenuStyle property, which triggers ApplyTheme()
                             _host.AsForm.GetType().GetProperty("Theme")?.SetValue(_host.AsForm, theme);
                         }
                         catch { }

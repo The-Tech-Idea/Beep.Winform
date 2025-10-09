@@ -1103,7 +1103,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Invalidate();
             }
         }
-        // Theme Properties
+        // MenuStyle Properties
 
 
 
@@ -4821,7 +4821,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #endregion
         #region FontSafty
-        // Add this method to the BeepControl class in the "Theme" region
+        // Add this method to the BeepControl class in the "MenuStyle" region
 
         /// <summary>
         /// Safely applies a font without causing control positioning issues

@@ -380,7 +380,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 return;
             }
             BackColor =_currentTheme.ListBackColor;
-            //beepPanel1.Theme = beepuiManager1.Theme;
+            //beepPanel1.MenuStyle = beepuiManager1.MenuStyle;
             BorderColor = _currentTheme.ListBorderColor;
             ForeColor = _currentTheme.ListForeColor;
             if (_beepListBox != null) _beepListBox.Theme = Theme;

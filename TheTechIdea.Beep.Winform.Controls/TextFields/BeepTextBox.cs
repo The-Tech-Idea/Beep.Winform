@@ -21,6 +21,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         // - BeepTextBox.Input.cs: Keyboard input and text operations
         // - BeepTextBox.Methods.cs: Helper methods and IBeepTextBox implementation
         // - BeepTextBox.Drawing.cs: Drawing methods
-        // - BeepTextBox.Theme.cs: Theme and styling
+        // - BeepTextBox.MenuStyle.cs: MenuStyle and styling
     }
 }

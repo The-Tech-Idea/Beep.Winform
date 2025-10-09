@@ -24,10 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             set
             {
                 _listItems = value ?? new BindingList<SimpleItem>();
-                if (_popupForm != null)
-                {
-                    _popupForm.ListItems = _listItems;
-                }
+              
                 Invalidate();
             }
         }
@@ -142,27 +139,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         [Description("Placeholder text shown when no item is selected.")]
         public string PlaceholderText { get; set; } = "Select an item...";
         
-        [Browsable(true)]
-        [Category("Appearance")]
-        [Description("Whether the popup is currently open.")]
-        public bool IsPopupOpen
-        {
-            get => _isPopupOpen;
-            set
-            {
-                if (_isPopupOpen == value) return;
+        //[Browsable(true)]
+        //[Category("Appearance")]
+        //[Description("Whether the popup is currently open.")]
+        //public bool IsPopupOpen
+        //{
+        //    get => _isPopupOpen;
+        //    set
+        //    {
+        //        if (_isPopupOpen == value) return;
                 
-                _isPopupOpen = value;
-                if (_isPopupOpen)
-                {
-                    ShowPopup();
-                }
-                else
-                {
-                    ClosePopup();
-                }
-            }
-        }
+        //        _isPopupOpen = value;
+        //        if (_isPopupOpen)
+        //        {
+        //            ShowPopup();
+        //        }
+        //        else
+        //        {
+        //            ClosePopup();
+        //        }
+        //    }
+        //}
         
         [Browsable(true)]
         [Category("Appearance")]

@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.IsHovered = false;
 
             cmbFilterCol1.IsNew = false;
-            cmbFilterCol1.IsPopupOpen = false;
+        
             cmbFilterCol1.IsPressed = false;
 
             cmbFilterCol1.IsReadOnly = false;
@@ -387,7 +387,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.IsHovered = false;
        
             cmbFilterVal1.IsNew = false;
-            cmbFilterVal1.IsPopupOpen = false;
+          
             cmbFilterVal1.IsPressed = false;
         
             cmbFilterVal1.IsReadOnly = false;
@@ -562,7 +562,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.IsHovered = false;
           
             cmbFilterCol2.IsNew = false;
-            cmbFilterCol2.IsPopupOpen = false;
+          
             cmbFilterCol2.IsPressed = false;
           
             cmbFilterCol2.IsReadOnly = false;
@@ -737,7 +737,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.IsHovered = false;
           
             cmbFilterVal2.IsNew = false;
-            cmbFilterVal2.IsPopupOpen = false;
+        
             cmbFilterVal2.IsPressed = false;
           
             cmbFilterVal2.IsReadOnly = false;
@@ -912,7 +912,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.IsHovered = false;
          
             cmbGroupBy.IsNew = false;
-            cmbGroupBy.IsPopupOpen = false;
+          
             cmbGroupBy.IsPressed = false;
            
             cmbGroupBy.IsReadOnly = false;
@@ -1087,7 +1087,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.IsHovered = false;
        
             cmbOrderBy.IsNew = false;
-            cmbOrderBy.IsPopupOpen = false;
+      
             cmbOrderBy.IsPressed = false;
         
             cmbOrderBy.IsReadOnly = false;

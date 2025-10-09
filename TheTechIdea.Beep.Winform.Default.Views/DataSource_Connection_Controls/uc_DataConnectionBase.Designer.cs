@@ -553,7 +553,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.IsHovered = false;
           
             DriverbeepComboBox.IsNew = false;
-            DriverbeepComboBox.IsPopupOpen = false;
+        
             DriverbeepComboBox.IsPressed = false;
            
             DriverbeepComboBox.IsReadOnly = false;
@@ -908,7 +908,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox.IsHovered = false;
          
             DriverVersionbeepComboBox.IsNew = false;
-            DriverVersionbeepComboBox.IsPopupOpen = false;
+          
             DriverVersionbeepComboBox.IsPressed = false;
             
             DriverVersionbeepComboBox.IsReadOnly = false;

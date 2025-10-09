@@ -233,7 +233,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars.Helpers
             OnButtonClicked?.Invoke(this, arg);
             Clicked?.Invoke(this, new BeepMouseEventArgs("Theme", _componentFactory.ThemeButton));
 
-            // Theme menu handling would be done by BeepAppBarMenuHelper
+            // MenuStyle menu handling would be done by BeepAppBarMenuHelper
         }
 
         private void HandleMinimizeClick()

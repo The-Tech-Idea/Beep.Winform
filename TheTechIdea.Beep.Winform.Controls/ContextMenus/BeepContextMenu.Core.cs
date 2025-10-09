@@ -1,0 +1,326 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
+
+namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
+{
+    /// <summary>
+    /// Core fields, properties, and initialization for BeepContextMenu
+    /// Modern implementation using painter methodology
+    /// </summary>
+    public partial class BeepContextMenu : Form
+    {
+#pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
+        
+        #region Helper and Painter
+        
+        /// <summary>
+        /// The input helper that manages user interaction
+        /// </summary>
+        private BeepContextMenuInputHelper _inputHelper;
+        
+        /// <summary>
+        /// The layout helper that computes item positions
+        /// </summary>
+        private BeepContextMenuLayoutHelper _layoutHelper;
+        
+        /// <summary>
+        /// Gets the input helper instance for internal use
+        /// </summary>
+        internal BeepContextMenuInputHelper InputHelper => _inputHelper;
+        
+        /// <summary>
+        /// Gets the layout helper instance for internal use
+        /// </summary>
+        internal BeepContextMenuLayoutHelper LayoutHelper => _layoutHelper;
+        
+        /// <summary>
+        /// The painter instance (will be recreated when ContextMenuType changes)
+        /// </summary>
+        private IContextMenuPainter _contextMenuPainter;
+        
+        /// <summary>
+        /// Returns the preferred item height from the active painter, or fallback to default
+        /// </summary>
+        public int PreferredItemHeight
+        {
+            get
+            {
+                if (_contextMenuPainter != null)
+                {
+                    try { return _contextMenuPainter.GetPreferredItemHeight(); } catch { }
+                }
+                return _menuItemHeight;
+            }
+        }
+        
+        #endregion
+        
+        #region Core Fields
+        
+        // Visual style
+        private ContextMenuType _contextMenuType = ContextMenuType.Standard;
+        
+        // Menu items
+        private BindingList<SimpleItem> _menuItems = new BindingList<SimpleItem>();
+        private SimpleItem _selectedItem;
+        private int _selectedIndex = -1;
+        
+        // Multi-select support
+        private bool _multiSelect = false;
+        private List<SimpleItem> _selectedItems = new List<SimpleItem>();
+        
+        // Visual options
+        private bool _showCheckBox = false;
+        private bool _showImage = true;
+        private bool _showSeparators = true;
+        private bool _showShortcuts = true;
+        
+        // Layout caching
+        private int _menuItemHeight = 28;
+        private int _imageSize = 20;
+        private Rectangle _contentAreaRect;
+        private int _menuWidth = 200;
+        private int _minWidth = 150;
+        private int _maxWidth = 400;
+        
+        // Visual state
+        private SimpleItem _hoveredItem = null;
+        private int _hoveredIndex = -1;
+        
+        // Font
+        private Font _textFont = new Font("Segoe UI", 9f);
+        private Font _shortcutFont = new Font("Segoe UI", 8f);
+        
+        // DPI scaling
+        private float _scaleFactor = 1.0f;
+        
+    // MenuStyle (visual style of the context menu painter)
+    private ContextMenuType menustyle = ContextMenuType.Material;
+
+    // Theme management (aligns with BaseControl pattern)
+    private string _themeName = ThemeManagement.BeepThemesManager.CurrentThemeName;
+    private IBeepTheme _currentTheme = ThemeManagement.BeepThemesManager.GetDefaultTheme();
+    private bool _subscribedToThemeChanged = false;
+        
+        // Owner control
+        private Control _owner;
+        
+        // Auto-close behavior
+        private bool _closeOnItemClick = true;
+        private bool _closeOnFocusLost = true;
+        
+        // Submenu support
+        private BeepContextMenu _openSubmenu = null;
+        private Timer _submenuTimer;
+        private SimpleItem _submenuPendingItem;
+        
+        // Animation
+        private Timer _fadeTimer;
+        private double _opacity = 0;
+        private const int FADE_STEPS = 10;
+        private const int FADE_INTERVAL = 20;
+
+    // Lifecycle behavior: by default, hide instead of disposing on Close
+    private bool _destroyOnClose = false;
+
+    // Fonts adoption toggle (follow theme fonts automatically)
+    private bool _useThemeFonts = true;
+        
+        #endregion
+        
+        #region Initialization
+        
+        public BeepContextMenu()
+        {
+            InitializeComponent();
+            InitializeControl();
+        }
+        
+        private void InitializeControl()
+        {
+            // Form setup
+            FormBorderStyle = FormBorderStyle.None;
+            StartPosition = FormStartPosition.Manual;
+            ShowInTaskbar = false;
+            TopMost = true;
+            BackColor = Color.White;
+            
+            // Double buffering for smooth rendering
+            SetStyle(ControlStyles.AllPaintingInWmPaint | 
+                     ControlStyles.UserPaint | 
+                     ControlStyles.OptimizedDoubleBuffer | 
+                     ControlStyles.ResizeRedraw, true);
+            UpdateStyles();
+            
+            // DPI awareness
+            UpdateDpiScale();
+            
+            // Initialize helpers
+            _inputHelper = new BeepContextMenuInputHelper(this);
+            _layoutHelper = new BeepContextMenuLayoutHelper(this);
+            
+            // Set default painter
+            SetPainter(ContextMenuType.Standard);
+            
+            // Initialize submenu timer
+            _submenuTimer = new Timer();
+            _submenuTimer.Interval = 400; // 400ms delay before showing submenu
+            _submenuTimer.Tick += SubmenuTimer_Tick;
+            
+            // Initialize fade timer
+            _fadeTimer = new Timer();
+            _fadeTimer.Interval = FADE_INTERVAL;
+            _fadeTimer.Tick += FadeTimer_Tick;
+            
+            // Event handlers
+            this.MouseMove += BeepContextMenu_MouseMove;
+            this.MouseClick += BeepContextMenu_MouseClick;
+            this.MouseLeave += BeepContextMenu_MouseLeave;
+            this.Deactivate += BeepContextMenu_Deactivate;
+            this.VisibleChanged += BeepContextMenu_VisibleChanged;
+
+            // Initialize theme based on BeepThemesManager
+            try
+            {
+                _themeName = ThemeManagement.BeepThemesManager.CurrentThemeName;
+                _currentTheme = ThemeManagement.BeepThemesManager.GetTheme(_themeName)
+                                  ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
+                // Adopt theme fonts initially
+                ApplyThemeFontsSafely();
+            }
+            catch { /* best-effort */ }
+        }
+
+        public void UpdateDpiScale()
+        {
+            using (var g = CreateGraphics())
+            {
+                _scaleFactor = g.DpiX / 96f;
+            }
+        }
+        
+        public int ScaleDpi(int value) => (int)(value * _scaleFactor);
+
+        public void SetPainter(ContextMenuType type)
+        {
+            _contextMenuPainter = type switch
+            {
+                ContextMenuType.Standard => new StandardContextMenuPainter(),
+                ContextMenuType.Material => new MaterialContextMenuPainter(),
+                ContextMenuType.Minimal => new MinimalContextMenuPainter(),
+                ContextMenuType.Flat => new FlatContextMenuPainter(),
+                ContextMenuType.Office => new OfficeContextMenuPainter(),
+                _ => new StandardContextMenuPainter()
+            };
+            
+            Invalidate();
+        }
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+            TrySubscribeThemeChanged(DesignMode);
+        }
+
+        protected override void OnHandleDestroyed(EventArgs e)
+        {
+            // Unsubscribe to avoid leaks
+            try
+            {
+                ThemeManagement.BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
+                _subscribedToThemeChanged = false;
+            }
+            catch { /* best-effort */ }
+            base.OnHandleDestroyed(e);
+        }
+
+        // Subscribe to BeepThemesManager to auto-apply theme changes (mirrors BaseControl)
+        private void TrySubscribeThemeChanged(bool isDesignMode)
+        {
+            if (_subscribedToThemeChanged || isDesignMode) return;
+            try
+            {
+                ThemeManagement.BeepThemesManager.ThemeChanged -= OnGlobalThemeChanged;
+                ThemeManagement.BeepThemesManager.ThemeChanged += OnGlobalThemeChanged;
+                _subscribedToThemeChanged = true;
+            }
+            catch { /* best-effort */ }
+        }
+
+        private void OnGlobalThemeChanged(object? sender, EventArgs e)
+        {
+            if (IsDisposed) return;
+            try
+            {
+                var newThemeName = ThemeManagement.BeepThemesManager.CurrentThemeName;
+                _themeName = newThemeName;
+                _currentTheme = ThemeManagement.BeepThemesManager.GetTheme(newThemeName)
+                               ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
+                ApplyThemeFontsSafely();
+                Invalidate();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BeepContextMenu: OnGlobalThemeChanged error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Apply theme fonts to TextFont and ShortcutFont when enabled. Safe fallbacks retained.
+        /// </summary>
+        private void ApplyThemeFontsSafely()
+        {
+            if (!_useThemeFonts) return;
+            try
+            {
+                var theme = _currentTheme;
+                if (theme != null)
+                {
+                    // Use LabelFont as a reasonable default for menu items
+                    var text = TheTechIdea.Beep.Winform.Controls.ThemeManagement.BeepThemesManager.ToFont(theme.LabelFont);
+                    if (text != null)
+                    {
+                        _textFont = text;
+                    }
+
+                    // Shortcut font: slightly smaller than text font
+                    if (_textFont != null)
+                    {
+                        float size = Math.Max(6f, _textFont.Size - 1f);
+                        _shortcutFont = new System.Drawing.Font(_textFont.FontFamily, size, _textFont.Style);
+                    }
+                }
+            }
+            catch { /* keep existing fonts on any error */ }
+        }
+        
+        #endregion
+        
+        #region IDisposable Support
+        
+        //protected override void Dispose(bool disposing)
+        //{
+        //    if (disposing)
+        //    {
+        //        _submenuTimer?.Stop();
+        //        _submenuTimer?.Dispose();
+        //        _fadeTimer?.Stop();
+        //        _fadeTimer?.Dispose();
+        //        _openSubmenu?.Dispose();
+        //    }
+        //    base.Dispose(disposing);
+        //}
+        
+        #endregion
+        
+#pragma warning restore IL2026
+    }
+}

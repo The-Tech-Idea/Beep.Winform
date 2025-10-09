@@ -486,7 +486,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Classic;
             beepAppTree1.ParentBackColor = Color.White;
             beepAppTree1.ParentControl = null;
-            beepAppTree1.PopupListForm = null;
+        
             beepAppTree1.PressedBackColor = Color.Gray;
             beepAppTree1.PressedBorderColor = Color.DarkGray;
             beepAppTree1.PressedForeColor = Color.White;

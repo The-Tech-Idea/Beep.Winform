@@ -446,7 +446,7 @@
 //                TextAlign = ContentAlignment.MiddleLeft,
 //                AutoSize = false,
 //                Height = 30,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true
 //            };
 //        }
@@ -457,7 +457,7 @@
 //            _vScrollBar = new BeepScrollBar
 //            {
 //                ScrollOrientation = Orientation.Vertical,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -468,7 +468,7 @@
 //            _hScrollBar = new BeepScrollBar
 //            {
 //                ScrollOrientation = Orientation.Horizontal,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -483,7 +483,7 @@
 //            {
 //                Height = 35,
 //                Dock = DockStyle.Top,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true
 //            };
 //            _headerPanel.Controls.Add(_titleLabel);
@@ -494,7 +494,7 @@
 //            {
 //                Height = 30,
 //                Dock = DockStyle.Top,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -505,7 +505,7 @@
 //            {
 //                Height = 25,
 //                Dock = DockStyle.Bottom,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -526,7 +526,7 @@
 //                TextAlign = ContentAlignment.MiddleLeft,
 //                AutoSize = false,
 //                Height = 30,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true
 //            };
 //        }
@@ -537,7 +537,7 @@
 //            _vScrollBar = new BeepScrollBar
 //            {
 //                ScrollOrientation = Orientation.Vertical,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -548,7 +548,7 @@
 //            _hScrollBar = new BeepScrollBar
 //            {
 //                ScrollOrientation = Orientation.Horizontal,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -563,7 +563,7 @@
 //            {
 //                Height = 35,
 //                Dock = DockStyle.Top,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true
 //            };
 //            _headerPanel.Controls.Add(_titleLabel);
@@ -574,7 +574,7 @@
 //            {
 //                Height = 30,
 //                Dock = DockStyle.Top,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -585,7 +585,7 @@
 //            {
 //                Height = 25,
 //                Dock = DockStyle.Bottom,
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                Visible = false
 //            };
@@ -979,7 +979,7 @@
 //                HideText = true,
 //                Text = "",
 //                Size = new Size(20, 20),
-//                Theme = Theme,
+//                MenuStyle = MenuStyle,
 //                IsChild = true,
 //                CheckedValue = true,
 //                UncheckedValue = false,
@@ -1145,7 +1145,7 @@
 //                    IsFrameless = true,
 //                    Size = buttonRect.Size,
 //                    IsChild = true,
-//                    Theme = Theme,
+//                    MenuStyle = MenuStyle,
 //                    MaxImageSize = new Size(buttonRect.Width - 4, buttonRect.Height - 4)
 //                };
 
@@ -1357,7 +1357,7 @@
 //                        {
 //                            Text = column.ColumnCaption,
 //                            TextAlign = ContentAlignment.MiddleCenter,
-//                            Theme = Theme,
+//                            MenuStyle = MenuStyle,
 //                            IsChild = true,
 //                            BackColor = _currentTheme.GridHeaderBackColor,
 //                            ForeColor = _currentTheme.GridHeaderForeColor
@@ -1462,7 +1462,7 @@
 //                    HideText = true,
 //                    Text = "",
 //                    CurrentValue = isSelected,
-//                    Theme = Theme,
+//                    MenuStyle = MenuStyle,
 //                    IsChild = true,
 //                    Size = new Size(Math.Min(20, innerBounds.Width), Math.Min(20, innerBounds.Height)),
 //                    ForeColor = _currentTheme.CheckBoxForeColor,
@@ -1673,7 +1673,7 @@
 //                case BeepColumnType.CheckBoxBool:
 //                    return new BeepCheckBoxBool 
 //                    { 
-//                        Theme = Theme, 
+//                        MenuStyle = MenuStyle, 
 //                        IsChild = true,
 //                        HideText = true,
 //                        Text = string.Empty
@@ -1682,21 +1682,21 @@
 //                case BeepColumnType.ProgressBar:
 //                    return new BeepProgressBar 
 //                    { 
-//                        Theme = Theme, 
+//                        MenuStyle = MenuStyle, 
 //                        IsChild = true 
 //                    };
                     
 //                case BeepColumnType.Image:
 //                    return new BeepImage 
 //                    { 
-//                        Theme = Theme, 
+//                        MenuStyle = MenuStyle, 
 //                        IsChild = true 
 //                    };
                     
 //                default:
 //                    return new BeepLabel 
 //                    { 
-//                        Theme = Theme, 
+//                        MenuStyle = MenuStyle, 
 //                        IsChild = true,
 //                        TextAlign = ContentAlignment.MiddleLeft
 //                    };
@@ -2286,7 +2286,7 @@
 //                    Width = column.Width - 2,
 //                    Height = _filterPanel.Height - 4,
 //                    Location = new Point(xOffset, 2),
-//                    Theme = Theme,
+//                    MenuStyle = MenuStyle,
 //                    IsChild = true
 //                };
                 
@@ -2399,7 +2399,7 @@
 //                    var textBox = new BeepTextBox
 //                    {
 //                        Text = value?.ToString() ?? "",
-//                        Theme = Theme,
+//                        MenuStyle = MenuStyle,
 //                        IsChild = true
 //                    };
 //                    return textBox;
@@ -2408,7 +2408,7 @@
 //                    var checkBox = new BeepCheckBoxBool
 //                    {
 //                        CurrentValue = Convert.ToBoolean(value),
-//                        Theme = Theme,
+//                        MenuStyle = MenuStyle,
 //                        IsChild = true
 //                    };
 //                    return checkBox;
@@ -2416,7 +2416,7 @@
 //                case BeepColumnType.ComboBox:
 //                    var comboBox = new BeepComboBox
 //                    {
-//                        Theme = Theme,
+//                        MenuStyle = MenuStyle,
 //                        IsChild = true
 //                    };
 //                    if (column.Items != null)
@@ -2431,7 +2431,7 @@
 //                    return new BeepTextBox
 //                    {
 //                        Text = value?.ToString() ?? "",
-//                        Theme = Theme,
+//                        MenuStyle = MenuStyle,
 //                        IsChild = true
 //                    };
 //            }
@@ -2597,7 +2597,7 @@
         
 //        #endregion
         
-//        #region Theme Support
+//        #region MenuStyle Support
         
 //        public override void ApplyTheme()
 //        {

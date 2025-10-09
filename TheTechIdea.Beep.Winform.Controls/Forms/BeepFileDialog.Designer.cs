@@ -164,7 +164,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _specialFoldersComboBox.IsFrameless = false;
             _specialFoldersComboBox.IsHovered = false;
             _specialFoldersComboBox.IsNew = false;
-            _specialFoldersComboBox.IsPopupOpen = false;
+           
             _specialFoldersComboBox.IsPressed = false;
             _specialFoldersComboBox.IsReadOnly = false;
             _specialFoldersComboBox.IsRequired = false;

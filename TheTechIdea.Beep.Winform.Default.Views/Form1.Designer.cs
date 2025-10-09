@@ -317,7 +317,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.IsFrameless = false;
             beepComboBox1.IsHovered = false;
             beepComboBox1.IsNew = false;
-            beepComboBox1.IsPopupOpen = false;
+       
             beepComboBox1.IsPressed = false;
             beepComboBox1.IsReadOnly = false;
             beepComboBox1.IsRequired = false;
@@ -890,7 +890,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
             beepTree1.ParentBackColor = SystemColors.Control;
             beepTree1.ParentControl = null;
-            beepTree1.PopupListForm = null;
+           
             beepTree1.PressedBackColor = Color.Gray;
             beepTree1.PressedBorderColor = Color.DarkGray;
             beepTree1.PressedForeColor = Color.White;

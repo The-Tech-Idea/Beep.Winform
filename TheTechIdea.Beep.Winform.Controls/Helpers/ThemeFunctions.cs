@@ -108,25 +108,25 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             try
             {
-                // Check if the control itself has a "Theme" property
+                // Check if the control itself has a "MenuStyle" property
                 var themeProperty = control.GetType().GetProperty("Theme");
                 if (themeProperty != null && themeProperty.PropertyType == typeof(string))
                 {
-                    // Set the "Theme" property on the control
+                    // Set the "MenuStyle" property on the control
                     themeProperty.SetValue(control, theme);
-                   ////MiscFunctions.SendLog($"Theme property set on control: {control.Name}");
+                   ////MiscFunctions.SendLog($"MenuStyle property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
-                // Check if the control has a "Theme" property in its components
+                // Check if the control has a "MenuStyle" property in its components
                 var themePropertyInComponents = control.GetType().GetProperty("Theme", BindingFlags.Instance | BindingFlags.NonPublic);
                 if (themePropertyInComponents != null && themePropertyInComponents.PropertyType == typeof(string))
                 {
-                    // Set the "Theme" property on the control's components
+                    // Set the "MenuStyle" property on the control's components
                     themePropertyInComponents.SetValue(control, theme);
-                   ////MiscFunctions.SendLog($"Theme property set on control components: {control.Name}");
+                   ////MiscFunctions.SendLog($"MenuStyle property set on control components: {control.Name}");
                     return; // Exit after setting the property
                 }
-               ////MiscFunctions.SendLog("No 'Theme' property found on the control or its components.");
+               ////MiscFunctions.SendLog("No 'MenuStyle' property found on the control or its components.");
             }
             catch (Exception ex)
             {
@@ -141,25 +141,25 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
             }
             try
             {
-                // Check if the control itself has a "Theme" property
+                // Check if the control itself has a "MenuStyle" property
                 var themeProperty = control.GetType().GetProperty(propertyName);
                 if (themeProperty != null && themeProperty.PropertyType == typeof(string))
                 {
-                    // Set the "Theme" property on the control
+                    // Set the "MenuStyle" property on the control
                     themeProperty.SetValue(control, theme);
-                   ////MiscFunctions.SendLog($"Theme property set on control: {control.Name}");
+                   ////MiscFunctions.SendLog($"MenuStyle property set on control: {control.Name}");
                     return; // Exit after setting the property
                 }
-                // Check if the control has a "Theme" property in its components
+                // Check if the control has a "MenuStyle" property in its components
                 var themePropertyInComponents = control.GetType().GetProperty(propertyName, BindingFlags.Instance | BindingFlags.NonPublic);
                 if (themePropertyInComponents != null && themePropertyInComponents.PropertyType == typeof(string))
                 {
-                    // Set the "Theme" property on the control's components
+                    // Set the "MenuStyle" property on the control's components
                     themePropertyInComponents.SetValue(control, theme);
-                   ////MiscFunctions.SendLog($"Theme property set on control components: {control.Name}");
+                   ////MiscFunctions.SendLog($"MenuStyle property set on control components: {control.Name}");
                     return; // Exit after setting the property
                 }
-               ////MiscFunctions.SendLog("No 'Theme' property found on the control or its components.");
+               ////MiscFunctions.SendLog("No 'MenuStyle' property found on the control or its components.");
             }
             catch (Exception ex)
             {

@@ -543,7 +543,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.IsFrameless = false;
             SystemFolderbeepComboBox.IsHovered = false;
             SystemFolderbeepComboBox.IsNew = false;
-            SystemFolderbeepComboBox.IsPopupOpen = false;
+      
             SystemFolderbeepComboBox.IsPressed = false;
             SystemFolderbeepComboBox.IsReadOnly = false;
             SystemFolderbeepComboBox.IsRequired = false;
@@ -1294,7 +1294,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.IsFrameless = false;
             LocalDbTypebeepComboBox.IsHovered = false;
             LocalDbTypebeepComboBox.IsNew = false;
-            LocalDbTypebeepComboBox.IsPopupOpen = false;
+           
             LocalDbTypebeepComboBox.IsPressed = false;
             LocalDbTypebeepComboBox.IsReadOnly = false;
             LocalDbTypebeepComboBox.IsRequired = false;

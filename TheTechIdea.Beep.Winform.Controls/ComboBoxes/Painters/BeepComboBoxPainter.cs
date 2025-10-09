@@ -206,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters
             }
             
             // Fallback: draw a simple arrow
-            DrawSimpleArrow(g, buttonRect, _owner.IsPopupOpen);
+            DrawSimpleArrow(g, buttonRect, false);
         }
         
         private void DrawSimpleArrow(Graphics g, Rectangle buttonRect, bool isOpen)

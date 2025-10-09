@@ -8,6 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes.Painters;
+using TheTechIdea.Beep.Winform.Controls.ContextMenus;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -16,6 +17,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     /// Core fields, properties, and initialization for BeepComboBox
     /// Modern implementation using painter methodology and BaseControl features
     /// </summary>
+#pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
     public partial class BeepComboBox : BaseControl
     {
         #region Helper and Painter
@@ -52,9 +54,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         private SimpleItem _selectedItem;
         private int _selectedItemIndex = -1;
         
-        // Popup management
-        private BeepPopupListForm _popupForm;
-        private bool _isPopupOpen = false;
+        // Dropdown state (uses inherited BeepContextMenu from BaseControl)
+        private bool _isDropdownOpen = false;
         
         // Text and editing
         private string _inputText = string.Empty;
@@ -124,8 +125,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             BorderRadius = 4;
             ShowAllBorders = true;
             
-            // Initialize popup form
-            InitializePopupForm();
+            // Initialize context menu (using inherited BeepContextMenu from BaseControl)
+            InitializeContextMenu();
             
             // Set dropdown icon
             SetDropdownIcon();
@@ -143,14 +144,28 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #region Initialization Methods
         
-        private void InitializePopupForm()
+        private void InitializeContextMenu()
         {
-            _popupForm = new BeepPopupListForm();
-            _popupForm.ListItems = _listItems;
-            _popupForm.ItemSelected += OnPopupItemSelected;
-            _popupForm.FormClosed += (s, e) =>
+            // Initialize the inherited BeepContextMenu from BaseControl
+            if (BeepContextMenu == null)
             {
-                _isPopupOpen = false;
+                BeepContextMenu = new BeepContextMenu();
+            }
+            
+            BeepContextMenu.MenuStyle = MenuStyle;
+            BeepContextMenu.ShowImage = true;
+            BeepContextMenu.ShowCheckBox = false;
+            BeepContextMenu.ShowSeparators = false;
+            BeepContextMenu.ContextMenuType = ContextMenuType.Material;
+            // Ensure theme and lifecycle are aligned with the control
+            BeepContextMenu.Theme = this.Theme;
+            BeepContextMenu.DestroyOnClose = false; // reuse for dropdown
+            
+            // Wire up events
+            BeepContextMenu.ItemClicked += OnContextMenuItemClicked;
+            BeepContextMenu.MenuClosing += (s, e) =>
+            {
+                _isDropdownOpen = false;
                 PopupClosed?.Invoke(this, EventArgs.Empty);
                 Invalidate();
             };
@@ -184,10 +199,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Otherwise handled by hit areas
         }
         
-        private void OnPopupItemSelected(object sender, SimpleItem selectedItem)
+        private void OnContextMenuItemClicked(object sender, MenuItemEventArgs e)
         {
-            SelectedItem = selectedItem;
-            ClosePopup();
+            SelectedItem = e.Item;
+            CloseDropdown();
         }
         
         #endregion
@@ -232,11 +247,10 @@ namespace TheTechIdea.Beep.Winform.Controls
                 _delayedInvalidateTimer?.Dispose();
                 _delayedInvalidateTimer = null;
                 
-                if (_popupForm != null)
+                // Unwire BeepContextMenu events (but don't dispose - managed by BaseControl)
+                if (BeepContextMenu != null)
                 {
-                    _popupForm.ItemSelected -= OnPopupItemSelected;
-                    _popupForm.Dispose();
-                    _popupForm = null;
+                    BeepContextMenu.ItemClicked -= OnContextMenuItemClicked;
                 }
                 
                 _helper?.Dispose();
@@ -248,4 +262,5 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         #endregion
     }
+#pragma warning restore IL2026
 }

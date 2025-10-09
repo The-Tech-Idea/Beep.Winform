@@ -212,7 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (_imageEmbededin != value)
                 {
                     _imageEmbededin = value;
-                    _stateChanged = true; // Theme color rules changed -> recache
+                    _stateChanged = true; // MenuStyle color rules changed -> recache
                     _cachedRenderedImage?.Dispose();
                     _cachedRenderedImage = null;
                     ApplyThemeToSvg();
@@ -652,7 +652,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     // Potential place for non-SVG theming, if needed
                 }
             }
-            // Theme changed -> ensure cache regenerates even if rect hasn't changed
+            // MenuStyle changed -> ensure cache regenerates even if rect hasn't changed
             _stateChanged = true;
             _cachedRenderedImage?.Dispose();
             _cachedRenderedImage = null;

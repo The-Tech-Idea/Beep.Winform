@@ -375,14 +375,14 @@ namespace TheTechIdea.Beep.Winform.Controls
             PressedBackColor = _currentTheme.ButtonPressedBackColor;
             PressedForeColor = _currentTheme.ButtonPressedForeColor;
 
-            //  if (_beepListBox != null)   _beepListBox.Theme = Theme;
+            //  if (_beepListBox != null)   _beepListBox.MenuStyle = MenuStyle;
             //if (UseThemeFont)
             //{
             //    _textFont = BeepThemesManager.ToFont(_currentTheme.ButtonStyle);
             //    Font = _textFont;
             //}
 
-            //beepImage.Theme = Theme;
+            //beepImage.MenuStyle = MenuStyle;
             //ApplyThemeToSvg();
             Invalidate();  // Trigger repaint
         }

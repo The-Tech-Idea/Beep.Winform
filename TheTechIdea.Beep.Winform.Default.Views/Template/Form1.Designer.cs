@@ -133,7 +133,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepComboBox1.IsFrameless = false;
             beepComboBox1.IsHovered = false;
             beepComboBox1.IsNew = false;
-            beepComboBox1.IsPopupOpen = false;
+        
             beepComboBox1.IsPressed = false;
             beepComboBox1.IsReadOnly = false;
             beepComboBox1.IsRequired = false;

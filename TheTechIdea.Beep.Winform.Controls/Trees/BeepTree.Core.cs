@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 		private bool _useThemeFont = true;
 		private Font _textFont = new Font("Arial", 10);
 		private TextAlignment _textAlignment = TextAlignment.Left;
-		private bool _showCheckBox = true;
+		private bool _showCheckBox = false;
 
 		// Behavior/performance
 		private bool _allowMultiSelect = false;

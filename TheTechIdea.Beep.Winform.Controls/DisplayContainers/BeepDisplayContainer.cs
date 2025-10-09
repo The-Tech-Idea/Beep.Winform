@@ -211,7 +211,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         IBeepUIComponent beepUIComponent = (IBeepUIComponent)view;
                         form.Load += (s, e) =>
                         {
-                            //MiscFunctions.SetThemePropertyinControlifexist( form, Theme);
+                            //MiscFunctions.SetThemePropertyinControlifexist( form, MenuStyle);
                         };
                         // Ensure this runs on the UI thread
                         if (form.InvokeRequired)

@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _inpopupmode = false;
         private string _title = "BeepiForm";
         private bool _inMoveOrResize = false;
-        // Theme reference is nullable during design-time to avoid loading heavy theme machinery
+        // MenuStyle reference is nullable during design-time to avoid loading heavy theme machinery
         protected IBeepTheme? _currentTheme; // nullable; resolved on demand
 
         // Removed incomplete FallbackTheme class (was causing compile errors)

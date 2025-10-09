@@ -1108,7 +1108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 return;
             }
 
-            // Theme button click
+            // MenuStyle button click
             if (_showThemeIcon && themeRect.Contains(mousePoint))
             {
                 HandleThemeClick();

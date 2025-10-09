@@ -34,9 +34,19 @@ namespace TheTechIdea.Beep.Winform.Controls
             else if (LocalHitTest(point, out htName, out htItem, out htRect))
                 hasHit = true;
 
-            if (e.Button == MouseButtons.Right && hasHit && htName.StartsWith("row_"))
+            if (e.Button == MouseButtons.Right && hasHit)
             {
-                var guid = htName.Substring(4); // everything after "row_"
+                // Determine hit type and guid (format: "type_guid")
+                var partsRC = htName.Split('_');
+                if (partsRC.Length != 2)
+                    return;
+                var hitType = partsRC[0];
+                var guid = partsRC[1];
+
+                // Only trigger context menu for row, icon, or text areas
+                if (!(hitType == "row" || hitType == "icon" || hitType == "text"))
+                    return;
+
                 var item = _treeHelper?.FindByGuid(guid);
                 if (item != null)
                 {
@@ -362,15 +372,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Context Menu
 
-        private BeepPopupListForm _menuDialog;
         private bool _isPopupOpen;
-
-        [Browsable(false)]
-        public BeepPopupListForm PopupListForm
-        {
-            get => _menuDialog;
-            set => _menuDialog = value;
-        }
+        
 
         private void TogglePopup()
         {
@@ -386,49 +389,33 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (CurrentMenutems == null || CurrentMenutems.Count == 0)
                 return;
 
-            ClosePopup();
-
-            _menuDialog = new BeepPopupListForm(CurrentMenutems.ToList());
-            _menuDialog.Theme = Theme;
-            _menuDialog.SelectedItemChanged += MenuDialog_SelectedItemChanged;
-
-            // Show popup aligned with the clicked row; compute adjustment in SCREEN coordinates to be DPI-correct
-            int adjY = 0;
-            // Prefer exact viewport Y captured from hit-test; fallback to computing from content Y
+            // Compute screen location aligned with the clicked row
             int? viewportY = _lastContextMenuViewportY;
             if (viewportY == null && ClickedNode != null)
             {
                 viewportY = DrawingRect.Top + Math.Max(0, ClickedNode.Y - _yOffset);
             }
 
-            if (viewportY != null)
-            {
-                // Convert client viewportY to screen and get delta from control's top
-                Point clientAnchor = new Point(0, viewportY.Value);
-                Point screenAnchor = PointToScreen(clientAnchor);
-                Point triggerScreenTopLeft = PointToScreen(Point.Empty);
-                adjY = screenAnchor.Y - triggerScreenTopLeft.Y;
-            }
-            // Small X gap to the right of the control
-            Point popupAdjustment = new Point(10, adjY);
-            SimpleItem selectedItem = _menuDialog.ShowPopup(Text, this, popupAdjustment, BeepPopupFormPosition.Right, false, true);
+            Point screenTopLeft = PointToScreen(Point.Empty);
+            int targetY = screenTopLeft.Y + (viewportY ?? 0);
+            int targetX = screenTopLeft.X + this.Width + 10; // small gap to the right of control
+            Point screenLocation = new Point(targetX, targetY);
+
             _isPopupOpen = true;
+            var selectedItem = ShowContextMenu(CurrentMenutems.ToList(), screenLocation, multiSelect: false);
+            _isPopupOpen = false;
             _lastContextMenuViewportY = null; // reset after use
+
+            if (selectedItem != null)
+            {
+                MenuItemSelected?.Invoke(this, new SelectedItemChangedEventArgs(selectedItem));
+            }
             Invalidate();
         }
 
         public void ClosePopup()
         {
-            if (!_isPopupOpen) return;
-
-            if (_menuDialog != null)
-            {
-                _menuDialog.SelectedItemChanged -= MenuDialog_SelectedItemChanged;
-                _menuDialog.CloseCascade();
-                _menuDialog.Dispose();
-                _menuDialog = null;
-            }
-
+            // No persistent popup to close when using BeepContextMenu per call
             _isPopupOpen = false;
             Invalidate();
         }
@@ -437,12 +424,6 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             CurrentMenutems = menuList;
             TogglePopup();
-        }
-
-        private void MenuDialog_SelectedItemChanged(object? sender, SelectedItemChangedEventArgs e)
-        {
-            MenuItemSelected?.Invoke(this, e);
-            ClosePopup();
         }
 
         #endregion

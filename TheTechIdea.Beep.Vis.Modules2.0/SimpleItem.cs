@@ -147,12 +147,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public MenuItemType ItemType { get; set; }
         public DatasourceCategory Category { get; set; }
         public string Uri { get; set; }
-        public string KeyCombination { get; set; } //KeyCombination
+        private string _keycombination = string.Empty;
+        public string KeyCombination
+        {
+            get => _keycombination;
+            set => SetProperty(ref _keycombination, value, nameof(KeyCombination));
+        }
         public string AssemblyClassDefinitionID { get; set; }
         public string ClassDefinitionID { get; set; }
         public string PackageName { get; set; }
         public string BranchID { get; set; }
+        private string _shortcut = string.Empty;
 
+        private string _tooltip = string.Empty;
+        public string ToolTip
+        {
+            get => _tooltip;
+            set => SetProperty(ref _tooltip, value, nameof(ToolTip));
+        }
+        public string Shortcut
+        {
+            get => _shortcut;
+            set => SetProperty(ref _shortcut, value, nameof(Shortcut));
+        }
         private bool _isSelected = false;
         public bool IsSelected
         {

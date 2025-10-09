@@ -49,8 +49,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.OnMouseWheel(e);
             
-            // Scroll through items if popup is closed
-            if (!_isPopupOpen && _listItems.Count > 0)
+            // Scroll through items if dropdown is closed
+            if (!_isDropdownOpen && _listItems.Count > 0)
             {
                 int newIndex = _selectedItemIndex + (e.Delta > 0 ? -1 : 1);
                 newIndex = Math.Max(0, Math.Min(newIndex, _listItems.Count - 1));
@@ -73,9 +73,9 @@ namespace TheTechIdea.Beep.Winform.Controls
             switch (e.KeyCode)
             {
                 case Keys.Up:
-                    if (_isPopupOpen)
+                    if (_isDropdownOpen)
                     {
-                        // Let popup handle it
+                        // Context menu handles it
                     }
                     else if (_selectedItemIndex > 0)
                     {
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     break;
                     
                 case Keys.Down:
-                    if (!_isPopupOpen)
+                    if (!_isDropdownOpen)
                     {
                         if (_selectedItemIndex < _listItems.Count - 1)
                         {
@@ -93,36 +93,36 @@ namespace TheTechIdea.Beep.Winform.Controls
                         }
                         else
                         {
-                            ShowPopup();
+                            ShowDropdown();
                         }
                     }
                     e.Handled = true;
                     break;
                     
                 case Keys.Enter:
-                    if (_isPopupOpen)
+                    if (_isDropdownOpen)
                     {
-                        ClosePopup();
+                        CloseDropdown();
                     }
                     else
                     {
-                        ShowPopup();
+                        ShowDropdown();
                     }
                     e.Handled = true;
                     break;
                     
                 case Keys.Escape:
-                    if (_isPopupOpen)
+                    if (_isDropdownOpen)
                     {
-                        ClosePopup();
+                        CloseDropdown();
                         e.Handled = true;
                     }
                     break;
                     
                 case Keys.Space:
-                    if (!IsEditable && !_isPopupOpen)
+                    if (!IsEditable && !_isDropdownOpen)
                     {
-                        ShowPopup();
+                        ShowDropdown();
                         e.Handled = true;
                     }
                     break;

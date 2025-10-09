@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepAppTree1.ParentBackColor = Color.Empty;
             beepAppTree1.ParentControl = null;
-            beepAppTree1.PopupListForm = null;
+       
             beepAppTree1.PressedBackColor = Color.White;
             beepAppTree1.PressedBorderColor = Color.Gray;
             beepAppTree1.PressedForeColor = Color.Gray;

@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
         private TabLayoutHelper _layoutHelper;
         private TabAnimationHelper _animationHelper;
 
-        // Theme colors
+        // MenuStyle colors
         private Color _tabBackColor;
         private Color _tabForeColor;
         private Color _activeTabBackColor;
@@ -631,7 +631,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                         IBeepUIComponent beepUIComponent = (IBeepUIComponent)view;
                         form.Load += (s, e) =>
                         {
-                            //MiscFunctions.SetThemePropertyinControlifexist( form, Theme);
+                            //MiscFunctions.SetThemePropertyinControlifexist( form, MenuStyle);
                         };
                         // Ensure this runs on the UI thread
                         if (form.InvokeRequired)

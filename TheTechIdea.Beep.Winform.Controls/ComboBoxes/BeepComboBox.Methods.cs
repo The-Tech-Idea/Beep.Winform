@@ -9,60 +9,69 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Public Methods
         
         /// <summary>
-        /// Shows the dropdown popup
+        /// Shows the dropdown menu
         /// </summary>
-        public void ShowPopup()
+        public void ShowDropdown()
         {
-            if (_isPopupOpen || _popupForm == null || _listItems.Count == 0)
+            if (_isDropdownOpen || BeepContextMenu == null || _listItems.Count == 0)
                 return;
             
-            _isPopupOpen = true;
+            _isDropdownOpen = true;
             
-            // Calculate popup position
+            // Clear and populate context menu with list items
+            BeepContextMenu.ClearItems();
+            foreach (var item in _listItems)
+            {
+                BeepContextMenu.AddItem(item);
+            }
+            
+            // Calculate dropdown position
             Point screenLocation = PointToScreen(new Point(0, Height));
             
-            // Set popup properties
-            _popupForm.Location = screenLocation;
-            _popupForm.Width = Width;
-            _popupForm.MaxHeight = MaxDropdownHeight;
-            _popupForm.SelectedItem = _selectedItem;
+            // Set context menu width to match combo box
+            BeepContextMenu.MenuWidth = Width;
             
-            // Show popup
-            _popupForm.Show(this);
+            // Show the context menu
+            BeepContextMenu.Show(screenLocation, this);
             
             PopupOpened?.Invoke(this, EventArgs.Empty);
             Invalidate();
         }
         
         /// <summary>
-        /// Closes the dropdown popup
+        /// Closes the dropdown menu
         /// </summary>
-        public void ClosePopup()
+        public void CloseDropdown()
         {
-            if (!_isPopupOpen || _popupForm == null)
+            if (!_isDropdownOpen || BeepContextMenu == null)
                 return;
             
-            _popupForm.Hide();
-            _isPopupOpen = false;
+            BeepContextMenu.Close();
+            _isDropdownOpen = false;
             
             PopupClosed?.Invoke(this, EventArgs.Empty);
             Invalidate();
         }
         
         /// <summary>
-        /// Toggles the dropdown popup
+        /// Toggles the dropdown menu
         /// </summary>
-        public void TogglePopup()
+        public void ToggleDropdown()
         {
-            if (_isPopupOpen)
+            if (_isDropdownOpen)
             {
-                ClosePopup();
+                CloseDropdown();
             }
             else
             {
-                ShowPopup();
+                ShowDropdown();
             }
         }
+        
+        // Legacy method names for backward compatibility
+        public void ShowPopup() => ShowDropdown();
+        public void ClosePopup() => CloseDropdown();
+        public void TogglePopup() => ToggleDropdown();
         
         /// <summary>
         /// Starts editing mode (if editable)
@@ -177,12 +186,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             base.ApplyTheme();
-            
-            if (_popupForm != null && ApplyThemeToChilds)
+            // Ensure the dropdown menu follows the current theme
+            if (BeepContextMenu != null)
             {
-                // Apply theme to popup if needed
+                BeepContextMenu.Theme = this.Theme;
             }
-            
             Invalidate();
         }
         

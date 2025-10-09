@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-
+using TheTechIdea.Beep.Winform.Controls.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {

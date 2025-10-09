@@ -2,8 +2,9 @@
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
- 
- 
+using TheTechIdea.Beep.Winform.Controls.Forms;
+
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls

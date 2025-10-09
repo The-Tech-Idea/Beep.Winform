@@ -1,12 +1,13 @@
 ﻿using System.ComponentModel;
 using System.Drawing.Design;
- 
+
 using TheTechIdea.Beep.Vis.Modules;
- 
+
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Editors;
+using TheTechIdea.Beep.Winform.Controls.Forms;
 using TheTechIdea.Beep.Winform.Controls.Models;
- 
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls

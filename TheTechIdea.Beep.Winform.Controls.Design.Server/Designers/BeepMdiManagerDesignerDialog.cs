@@ -1,4 +1,5 @@
 using System.Windows.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.MDI.Designers
 {

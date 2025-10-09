@@ -1043,7 +1043,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Update="Forms\BeepWait.cs" />
+    <Compile Update="Forms\WaitForm\BeepWait.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Update="Properties\Resources.resx">
@@ -1067,9 +1067,10 @@
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
     <Folder Include="Examples\" />
-    <Folder Include="Forms\Adapters\" />
+    <Folder Include="Forms\BeepMainForm\" />
     <Folder Include="Forms\ModernForm\Helpers\" />
     <Folder Include="Forms\ModernForm\Painters\" />
+    <Folder Include="Forms\PopUpForm\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="GridX\Layouts\FooterLayouts\" />
     <Folder Include="GridX\Layouts\HeaderLayouts\" />

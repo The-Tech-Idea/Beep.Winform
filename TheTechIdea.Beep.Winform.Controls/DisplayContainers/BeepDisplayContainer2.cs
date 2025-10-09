@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
 
+
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 {
     [ToolboxItem(true)]

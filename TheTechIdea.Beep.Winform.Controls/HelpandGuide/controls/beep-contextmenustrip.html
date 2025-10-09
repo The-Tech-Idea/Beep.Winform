@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeepContextMenuStrip - Beep Controls Documentation</title>
+    <title>BeepPopupListFormStrip - Beep Controls Documentation</title>
     <link rel="stylesheet" href="../sphinx-style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,7 +48,7 @@
                             <li><a href="beep-toolstrip.html">BeepToolStrip</a></li>
                             <li><a href="beep-appbar.html">BeepAppBar</a></li>
                             <li><a href="beep-sidemenu.html">BeepSideMenu</a></li>
-                            <li><a href="beep-contextmenustrip.html" class="active">BeepContextMenuStrip</a></li>
+                            <li><a href="beep-contextmenustrip.html" class="active">BeepPopupListFormStrip</a></li>
                             <li><a href="beep-login.html">BeepLogin</a></li>
                             <li><a href="beep-wizard.html">BeepWizard</a></li>
                             <li><a href="beep-calendar.html">BeepCalendarView</a></li>
@@ -68,12 +68,12 @@
                     <span>?</span>
                     <a href="../index.html#specialized-controls">Specialized Controls</a>
                     <span>?</span>
-                    <span>BeepContextMenuStrip</span>
+                    <span>BeepPopupListFormStrip</span>
                 </nav>
 
                 <!-- Page Header -->
                 <div class="page-header">
-                    <h1>BeepContextMenuStrip</h1>
+                    <h1>BeepPopupListFormStrip</h1>
                     <p class="page-subtitle">Modern context menu control with popup functionality and theme integration for contextual actions and navigation</p>
                 </div>
 
@@ -97,13 +97,13 @@
                 <section id="overview" class="section">
                     <h2>Overview</h2>
                     <p>
-                        <strong>BeepContextMenuStrip</strong> provides a sophisticated context menu control that extends BeepListBox 
+                        <strong>BeepPopupListFormStrip</strong> provides a sophisticated context menu control that extends BeepListBox 
                         functionality to create modern, theme-aware popup menus. It offers flexible positioning, automatic sizing, 
                         click-outside-to-close behavior, and seamless integration with the BeepPopupForm system for professional 
                         contextual interfaces.
                     </p>
                     <p>
-                        Built on the <strong>BeepListBox</strong> foundation, BeepContextMenuStrip features automatic popup management, 
+                        Built on the <strong>BeepListBox</strong> foundation, BeepPopupListFormStrip features automatic popup management, 
                         smart positioning, item selection handling, theme integration, and comprehensive event support. Perfect for 
                         right-click menus, dropdown options, action lists, and contextual navigation in modern Windows Forms applications.
                     </p>
@@ -187,7 +187,7 @@
                                 </div>
                             </div>
                         </div>
-                        <p><em>BeepContextMenuStrip showing common contextual actions with icons and shortcuts</em></p>
+                        <p><em>BeepPopupListFormStrip showing common contextual actions with icons and shortcuts</em></p>
                     </div>
 
                     <h3>Data Grid Context Menu</h3>
@@ -440,8 +440,8 @@
                     
                     <div class="code-example">
                         <h3>Simple Context Menu</h3>
-                        <pre><code class="language-csharp">// Create a BeepContextMenuStrip
-var contextMenu = new BeepContextMenuStrip();
+                        <pre><code class="language-csharp">// Create a BeepPopupListFormStrip
+var contextMenu = new BeepPopupListFormStrip();
 
 // Add menu items
 contextMenu.ListItems.Add(new SimpleItem
@@ -504,7 +504,7 @@ someControl.MouseDown += (sender, e) =>
                         <h3>Data Grid Context Menu</h3>
                         <pre><code class="language-csharp">public void SetupDataGridContextMenu(DataGridView dataGrid)
 {
-    var contextMenu = new BeepContextMenuStrip();
+    var contextMenu = new BeepPopupListFormStrip();
 
     // Build context menu items
     var menuItems = new[]
@@ -584,11 +584,11 @@ someControl.MouseDown += (sender, e) =>
                         <h3>Control Integration Pattern</h3>
                         <pre><code class="language-csharp">public class ContextMenuProvider
 {
-    private readonly Dictionary<Type, BeepContextMenuStrip> contextMenus;
+    private readonly Dictionary<Type, BeepPopupListFormStrip> contextMenus;
 
     public ContextMenuProvider()
     {
-        contextMenus = new Dictionary<Type, BeepContextMenuStrip>();
+        contextMenus = new Dictionary<Type, BeepPopupListFormStrip>();
         InitializeContextMenus();
     }
 
@@ -610,9 +610,9 @@ someControl.MouseDown += (sender, e) =>
         contextMenus[typeof(BeepListBox)] = listContextMenu;
     }
 
-    private BeepContextMenuStrip CreateTextContextMenu()
+    private BeepPopupListFormStrip CreateTextContextMenu()
     {
-        var menu = new BeepContextMenuStrip();
+        var menu = new BeepPopupListFormStrip();
         
         menu.ListItems.AddRange(new[]
         {
@@ -661,9 +661,9 @@ someControl.MouseDown += (sender, e) =>
         return menu;
     }
 
-    private BeepContextMenuStrip CreateImageContextMenu()
+    private BeepPopupListFormStrip CreateImageContextMenu()
     {
-        var menu = new BeepContextMenuStrip();
+        var menu = new BeepPopupListFormStrip();
         
         menu.ListItems.AddRange(new[]
         {
@@ -890,7 +890,7 @@ someControl.MouseDown += (sender, e) =>
                         <h3>Tree View Context Menu</h3>
                         <pre><code class="language-csharp">public void SetupTreeViewContextMenu(TreeView treeView)
 {
-    var contextMenu = new BeepContextMenuStrip();
+    var contextMenu = new BeepPopupListFormStrip();
 
     // Node-specific menu items that change based on node type
     contextMenu.ItemClicked += (sender, item) =>
@@ -1012,9 +1012,9 @@ private void ShowNodeProperties(TreeNode node)
                         <h3>File Explorer Context Menu</h3>
                         <pre><code class="language-csharp">public class FileExplorerContextMenu
 {
-    private BeepContextMenuStrip fileContextMenu;
-    private BeepContextMenuStrip folderContextMenu;
-    private BeepContextMenuStrip emptySpaceContextMenu;
+    private BeepPopupListFormStrip fileContextMenu;
+    private BeepPopupListFormStrip folderContextMenu;
+    private BeepPopupListFormStrip emptySpaceContextMenu;
 
     public FileExplorerContextMenu()
     {
@@ -1024,7 +1024,7 @@ private void ShowNodeProperties(TreeNode node)
     private void InitializeContextMenus()
     {
         // File context menu
-        fileContextMenu = new BeepContextMenuStrip();
+        fileContextMenu = new BeepPopupListFormStrip();
         fileContextMenu.ListItems.AddRange(new[]
         {
             new SimpleItem { Text = "Open", ImagePath = "open.svg", GuidId = Guid.NewGuid().ToString() },
@@ -1040,7 +1040,7 @@ private void ShowNodeProperties(TreeNode node)
         });
 
         // Folder context menu
-        folderContextMenu = new BeepContextMenuStrip();
+        folderContextMenu = new BeepPopupListFormStrip();
         folderContextMenu.ListItems.AddRange(new[]
         {
             new SimpleItem { Text = "Open", ImagePath = "open.svg", GuidId = Guid.NewGuid().ToString() },
@@ -1056,7 +1056,7 @@ private void ShowNodeProperties(TreeNode node)
         });
 
         // Empty space context menu
-        emptySpaceContextMenu = new BeepContextMenuStrip();
+        emptySpaceContextMenu = new BeepPopupListFormStrip();
         emptySpaceContextMenu.ListItems.AddRange(new[]
         {
             new SimpleItem { Text = "New", ImagePath = "new.svg", GuidId = Guid.NewGuid().ToString() },
@@ -1190,11 +1190,11 @@ private void ShowNodeProperties(TreeNode node)
                 <section id="theming" class="section">
                     <h2>Theming</h2>
                     
-                    <p>BeepContextMenuStrip inherits full theming capabilities from BeepListBox with additional popup-specific styling:</p>
+                    <p>BeepPopupListFormStrip inherits full theming capabilities from BeepListBox with additional popup-specific styling:</p>
 
                     <div class="code-example">
                         <h3>Theme Application</h3>
-                        <pre><code class="language-csharp">var contextMenu = new BeepContextMenuStrip
+                        <pre><code class="language-csharp">var contextMenu = new BeepPopupListFormStrip
 {
     Theme = "DarkTheme"
 };
@@ -1224,7 +1224,7 @@ contextMenu.ApplyTheme();</code></pre>
                     <div class="code-example">
                         <h3>Custom Popup Styling</h3>
                         <pre><code class="language-csharp">// Override ApplyTheme for custom popup styling
-public class CustomContextMenuStrip : BeepContextMenuStrip
+public class CustomContextMenuStrip : BeepPopupListFormStrip
 {
     public override void ApplyTheme()
     {

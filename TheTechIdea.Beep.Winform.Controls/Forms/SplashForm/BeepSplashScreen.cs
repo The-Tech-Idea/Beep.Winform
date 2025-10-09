@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
- 
+using TheTechIdea.Beep.Winform.Controls.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {

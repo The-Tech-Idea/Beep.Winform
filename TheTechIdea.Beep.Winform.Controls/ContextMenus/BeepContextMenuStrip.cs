@@ -9,13 +9,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     [DisplayName("Beep Context Menu")]
     [Category("Beep Controls")]
     [Description("A context menu control that displays a list of items.")]
-    public class BeepContextMenuStrip : BeepListBox
+    public class BeepPopupListFormStrip : BeepListBox
     {
         private BeepPopupForm popupForm;
 
         public event EventHandler<SimpleItem> ItemClicked;
 
-        public BeepContextMenuStrip()
+        public BeepPopupListFormStrip()
         {
             // Adjust default properties for a context menu look
             ShowCheckBox = false;
@@ -23,11 +23,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             BackColor = Color.WhiteSmoke;  // Default background, will be overridden by theme
             ApplyTheme(); // apply current theme
 
-            SelectedItemChanged += BeepContextMenuStrip_SelectedIndexChanged;
+            SelectedItemChanged += BeepPopupListFormStrip_SelectedIndexChanged;
             base.ItemClicked += OnListItemClicked;
         }
 
-        private void BeepContextMenuStrip_SelectedIndexChanged(object sender, EventArgs e)
+        private void BeepPopupListFormStrip_SelectedIndexChanged(object sender, EventArgs e)
         {
             // If an item is selected and no checkboxes are involved, we can treat that as an item click.
             // If you rely on CheckBoxes, you could handle that logic differently.

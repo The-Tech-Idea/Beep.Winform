@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -25,7 +26,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 _hits.Register("region:system:icon", _layout.IconRect, _iconRegion);
                 _hits.Register("region:system:title", _layout.TitleRect, _titleRegion);
-                _hits.Register("region:custom:action", _layout.CustomActionButtonRect, _customActionButton);
+                
+                // Register theme and style buttons if visible
+                if (ShowThemeButton && _layout.ThemeButtonRect.Width > 0)
+                    _hits.Register("region:system:theme", _layout.ThemeButtonRect, _themeButton);
+                    
+                if (ShowStyleButton && _layout.StyleButtonRect.Width > 0)
+                    _hits.Register("region:system:style", _layout.StyleButtonRect, _styleButton);
+                
+                // Register custom action button if theme/style not shown
+                if (!ShowThemeButton && !ShowStyleButton && _layout.CustomActionButtonRect.Width > 0)
+                    _hits.Register("region:custom:action", _layout.CustomActionButtonRect, _customActionButton);
+                
                 _hits.Register("region:system:minimize", _layout.MinimizeButtonRect, _minimizeButton);
                 _hits.Register("region:system:maximize", _layout.MaximizeButtonRect, _maximizeButton);
                 _hits.Register("region:system:close", _layout.CloseButtonRect, _closeButton);
@@ -48,7 +60,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 _iconRegion?.OnPaint?.Invoke(e.Graphics, _layout.IconRect);
                 _titleRegion?.OnPaint?.Invoke(e.Graphics, _layout.TitleRect);
-                _customActionButton?.OnPaint?.Invoke(e.Graphics, _layout.CustomActionButtonRect);
+                
+                // Draw theme and style buttons if visible
+                if (ShowThemeButton)
+                    _themeButton?.OnPaint?.Invoke(e.Graphics, _layout.ThemeButtonRect);
+                    
+                if (ShowStyleButton)
+                    _styleButton?.OnPaint?.Invoke(e.Graphics, _layout.StyleButtonRect);
+                
+                // Draw custom action button if theme/style not shown
+                if (!ShowThemeButton && !ShowStyleButton)
+                    _customActionButton?.OnPaint?.Invoke(e.Graphics, _layout.CustomActionButtonRect);
+                
                 _minimizeButton?.OnPaint?.Invoke(e.Graphics, _layout.MinimizeButtonRect);
                 _maximizeButton?.OnPaint?.Invoke(e.Graphics, _layout.MaximizeButtonRect);
                 _closeButton?.OnPaint?.Invoke(e.Graphics, _layout.CloseButtonRect);

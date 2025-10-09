@@ -68,3 +68,39 @@ Goal: Transform `BeepiFormPro` into a modern, stylable window form using multi-p
 - [Step 28] Implemented GlassFormPainter with gradient glass effect, semi-transparent background, and dual borders
 - [Step 29] Updated Drawing.cs to register and render custom action button region
 - [Step 30] Updated constructor to call UpdateDpiScale() during initialization
+- [Step 31] **Refactored painters into Painters/ folder structure with individual files**
+  - Created IFormPainter.cs interface with comprehensive XML documentation
+  - Created MinimalFormPainter.cs (60 lines) with clean minimal design
+  - Created MaterialFormPainter.cs (62 lines) with Material Design 3 style
+  - Created GlassFormPainter.cs (94 lines) with glass effect and transparency
+  - Created Painters/Readme.md (312 lines) with complete documentation
+  - Updated core files with using statements for new Painters namespace
+  - Maintained backward compatibility with global using aliases
+- [Step 32] **Added backdrop effects support (BeepiFormPro.Backdrop.cs)**
+  - Added BackdropType property: None, Blur, Acrylic, Mica, Tabbed, Transient
+  - Added EnableAcrylicForGlass property for automatic Acrylic with Glass style
+  - Added EnableMicaBackdrop property for Windows 11 Mica effect
+  - Implemented Windows API interop: SetWindowCompositionAttribute, DwmSetWindowAttribute
+  - Added OnHandleCreated override to apply backdrop effects when window handle is created
+  - Supports modern Windows backdrop effects: Blur-behind, Acrylic, Mica, System backdrops
+  - Full XML documentation for all methods and properties
+  - Design-time safe with IsHandleCreated checks
+- [Step 33] **Added Theme and Style buttons with proper event handling**
+  - Added ShowThemeButton property (bool, default false) - shows palette icon (🎨)
+  - Added ShowStyleButton property (bool, default false) - shows layout icon (◧)
+  - Added ThemeButtonClicked event - raised when theme button is clicked
+  - Added StyleButtonClicked event - raised when style button is clicked
+  - Added ShowCaptionBar property (bool, default true) - controls caption bar visibility
+  - Added CaptionHeight property (int, default 32) - controls caption bar height
+  - Updated BeepiFormProLayoutManager to calculate ThemeButtonRect and StyleButtonRect
+  - Theme/Style buttons positioned left of system buttons (minimize/maximize/close)
+  - Custom action button (⚙) shown only when theme/style buttons are hidden
+  - All buttons have hover/press visual feedback using BeepStyling colors
+  - Proper button ordering: Icon | Title | [Theme] [Style] | [CustomAction] | Min | Max | Close
+- [Step 34] **Fixed DisplayRectangle to exclude caption bar area**
+  - Overridden DisplayRectangle property to reduce available area by caption height
+  - User controls added to form now start below caption bar (no overlap)
+  - Works with all custom FormStyles: Modern, Minimal, Material, Fluent, MacOS
+  - Classic FormStyle uses standard Windows caption (no adjustment needed)
+  - Matches BeepiForm behavior - caption area reserved for system use
+

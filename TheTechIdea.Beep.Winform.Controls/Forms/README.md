@@ -19,6 +19,24 @@ This guide shows how to use it, customize the caption bar, switch styles, and lo
 - Theme integration via `BeepThemesManager` (caption gradient, typography, colors)
 - 22 distinct visual styles with matching caption renderers
 
+## Border rendering (professional pipeline)
+
+BeepiForm now uses a professional non-client border pipeline similar to commercial UI frameworks:
+
+- Border stroke is rendered in WM_NCPAINT and delegated to `FormBorderPainter`.
+- The non-client band is reserved in `WM_NCCALCSIZE` when `DrawCustomWindowBorder = true` (default).
+- Rounded corners are applied via `FormRegionHelper` and disabled when maximized.
+- Stroke uses `PenAlignment.Inset` on safe window bounds to avoid 1px artifacts on HiDPI.
+
+Toggling behavior:
+
+- `DrawCustomWindowBorder` (bool) — default true. When enabled, the form reserves a band equal to `BorderThickness` outside the client area and paints the border there. When disabled, the client area occupies the full window and no custom NC stroke is drawn.
+
+Theme and color selection:
+
+- `FormBorderPainter` chooses `BorderColor` from the form if set, then falls back to the theme’s `BorderColor`, then `SystemColors.ControlDark`.
+- The top NC band is blended with the caption gradient to ensure no visible seam.
+
 
 ## Unified Style System
 

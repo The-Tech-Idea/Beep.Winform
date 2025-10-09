@@ -1041,22 +1041,22 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (hdc == IntPtr.Zero)
                 return;
                 
-            try
-            {
-                using (Graphics g = Graphics.FromHdc(hdc))
-                {
-                    g.SmoothingMode = SmoothingMode.AntiAlias;
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            //try
+            //{
+            //    using (Graphics g = Graphics.FromHdc(hdc))
+            //    {
+            //        g.SmoothingMode = SmoothingMode.AntiAlias;
+            //        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 
-                    // Delegate border painting to helper (single source of truth)
-                    Rectangle windowRect = new Rectangle(0, 0, Width, Height);
-                    _borderPainter.PaintWindowBorder(g, windowRect, _borderRadius, _borderThickness);
-                }
-            }
-            finally
-            {
-                ReleaseDC(this.Handle, hdc);
-            }
+            //        // Delegate border painting to helper (single source of truth)
+            //        Rectangle windowRect = new Rectangle(0, 0, Width, Height);
+            //        _borderPainter.PaintWindowBorder(g, windowRect, _borderRadius, _borderThickness);
+            //    }
+            //}
+            //finally
+            //{
+            //    ReleaseDC(this.Handle, hdc);
+            //}
         }
         #endregion
 

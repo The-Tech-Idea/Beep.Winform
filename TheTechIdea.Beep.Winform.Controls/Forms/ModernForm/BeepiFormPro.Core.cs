@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -31,13 +32,101 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private FormRegion _maximizeButton;
         private FormRegion _closeButton;
         private FormRegion _customActionButton; // New: custom clickable region
+        private FormRegion _themeButton;
+        private FormRegion _styleButton;
+
+        // Button visibility flags
+        private bool _showThemeButton = false;
+        private bool _showStyleButton = false;
 
         // Events for region interaction
         public event EventHandler<RegionEventArgs> RegionHover;
         public event EventHandler<RegionEventArgs> RegionClick;
+        
+        // Events for button actions
+        public event EventHandler ThemeButtonClicked;
+        public event EventHandler StyleButtonClicked;
 
         // DPI scaling factor
         private float _dpiScale = 1.0f;
+
+        // Caption bar properties
+        private bool _showCaptionBar = true;
+        private int _captionHeight = 32;
+
+        /// <summary>
+        /// Gets or sets whether to show the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(true)]
+        public bool ShowCaptionBar
+        {
+            get => _showCaptionBar;
+            set
+            {
+                if (_showCaptionBar != value)
+                {
+                    _showCaptionBar = value;
+                    Invalidate();
+                    PerformLayout();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the height of the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(32)]
+        public int CaptionHeight
+        {
+            get => _captionHeight;
+            set
+            {
+                if (_captionHeight != value && value >= 24)
+                {
+                    _captionHeight = value;
+                    Invalidate();
+                    PerformLayout();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to show the theme button in the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(false)]
+        public bool ShowThemeButton
+        {
+            get => _showThemeButton;
+            set
+            {
+                if (_showThemeButton != value)
+                {
+                    _showThemeButton = value;
+                    Invalidate();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to show the style button in the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(false)]
+        public bool ShowStyleButton
+        {
+            get => _showStyleButton;
+            set
+            {
+                if (_showStyleButton != value)
+                {
+                    _showStyleButton = value;
+                    Invalidate();
+                }
+            }
+        }
 
         // Public API to register regions
         public void AddRegion(FormRegion region)
@@ -61,7 +150,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
-        private int ScaleDpi(int value) => (int)(value * _dpiScale);
+        public int ScaleDpi(int value) => (int)(value * _dpiScale);
 
         private void InitializeBuiltInRegions()
         {
@@ -152,6 +241,74 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
                 }
             };
+
+            // Theme button (palette icon)
+            _themeButton = new FormRegion
+            {
+                Id = "system:theme",
+                Dock = RegionDock.Caption,
+                OnPaint = (g, r) =>
+                {
+                    if (r.Width <= 0 || r.Height <= 0 || !_showThemeButton) return;
+                    var style = BeepStyling.GetControlStyle();
+                    var isHovered = _interact.IsHovered(_hits.Areas.FirstOrDefault(a => a.Name == "region:system:theme"));
+                    var isPressed = _interact.IsPressed(_hits.Areas.FirstOrDefault(a => a.Name == "region:system:theme"));
+                    
+                    // Background on hover/press
+                    if (isPressed)
+                    {
+                        var pressed = TheTechIdea.Beep.Winform.Controls.Styling.Colors.StyleColors.GetPressed(style);
+                        using var brush = new SolidBrush(pressed);
+                        g.FillRectangle(brush, r);
+                    }
+                    else if (isHovered)
+                    {
+                        var hover = TheTechIdea.Beep.Winform.Controls.Styling.Colors.StyleColors.GetHover(style);
+                        using var brush = new SolidBrush(hover);
+                        g.FillRectangle(brush, r);
+                    }
+
+                    // Draw icon (🎨 palette icon)
+                    var fg = TheTechIdea.Beep.Winform.Controls.Styling.Colors.StyleColors.GetForeground(style);
+                    using var font = new Font("Segoe UI Emoji", Font.Size, FontStyle.Regular);
+                    TextRenderer.DrawText(g, "🎨", font, r, fg,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                }
+            };
+
+            // Style button (layout icon)
+            _styleButton = new FormRegion
+            {
+                Id = "system:style",
+                Dock = RegionDock.Caption,
+                OnPaint = (g, r) =>
+                {
+                    if (r.Width <= 0 || r.Height <= 0 || !_showStyleButton) return;
+                    var style = BeepStyling.GetControlStyle();
+                    var isHovered = _interact.IsHovered(_hits.Areas.FirstOrDefault(a => a.Name == "region:system:style"));
+                    var isPressed = _interact.IsPressed(_hits.Areas.FirstOrDefault(a => a.Name == "region:system:style"));
+                    
+                    // Background on hover/press
+                    if (isPressed)
+                    {
+                        var pressed = TheTechIdea.Beep.Winform.Controls.Styling.Colors.StyleColors.GetPressed(style);
+                        using var brush = new SolidBrush(pressed);
+                        g.FillRectangle(brush, r);
+                    }
+                    else if (isHovered)
+                    {
+                        var hover = TheTechIdea.Beep.Winform.Controls.Styling.Colors.StyleColors.GetHover(style);
+                        using var brush = new SolidBrush(hover);
+                        g.FillRectangle(brush, r);
+                    }
+
+                    // Draw icon (◧ layout/style icon)
+                    var fg = TheTechIdea.Beep.Winform.Controls.Styling.Colors.StyleColors.GetForeground(style);
+                    using var font = new Font("Segoe UI Symbol", Font.Size + 2, FontStyle.Regular);
+                    TextRenderer.DrawText(g, "◧", font, r, fg,
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
+                }
+            };
         }
 
         private void DrawSystemButton(Graphics g, Rectangle r, string symbol, bool isHover, bool isClose = false)
@@ -173,10 +330,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
         }
 
-        protected override void OnRegionClicked(HitArea area)
+        protected void OnRegionClicked(HitArea area)
         {
-            base.OnRegionClicked(area);
-
             if (area?.Name == null) return;
 
             // Raise event for extensibility
@@ -202,6 +357,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case "region:custom:action":
                     // Custom action button clicked - override or subscribe to event
                     OnCustomActionClicked();
+                    break;
+
+                case "region:system:theme":
+                    // Theme button clicked
+                    ThemeButtonClicked?.Invoke(this, EventArgs.Empty);
+                    break;
+
+                case "region:system:style":
+                    // Style button clicked
+                    StyleButtonClicked?.Invoke(this, EventArgs.Empty);
                     break;
 
                 case "caption":

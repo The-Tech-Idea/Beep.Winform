@@ -741,17 +741,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             // Caption bar painted in client area for proper mouse interaction
             // Border is painted in non-client area via WM_NCPAINT
             
-            // Determine any inset only if the host is actually drawing custom window borders
-            int borderInset = 0;
-            if (Form is BeepiForm beepiForm2)
-            {
-                // Only respect BorderThickness when custom window borders are enabled
-                borderInset = beepiForm2.DrawCustomWindowBorder ? beepiForm2.BorderThickness : 0;
-            }
-
             // Caption bar rectangle in client coordinates
-            var rect = new Rectangle(borderInset, borderInset,
-                Form.ClientSize.Width - (borderInset * 2), CaptionHeight);
+            // Client area is already offset by any non-client border via WM_NCCALCSIZE.
+            // So we draw from (0,0) with full client width.
+            var rect = new Rectangle(0, 0, Form.ClientSize.Width, CaptionHeight);
             if (rect.Width <= 0 || rect.Height <= 0) return;
             
             // Draw caption background (style-aware fallbacks)
@@ -919,6 +912,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 titleRect = new Rectangle(rect.Left + leftInset, rect.Top, rect.Width - leftInset - rightInset, rect.Height);
             }
             g.DrawString(Form.Text, titleFont, titleBrush, titleRect, sf);
+        }
+
+        // Expose caption background so host can paint adjacent NC areas consistently
+        public void GetCaptionBackgroundForHost(out Color start, out Color end, out LinearGradientMode dir)
+        {
+            GetCaptionBackground(Theme, out start, out end, out dir);
         }
 
         private void GetCaptionBackground(IBeepTheme theme, out Color start, out Color end, out LinearGradientMode dir)

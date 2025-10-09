@@ -88,12 +88,61 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public override void ApplyTheme()
         {
-            base.ApplyTheme();
+          //  base.ApplyTheme();
 
             if (_currentTheme != null)
             {
-                // Apply theme colors
-                BackColor = TreeBackColor;
+                // Validate if Colors are set, else fallback to defaults
+                if (_currentTheme.TreeBackColor == Color.Empty)
+                    _currentTheme.TreeBackColor = Color.White;
+                if (_currentTheme.TreeForeColor == Color.Empty)
+                    _currentTheme.TreeForeColor = Color.Black;
+                if (_currentTheme.TreeNodeSelectedFont == null)
+                    _currentTheme.TreeNodeSelectedFont = new TypographyStyle
+                    {
+                        FontFamily = "Arial",
+                        FontSize = 10,
+                        FontWeight = FontWeight.Bold,
+                        TextColor = Color.White
+                    };
+                if (_currentTheme.TreeNodeUnSelectedFont == null)
+                    _currentTheme.TreeNodeUnSelectedFont = new TypographyStyle
+                    {
+                        FontFamily = "Arial",
+                        FontSize = 10,
+                        FontWeight = FontWeight.Regular,
+                        TextColor = Color.Black
+                    };
+                if (_currentTheme.LabelFont == null)
+                    _currentTheme.LabelFont = new TypographyStyle
+                    {
+                        FontFamily = "Arial",
+                        FontSize = 10,
+                        FontWeight = FontWeight.Regular,
+                        TextColor = Color.Black
+                    };
+                if (_currentTheme.TreeNodeSelectedBackColor == Color.Empty)
+                    _currentTheme.TreeNodeSelectedBackColor = Color.Blue;
+                if (_currentTheme.TreeNodeSelectedForeColor == Color.Empty)
+                    _currentTheme.TreeNodeSelectedForeColor = Color.White;
+                if (_currentTheme.TreeNodeHoverBackColor == Color.Empty)
+                    _currentTheme.TreeNodeHoverBackColor = Color.LightGray;
+                if (_currentTheme.TreeNodeHoverForeColor == Color.Empty)
+                    _currentTheme.TreeNodeHoverForeColor = Color.Black;
+                if (_currentTheme.TreeNodeCheckedBoxBackColor == Color.Empty)
+                    _currentTheme.TreeNodeCheckedBoxBackColor = Color.Blue;
+                if (_currentTheme.TreeNodeCheckedBoxForeColor == Color.Empty)
+                    _currentTheme.TreeNodeCheckedBoxForeColor = Color.White;
+                if (_currentTheme.TreeBorderColor == Color.Empty)
+                    _currentTheme.TreeBorderColor = Color.Gray;
+                if (_currentTheme.TreeNodeForeColor == Color.Empty)
+                    _currentTheme.TreeNodeForeColor = Color.Black;
+                if (_currentTheme.AccentColor == Color.Empty)
+                    _currentTheme.AccentColor = Color.DodgerBlue;
+               
+
+                    // Apply theme colors
+                    BackColor = TreeBackColor;
                 ForeColor = TreeForeColor;
 
                 // Update font if using theme font
@@ -107,42 +156,42 @@ namespace TheTechIdea.Beep.Winform.Controls
                     catch { /* keep existing TextFont on failure */ }
                 }
 
-                // Apply theme to renderers
-                if (_toggleRenderer != null)
-                {
-                    _toggleRenderer.Theme = Theme;
-                    _toggleRenderer.ApplyTheme();
-                }
+                //// Apply theme to renderers
+                //if (_toggleRenderer != null)
+                //{
+                //    _toggleRenderer.Theme = Theme;
+                //    _toggleRenderer.ApplyTheme();
+                //}
 
-                if (_checkRenderer != null)
-                {
-                    _checkRenderer.Theme = Theme;
-                    _checkRenderer.ApplyTheme();
-                }
+                //if (_checkRenderer != null)
+                //{
+                //    _checkRenderer.Theme = Theme;
+                //    _checkRenderer.ApplyTheme();
+                //}
 
-                if (_iconRenderer != null)
-                {
-                    _iconRenderer.Theme = Theme;
-                    _iconRenderer.ApplyTheme();
-                }
+                //if (_iconRenderer != null)
+                //{
+                //    _iconRenderer.Theme = Theme;
+                //    _iconRenderer.ApplyTheme();
+                //}
 
-                if (_buttonRenderer != null)
-                {
-                    _buttonRenderer.Theme = Theme;
-                    _buttonRenderer.ApplyTheme();
-                }
+                //if (_buttonRenderer != null)
+                //{
+                //    _buttonRenderer.Theme = Theme;
+                //    _buttonRenderer.ApplyTheme();
+                //}
 
-                if (_verticalScrollBar != null)
-                {
-                    _verticalScrollBar.Theme = Theme;
-                    _verticalScrollBar.ApplyTheme();
-                }
+                //if (_verticalScrollBar != null)
+                //{
+                //    _verticalScrollBar.Theme = Theme;
+                //    _verticalScrollBar.ApplyTheme();
+                //}
 
-                if (_horizontalScrollBar != null)
-                {
-                    _horizontalScrollBar.Theme = Theme;
-                    _horizontalScrollBar.ApplyTheme();
-                }
+                //if (_horizontalScrollBar != null)
+                //{
+                //    _horizontalScrollBar.Theme = Theme;
+                //    _horizontalScrollBar.ApplyTheme();
+                //}
 
                 // Reinitialize painter with new theme
                 InitializePainter();

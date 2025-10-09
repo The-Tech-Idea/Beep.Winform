@@ -44,7 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             {
                 case BeepFormStyle.Modern:
                     ApplyThemeMapping(effectiveTheme);
-                    _shadowGlow.GlowColor = Color.FromArgb(100, 72, 170, 255);
+                    _shadowGlow.EnableGlow = false;
+                    _shadowGlow.GlowColor = Color.Transparent;
                     break;
 
                 case BeepFormStyle.Metro:

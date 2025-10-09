@@ -1061,7 +1061,6 @@
     <Folder Include="BaseImage\Helpers\" />
     <Folder Include="ComboBoxes\Helpers\" />
     <Folder Include="ComboBoxes\Painters\" />
-    <Folder Include="Containers\" />
     <Folder Include="ContextMenus\Helpers\" />
     <Folder Include="ContextMenus\Painters\" />
     <Folder Include="DialogsManagers\Forms\" />

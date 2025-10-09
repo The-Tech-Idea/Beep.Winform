@@ -12,9 +12,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
     {
         public int ShadowDepth { get; set; } = 6;
         public Color ShadowColor { get; set; } = Color.FromArgb(50, 0, 0, 0);
-        public bool EnableGlow { get; set; } = true;
+    public bool EnableGlow { get; set; } = false;
         public float GlowSpread { get; set; } = 8f;
-        public Color GlowColor { get; set; } = Color.FromArgb(100, 72, 170, 255);
+    public Color GlowColor { get; set; } = Color.Transparent;
 
         public void PaintShadow(Graphics g, GraphicsPath shapePath)
         {
@@ -32,7 +32,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             using var pen = new Pen(GlowColor, GlowSpread)
             {
                 LineJoin = LineJoin.Round,
-                Alignment = PenAlignment.Inset
+                // Draw glow centered on the path so the inner half is covered by the subsequent fill,
+                // avoiding any visible color band inside the client area/caption.
+                Alignment = PenAlignment.Center
             };
             g.DrawPath(pen, shapePath);
         }

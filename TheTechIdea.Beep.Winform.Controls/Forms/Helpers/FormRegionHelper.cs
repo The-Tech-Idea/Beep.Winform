@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls; // For BeepiForm type check
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 {
@@ -35,15 +36,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
                 return;
             }
 
-            if (!force && _cachedPath != null && _cachedSize == form.ClientSize && _cachedRadius == _host.BorderRadius)
+            // Always build the region on full window bounds so the outer window corners
+            // are rounded consistently with the non-client painter.
+            Rectangle targetRect = new Rectangle(0, 0, form.Width, form.Height);
+            int targetRadius = _host.BorderRadius;
+
+            // Avoid recomputing if nothing changed
+            if (!force && _cachedPath != null && _cachedSize == targetRect.Size && _cachedRadius == targetRadius)
                 return;
 
             _cachedPath?.Dispose();
-            // Use full ClientRectangle like the old working code
-            var rect = new Rectangle(0, 0, form.ClientSize.Width, form.ClientSize.Height);
-            _cachedPath = BuildPath(rect, _host.BorderRadius);
-            _cachedSize = form.ClientSize;
-            _cachedRadius = _host.BorderRadius;
+            _cachedPath = BuildPath(targetRect, targetRadius);
+            _cachedSize = targetRect.Size;
+            _cachedRadius = targetRadius;
 
             form.Region = new Region(_cachedPath);
         }

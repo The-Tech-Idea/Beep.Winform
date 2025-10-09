@@ -168,7 +168,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 System.Diagnostics.Debug.WriteLine($"BaseControl.SafeExternalDrawing error: {ex.Message}");
             }
         }
-
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+            try
+            {
+                UpdateDrawingRect();
+                _painter?.UpdateLayout(this);
+                Invalidate();
+            }
+            catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.OnDpiChangedAfterParent error: {ex.Message}");
+            }
+        }
         private void SafeDrawEffects(Graphics g)
         {
             try

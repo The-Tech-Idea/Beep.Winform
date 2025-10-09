@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -43,5 +44,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             Invalidate();
         }
+
+        /// <summary>
+        /// Override DisplayRectangle to exclude the caption bar area.
+        /// This ensures controls added to the form don't overlap the caption.
+        /// </summary>
+        public override Rectangle DisplayRectangle
+        {
+            get
+            {
+                var rect = base.DisplayRectangle;
+                
+                // If caption bar is shown and we're in a custom form style, reduce the display area
+                if (ShowCaptionBar && (FormStyle == FormStyle.Modern || FormStyle == FormStyle.Minimal || FormStyle == FormStyle.Material || FormStyle == FormStyle.Fluent || FormStyle == FormStyle.MacOS))
+                {
+                    int captionHeight = Math.Max(ScaleDpi(CaptionHeight), (int)(Font.Height * 2.5f));
+                    rect.Y += captionHeight;
+                    rect.Height -= captionHeight;
+                }
+                
+                return rect;
+            }
+        }
     }
 }
+

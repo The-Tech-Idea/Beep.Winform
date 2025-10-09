@@ -259,6 +259,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             using var path = CreateRoundedPath(bounds, _adapter.BorderRadius);
             _shadowGlow?.PaintShadow(e.Graphics, path);
             _shadowGlow?.PaintGlow(e.Graphics, path);
+            // Fill background after glow so any inner portion of the glow is covered
+            using (var back = new SolidBrush(_form.BackColor))
+            {
+                e.Graphics.FillPath(back, path);
+            }
             
             // Background painting would go here
             // Caption bar painting is handled by overlay registry

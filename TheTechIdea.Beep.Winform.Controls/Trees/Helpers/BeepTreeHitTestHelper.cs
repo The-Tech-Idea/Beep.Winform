@@ -8,7 +8,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
 {
     /// <summary>
     /// Helper class for tree-specific hit testing logic.
-    /// Uses BaseControl._hitTest for the actual hit testing infrastructure.
+    /// Uses BaseControl hit-test infrastructure.
     /// </summary>
     public class BeepTreeHitTestHelper
     {
@@ -27,63 +27,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
         #region Hit Testing
 
         /// <summary>
-        /// Registers all hit areas for visible nodes with BaseControl._hitTest.
-        /// Call this after layout calculation.
+        /// Registers all hit areas for visible nodes with BaseControl hit-test infra.
+        /// Aligns with BeepMenuBar approach: compute client rects and call AddHitArea.
         /// </summary>
         public void RegisterHitAreas()
         {
-            // Clear previous hit areas
-            _owner._hitTest.ClearHitList();
+            // Ensure latest layout rects
+            _owner.UpdateDrawingRect();
+
+            // Clear previous hit areas via BaseControl API
+            _owner.ClearHitList();
 
             var layoutCache = _layoutHelper.GetCachedLayout();
             if (layoutCache == null || layoutCache.Count == 0)
                 return;
 
-            // Register hit areas for visible nodes in viewport
+            // Helper to transform content -> viewport (client) coordinates
+            Rectangle ToViewport(Rectangle rc) => new Rectangle(
+                _owner.DrawingRect.Left + rc.X - _owner.XOffset,
+                _owner.DrawingRect.Top + rc.Y - _owner.YOffset,
+                rc.Width,
+                rc.Height);
+
             foreach (var node in layoutCache)
             {
                 if (!_layoutHelper.IsNodeInViewport(node))
                     continue;
 
-                // Transform rectangles to viewport coordinates
-                Rectangle rowVp = _layoutHelper.TransformToViewport(node.RowRectContent);
+                int rowH = node.RowHeight > 0 ? node.RowHeight : _owner.GetScaledMinRowHeight();
 
-                // Register toggle area (if has children)
-                if (node.Item.Children != null && node.Item.Children.Count > 0)
+                // Row rect spans full drawing width at node Y (viewport coords)
+                Rectangle rowVp = new Rectangle(
+                    _owner.DrawingRect.Left,
+                    _owner.DrawingRect.Top + (node.Y - _owner.YOffset),
+                    _owner.DrawingRect.Width,
+                    rowH);
+
+                // Toggle (only when node has children and rect is valid)
+                if (node.Item.Children != null && node.Item.Children.Count > 0 && !node.ToggleRectContent.IsEmpty)
                 {
-                    Rectangle toggleVp = _layoutHelper.TransformToViewport(node.ToggleRectContent);
-                    _owner._hitTest.AddHitArea($"toggle_{node.Item.GuidId}", toggleVp);
+                    var toggleVp = ToViewport(node.ToggleRectContent);
+                    _owner.AddHitArea($"toggle_{node.Item.GuidId}", toggleVp);
                 }
 
-                // Register checkbox area (if enabled)
+                // Checkbox
                 if (_owner.ShowCheckBox && !node.CheckRectContent.IsEmpty)
                 {
-                    Rectangle checkVp = _layoutHelper.TransformToViewport(node.CheckRectContent);
-                    _owner._hitTest.AddHitArea($"check_{node.Item.GuidId}", checkVp);
+                    var checkVp = ToViewport(node.CheckRectContent);
+                    _owner.AddHitArea($"check_{node.Item.GuidId}", checkVp);
                 }
 
-                // Register icon area (if exists)
-                if (!string.IsNullOrEmpty(node.Item.ImagePath) && !node.IconRectContent.IsEmpty)
+                // Icon
+                if (!node.IconRectContent.IsEmpty)
                 {
-                    Rectangle iconVp = _layoutHelper.TransformToViewport(node.IconRectContent);
-                    _owner._hitTest.AddHitArea($"icon_{node.Item.GuidId}", iconVp);
+                    var iconVp = ToViewport(node.IconRectContent);
+                    _owner.AddHitArea($"icon_{node.Item.GuidId}", iconVp);
                 }
 
-                // Register text area
+                // Text
                 if (!node.TextRectContent.IsEmpty)
                 {
-                    Rectangle textVp = _layoutHelper.TransformToViewport(node.TextRectContent);
-                    _owner._hitTest.AddHitArea($"text_{node.Item.GuidId}", textVp);
+                    var textVp = ToViewport(node.TextRectContent);
+                    _owner.AddHitArea($"text_{node.Item.GuidId}", textVp);
                 }
 
-                // Register row area (fallback for entire row)
-                _owner._hitTest.AddHitArea($"row_{node.Item.GuidId}", rowVp);
+                // Row catch-all last
+                _owner.AddHitArea($"row_{node.Item.GuidId}", rowVp);
             }
         }
 
         /// <summary>
-        /// Performs hit testing to find what part of which node was clicked.
-        /// Uses BaseControl._hitTest.HitTest() internally.
+        /// Performs hit testing using BaseControl API.
         /// </summary>
         public bool HitTest(Point point, out string hitName, out SimpleItem item, out Rectangle rect)
         {
@@ -91,8 +105,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Helpers
             item = null;
             rect = Rectangle.Empty;
 
-            // Use BaseControl's hit test
-            if (!_owner._hitTest.HitTest(point, out var hitTest))
+            if (!_owner.HitTest(point, out var hitTest))
                 return false;
 
             hitName = hitTest.Name;

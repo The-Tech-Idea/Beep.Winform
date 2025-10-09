@@ -11,6 +11,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         private readonly BaseControl _owner;
         private readonly ControlEffectHelper _effects;
         private readonly ControlHitTestHelper _hitTest;
+        // Re-entrancy guard to prevent click recursion via SendMouseEvent -> ReceiveMouseEvent -> OnClick
+        private bool _isDispatchingClick;
 
         public ControlInputHelper(BaseControl owner, ControlEffectHelper effects, ControlHitTestHelper hitTest)
         {
@@ -90,8 +92,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
         {
             if (_owner.IsDisposed) return;
 
+            // Prevent recursion when clicks are re-routed through ReceiveMouseEvent
+            if (_isDispatchingClick) return;
+
             try
             {
+                _isDispatchingClick = true;
                 Point location = _owner.PointToClient(Cursor.Position);
                 _hitTest.HandleClick(location);
             }
@@ -102,6 +108,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error in OnClick: {ex.Message}");
+            }
+            finally
+            {
+                _isDispatchingClick = false;
             }
         }
 

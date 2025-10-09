@@ -232,5 +232,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 _ => Color.FromArgb(220, 220, 220)
             };
         }
+
+        internal static Color GetPressed(BeepControlStyle style)
+        {
+            throw new NotImplementedException();
+        }
+
+        internal static object GetSurface(BeepControlStyle style)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

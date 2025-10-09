@@ -179,8 +179,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
         private void OnDpiChanged()
         {
-            // Notify that DPI has changed - derived classes can override this
-            // This is important for updating fonts, sizes, etc.
+            // React to DPI change by refreshing owner layout and visuals
+            try
+            {
+                // Update any internal layout rectangles
+                _owner.UpdateDrawingRect();
+                // Trigger a layout pass and redraw
+                _owner.PerformLayout();
+                _owner.Invalidate();
+            }
+            catch { /* best-effort */ }
         }
 
         #endregion

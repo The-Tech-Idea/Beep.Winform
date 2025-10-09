@@ -182,38 +182,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
         /// so that BeepiForm only delegates work to helpers.
         /// </summary>
         /// <param name="g">Graphics from GetWindowDC</param>
-        /// <param name="windowBounds">Full window bounds (0,0,Width,Height)</param>
-        /// <param name="borderRadius">Corner radius</param>
+        /// <param name="windowPath">Full window outline path (already rounded if needed)</param>
         /// <param name="borderThickness">Border thickness</param>
-        public void PaintWindowBorder(Graphics g, Rectangle windowBounds, int borderRadius, int borderThickness)
+        public void PaintWindowBorder(Graphics g, GraphicsPath windowPath, int borderThickness)
         {
-            if (g == null) return;
+            if (g == null || windowPath == null) return;
             if (borderThickness <= 0 || _host.AsForm.WindowState == FormWindowState.Maximized) return;
 
             var color = GetBorderColor();
             if (color == Color.Empty || color == Color.Transparent) return;
 
-            // Inset by half the thickness so the stroke remains fully inside the window
-            int half = Math.Max(0, borderThickness / 2);
-            var inset = new Rectangle(
-                windowBounds.X + half,
-                windowBounds.Y + half,
-                Math.Max(0, windowBounds.Width - half * 2),
-                Math.Max(0, windowBounds.Height - half * 2)
-            );
-
-            using var pen = new Pen(color, borderThickness) { Alignment = PenAlignment.Inset };
-
-            if (borderRadius > 0)
+            using var pen = new Pen(color, borderThickness)
             {
-                using var path = CreateRoundedRectanglePath(inset, borderRadius);
-                g.DrawPath(pen, path);
-            }
-            else
-            {
-                // Using DrawRectangle with Inset alignment keeps consistent thickness visually
-                g.DrawRectangle(pen, inset);
-            }
+                Alignment = PenAlignment.Inset,
+                LineJoin = LineJoin.Round
+            };
+            g.DrawPath(pen, windowPath);
         }
     }
 }

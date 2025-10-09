@@ -1,37 +1,35 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Windows.Forms;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Border
 {
+    /// <summary>
+    /// Strategy interface for painting form borders.
+    /// Like IListBoxPainter - receives owner to access all properties and helpers.
+    /// </summary>
     internal interface IBorderRenderer
     {
-        void UpdateHost(Form host, Func<IBeepTheme> themeProvider, Func<int> captionHeightProvider);
+        /// <summary>
+        /// Initialize the renderer with owner and theme
+        /// </summary>
+        void Initialize(IBeepModernFormHost owner, IBeepTheme theme);
+        
+        /// <summary>
+        /// Update the current theme
+        /// </summary>
         void UpdateTheme(IBeepTheme theme);
+        
         /// <summary>
-        /// Paints the caption system buttons and returns the area that should be invalidated.
+        /// Paints the border.
+        /// Like IListBoxPainter.Paint() - receives owner to access all properties/helpers.
         /// </summary>
-        void Paint(Graphics g, GraphicsPath BorderPath, float scale, IBeepTheme theme, FormWindowState windowState, out GraphicsPath invalidatedArea);
-        /// <summary>
-        /// Updates hover state on mouse move. Returns true if state changed and outputs area to invalidate.
-        /// </summary>
-        bool OnMouseMove(Point location, out GraphicsPath invalidatedArea);
-
-        /// <summary>
-        /// Handles mouse leave, clearing hover state and returning area to invalidate if any.
-        /// </summary>
-        void OnMouseLeave(out GraphicsPath invalidatedArea);
-
-        /// <summary>
-        /// Performs hit test and returns an action to execute on click (e.g., Close/Minimize/ToggleMaximize). Returns true if a button was hit.
-        /// </summary>
-        bool OnMouseDown(Point location, Form form, out GraphicsPath invalidatedArea);
-
-        /// <summary>
-        /// Whether the given client point is over any system button.
-        /// </summary>
-        bool HitTest(Point location);
+        /// <param name="g">Graphics context</param>
+        /// <param name="owner">Owner form (access to all properties, helpers, layout)</param>
+        /// <param name="borderPath">The path defining border area</param>
+        void Paint(Graphics g, IBeepModernFormHost owner, GraphicsPath borderPath);
     }
 }

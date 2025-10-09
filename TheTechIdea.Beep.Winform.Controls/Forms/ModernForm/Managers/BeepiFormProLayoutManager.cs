@@ -36,23 +36,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 var r = _owner.ClientRectangle;
 
                 // Pull metrics from painter if available; otherwise pick defaults per FormStyle
-                var metrics = FormPainterMetrics.DefaultFor(_owner.FormStyle);
+              _owner.FormPainterMetrics = FormPainterMetrics.DefaultFor(_owner.FormStyle,_owner.CurrentTheme);
                 if (_owner.ActivePainter is TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters.IFormPainterMetricsProvider provider)
                 {
                     var pm = provider.GetMetrics(_owner);
-                    if (pm != null) metrics = pm;
+                    if (pm != null)  _owner.FormPainterMetrics = pm;
                 }
 
                 // Sync painter-controlled visibility flags to owner toggles if desired
-                bool showTheme = _owner.ShowThemeButton || metrics.ShowThemeButton;
-                bool showStyle = _owner.ShowStyleButton || metrics.ShowStyleButton;
-                bool showSearch = metrics.ShowSearchButton;
-                bool showProfile = metrics.ShowProfileButton;
-                bool showMail = metrics.ShowMailButton;
+                bool showTheme = _owner.ShowThemeButton || _owner.FormPainterMetrics.ShowThemeButton;
+                bool showStyle = _owner.ShowStyleButton || _owner.FormPainterMetrics.ShowStyleButton;
+                bool showSearch = _owner.FormPainterMetrics.ShowSearchButton;
+                bool showProfile = _owner.FormPainterMetrics.ShowProfileButton;
+                bool showMail = _owner.FormPainterMetrics.ShowMailButton;
 
                 // DPI-aware caption height: use metrics.CaptionHeight when caption is shown
                 int captionH = _owner.ShowCaptionBar
-                    ? System.Math.Max(_owner.ScaleDpi(metrics.CaptionHeight), (int)(_owner.Font.Height * metrics.FontHeightMultiplier))
+                    ? System.Math.Max(_owner.ScaleDpi(_owner.FormPainterMetrics.CaptionHeight), (int)(_owner.Font.Height *  _owner.FormPainterMetrics.FontHeightMultiplier))
                     : 0;
 
                 int bottomH = 0; // start at 0; regions can use Bottom dock
@@ -83,8 +83,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
 
                 // System metrics
-                int buttonWidth = _owner.ScaleDpi(metrics.ButtonWidth);
-                int spacing = _owner.ScaleDpi(metrics.ButtonSpacing);
+                int buttonWidth = _owner.ScaleDpi(_owner.FormPainterMetrics.ButtonWidth);
+                int spacing = _owner.ScaleDpi(_owner.FormPainterMetrics.ButtonSpacing);
                 int buttonY = 0;
                 int buttonHeight = captionH;
 
@@ -124,16 +124,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     CustomActionButtonRect = (!showTheme && !showStyle) ? new Rectangle(currentX - buttonWidth, buttonY, buttonWidth, buttonHeight) : Rectangle.Empty; if (!showTheme && !showStyle) currentX -= buttonWidth;
 
                     // Left zone: icon
-                    int iconSize = System.Math.Min(captionH - _owner.ScaleDpi(metrics.IconLeftPadding), _owner.ScaleDpi(metrics.IconSize));
+                    int iconSize = System.Math.Min(captionH - _owner.ScaleDpi(_owner.FormPainterMetrics.IconLeftPadding), _owner.ScaleDpi(_owner.FormPainterMetrics.IconSize));
                     int iconY = (captionH - iconSize) / 2;
-                    IconRect = new Rectangle(_owner.ScaleDpi(metrics.IconLeftPadding), iconY, iconSize, iconSize);
-                    LeftZoneRect = new Rectangle(0, r.Top, IconRect.Right + _owner.ScaleDpi(metrics.TitleLeftPadding), captionH);
+                    IconRect = new Rectangle(_owner.ScaleDpi(_owner.FormPainterMetrics.IconLeftPadding), iconY, iconSize, iconSize);
+                    LeftZoneRect = new Rectangle(0, r.Top, IconRect.Right + _owner.ScaleDpi(_owner.FormPainterMetrics.TitleLeftPadding), captionH);
 
                     // Center zone: between left zone and right zone
                     CenterZoneRect = Rectangle.FromLTRB(LeftZoneRect.Right, r.Top, RightZoneRect.Left, r.Top + captionH);
 
                     // Title centered within center zone
-                    int titleWidth = System.Math.Max(0, CenterZoneRect.Width - _owner.ScaleDpi(metrics.TitleLeftPadding) * 2);
+                    int titleWidth = System.Math.Max(0, CenterZoneRect.Width - _owner.ScaleDpi(_owner.FormPainterMetrics.TitleLeftPadding) * 2);
                     int titleX = CenterZoneRect.Left + (CenterZoneRect.Width - titleWidth) / 2;
                     TitleRect = new Rectangle(titleX, 0, titleWidth, captionH);
                 }
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 {
                     // macOS-like layout
                     // Left zone: system buttons on the left
-                    int leftMargin = _owner.ScaleDpi(metrics.IconLeftPadding);
+                    int leftMargin = _owner.ScaleDpi(_owner.FormPainterMetrics.IconLeftPadding);
                     int leftZoneWidth = leftMargin + sysButtonsWidth;
                     LeftZoneRect = new Rectangle(r.Left, r.Top, leftZoneWidth, captionH);
 
@@ -168,10 +168,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     CenterZoneRect = Rectangle.FromLTRB(LeftZoneRect.Right, r.Top, RightZoneRect.Left, r.Top + captionH);
 
                     // Icon and Title centered as a group: center the title area, and place icon just left of it
-                    int iconSize = System.Math.Min(captionH - _owner.ScaleDpi(metrics.IconLeftPadding), _owner.ScaleDpi(metrics.IconSize));
+                    int iconSize = System.Math.Min(captionH - _owner.ScaleDpi(_owner.FormPainterMetrics.IconLeftPadding), _owner.ScaleDpi(_owner.FormPainterMetrics.IconSize));
                     int iconY = (captionH - iconSize) / 2;
 
-                    int titleWidth = System.Math.Max(0, CenterZoneRect.Width - (iconSize + spacing) - _owner.ScaleDpi(metrics.TitleLeftPadding) * 2);
+                    int titleWidth = System.Math.Max(0, CenterZoneRect.Width - (iconSize + spacing) - _owner.ScaleDpi(_owner.FormPainterMetrics.TitleLeftPadding) * 2);
                     int centeredTitleX = CenterZoneRect.Left + (CenterZoneRect.Width - titleWidth) / 2;
                     TitleRect = new Rectangle(centeredTitleX, 0, titleWidth, captionH);
 

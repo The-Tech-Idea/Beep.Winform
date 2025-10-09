@@ -114,6 +114,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         Industrial,
 
         /// <summary>
+        /// Windows style with classic borders and controls
+        /// </summary>
+        Windows,
+
+        /// <summary>
         /// Custom style defined by theme
         /// </summary>
         Custom

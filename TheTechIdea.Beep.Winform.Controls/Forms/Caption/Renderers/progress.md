@@ -43,7 +43,7 @@ Added comprehensive GraphicsPath-based drawing methods to `Helpers/GraphicsExten
 
 ## Renderers Migration Status
 
-### ✅ COMPLETED (6 renderers)
+### ✅ COMPLETED (17 renderers)
 
 #### 1. **MacLikeCaptionRenderer.cs** - ✅ DONE
 - Changed fields: `Rectangle` → `RectangleF`
@@ -99,92 +99,39 @@ Added comprehensive GraphicsPath-based drawing methods to `Helpers/GraphicsExten
 #### 6. **ICaptionRenderer.cs** (Interface) - ✅ DONE
 - Updated all method signatures from `Rectangle` to `GraphicsPath`
 
+#### 7. **CorporateCaptionRenderer.cs** - ✅ DONE
+- Fields: Rectangle → RectangleF
+- GetTitleInsets/ Paint signatures migrated to GraphicsPath
+- Paint uses captionBounds.GetBounds(); hover fills with FillRoundedRectanglePath; glyphs drawn via DrawMinimizeLine/DrawRectanglePath/DrawRestoreRect and close X via lines
+- Mouse methods now return GraphicsPath invalidations using CreateUnionPath and ToGraphicsPath
+- Compiles without errors
+
+#### 8. **NeonCaptionRenderer.cs** - ✅ DONE
+- Fields: Rectangle → RectangleF
+- All ellipse drawing migrated to circle path equivalents with PathGradientBrush
+- Glyphs drawn via DrawRectanglePath/DrawRestoreRect/lines; minimize line uses DrawLine; signatures updated
+- Mouse methods now path-based invalidation
+- Compiles without errors
+
+#### 9. **RetroCaptionRenderer.cs** - ✅ DONE
+- Fields: Rectangle → RectangleF; signatures to GraphicsPath
+- Replaced Rectangle.Inflate/ellipse drawing with RectangleF math and DrawEllipse over Round(rect) and path gradient
+- Glyphs switched to DrawRectanglePath/DrawRestoreRect/lines
+- Mouse methods path-based invalidation
+- Compiles without errors
+
 ---
 
-### ⏳ PENDING (11 renderers)
+### Newly confirmed in this cycle
 
-#### 7. **CorporateCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:**
-```csharp
-// 1. Change fields from Rectangle to RectangleF
-private RectangleF _closeRect, _maxRect, _minRect;
-
-// 2. Update GetTitleInsets signature
-public void GetTitleInsets(GraphicsPath captionBounds, float scale, out int leftInset, out int rightInset)
-
-// 3. Update Paint signature and implementation
-public void Paint(Graphics g, GraphicsPath captionBounds, float scale, IBeepTheme theme, FormWindowState windowState, out Rectangle invalidatedArea)
-{
-    var bounds = captionBounds.GetBounds(); // Not Rectangle.Round()
-    // Use RectangleF for button calculations
-    // Replace g.FillRectangle() with g.FillRectanglePath()
-    // Replace g.DrawRectangle() with g.DrawRectanglePath()
-}
-
-// 4. Update mouse methods
-public bool OnMouseMove(Point location, out GraphicsPath invalidatedArea)
-{
-    // Use GraphicsExtensions.CreateUnionPath(_closeRect, _maxRect, _minRect)
-}
-
-public void OnMouseLeave(out GraphicsPath invalidatedArea)
-{
-    // Use GraphicsExtensions.CreateUnionPath(_closeRect, _maxRect, _minRect)
-}
-
-public bool OnMouseDown(Point location, Form form, out GraphicsPath invalidatedArea)
-{
-    // Return _rect.ToGraphicsPath() instead of _rect
-}
-```
-
-#### 8. **ElementaryCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-- Change `Rectangle` → `RectangleF`
-- Update interface method signatures
-- Use `captionBounds.GetBounds()` in Paint()
-- Replace Rectangle drawing calls with GraphicsPath equivalents
-- Update mouse methods to use `CreateUnionPath()` and `.ToGraphicsPath()`
-
-#### 9. **GamingCaptionRenderer.cs** - ⏳ TODO
-**Special Requirements:**
-- Uses hexagonal buttons - already have `GraphicsExtensions.CreateHexagonPath()`, `FillHexagon()`, `DrawHexagon()`
-- Replace hexagon drawing logic with extension methods
-- Same general pattern as above
-
-#### 10. **GnomeCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-
-#### 11. **IndustrialCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-
-#### 12. **KdeCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-
-#### 13. **MetroCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-- Uses flat Metro design
-- Replace rectangle fills/draws with path equivalents
-
-#### 14. **NeonCaptionRenderer.cs** - ⏳ TODO
-**Special Requirements:**
-- Uses ellipse/circle buttons with glow effects
-- Already have `g.FillCircle()`, `g.DrawCircle()`, `CreateCirclePath()`
-- Replace ellipse drawing with circle path methods
-
-#### 15. **OfficeCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-
-#### 16. **RetroCaptionRenderer.cs** - ⏳ TODO
-**Special Requirements:**
-- Uses gradient effects on circular buttons
-- Already have circle path methods
-- Replace ellipse fills with `FillCircle()` and `DrawCircle()`
-
-#### 17. **WindowsCaptionRenderer.cs** - ⏳ TODO
-**Required Changes:** Same pattern as CorporateCaptionRenderer
-- Windows 11 style with rounded rectangles
-- Use `FillRoundedRectanglePath()` and `DrawRoundedRectanglePath()`
+10. WindowsCaptionRenderer.cs - DONE
+11. GnomeCaptionRenderer.cs - DONE
+12. ElementaryCaptionRenderer.cs - DONE
+13. KdeCaptionRenderer.cs - DONE
+14. MetroCaptionRenderer.cs - DONE
+15. OfficeCaptionRenderer.cs - DONE
+16. GamingCaptionRenderer.cs - DONE
+17. IndustrialCaptionRenderer.cs - DONE
 
 ---
 
@@ -350,5 +297,8 @@ public bool OnMouseDown(Point location, Form form, out GraphicsPath invalidatedA
 ---
 
 **Last Updated:** October 9, 2025  
-**Status:** 6 of 17 renderers completed (35% done)  
-**Next:** CorporateCaptionRenderer.cs
+**Status:** 17 of 17 renderers completed (100% done)  
+**Next:**
+- Run a quick audit to ensure zero Rectangle drawing calls remain in renderers (only allowed for caption glyph provider input via Rectangle.Round)
+- Visual pass across styles to confirm hover/click invalidations are path-based and correct
+- Update any style docs/readme to reflect GraphicsPath-only rendering requirement

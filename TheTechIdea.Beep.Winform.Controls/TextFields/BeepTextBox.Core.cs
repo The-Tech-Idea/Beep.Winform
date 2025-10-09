@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     /// <summary>
     /// Core fields, properties, and initialization for BeepTextBox
     /// </summary>
-    public partial class BeepTextBox: BaseControl, IBeepTextBox
+    public partial class BeepTextBox
     {
         #region "Helper Instance"
         

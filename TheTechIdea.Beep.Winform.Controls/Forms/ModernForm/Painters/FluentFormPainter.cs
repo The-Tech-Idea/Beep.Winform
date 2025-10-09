@@ -1,35 +1,40 @@
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// Minimal form painter with clean lines and subtle accent borders.
-    /// Features a simple underline on the caption bar with primary color.
+    /// Fluent Design form painter with acrylic background and shadow effects.
     /// </summary>
-    internal sealed class MinimalFormPainter : IFormPainter, IFormPainterMetricsProvider
+    internal sealed class FluentFormPainter : IFormPainter, IFormPainterMetricsProvider
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.Minimal, owner.CurrentTheme);
+            return FormPainterMetrics.DefaultFor(FormStyle.Fluent, owner.CurrentTheme);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            using var brush = new SolidBrush(metrics.CaptionColor);
-            g.FillRectangle(brush, owner.ClientRectangle);
+            var acrylicOverlay = Color.FromArgb(128, 255, 255, 255);
+
+            using var bgBrush = new SolidBrush(metrics.CaptionColor);
+            g.FillRectangle(bgBrush, owner.ClientRectangle);
+
+            using var overlayBrush = new SolidBrush(acrylicOverlay);
+            g.FillRectangle(overlayBrush, owner.ClientRectangle);
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
             var metrics = GetMetrics(owner);
 
-            // Draw primary color underline at bottom of caption
-            using var line = new Pen(metrics.BorderColor, 2f);
-            g.DrawLine(line, captionRect.Left, captionRect.Bottom - 1, captionRect.Right, captionRect.Bottom - 1);
+            // Draw accent line at the bottom of the caption
+            using var accentPen = new Pen(metrics.BorderColor, 2f);
+            g.DrawLine(accentPen, captionRect.Left, captionRect.Bottom - 1, captionRect.Right, captionRect.Bottom - 1);
 
-            // Draw title text with 8px padding
+            // Draw title text
             var textRect = captionRect;
             textRect.Inflate(-8, 0);
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,

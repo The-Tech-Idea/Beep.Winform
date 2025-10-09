@@ -11,6 +11,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// </summary>
     public static class GraphicsExtensions
     {
+        // NOTE: Path-first overloads to avoid Rectangle/RectangleF usage in renderer code
+        // Renderers should use these overloads to keep code "rectangle-free" by passing floats or paths.
+
         /// <summary>
         /// Fills a rounded rectangle with specified corner radii
         /// </summary>
@@ -137,6 +140,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
 
             path.CloseFigure();
             return path;
+        }
+
+        // Rectangle-free overload for creating rounded rectangles
+        public static GraphicsPath CreateRoundedRectanglePath(float x, float y, float width, float height, float radius)
+        {
+            return CreateRoundedRectanglePath(new RectangleF(x, y, width, height), radius, radius, radius, radius);
         }
 
         #region "Drawing gradiants"
@@ -578,6 +587,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             return path;
         }
 
+        // Rectangle-free overload for creating rectangle paths
+        public static GraphicsPath CreateRectanglePath(float x, float y, float width, float height)
+        {
+            var path = new GraphicsPath();
+            path.AddLine(x, y, x + width, y);
+            path.AddLine(x + width, y, x + width, y + height);
+            path.AddLine(x + width, y + height, x, y + height);
+            path.AddLine(x, y + height, x, y);
+            path.CloseFigure();
+            return path;
+        }
+
         /// <summary>
         /// Creates a rounded rectangle GraphicsPath with uniform radius
         /// </summary>
@@ -765,6 +786,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
         }
 
+        // Restore (overlapped squares) glyph
+        public static GraphicsPath CreateRestoreRect(RectangleF bounds, float inset, float offset = 3f)
+        {
+            var path = new GraphicsPath();
+            var r1 = new RectangleF(bounds.Left + inset, bounds.Top + inset, bounds.Width - inset * 2, bounds.Height - inset * 2);
+            var r2 = new RectangleF(r1.Left + offset, r1.Top + offset, r1.Width, r1.Height);
+            path.AddRectangle(r1);
+            path.AddRectangle(r2);
+            return path;
+        }
+
+        public static void DrawRestoreRect(this Graphics graphics, Pen pen, RectangleF bounds, float inset, float offset = 3f)
+        {
+            using (var path = CreateRestoreRect(bounds, inset, offset))
+            {
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        // Path-first glyph overloads
+        public static void DrawMinimizeLine(this Graphics graphics, Pen pen, GraphicsPath boundsPath, float inset, float yPosition = 0.58f)
+        {
+            var b = boundsPath.GetBounds();
+            graphics.DrawMinimizeLine(pen, b, inset, yPosition);
+        }
+
+        public static void DrawMaximizeRect(this Graphics graphics, Pen pen, GraphicsPath boundsPath, float inset)
+        {
+            var b = boundsPath.GetBounds();
+            graphics.DrawMaximizeRect(pen, b, inset);
+        }
+
+        public static void DrawRestoreRect(this Graphics graphics, Pen pen, GraphicsPath boundsPath, float inset, float offset = 3f)
+        {
+            var b = boundsPath.GetBounds();
+            graphics.DrawRestoreRect(pen, b, inset, offset);
+        }
+
+        public static void DrawCloseX(this Graphics graphics, Pen pen, GraphicsPath boundsPath, float inset)
+        {
+            var b = boundsPath.GetBounds();
+            graphics.DrawCloseX(pen, b, inset);
+        }
+
         /// <summary>
         /// Creates a close X path
         /// </summary>
@@ -804,6 +869,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             return path;
         }
 
+        // Union path for GraphicsPath inputs (no Rectangle exposure in renderer code)
+        public static GraphicsPath CreateUnionPath(params GraphicsPath[] paths)
+        {
+            var union = new GraphicsPath();
+            foreach (var p in paths)
+            {
+                if (p is null) continue;
+                union.AddPath(p, false);
+            }
+            return union;
+        }
+
         /// <summary>
         /// Converts a Rectangle to GraphicsPath
         /// </summary>
@@ -830,6 +907,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static Rectangle GetBoundsRect(this GraphicsPath path)
         {
             return Rectangle.Round(path.GetBounds());
+        }
+
+        // Rectangle-free overloads for rectangle fills/draws
+        public static void FillRectanglePath(this Graphics graphics, Brush brush, float x, float y, float width, float height)
+        {
+            using (var path = new GraphicsPath())
+            {
+                path.AddLine(x, y, x + width, y);
+                path.AddLine(x + width, y, x + width, y + height);
+                path.AddLine(x + width, y + height, x, y + height);
+                path.AddLine(x, y + height, x, y);
+                path.CloseFigure();
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        public static void DrawRectanglePath(this Graphics graphics, Pen pen, float x, float y, float width, float height)
+        {
+            using (var path = new GraphicsPath())
+            {
+                path.AddLine(x, y, x + width, y);
+                path.AddLine(x + width, y, x + width, y + height);
+                path.AddLine(x + width, y + height, x, y + height);
+                path.AddLine(x, y + height, x, y);
+                path.CloseFigure();
+                graphics.DrawPath(pen, path);
+            }
+        }
+
+        public static void FillRoundedRectanglePath(this Graphics graphics, Brush brush, float x, float y, float width, float height, float radius)
+        {
+            using (var path = CreateRoundedRectanglePath(new RectangleF(x, y, width, height), radius, radius, radius, radius))
+            {
+                graphics.FillPath(brush, path);
+            }
+        }
+
+        public static void DrawRoundedRectanglePath(this Graphics graphics, Pen pen, float x, float y, float width, float height, float radius)
+        {
+            using (var path = CreateRoundedRectanglePath(new RectangleF(x, y, width, height), radius, radius, radius, radius))
+            {
+                graphics.DrawPath(pen, path);
+            }
         }
 
         /// <summary>

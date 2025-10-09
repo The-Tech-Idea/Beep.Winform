@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.TextFields.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls
@@ -11,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Description("A modern, high-performance text box control with advanced capabilities.")]
     [DisplayName("Beep TextBox")]
     [Category("Beep Controls")]
-    public partial class BeepTextBox : IBeepTextBox
+    public partial class BeepTextBox : BaseControl,IBeepTextBox
     {
         // This is the main entry point for BeepTextBox
         // The implementation is split across multiple partial class files:

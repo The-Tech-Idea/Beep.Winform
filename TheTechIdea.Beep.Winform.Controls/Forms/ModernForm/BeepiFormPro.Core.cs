@@ -10,8 +10,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
     public partial class BeepiFormPro
     {
+        // Theme properties
+        private Color _bordercolor= Color.LightGray;
+        public Color BorderColor
+        {
+            get => _bordercolor;
+            set
+            {
+                if (_bordercolor != value)
+                {
+                    _bordercolor = value;
+                    Invalidate();
+                }
+            }
+        }
+
         // Style properties
-        public FormStyle FormStyle { get; set; } = FormStyle.Modern;
+        private FormStyle _formstyle = FormStyle.Modern;
+        public FormStyle FormStyle
+        {
+            get => _formstyle;
+            set
+            {
+                if (_formstyle != value)
+                {
+                    _formstyle = value;
+                    ApplyFormStyle();
+                }
+            }
+        }
         
         // Painters
         public IFormPainter ActivePainter { get; set; }

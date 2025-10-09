@@ -9,13 +9,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     public partial class BeepiFormPro : Form
     {
         public BeepControlStyle ControlStyle { get; set; } = BeepControlStyle.Material3;
+        private FormPainterMetrics _formpaintermaterics;
+        public FormPainterMetrics FormPainterMetrics
+        {
+            get
+            {
+                if (_formpaintermaterics == null)
+                {
+                    // Lazy load metrics based on current style and theme
 
+                    _formpaintermaterics = FormPainterMetrics.DefaultFor(FormStyle, CurrentTheme);
+                }
+                return _formpaintermaterics;
+            }
+            set
+            {
+                _formpaintermaterics = value;
+                Invalidate(); // Redraw with new metrics
+            }
+        }
         public BeepiFormPro()
         {
             InitializeComponent();
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.UserPaint, true);
             UpdateStyles();
-            BackColor = Color.Transparent; // we paint everything
+            BackColor = Color.White; // we paint everything
             UpdateDpiScale();
             _layout = new BeepiFormProLayoutManager(this);
             _hits = new BeepiFormProHitAreaManager(this);
@@ -32,14 +50,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 case FormStyle.Modern:
                 case FormStyle.Minimal:
                     FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new MinimalFormPainter();
                     break;
                 case FormStyle.Classic:
                     FormBorderStyle = FormBorderStyle.Sizable;
                     break;
                 case FormStyle.MacOS:
+                    FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new MacOSFormPainter();
+                    break;
                 case FormStyle.Fluent:
+                    FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new FluentFormPainter();
+                    break;
                 case FormStyle.Material:
                     FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new MaterialFormPainter();
+                    break;
+                case FormStyle.Cartoon:
+                    FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new CartoonFormPainter();
+                    break;
+                case FormStyle.ChatBubble:
+                    FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new ChatBubbleFormPainter();
+                    break;
+                case FormStyle.Glass:
+                    FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new GlassFormPainter();
+                    break;
+                default:
+                    FormBorderStyle = FormBorderStyle.None;
+                    ActivePainter = new MinimalFormPainter();
                     break;
             }
             Invalidate();

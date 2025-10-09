@@ -32,6 +32,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
+            Controls.Forms.ModernForm.Painters.MinimalFormPainter minimalFormPainter1 = new Controls.Forms.ModernForm.Painters.MinimalFormPainter();
+            Controls.Forms.ModernForm.FormPainterMetrics formPainterMetrics1 = new Controls.Forms.ModernForm.FormPainterMetrics();
             beepButton1 = new BeepButton();
             beepComboBox1 = new BeepComboBox();
             beepCard1 = new BeepCard();
@@ -82,7 +84,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.DisabledBorderColor = Color.Gray;
             beepButton1.DisabledForeColor = Color.Gray;
             beepButton1.DisableDpiAndScaling = false;
-            beepButton1.DrawingRect = new Rectangle(0, 0, 349, 77);
+            beepButton1.DrawingRect = new Rectangle(0, 0, 188, 36);
             beepButton1.Easing = Vis.Modules.EasingType.Linear;
             beepButton1.EmbeddedImagePath = null;
             beepButton1.EnableHighQualityRendering = true;
@@ -161,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.LeadingImagePath = "";
             beepButton1.LeftoffsetForDrawingRect = 0;
             beepButton1.LinkedProperty = null;
-            beepButton1.Location = new Point(906, 160);
+            beepButton1.Location = new Point(488, 75);
             beepButton1.Margin = new Padding(0);
             beepButton1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Outlined;
             beepButton1.MaterialCustomPadding = new Padding(0);
@@ -173,6 +175,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 9);
+            beepButton1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
             beepButton1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -206,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.ShowRightBorder = false;
             beepButton1.ShowShadow = false;
             beepButton1.ShowTopBorder = false;
-            beepButton1.Size = new Size(349, 77);
+            beepButton1.Size = new Size(188, 36);
             beepButton1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepButton1.SplashColor = Color.Gray;
             beepButton1.StandardImages = (List<Controls.Models.SimpleItem>)resources.GetObject("beepButton1.StandardImages");
@@ -236,12 +239,26 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.AnimationType = Vis.Modules.DisplayAnimationType.None;
             beepComboBox1.ApplyThemeToChilds = true;
             beepComboBox1.AutoDrawHitListComponents = false;
-            beepComboBox1.BackColor = SystemColors.Control;
+            beepComboBox1.BackColor = Color.White;
             beepComboBox1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepComboBox1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepComboBox1.BadgeForeColor = Color.White;
             beepComboBox1.BadgeShape = Vis.Modules.BadgeShape.Circle;
             beepComboBox1.BadgeText = "";
+            // 
+            // 
+            // 
+            beepComboBox1.BeepContextMenu.ClientSize = new Size(184, 0);
+            beepComboBox1.BeepContextMenu.ContextMenuType = Winform.Controls.ContextMenus.ContextMenuType.Material;
+            beepComboBox1.BeepContextMenu.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+            beepComboBox1.BeepContextMenu.Name = "";
+            beepComboBox1.BeepContextMenu.Owner = null;
+            beepComboBox1.BeepContextMenu.SelectedIndex = -1;
+            beepComboBox1.BeepContextMenu.SelectedItem = null;
+            beepComboBox1.BeepContextMenu.ShortcutFont = new Font("Arial", 9F);
+            beepComboBox1.BeepContextMenu.TextFont = new Font("Arial", 10F);
+            beepComboBox1.BeepContextMenu.Theme = null;
+            beepComboBox1.BeepContextMenu.Visible = false;
             beepComboBox1.BlockID = null;
             beepComboBox1.BorderColor = Color.FromArgb(200, 200, 200);
             beepComboBox1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -263,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.DisabledBorderColor = Color.LightGray;
             beepComboBox1.DisabledForeColor = Color.Gray;
             beepComboBox1.DisableDpiAndScaling = false;
-            beepComboBox1.DrawingRect = new Rectangle(1, 1, 397, 132);
+            beepComboBox1.DrawingRect = new Rectangle(1, 1, 213, 61);
             beepComboBox1.DropdownIconPath = "dropdown_arrow";
             beepComboBox1.Easing = Vis.Modules.EasingType.Linear;
             beepComboBox1.EnableHighQualityRendering = true;
@@ -317,7 +334,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.IsFrameless = false;
             beepComboBox1.IsHovered = false;
             beepComboBox1.IsNew = false;
-       
             beepComboBox1.IsPressed = false;
             beepComboBox1.IsReadOnly = false;
             beepComboBox1.IsRequired = false;
@@ -334,8 +350,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.LeadingImagePath = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(851, 700);
-            beepComboBox1.Margin = new Padding(6, 6, 6, 6);
+            beepComboBox1.Location = new Point(458, 328);
             beepComboBox1.MaterialBorderRadius = 4;
             beepComboBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepComboBox1.MaterialCustomPadding = new Padding(0);
@@ -345,12 +360,13 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
-            beepComboBox1.MinimumSize = new Size(399, 134);
+            beepComboBox1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+            beepComboBox1.MinimumSize = new Size(215, 63);
             beepComboBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepComboBox1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
-            beepComboBox1.ParentBackColor = SystemColors.Control;
+            beepComboBox1.ParentBackColor = Color.White;
             beepComboBox1.ParentControl = null;
             beepComboBox1.PlaceholderText = "Select an item...";
             beepComboBox1.PressedBackColor = Color.Gray;
@@ -377,7 +393,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.ShowRightBorder = false;
             beepComboBox1.ShowShadow = false;
             beepComboBox1.ShowTopBorder = false;
-            beepComboBox1.Size = new Size(399, 134);
+            beepComboBox1.Size = new Size(215, 63);
             beepComboBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepComboBox1.StaticNotMoving = false;
             beepComboBox1.TabIndex = 3;
@@ -437,7 +453,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.DisabledBorderColor = Color.Gray;
             beepCard1.DisabledForeColor = Color.DarkGray;
             beepCard1.DisableDpiAndScaling = false;
-            beepCard1.DrawingRect = new Rectangle(28, 28, 392, 389);
+            beepCard1.DrawingRect = new Rectangle(28, 28, 184, 151);
             beepCard1.Easing = Vis.Modules.EasingType.Linear;
             beepCard1.EnableHighQualityRendering = true;
             beepCard1.EnableMaterialStyle = false;
@@ -507,8 +523,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.LeadingImagePath = "";
             beepCard1.LeftoffsetForDrawingRect = 0;
             beepCard1.LinkedProperty = null;
-            beepCard1.Location = new Point(1192, 898);
-            beepCard1.Margin = new Padding(6, 6, 6, 6);
+            beepCard1.Location = new Point(642, 421);
             beepCard1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepCard1.MaterialCustomPadding = new Padding(0);
             beepCard1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -518,10 +533,11 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepCard1.MaxHitListDrawPerFrame = 0;
             beepCard1.MaxImageSize = 64;
+            beepCard1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
             beepCard1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepCard1.Name = "beepCard1";
             beepCard1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
-            beepCard1.Padding = new Padding(6, 6, 6, 6);
+            beepCard1.Padding = new Padding(3);
             beepCard1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.ReadingCard;
             beepCard1.ParagraphText = "Card Description";
             beepCard1.ParentBackColor = Color.Empty;
@@ -554,7 +570,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.ShowShadow = false;
             beepCard1.ShowStatus = false;
             beepCard1.ShowTopBorder = false;
-            beepCard1.Size = new Size(451, 448);
+            beepCard1.Size = new Size(243, 210);
             beepCard1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepCard1.StaticNotMoving = false;
             beepCard1.StatusColor = Color.Green;
@@ -588,7 +604,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.AutoCompleteMode = AutoCompleteMode.None;
             beepTextBox1.AutoCompleteSource = AutoCompleteSource.None;
             beepTextBox1.AutoDrawHitListComponents = false;
-            beepTextBox1.BackColor = SystemColors.Control;
+            beepTextBox1.BackColor = Color.White;
             beepTextBox1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepTextBox1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepTextBox1.BadgeForeColor = Color.White;
@@ -617,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.DisabledBorderColor = Color.LightGray;
             beepTextBox1.DisabledForeColor = Color.Gray;
             beepTextBox1.DisableDpiAndScaling = false;
-            beepTextBox1.DrawingRect = new Rectangle(1, 33, 340, 62);
+            beepTextBox1.DrawingRect = new Rectangle(1, 16, 182, 27);
             beepTextBox1.Easing = Vis.Modules.EasingType.Linear;
             beepTextBox1.EnableHighQualityRendering = true;
             beepTextBox1.EnableMaterialStyle = false;
@@ -692,8 +708,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.LineNumberFont = new Font("Segoe UI", 10F);
             beepTextBox1.LineNumberForeColor = Color.Gray;
             beepTextBox1.LinkedProperty = null;
-            beepTextBox1.Location = new Point(986, 361);
-            beepTextBox1.Margin = new Padding(4, 2, 4, 2);
+            beepTextBox1.Location = new Point(531, 169);
+            beepTextBox1.Margin = new Padding(2, 1, 2, 1);
             beepTextBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepTextBox1.MaterialCustomPadding = new Padding(0);
             beepTextBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -703,7 +719,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(20, 20);
-            beepTextBox1.MinimumSize = new Size(0, 83);
+            beepTextBox1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+            beepTextBox1.MinimumSize = new Size(0, 39);
             beepTextBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepTextBox1.Modified = true;
             beepTextBox1.Multiline = false;
@@ -712,7 +729,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.OnlyDigits = false;
             beepTextBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepTextBox1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
-            beepTextBox1.ParentBackColor = SystemColors.Control;
+            beepTextBox1.ParentBackColor = Color.White;
             beepTextBox1.ParentControl = null;
             beepTextBox1.PasswordChar = '\0';
             beepTextBox1.PlaceholderText = "";
@@ -745,7 +762,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.ShowScrollbars = true;
             beepTextBox1.ShowShadow = false;
             beepTextBox1.ShowTopBorder = false;
-            beepTextBox1.Size = new Size(342, 130);
+            beepTextBox1.Size = new Size(184, 61);
             beepTextBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepTextBox1.StaticNotMoving = false;
             beepTextBox1.TabIndex = 5;
@@ -776,7 +793,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.AnimationType = Vis.Modules.DisplayAnimationType.None;
             beepTree1.ApplyThemeToChilds = true;
             beepTree1.AutoDrawHitListComponents = false;
-            beepTree1.BackColor = SystemColors.Control;
+            beepTree1.BackColor = Color.White;
             beepTree1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepTree1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepTree1.BadgeForeColor = Color.White;
@@ -804,7 +821,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.DisabledForeColor = Color.Gray;
             beepTree1.DisableDpiAndScaling = false;
             beepTree1.Dock = DockStyle.Left;
-            beepTree1.DrawingRect = new Rectangle(0, 0, 464, 1372);
+            beepTree1.DrawingRect = new Rectangle(0, 0, 250, 721);
             beepTree1.Easing = Vis.Modules.EasingType.Linear;
             beepTree1.EnableHighQualityRendering = true;
             beepTree1.EnableMaterialStyle = false;
@@ -871,8 +888,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.LeadingImagePath = "";
             beepTree1.LeftoffsetForDrawingRect = 0;
             beepTree1.LinkedProperty = null;
-            beepTree1.Location = new Point(0, 0);
-            beepTree1.Margin = new Padding(6, 6, 6, 6);
+            beepTree1.Location = new Point(0, 40);
             beepTree1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepTree1.MaterialCustomPadding = new Padding(0);
             beepTree1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -881,6 +897,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepTree1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepTree1.MaxHitListDrawPerFrame = 0;
+            beepTree1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
             beepTree1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepTree1.Name = "beepTree1";
             beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes"));
@@ -888,9 +905,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes2"));
             beepTree1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
-            beepTree1.ParentBackColor = SystemColors.Control;
+            beepTree1.ParentBackColor = Color.White;
             beepTree1.ParentControl = null;
-           
             beepTree1.PressedBackColor = Color.Gray;
             beepTree1.PressedBorderColor = Color.DarkGray;
             beepTree1.PressedForeColor = Color.White;
@@ -916,7 +932,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.ShowShadow = false;
             beepTree1.ShowTopBorder = false;
             beepTree1.ShowVerticalScrollBar = true;
-            beepTree1.Size = new Size(464, 1372);
+            beepTree1.Size = new Size(250, 721);
             beepTree1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepTree1.StaticNotMoving = false;
             beepTree1.TabIndex = 6;
@@ -946,7 +962,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.AnimationType = Vis.Modules.DisplayAnimationType.None;
             beepListBox1.ApplyThemeToChilds = false;
             beepListBox1.AutoDrawHitListComponents = false;
-            beepListBox1.BackColor = SystemColors.Control;
+            beepListBox1.BackColor = Color.White;
             beepListBox1.BadgeBackColor = Color.FromArgb(33, 150, 243);
             beepListBox1.BadgeFont = new Font("Arial", 8F, FontStyle.Bold);
             beepListBox1.BadgeForeColor = Color.White;
@@ -972,7 +988,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.DisabledBorderColor = Color.LightGray;
             beepListBox1.DisabledForeColor = Color.Gray;
             beepListBox1.DisableDpiAndScaling = false;
-            beepListBox1.DrawingRect = new Rectangle(0, 0, 245, 600);
+            beepListBox1.DrawingRect = new Rectangle(0, 0, 132, 281);
             beepListBox1.Easing = Vis.Modules.EasingType.Linear;
             beepListBox1.EnableHighQualityRendering = true;
             beepListBox1.EnableMaterialStyle = false;
@@ -982,7 +998,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.ErrorText = "";
             beepListBox1.ExternalDrawingLayer = Winform.Controls.Models.DrawingLayer.AfterAll;
             beepListBox1.FieldID = null;
-            beepListBox1.FilledBackgroundColor = Color.FromArgb(20, 0, 0, 0);
+            beepListBox1.FilledBackgroundColor = Color.FromArgb(245, 245, 245);
             beepListBox1.FloatingLabel = true;
             beepListBox1.FocusBackColor = Color.LightYellow;
             beepListBox1.FocusBorderColor = Color.RoyalBlue;
@@ -1042,7 +1058,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepListBox1.ListItems"));
             beepListBox1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepListBox1.ListItems1"));
             beepListBox1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepListBox1.ListItems2"));
-            beepListBox1.Location = new Point(532, 112);
+            beepListBox1.Location = new Point(286, 52);
+            beepListBox1.Margin = new Padding(2, 1, 2, 1);
             beepListBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepListBox1.MaterialCustomPadding = new Padding(0);
             beepListBox1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1051,11 +1068,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepListBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepListBox1.MaxHitListDrawPerFrame = 0;
+            beepListBox1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
             beepListBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepListBox1.Name = "beepListBox1";
             beepListBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepListBox1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
-            beepListBox1.ParentBackColor = SystemColors.Control;
+            beepListBox1.ParentBackColor = Color.White;
             beepListBox1.ParentControl = null;
             beepListBox1.PressedBackColor = Color.Gray;
             beepListBox1.PressedBorderColor = Color.DarkGray;
@@ -1082,7 +1100,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.ShowTitleLine = true;
             beepListBox1.ShowTitleLineinFullWidth = true;
             beepListBox1.ShowTopBorder = false;
-            beepListBox1.Size = new Size(245, 600);
+            beepListBox1.Size = new Size(132, 281);
             beepListBox1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepListBox1.StaticNotMoving = false;
             beepListBox1.TabIndex = 7;
@@ -1091,7 +1109,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.TextFont = new Font("Segoe UI", 9F);
             beepListBox1.Theme = null;
             beepListBox1.TitleAlignment = ContentAlignment.TopLeft;
-            beepListBox1.TitleBottomY = 51;
+            beepListBox1.TitleBottomY = 30;
             beepListBox1.TitleLineColor = Color.FromArgb(33, 33, 33);
             beepListBox1.TitleLineThickness = 2;
             beepListBox1.TitleText = "Panel Title";
@@ -1107,16 +1125,54 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // Form1
             // 
-            AutoScaleDimensions = new SizeF(13F, 32F);
+            ActivePainter = minimalFormPainter1;
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1666, 1372);
+            ClientSize = new Size(946, 761);
             Controls.Add(beepListBox1);
             Controls.Add(beepTree1);
             Controls.Add(beepTextBox1);
             Controls.Add(beepCard1);
             Controls.Add(beepComboBox1);
             Controls.Add(beepButton1);
-            Margin = new Padding(6, 6, 6, 6);
+            ControlStyle = Winform.Controls.Common.BeepControlStyle.Windows11Mica;
+            EnableAcrylicForGlass = false;
+            formPainterMetrics1.beepTheme = null;
+            formPainterMetrics1.BorderColor = Color.FromArgb(200, 200, 200);
+            formPainterMetrics1.BorderRadius = 4;
+            formPainterMetrics1.BorderRadiusWhenMaximized = 0;
+            formPainterMetrics1.BorderWidth = 1;
+            formPainterMetrics1.ButtonSpacing = 4;
+            formPainterMetrics1.ButtonsPlacement = Winform.Controls.Forms.ModernForm.FormPainterMetrics.SystemButtonsSide.Right;
+            formPainterMetrics1.ButtonWidth = 28;
+            formPainterMetrics1.CaptionButtonColor = Color.FromArgb(33, 150, 243);
+            formPainterMetrics1.CaptionButtonHoverColor = Color.FromArgb(33, 150, 243);
+            formPainterMetrics1.CaptionButtonInactiveColor = Color.LightGray;
+            formPainterMetrics1.CaptionButtonMaximizedColor = Color.FromArgb(33, 150, 243);
+            formPainterMetrics1.CaptionButtonPressedColor = Color.FromArgb(21, 101, 192);
+            formPainterMetrics1.CaptionButtonRadius = 6;
+            formPainterMetrics1.CaptionColor = Color.White;
+            formPainterMetrics1.CaptionHeight = 28;
+            formPainterMetrics1.CaptionMargin = 0;
+            formPainterMetrics1.CaptionTextColor = Color.FromArgb(33, 33, 33);
+            formPainterMetrics1.CaptionTextColorInactive = Color.FromArgb(180, 180, 180);
+            formPainterMetrics1.CaptionTextColorMaximized = Color.FromArgb(33, 150, 243);
+            formPainterMetrics1.FontHeightMultiplier = 2.5F;
+            formPainterMetrics1.IconLeftPadding = 8;
+            formPainterMetrics1.IconSize = 20;
+            formPainterMetrics1.InnerMargin = 0;
+            formPainterMetrics1.InnerMarginWhenMaximized = 0;
+            formPainterMetrics1.OuterMargin = 8;
+            formPainterMetrics1.OuterMarginWhenMaximized = 0;
+            formPainterMetrics1.ResizeBorderWidth = 6;
+            formPainterMetrics1.ShowMailButton = false;
+            formPainterMetrics1.ShowProfileButton = false;
+            formPainterMetrics1.ShowSearchButton = false;
+            formPainterMetrics1.ShowStyleButton = false;
+            formPainterMetrics1.ShowThemeButton = false;
+            formPainterMetrics1.TitleLeftPadding = 8;
+            FormPainterMetrics = formPainterMetrics1;
+            Location = new Point(0, 0);
             Name = "Form1";
             Text = "Form1";
             ResumeLayout(false);

@@ -11,58 +11,44 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return new FormPainterMetrics
-            {
-                CaptionHeight = 44,    // slightly larger to resemble a bubble header
-                ButtonWidth = 30,
-                ButtonSpacing = 6,
-                IconLeftPadding = 10,
-                IconSize = 22,
-                FontHeightMultiplier = 2.6f,
-                // Keep extras minimal, but allow MenuStyle as a playful toggle
-                ShowThemeButton = true,
-                ShowStyleButton = false,
-                ShowSearchButton = false,
-                ShowProfileButton = false,
-                ShowMailButton = false
-            };
+            return FormPainterMetrics.DefaultFor(FormStyle.ChatBubble, owner.CurrentTheme);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
+            var metrics = GetMetrics(owner);
+
             // Soft chat canvas background
-            var bg = Color.FromArgb(250, 247, 244); // off-white with a hint of warmth
-            using var brush = new SolidBrush(bg);
+            using var brush = new SolidBrush(metrics.CaptionColor);
             g.FillRectangle(brush, owner.ClientRectangle);
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
         {
+            var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
             // Chat bubble-like rounded bar filling the caption area
-            var accent = Color.FromArgb(84, 180, 235);     // friendly blue (similar to right-side bubbles)
-            var accentDark = Color.FromArgb(56, 152, 213); // darker bottom edge
-
             using var path = new GraphicsPath();
-            int radius = Math.Min(12, captionRect.Height / 2);
+            int radius = Math.Min(metrics.BorderRadius, captionRect.Height / 2);
             var r = Rectangle.Inflate(captionRect, -6, -4);
             AddRoundedRect(path, r, radius);
 
-            using var lg = new LinearGradientBrush(r, accent, accentDark, LinearGradientMode.Vertical);
+            using var lg = new LinearGradientBrush(r, metrics.CaptionColor, metrics.BorderColor, LinearGradientMode.Vertical);
             g.FillPath(lg, path);
 
             // Title centered inside the bubble
             var textRect = r;
-            var textColor = Color.White;
-            TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, textColor,
+            TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
+            var metrics = GetMetrics(owner);
+
             // Soft neutral border for the window, matching the chat style
-            using var pen = new Pen(Color.FromArgb(180, 172, 165), 1f);
+            using var pen = new Pen(metrics.BorderColor, metrics.BorderWidth);
             pen.Alignment = PenAlignment.Inset;
             var r = owner.ClientRectangle;
             r.Width -= 1;

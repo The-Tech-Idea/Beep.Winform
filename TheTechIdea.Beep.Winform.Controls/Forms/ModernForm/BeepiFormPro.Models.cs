@@ -12,7 +12,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         Minimal,        // Thin border, minimal caption
         MacOS,          // macOS-style traffic lights (red/yellow/green)
         Fluent,         // Microsoft Fluent Design System
-        Material        // Material Design 3
+        Material,      // Material Design 3
+        Cartoon,
+        ChatBubble,
+        Glass
     }
 
     public sealed class FormRegion

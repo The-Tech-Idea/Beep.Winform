@@ -60,7 +60,6 @@ namespace TheTechIdea.Beep.Winform.Controls
        // private FormStyleHelper _styleHelper;
         private FormHitTestHelper _hitTestHelper;
         private FormCaptionBarHelper _captionHelper;
-        private FormBorderPainter _borderPainter;  // *** ADDED: Border painting helper
                                                    // Helpers (add this near the other helpers)
 
         private bool _useThemeColors = true;
@@ -436,13 +435,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (UseHelperInfrastructure)
                 {
                     _state = new FormStateStore();
-                    _shadowGlow = new FormShadowGlowPainter();
                     _overlayRegistry = new FormOverlayPainterRegistry();
                     _regionHelper = new FormRegionHelper(this);
                     _layoutHelper = new FormLayoutHelper(this);
                     _themeHelper = new FormThemeHelper(this);
                 //    _styleHelper = new FormStyleHelper(this, _shadowGlow);
-                    _borderPainter = new FormBorderPainter(this);  // *** ADDED: Initialize border painter
                     _captionHelper = new FormCaptionBarHelper(this, _overlayRegistry, padAdj => RegisterPaddingProvider((ref Padding p) => padAdj(ref p)));
                    
                     //-------------
@@ -1034,7 +1031,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         
         private void PaintNonClientBorder()
         {
-            if (InDesignHost || !IsHandleCreated || _borderPainter == null || !_drawCustomWindowBorder)
+            if (InDesignHost || !IsHandleCreated ||  !_drawCustomWindowBorder)
                 return;
                 
             IntPtr hdc = GetWindowDC(this.Handle);

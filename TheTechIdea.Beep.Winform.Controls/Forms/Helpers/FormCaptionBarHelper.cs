@@ -437,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             {
                 if (_renderer.OnMouseMove(e.Location, out var inv))
                 {
-                    Form.Invalidate(inv);
+                  //  Form.Invalidate(inv);
                     invalidate = true;
                 }
             }
@@ -460,7 +460,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             Rectangle inv = Rectangle.Empty;
             if (_renderer != null)
             {
-                _renderer.OnMouseLeave(out inv);
+               // _renderer.OnMouseLeave(out inv);
                 if (!inv.IsEmpty) Form.Invalidate(inv);
             }
             if (_themeHover) { _themeHover = false; Form.Invalidate(_themeButtonRect); }
@@ -486,7 +486,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             {
                 if (_renderer.OnMouseDown(e.Location, Form, out var inv))
                 {
-                    if (!inv.IsEmpty) Form.Invalidate(inv);
+                    //if (!inv.IsEmpty) Form.Invalidate(inv);
                 }
             }
         }

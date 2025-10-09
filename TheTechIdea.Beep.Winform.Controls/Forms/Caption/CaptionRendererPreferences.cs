@@ -13,6 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
         public int ShadowDepth { get; set; }
         public bool EnableGlow { get; set; }
         public float GlowSpread { get; set; }
+        public int CaptionHeight { get; set; } = 36;
     }
 
     /// <summary>
@@ -28,8 +29,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderThickness = 1, 
                 BorderRadius = 8, 
                 ShadowDepth = 6, 
-                EnableGlow = true, 
-                GlowSpread = 8 
+                EnableGlow = false, 
+                GlowSpread = 8,
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.Metro] = new CaptionRendererPreference 
@@ -38,7 +40,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 0, // Flat design
                 ShadowDepth = 0, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 32
             },
 
             [BeepFormStyle.Office] = new CaptionRendererPreference 
@@ -47,7 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 4, 
                 ShadowDepth = 4, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.Glass] = new CaptionRendererPreference 
@@ -56,7 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 12, 
                 ShadowDepth = 8, 
                 EnableGlow = true, 
-                GlowSpread = 12 
+                GlowSpread = 12,
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.ModernDark] = new CaptionRendererPreference 
@@ -65,7 +70,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 8, 
                 ShadowDepth = 8, 
                 EnableGlow = true, 
-                GlowSpread = 10 
+                GlowSpread = 10,
+                CaptionHeight = 36
             },
 
             // Linux-inspired styles
@@ -75,7 +81,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 6, 
                 ShadowDepth = 0, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 34
             },
 
             [BeepFormStyle.Kde] = new CaptionRendererPreference 
@@ -84,7 +91,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 8, 
                 ShadowDepth = 8, 
                 EnableGlow = true, 
-                GlowSpread = 8 
+                GlowSpread = 8,
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.Cinnamon] = new CaptionRendererPreference 
@@ -93,7 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 10, 
                 ShadowDepth = 8, 
                 EnableGlow = true, 
-                GlowSpread = 10 
+                GlowSpread = 10,
+                CaptionHeight = 38
             },
 
             [BeepFormStyle.Elementary] = new CaptionRendererPreference 
@@ -102,7 +111,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 10, 
                 ShadowDepth = 4, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 40
             },
 
             // Modern design styles
@@ -112,7 +122,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 12, // Large radius for modern look
                 ShadowDepth = 10, 
                 EnableGlow = true, 
-                GlowSpread = 14 
+                GlowSpread = 14,
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.Material] = new CaptionRendererPreference 
@@ -121,7 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 12, 
                 ShadowDepth = 5, 
                 EnableGlow = true, 
-                GlowSpread = 15 // Material elevation
+                GlowSpread = 15, // Material elevation
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.NeoBrutalist] = new CaptionRendererPreference 
@@ -130,7 +142,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 0, // Sharp corners
                 ShadowDepth = 0, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 32
             },
 
             [BeepFormStyle.Minimal] = new CaptionRendererPreference 
@@ -139,7 +152,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 0, 
                 ShadowDepth = 0, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 32
             },
 
             [BeepFormStyle.Classic] = new CaptionRendererPreference 
@@ -148,7 +162,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 0, 
                 ShadowDepth = 0, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 32
             },
 
             // Specialty themed styles
@@ -158,7 +173,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 15, // Smooth curves
                 ShadowDepth = 12, // Deep shadow for neon glow
                 EnableGlow = true, 
-                GlowSpread = 20 // Strong glow effect
+                GlowSpread = 20, // Strong glow effect
+                CaptionHeight = 38
             },
 
             [BeepFormStyle.Retro] = new CaptionRendererPreference 
@@ -167,7 +183,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 6, 
                 ShadowDepth = 6, 
                 EnableGlow = true, 
-                GlowSpread = 12 // Miami Vice glow
+                GlowSpread = 12, // Miami Vice glow
+                CaptionHeight = 42
             },
 
             [BeepFormStyle.Gaming] = new CaptionRendererPreference 
@@ -176,7 +193,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 2, // Sharp angular
                 ShadowDepth = 10, 
                 EnableGlow = true, 
-                GlowSpread = 16 // RGB glow
+                GlowSpread = 16, // RGB glow
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.Corporate] = new CaptionRendererPreference 
@@ -185,7 +203,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 4, 
                 ShadowDepth = 3, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 32
             },
 
             [BeepFormStyle.Artistic] = new CaptionRendererPreference 
@@ -194,7 +213,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 20, // Very rounded
                 ShadowDepth = 15, 
                 EnableGlow = true, 
-                GlowSpread = 25 // Dramatic effects
+                GlowSpread = 25, // Dramatic effects
+                CaptionHeight = 44
             },
 
             [BeepFormStyle.HighContrast] = new CaptionRendererPreference 
@@ -203,7 +223,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 0, // Sharp for clarity
                 ShadowDepth = 0, 
                 EnableGlow = false, 
-                GlowSpread = 0 
+                GlowSpread = 0,
+                CaptionHeight = 36
             },
 
             [BeepFormStyle.Soft] = new CaptionRendererPreference 
@@ -212,7 +233,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 16, // Very rounded neumorphic
                 ShadowDepth = 8, 
                 EnableGlow = true, 
-                GlowSpread = 12 
+                GlowSpread = 12,
+                CaptionHeight = 38
             },
 
             [BeepFormStyle.Industrial] = new CaptionRendererPreference 
@@ -221,7 +243,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 2, // Minimal rounding
                 ShadowDepth = 12, // Deep shadows
                 EnableGlow = true, 
-                GlowSpread = 8 
+                GlowSpread = 8,
+                CaptionHeight = 34
             },
 
             [BeepFormStyle.Custom] = new CaptionRendererPreference 
@@ -230,7 +253,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Caption
                 BorderRadius = 8, 
                 ShadowDepth = 6, 
                 EnableGlow = true, 
-                GlowSpread = 8 
+                GlowSpread = 8,
+                CaptionHeight = 36
             },
         };
 

@@ -38,25 +38,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
        
-        public  void ApplyTheme()
+        public virtual void ApplyTheme()
         {
             if (_currentTheme == null)
             {
                 return;
             }
-            BackColor = _currentTheme.ListBackColor;
-      
-            BorderColor = _currentTheme.ListBorderColor;
-            ForeColor = _currentTheme.ListForeColor;
            
             Invalidate();
         }
-        public void ApplyTheme(string themeName)
+        public virtual void ApplyTheme(string themeName)
         {
             var theme = BeepThemesManager.GetTheme(themeName);
             if (theme != null)
             {
                 CurrentTheme = theme;
+                Invalidate();
             }
             else
             {

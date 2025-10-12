@@ -70,7 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 System.Diagnostics.Debug.WriteLine($"BeepTree.RebuildVisible: LayoutHelper sync failed: {ex.Message}");
             }
 
-            // Update scrollbars
+            // Update scrollbars after layout changes
             if (!DesignMode && IsHandleCreated)
             {
                 UpdateScrollBars();

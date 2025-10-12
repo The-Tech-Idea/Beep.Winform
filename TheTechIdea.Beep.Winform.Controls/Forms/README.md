@@ -7,6 +7,7 @@ This guide shows how to use it, customize the caption bar, switch styles, and lo
 
 ## Highlights
 - Fully owner-drawn window (shapes, borders, shadow/glow)
+- Supports transparent child controls (labels, panels) without artifacts on the custom chrome
 - **Unified Style System**: Single `BeepFormStyle` enum controls both form appearance AND caption renderer
 - Custom caption bar with: logo, title, system buttons, and optional Theme/Style buttons
 - Caption renderers automatically selected based on `BeepFormStyle`

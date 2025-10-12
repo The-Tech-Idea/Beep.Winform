@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     // Performance toggles
     [Category("Performance")]
     [Description("If true, uses an extra BufferedGraphics layer in OnPaint. When false, relies on built-in DoubleBuffered drawing.")]
-    public bool UseExternalBufferedGraphics { get; set; } = false;
+    public bool UseExternalBufferedGraphics { get; set; } = true;
 
     [Category("Performance")]
     [Description("If true, sets high-quality smoothing/text rendering. Turn off to favor speed.")]
@@ -130,7 +130,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public BaseControl()
         {
             _isInitializing = true;
-            
+          
             // Critical: Check if we're in design mode to prevent designer issues
             bool isDesignMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
                                DesignMode ||
@@ -146,7 +146,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _currentTheme = BeepThemesManager.GetDefaultTheme();
             }
 
-            // Let WinForms (parent form) handle scaling; do not force a baseline here
+            // Let WinForms handle scaling via parent container's AutoScaleMode
+            // Per Microsoft docs: "Each container control is responsible for scaling its children 
+            // using its own scaling factors and not the one from its parent container"
+            // We inherit the parent's mode and let it handle our scaling
             AutoScaleMode = AutoScaleMode.Inherit;
             DoubleBuffered = true;
             this.SetStyle(ControlStyles.ContainerControl, true);
@@ -155,8 +158,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
-            // Consider adding for large datasets:
-            SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
+            // Don't force redraw on resize for better performance
+            SetStyle(ControlStyles.ResizeRedraw, false);
 
             // Ensure _columns is only initialized once
             SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
@@ -166,10 +169,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 IsChild=true;
-                // 1. Initialize core helpers first (no dependencies)
-                // IMPORTANT: Do not create DPI helper by default; let framework scale.
+                // CRITICAL: Per Microsoft docs, avoid manual DPI scaling when parent handles it
+                // Only create DPI helper if explicitly enabled AND parent uses AutoScaleMode.None
+                // Most controls should rely on framework scaling via AutoScaleMode.Inherit
                 if (!DisableDpiAndScaling)
-                    _dpi = new ControlDpiHelper(this);
+                {
+                    // Check if we need manual DPI - only if parent doesn't provide scaling
+                    var parentForm = FindForm();
+                    bool parentHandlesScaling = parentForm?.AutoScaleMode == AutoScaleMode.Font || 
+                                               parentForm?.AutoScaleMode == AutoScaleMode.Dpi;
+                    
+                    // Only create manual DPI helper if parent doesn't handle scaling
+                    if (!parentHandlesScaling)
+                    {
+                        _dpi = new ControlDpiHelper(this);
+                    }
+                }
+                
                 _dataBinding = new ControlDataBindingHelper(this);
                 _externalDrawing = new ControlExternalDrawingHelper(this);
                 
@@ -204,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
            
             // Set defaults
-            Padding = new Padding(0);
+            Padding = new Padding(1);
             ComponentName = "BaseControl";
             
             // Initialize tooltip with null check
@@ -477,5 +493,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 System.Diagnostics.Debug.WriteLine($"BaseControl: OnGlobalThemeChanged error: {ex.Message}");
             }
         }
+
+        #region DPI Awareness Support (Microsoft High-DPI Best Practices)
+        
+        /// <summary>
+        /// Handle DPI changes for Per-Monitor V2 DPI awareness
+        /// Per Microsoft docs: Use DpiChanged events for dynamic DPI scenarios
+        /// https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
+        /// </summary>
+        protected override void OnDpiChangedAfterParent(EventArgs e)
+        {
+            base.OnDpiChangedAfterParent(e);
+            
+            // If we have a manual DPI helper, update it
+            if (_dpi != null && !DisableDpiAndScaling)
+            {
+                try
+                {
+                   
+                  
+                    // Invalidate to redraw with new DPI
+                    if (IsHandleCreated && !IsDisposed)
+                    {
+                        _dpi.UpdateDpi();
+                        UpdateDrawingRect();
+                        _painter?.UpdateLayout(this);
+                        Invalidate();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnDpiChangedAfterParent error: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Override ScaleControl to customize scaling behavior
+        /// Per Microsoft docs: "The ScaleControl method can be overridden to change the scaling logic"
+        /// https://learn.microsoft.com/en-us/dotnet/desktop/winforms/forms/autoscale
+        /// </summary>
+        protected override void ScaleControl(SizeF factor, BoundsSpecified specified)
+        {
+            // Let base handle standard scaling
+            base.ScaleControl(factor, specified);
+            
+            // If we have painter, notify it of scale change
+            try
+            {
+                if (_painter != null && IsHandleCreated && !IsDisposed)
+                {
+                    _painter.UpdateLayout(this);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.ScaleControl painter update error: {ex.Message}");
+            }
+        }
+        
+        #endregion
     }
 }

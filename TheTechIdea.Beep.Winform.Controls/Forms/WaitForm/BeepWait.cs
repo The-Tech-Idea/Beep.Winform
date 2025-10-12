@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using System.ComponentModel;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 
@@ -10,13 +11,12 @@ using TheTechIdea.Beep.Winform.Controls.Forms;
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(false)]
-    public partial class BeepWait : BeepiForm, IWaitForm
+    public partial class BeepWait : BeepiFormPro, IWaitForm
     {
         public  Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
         public BeepWait():base()
         {
-            BorderThickness = 1;
-            BorderRadius = 3;
+           
             InitializeComponent();
             
             Progress.ProgressChanged += (sender, args) =>

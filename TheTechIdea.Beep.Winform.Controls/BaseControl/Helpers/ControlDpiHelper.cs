@@ -132,18 +132,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             }
         }
 
-        public void UpdateDpiFromControl()
+        /// <summary>
+        /// Update DPI values from current control state
+        /// Called when DPI change is detected or control is created
+        /// Per Microsoft docs: Use DeviceDpi property and DPI change events
+        /// </summary>
+        public void UpdateDpi()
         {
             if (_owner?.Handle == IntPtr.Zero) return;
 
             try
             {
-                // Try to get DPI from window handle (Windows 10 1607+)
-                int windowDpi = GetDpiForWindow(_owner.Handle);
-                if (windowDpi > 0)
+                // PREFERRED: Use DeviceDpi property (available in .NET Framework 4.7+/.NET Core)
+                // This automatically reflects current monitor DPI for Per-Monitor V2 awareness
+                if (_owner.DeviceDpi > 0)
                 {
-                    _currentDpi = windowDpi;
-                    DpiScaleFactor = windowDpi / 96.0f;
+                    _currentDpi = _owner.DeviceDpi;
+                    DpiScaleFactor = _owner.DeviceDpi / 96.0f;
                     return;
                 }
             }
@@ -151,11 +156,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
 
             try
             {
-                // Fallback: use DeviceDpi property (available in .NET Framework 4.7+/.NET Core)
-                if (_owner.DeviceDpi > 0)
+                // Fallback: Try to get DPI from window handle (Windows 10 1607+)
+                int windowDpi = GetDpiForWindow(_owner.Handle);
+                if (windowDpi > 0)
                 {
-                    _currentDpi = _owner.DeviceDpi;
-                    DpiScaleFactor = _owner.DeviceDpi / 96.0f;
+                    _currentDpi = windowDpi;
+                    DpiScaleFactor = windowDpi / 96.0f;
                     return;
                 }
             }
@@ -175,6 +181,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 _currentDpi = 96;
                 DpiScaleFactor = 1.0f;
             }
+        }
+
+        /// <summary>
+        /// Legacy method - prefer UpdateDpi() which uses DeviceDpi property
+        /// </summary>
+        [Obsolete("Use UpdateDpi() instead - it uses the DeviceDpi property recommended by Microsoft")]
+        public void UpdateDpiFromControl()
+        {
+            UpdateDpi();
         }
 
         private void OnDpiChanged()

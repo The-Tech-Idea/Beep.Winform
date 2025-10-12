@@ -1,4 +1,5 @@
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
@@ -34,11 +35,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 _hits.HitTest(p, out _pressed);
                 _owner.Invalidate();
+
+             
             }
             public void OnMouseUp(Point p)
             {
                 _hits.HitTest(p, out var released);
-                if (_pressed != null && released != null && System.Object.ReferenceEquals(_pressed, released))
+                // Compare by name to be resilient to hit-list re-registration between down/up
+                if (_pressed != null && released != null && string.Equals(_pressed.Name, released.Name))
                 {
                     // Raise event hook (future extension) or command
                     _owner.OnRegionClicked(released);
@@ -46,8 +50,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 _pressed = null;
                 _owner.Invalidate();
             }
-            public bool IsHovered(HitArea a) => _hover == a;
-            public bool IsPressed(HitArea a) => _pressed == a;
+            public bool IsHovered(HitArea a) => a != null && _hover != null && string.Equals(_hover.Name, a.Name);
+            public bool IsPressed(HitArea a) => a != null && _pressed != null && string.Equals(_pressed.Name, a.Name);
+
+            internal void OnMouseHover(Point pos)
+            {
+                // Treat hover as move to update hover state consistently
+                OnMouseMove(pos);
+            }
         }
     }
 }

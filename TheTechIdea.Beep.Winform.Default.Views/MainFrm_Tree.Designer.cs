@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers;
+using TheTechIdea.Beep.Winform.Controls.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -43,12 +44,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepuiManager1
             // 
-            beepuiManager1.BeepAppBar = beepAppBar1;
-            beepuiManager1.BeepiForm = this;
-            beepuiManager1.BeepMenuBar = beepMenuAppBar1;
-            beepuiManager1.DisplayContainer = beepDisplayContainer1;
-            beepuiManager1.IsRounded = false;
-            beepuiManager1.ShowBorder = false;
+          
             // 
             // beepAppBar1
             // 
@@ -622,7 +618,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepAppBar1);
             Name = "MainFrm_Tree";
             Text = "MainFrm_Tree1";
-            Theme = "DefaultType";
+           
             ResumeLayout(false);
         }
 

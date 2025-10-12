@@ -25,9 +25,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Ensure DrawingRect is up-to-date for viewport transforms
             UpdateDrawingRect();
             
-            // Keep scrollbars in sync
-            try { UpdateScrollBars(); } catch { }
-            
             if (g == null)
             {
                 System.Diagnostics.Debug.WriteLine("BeepTree.DrawContent: Graphics is null!");

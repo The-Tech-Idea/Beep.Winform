@@ -1,7 +1,53 @@
 using System.Drawing;
+using System.ComponentModel;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
+    /// <summary>
+    /// Modern shadow effect configuration for forms
+    /// </summary>
+   
+    public class ShadowEffect
+    {
+        public Color Color { get; set; } = Color.FromArgb(30, 0, 0, 0);
+        public int Blur { get; set; } = 10;
+        public int Spread { get; set; } = 0;
+        public int OffsetX { get; set; } = 0;
+        public int OffsetY { get; set; } = 2;
+        public bool Inner { get; set; } = false;
+    }
+
+    /// <summary>
+       public class CornerRadius
+    {
+        public int TopLeft { get; set; } = 8;
+        public int TopRight { get; set; } = 8;
+        public int BottomLeft { get; set; } = 8;
+        public int BottomRight { get; set; } = 8;
+
+        public CornerRadius() { }
+        public CornerRadius(int radius) => SetAll(radius);
+        public CornerRadius(int topLeft, int topRight, int bottomLeft, int bottomRight)
+        {
+            TopLeft = topLeft;
+            TopRight = topRight;
+            BottomLeft = bottomLeft;
+            BottomRight = bottomRight;
+        }
+        public void SetAll(int radius) => TopLeft = TopRight = BottomLeft = BottomRight = radius;
+    }
+
+    /// <summary>
+    /// Anti-aliasing quality modes
+    /// </summary>
+    public enum AntiAliasMode
+    {
+        None,
+        Low,
+        High,
+        Ultra
+    }
+
     /// <summary>
     /// Optional contract for painters to provide sizing and layout metrics for the caption area.
     /// </summary>
@@ -12,12 +58,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
     /// <summary>
     /// Interface for form painters that handle custom rendering of BeepiFormPro forms.
-    /// Provides methods for painting background, caption bar, and borders.
+    /// Provides methods for painting background, caption bar, and borders with modern effects.
+    /// Now also handles layout calculations and hit area registration for its specific style.
     /// </summary>
     public interface IFormPainter
     {
         /// <summary>
-        /// Paints the background of the form.
+        /// Calculates layout positions specific to this painter's style and registers hit areas.
+        /// </summary>
+        /// <param name="owner">The form instance being laid out.</param>
+        void CalculateLayoutAndHitAreas(BeepiFormPro owner);
+
+        /// <summary>
+        /// Paints the background of the form with modern effects.
         /// </summary>
         /// <param name="g">The graphics context to paint on.</param>
         /// <param name="owner">The form instance being painted.</param>
@@ -37,5 +90,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         /// <param name="g">The graphics context to paint on.</param>
         /// <param name="owner">The form instance being painted.</param>
         void PaintBorders(Graphics g, BeepiFormPro owner);
+
+        /// <summary>
+        /// Gets the shadow effect for this painter.
+        /// </summary>
+        ShadowEffect GetShadowEffect(BeepiFormPro owner);
+
+        /// <summary>
+        /// Gets the corner radius for this painter.
+        /// </summary>
+        CornerRadius GetCornerRadius(BeepiFormPro owner);
+
+        /// <summary>
+        /// Gets the anti-aliasing mode for this painter.
+        /// </summary>
+        AntiAliasMode GetAntiAliasMode(BeepiFormPro owner);
+
+        /// <summary>
+        /// Whether this painter supports animations.
+        /// </summary>
+        bool SupportsAnimations { get; }
+
+        /// <summary>
+        /// Paints with enhanced effects (shadows, rounded corners, anti-aliasing).
+        /// </summary>
+        void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect);
+    }
+
+    /// <summary>
+    /// Optional interface for painters that want to customize non-client border painting
+    /// (when the form reserves a non-client frame and paints it via WM_NCPAINT).
+    /// Implement this to render per-style borders in the window's non-client area.
+    /// </summary>
+    public interface IFormNonClientPainter
+    {
+        /// <param name="g">Graphics for the entire window surface (non-client coordinates).</param>
+        /// <param name="owner">The form.</param>
+        /// <param name="borderThickness">Effective non-client border thickness in device pixels.</param>
+        /// <remarks>The painter is responsible for determining the window shape/path appropriate for its style.</remarks>
+        void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness);
+    }
+
+    /// <summary>
+    public class PainterLayoutInfo
+    {
+        public Rectangle CaptionRect { get; set; }
+        public Rectangle ContentRect { get; set; }
+        public Rectangle IconRect { get; set; }
+        public Rectangle TitleRect { get; set; }
+        public Rectangle MinimizeButtonRect { get; set; }
+        public Rectangle MaximizeButtonRect { get; set; }
+        public Rectangle CloseButtonRect { get; set; }
+        public Rectangle ThemeButtonRect { get; set; }
+        public Rectangle StyleButtonRect { get; set; }
+        public Rectangle CustomActionButtonRect { get; set; }
+        public Rectangle ProfileButtonRect { get; set; }
+        public Rectangle SearchBoxRect { get; set; }
+        // Add more rectangles as needed for specific painter styles
     }
 }

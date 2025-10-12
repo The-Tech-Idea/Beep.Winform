@@ -1,26 +1,38 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Winform.Controls.Styling;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 {
     /// <summary>
-    /// A painter inspired by chat UI bubbles: soft background, rounded accent caption, subtle border.
+    /// A painter inspired by chat UI bubbles: soft gradients, speech bubble tails, and message-like appearance.
+    /// Features rounded bubble shapes, message-style shadows, and chat application aesthetics.
     /// </summary>
-    internal sealed class ChatBubbleFormPainter : IFormPainter, IFormPainterMetricsProvider
+    internal sealed class ChatBubbleFormPainter : IFormPainter, IFormPainterMetricsProvider, IFormNonClientPainter
     {
         public FormPainterMetrics GetMetrics(BeepiFormPro owner)
         {
-            return FormPainterMetrics.DefaultFor(FormStyle.ChatBubble, owner.CurrentTheme);
+            return FormPainterMetrics.DefaultFor(FormStyle.ChatBubble, owner.UseThemeColors ? owner.CurrentTheme : null);
         }
 
         public void PaintBackground(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
+            // Soft chat canvas base
+            using (var brush = new SolidBrush(metrics.BackgroundColor))
+            {
+                g.FillRectangle(brush, owner.ClientRectangle);
+            }
 
-            // Soft chat canvas background
-            using var brush = new SolidBrush(metrics.CaptionColor);
-            g.FillRectangle(brush, owner.ClientRectangle);
+            // Faint diagonal stripes pattern (very light)
+            var r = owner.ClientRectangle;
+            using var pen = new Pen(Color.FromArgb(10, 0, 0, 0), 1f);
+            for (int y = r.Top - r.Width; y < r.Bottom; y += 24)
+            {
+                g.DrawLine(pen, r.Left, y, r.Left + r.Width, y + r.Width);
+            }
         }
 
         public void PaintCaption(Graphics g, BeepiFormPro owner, Rectangle captionRect)
@@ -28,32 +40,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Chat bubble-like rounded bar filling the caption area
-            using var path = new GraphicsPath();
-            int radius = Math.Min(metrics.BorderRadius, captionRect.Height / 2);
-            var r = Rectangle.Inflate(captionRect, -6, -4);
-            AddRoundedRect(path, r, radius);
+            // Create speech bubble shape with tail
+            using var path = CreateSpeechBubblePath(captionRect, 8);
 
-            using var lg = new LinearGradientBrush(r, metrics.CaptionColor, metrics.BorderColor, LinearGradientMode.Vertical);
-            g.FillPath(lg, path);
+            // Bubble gradient (light blue to white)
+            using var bubbleBrush = new LinearGradientBrush(
+                captionRect,
+                Color.FromArgb(255, 220, 248, 255), // Light blue
+                Color.FromArgb(255, 255, 255, 255), // White
+                LinearGradientMode.Vertical);
+            g.FillPath(bubbleBrush, path);
 
-            // Title centered inside the bubble
-            var textRect = r;
-            TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+            // Bubble border
+            using var borderPen = new Pen(Color.FromArgb(200, 100, 149, 237), 2f);
+            g.DrawPath(borderPen, path);
+
+            // Message typing dots (positioned left of title to avoid overlap)
+            DrawMessageDots(g, new Rectangle(captionRect.Left + 8, captionRect.Top, owner.CurrentLayout.TitleRect.Left - (captionRect.Left + 16), captionRect.Height));
+
+            // Title as "message sender"
+            var textRect = owner.CurrentLayout.TitleRect;
+            TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect,
+                  metrics.CaptionTextColor,
+                TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+
+            // Built-in caption elements
+            owner.PaintBuiltInCaptionElements(g);
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-
-            // Soft neutral border for the window, matching the chat style
-            using var pen = new Pen(metrics.BorderColor, metrics.BorderWidth);
-            pen.Alignment = PenAlignment.Inset;
-            var r = owner.ClientRectangle;
-            r.Width -= 1;
-            r.Height -= 1;
-            g.DrawRectangle(pen, r);
+            var radius = GetCornerRadius(owner);
+            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
+            pen.Alignment = PenAlignment.Center;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawPath(pen, path);
         }
 
         private static void AddRoundedRect(GraphicsPath path, Rectangle rect, int radius)
@@ -82,6 +105,251 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             path.AddArc(arc, 90, 90);
 
             path.CloseFigure();
+        }
+
+        public ShadowEffect GetShadowEffect(BeepiFormPro owner)
+        {
+            return new ShadowEffect
+            {
+                Color = Color.FromArgb(20, 100, 149, 237),
+                Blur = 12,
+                OffsetY = 6,
+                Inner = false
+            };
+        }
+
+        public CornerRadius GetCornerRadius(BeepiFormPro owner)
+        {
+            return new CornerRadius(16);
+        }
+
+        public AntiAliasMode GetAntiAliasMode(BeepiFormPro owner)
+        {
+            return AntiAliasMode.Ultra;
+        }
+
+        public bool SupportsAnimations => false;
+
+        public void PaintWithEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
+        {
+            // Orchestrated: shadow, base background, clipped background effects (none), borders, caption
+            var originalClip = g.Clip;
+            var shadow = GetShadowEffect(owner);
+            var radius = GetCornerRadius(owner);
+
+            // 1) Shadow
+            if (!shadow.Inner)
+            {
+                DrawShadow(g, rect, shadow, radius);
+            }
+
+            // 2) Base background
+            PaintBackground(g, owner);
+
+            // 3) Background effects with clipping (none; caption owns bubble)
+            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            // Always paint over entire form background since this runs in OnPaintBackground
+            g.Clip = new Region(path);
+
+            PaintBackgroundEffects(g, owner, rect);
+
+            // 4) Reset clip
+            g.Clip = originalClip;
+
+            // 5) Borders and caption
+            PaintBorders(g, owner);
+            if (owner.ShowCaptionBar)
+            {
+                PaintCaption(g, owner, owner.CurrentLayout.CaptionRect);
+            }
+
+            g.Clip = originalClip;
+        }
+
+        private void PaintBackgroundEffects(Graphics g, BeepiFormPro owner, Rectangle rect)
+        {
+            // No additional form-level effects; caption provides bubble look
+        }
+
+        private void DrawShadow(Graphics g, Rectangle rect, ShadowEffect shadow, CornerRadius radius)
+        {
+            if (rect.Width <= 0 || rect.Height <= 0) return;
+            var shadowRect = new Rectangle(
+                rect.X + shadow.OffsetX - shadow.Blur,
+                rect.Y + shadow.OffsetY - shadow.Blur,
+                rect.Width + shadow.Blur * 2,
+                rect.Height + shadow.Blur * 2);
+            if (shadowRect.Width <= 0 || shadowRect.Height <= 0) return;
+            using var brush = new SolidBrush(shadow.Color);
+            using var path = CreateRoundedRectanglePath(shadowRect, radius);
+            g.FillPath(brush, path);
+        }
+
+        private GraphicsPath CreateRoundedRectanglePath(Rectangle rect, CornerRadius radius)
+        {
+            var path = new GraphicsPath();
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                path.AddRectangle(new Rectangle(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height)));
+                return path;
+            }
+            int maxRadius = Math.Min(rect.Width, rect.Height) / 2;
+            int tl = Math.Max(0, Math.Min(radius.TopLeft, maxRadius));
+            int tr = Math.Max(0, Math.Min(radius.TopRight, maxRadius));
+            int br = Math.Max(0, Math.Min(radius.BottomRight, maxRadius));
+            int bl = Math.Max(0, Math.Min(radius.BottomLeft, maxRadius));
+            if (tl == 0 && tr == 0 && br == 0 && bl == 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+            if (tl > 0) path.AddArc(rect.X, rect.Y, tl * 2, tl * 2, 180, 90); else path.AddLine(rect.X, rect.Y, rect.X, rect.Y);
+            if (tr > 0) path.AddArc(rect.Right - tr * 2, rect.Y, tr * 2, tr * 2, 270, 90); else path.AddLine(rect.Right, rect.Y, rect.Right, rect.Y);
+            if (br > 0) path.AddArc(rect.Right - br * 2, rect.Bottom - br * 2, br * 2, br * 2, 0, 90); else path.AddLine(rect.Right, rect.Bottom, rect.Right, rect.Bottom);
+            if (bl > 0) path.AddArc(rect.X, rect.Bottom - bl * 2, bl * 2, bl * 2, 90, 90); else path.AddLine(rect.X, rect.Bottom, rect.X, rect.Bottom);
+            path.CloseFigure();
+            return path;
+        }
+
+        // Painter-owned non-client border rendering for ChatBubble style
+        public void PaintNonClientBorder(Graphics g, BeepiFormPro owner, int borderThickness)
+        {
+            var metrics = GetMetrics(owner);
+            var radius = GetCornerRadius(owner);
+            var outerRect = new Rectangle(0, 0, owner.Width, owner.Height);
+            using var path = CreateRoundedRectanglePath(outerRect, radius);
+            using var pen = new Pen(Color.FromArgb(180, metrics.BorderColor), Math.Max(1, borderThickness))
+            {
+                Alignment = PenAlignment.Inset,
+                LineJoin = LineJoin.Round
+            };
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawPath(pen, path);
+
+            // Tiny top-left tail hint: a small triangular notch inside the border for character
+            int t = Math.Max(0, borderThickness - 1);
+            var tri = new[]
+            {
+                new Point(12, t),
+                new Point(16, t),
+                new Point(14, t + 4)
+            };
+            using var tailBrush = new SolidBrush(Color.FromArgb(160, metrics.BorderColor));
+            g.FillPolygon(tailBrush, tri);
+        }
+
+        /// <summary>
+        /// Creates a speech bubble path with rounded corners and a tail
+        /// </summary>
+        private GraphicsPath CreateSpeechBubblePath(Rectangle rect, int radius)
+        {
+            var path = new GraphicsPath();
+            
+            // Main bubble rectangle with rounded corners
+            var bubbleRect = Rectangle.Inflate(rect, -8, -4);
+            AddRoundedRect(path, bubbleRect, radius);
+            
+            // Add speech bubble tail
+            int tailWidth = 8;
+            int tailHeight = 6;
+            var tailPoints = new Point[]
+            {
+                new Point(bubbleRect.Left + 20, bubbleRect.Bottom),
+                new Point(bubbleRect.Left + 20 + tailWidth/2, bubbleRect.Bottom + tailHeight),
+                new Point(bubbleRect.Left + 20 + tailWidth, bubbleRect.Bottom)
+            };
+            path.AddPolygon(tailPoints);
+            
+            return path;
+        }
+
+        /// <summary>
+        /// Draws typing indicator dots like in chat apps
+        /// </summary>
+        private void DrawMessageDots(Graphics g, Rectangle rect)
+        {
+            using var dotBrush = new SolidBrush(Color.FromArgb(150, 100, 149, 237));
+            int dotSize = 3;
+            int spacing = 6;
+            int startX = Math.Max(rect.Left + 8, rect.Right - 40);
+            int centerY = rect.Top + rect.Height / 2;
+            
+            // Draw three dots
+            for (int i = 0; i < 3; i++)
+            {
+                int x = startX + i * spacing;
+                g.FillEllipse(dotBrush, x, centerY - dotSize/2, dotSize, dotSize);
+            }
+        }
+
+        public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
+        {
+            var layout = new PainterLayoutInfo();
+            
+            // Calculate caption height based on font and padding (Chat bubble uses rounded padding)
+            var captionHeight = owner.Font.Height + 20; // 10px padding top and bottom for chat bubble style
+            
+            // Set caption rectangle
+            layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
+            
+            // Set content rectangle (below caption)
+            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
+            
+            // Calculate button positions (right-aligned in caption, chat bubble style)
+            var buttonSize = new Size(32, captionHeight);
+            var buttonY = 0;
+            var buttonX = owner.ClientSize.Width - buttonSize.Width;
+            
+            // Close button
+            layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+            buttonX -= buttonSize.Width;
+            
+            // Maximize button
+            layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonSize.Width;
+            
+            // Minimize button
+            layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonSize.Width;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
+            
+            // Custom action button (if theme/style not shown)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
+            
+            // Icon and title areas (left side of caption, chat bubble style)
+            var iconSize = 16;
+            var iconPadding = 12; // Rounded padding for chat bubble
+            layout.IconRect = new Rectangle(iconPadding, (captionHeight - iconSize) / 2, iconSize, iconSize);
+            owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
+            
+            var titleX = iconPadding + iconSize + iconPadding;
+            var titleWidth = buttonX - titleX - iconPadding;
+            layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
+            owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
+            
+            owner.CurrentLayout = layout;
         }
     }
 }

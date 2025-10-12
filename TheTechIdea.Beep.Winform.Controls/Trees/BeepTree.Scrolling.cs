@@ -94,8 +94,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // Apply visibility
-            _verticalScrollBar.Visible = needsV;
-            _horizontalScrollBar.Visible = needsH;
+            if (_verticalScrollBar.Visible != needsV)
+                _verticalScrollBar.Visible = needsV;
+            if (_horizontalScrollBar.Visible != needsH)
+                _horizontalScrollBar.Visible = needsH;
 
             // Compute final client area after visibility is known
             Rectangle clientArea = GetClientArea();
@@ -104,18 +106,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (needsV)
             {
                 int vHeight = inner.Height - (needsH ? hBarH : 0);
-                _verticalScrollBar.Bounds = new Rectangle(
+                var vBounds = new Rectangle(
                     inner.Right - vBarW,
                     inner.Top,
                     vBarW,
                     Math.Max(0, vHeight)
                 );
+                if (_verticalScrollBar.Bounds != vBounds)
+                    _verticalScrollBar.Bounds = vBounds;
                 _verticalScrollBar.Minimum = 0;
-                _verticalScrollBar.Maximum = Math.Max(0, _virtualSize.Height);
-                _verticalScrollBar.LargeChange = Math.Max(1, clientArea.Height);
-                _verticalScrollBar.SmallChange = Math.Max(1, GetScaledMinRowHeight());
+                int newVMax = Math.Max(0, _virtualSize.Height);
+                int newVLarge = Math.Max(1, clientArea.Height);
+                int newVSmall = Math.Max(1, GetScaledMinRowHeight());
+                if (_verticalScrollBar.Maximum != newVMax) _verticalScrollBar.Maximum = newVMax;
+                if (_verticalScrollBar.LargeChange != newVLarge) _verticalScrollBar.LargeChange = newVLarge;
+                if (_verticalScrollBar.SmallChange != newVSmall) _verticalScrollBar.SmallChange = newVSmall;
                 int vMaxVal = Math.Max(0, _verticalScrollBar.Maximum - _verticalScrollBar.LargeChange);
-                _verticalScrollBar.Value = Math.Min(Math.Max(0, _yOffset), vMaxVal);
+                int vVal = Math.Min(Math.Max(0, _yOffset), vMaxVal);
+                if (_verticalScrollBar.Value != vVal)
+                    _verticalScrollBar.Value = vVal;
             }
             else
             {
@@ -126,18 +135,25 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (needsH)
             {
                 int hWidth = inner.Width - (needsV ? vBarW : 0);
-                _horizontalScrollBar.Bounds = new Rectangle(
+                var hBounds = new Rectangle(
                     inner.Left,
                     inner.Bottom - hBarH,
                     Math.Max(0, hWidth),
                     hBarH
                 );
+                if (_horizontalScrollBar.Bounds != hBounds)
+                    _horizontalScrollBar.Bounds = hBounds;
                 _horizontalScrollBar.Minimum = 0;
-                _horizontalScrollBar.Maximum = Math.Max(0, _virtualSize.Width);
-                _horizontalScrollBar.LargeChange = Math.Max(1, clientArea.Width);
-                _horizontalScrollBar.SmallChange = Math.Max(1, GetScaledIndentWidth());
+                int newHMax = Math.Max(0, _virtualSize.Width);
+                int newHLarge = Math.Max(1, clientArea.Width);
+                int newHSmall = Math.Max(1, GetScaledIndentWidth());
+                if (_horizontalScrollBar.Maximum != newHMax) _horizontalScrollBar.Maximum = newHMax;
+                if (_horizontalScrollBar.LargeChange != newHLarge) _horizontalScrollBar.LargeChange = newHLarge;
+                if (_horizontalScrollBar.SmallChange != newHSmall) _horizontalScrollBar.SmallChange = newHSmall;
                 int hMaxVal = Math.Max(0, _horizontalScrollBar.Maximum - _horizontalScrollBar.LargeChange);
-                _horizontalScrollBar.Value = Math.Min(Math.Max(0, _xOffset), hMaxVal);
+                int hVal = Math.Min(Math.Max(0, _xOffset), hMaxVal);
+                if (_horizontalScrollBar.Value != hVal)
+                    _horizontalScrollBar.Value = hVal;
             }
             else
             {

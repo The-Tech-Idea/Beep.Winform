@@ -28,30 +28,53 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TemplateForm));
+            components = new System.ComponentModel.Container();
+            beepFormuiManager1 = new TheTechIdea.Beep.Winform.Controls.Managers.BeepFormUIManager(components);
             SuspendLayout();
+            // 
+            // beepFormuiManager1
+            // 
+            beepFormuiManager1.ApplyBeepFormStyle = false;
+            beepFormuiManager1.ApplyThemeOnImage = false;
+            beepFormuiManager1.Backdrop = null;
+            beepFormuiManager1.BeepAppBar = null;
+            beepFormuiManager1.BeepFunctionsPanel = null;
+            beepFormuiManager1.BeepiForm = null;
+            beepFormuiManager1.BeepMenuBar = null;
+            beepFormuiManager1.BeepSideMenu = null;
+            beepFormuiManager1.BorderRadius = null;
+            beepFormuiManager1.BorderThickness = null;
+            beepFormuiManager1.CaptionHeight = null;
+            beepFormuiManager1.CaptionPadding = null;
+            beepFormuiManager1.DisplayContainer = null;
+            beepFormuiManager1.EnableCaptionGradient = null;
+            beepFormuiManager1.IsRounded = false;
+            beepFormuiManager1.LogoImage = "";
+            beepFormuiManager1.ShowBorder = true;
+            beepFormuiManager1.ShowCaptionBar = null;
+            beepFormuiManager1.ShowIconInCaption = null;
+            beepFormuiManager1.ShowShadow = false;
+            beepFormuiManager1.ShowSystemButtons = null;
+            beepFormuiManager1.Theme = "DefaultType";
+            beepFormuiManager1.Title = "Beep Form";
+            beepFormuiManager1.UseImmersiveDarkMode = null;
             // 
             // TemplateForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            BorderColor = Color.FromArgb(200, 200, 200);
-            BorderRadius = 0;
             CaptionHeight = 44;
-            CaptionRenderer = Winform.Controls.Forms.Caption.CaptionRendererKind.Artistic;
-            ClientSize = new Size(816, 492);
-            FormStyle = Winform.Controls.BeepFormStyle.Artistic;
-            GlowColor = Color.FromArgb(140, 200, 50, 150);
-            GlowSpread = 25F;
+            ClientSize = new Size(844, 520);
+            ForeColor = Color.Black;
             Name = "TemplateForm";
             Padding = new Padding(3);
-            ShadowDepth = 15;
-            StylePresets.Presets = (Dictionary<string, Controls.BeepFormStyleMetrics>)resources.GetObject("TemplateForm.StylePresets.Presets");
             Text = "TemplateForm";
             Theme = "DefaultType";
             ResumeLayout(false);
         }
 
         #endregion
+
+        public Controls.Managers.BeepFormUIManager beepFormuiManager1;
     }
 }

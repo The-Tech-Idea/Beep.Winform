@@ -43,13 +43,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepuiManager1
             // 
-            beepuiManager1.BeepAppBar = beepAppBar1;
-            beepuiManager1.BeepiForm = this;
-            beepuiManager1.BeepMenuBar = beepMenuBar1;
-            beepuiManager1.BeepSideMenu = beepSideMenu1;
-            beepuiManager1.DisplayContainer = beepDisplayContainer1;
-            beepuiManager1.IsRounded = false;
-            beepuiManager1.ShowBorder = false;
+       
             // 
             // beepAppBar1
             // 
@@ -213,7 +207,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepSideMenu1.BadgeShape = Vis.Modules.BadgeShape.Circle;
             beepSideMenu1.BadgeText = "";
             beepSideMenu1.BeepAppBar = null;
-            beepSideMenu1.BeepForm = this;
+       
             beepSideMenu1.BlockID = null;
             beepSideMenu1.BorderColor = Color.Black;
             beepSideMenu1.BorderDashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
@@ -619,7 +613,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Controls.Add(beepSideMenu1);
             Name = "MainFrm_SideBar";
             Text = "MainFrm_SideBar";
-            Theme = "DefaultType";
+          
             ResumeLayout(false);
         }
 

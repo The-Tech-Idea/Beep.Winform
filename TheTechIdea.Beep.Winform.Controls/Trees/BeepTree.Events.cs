@@ -165,6 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private void OnMouseMoveHandler(object s, MouseEventArgs e)
         {
             UpdateDrawingRect();
+            // Only update hover; GetHover will invalidate small regions when changed
             GetHover();
             NodeMouseMove?.Invoke(this, new BeepMouseEventArgs("MouseMove", null));
         }

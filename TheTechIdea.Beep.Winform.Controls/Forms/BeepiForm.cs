@@ -414,7 +414,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     ShowBorder = true,
                     ShowShadow = false
                 };
-                AutoScaleMode = AutoScaleMode.Dpi;
+               // AutoScaleMode = AutoScaleMode.Dpi;
                 SetStyle(ControlStyles.UserPaint | ControlStyles.ResizeRedraw | ControlStyles.OptimizedDoubleBuffer | ControlStyles.AllPaintingInWmPaint | ControlStyles.SupportsTransparentBackColor, true);
                 UpdateStyles();
                 DoubleBuffered = true;
@@ -885,13 +885,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (_drawCustomWindowBorder == value) return;
                 _drawCustomWindowBorder = value;
-                if (!InDesignHost && IsHandleCreated)
-                {
-                    // Force frame recalculation and repaint when toggled
-                    SetWindowPos(this.Handle, IntPtr.Zero, 0, 0, 0, 0, (uint)(SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED));
-                    RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
-                }
-            }
+            //     if (!InDesignHost && IsHandleCreated)
+            //     {
+            //         // Force frame recalculation and repaint when toggled
+            //         SetWindowPos(this.Handle, IntPtr.Zero, 0, 0, 0, 0, (uint)(SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED));
+            //         RedrawWindow(this.Handle, IntPtr.Zero, IntPtr.Zero, RDW_FRAME | RDW_INVALIDATE | RDW_UPDATENOW);
+            //     }
+             }
         }
         
         // Hit Test Constants

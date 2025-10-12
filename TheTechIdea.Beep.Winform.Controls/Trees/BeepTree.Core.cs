@@ -107,9 +107,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 			SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Opaque, true);
 			UpdateStyles();
 			DoubleBuffered = true;
-
-			// Initialize helpers
-			_treeHelper = new BeepTreeHelper(this);
+			Padding= new Padding(2);
+            // Initialize helpers
+            _treeHelper = new BeepTreeHelper(this);
 			_layoutHelper = new BeepTreeLayoutHelper(this, _treeHelper);
 			_treeHitTestHelper = new BeepTreeHitTestHelper(this, _layoutHelper);
 
@@ -167,8 +167,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 				System.Diagnostics.Debug.WriteLine("[BeepTree] HandleCreated - forcing refresh");
 				RebuildVisible();
 				UpdateScrollBars();
-				Invalidate();
-				Update(); // Force immediate paint
+				Invalidate(); // Let normal paint cycle handle rendering
 				// Ensure hit areas exist once handle is created
 				try { _treeHitTestHelper?.RegisterHitAreas(); } catch { }
 			};

@@ -29,7 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            // CRITICAL FIX: Don't set AutoScaleMode here!
+            // Let child forms (like BeepWait) set their own AutoScaleMode.Font
+            // Base form should not interfere with child form scaling.
+            // Removing AutoScaleMode setting allows proper Font-based scaling in derived forms.
+            
+            // DO NOT SET: this.AutoScaleMode = ...
+            // DO NOT SET: this.AutoScaleDimensions = ...
+            
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Text = "BeepiFormPro";
         }

@@ -2,6 +2,7 @@
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers;
+using TheTechIdea.Beep.Winform.Controls.Managers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views
@@ -42,12 +43,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // beepuiManager1
             // 
-            beepuiManager1.BeepMenuBar = beepMenuAppBar1;
-            beepuiManager1.DisplayContainer = beepDisplayContainer1;
-            beepuiManager1.IsRounded = false;
-            beepuiManager1.ShowBorder = false;
-            beepuiManager1.Theme = "DefaultTheme";
-            beepuiManager1.Title = "Beep";
+            beepFormuiManager1.BeepMenuBar = beepMenuAppBar1;
+            beepFormuiManager1.DisplayContainer = beepDisplayContainer1;
+            beepFormuiManager1.IsRounded = false;
+            beepFormuiManager1.ShowBorder = false;
+            beepFormuiManager1.Theme = "DefaultTheme";
+            beepFormuiManager1.Title = "Beep";
             // 
             // beepMenuAppBar1
             // 
@@ -558,7 +559,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             Padding = new Padding(10);
             ShowStyleButton = true;
             ShowThemeButton = true;
-            StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("MainFrm.StylePresets.Presets");
             Text = "Beep";
             Theme = "DefaultTheme";
             ResumeLayout(false);

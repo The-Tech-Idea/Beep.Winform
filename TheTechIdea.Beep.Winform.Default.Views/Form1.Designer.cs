@@ -32,7 +32,6 @@ namespace TheTechIdea.Beep.Winform.Default.Views
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            
             beepButton1 = new BeepButton();
             beepComboBox1 = new BeepComboBox();
             beepCard1 = new BeepCard();
@@ -349,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.LeadingImagePath = "";
             beepComboBox1.LeftoffsetForDrawingRect = 0;
             beepComboBox1.LinkedProperty = null;
-            beepComboBox1.Location = new Point(458, 328);
+            beepComboBox1.Location = new Point(512, 303);
             beepComboBox1.MaterialBorderRadius = 4;
             beepComboBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepComboBox1.MaterialCustomPadding = new Padding(0);
@@ -364,7 +363,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepComboBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
-            beepComboBox1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
+            beepComboBox1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Classic;
             beepComboBox1.ParentBackColor = Color.White;
             beepComboBox1.ParentControl = null;
             beepComboBox1.PlaceholderText = "Select an item...";
@@ -443,7 +442,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.CanBeHovered = true;
             beepCard1.CanBePressed = true;
             beepCard1.CanBeSelected = true;
-            beepCard1.CardStyle = CardStyle.EventCard;
+            beepCard1.CardStyle = CardStyle.ContentCard;
             beepCard1.Category = Utilities.DbFieldCategory.String;
             beepCard1.ComponentName = "BaseControl";
             beepCard1.DataContext = null;
@@ -452,7 +451,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.DisabledBorderColor = Color.Gray;
             beepCard1.DisabledForeColor = Color.DarkGray;
             beepCard1.DisableDpiAndScaling = false;
-            beepCard1.DrawingRect = new Rectangle(28, 28, 184, 151);
+            beepCard1.DrawingRect = new Rectangle(28, 28, 290, 295);
             beepCard1.Easing = Vis.Modules.EasingType.Linear;
             beepCard1.EnableHighQualityRendering = true;
             beepCard1.EnableMaterialStyle = false;
@@ -496,7 +495,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.IsAcceptButton = false;
             beepCard1.IsBorderAffectedByTheme = true;
             beepCard1.IsCancelButton = false;
-            beepCard1.IsChild = false;
+            beepCard1.IsChild = true;
             beepCard1.IsCustomeBorder = false;
             beepCard1.IsDefault = false;
             beepCard1.IsDeleted = false;
@@ -522,7 +521,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.LeadingImagePath = "";
             beepCard1.LeftoffsetForDrawingRect = 0;
             beepCard1.LinkedProperty = null;
-            beepCard1.Location = new Point(622, 442);
+            beepCard1.Location = new Point(560, 417);
             beepCard1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepCard1.MaterialCustomPadding = new Padding(0);
             beepCard1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -539,7 +538,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.Padding = new Padding(3);
             beepCard1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.ReadingCard;
             beepCard1.ParagraphText = "Card Description";
-            beepCard1.ParentBackColor = Color.Empty;
+            beepCard1.ParentBackColor = Color.White;
             beepCard1.ParentControl = null;
             beepCard1.PressedBackColor = Color.Gray;
             beepCard1.PressedBorderColor = Color.DarkGray;
@@ -569,7 +568,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepCard1.ShowShadow = false;
             beepCard1.ShowStatus = false;
             beepCard1.ShowTopBorder = false;
-            beepCard1.Size = new Size(243, 210);
+            beepCard1.Size = new Size(349, 354);
             beepCard1.SlideFrom = Vis.Modules.SlideDirection.Left;
             beepCard1.StaticNotMoving = false;
             beepCard1.StatusColor = Color.Green;
@@ -1058,7 +1057,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepListBox1.ListItems"));
             beepListBox1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepListBox1.ListItems1"));
             beepListBox1.ListItems.Add((Controls.Models.SimpleItem)resources.GetObject("beepListBox1.ListItems2"));
-            beepListBox1.Location = new Point(286, 52);
+            beepListBox1.Location = new Point(319, 169);
             beepListBox1.Margin = new Padding(2, 1, 2, 1);
             beepListBox1.MaterialBorderVariant = Vis.Modules.MaterialTextFieldVariant.Standard;
             beepListBox1.MaterialCustomPadding = new Padding(0);
@@ -1125,19 +1124,25 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             // 
             // Form1
             // 
-         
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(972, 806);
+            ClientSize = new Size(1003, 806);
             Controls.Add(beepListBox1);
             Controls.Add(beepTree1);
             Controls.Add(beepTextBox1);
             Controls.Add(beepCard1);
             Controls.Add(beepComboBox1);
             Controls.Add(beepButton1);
+            FormStyle = Winform.Controls.Forms.ModernForm.FormStyle.Metro;
             Location = new Point(0, 0);
             Name = "Form1";
             Padding = new Padding(10);
+            PaintOverContentArea = true;
+            ShowModernRenderingInDesignMode = true;
+            ShowProfileButton = true;
+            ShowSearchBox = true;
+            ShowStyleButton = true;
+            ShowThemeButton = true;
             Text = "Form1";
             ResumeLayout(false);
         }

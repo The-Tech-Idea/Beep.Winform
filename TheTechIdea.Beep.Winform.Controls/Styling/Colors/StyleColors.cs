@@ -235,12 +235,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
 
         internal static Color GetPressed(BeepControlStyle style)
         {
-            throw new NotImplementedException();
+            return style switch
+            {
+                BeepControlStyle.Material3 => Color.FromArgb(234, 221, 255),        // Primary container
+                BeepControlStyle.iOS15 => Color.FromArgb(200, 0, 122, 255),         // iOS blue semi-transparent
+                BeepControlStyle.Fluent2 => Color.FromArgb(243, 242, 241),          // Subtle background
+                BeepControlStyle.Minimal => Color.FromArgb(240, 240, 240),          // Light gray
+                BeepControlStyle.AntDesign => Color.FromArgb(230, 247, 255),        // Primary 1
+                BeepControlStyle.MaterialYou => Color.FromArgb(208, 188, 255),      // Primary container
+                BeepControlStyle.Windows11Mica => Color.FromArgb(243, 242, 241),    // Selected fill
+                BeepControlStyle.MacOSBigSur => Color.FromArgb(229, 229, 234),      // Selected content background
+                BeepControlStyle.ChakraUI => Color.FromArgb(237, 242, 247),         // Blue 50
+                BeepControlStyle.TailwindCard => Color.FromArgb(239, 246, 255),     // Blue 50
+                BeepControlStyle.NotionMinimal => Color.FromArgb(55, 53, 47, 8),    // Subtle
+                BeepControlStyle.VercelClean => Color.FromArgb(0, 0, 0),            // Black
+                BeepControlStyle.StripeDashboard => Color.FromArgb(237, 233, 254),  // Purple 100
+                BeepControlStyle.DarkGlow => Color.FromArgb(88, 28, 135),           // Purple 900
+                BeepControlStyle.DiscordStyle => Color.FromArgb(71, 82, 196),       // Selected blurple
+                BeepControlStyle.GradientModern => Color.FromArgb(0, 210, 255),     // Bright cyan
+                BeepControlStyle.GlassAcrylic => Color.FromArgb(150, 0, 120, 215),  // Blue transparent
+                BeepControlStyle.Neumorphism => Color.FromArgb(220, 222, 225),      // Pressed state
+                BeepControlStyle.Bootstrap => Color.FromArgb(13, 110, 253),         // Primary
+                BeepControlStyle.FigmaCard => Color.FromArgb(24, 160, 251),         // Figma blue
+                BeepControlStyle.PillRail => Color.FromArgb(59, 130, 246),          // Blue 500
+                _ => Color.FromArgb(220, 220, 220)
+            };
         }
 
         internal static object GetSurface(BeepControlStyle style)
         {
-            throw new NotImplementedException();
+            return style switch
+            {
+                BeepControlStyle.Material3 => Color.FromArgb(255, 251, 254),        // Soft lavender tonal surface
+                BeepControlStyle.iOS15 => Color.FromArgb(242, 242, 247),            // Light gray with blue tint
+                BeepControlStyle.Fluent2 => Color.FromArgb(243, 242, 241),          // Warm neutral gray
+                BeepControlStyle.Minimal => Color.FromArgb(250, 250, 250),          // Pure light gray
+                BeepControlStyle.AntDesign => Color.FromArgb(250, 250, 250),        // Slightly warm white
+                BeepControlStyle.MaterialYou => Color.FromArgb(255, 248, 250),      // Pink-tinted surface
+                BeepControlStyle.Windows11Mica => Color.FromArgb(248, 248, 248),    // Cool gray
+                BeepControlStyle.MacOSBigSur => Color.FromArgb(252, 252, 252),      // Clean white with warmth
+                BeepControlStyle.ChakraUI => Color.FromArgb(247, 250, 252),         // Soft blue-gray
+                BeepControlStyle.TailwindCard => Color.FromArgb(255, 255, 255),     // Pure white
+                BeepControlStyle.NotionMinimal => Color.FromArgb(251, 251, 250),    // Off-white with warmth
+                BeepControlStyle.VercelClean => Color.FromArgb(255, 255, 255),      // Pure white
+                BeepControlStyle.StripeDashboard => Color.FromArgb(248, 250, 252),  // Light blue-gray
+                BeepControlStyle.DarkGlow => Color.FromArgb(24, 24, 27),            // Deep charcoal
+                BeepControlStyle.DiscordStyle => Color.FromArgb(47, 49, 54),        // Dark slate gray
+                BeepControlStyle.GradientModern => Color.FromArgb(58, 123, 213),    // Blue (gradient start)
+                BeepControlStyle.GlassAcrylic => Color.FromArgb(240, 255, 255, 255), // Translucent white
+                BeepControlStyle.Neumorphism => Color.FromArgb(225, 227, 230),      // Soft
+            };
         }
+
     }
 }

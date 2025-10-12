@@ -261,7 +261,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Rating = _rating,
                 ShowRating = _showRating
             };
-
+            UpdateDrawingRect();
             _painter?.Initialize(this, _currentTheme);
             ctx = _painter?.AdjustLayout(DrawingRect, ctx) ?? ctx;
 

@@ -17,10 +17,11 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
-    public partial class TemplateForm: BeepiForm,IDM_Addin
+    public partial class TemplateForm: BeepiFormPro,IDM_Addin
     {
 
         protected readonly IBeepService? beepService;
@@ -37,10 +38,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             InitializeComponent();
             beepService = services.GetService<IBeepService>();
             Dependencies.DMEEditor = beepService.DMEEditor;
-         
-            beepuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;
-            beepuiManager1.LogoImage = beepService.vis.LogoUrl;
-            beepuiManager1.Title = beepService.vis.Title;
+
+            beepFormuiManager1.OnThemeChanged += BeepuiManager1_OnThemeChanged;
+            beepFormuiManager1.LogoImage = beepService.vis.LogoUrl;
+            beepFormuiManager1.Title = beepService.vis.Title;
         }
 
         private void BeepuiManager1_OnThemeChanged(string obj)

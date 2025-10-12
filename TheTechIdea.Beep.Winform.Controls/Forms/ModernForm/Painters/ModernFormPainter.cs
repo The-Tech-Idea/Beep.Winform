@@ -50,12 +50,146 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var divPen = new Pen(Color.FromArgb(230, 230, 230), 1f);
             g.DrawLine(divPen, captionRect.Left, captionRect.Bottom - 1, captionRect.Right, captionRect.Bottom - 1);
 
+            // Paint Modern beveled buttons (UNIQUE SKIN)
+            PaintModernBeveledButtons(g, owner, captionRect, metrics);
+
             // Draw title text
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) here because we paint custom beveled buttons
+            // Only paint the icon (we handle theme/style/system buttons ourselves)
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Modern beveled buttons with subtle 3D effect (UNIQUE SKIN)
+        /// Features: beveled edges, inner shadow, micro-gradient, highlight line
+        /// </summary>
+        private void PaintModernBeveledButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            int buttonSize = 20;
+            int padding = (captionRect.Height - buttonSize) / 2;
+
+            // Close button - red with beveled edge
+            PaintBeveledButton(g, closeRect, Color.FromArgb(230, 90, 90), padding, buttonSize, "close");
+
+            // Maximize button - green with beveled edge
+            PaintBeveledButton(g, maxRect, Color.FromArgb(100, 200, 100), padding, buttonSize, "maximize");
+
+            // Minimize button - blue with beveled edge
+            PaintBeveledButton(g, minRect, Color.FromArgb(100, 150, 230), padding, buttonSize, "minimize");
+
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintBeveledButton(g, styleRect, Color.FromArgb(180, 140, 200), padding, buttonSize, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintBeveledButton(g, themeRect, Color.FromArgb(230, 180, 90), padding, buttonSize, "theme");
+            }
+        }
+
+        private void PaintBeveledButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Bevel outer edge (subtle 3D effect)
+            using (var bevelPath = CreateRoundedRectanglePath(new Rectangle(rect.X - 1, rect.Y - 1, rect.Width + 2, rect.Height + 2), new CornerRadius(4)))
+            {
+                using (var lightBrush = new SolidBrush(Color.FromArgb(40, 255, 255, 255)))
+                {
+                    g.FillPath(lightBrush, bevelPath);
+                }
+            }
+
+            // Inner shadow for depth
+            using (var shadowPath = CreateRoundedRectanglePath(new Rectangle(rect.X + 1, rect.Y + 1, rect.Width - 2, rect.Height - 2), new CornerRadius(3)))
+            {
+                using (var shadowBrush = new SolidBrush(Color.FromArgb(30, 0, 0, 0)))
+                {
+                    g.FillPath(shadowBrush, shadowPath);
+                }
+            }
+
+            // Micro-gradient fill (light to slightly darker)
+            using (var buttonPath = CreateRoundedRectanglePath(rect, new CornerRadius(3)))
+            {
+                using (var gradient = new LinearGradientBrush(rect,
+                    baseColor,
+                    ControlPaint.Dark(baseColor, 0.1f),
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillPath(gradient, buttonPath);
+                }
+
+                // Border
+                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.2f), 1))
+                {
+                    g.DrawPath(borderPen, buttonPath);
+                }
+            }
+
+            // Highlight line on top edge
+            using (var highlightPen = new Pen(Color.FromArgb(60, 255, 255, 255), 1))
+            {
+                g.DrawLine(highlightPen, rect.X + 3, rect.Y + 2, rect.Right - 3, rect.Y + 2);
+            }
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 6;
+                int iconCenterX = rect.X + rect.Width / 2;
+                int iconCenterY = rect.Y + rect.Height / 2;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
+                        break;
+                    case "style":
+                        // Palette icon
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY - 1, 2, 2);
+                        break;
+                    case "theme":
+                        // Sun/moon icon
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 3, iconSize * 2 / 3, iconSize * 2 / 3);
+                        for (int i = 0; i < 8; i++)
+                        {
+                            double angle = Math.PI * 2 * i / 8;
+                            int x1 = iconCenterX + (int)(Math.Cos(angle) * iconSize / 2);
+                            int y1 = iconCenterY + (int)(Math.Sin(angle) * iconSize / 2);
+                            int x2 = iconCenterX + (int)(Math.Cos(angle) * iconSize * 0.7);
+                            int y2 = iconCenterY + (int)(Math.Sin(angle) * iconSize * 0.7);
+                            g.DrawLine(iconPen, x1, y1, x2, y2);
+                        }
+                        break;
+                }
+            }
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)

@@ -41,11 +41,180 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var capBrush = new SolidBrush(metrics.CaptionColor);
             g.FillRectangle(capBrush, captionRect);
 
+            // Paint Nordic Viking rune buttons (ENHANCED UNIQUE SKIN)
+            PaintNordicRuneButtons(g, owner, captionRect, metrics);
+
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Nordic rune buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Nordic Viking rune buttons (ENHANCED UNIQUE SKIN)
+        /// Features: Viking rune patterns, wood grain texture, natural aesthetic
+        /// </summary>
+        private void PaintNordicRuneButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            int buttonSize = 20;
+            int padding = (captionRect.Height - buttonSize) / 2;
+
+            // Close button: Red with rune pattern
+            PaintRuneButton(g, closeRect, Color.FromArgb(180, 50, 50), padding, buttonSize, "close");
+
+            // Maximize button: Green with rune pattern
+            PaintRuneButton(g, maxRect, Color.FromArgb(80, 140, 90), padding, buttonSize, "maximize");
+
+            // Minimize button: Blue with rune pattern
+            PaintRuneButton(g, minRect, Color.FromArgb(70, 110, 140), padding, buttonSize, "minimize");
+
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintRuneButton(g, styleRect, Color.FromArgb(120, 90, 130), padding, buttonSize, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintRuneButton(g, themeRect, Color.FromArgb(160, 120, 70), padding, buttonSize, "theme");
+            }
+        }
+
+        private void PaintRuneButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Wood grain texture background
+            DrawWoodGrain(g, rect, baseColor);
+
+            // Viking rune pattern border
+            DrawRunePattern(g, rect, baseColor);
+
+            // Minimalist rectangle with subtle rounding
+            using (var path = CreateRoundedRectanglePath(rect, new CornerRadius(3)))
+            {
+                // Subtle gradient fill (natural color variation)
+                using (var gradientBrush = new LinearGradientBrush(rect,
+                    ControlPaint.Light(baseColor, 0.08f),
+                    ControlPaint.Dark(baseColor, 0.05f),
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillPath(gradientBrush, path);
+                }
+
+                // Natural border (1px, slightly darker)
+                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.15f), 1))
+                {
+                    g.DrawPath(borderPen, path);
+                }
+            }
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.FromArgb(230, 230, 220), 1.5f))
+            {
+                int iconSize = 7;
+                int iconCenterX = rect.X + rect.Width / 2;
+                int iconCenterY = rect.Y + rect.Height / 2;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
+                        break;
+                    case "style":
+                        // Tree icon (Nordic nature)
+                        g.DrawLine(iconPen, iconCenterX, iconCenterY - iconSize / 2, iconCenterX, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 4,
+                            iconCenterX + iconSize / 3, iconCenterY - iconSize / 4);
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 4, iconCenterY,
+                            iconCenterX + iconSize / 4, iconCenterY);
+                        break;
+                    case "theme":
+                        // Mountain icon (Nordic landscape)
+                        var points = new PointF[] {
+                            new PointF(iconCenterX - iconSize / 2, iconCenterY + iconSize / 3),
+                            new PointF(iconCenterX, iconCenterY - iconSize / 2),
+                            new PointF(iconCenterX + iconSize / 2, iconCenterY + iconSize / 3)
+                        };
+                        g.DrawPolygon(iconPen, points);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw wood grain texture (Nordic natural aesthetic)
+        /// </summary>
+        private void DrawWoodGrain(Graphics g, Rectangle rect, Color baseColor)
+        {
+            var random = new Random(rect.GetHashCode());
+            
+            // Draw horizontal grain lines
+            using (var grainPen = new Pen(Color.FromArgb(15, 80, 60, 40), 1))
+            {
+                for (int i = 0; i < 8; i++)
+                {
+                    int y = rect.Y + random.Next(rect.Height);
+                    int offset = random.Next(-2, 3);
+                    
+                    var points = new PointF[5];
+                    for (int j = 0; j < 5; j++)
+                    {
+                        float x = rect.X + (rect.Width * j / 4f);
+                        float yPos = y + (float)(Math.Sin(j * 1.5) * 1.5) + offset;
+                        points[j] = new PointF(x, yPos);
+                    }
+                    g.DrawCurve(grainPen, points, 0.3f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw Viking rune pattern (Nordic heritage)
+        /// </summary>
+        private void DrawRunePattern(Graphics g, Rectangle rect, Color baseColor)
+        {
+            using (var runePen = new Pen(Color.FromArgb(25, 100, 80, 60), 1))
+            {
+                // Simple angular rune-like marks at corners
+                // Top-left rune mark
+                g.DrawLine(runePen, rect.X, rect.Y + 2, rect.X + 3, rect.Y);
+                g.DrawLine(runePen, rect.X, rect.Y + 4, rect.X + 3, rect.Y + 2);
+                
+                // Top-right rune mark
+                g.DrawLine(runePen, rect.Right - 3, rect.Y, rect.Right, rect.Y + 2);
+                g.DrawLine(runePen, rect.Right - 3, rect.Y + 2, rect.Right, rect.Y + 4);
+                
+                // Bottom-left rune mark
+                g.DrawLine(runePen, rect.X, rect.Bottom - 4, rect.X + 3, rect.Bottom - 2);
+                g.DrawLine(runePen, rect.X, rect.Bottom - 2, rect.X + 3, rect.Bottom);
+                
+                // Bottom-right rune mark
+                g.DrawLine(runePen, rect.Right - 3, rect.Bottom - 2, rect.Right, rect.Bottom - 4);
+                g.DrawLine(runePen, rect.Right - 3, rect.Bottom, rect.Right, rect.Bottom - 2);
+            }
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
@@ -175,6 +344,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -185,7 +378,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

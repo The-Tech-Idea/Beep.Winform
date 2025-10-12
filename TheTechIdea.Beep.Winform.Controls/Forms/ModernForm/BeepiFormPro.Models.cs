@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         Cyberpunk,      // Neon-lit futuristic style
         Nordic,         // Clean Scandinavian minimalist design
         iOS,            // Apple iOS modern style
-        Windows11,      // Windows 11 rounded corners and mica
+        // Windows11,   // REMOVED - hides caption, use regular WinForms for native Windows look
         Ubuntu,         // Ubuntu/Unity style
         KDE,            // KDE Plasma style
         ArcLinux,       // Arc Linux theme style

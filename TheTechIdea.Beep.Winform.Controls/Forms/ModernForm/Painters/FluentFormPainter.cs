@@ -51,14 +51,132 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var depthPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1f);
             g.DrawLine(depthPen, captionRect.Left, captionRect.Bottom - 6, captionRect.Right, captionRect.Bottom - 6);
 
+            // Paint Fluent acrylic reveal buttons (UNIQUE SKIN)
+            PaintFluentAcrylicButtons(g, owner, captionRect, metrics);
+
             // Draw title text with Fluent typography
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, 
                 metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // Built-in caption elements
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom acrylic buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Fluent acrylic reveal buttons (UNIQUE SKIN)
+        /// Features: shimmer gradient, border glow, frosted edge, reveal effect
+        /// </summary>
+        private void PaintFluentAcrylicButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            int buttonSize = 18;
+            int padding = (captionRect.Height - buttonSize) / 2;
+
+            // Close button - red with acrylic reveal
+            PaintAcrylicRevealButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+
+            // Maximize button - green with acrylic reveal
+            PaintAcrylicRevealButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+
+            // Minimize button - blue with acrylic reveal
+            PaintAcrylicRevealButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintAcrylicRevealButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintAcrylicRevealButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+            }
+        }
+
+        private void PaintAcrylicRevealButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Frosted acrylic background (semi-transparent)
+            using (var acrylicBrush = new SolidBrush(Color.FromArgb(160, 250, 250, 250)))
+            {
+                g.FillRectangle(acrylicBrush, rect);
+            }
+
+            // Shimmer gradient (diagonal 45°)
+            using (var shimmerBrush = new LinearGradientBrush(
+                new Rectangle(rect.X - 10, rect.Y - 10, rect.Width + 20, rect.Height + 20),
+                Color.FromArgb(80, 255, 255, 255),
+                Color.FromArgb(0, 255, 255, 255),
+                45f))
+            {
+                g.FillRectangle(shimmerBrush, rect);
+            }
+
+            // Acrylic base color overlay
+            using (var colorBrush = new SolidBrush(Color.FromArgb(200, baseColor)))
+            {
+                g.FillRectangle(colorBrush, rect);
+            }
+
+            // Border glow effect (Fluent reveal)
+            using (var glowPen = new Pen(Color.FromArgb(120, baseColor), 2))
+            {
+                g.DrawRectangle(glowPen, rect.X - 1, rect.Y - 1, rect.Width + 1, rect.Height + 1);
+            }
+
+            // Frosted edge highlight (top-left)
+            using (var frostPen = new Pen(Color.FromArgb(100, 255, 255, 255), 1))
+            {
+                g.DrawLine(frostPen, rect.X + 1, rect.Y, rect.Right - 1, rect.Y);
+                g.DrawLine(frostPen, rect.X, rect.Y + 1, rect.X, rect.Bottom - 1);
+            }
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 7;
+                int iconCenterX = rect.X + rect.Width / 2;
+                int iconCenterY = rect.Y + rect.Height / 2;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
+                        break;
+                    case "style":
+                        // Palette icon
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY - 1, 2, 2);
+                        break;
+                    case "theme":
+                        // Light bulb icon
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 2, iconSize * 2 / 3, iconSize * 2 / 3);
+                        g.DrawLine(iconPen, iconCenterX, iconCenterY + iconSize / 3, iconCenterX, iconCenterY + iconSize / 2);
+                        break;
+                }
+            }
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)

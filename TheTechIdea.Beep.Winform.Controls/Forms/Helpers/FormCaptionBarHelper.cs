@@ -214,14 +214,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             return style switch
             {
                 BeepFormStyle.Material => new MacLikeCaptionRenderer(),
-                BeepFormStyle.Gnome => new GnomeCaptionRenderer(),
+             
                 BeepFormStyle.Kde => new KdeCaptionRenderer(),
                 BeepFormStyle.Cinnamon => new CinnamonCaptionRenderer(),
-                BeepFormStyle.Elementary => new ElementaryCaptionRenderer(),
+   
                 BeepFormStyle.Neon => new NeonCaptionRenderer(),
                 BeepFormStyle.Retro => new RetroCaptionRenderer(),
-                BeepFormStyle.Gaming => new GamingCaptionRenderer(),
-                BeepFormStyle.Corporate => new CorporateCaptionRenderer(),
+             
                 BeepFormStyle.Artistic => new ArtisticCaptionRenderer(),
                 BeepFormStyle.HighContrast => new HighContrastCaptionRenderer(),
                 BeepFormStyle.Soft => new SoftCaptionRenderer(),

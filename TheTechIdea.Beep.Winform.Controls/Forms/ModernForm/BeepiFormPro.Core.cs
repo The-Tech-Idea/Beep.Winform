@@ -101,14 +101,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public PainterLayoutInfo CurrentLayout { get;  set; } = new();
 
         // Built-in caption elements
-        private FormRegion _iconRegion;
+        public FormRegion _iconRegion;
         private FormRegion _titleRegion;
         private FormRegion _minimizeButton;
         private FormRegion _maximizeButton;
         private FormRegion _closeButton;
-        private FormRegion _customActionButton; // New: custom clickable region
-        private FormRegion _themeButton;
-        private FormRegion _styleButton;
+        public FormRegion _customActionButton; // New: custom clickable region
+        public FormRegion _themeButton;
+        public FormRegion _styleButton;
         private FormRegion _profileButton;
         private FormRegion _searchBox;
 

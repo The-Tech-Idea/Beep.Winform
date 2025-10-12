@@ -181,16 +181,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonWidth = metrics.ButtonWidth;
             int buttonX = owner.ClientSize.Width - buttonWidth;
             
+            // Close button
             layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Maximize button
             layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Minimize button
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (if theme/style not shown)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -201,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

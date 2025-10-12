@@ -66,11 +66,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Ubuntu pill buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
-        /// Paint Ubuntu Unity-style pill-shaped buttons (UNIQUE)
+        /// Paint Ubuntu Unity-style circular buttons (REDESIGNED - cleaner look)
         /// </summary>
         private void PaintUbuntuButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
@@ -78,66 +80,155 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
             
-            // Ubuntu pill shape: rounded rectangle (height-2 for padding, 14px corner radius)
-            int pillHeight = captionRect.Height - 8;
-            int pillY = (captionRect.Height - pillHeight) / 2;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             
-            // Close button: Ubuntu orange pill with X symbol
-            var closePill = new Rectangle(closeRect.X + 6, pillY, closeRect.Width - 12, pillHeight);
-            using (var closePath = CreatePillPath(closePill, pillHeight / 2))
+            // Ubuntu clean circles: 14px diameter
+            int buttonSize = 14;
+            int buttonY = (captionRect.Height - buttonSize) / 2;
+            
+            // Close button: Ubuntu orange circle with X
+            int closeX = closeRect.X + (closeRect.Width - buttonSize) / 2;
+            var closeCircle = new Rectangle(closeX, buttonY, buttonSize, buttonSize);
+            
+            // Gradient for depth
+            using (var orangeGrad = new LinearGradientBrush(
+                closeCircle,
+                Color.FromArgb(245, 94, 42),
+                Color.FromArgb(223, 74, 22),
+                LinearGradientMode.Vertical))
             {
-                // Ubuntu orange fill
-                using (var orangeBrush = new SolidBrush(Color.FromArgb(233, 84, 32)))
-                {
-                    g.FillPath(orangeBrush, closePath);
-                }
-                
-                // White X symbol (8px)
-                using (var xPen = new Pen(Color.White, 1.5f))
-                {
-                    int xSize = 8;
-                    int cx = closePill.X + closePill.Width / 2;
-                    int cy = closePill.Y + closePill.Height / 2;
-                    g.DrawLine(xPen, cx - xSize/2, cy - xSize/2, cx + xSize/2, cy + xSize/2);
-                    g.DrawLine(xPen, cx + xSize/2, cy - xSize/2, cx - xSize/2, cy + xSize/2);
-                }
+                g.FillEllipse(orangeGrad, closeCircle);
             }
             
-            // Maximize button: dark pill with square symbol
-            var maxPill = new Rectangle(maxRect.X + 6, pillY, maxRect.Width - 12, pillHeight);
-            using (var maxPath = CreatePillPath(maxPill, pillHeight / 2))
+            // Subtle border
+            using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
             {
-                using (var darkBrush = new SolidBrush(Color.FromArgb(60, 60, 60)))
-                {
-                    g.FillPath(darkBrush, maxPath);
-                }
-                
-                // White square symbol (7px)
-                using (var squarePen = new Pen(Color.White, 1.5f))
-                {
-                    int sSize = 7;
-                    int mx = maxPill.X + maxPill.Width / 2;
-                    int my = maxPill.Y + maxPill.Height / 2;
-                    g.DrawRectangle(squarePen, mx - sSize/2, my - sSize/2, sSize, sSize);
-                }
+                g.DrawEllipse(borderPen, closeCircle);
             }
             
-            // Minimize button: dark pill with horizontal line symbol
-            var minPill = new Rectangle(minRect.X + 6, pillY, minRect.Width - 12, pillHeight);
-            using (var minPath = CreatePillPath(minPill, pillHeight / 2))
+            // White X symbol
+            using (var xPen = new Pen(Color.White, 2f))
             {
-                using (var darkBrush = new SolidBrush(Color.FromArgb(60, 60, 60)))
+                int xSize = 6;
+                int cx = closeCircle.X + closeCircle.Width / 2;
+                int cy = closeCircle.Y + closeCircle.Height / 2;
+                g.DrawLine(xPen, cx - xSize/2, cy - xSize/2, cx + xSize/2, cy + xSize/2);
+                g.DrawLine(xPen, cx + xSize/2, cy - xSize/2, cx - xSize/2, cy + xSize/2);
+            }
+            
+            // Maximize button: Ubuntu orange circle with square
+            int maxX = maxRect.X + (maxRect.Width - buttonSize) / 2;
+            var maxCircle = new Rectangle(maxX, buttonY, buttonSize, buttonSize);
+            
+            using (var orangeGrad = new LinearGradientBrush(
+                maxCircle,
+                Color.FromArgb(245, 94, 42),
+                Color.FromArgb(223, 74, 22),
+                LinearGradientMode.Vertical))
+            {
+                g.FillEllipse(orangeGrad, maxCircle);
+            }
+            
+            using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
+            {
+                g.DrawEllipse(borderPen, maxCircle);
+            }
+            
+            // White square symbol
+            using (var squarePen = new Pen(Color.White, 1.5f))
+            {
+                int sSize = 6;
+                int mx = maxCircle.X + maxCircle.Width / 2;
+                int my = maxCircle.Y + maxCircle.Height / 2;
+                g.DrawRectangle(squarePen, mx - sSize/2, my - sSize/2, sSize, sSize);
+            }
+            
+            // Minimize button: Ubuntu orange circle with line
+            int minX = minRect.X + (minRect.Width - buttonSize) / 2;
+            var minCircle = new Rectangle(minX, buttonY, buttonSize, buttonSize);
+            
+            using (var orangeGrad = new LinearGradientBrush(
+                minCircle,
+                Color.FromArgb(245, 94, 42),
+                Color.FromArgb(223, 74, 22),
+                LinearGradientMode.Vertical))
+            {
+                g.FillEllipse(orangeGrad, minCircle);
+            }
+            
+            using (var borderPen = new Pen(Color.FromArgb(200, 60, 20), 1f))
+            {
+                g.DrawEllipse(borderPen, minCircle);
+            }
+            
+            // White line symbol
+            using (var linePen = new Pen(Color.White, 1.5f))
+            {
+                int lSize = 6;
+                int mnx = minCircle.X + minCircle.Width / 2;
+                int mny = minCircle.Y + minCircle.Height / 2;
+                g.DrawLine(linePen, mnx - lSize/2, mny, mnx + lSize/2, mny);
+            }
+
+            // Theme button (if shown) - Ubuntu purple circle
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                int themeX = themeRect.X + (themeRect.Width - buttonSize) / 2;
+                var themeCircle = new Rectangle(themeX, buttonY, buttonSize, buttonSize);
+                
+                using (var purpleGrad = new LinearGradientBrush(
+                    themeCircle,
+                    Color.FromArgb(139, 61, 103),
+                    Color.FromArgb(99, 21, 63),
+                    LinearGradientMode.Vertical))
                 {
-                    g.FillPath(darkBrush, minPath);
+                    g.FillEllipse(purpleGrad, themeCircle);
                 }
                 
-                // White line symbol (8px)
-                using (var linePen = new Pen(Color.White, 1.5f))
+                using (var borderPen = new Pen(Color.FromArgb(79, 11, 53), 1f))
                 {
-                    int lSize = 8;
-                    int mnx = minPill.X + minPill.Width / 2;
-                    int mny = minPill.Y + minPill.Height / 2;
-                    g.DrawLine(linePen, mnx - lSize/2, mny, mnx + lSize/2, mny);
+                    g.DrawEllipse(borderPen, themeCircle);
+                }
+                
+                // White palette icon
+                int tx = themeCircle.X + themeCircle.Width / 2;
+                int ty = themeCircle.Y + themeCircle.Height / 2;
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    g.DrawEllipse(iconPen, tx - 3, ty - 3, 6, 6);
+                }
+                g.FillEllipse(Brushes.White, tx - 1, ty + 1, 2, 2);
+            }
+
+            // Style button (if shown) - Ubuntu purple circle
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                int styleX = styleRect.X + (styleRect.Width - buttonSize) / 2;
+                var styleCircle = new Rectangle(styleX, buttonY, buttonSize, buttonSize);
+                
+                using (var purpleGrad = new LinearGradientBrush(
+                    styleCircle,
+                    Color.FromArgb(139, 61, 103),
+                    Color.FromArgb(99, 21, 63),
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillEllipse(purpleGrad, styleCircle);
+                }
+                
+                using (var borderPen = new Pen(Color.FromArgb(79, 11, 53), 1f))
+                {
+                    g.DrawEllipse(borderPen, styleCircle);
+                }
+                
+                // White brush icon
+                int sx = styleCircle.X + styleCircle.Width / 2;
+                int sy = styleCircle.Y + styleCircle.Height / 2;
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
+                    g.DrawLine(iconPen, sx - 2, sy, sx + 2, sy + 2);
                 }
             }
         }
@@ -294,6 +385,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -304,7 +419,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

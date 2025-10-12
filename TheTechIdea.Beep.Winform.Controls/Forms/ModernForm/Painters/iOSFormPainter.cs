@@ -99,6 +99,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             // iOS: Paint circular traffic light buttons (distinct!)
             PaintiOSButtons(g, owner, captionRect);
+
+            // Paint icon, theme/style buttons (iOS only paints traffic lights, not system buttons)
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+            
+            if (owner.ShowThemeButton)
+                owner._themeButton?.OnPaint?.Invoke(g, owner.CurrentLayout.ThemeButtonRect);
+            
+            if (owner.ShowStyleButton)
+                owner._styleButton?.OnPaint?.Invoke(g, owner.CurrentLayout.StyleButtonRect);
+            
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+                owner._customActionButton?.OnPaint?.Invoke(g, owner.CurrentLayout.CustomActionButtonRect);
         }
         
         private void PaintiOSButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect)
@@ -247,21 +259,57 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
             owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
             
-            int buttonWidth = metrics.ButtonWidth;
-            int buttonX = owner.ClientSize.Width - buttonWidth;
+            // iOS: Traffic light buttons on LEFT (red, yellow, green circles)
+            int buttonSize = 12; // Small circular buttons
+            int buttonY = (captionHeight - buttonSize) / 2;
+            int buttonSpacing = 8;
+            int leftX = 10;
             
-            layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
-            buttonX -= buttonWidth;
+            // Close button (red circle, leftmost)
+            layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+            leftX += buttonSize + buttonSpacing;
             
-            layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonWidth;
+            // Minimize button (yellow circle, middle)
+            layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            leftX += buttonSize + buttonSpacing;
             
-            layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            // Maximize button (green circle, right of traffic lights)
+            layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            leftX += buttonSize + buttonSpacing;
             
-            int iconX = metrics.IconLeftPadding;
+            // RIGHT side: Theme/Style buttons (standard Windows-style placement)
+            int buttonWidth = 32; // Larger for theme/style buttons
+            int rightX = owner.ClientSize.Width - buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                rightX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                rightX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback if theme/style not shown)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(rightX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+                rightX -= buttonWidth;
+            }
+            
+            // Icon positioning (after traffic lights)
+            int iconX = leftX + 8;
             int iconY = (captionHeight - metrics.IconSize) / 2;
             layout.IconRect = new Rectangle(iconX, iconY, metrics.IconSize, metrics.IconSize);
             if (owner.ShowIcon && owner.Icon != null)
@@ -269,8 +317,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 owner._hits.Register("icon", layout.IconRect, HitAreaType.Icon);
             }
             
+            // Title area: between icon and right-side buttons (centered for iOS style)
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = rightX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

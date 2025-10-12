@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -40,14 +41,167 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var shadowPen = new Pen(Color.FromArgb(60, 0, 0, 0), 1f);
             g.DrawLine(shadowPen, captionRect.Left, captionRect.Bottom - 1, captionRect.Right, captionRect.Bottom - 1);
 
+            // Paint Glass refraction buttons (UNIQUE SKIN)
+            PaintGlassRefractionButtons(g, owner, captionRect, metrics);
+
             // Title with glass-appropriate contrast
             var textRect = owner.CurrentLayout.TitleRect;
             var glassTextColor = metrics.CaptionTextColor; // High contrast for glass
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, glassTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // Built-in caption elements
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom glass refraction buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Glass refraction buttons (UNIQUE SKIN)
+        /// Features: caustic pattern, refraction effect, glass highlights, specular reflection
+        /// </summary>
+        private void PaintGlassRefractionButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            int buttonSize = 20;
+            int padding = (captionRect.Height - buttonSize) / 2;
+
+            // Close button - red glass with refraction
+            PaintGlassButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+
+            // Maximize button - green glass with refraction
+            PaintGlassButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+
+            // Minimize button - blue glass with refraction
+            PaintGlassButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintGlassButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintGlassButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+            }
+        }
+
+        private void PaintGlassButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            int radius = size / 2;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw caustic pattern background (underwater light effect)
+            DrawCausticPattern(g, new Rectangle(centerX - radius - 5, centerY - radius - 5, size + 10, size + 10));
+
+            // Glass circle with transparency
+            using (var glassBrush = new SolidBrush(Color.FromArgb(140, baseColor)))
+            {
+                g.FillEllipse(glassBrush, centerX - radius, centerY - radius, size, size);
+            }
+
+            // Refraction effect (lighter inner layer)
+            using (var refractionBrush = new SolidBrush(Color.FromArgb(80, 255, 255, 255)))
+            {
+                int refractionRadius = radius - 2;
+                g.FillEllipse(refractionBrush, centerX - refractionRadius, centerY - refractionRadius, 
+                    refractionRadius * 2, refractionRadius * 2);
+            }
+
+            // Curved glass highlight (top-left arc, 30% of circle)
+            using (var highlightPen = new Pen(Color.FromArgb(150, 255, 255, 255), 2))
+            {
+                var highlightRect = new Rectangle(centerX - radius + 2, centerY - radius + 2, 
+                    (radius - 2) * 2, (radius - 2) * 2);
+                g.DrawArc(highlightPen, highlightRect, 200, 90);
+            }
+
+            // Specular reflection (bright spot at top-right)
+            using (var specularBrush = new SolidBrush(Color.FromArgb(180, 255, 255, 255)))
+            {
+                int specularX = centerX + radius / 3;
+                int specularY = centerY - radius / 3;
+                g.FillEllipse(specularBrush, specularX - 2, specularY - 2, 4, 4);
+            }
+
+            // Glass border (subtle)
+            using (var borderPen = new Pen(Color.FromArgb(100, 255, 255, 255), 1))
+            {
+                g.DrawEllipse(borderPen, centerX - radius, centerY - radius, size, size);
+            }
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 7;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY - iconSize / 2,
+                            centerX + iconSize / 2, centerY + iconSize / 2);
+                        g.DrawLine(iconPen, centerX + iconSize / 2, centerY - iconSize / 2,
+                            centerX - iconSize / 2, centerY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
+                        break;
+                    case "style":
+                        // Palette icon
+                        g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        g.FillEllipse(Brushes.White, centerX - 1, centerY - 1, 2, 2);
+                        break;
+                    case "theme":
+                        // Sun icon
+                        g.DrawEllipse(iconPen, centerX - iconSize / 3, centerY - iconSize / 3, 
+                            iconSize * 2 / 3, iconSize * 2 / 3);
+                        for (int i = 0; i < 8; i++)
+                        {
+                            double angle = Math.PI * 2 * i / 8;
+                            int x1 = centerX + (int)(Math.Cos(angle) * iconSize / 2);
+                            int y1 = centerY + (int)(Math.Sin(angle) * iconSize / 2);
+                            int x2 = centerX + (int)(Math.Cos(angle) * iconSize * 0.7);
+                            int y2 = centerY + (int)(Math.Sin(angle) * iconSize * 0.7);
+                            g.DrawLine(iconPen, x1, y1, x2, y2);
+                        }
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw caustic pattern (underwater light refraction effect)
+        /// </summary>
+        private void DrawCausticPattern(Graphics g, Rectangle rect)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            using (var causticPen = new Pen(Color.FromArgb(30, 100, 180, 255), 1))
+            {
+                // Draw 5 sine wave curves for caustic effect
+                for (int i = 0; i < 5; i++)
+                {
+                    var points = new PointF[20];
+                    for (int j = 0; j < 20; j++)
+                    {
+                        float x = rect.X + (rect.Width * j / 19f);
+                        float y = rect.Y + rect.Height / 2 + (float)(Math.Sin(j * 0.8 + i * 0.7) * 6);
+                        points[j] = new PointF(x, y);
+                    }
+                    g.DrawCurve(causticPen, points, 0.5f);
+                }
+            }
         }
 
         /// <summary>

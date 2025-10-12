@@ -87,7 +87,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Neon star buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -99,6 +101,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var closeRect = owner.CurrentLayout.CloseButtonRect;
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            var themeRect = owner.CurrentLayout.ThemeButtonRect;
+            var styleRect = owner.CurrentLayout.StyleButtonRect;
             
             int starSize = 16;
             int starY = (captionRect.Height - starSize) / 2;
@@ -207,6 +211,84 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 int lineSize = 6;
                 g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+            }
+            
+            // Theme button: Purple neon star with glow and palette icon
+            if (!themeRect.IsEmpty)
+            {
+                int tx = themeRect.X + themeRect.Width / 2;
+                int ty = starY + starSize / 2;
+                
+                // Purple glow layers
+                for (int i = 5; i > 0; i--)
+                {
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 150, 0, 255)))
+                    using (var starPath = CreateStarPath(tx, ty, starSize + i * 2))
+                    {
+                        g.FillPath(glowBrush, starPath);
+                    }
+                }
+                
+                // Solid star
+                using (var starBrush = new SolidBrush(Color.FromArgb(255, 180, 100, 255)))
+                using (var starPath = CreateStarPath(tx, ty, starSize))
+                {
+                    g.FillPath(starBrush, starPath);
+                }
+                
+                // Outline
+                using (var outlinePen = new Pen(Color.FromArgb(255, 220, 180, 255), 1.5f))
+                using (var starPath = CreateStarPath(tx, ty, starSize))
+                {
+                    g.DrawPath(outlinePen, starPath);
+                }
+                
+                // Palette icon
+                using (var iconBrush = new SolidBrush(Color.White))
+                {
+                    g.FillEllipse(iconBrush, tx - 3, ty - 2, 3, 3);
+                    g.FillEllipse(iconBrush, tx + 1, ty - 2, 3, 3);
+                    g.FillEllipse(iconBrush, tx - 1, ty + 2, 3, 3);
+                }
+            }
+            
+            // Style button: Yellow neon star with glow and brush icon
+            if (!styleRect.IsEmpty)
+            {
+                int sx = styleRect.X + styleRect.Width / 2;
+                int sy = starY + starSize / 2;
+                
+                // Yellow glow layers
+                for (int i = 5; i > 0; i--)
+                {
+                    using (var glowBrush = new SolidBrush(Color.FromArgb(15 * i, 255, 255, 0)))
+                    using (var starPath = CreateStarPath(sx, sy, starSize + i * 2))
+                    {
+                        g.FillPath(glowBrush, starPath);
+                    }
+                }
+                
+                // Solid star
+                using (var starBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 100)))
+                using (var starPath = CreateStarPath(sx, sy, starSize))
+                {
+                    g.FillPath(starBrush, starPath);
+                }
+                
+                // Outline
+                using (var outlinePen = new Pen(Color.FromArgb(255, 255, 255, 200), 1.5f))
+                using (var starPath = CreateStarPath(sx, sy, starSize))
+                {
+                    g.DrawPath(outlinePen, starPath);
+                }
+                
+                // Brush icon
+                using (var iconPen = new Pen(Color.White, 1.2f))
+                {
+                    g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
+                    g.DrawLine(iconPen, sx, sy - 2, sx, sy + 2);
+                    g.DrawLine(iconPen, sx + 2, sy - 2, sx + 2, sy + 2);
+                }
             }
         }
         
@@ -378,6 +460,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -388,7 +494,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

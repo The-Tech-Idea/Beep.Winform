@@ -66,11 +66,163 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(neonPen, 0, captionRect.Bottom - 1, captionRect.Width, captionRect.Bottom - 1);
             }
 
+            // Paint Cyberpunk neon hexagon buttons
+            PaintCyberpunkNeonButtons(g, owner, captionRect, metrics);
+
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom neon buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Cyberpunk-style neon hexagon buttons with multi-layer glow
+        /// </summary>
+        private void PaintCyberpunkNeonButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Close button: Red neon hexagon
+            PaintNeonHexagonButton(g, closeRect, Color.FromArgb(255, 0, 100), "close");
+
+            // Maximize button: Cyan neon hexagon
+            PaintNeonHexagonButton(g, maxRect, Color.FromArgb(0, 255, 255), "maximize");
+
+            // Minimize button: Magenta neon hexagon
+            PaintNeonHexagonButton(g, minRect, Color.FromArgb(255, 0, 255), "minimize");
+
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintNeonHexagonButton(g, themeRect, Color.FromArgb(0, 255, 150), "theme");
+            }
+
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintNeonHexagonButton(g, styleRect, Color.FromArgb(255, 200, 0), "style");
+            }
+        }
+
+        /// <summary>
+        /// Paint a single neon hexagon button with multi-layer glow effect
+        /// </summary>
+        private void PaintNeonHexagonButton(Graphics g, Rectangle buttonRect, Color neonColor, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            int size = 18; // Hexagon size
+
+            // Create hexagon path
+            var hexPath = CreateHexagonPath(centerX, centerY, size);
+
+            // Multi-layer neon glow (3 layers)
+            // Layer 1: Outer glow (blur 12)
+            using (var glowPen1 = new Pen(Color.FromArgb(30, neonColor), 12))
+            {
+                g.DrawPath(glowPen1, hexPath);
+            }
+
+            // Layer 2: Mid glow (blur 6)
+            using (var glowPen2 = new Pen(Color.FromArgb(60, neonColor), 6))
+            {
+                g.DrawPath(glowPen2, hexPath);
+            }
+
+            // Layer 3: Inner glow (blur 3)
+            using (var glowPen3 = new Pen(Color.FromArgb(100, neonColor), 3))
+            {
+                g.DrawPath(glowPen3, hexPath);
+            }
+
+            // Fill hexagon with dark background
+            using (var fillBrush = new SolidBrush(Color.FromArgb(255, 10, 10, 20)))
+            {
+                g.FillPath(fillBrush, hexPath);
+            }
+
+            // Core neon outline (2px solid)
+            using (var corePen = new Pen(neonColor, 2))
+            {
+                g.DrawPath(corePen, hexPath);
+            }
+
+            // Draw icon in neon color
+            using (var iconPen = new Pen(neonColor, 2f))
+            {
+                int iconSize = 8;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        // X icon
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY - iconSize / 2,
+                            centerX + iconSize / 2, centerY + iconSize / 2);
+                        g.DrawLine(iconPen, centerX + iconSize / 2, centerY - iconSize / 2,
+                            centerX - iconSize / 2, centerY + iconSize / 2);
+                        break;
+
+                    case "maximize":
+                        // Square icon
+                        g.DrawRectangle(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        break;
+
+                    case "minimize":
+                        // Horizontal line icon
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
+                        break;
+
+                    case "theme":
+                        // Palette/hexagon icon
+                        var smallHex = CreateHexagonPath(centerX, centerY, iconSize / 2);
+                        g.DrawPath(iconPen, smallHex);
+                        break;
+
+                    case "style":
+                        // Brush/paint icon (triangle)
+                        var points = new PointF[]
+                        {
+                            new PointF(centerX, centerY - iconSize/2),
+                            new PointF(centerX - iconSize/2, centerY + iconSize/2),
+                            new PointF(centerX + iconSize/2, centerY + iconSize/2)
+                        };
+                        g.DrawPolygon(iconPen, points);
+                        break;
+                }
+            }
+
+            hexPath.Dispose();
+        }
+
+        /// <summary>
+        /// Create a hexagon path centered at the given point
+        /// </summary>
+        private GraphicsPath CreateHexagonPath(int centerX, int centerY, int size)
+        {
+            var path = new GraphicsPath();
+            var points = new PointF[6];
+
+            for (int i = 0; i < 6; i++)
+            {
+                double angle = Math.PI / 3 * i; // 60 degrees per side
+                points[i] = new PointF(
+                    centerX + (float)(size * Math.Cos(angle)),
+                    centerY + (float)(size * Math.Sin(angle))
+                );
+            }
+
+            path.AddPolygon(points);
+            path.CloseFigure();
+            return path;
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
@@ -216,16 +368,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonWidth = metrics.ButtonWidth;
             int buttonX = owner.ClientSize.Width - buttonWidth;
             
+            // Close button
             layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Maximize button
             layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Minimize button
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (if theme/style not shown)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -236,7 +415,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

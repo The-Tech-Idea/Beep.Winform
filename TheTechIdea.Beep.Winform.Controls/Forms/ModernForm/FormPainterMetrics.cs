@@ -2,6 +2,11 @@ using System.Drawing;
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
 {
+    public enum SystemButtonsSide
+    {
+        Right,
+        Left
+    }
     /// <summary>
     /// Metrics used by BeepiFormProLayoutManager to size and place caption elements.
     /// Painters can provide custom metrics via IFormPainterMetricsProvider.
@@ -9,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
     public sealed class FormPainterMetrics
     {
 
-        
+        public bool UseThemeColors { get; set; } = false;
         public IBeepTheme beepTheme { get; set; }
         // Helpers to ensure readable backgrounds per style even with dark themes
         private static Color Blend(Color a, Color b, double t)
@@ -40,11 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             return cur;
         }
-        public enum SystemButtonsSide
-        {
-            Right,
-            Left
-        }
+    
         // Colors for various form elements in caption and borders
         public Color BackgroundColor { get; set; } = Color.FromArgb(255, 255, 255, 255);
         public Color ForegroundColor { get; set; } = Color.FromArgb(255, 0, 0, 0);
@@ -102,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public bool ShowProfileButton { get; set; }
         public bool ShowMailButton { get; set; }
 
-        public static FormPainterMetrics DefaultFor(FormStyle style, IBeepTheme theme)
+        public static FormPainterMetrics DefaultFor(FormStyle style, IBeepTheme theme,bool UseThemeColors=false)
         {
             var m = new FormPainterMetrics();
             switch (style)
@@ -233,15 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.BorderRadius = 12;
                     m.AccentBarWidth = 0;
                     break;
-                case FormStyle.Windows11:
-                    m.CaptionHeight = 32;
-                    m.ButtonWidth = 46;
-                    m.IconSize = 20;
-                    m.ButtonsPlacement = SystemButtonsSide.Right;
-                    m.BorderWidth = 1;
-                    m.BorderRadius = 8;
-                    m.AccentBarWidth = 0;
-                    break;
+                // Windows11 REMOVED
                 case FormStyle.Nordic:
                     m.CaptionHeight = 36;
                     m.ButtonWidth = 36;
@@ -407,7 +400,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.AccentBarWidth = 0;
                     break;
             }
-            if ((theme != null) && (theme != m.beepTheme))
+            if ((theme != null) && (theme != m.beepTheme) && UseThemeColors)
             {
                 // Fill colors from the provided theme
                 m.BorderColor = theme.BorderColor;
@@ -498,10 +491,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         m.BackgroundColor = EnsureMinLuma(m.BackgroundColor, 242);
                         m.CaptionColor = EnsureMinLuma(m.CaptionColor, 245);
                         break;
-                    case FormStyle.Windows11:
-                        m.BackgroundColor = EnsureMinLuma(m.BackgroundColor, 240);
-                        m.CaptionColor = EnsureMinLuma(m.CaptionColor, 242);
-                        break;
+                    // Windows11 REMOVED
                     case FormStyle.Nordic:
                         m.BackgroundColor = EnsureMinLuma(m.BackgroundColor, 245);
                         m.CaptionColor = EnsureMinLuma(m.CaptionColor, 248);
@@ -805,23 +795,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         m.MaximizeButtonColor = Color.FromArgb(255, 52, 199, 89);
                         m.CloseButtonColor = Color.FromArgb(255, 255, 59, 48);
                         break;
-                    case FormStyle.Windows11:
-                        m.BorderColor = Color.FromArgb(255, 210, 210, 215);
-                        m.CaptionColor = Color.FromArgb(255, 243, 243, 243);
-                        m.CaptionTextColor = Color.FromArgb(255, 0, 0, 0);
-                        m.CaptionTextColorInactive = Color.FromArgb(255, 100, 100, 100);
-                        m.CaptionTextColorMaximized = Color.FromArgb(255, 0, 0, 0);
-                        m.CaptionButtonColor = Color.FromArgb(255, 0, 0, 0);
-                        m.CaptionButtonHoverColor = Color.FromArgb(255, 30, 30, 30);
-                        m.CaptionButtonPressedColor = Color.FromArgb(255, 60, 60, 60);
-                        m.CaptionButtonInactiveColor = Color.FromArgb(255, 100, 100, 100);
-                        m.CaptionButtonMaximizedColor = Color.FromArgb(255, 0, 0, 0);
-                        m.ForegroundColor = Color.FromArgb(255, 0, 0, 0);
-                        m.BackgroundColor = Color.FromArgb(255, 243, 243, 243);
-                        m.MinimizeButtonColor = Color.FromArgb(255, 253, 224, 71);
-                        m.MaximizeButtonColor = Color.FromArgb(255, 134, 239, 172);
-                        m.CloseButtonColor = Color.FromArgb(255, 248, 113, 113);
-                        break;
+                    // Windows11 REMOVED
                     case FormStyle.Nordic:
                         m.BorderColor = Color.FromArgb(255, 220, 220, 220);
                         m.CaptionColor = Color.FromArgb(255, 250, 250, 250);
@@ -1135,6 +1109,78 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 }
 
             }
+            
+            // CRITICAL: Ensure caption text is ALWAYS visible against caption background
+            // This applies whether using theme colors or default colors
+            double captionTextLuma = Luma(m.CaptionTextColor);
+            double captionLuma = Luma(m.CaptionColor);
+            double captionContrastRatio = Math.Abs(captionTextLuma - captionLuma);
+            
+            // If contrast is too low (less than 100 luma units), force readable colors
+            if (captionContrastRatio < 100)
+            {
+                // If caption is dark, use light text; if caption is light, use dark text
+                if (captionLuma < 128)
+                {
+                    // Dark caption, use white or very light text
+                    m.CaptionTextColor = Color.FromArgb(255, 240, 240, 240);
+                    m.CaptionTextColorMaximized = Color.FromArgb(255, 240, 240, 240);
+                }
+                else
+                {
+                    // Light caption, use black or very dark text
+                    m.CaptionTextColor = Color.FromArgb(255, 30, 30, 30);
+                    m.CaptionTextColorMaximized = Color.FromArgb(255, 30, 30, 30);
+                }
+            }
+            
+            // CRITICAL: Ensure foreground text is ALWAYS visible against background
+            // This applies to text content painted on the main form background
+            double foregroundLuma = Luma(m.ForegroundColor);
+            double backgroundLuma = Luma(m.BackgroundColor);
+            double backgroundContrastRatio = Math.Abs(foregroundLuma - backgroundLuma);
+            
+            // If contrast is too low (less than 100 luma units), force readable colors
+            if (backgroundContrastRatio < 100)
+            {
+                // If background is dark, use light foreground; if background is light, use dark foreground
+                if (backgroundLuma < 128)
+                {
+                    // Dark background, use white or very light foreground
+                    m.ForegroundColor = Color.FromArgb(255, 240, 240, 240);
+                }
+                else
+                {
+                    // Light background, use black or very dark foreground
+                    m.ForegroundColor = Color.FromArgb(255, 30, 30, 30);
+                }
+            }
+            
+            // CRITICAL: Ensure caption text is ALSO visible against main background
+            // Some layouts may render caption text against the background color
+            double captionTextVsBackgroundLuma = Math.Abs(captionTextLuma - backgroundLuma);
+            
+            // If contrast is too low (less than 100 luma units), force readable colors
+            if (captionTextVsBackgroundLuma < 100)
+            {
+                // Recalculate caption text luma after potential previous adjustments
+                captionTextLuma = Luma(m.CaptionTextColor);
+                
+                // If background is dark, use light caption text; if background is light, use dark caption text
+                if (backgroundLuma < 128)
+                {
+                    // Dark background, use white or very light caption text
+                    m.CaptionTextColor = Color.FromArgb(255, 240, 240, 240);
+                    m.CaptionTextColorMaximized = Color.FromArgb(255, 240, 240, 240);
+                }
+                else
+                {
+                    // Light background, use black or very dark caption text
+                    m.CaptionTextColor = Color.FromArgb(255, 30, 30, 30);
+                    m.CaptionTextColorMaximized = Color.FromArgb(255, 30, 30, 30);
+                }
+            }
+            
                 return m;
         }
 

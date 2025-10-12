@@ -1068,7 +1068,6 @@
     <Folder Include="DialogsManagers\Models\" />
     <Folder Include="Examples\" />
     <Folder Include="Forms\BeepMainForm\" />
-    <Folder Include="Forms\ModernForm\Helpers\" />
     <Folder Include="Forms\PopUpForm\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="GridX\Layouts\FooterLayouts\" />

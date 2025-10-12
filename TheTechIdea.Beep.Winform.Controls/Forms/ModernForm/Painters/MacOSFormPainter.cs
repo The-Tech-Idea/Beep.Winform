@@ -275,69 +275,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             // Set caption rectangle
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
+            owner._hits.Clear();
+            owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
             
-            // Set content rectangle (below caption)
-            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
-            
-            // macOS traffic light buttons positioned on the left
-            var buttonSize = new Size(12, 12); // macOS traffic lights are smaller
-            var buttonY = (captionHeight - buttonSize.Height) / 2;
-            var buttonX = 12; // Start from left edge with padding
+            // macOS: Traffic light buttons positioned on the LEFT
+            var buttonSize = 12; // macOS traffic lights are small circles
+            var buttonY = (captionHeight - buttonSize) / 2;
+            var buttonSpacing = 8;
+            var leftX = 12; // Start from left edge with padding
             
             // Close button (red, leftmost)
-            layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+            layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
             owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-            buttonX += buttonSize.Width + 8;
+            leftX += buttonSize + buttonSpacing;
             
-            // Minimize button (yellow)
-            layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+            // Minimize button (yellow, middle)
+            layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
             owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-            buttonX += buttonSize.Width + 8;
+            leftX += buttonSize + buttonSpacing;
             
-            // Maximize button (green)
-            layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+            // Maximize button (green, rightmost of traffic lights)
+            layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
             owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            leftX += buttonSize + buttonSpacing;
             
-            // Right-side buttons (if enabled)
-            var rightButtonX = owner.ClientSize.Width - 32;
+            // RIGHT side: Theme/Style buttons (standard Windows-style placement)
+            var rightButtonWidth = 32;
+            var rightX = owner.ClientSize.Width - rightButtonWidth;
             
             // Style button (if shown)
             if (owner.ShowStyleButton)
             {
-                layout.StyleButtonRect = new Rectangle(rightButtonX, 0, 32, captionHeight);
+                layout.StyleButtonRect = new Rectangle(rightX, 0, rightButtonWidth, captionHeight);
                 owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
-                rightButtonX -= 32;
+                rightX -= rightButtonWidth;
             }
             
             // Theme button (if shown)
             if (owner.ShowThemeButton)
             {
-                layout.ThemeButtonRect = new Rectangle(rightButtonX, 0, 32, captionHeight);
+                layout.ThemeButtonRect = new Rectangle(rightX, 0, rightButtonWidth, captionHeight);
                 owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
-                rightButtonX -= 32;
+                rightX -= rightButtonWidth;
             }
             
             // Custom action button (if theme/style not shown)
             if (!owner.ShowThemeButton && !owner.ShowStyleButton)
             {
-                layout.CustomActionButtonRect = new Rectangle(rightButtonX, 0, 32, captionHeight);
+                layout.CustomActionButtonRect = new Rectangle(rightX, 0, rightButtonWidth, captionHeight);
                 owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+                rightX -= rightButtonWidth;
             }
             
             // Icon and title areas: start after traffic lights, end before right-side buttons
             var iconSize = 16;
             var iconPadding = 8;
-            var titleStartX = buttonX + buttonSize.Width + 16; // After last traffic light with padding
-            var titleEndX = rightButtonX - 8; // Before any right buttons
+            var titleStartX = leftX + 16; // After last traffic light with padding
 
             var iconX = titleStartX;
             layout.IconRect = new Rectangle(iconX, (captionHeight - iconSize) / 2, iconSize, iconSize);
-            owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
+            if (owner.ShowIcon && owner.Icon != null)
+            {
+                owner._hits.RegisterHitArea("icon", layout.IconRect, HitAreaType.Icon);
+            }
 
             var titleX = iconX + iconSize + iconPadding;
-            var titleWidth = Math.Max(0, titleEndX - titleX);
+            var titleWidth = Math.Max(0, rightX - titleX - 8);
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             owner._hits.RegisterHitArea("title", layout.TitleRect, HitAreaType.Caption);
+            
+            // Set content rectangle (below caption)
+            layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
             
             owner.CurrentLayout = layout;
         }

@@ -55,7 +55,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom OneDark octagon buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -119,6 +121,48 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     int lineSize = 7;
                     int mny = octY + octSize/2;
                     g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+                }
+            }
+
+            // Theme button (if shown): OneDark blue octagon
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                int tx = themeRect.X + themeRect.Width / 2;
+                using (var octPath = CreateOctagonPath(tx, octY + octSize/2, octSize/2))
+                {
+                    using (var octBrush = new SolidBrush(Color.FromArgb(97, 175, 239))) // OneDark blue
+                    {
+                        g.FillPath(octBrush, octPath);
+                    }
+                    
+                    using (var iconPen = new Pen(Color.White, 1.3f))
+                    {
+                        int ty = octY + octSize/2;
+                        g.DrawEllipse(iconPen, tx - 3, ty - 3, 6, 6);
+                    }
+                    g.FillEllipse(Brushes.White, tx - 1, octY + octSize/2 + 1, 2, 2);
+                }
+            }
+
+            // Style button (if shown): OneDark green octagon
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                int sx = styleRect.X + styleRect.Width / 2;
+                using (var octPath = CreateOctagonPath(sx, octY + octSize/2, octSize/2))
+                {
+                    using (var octBrush = new SolidBrush(Color.FromArgb(152, 195, 121))) // OneDark green
+                    {
+                        g.FillPath(octBrush, octPath);
+                    }
+                    
+                    using (var iconPen = new Pen(Color.White, 1.3f))
+                    {
+                        int sy = octY + octSize/2;
+                        g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
+                        g.DrawLine(iconPen, sx - 2, sy, sx + 2, sy + 2);
+                    }
                 }
             }
         }
@@ -262,15 +306,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonX = owner.ClientSize.Width - buttonWidth;
             
             layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
             layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -281,7 +349,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

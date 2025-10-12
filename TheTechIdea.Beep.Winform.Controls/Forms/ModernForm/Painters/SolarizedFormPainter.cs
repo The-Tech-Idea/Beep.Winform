@@ -51,7 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Solarized diamond buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -62,6 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var closeRect = owner.CurrentLayout.CloseButtonRect;
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            var themeRect = owner.CurrentLayout.ThemeButtonRect;
+            var styleRect = owner.CurrentLayout.StyleButtonRect;
             
             int diamondSize = 16;
             int diamondY = (captionRect.Height - diamondSize) / 2;
@@ -118,6 +122,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                     int lineSize = 6;
                     int mny = diamondY + diamondSize/2;
                     g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+                }
+            }
+            
+            // Theme button: Blue diamond with palette icon (Solarized blue #268bd2)
+            if (!themeRect.IsEmpty)
+            {
+                int tx = themeRect.X + themeRect.Width / 2;
+                using (var diamondPath = CreateDiamondPath(tx, diamondY + diamondSize/2, diamondSize/2))
+                {
+                    using (var diamondBrush = new SolidBrush(Color.FromArgb(38, 139, 210)))
+                    {
+                        g.FillPath(diamondBrush, diamondPath);
+                    }
+                    
+                    // Palette icon (circles)
+                    using (var iconBrush = new SolidBrush(Color.White))
+                    {
+                        int ty = diamondY + diamondSize/2;
+                        g.FillEllipse(iconBrush, tx - 3, ty - 2, 3, 3);
+                        g.FillEllipse(iconBrush, tx + 1, ty - 2, 3, 3);
+                        g.FillEllipse(iconBrush, tx - 1, ty + 2, 3, 3);
+                    }
+                }
+            }
+            
+            // Style button: Magenta diamond with brush icon (Solarized magenta #d33682)
+            if (!styleRect.IsEmpty)
+            {
+                int sx = styleRect.X + styleRect.Width / 2;
+                using (var diamondPath = CreateDiamondPath(sx, diamondY + diamondSize/2, diamondSize/2))
+                {
+                    using (var diamondBrush = new SolidBrush(Color.FromArgb(211, 54, 130)))
+                    {
+                        g.FillPath(diamondBrush, diamondPath);
+                    }
+                    
+                    // Brush icon (triangle + line)
+                    using (var iconPen = new Pen(Color.White, 1.2f))
+                    {
+                        int sy = diamondY + diamondSize/2;
+                        // Brush bristles
+                        g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
+                        g.DrawLine(iconPen, sx, sy - 2, sx, sy + 2);
+                        g.DrawLine(iconPen, sx + 2, sy - 2, sx + 2, sy + 2);
+                    }
                 }
             }
         }
@@ -265,6 +314,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -275,7 +348,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

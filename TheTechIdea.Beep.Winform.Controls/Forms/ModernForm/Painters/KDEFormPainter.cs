@@ -59,18 +59,180 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(highlightPen, captionRect.Left, captionRect.Top + 1, captionRect.Right, captionRect.Top + 1);
             }
 
-            // Paint KDE minimal icon buttons (UNIQUE)
-            PaintKDEButtons(g, owner, captionRect, metrics);
+            // Paint KDE Breeze plasma wave buttons (ENHANCED UNIQUE SKIN)
+            PaintKDEPlasmaButtons(g, owner, captionRect, metrics);
 
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom KDE plasma buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
-        /// Paint KDE Breeze-style minimal icon buttons (UNIQUE)
+        /// Paint KDE Breeze plasma wave buttons (ENHANCED UNIQUE SKIN)
+        /// Features: plasma wave pattern, Breeze rounded squares, smooth gradients
+        /// </summary>
+        private void PaintKDEPlasmaButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            int buttonSize = 20;
+            int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Close button: Red with plasma wave
+            PaintPlasmaButton(g, closeRect, Color.FromArgb(237, 21, 21), padding, buttonSize, "close", metrics);
+            
+            // Maximize button: Green with plasma wave
+            PaintPlasmaButton(g, maxRect, Color.FromArgb(24, 218, 24), padding, buttonSize, "maximize", metrics);
+            
+            // Minimize button: Blue with plasma wave
+            PaintPlasmaButton(g, minRect, Color.FromArgb(61, 174, 233), padding, buttonSize, "minimize", metrics);
+            
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintPlasmaButton(g, styleRect, Color.FromArgb(147, 115, 203), padding, buttonSize, "style", metrics);
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintPlasmaButton(g, themeRect, Color.FromArgb(246, 116, 0), padding, buttonSize, "theme", metrics);
+            }
+        }
+
+        private void PaintPlasmaButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType, FormPainterMetrics metrics)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            var rect = new Rectangle(centerX - size / 2, centerY - size / 2, size, size);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Plasma wave pattern background
+            DrawPlasmaWave(g, rect, baseColor);
+
+            // Breeze rounded square shape (4px corner radius)
+            using (var path = CreateRoundedSquarePath(rect, 4))
+            {
+                // Breeze gradient fill (vertical, light to dark)
+                using (var gradientBrush = new LinearGradientBrush(rect,
+                    ControlPaint.Light(baseColor, 0.15f),
+                    ControlPaint.Dark(baseColor, 0.05f),
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillPath(gradientBrush, path);
+                }
+
+                // Smooth border (1px, slightly darker)
+                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.2f), 1))
+                {
+                    g.DrawPath(borderPen, path);
+                }
+
+                // KDE Breeze top highlight (signature feature)
+                using (var highlightPen = new Pen(Color.FromArgb(80, 255, 255, 255), 1))
+                {
+                    g.DrawLine(highlightPen, rect.X + 3, rect.Y + 2, rect.Right - 3, rect.Y + 2);
+                }
+            }
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 7;
+                int iconCenterX = rect.X + rect.Width / 2;
+                int iconCenterY = rect.Y + rect.Height / 2;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
+                        break;
+                    case "style":
+                        // Palette icon
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY - 1, 2, 2);
+                        break;
+                    case "theme":
+                        // Gear icon
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 3, 
+                            iconSize * 2 / 3, iconSize * 2 / 3);
+                        for (int i = 0; i < 6; i++)
+                        {
+                            double angle = Math.PI * 2 * i / 6;
+                            int x = iconCenterX + (int)(Math.Cos(angle) * iconSize / 2);
+                            int y = iconCenterY + (int)(Math.Sin(angle) * iconSize / 2);
+                            g.FillRectangle(Brushes.White, x - 1, y - 1, 2, 2);
+                        }
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw KDE Plasma wave pattern (animated energy effect)
+        /// </summary>
+        private void DrawPlasmaWave(Graphics g, Rectangle rect, Color baseColor)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Draw 3 sine wave layers for plasma effect
+            using (var plasmaPen = new Pen(Color.FromArgb(30, baseColor), 1))
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    var points = new PointF[15];
+                    for (int j = 0; j < 15; j++)
+                    {
+                        float x = rect.X + (rect.Width * j / 14f);
+                        float y = rect.Y + rect.Height / 2 + (float)(Math.Sin(j * 0.9 + i * 1.2) * 4);
+                        points[j] = new PointF(x, y);
+                    }
+                    g.DrawCurve(plasmaPen, points, 0.5f);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create rounded square path (KDE Breeze button shape)
+        /// </summary>
+        private GraphicsPath CreateRoundedSquarePath(Rectangle rect, int radius)
+        {
+            var path = new GraphicsPath();
+            
+            if (radius <= 0 || rect.Width <= radius * 2 || rect.Height <= radius * 2)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+
+            path.AddArc(rect.X, rect.Y, radius * 2, radius * 2, 180, 90);
+            path.AddArc(rect.Right - radius * 2, rect.Y, radius * 2, radius * 2, 270, 90);
+            path.AddArc(rect.Right - radius * 2, rect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+            path.CloseFigure();
+            
+            return path;
+        }
+        
+        /// <summary>
+        /// Paint KDE Breeze-style minimal icon buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
         /// </summary>
         private void PaintKDEButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
         {
@@ -274,6 +436,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -284,7 +470,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

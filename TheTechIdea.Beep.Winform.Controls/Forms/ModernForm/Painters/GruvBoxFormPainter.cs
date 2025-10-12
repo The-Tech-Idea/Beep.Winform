@@ -72,7 +72,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom GruvBox beveled buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -84,6 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var closeRect = owner.CurrentLayout.CloseButtonRect;
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            var themeRect = owner.CurrentLayout.ThemeButtonRect;
+            var styleRect = owner.CurrentLayout.StyleButtonRect;
             
             int buttonSize = 20;
             int buttonY = (captionRect.Height - buttonSize) / 2;
@@ -153,6 +157,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 int imnx = minButtonRect.X + minButtonRect.Width / 2;
                 int imny = minButtonRect.Y + minButtonRect.Height / 2;
                 g.DrawLine(iconPen, imnx - lineSize/2, imny, imnx + lineSize/2, imny);
+            }
+            
+            // Theme button: Warm orange 3D beveled rectangle with palette icon (GruvBox orange #fe8019)
+            if (!themeRect.IsEmpty)
+            {
+                int tx = themeRect.X + (themeRect.Width - buttonSize) / 2;
+                var themeButtonRect = new Rectangle(tx, buttonY, buttonSize, buttonSize);
+                
+                using (var fillBrush = new SolidBrush(Color.FromArgb(254, 128, 25)))
+                {
+                    g.FillRectangle(fillBrush, themeButtonRect);
+                }
+                
+                ControlPaint.DrawBorder3D(g, themeButtonRect, Border3DStyle.Raised, Border3DSide.All);
+                
+                // Palette icon
+                using (var iconBrush = new SolidBrush(Color.White))
+                {
+                    int itx = themeButtonRect.X + themeButtonRect.Width / 2;
+                    int ity = themeButtonRect.Y + themeButtonRect.Height / 2;
+                    g.FillEllipse(iconBrush, itx - 4, ity - 3, 3, 3);
+                    g.FillEllipse(iconBrush, itx + 1, ity - 3, 3, 3);
+                    g.FillEllipse(iconBrush, itx - 1, ity + 1, 3, 3);
+                }
+            }
+            
+            // Style button: Warm yellow 3D beveled rectangle with brush icon (GruvBox yellow #fabd2f)
+            if (!styleRect.IsEmpty)
+            {
+                int sx = styleRect.X + (styleRect.Width - buttonSize) / 2;
+                var styleButtonRect = new Rectangle(sx, buttonY, buttonSize, buttonSize);
+                
+                using (var fillBrush = new SolidBrush(Color.FromArgb(250, 189, 47)))
+                {
+                    g.FillRectangle(fillBrush, styleButtonRect);
+                }
+                
+                ControlPaint.DrawBorder3D(g, styleButtonRect, Border3DStyle.Raised, Border3DSide.All);
+                
+                // Brush icon
+                using (var iconPen = new Pen(Color.White, 1.5f))
+                {
+                    int isx = styleButtonRect.X + styleButtonRect.Width / 2;
+                    int isy = styleButtonRect.Y + styleButtonRect.Height / 2;
+                    g.DrawLine(iconPen, isx - 3, isy - 3, isx - 3, isy + 3);
+                    g.DrawLine(iconPen, isx, isy - 3, isx, isy + 3);
+                    g.DrawLine(iconPen, isx + 3, isy - 3, isx + 3, isy + 3);
+                }
             }
         }
 
@@ -273,16 +325,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonWidth = metrics.ButtonWidth;
             int buttonX = owner.ClientSize.Width - buttonWidth;
             
+            // Close button
             layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Maximize button
             layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Minimize button
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (if theme/style not shown)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -293,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

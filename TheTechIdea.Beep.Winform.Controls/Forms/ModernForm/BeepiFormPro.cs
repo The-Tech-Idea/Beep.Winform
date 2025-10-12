@@ -134,10 +134,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     FormBorderStyle = FormBorderStyle.None;
                     ActivePainter = new iOSFormPainter();
                     break;
-                case FormStyle.Windows11:
-                    FormBorderStyle = FormBorderStyle.None;
-                    ActivePainter = new Windows11FormPainter();
-                    break;
+                // Windows11 REMOVED - use regular WinForms for native Windows look
                 case FormStyle.Nordic:
                     FormBorderStyle = FormBorderStyle.None;
                     ActivePainter = new NordicFormPainter();

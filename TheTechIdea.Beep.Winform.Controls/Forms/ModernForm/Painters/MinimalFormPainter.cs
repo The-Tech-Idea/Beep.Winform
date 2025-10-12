@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.ComponentModel;
@@ -44,14 +45,131 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             using var line = new Pen(metrics.BorderColor, 2f);
             g.DrawLine(line, captionRect.Left, captionRect.Bottom - 1, captionRect.Right, captionRect.Bottom - 1);
 
+            // Paint Minimal Japanese Zen circle buttons (ENHANCED UNIQUE SKIN)
+            PaintZenCircleButtons(g, owner, captionRect, metrics);
+
             // Draw title text with 8px padding
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            // Render built-in caption elements (icon/title/theme/style/custom/system buttons)
-            // so the painter controls full caption composition.
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Zen circle buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint Minimal Japanese Zen circle buttons (ENHANCED UNIQUE SKIN)
+        /// Features: Japanese aesthetic circles, negative space emphasis, ultra-thin lines
+        /// </summary>
+        private void PaintZenCircleButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            int buttonSize = 18;
+            int padding = (captionRect.Height - buttonSize) / 2;
+
+            // Close button: Red Zen circle
+            PaintZenButton(g, closeRect, Color.FromArgb(200, 80, 80), metrics.BorderColor, padding, buttonSize, "close");
+
+            // Maximize button: Green Zen circle
+            PaintZenButton(g, maxRect, Color.FromArgb(100, 160, 100), metrics.BorderColor, padding, buttonSize, "maximize");
+
+            // Minimize button: Blue Zen circle
+            PaintZenButton(g, minRect, Color.FromArgb(100, 140, 180), metrics.BorderColor, padding, buttonSize, "minimize");
+
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintZenButton(g, styleRect, Color.FromArgb(140, 120, 160), metrics.BorderColor, padding, buttonSize, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintZenButton(g, themeRect, Color.FromArgb(180, 140, 100), metrics.BorderColor, padding, buttonSize, "theme");
+            }
+        }
+
+        private void PaintZenButton(Graphics g, Rectangle buttonRect, Color baseColor, Color accentColor, int padding, int size, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            int radius = size / 2;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Negative space: draw only the outer circle outline (Zen minimalism)
+            using (var zenPen = new Pen(Color.FromArgb(40, baseColor), 1))
+            {
+                g.DrawEllipse(zenPen, centerX - radius, centerY - radius, size, size);
+            }
+
+            // Ultra-thin inner circle (Japanese calligraphy aesthetic)
+            using (var innerPen = new Pen(Color.FromArgb(80, baseColor), 0.5f))
+            {
+                int innerRadius = radius - 2;
+                g.DrawEllipse(innerPen, centerX - innerRadius, centerY - innerRadius, innerRadius * 2, innerRadius * 2);
+            }
+
+            // Accent point (enso circle - incomplete circle, Zen philosophy)
+            DrawEnsoAccent(g, centerX, centerY, radius, accentColor);
+
+            // Calm monochromatic fill (very subtle, almost transparent)
+            using (var fillBrush = new SolidBrush(Color.FromArgb(15, baseColor)))
+            {
+                g.FillEllipse(fillBrush, centerX - radius, centerY - radius, size, size);
+            }
+
+            // Draw icon (minimalist, thin lines)
+            using (var iconPen = new Pen(Color.FromArgb(180, baseColor), 1f))
+            {
+                int iconSize = 6;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY - iconSize / 2,
+                            centerX + iconSize / 2, centerY + iconSize / 2);
+                        g.DrawLine(iconPen, centerX + iconSize / 2, centerY - iconSize / 2,
+                            centerX - iconSize / 2, centerY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
+                        break;
+                    case "style":
+                        // Brush icon (Japanese calligraphy)
+                        g.DrawLine(iconPen, centerX, centerY - iconSize / 2, centerX, centerY + iconSize / 2);
+                        g.DrawLine(iconPen, centerX - iconSize / 3, centerY - iconSize / 4,
+                            centerX + iconSize / 3, centerY + iconSize / 4);
+                        break;
+                    case "theme":
+                        // Yin-yang icon (balance, Zen)
+                        g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        g.DrawArc(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize / 2, iconSize, 90, 180);
+                        g.DrawArc(iconPen, centerX, centerY - iconSize / 2, iconSize / 2, iconSize, 270, 180);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw Enso accent (incomplete circle - Zen Buddhist symbol)
+        /// Represents elegance, strength through imperfection
+        /// </summary>
+        private void DrawEnsoAccent(Graphics g, int centerX, int centerY, int radius, Color accentColor)
+        {
+            using (var ensoPen = new Pen(Color.FromArgb(60, accentColor), 1))
+            {
+                // Draw 300° arc (leaving 60° gap for Zen imperfection)
+                g.DrawArc(ensoPen, centerX - radius, centerY - radius, radius * 2, radius * 2, 30, 300);
+            }
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)

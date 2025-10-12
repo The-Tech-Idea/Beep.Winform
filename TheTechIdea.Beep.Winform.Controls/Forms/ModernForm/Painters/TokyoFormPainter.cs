@@ -75,7 +75,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Tokyo cross buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -87,6 +89,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var closeRect = owner.CurrentLayout.CloseButtonRect;
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            var themeRect = owner.CurrentLayout.ThemeButtonRect;
+            var styleRect = owner.CurrentLayout.StyleButtonRect;
             
             int crossSize = 18; // Cross/plus size
             int crossY = (captionRect.Height - crossSize) / 2;
@@ -178,6 +182,70 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 int lineSize = 7;
                 g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+            }
+            
+            // Theme button: Green cross with glow and palette icon (Tokyo Night green #9ece6a)
+            if (!themeRect.IsEmpty)
+            {
+                int tx = themeRect.X + themeRect.Width / 2;
+                int ty = crossY + crossSize / 2;
+                
+                // Draw green glow
+                for (int i = 3; i > 0; i--)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(20 * i, 158, 206, 106), 2 * i))
+                    {
+                        g.DrawLine(glowPen, tx - crossSize/2, ty, tx + crossSize/2, ty);
+                        g.DrawLine(glowPen, tx, ty - crossSize/2, tx, ty + crossSize/2);
+                    }
+                }
+                
+                // Draw solid cross
+                using (var crossPen = new Pen(Color.FromArgb(158, 206, 106), 3))
+                {
+                    g.DrawLine(crossPen, tx - crossSize/2, ty, tx + crossSize/2, ty);
+                    g.DrawLine(crossPen, tx, ty - crossSize/2, tx, ty + crossSize/2);
+                }
+                
+                // Palette icon
+                using (var iconBrush = new SolidBrush(Color.White))
+                {
+                    g.FillEllipse(iconBrush, tx - 3, ty - 2, 3, 3);
+                    g.FillEllipse(iconBrush, tx + 1, ty - 2, 3, 3);
+                    g.FillEllipse(iconBrush, tx - 1, ty + 2, 3, 3);
+                }
+            }
+            
+            // Style button: Orange cross with glow and brush icon (Tokyo Night orange #ff9e64)
+            if (!styleRect.IsEmpty)
+            {
+                int sx = styleRect.X + styleRect.Width / 2;
+                int sy = crossY + crossSize / 2;
+                
+                // Draw orange glow
+                for (int i = 3; i > 0; i--)
+                {
+                    using (var glowPen = new Pen(Color.FromArgb(20 * i, 255, 158, 100), 2 * i))
+                    {
+                        g.DrawLine(glowPen, sx - crossSize/2, sy, sx + crossSize/2, sy);
+                        g.DrawLine(glowPen, sx, sy - crossSize/2, sx, sy + crossSize/2);
+                    }
+                }
+                
+                // Draw solid cross
+                using (var crossPen = new Pen(Color.FromArgb(255, 158, 100), 3))
+                {
+                    g.DrawLine(crossPen, sx - crossSize/2, sy, sx + crossSize/2, sy);
+                    g.DrawLine(crossPen, sx, sy - crossSize/2, sx, sy + crossSize/2);
+                }
+                
+                // Brush icon
+                using (var iconPen = new Pen(Color.White, 1.2f))
+                {
+                    g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
+                    g.DrawLine(iconPen, sx, sy - 2, sx, sy + 2);
+                    g.DrawLine(iconPen, sx + 2, sy - 2, sx + 2, sy + 2);
+                }
             }
         }
 
@@ -308,6 +376,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -318,7 +410,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

@@ -25,7 +25,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             public bool HitTest(Point p, out HitArea area)
             {
-                area = _hits.FirstOrDefault(h => h.Bounds.Contains(p));
+                HitArea best = null;
+                long bestArea = long.MaxValue;
+
+                foreach (var hit in _hits)
+                {
+                    if (!hit.Bounds.Contains(p))
+                    {
+                        continue;
+                    }
+
+                    long size = (long)hit.Bounds.Width * hit.Bounds.Height;
+                    if (size < bestArea)
+                    {
+                        best = hit;
+                        bestArea = size;
+                    }
+                }
+
+                area = best;
                 return area != null;
             }
             public HitArea GetHitArea(string name)

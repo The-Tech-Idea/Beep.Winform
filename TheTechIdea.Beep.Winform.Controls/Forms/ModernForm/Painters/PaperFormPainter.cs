@@ -73,18 +73,202 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(linePen, 0, captionRect.Bottom - 1, captionRect.Width, captionRect.Bottom - 1);
             }
 
-            // Paint Material Paper double-border CIRCLE buttons (UNIQUE)
-            PaintPaperCircleButtons(g, owner, captionRect, metrics);
+            // Paint Material Paper textured torn-edge buttons (ENHANCED UNIQUE SKIN)
+            PaintPaperTexturedButtons(g, owner, captionRect, metrics);
 
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom paper texture buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
-        /// Paint Material Design Paper double-border circle buttons (UNIQUE SKIN)
+        /// Paint Material Design Paper textured buttons with torn edges (ENHANCED UNIQUE SKIN)
+        /// Features: paper texture noise, torn edge effect, ink bleed, fiber pattern
+        /// </summary>
+        private void PaintPaperTexturedButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            int buttonSize = 20;
+            int padding = (captionRect.Height - buttonSize) / 2;
+            
+            // Close button: Red with paper texture
+            PaintPaperTexturedButton(g, closeRect, Color.FromArgb(232, 17, 35), padding, buttonSize, "close");
+            
+            // Maximize button: Green with paper texture
+            PaintPaperTexturedButton(g, maxRect, Color.FromArgb(16, 124, 16), padding, buttonSize, "maximize");
+            
+            // Minimize button: Blue with paper texture
+            PaintPaperTexturedButton(g, minRect, Color.FromArgb(0, 120, 215), padding, buttonSize, "minimize");
+            
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintPaperTexturedButton(g, styleRect, Color.FromArgb(135, 100, 184), padding, buttonSize, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintPaperTexturedButton(g, themeRect, Color.FromArgb(247, 99, 12), padding, buttonSize, "theme");
+            }
+        }
+        
+        private void PaintPaperTexturedButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int size, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            int radius = size / 2;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Paper texture background
+            DrawPaperTexture(g, new Rectangle(centerX - radius, centerY - radius, size, size));
+
+            // Torn circle path (jagged edges)
+            using (var tornPath = CreateTornCirclePath(centerX, centerY, radius))
+            {
+                // Ink bleed effect (blurred outer rings)
+                for (int i = 3; i > 0; i--)
+                {
+                    using (var bleedBrush = new SolidBrush(Color.FromArgb(20 * i, baseColor)))
+                    using (var bleedPath = CreateTornCirclePath(centerX, centerY, radius + i))
+                    {
+                        g.FillPath(bleedBrush, bleedPath);
+                    }
+                }
+
+                // Main button fill
+                using (var paperBrush = new SolidBrush(baseColor))
+                {
+                    g.FillPath(paperBrush, tornPath);
+                }
+
+                // Double border (material design rings)
+                using (var outerBorderPen = new Pen(ControlPaint.Dark(baseColor, 0.3f), 2))
+                {
+                    g.DrawPath(outerBorderPen, tornPath);
+                }
+                
+                using (var innerBorderPath = CreateTornCirclePath(centerX, centerY, radius - 2))
+                using (var innerBorderPen = new Pen(ControlPaint.Light(baseColor, 0.2f), 1))
+                {
+                    g.DrawPath(innerBorderPen, innerBorderPath);
+                }
+            }
+
+            // Fiber pattern (random short lines on button surface)
+            DrawFiberPattern(g, new Rectangle(centerX - radius, centerY - radius, size, size));
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 7;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY - iconSize / 2,
+                            centerX + iconSize / 2, centerY + iconSize / 2);
+                        g.DrawLine(iconPen, centerX + iconSize / 2, centerY - iconSize / 2,
+                            centerX - iconSize / 2, centerY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
+                        break;
+                    case "style":
+                        // Palette icon
+                        g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        g.FillEllipse(Brushes.White, centerX - 1, centerY - 1, 2, 2);
+                        break;
+                    case "theme":
+                        // Paper stack icon
+                        g.DrawRectangle(iconPen, centerX - iconSize / 2, centerY - iconSize / 2 + 1, iconSize, iconSize - 2);
+                        g.DrawLine(iconPen, centerX - iconSize / 2 + 1, centerY - iconSize / 2, 
+                            centerX + iconSize / 2 + 1, centerY - iconSize / 2);
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Create torn circle path with jagged edges
+        /// </summary>
+        private GraphicsPath CreateTornCirclePath(int centerX, int centerY, int radius)
+        {
+            var path = new GraphicsPath();
+            var points = new PointF[36];
+            var random = new Random(radius); // Consistent seed for stable jitter
+
+            for (int i = 0; i < 36; i++)
+            {
+                double angle = (Math.PI * 2 / 36 * i);
+                float jitter = (float)(random.NextDouble() * 1.5 - 0.75); // ±0.75 jitter
+                float r = radius + jitter;
+
+                points[i] = new PointF(
+                    centerX + (float)(r * Math.Cos(angle)),
+                    centerY + (float)(r * Math.Sin(angle))
+                );
+            }
+
+            path.AddPolygon(points);
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Draw paper texture noise (subtle grain)
+        /// </summary>
+        private void DrawPaperTexture(Graphics g, Rectangle rect)
+        {
+            var random = new Random(rect.GetHashCode());
+            using (var noisePen = new Pen(Color.FromArgb(8, 100, 80, 60), 1))
+            {
+                for (int i = 0; i < 50; i++)
+                {
+                    int x = rect.X + random.Next(rect.Width);
+                    int y = rect.Y + random.Next(rect.Height);
+                    g.DrawRectangle(noisePen, x, y, 1, 1);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw fiber pattern (random short lines simulating paper fibers)
+        /// </summary>
+        private void DrawFiberPattern(Graphics g, Rectangle rect)
+        {
+            var random = new Random(rect.GetHashCode() + 1);
+            using (var fiberPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1))
+            {
+                for (int i = 0; i < 12; i++)
+                {
+                    int x = rect.X + random.Next(rect.Width);
+                    int y = rect.Y + random.Next(rect.Height);
+                    int length = random.Next(2, 6);
+                    double angle = random.NextDouble() * Math.PI * 2;
+
+                    int x2 = x + (int)(Math.Cos(angle) * length);
+                    int y2 = y + (int)(Math.Sin(angle) * length);
+
+                    g.DrawLine(fiberPen, x, y, x2, y2);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Paint Material Design Paper double-border circle buttons (ORIGINAL - KEPT FOR COMPATIBILITY)
         /// Concentric ring buttons with material elevation shadows
         /// </summary>
         private void PaintPaperCircleButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
@@ -298,6 +482,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
             owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (fallback)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -308,7 +516,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

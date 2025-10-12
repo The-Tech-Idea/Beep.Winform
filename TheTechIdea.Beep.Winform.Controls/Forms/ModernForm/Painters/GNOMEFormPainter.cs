@@ -1,3 +1,4 @@
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using TheTechIdea.Beep.Winform.Controls.Styling;
@@ -53,12 +54,184 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(separatorPen, 0, captionRect.Bottom - 1, owner.ClientSize.Width, captionRect.Bottom - 1);
             }
 
+            // Paint GNOME Adwaita pill buttons (ENHANCED UNIQUE SKIN)
+            PaintAdwaitaPillButtons(g, owner, captionRect, metrics);
+
             // Draw title text (centered for GNOME style)
             var textRect = owner.CurrentLayout.TitleRect;
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom GNOME pill buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+
+        /// <summary>
+        /// Paint GNOME Adwaita pill buttons (ENHANCED UNIQUE SKIN)
+        /// Features: pill-shaped buttons, gradient mesh, GNOME design language
+        /// </summary>
+        private void PaintAdwaitaPillButtons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+
+            int buttonHeight = 22;
+            int buttonWidth = 28;
+            int padding = (captionRect.Height - buttonHeight) / 2;
+
+            // Close button: Red pill
+            PaintPillButton(g, closeRect, Color.FromArgb(246, 97, 81), padding, buttonWidth, buttonHeight, "close");
+
+            // Maximize button: Green pill
+            PaintPillButton(g, maxRect, Color.FromArgb(51, 209, 122), padding, buttonWidth, buttonHeight, "maximize");
+
+            // Minimize button: Blue pill
+            PaintPillButton(g, minRect, Color.FromArgb(53, 132, 228), padding, buttonWidth, buttonHeight, "minimize");
+
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintPillButton(g, styleRect, Color.FromArgb(145, 65, 172), padding, buttonWidth, buttonHeight, "style");
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintPillButton(g, themeRect, Color.FromArgb(230, 97, 0), padding, buttonWidth, buttonHeight, "theme");
+            }
+        }
+
+        private void PaintPillButton(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int width, int height, string buttonType)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            var rect = new Rectangle(centerX - width / 2, centerY - height / 2, width, height);
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Gradient mesh overlay (subtle GNOME effect)
+            DrawGradientMesh(g, rect);
+
+            // Create pill shape (fully rounded ends)
+            using (var pillPath = CreatePillPath(rect))
+            {
+                // GNOME Adwaita gradient fill (vertical, subtle)
+                using (var gradientBrush = new LinearGradientBrush(rect,
+                    ControlPaint.Light(baseColor, 0.10f),
+                    baseColor,
+                    LinearGradientMode.Vertical))
+                {
+                    g.FillPath(gradientBrush, pillPath);
+                }
+
+                // Soft shadow inside (top edge)
+                using (var shadowPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1))
+                {
+                    g.DrawLine(shadowPen, rect.X + height / 2, rect.Y + 1, 
+                        rect.Right - height / 2, rect.Y + 1);
+                }
+
+                // Highlight on bottom edge (GNOME signature)
+                using (var highlightPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1))
+                {
+                    g.DrawLine(highlightPen, rect.X + height / 2, rect.Bottom - 2,
+                        rect.Right - height / 2, rect.Bottom - 2);
+                }
+
+                // Pill border (subtle, 1px)
+                using (var borderPen = new Pen(ControlPaint.Dark(baseColor, 0.2f), 1))
+                {
+                    g.DrawPath(borderPen, pillPath);
+                }
+            }
+
+            // Draw icon
+            using (var iconPen = new Pen(Color.White, 1.5f))
+            {
+                int iconSize = 8;
+                int iconCenterX = rect.X + rect.Width / 2;
+                int iconCenterY = rect.Y + rect.Height / 2;
+
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
+                        break;
+                    case "style":
+                        // Grid icon (GNOME style)
+                        for (int i = 0; i < 2; i++)
+                        {
+                            for (int j = 0; j < 2; j++)
+                            {
+                                int x = iconCenterX - iconSize / 3 + i * iconSize / 2;
+                                int y = iconCenterY - iconSize / 3 + j * iconSize / 2;
+                                g.FillRectangle(Brushes.White, x, y, 3, 3);
+                            }
+                        }
+                        break;
+                    case "theme":
+                        // Contrast icon (GNOME accessibility)
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        using (var fillBrush = new SolidBrush(Color.White))
+                        {
+                            g.FillPie(fillBrush, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, 
+                                iconSize, iconSize, 270, 180);
+                        }
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draw gradient mesh overlay (GNOME Adwaita effect)
+        /// </summary>
+        private void DrawGradientMesh(Graphics g, Rectangle rect)
+        {
+            // Subtle diagonal gradient mesh
+            using (var meshBrush = new LinearGradientBrush(
+                new Rectangle(rect.X - 10, rect.Y - 10, rect.Width + 20, rect.Height + 20),
+                Color.FromArgb(15, 255, 255, 255),
+                Color.FromArgb(0, 255, 255, 255),
+                45f))
+            {
+                g.FillRectangle(meshBrush, rect);
+            }
+        }
+
+        /// <summary>
+        /// Create pill shape path (fully rounded ends)
+        /// </summary>
+        private GraphicsPath CreatePillPath(Rectangle rect)
+        {
+            var path = new GraphicsPath();
+            int radius = rect.Height / 2;
+
+            // Left semicircle
+            path.AddArc(rect.X, rect.Y, rect.Height, rect.Height, 90, 180);
+            
+            // Top line
+            path.AddLine(rect.X + radius, rect.Y, rect.Right - radius, rect.Y);
+            
+            // Right semicircle
+            path.AddArc(rect.Right - rect.Height, rect.Y, rect.Height, rect.Height, 270, 180);
+            
+            // Bottom line
+            path.AddLine(rect.Right - radius, rect.Bottom, rect.X + radius, rect.Bottom);
+            
+            path.CloseFigure();
+            return path;
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)

@@ -81,7 +81,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-            owner.PaintBuiltInCaptionElements(g);
+            // NOTE: Do NOT call owner.PaintBuiltInCaptionElements(g) - we paint custom Holographic chevron buttons
+            // Only paint the icon
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
         }
         
         /// <summary>
@@ -93,6 +95,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var closeRect = owner.CurrentLayout.CloseButtonRect;
             var maxRect = owner.CurrentLayout.MaximizeButtonRect;
             var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            var themeRect = owner.CurrentLayout.ThemeButtonRect;
+            var styleRect = owner.CurrentLayout.StyleButtonRect;
             
             int chevronSize = 18;
             int chevronY = (captionRect.Height - chevronSize) / 2;
@@ -182,6 +186,70 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             {
                 int lineSize = 7;
                 g.DrawLine(iconPen, mnx - lineSize/2, mny, mnx + lineSize/2, mny);
+            }
+            
+            // Theme button: Blue-green iridescent chevron with palette icon
+            if (!themeRect.IsEmpty)
+            {
+                int tx = themeRect.X + themeRect.Width / 2;
+                int ty = chevronY + chevronSize / 2;
+                
+                using (var chevronPath = CreateChevronPath(tx, ty, chevronSize))
+                {
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(tx - chevronSize/2, ty - chevronSize/2, chevronSize, chevronSize),
+                        Color.FromArgb(200, 50, 150, 255),   // Blue
+                        Color.FromArgb(200, 50, 255, 150),   // Cyan-green
+                        LinearGradientMode.Horizontal))
+                    {
+                        g.FillPath(gradBrush, chevronPath);
+                    }
+                    
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 100, 200, 255), 1.5f))
+                    {
+                        g.DrawPath(outlinePen, chevronPath);
+                    }
+                }
+                
+                // Palette icon
+                using (var iconBrush = new SolidBrush(Color.White))
+                {
+                    g.FillEllipse(iconBrush, tx - 3, ty - 2, 3, 3);
+                    g.FillEllipse(iconBrush, tx + 1, ty - 2, 3, 3);
+                    g.FillEllipse(iconBrush, tx - 1, ty + 2, 3, 3);
+                }
+            }
+            
+            // Style button: Yellow-orange iridescent chevron with brush icon
+            if (!styleRect.IsEmpty)
+            {
+                int sx = styleRect.X + styleRect.Width / 2;
+                int sy = chevronY + chevronSize / 2;
+                
+                using (var chevronPath = CreateChevronPath(sx, sy, chevronSize))
+                {
+                    using (var gradBrush = new LinearGradientBrush(
+                        new Rectangle(sx - chevronSize/2, sy - chevronSize/2, chevronSize, chevronSize),
+                        Color.FromArgb(200, 255, 200, 50),   // Yellow
+                        Color.FromArgb(200, 255, 100, 50),   // Orange
+                        LinearGradientMode.Horizontal))
+                    {
+                        g.FillPath(gradBrush, chevronPath);
+                    }
+                    
+                    using (var outlinePen = new Pen(Color.FromArgb(255, 255, 200, 100), 1.5f))
+                    {
+                        g.DrawPath(outlinePen, chevronPath);
+                    }
+                }
+                
+                // Brush icon
+                using (var iconPen = new Pen(Color.White, 1.2f))
+                {
+                    g.DrawLine(iconPen, sx - 2, sy - 2, sx - 2, sy + 2);
+                    g.DrawLine(iconPen, sx, sy - 2, sx, sy + 2);
+                    g.DrawLine(iconPen, sx + 2, sy - 2, sx + 2, sy + 2);
+                }
             }
         }
         
@@ -341,16 +409,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int buttonWidth = metrics.ButtonWidth;
             int buttonX = owner.ClientSize.Width - buttonWidth;
             
+            // Close button
             layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Maximize button
             layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
             buttonX -= buttonWidth;
             
+            // Minimize button
             layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+            buttonX -= buttonWidth;
+            
+            // Style button (if shown)
+            if (owner.ShowStyleButton)
+            {
+                layout.StyleButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("style", layout.StyleButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Theme button (if shown)
+            if (owner.ShowThemeButton)
+            {
+                layout.ThemeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("theme", layout.ThemeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
+            
+            // Custom action button (if theme/style not shown)
+            if (!owner.ShowThemeButton && !owner.ShowStyleButton)
+            {
+                layout.CustomActionButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.RegisterHitArea("customAction", layout.CustomActionButtonRect, HitAreaType.Button);
+            }
             
             int iconX = metrics.IconLeftPadding;
             int iconY = (captionHeight - metrics.IconSize) / 2;
@@ -361,7 +456,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             int titleX = layout.IconRect.Right + metrics.TitleLeftPadding;
-            int titleWidth = layout.MinimizeButtonRect.Left - metrics.ButtonSpacing - titleX;
+            int titleWidth = buttonX - titleX - metrics.ButtonSpacing;
             layout.TitleRect = new Rectangle(titleX, 0, titleWidth, captionHeight);
             
             owner.CurrentLayout = layout;

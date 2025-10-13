@@ -34,7 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ITrees.BeepTreeView
                 // Force rebuild/paint so nodes actually show in the designer
                 base.RefreshTree();
                 this.Update();
-                TreeStyle = Trees.Models.TreeStyle.Standard;
+                TreeStyle = Trees.Models.TreeStyle.AntDesign;
             }
         }
         public BeepAppTree(IBeepService service)

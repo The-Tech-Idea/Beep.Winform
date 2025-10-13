@@ -70,6 +70,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         public string Name { get; set; }
         public string MenuName { get; set; }
         
+        private bool _isCheckable = false;
+        public bool IsCheckable
+        {
+            get => _isCheckable;
+            set => SetProperty(ref _isCheckable, value, nameof(IsCheckable));
+        }
         private string _text = string.Empty;
         public string Text
         {
@@ -164,6 +170,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Models
         {
             get => _tooltip;
             set => SetProperty(ref _tooltip, value, nameof(ToolTip));
+        }
+        private string _shortcuttext = string.Empty;
+        public string ShortcutText
+        {
+            get => _shortcuttext;
+            set => SetProperty(ref _shortcuttext, value, nameof(ShortcutText));
         }
         public string Shortcut
         {

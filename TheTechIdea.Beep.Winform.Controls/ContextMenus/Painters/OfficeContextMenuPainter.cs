@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
@@ -13,10 +14,23 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
     /// </summary>
     public class OfficeContextMenuPainter : IContextMenuPainter
     {
-        public void DrawBackground(Graphics g, BeepContextMenu owner, Rectangle bounds, IBeepTheme theme)
+        public FormStyle Style => FormStyle.Modern; // Office style maps to Modern
+
+        public ContextMenuMetrics GetMetrics(IBeepTheme theme = null, bool useThemeColors = false)
         {
-            // Office-style background with icon column using Menu colors
-            using (var brush = new SolidBrush(theme.MenuBackColor))
+            return ContextMenuMetrics.DefaultFor(Style, theme, useThemeColors);
+        }
+
+        public int GetPreferredItemHeight()
+        {
+            return 32;
+        }
+
+        public void DrawBackground(Graphics g, BeepContextMenu owner, Rectangle bounds, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
+        {
+            // Office-style background with icon column
+            using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, bounds);
             }
@@ -24,14 +38,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             // Draw icon column background
             int iconColumnWidth = owner.ScaleDpi(32);
             var iconColumnRect = new Rectangle(0, 0, iconColumnWidth, bounds.Height);
-            using (var brush = new SolidBrush(Color.FromArgb(240, theme.MenuBackColor)))
+            using (var brush = new SolidBrush(Color.FromArgb(240, metrics.BackgroundColor)))
             {
                 g.FillRectangle(brush, iconColumnRect);
             }
         }
         
         public void DrawItems(Graphics g, BeepContextMenu owner, IList<SimpleItem> items, 
-            SimpleItem selectedItem, SimpleItem hoveredItem, IBeepTheme theme)
+            SimpleItem selectedItem, SimpleItem hoveredItem, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             if (items == null || items.Count == 0) return;
             
@@ -41,39 +56,35 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             {
                 if (IsSeparator(item))
                 {
-                    DrawSeparator(g, owner, item, y, theme);
+                    DrawSeparator(g, owner, item, y, metrics, theme);
                     y += owner.ScaleDpi(6);
                     continue;
                 }
                 
-                int itemHeight = GetPreferredItemHeight();
+                int itemHeight = metrics.ItemHeight;
                 var itemRect = new Rectangle(0, y, owner.Width, itemHeight);
                 
-                DrawItem(g, owner, item, itemRect, item == selectedItem, item == hoveredItem, theme);
+                DrawItem(g, owner, item, itemRect, item == selectedItem, item == hoveredItem, metrics, theme);
                 
                 y += itemHeight;
             }
         }
         
-        public void DrawBorder(Graphics g, BeepContextMenu owner, Rectangle bounds, IBeepTheme theme)
+        public void DrawBorder(Graphics g, BeepContextMenu owner, Rectangle bounds, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             // Office-style border
-            using (var pen = new Pen(Color.FromArgb(150, theme.MenuBorderColor), 1))
+            using (var pen = new Pen(metrics.BorderColor, metrics.BorderWidth))
             {
                 var borderRect = bounds;
-                borderRect.Width -= 1;
-                borderRect.Height -= 1;
+                borderRect.Width -= (int)metrics.BorderWidth;
+                borderRect.Height -= (int)metrics.BorderWidth;
                 g.DrawRectangle(pen, borderRect);
             }
         }
         
-        public int GetPreferredItemHeight()
-        {
-            return 24; // Compact Office style
-        }
-        
         private void DrawItem(Graphics g, BeepContextMenu owner, SimpleItem item, Rectangle itemRect, 
-            bool isSelected, bool isHovered, IBeepTheme theme)
+            bool isSelected, bool isHovered, ContextMenuMetrics metrics, IBeepTheme theme)
         {
             int iconColumnWidth = owner.ScaleDpi(32);
             
@@ -237,7 +248,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             }
         }
         
-        private void DrawSeparator(Graphics g, BeepContextMenu owner, SimpleItem item, int y, IBeepTheme theme)
+        private void DrawSeparator(Graphics g, BeepContextMenu owner, SimpleItem item, int y, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             if (!owner.ShowSeparators) return;
             
@@ -246,7 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             int x = iconColumnWidth + owner.ScaleDpi(2);
             int width = owner.Width - x - owner.ScaleDpi(4);
             
-            using (var pen = new Pen(theme.MenuBorderColor, 1))
+            using (var pen = new Pen(metrics.SeparatorColor, 1))
             {
                 g.DrawLine(pen, x, lineY, x + width, lineY);
             }

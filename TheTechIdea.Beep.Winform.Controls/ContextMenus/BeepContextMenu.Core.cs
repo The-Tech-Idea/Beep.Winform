@@ -6,6 +6,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -15,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
     /// Core fields, properties, and initialization for BeepContextMenu
     /// Modern implementation using painter methodology
     /// </summary>
-    public partial class BeepContextMenu : Form
+    public partial class BeepContextMenu 
     {
 #pragma warning disable IL2026 // Suppress trimmer warnings for BindingList<T> used in WinForms data binding scenarios
         
@@ -60,13 +61,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 return _menuItemHeight;
             }
         }
-        
+
         #endregion
-        
+
         #region Core Fields
-        
+
         // Visual style
-        private ContextMenuType _contextMenuType = ContextMenuType.Standard;
+        private FormStyle _contextMenuType = FormStyle.Modern;
         
         // Menu items
         private BindingList<SimpleItem> _menuItems = new BindingList<SimpleItem>();
@@ -103,7 +104,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private float _scaleFactor = 1.0f;
         
     // MenuStyle (visual style of the context menu painter)
-    private ContextMenuType menustyle = ContextMenuType.Material;
+    private FormStyle menustyle =  FormStyle.Modern;
 
     // Theme management (aligns with BaseControl pattern)
     private string _themeName = ThemeManagement.BeepThemesManager.CurrentThemeName;
@@ -152,7 +153,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             ShowInTaskbar = false;
             TopMost = true;
             BackColor = Color.White;
-            
+          //  ShowCaptionBar = false;
             // Double buffering for smooth rendering
             SetStyle(ControlStyles.AllPaintingInWmPaint | 
                      ControlStyles.UserPaint | 
@@ -168,7 +169,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             _layoutHelper = new BeepContextMenuLayoutHelper(this);
             
             // Set default painter
-            SetPainter(ContextMenuType.Standard);
+            SetPainter( FormStyle.Modern);
             
             // Initialize submenu timer
             _submenuTimer = new Timer();
@@ -209,18 +210,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         public int ScaleDpi(int value) => (int)(value * _scaleFactor);
 
-        public void SetPainter(ContextMenuType type)
+        public void SetPainter(FormStyle type)
         {
-            _contextMenuPainter = type switch
+            switch (type)
             {
-                ContextMenuType.Standard => new StandardContextMenuPainter(),
-                ContextMenuType.Material => new MaterialContextMenuPainter(),
-                ContextMenuType.Minimal => new MinimalContextMenuPainter(),
-                ContextMenuType.Flat => new FlatContextMenuPainter(),
-                ContextMenuType.Office => new OfficeContextMenuPainter(),
-                _ => new StandardContextMenuPainter()
-            };
-            
+                case FormStyle.Modern:
+                    _contextMenuPainter = new ModernContextMenuPainter();
+                    break;
+                case FormStyle.ArcLinux:
+                default:
+                    _contextMenuPainter = new StandardContextMenuPainter();
+                    break;
+
+                    
+            }
             Invalidate();
         }
 

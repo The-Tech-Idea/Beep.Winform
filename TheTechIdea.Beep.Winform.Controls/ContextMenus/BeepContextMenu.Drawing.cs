@@ -26,10 +26,13 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             // Use current theme (kept in sync with BeepThemesManager)
             var theme = _currentTheme ?? ThemeManagement.BeepThemesManager.GetDefaultTheme();
             
+            // Get metrics from painter
+            var metrics = _contextMenuPainter.GetMetrics(theme, false);
+            
             // Let painter draw everything
-            _contextMenuPainter.DrawBackground(e.Graphics, this, _contentAreaRect, theme);
-            _contextMenuPainter.DrawItems(e.Graphics, this, _menuItems, _selectedItem, _hoveredItem, theme);
-            _contextMenuPainter.DrawBorder(e.Graphics, this, ClientRectangle, theme);
+            _contextMenuPainter.DrawBackground(e.Graphics, this, _contentAreaRect, metrics, theme);
+            _contextMenuPainter.DrawItems(e.Graphics, this, _menuItems, _selectedItem, _hoveredItem, metrics, theme);
+            _contextMenuPainter.DrawBorder(e.Graphics, this, ClientRectangle, metrics, theme);
         }
         
         #endregion

@@ -30,17 +30,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             // Compute border thickness to consider
             int border = 0;
-            if (owner.ShowAllBorders)
+            if (owner.ShowAllBorders || owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder))
             {
                 border = owner.BorderThickness;
             }
-            else if (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder))
+            else
+
             {
-                border = owner.BorderThickness;
             }
 
-            // Base paddings + optional offsets
-            var padding = owner.Padding;
+                // Base paddings + optional offsets
+                var padding = owner.Padding;
             int leftPad = padding.Left + owner.LeftoffsetForDrawingRect;
             int topPad = padding.Top + owner.TopoffsetForDrawingRect;
             int rightPad = padding.Right + owner.RightoffsetForDrawingRect;
@@ -95,18 +95,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 }
             }
             catch { /* best-effort */ }
-
-            // Border rectangle like BeepControl
-            int halfPen = (int)Math.Ceiling(owner.BorderThickness / 2f);
             var borderRect = new Rectangle(
-                shadow + halfPen,
-                shadow + halfPen,
-                Math.Max(0, owner.Width - (shadow + halfPen) * 2),
-                Math.Max(0, owner.Height - (shadow + halfPen) * 2)
-            );
+                  shadow,
+                  shadow,
+                  Math.Max(0, owner.Width - (shadow) * 2),
+                  Math.Max(0, owner.Height - (shadow) * 2)
+              );
+            // Border rectangle like BeepControl
+            if (border > 0)
+            {
+                int halfPen = (int)Math.Ceiling(owner.BorderThickness / 2f);
+                 borderRect = new Rectangle(
+                    shadow + halfPen,
+                    shadow + halfPen,
+                    Math.Max(0, owner.Width - (shadow + halfPen) * 2),
+                    Math.Max(0, owner.Height - (shadow + halfPen) * 2)
+                );
+            }
 
-            // Compute icon-adjusted content
-            Rectangle contentRect = inner;
+
+                // Compute icon-adjusted content
+                Rectangle contentRect = inner;
             bool hasLeading = !string.IsNullOrEmpty(owner.LeadingIconPath) || !string.IsNullOrEmpty(owner.LeadingImagePath);
             bool hasTrailing = !string.IsNullOrEmpty(owner.TrailingIconPath) || !string.IsNullOrEmpty(owner.TrailingImagePath) || owner.ShowClearButton;
             if (hasLeading || hasTrailing)
@@ -140,16 +149,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
                 }
             }
 
-            // Shadow
-            if (owner.ShowShadow && owner.ShadowOpacity > 0)
-            {
-                DrawShadow(g, owner);
-            }
+           
 
             // Borders (classic)
-            if (!owner.IsFrameless)
+            // Draw borders only when control is not frameless AND some border is requested
+            bool shouldDrawBorders = !owner.IsFrameless && (owner.ShowAllBorders || (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder)));
+            if (shouldDrawBorders)
             {
                 DrawBorders(g, owner);
+                // Shadow
+                if (owner.ShowShadow && owner.ShadowOpacity > 0)
+                {
+                    DrawShadow(g, owner);
+                }
             }
 
             // Material-like label/helper positioning for classic too
@@ -187,11 +199,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters
 
             int shadow = owner.ShowShadow ? owner.ShadowOffset * 2 : 0;
             int border = 0;
-            if (owner.ShowAllBorders) border = owner.BorderThickness * 2;
-            else if (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder))
+            if (owner.ShowAllBorders && !owner.IsFrameless)
+            {
                 border = owner.BorderThickness * 2;
 
-            var pad = owner.Padding;
+            }
+             if(!owner.ShowAllBorders && !owner.IsFrameless)
+            {
+                if (owner.BorderThickness > 0 && (owner.ShowTopBorder || owner.ShowBottomBorder || owner.ShowLeftBorder || owner.ShowRightBorder))
+                    border = owner.BorderThickness * 2;
+            }
+
+               var pad = owner.Padding;
             int padW = pad.Horizontal;
             int padH = pad.Vertical;
 

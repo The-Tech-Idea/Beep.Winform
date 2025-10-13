@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 	{
 		#region Fields
 		// Style and painter
-		private TreeStyle _treeStyle = TreeStyle.Standard;
+		private TreeStyle _treeStyle = TreeStyle.AntDesign;
 		private ITreePainter _currentPainter;
 
 		// Data and layout
@@ -65,7 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 		private BeepButton _buttonRenderer = new BeepButton();
 
 		// Context menu
-	private BindingList<SimpleItem> _currentMenuItems;
+		private BindingList<SimpleItem> _currentMenuItems;
 
 		// Timers
 		private System.Windows.Forms.Timer _resizeTimer;
@@ -101,18 +101,18 @@ namespace TheTechIdea.Beep.Winform.Controls
 		#endregion
 
 		#region Constructor
-		public BeepTree()
+		public BeepTree():base()
 		{
 			// Control configuration
 			SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | ControlStyles.Opaque, true);
 			UpdateStyles();
 			DoubleBuffered = true;
-			Padding= new Padding(2);
+			//Padding= new Padding(2);
             // Initialize helpers
             _treeHelper = new BeepTreeHelper(this);
 			_layoutHelper = new BeepTreeLayoutHelper(this, _treeHelper);
 			_treeHitTestHelper = new BeepTreeHitTestHelper(this, _layoutHelper);
-
+		
 			// Initialize render helpers
 			_toggleRenderer.IsChild = true;
 			_toggleRenderer.HideText = true;
@@ -215,12 +215,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 	internal int GetScaledVerticalPadding() => ScaleValue(4);
 	#endregion
 
-	#region Accessors used by helpers and painters
+		#region Accessors used by helpers and painters
 	internal int XOffset => _xOffset;
 	internal int YOffset => _yOffset;
 	internal BeepTreeLayoutHelper LayoutHelper => _layoutHelper;
 	internal SimpleItem LastHoveredItem => _lastHoveredItem;
 	internal List<NodeInfo> VisibleNodes => _visibleNodes;
 	#endregion
-}
+	}
 }

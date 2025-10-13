@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
     [Category("Beep Controls")]
     [DisplayName("Beep Display Container 2")]
     [Description("A modern, self-contained display container for addins with native rendering and advanced features.")]
-    public partial class BeepDisplayContainer2 : BeepControl, IDisplayContainer
+    public partial class BeepDisplayContainer2 : BaseControl, IDisplayContainer
     {
         #region Fields and Properties
 

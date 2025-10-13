@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
@@ -19,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         [Category("Beep")]
         [Description("The visual style of the context menu")]
         [Browsable(true)]
-        public ContextMenuType ContextMenuType
+        public FormStyle ContextMenuType
         {
             get => _contextMenuType;
             set
@@ -33,25 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
         }
-        
-        /// <summary>
-        /// Gets or sets the theme for styling
-        /// </summary>
-        [Category("Beep")]
-        [Description("The theme for styling the context menu")]
-        [Browsable(true)]
-        public ContextMenuType MenuStyle
-        {
-            get => menustyle;
-            set
-            {
-                if (menustyle != value)
-                {
-                    menustyle = value;
-                    Invalidate();
-                }
-            }
-        }
+      
 
         /// <summary>
         /// Current theme name from BeepThemesManager (aligns with BaseControl.Theme)
@@ -467,11 +450,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _destroyOnClose;
             set => _destroyOnClose = value;
         }
-        
+     
+
         #endregion
-        
+
         #region Private Event Handlers
-        
+
         private void MenuItems_ListChanged(object sender, ListChangedEventArgs e)
         {
             RecalculateSize();

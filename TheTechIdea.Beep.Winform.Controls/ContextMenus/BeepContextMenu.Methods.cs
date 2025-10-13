@@ -273,7 +273,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             
             // Create new submenu
             _openSubmenu = new BeepContextMenu();
-            _openSubmenu.MenuStyle = this.MenuStyle;
+            
             _openSubmenu.ContextMenuType = this.ContextMenuType;
             _openSubmenu.Theme = this.Theme; // propagate current theme
             _openSubmenu.ShowCheckBox = this.ShowCheckBox;

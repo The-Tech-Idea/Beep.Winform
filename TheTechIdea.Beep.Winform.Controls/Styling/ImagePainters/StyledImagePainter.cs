@@ -6,6 +6,7 @@ using System.IO;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using System.Windows.Forms;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 {
@@ -73,6 +74,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 g.ResetClip();
             }
 
+        }
+
+        /// <summary>
+        /// Paints an image and renders it in a disabled appearance using ControlPaint.DrawImageDisabled.
+        /// This centralizes the temporary-bitmap -> DrawImageDisabled pattern used across painters.
+        /// </summary>
+        public static void PaintDisabled(Graphics g, Rectangle bounds, string imagePath, Color disabledBackColor)
+        {
+            if (string.IsNullOrEmpty(imagePath) || bounds.IsEmpty) return;
+
+            // Render into a temporary bitmap and then draw disabled onto the destination graphics
+            using (var temp = new Bitmap(Math.Max(1, bounds.Width), Math.Max(1, bounds.Height)))
+            {
+                using (var tg = Graphics.FromImage(temp))
+                {
+                    tg.Clear(Color.Transparent);
+                    try
+                    {
+                        // Draw using the existing painter logic; this will respect clipping/radius only within temp
+                        Paint(tg, new Rectangle(0, 0, temp.Width, temp.Height), imagePath);
+                    }
+                    catch
+                    {
+                        // swallow — fallback will be a disabled placeholder drawn by ControlPaint
+                    }
+                }
+
+                // Draw disabled onto the target graphics at the desired location
+                ControlPaint.DrawImageDisabled(g, temp, bounds.X, bounds.Y, disabledBackColor);
+            }
         }
 
         /// <summary>

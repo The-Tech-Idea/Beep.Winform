@@ -5,7 +5,9 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.ContextMenus;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.SideBar;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {
@@ -14,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     /// </summary>
     public partial class BaseControl
     {
-        private ContextMenuType menustyle= ContextMenuType.Standard;
+        private FormStyle menustyle = FormStyle.Modern;
         // Keep a reference for async menus to avoid premature GC
         private BeepContextMenu _activeAsyncContextMenu;
 
@@ -24,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         [Category("Beep")]
         [Description("The theme for styling the context menu")]
         [Browsable(true)]
-        public ContextMenuType MenuStyle
+        public FormStyle MenuStyle
         {
             get => menustyle;
             set
@@ -71,16 +73,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <param name="screenLocation">Screen coordinates where the menu should appear</param>
         /// <param name="multiSelect">Enable multi-select mode</param>
         /// <returns>The selected item, or null if no selection was made</returns>
-        public SimpleItem ShowContextMenu(List<SimpleItem> items, Point screenLocation, bool multiSelect = false)
+        public SimpleItem ShowContextMenu(List<SimpleItem> items, Point screenLocation, bool multiSelect = false,FormStyle style= FormStyle.Modern)
         {
             if (items == null || items.Count == 0)
                 return null;
-
+            menustyle = style;
             // Create a fresh context menu per invocation
             var menu = new BeepContextMenu
             {
-                MenuStyle = menustyle,
-                ContextMenuType = ContextMenuType.Material,
+                ContextMenuType = menustyle,
                 DestroyOnClose = true,
                 MultiSelect = multiSelect,
                 ShowCheckBox = multiSelect,
@@ -131,8 +132,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             var menu = new BeepContextMenu
             {
-                MenuStyle = menustyle,
-                ContextMenuType = ContextMenuType.Material,
+               
+                ContextMenuType = FormStyle.Modern,
                 DestroyOnClose = true,
                 MultiSelect = true,
                 ShowCheckBox = true,
@@ -251,16 +252,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// </summary>
         /// <param name="items">List of menu items to display</param>
         /// <param name="screenLocation">Screen coordinates where the menu should appear</param>
-        public void ShowContextMenuAsync(List<SimpleItem> items, Point screenLocation)
+        public void ShowContextMenuAsync(List<SimpleItem> items, Point screenLocation, FormStyle style  = FormStyle.Modern)
         {
             if (items == null || items.Count == 0)
                 return;
-
+            menustyle = style;
             // Create a fresh context menu and keep a reference until it closes
             var menu = new BeepContextMenu
             {
-                MenuStyle = menustyle,
-                ContextMenuType = ContextMenuType.Material,
+               
+                ContextMenuType = FormStyle.Modern,
                 DestroyOnClose = true,
                 Theme = this.Theme
             };
@@ -328,12 +329,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <param name="items">List of menu items</param>
         /// <param name="menuType">Visual style of the menu</param>
         /// <param name="multiSelect">Enable multi-select mode</param>
-        public void ConfigureContextMenu(List<SimpleItem> items, ContextMenuType menuType = ContextMenuType.Material, bool multiSelect = false)
+        public void ConfigureContextMenu(List<SimpleItem> items, FormStyle menuType =  FormStyle.Modern, bool multiSelect = false)
         {
             if (_beepContextMenu == null)
             {
                 _beepContextMenu = new BeepContextMenu();
-                _beepContextMenu.MenuStyle = menustyle;
+               // _beepContextMenu.sty = menustyle;
             }
 
             _beepContextMenu.ContextMenuType = menuType;
@@ -354,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// Sets the context menu style
         /// </summary>
         /// <param name="menuType">Visual style to apply</param>
-        public void SetContextMenuStyle(ContextMenuType menuType)
+        public void SetContextMenuStyle(FormStyle menuType)
         {
             if (_beepContextMenu != null)
             {
@@ -371,7 +372,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (_beepContextMenu == null)
             {
                 _beepContextMenu = new BeepContextMenu();
-                _beepContextMenu.MenuStyle = menustyle;
+              
             }
 
             _beepContextMenu.AddItem(item);
@@ -385,7 +386,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (_beepContextMenu == null)
             {
                 _beepContextMenu = new BeepContextMenu();
-                _beepContextMenu.MenuStyle = menustyle;
+                
             }
 
             _beepContextMenu.AddSeparator();

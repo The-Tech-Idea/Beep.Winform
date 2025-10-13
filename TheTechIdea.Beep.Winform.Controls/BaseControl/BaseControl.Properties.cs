@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         #region Painter strategy
         public enum BaseControlPainterKind
         {
+            None,           // NEW - No painting, for controls that handle their own rendering
             Auto,
             Classic,
             Material,
@@ -55,6 +56,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             switch (_painterKind)
             {
+                case BaseControlPainterKind.None:
+                    _painter = null; // No painter - control handles its own rendering
+                    break;
                 case BaseControlPainterKind.Classic:
                     _painter = new ClassicBaseControlPainter();
                     break;

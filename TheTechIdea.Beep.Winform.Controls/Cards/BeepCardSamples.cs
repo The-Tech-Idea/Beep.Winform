@@ -235,7 +235,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards
         {
             return new BeepCard
             {
-                CardStyle = CardStyle.ProductCompactCard,
+                CardStyle = CardStyle.ProductCard,
                 HeaderText = "MacBook Pro 14-inch",
                 ParagraphText = "Apple",
                 SubtitleText = "$1,999.00", // Price

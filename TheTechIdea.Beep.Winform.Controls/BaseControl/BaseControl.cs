@@ -219,8 +219,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 CreateSafeDesignTimeHelpers();
             }
            
-            // Set defaults
-            Padding = new Padding(1);
+         
             ComponentName = "BaseControl";
             
             // Initialize tooltip with null check

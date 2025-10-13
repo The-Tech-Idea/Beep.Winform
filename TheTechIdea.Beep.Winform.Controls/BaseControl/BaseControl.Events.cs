@@ -37,7 +37,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-
+            // Respect IsChild same as base BeepControl
+            base.OnPaintBackground(e);
+           
         }
         protected override void OnPaint(PaintEventArgs e)
         {
@@ -45,17 +47,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (IsDisposed || !IsHandleCreated)
                 return;
 
-            // Add comprehensive validation
-            if (e == null || e.Graphics == null || !IsReadyForDrawing)
-            {
-                base.OnPaint(e);
-                return;
-            }
-
-            // Always ensure clip rectangle is valid
-            var clipRect = EnsureValidRectangle(e.ClipRectangle);
-
-            // Respect IsChild same as base BeepControl
             try
             {
                 if (IsChild)
@@ -65,16 +56,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
                 else
                 {
-                    BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                    if (_currentTheme != null)
+                        BackColor = _currentTheme?.BackColor ?? SystemColors.Control;
+                    else
+                        BackColor = SystemColors.Control;
                 }
 
-                e.Graphics.Clear(BackColor);
+                // Only clear the background when a painter is active. When PainterKind == None
+                // we let the control's own drawing (PaintInnerShape/DrawContent) handle the fill to
+                // avoid double-drawing or incorrect framed areas (designer previews, etc.).
+                if (PainterKind != BaseControlPainterKind.None && _painter != null)
+                {
+                    e.Graphics.Clear(BackColor);
+                }
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {
                 // Silently fail on color operations
                 System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
             }
+
+            base.OnPaint(e);
+            UpdateDrawingRect();
+            // Always ensure clip rectangle is valid
+            var clipRect = EnsureValidRectangle(e.ClipRectangle);
+
+          
 
             if (UseExternalBufferedGraphics)
             {
@@ -88,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                             Graphics g = buffer.Graphics;
 
                             // Paint the inner area using the new PaintInnerShape method
-                            SafePaintInnerShape(g);
+                           // SafePaintInnerShape(g);
 
                             // External drawing hooks BEFORE content
                             SafeExternalDrawing(g, DrawingLayer.BeforeContent);
@@ -125,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 // Paint the inner area using the new PaintInnerShape method
-                SafePaintInnerShape(g);
+              //  SafePaintInnerShape(g);
 
                 // External drawing hooks BEFORE content
                 SafeExternalDrawing(g, DrawingLayer.BeforeContent);

@@ -23,9 +23,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 var desired = PainterKind;
+                
+                // None means NO painter - return early
+                if (desired == BaseControlPainterKind.None)
+                {
+                    _painter = null;
+                    return;
+                }
+                
+                // Auto defaults to Classic
                 if (desired == BaseControlPainterKind.Auto)
                 {
-                    desired =  BaseControlPainterKind.Classic;
+                    desired = BaseControlPainterKind.Classic;
                 }
 
                 bool needsNew = _painter == null;
@@ -469,17 +478,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 g.TextRenderingHint = TextRenderingHint.SystemDefault;
             }
 
-            // Always rely on painter
+            // Always rely on painter if available
             EnsurePainter();
-            _painter.UpdateLayout(this);
+            
+            // When PainterKind is None, painter is null - derived controls handle their own drawing
+            if (_painter != null)
+            {
+                _painter.UpdateLayout(this);
 
-            // Expose painter inner rect to derived controls via BaseControl.DrawingRect
-            try { this.DrawingRect = _painter.DrawingRect; } catch { }
+                // Expose painter inner rect to derived controls via BaseControl.DrawingRect
+                try { this.DrawingRect = _painter.DrawingRect; } catch { }
 
-            _painter.Paint(g, this);
+                _painter.Paint(g, this);
 
-            // Let painter register hit areas; wire actions when available
-            _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, null, action));
+                // Let painter register hit areas; wire actions when available
+                _painter.UpdateHitAreas(this, (name, rect, action) => _hitTest?.AddHitArea(name, rect, null, action));
+            }
 
            
         }
@@ -509,7 +523,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public virtual void UpdateDrawingRect()
         {
             EnsurePainter();
-            if (_painter == null) return;
+            
+            // When PainterKind is None, use the full ClientRectangle
+            if (_painter == null)
+            {
+                _drawingRect = ClientRectangle;
+                return;
+            }
 
             // Compute layout once and assign rect without forcing redraw
             _painter.UpdateLayout(this);

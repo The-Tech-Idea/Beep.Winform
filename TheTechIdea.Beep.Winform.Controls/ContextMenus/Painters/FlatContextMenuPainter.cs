@@ -4,26 +4,36 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
 {
     /// <summary>
-    /// Flat bold color style context menu painter
+    /// Flat bold color style context menu painter (Paper style)
     /// </summary>
     public class FlatContextMenuPainter : IContextMenuPainter
     {
-        public void DrawBackground(Graphics g, BeepContextMenu owner, Rectangle bounds, IBeepTheme theme)
+        public FormStyle Style => FormStyle.Paper;
+
+        public ContextMenuMetrics GetMetrics(IBeepTheme theme = null, bool useThemeColors = false)
+        {
+            return ContextMenuMetrics.DefaultFor(Style, theme, useThemeColors);
+        }
+
+        public void DrawBackground(Graphics g, BeepContextMenu owner, Rectangle bounds, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             // Flat background using Menu colors
-            using (var brush = new SolidBrush(theme.MenuBackColor))
+            using (var brush = new SolidBrush(metrics.BackgroundColor))
             {
                 g.FillRectangle(brush, bounds);
             }
         }
         
         public void DrawItems(Graphics g, BeepContextMenu owner, IList<SimpleItem> items, 
-            SimpleItem selectedItem, SimpleItem hoveredItem, IBeepTheme theme)
+            SimpleItem selectedItem, SimpleItem hoveredItem, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             if (items == null || items.Count == 0) return;
             
@@ -33,28 +43,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             {
                 if (IsSeparator(item))
                 {
-                    DrawSeparator(g, owner, item, y, theme);
-                    y += owner.ScaleDpi(8);
-                    continue;
-                }
-                
-                int itemHeight = GetPreferredItemHeight();
-                var itemRect = new Rectangle(owner.ScaleDpi(2), y, owner.Width - owner.ScaleDpi(4), itemHeight);
-                
-                DrawItem(g, owner, item, itemRect, item == selectedItem, item == hoveredItem, theme);
-                
-                y += itemHeight;
+                DrawSeparator(g, owner, item, y, metrics, theme);
+                y += owner.ScaleDpi(8);
+                continue;
+            }
+            
+            int itemHeight = metrics.ItemHeight;
+            var itemRect = new Rectangle(owner.ScaleDpi(2), y, owner.Width - owner.ScaleDpi(4), itemHeight);
+            
+            DrawItem(g, owner, item, itemRect, item == selectedItem, item == hoveredItem, metrics, theme);                y += itemHeight;
             }
         }
         
-        public void DrawBorder(Graphics g, BeepContextMenu owner, Rectangle bounds, IBeepTheme theme)
+        public void DrawBorder(Graphics g, BeepContextMenu owner, Rectangle bounds, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             // Bold border with menu border color
-            using (var pen = new Pen(theme.MenuBorderColor, 2))
+            using (var pen = new Pen(metrics.BorderColor, metrics.BorderWidth))
             {
                 var borderRect = bounds;
-                borderRect.Width -= 2;
-                borderRect.Height -= 2;
+                borderRect.Width -= (int)metrics.BorderWidth;
+                borderRect.Height -= (int)metrics.BorderWidth;
                 borderRect.Inflate(1, 1);
                 g.DrawRectangle(pen, borderRect);
             }
@@ -66,19 +75,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         }
         
         private void DrawItem(Graphics g, BeepContextMenu owner, SimpleItem item, Rectangle itemRect, 
-            bool isSelected, bool isHovered, IBeepTheme theme)
+            bool isSelected, bool isHovered, ContextMenuMetrics metrics, IBeepTheme theme)
         {
             // Draw bold flat hover effect using Menu colors
             if (isHovered && item.IsEnabled)
             {
-                using (var brush = new SolidBrush(theme.MenuItemHoverBackColor))
+                using (var brush = new SolidBrush(metrics.ItemHoverBackColor))
                 {
                     g.FillRectangle(brush, itemRect);
                 }
             }
             else if (isSelected && item.IsEnabled)
             {
-                using (var brush = new SolidBrush(theme.MenuItemSelectedBackColor))
+                using (var brush = new SolidBrush(metrics.ItemSelectedBackColor))
                 {
                     g.FillRectangle(brush, itemRect);
                 }
@@ -88,22 +97,31 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             Color textColor;
             if (!item.IsEnabled)
             {
-                textColor = theme.DisabledForeColor;
+                textColor = metrics.ItemDisabledForeColor;
             }
             else if (isHovered)
             {
-                textColor = theme.MenuItemHoverForeColor;
+                textColor = metrics.ItemHoverForeColor;
             }
             else if (isSelected)
             {
-                textColor = theme.MenuItemSelectedForeColor;
+                textColor = metrics.ItemSelectedForeColor;
             }
             else
             {
-                textColor = theme.MenuItemForeColor;
+                textColor = metrics.ItemForeColor;
             }
             
             int x = itemRect.X + owner.ScaleDpi(12);
+            
+            // Draw checkbox if checkable
+            if (owner.ShowCheckBox && item.IsCheckable)
+            {
+                var checkRect = new Rectangle(x, itemRect.Y + (itemRect.Height - owner.ScaleDpi(16)) / 2, 
+                    owner.ScaleDpi(16), owner.ScaleDpi(16));
+                DrawCheckbox(g, checkRect, item.IsChecked, !item.IsEnabled, metrics, theme);
+                x += owner.ScaleDpi(24);
+            }
             
             // Draw icon
             if (owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath))
@@ -125,7 +143,37 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             {
                 var arrowRect = new Rectangle(itemRect.Right - owner.ScaleDpi(20), 
                     itemRect.Y + (itemRect.Height - 16) / 2, 16, 16);
-                DrawBoldArrow(g, arrowRect, !item.IsEnabled, isHovered || isSelected, theme);
+                DrawBoldArrow(g, arrowRect, !item.IsEnabled, isHovered || isSelected, metrics, theme);
+            }
+        }
+        
+        private void DrawCheckbox(Graphics g, Rectangle rect, bool isChecked, bool isDisabled, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
+        {
+            // Draw checkbox border
+            var borderColor = isDisabled ? metrics.ItemDisabledForeColor : metrics.ItemForeColor;
+            using (var pen = new Pen(borderColor, 2))
+            {
+                g.DrawRectangle(pen, rect);
+            }
+            
+            // Draw check mark if checked
+            if (isChecked)
+            {
+                using (var checkBrush = new SolidBrush(isDisabled ? metrics.ItemDisabledForeColor : metrics.AccentColor))
+                {
+                    // Draw checkmark
+                    using (var pen = new Pen(checkBrush, 2))
+                    {
+                        pen.StartCap = LineCap.Round;
+                        pen.EndCap = LineCap.Round;
+                        
+                        g.DrawLine(pen, rect.X + 3, rect.Y + rect.Height / 2, 
+                            rect.X + rect.Width / 2 - 1, rect.Bottom - 4);
+                        g.DrawLine(pen, rect.X + rect.Width / 2 - 1, rect.Bottom - 4, 
+                            rect.Right - 3, rect.Y + 3);
+                    }
+                }
             }
         }
         
@@ -156,10 +204,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             catch { }
         }
         
-        private void DrawBoldArrow(Graphics g, Rectangle rect, bool isDisabled, bool isHighlighted, IBeepTheme theme)
+        private void DrawBoldArrow(Graphics g, Rectangle rect, bool isDisabled, bool isHighlighted, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
-            var arrowColor = isHighlighted ? theme.MenuItemHoverForeColor : 
-                (isDisabled ? theme.DisabledForeColor : theme.MenuItemForeColor);
+            var arrowColor = isHighlighted ? metrics.ItemHoverBackColor : 
+                (isDisabled ? metrics.ItemDisabledBackColor : metrics.ItemBackColor);
             using (var pen = new Pen(arrowColor, 2))
             {
                 pen.StartCap = LineCap.Round;
@@ -171,7 +220,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             }
         }
         
-        private void DrawSeparator(Graphics g, BeepContextMenu owner, SimpleItem item, int y, IBeepTheme theme)
+        private void DrawSeparator(Graphics g, BeepContextMenu owner, SimpleItem item, int y, 
+            ContextMenuMetrics metrics, IBeepTheme theme)
         {
             if (!owner.ShowSeparators) return;
             
@@ -179,7 +229,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             int x = owner.ScaleDpi(12);
             int width = owner.Width - owner.ScaleDpi(24);
             
-            using (var pen = new Pen(theme.MenuBorderColor, 1))
+            using (var pen = new Pen(metrics.SeparatorColor, 1))
             {
                 g.DrawLine(pen, x, lineY, x + width, lineY);
             }

@@ -1062,7 +1062,7 @@
     <Folder Include="ComboBoxes\Helpers\" />
     <Folder Include="ComboBoxes\Painters\" />
     <Folder Include="ContextMenus\Helpers\" />
-    <Folder Include="ContextMenus\Painters\" />
+    <Folder Include="Dates\Painters\" />
     <Folder Include="DialogsManagers\Forms\" />
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />

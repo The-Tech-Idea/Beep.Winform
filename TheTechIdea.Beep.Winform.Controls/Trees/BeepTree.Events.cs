@@ -403,7 +403,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Point screenLocation = new Point(targetX, targetY);
 
             _isPopupOpen = true;
-            var selectedItem = ShowContextMenu(CurrentMenutems.ToList(), screenLocation, multiSelect: false);
+            var selectedItem = ShowContextMenu(CurrentMenutems.ToList(), screenLocation, multiSelect: false );
             _isPopupOpen = false;
             _lastContextMenuViewportY = null; // reset after use
 

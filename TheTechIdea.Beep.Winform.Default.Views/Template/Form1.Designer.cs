@@ -61,8 +61,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             // 
             // 
             beepComboBox1.BeepContextMenu.ClientSize = new Size(200, 10);
-            beepComboBox1.BeepContextMenu.ContextMenuType = Winform.Controls.ContextMenus.ContextMenuType.Material;
-            beepComboBox1.BeepContextMenu.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+
             beepComboBox1.BeepContextMenu.Name = "";
             beepComboBox1.BeepContextMenu.Owner = null;
             beepComboBox1.BeepContextMenu.SelectedIndex = -1;
@@ -172,7 +171,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepComboBox1.MaterialOutlineColor = Color.FromArgb(189, 189, 189);
             beepComboBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepComboBox1.MaxHitListDrawPerFrame = 0;
-            beepComboBox1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+          
             beepComboBox1.MinimumSize = new Size(90, 28);
             beepComboBox1.ModernGradientType = Vis.Modules.ModernGradientType.Linear;
             beepComboBox1.Name = "beepComboBox1";
@@ -337,8 +336,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepCheckBoxBool1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepCheckBoxBool1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepCheckBoxBool1.MaxHitListDrawPerFrame = 0;
-            beepCheckBoxBool1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
-            beepCheckBoxBool1.MinimumSize = new Size(236, 56);
+       
             beepCheckBoxBool1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepCheckBoxBool1.Name = "beepCheckBoxBool1";
             beepCheckBoxBool1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -648,7 +646,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepListBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepListBox1.MaxHitListDrawPerFrame = 0;
             beepListBox1.MenuItemHeight = 24;
-            beepListBox1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+          
             beepListBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepListBox1.Name = "beepListBox1";
             beepListBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -838,7 +836,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepButton1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepButton1.MaxHitListDrawPerFrame = 0;
             beepButton1.MaxImageSize = new Size(32, 27);
-            beepButton1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+          
             beepButton1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -1016,8 +1014,8 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepCard1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepCard1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepCard1.MaxHitListDrawPerFrame = 0;
-            beepCard1.MaxImageSize = 64;
-            beepCard1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+          
+           
             beepCard1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepCard1.Name = "beepCard1";
             beepCard1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -1203,7 +1201,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepTextBox1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepTextBox1.MaxHitListDrawPerFrame = 0;
             beepTextBox1.MaxImageSize = new Size(20, 20);
-            beepTextBox1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+           
             beepTextBox1.MinimumSize = new Size(120, 56);
             beepTextBox1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepTextBox1.Modified = true;
@@ -1385,7 +1383,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepNavBar1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepNavBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepNavBar1.MaxHitListDrawPerFrame = 0;
-            beepNavBar1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+           
             beepNavBar1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepNavBar1.Name = "beepNavBar1";
             beepNavBar1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
@@ -1548,7 +1546,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepSideBar1.MaterialOutlineColor = Color.FromArgb(140, 140, 140);
             beepSideBar1.MaterialPrimaryColor = Color.FromArgb(25, 118, 210);
             beepSideBar1.MaxHitListDrawPerFrame = 0;
-            beepSideBar1.MenuStyle = Winform.Controls.ContextMenus.ContextMenuType.Standard;
+           
             beepSideBar1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepSideBar1.Name = "beepSideBar1";
             beepSideBar1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;

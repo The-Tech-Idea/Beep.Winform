@@ -3,6 +3,7 @@ using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Winform.Controls.Base;
 
 
 
@@ -13,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Beep Controls")]
     [DisplayName("Beep Display Container")]
     [Description("A container control for displaying addins.")]
-    public partial class BeepDisplayContainer : BeepControl, IDisplayContainer
+    public partial class BeepDisplayContainer : BaseControl, IDisplayContainer
     {
         public ContainerTypeEnum _containerType = ContainerTypeEnum.TabbedPanel;
         private Panel ContainerPanel;
@@ -41,6 +42,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public BeepDisplayContainer()
         {
+            // Container controls handle their own rendering - no BaseControl painting needed
+            PainterKind = BaseControlPainterKind.None;
+            
             InitializeComponent();
             DoubleBuffered = true;
             // Ensure the container can receive focus and events
@@ -52,55 +56,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Set initial layout based on ContainerType
             UpdateContainerLayout();
         }
-        // Override DPI scaling methods
-        //protected override void OnDpiChangedAfterParent(EventArgs e)
-        //{
-        //    base.OnDpiChangedAfterParent(e);
 
-        //    // Update container layout with new DPI
-        //    UpdateContainerLayoutForDpi();
-
-        //    // Update all child controls
-        //    foreach (var entry in _controls)
-        //    {
-        //        if (entry.Value.Addin is Control control)
-        //        {
-        //            UpdateControlForDpi(control);
-        //        }
-        //    }
-
-        //    // Update tab container
-        //    if (TabContainerPanel != null)
-        //    {
-        //        // TabContainerPanel should handle its own DPI scaling
-        //        TabContainerPanel.Invalidate();
-        //    }
-        //}
-        private void UpdateContainerLayoutForDpi()
+        // Override to prevent BaseControl from clearing the background
+        // This allows child controls (TabControl, Panel) to be visible
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            // Update paddings and sizes based on current DPI
-            Padding = new Padding(ScaleValue(2));
-
-            // Update any other hard-coded sizes
-            if (ContainerPanel != null)
-            {
-                ContainerPanel.Invalidate();
-            }
+            // Don't call base - container controls should not paint their own background
+            // Child controls (TabControl/Panel) handle their own painting
         }
-
-        private void UpdateControlForDpi(Control control)
-        {
-            // Update margins and paddings for DPI
-            control.Margin = new Padding(ScaleValue(5));
-            control.Padding = new Padding(ScaleValue(5));
-
-            // If control implements DPI scaling, call it
-            if (control is BeepControl beepControl)
-            {
-                // BeepControl should handle its own DPI scaling
-                beepControl.Invalidate();
-            }
-        }
+     
 
         private void InitializeComponent()
         {
@@ -577,7 +541,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 TabContainerPanel.ApplyTheme();
             }
             // Ensure DPI scaling is applied after theme changes
-            UpdateContainerLayoutForDpi();
+            //UpdateContainerLayoutForDpi();
 
         }
         protected override void OnMouseDown(MouseEventArgs e)

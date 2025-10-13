@@ -357,13 +357,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer, true);
             DoubleBuffered = true;
-            BorderRadius = 3;
+          
             _textFont = this.Font;
 
-            // Make it like BeepComboBox by default
-            //EnableMaterialStyle = true;
-            MaterialVariant = MaterialTextFieldVariant.Outlined;
-            MaterialBorderRadius = 4;
+          
             calendarIcon = new BeepImage
             {
                 IsChild = true,
@@ -619,11 +616,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Use material helper content rect if available; fallback to DrawingRect
         private Rectangle GetContentRectForDrawing()
         {
-            if (PainterKind == BaseControlPainterKind.Material )
-            {
-                var r = GetContentRect();
-                if (r.Width > 0 && r.Height > 0) return r;
-            }
+            //if (PainterKind == BaseControlPainterKind.Material )
+            //{
+            //    var r = GetContentRect();
+            //    if (r.Width > 0 && r.Height > 0) return r;
+            //}
+            UpdateDrawingRect();
             return DrawingRect;
         }
 

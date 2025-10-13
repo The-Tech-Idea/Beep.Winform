@@ -459,16 +459,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Theme = "DefaultType";
             beepDisplayContainer1.ToolTipText = "";
             beepDisplayContainer1.TopoffsetForDrawingRect = 0;
-            beepDisplayContainer1.UIAnimation = Vis.Modules.ReactUIAnimation.None;
-            beepDisplayContainer1.UIColor = Vis.Modules.ReactUIColor.Primary;
-            beepDisplayContainer1.UICustomElevation = 0;
-            beepDisplayContainer1.UIDensity = Vis.Modules.ReactUIDensity.Standard;
-            beepDisplayContainer1.UIDisabled = false;
-            beepDisplayContainer1.UIElevation = Vis.Modules.ReactUIElevation.None;
-            beepDisplayContainer1.UIFullWidth = false;
-            beepDisplayContainer1.UIShape = Vis.Modules.ReactUIShape.Rounded;
-            beepDisplayContainer1.UISize = Vis.Modules.ReactUISize.Medium;
-            beepDisplayContainer1.UIVariant = Vis.Modules.ReactUIVariant.Default;
+        
             beepDisplayContainer1.UseGradientBackground = false;
             beepDisplayContainer1.UseThemeFont = true;
             // 

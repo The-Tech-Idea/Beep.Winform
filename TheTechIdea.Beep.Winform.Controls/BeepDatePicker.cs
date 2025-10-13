@@ -9,6 +9,8 @@ using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
+using System.Threading.Tasks;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -690,14 +692,28 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawCalendarIcon(Graphics g, Rectangle buttonRect)
         {
+            // Keep a small inner padding for the icon
+            int pad = Math.Max(1, _padding);
+            var iconRect = new Rectangle(buttonRect.X + pad, buttonRect.Y + pad, Math.Max(8, buttonRect.Width - (2 * pad)), Math.Max(8, buttonRect.Height - (2 * pad)));
+            string imagePath = calendarIcon?.ImagePath;
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                try
+                {
+                    Color iconColor = _currentTheme?.CalendarTitleForColor != Color.Empty ? _currentTheme.CalendarTitleForColor : ForeColor;
+                    int cornerRadius = Math.Max(0, BorderRadius);
+                    StyledImagePainter.PaintWithTint(g, iconRect, imagePath, iconColor, 1f, cornerRadius);
+                    return;
+                }
+                catch { /* fallback */ }
+            }
+
             if (calendarIcon == null)
             {
                 DrawDropdownArrow(g, buttonRect);
                 return;
             }
-            // Keep a small inner padding for the icon
-            int pad = Math.Max(1, _padding);
-            var iconRect = new Rectangle(buttonRect.X + pad, buttonRect.Y + pad, Math.Max(8, buttonRect.Width - (2 * pad)), Math.Max(8, buttonRect.Height - (2 * pad)));
+
             try
             {
                 // Render the BeepImage into the provided rectangle
@@ -864,11 +880,42 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 calendarIcon.Theme = Theme;
                 calendarIcon.ApplyThemeOnImage = true;
-                
             }
+
+            // Map calendar-related theme properties to control appearance where available
+            if (_currentTheme != null)
+            {
+                if (_currentTheme.CalendarBackColor != Color.Empty) BackColor = _currentTheme.CalendarBackColor;
+                if (_currentTheme.CalendarForeColor != Color.Empty) ForeColor = _currentTheme.CalendarForeColor;
+                if (_currentTheme.CalendarBorderColor != Color.Empty) BorderColor = _currentTheme.CalendarBorderColor;
+
+                try { _textFont = BeepThemesManager.ToFont(_currentTheme.DateFont); } catch { _textFont = this.Font; }
+
+                // Invalidate and pre-render calendar icon tinted variants in background
+                try
+                {
+                    if (!string.IsNullOrEmpty(calendarIcon?.ImagePath))
+                    {
+                        var iconPath = calendarIcon.ImagePath;
+                        StyledImagePainter.InvalidateCaches(iconPath);
+                        Color iconColor = _currentTheme.CalendarTitleForColor != Color.Empty ? _currentTheme.CalendarTitleForColor : ForeColor;
+                        var sizes = new int[] { 8, 12, 14, 16, 18, 20, 24, 28, 32 };
+                        Task.Run(() =>
+                        {
+                            foreach (var s in sizes)
+                            {
+                                try { StyledImagePainter.PreRenderTintedToCache(iconPath, iconColor, 1f, new Size(s, s)); } catch { }
+                            }
+                        });
+                    }
+                }
+                catch { }
+            }
+
             _textFont = BeepThemesManager.ToFont(_currentTheme.DateFont);
             Invalidate();
         }
+
         public override void SetValue(object value)
         {
             if (value is DateTime dt) SelectedDateTime = dt;

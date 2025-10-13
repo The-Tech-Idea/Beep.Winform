@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
-    public class BeepDateDropDown :BaseControl
+    public partial class BeepDateDropDown :BaseControl
     {
         // All implementation is in partial classes:
         // - BeepDateDropDown.Core.cs: Core fields, events, initialization, and constructor

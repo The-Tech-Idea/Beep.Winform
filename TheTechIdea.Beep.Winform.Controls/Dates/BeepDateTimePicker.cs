@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Winform.Controls.Base;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
-    public class BeepDateTimePicker :BaseControl
+    public partial class BeepDateTimePicker :BaseControl
     {
         // All BeepDateTimePicker is in partial classes:
         // - BeepDateTimePicker.Core.cs: Core fields, events, initialization, and constructor

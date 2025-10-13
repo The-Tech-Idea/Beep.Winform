@@ -19,7 +19,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         Long,
         Short,
         Time,
-        Custom
+        Custom,
+        ShortDate
     }
     public enum DatePickerView
     {
@@ -57,7 +58,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         None,
         FirstDay,
         FirstFullWeek,
-        FirstFourDayWeek
+        FirstFourDayWeek,
+        Left
     }
     public enum DatePickerSelectionChangedAction
     {
@@ -110,9 +112,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         Slide,
         Zoom
     }
-    public enum DatePickerTimePickerStyle
-    {
-        // based on image i will provide and more options later
 
+    /// <summary>
+    /// Defines the functional mode/type of the DateTimePicker
+    /// Each mode has distinct layout and functionality, styled by current BeepTheme
+    /// </summary>
+    public enum DatePickerMode
+    {
+        Single,             // Standard single date selection calendar
+        SingleWithTime,     // Single date with time picker section
+        Range,              // Date range picker with start/end selection
+        RangeWithTime,      // Date range with time selection
+        Multiple,           // Multiple date selection with checkboxes
+        Appointment,        // Calendar with time slot list for scheduling
+        Timeline,           // Date range with visual timeline representation
+        Quarterly,          // Quarterly range selector with Q1-Q4 shortcuts
+        Compact,            // Compact dropdown with minimal chrome
+        ModernCard,         // Modern card with quick date buttons (Today, Tomorrow, etc.)
+        DualCalendar,       // Side-by-side month view for range selection
+        WeekView,           // Week-based calendar view
+        MonthView,          // Month picker view
+        YearView            // Year picker view
     }
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -681,15 +681,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
         public TypographyStyle LabelMedium { get; set; }
         public TypographyStyle LabelSmall { get; set; }
 
-            // ─────────────────────────────────────────────────────────────────────────
+            // -------------------------------------------------------------------------
             // ADD THIS CONSTRUCTOR
-            // ─────────────────────────────────────────────────────────────────────────
+            // -------------------------------------------------------------------------
             public DefaultBeepTheme()
             {
                 ThemeName = "DefaultBeepTheme";
                 ThemeGuid = Guid.NewGuid().ToString();
 
-                // ── Base palette (modern light)
+                // -- Base palette (modern light)
                 PrimaryColor = C(37, 99, 235);  // blue-600
                 SecondaryColor = C(14, 165, 233);  // cyan-500
                 AccentColor = C(245, 158, 11);  // amber-500
@@ -711,7 +711,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 DisabledForeColor = C(156, 163, 175);
                 DisabledBorderColor = InactiveBorderColor;
 
-                // ── AppBar
+                // -- AppBar
                 // For caption bar - use colors that work with BOTH the theme's AppBarBackColor
                 // AND the style-specific caption backgrounds (which may be light or dark)
                 AppBarBackColor = PrimaryColor;
@@ -736,7 +736,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 AppBarGradiantEndColor = Darken(AppBarBackColor, 0.03);
                 AppBarGradiantDirection = LinearGradientMode.Vertical;
 
-                // ── General surface/background
+                // -- General surface/background
                 BackColor = BackgroundColor;
                 PanelBackColor = C(250, 251, 253);            // distinct from BackColor
                 PanelGradiantStartColor = PanelBackColor;
@@ -745,7 +745,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 PanelGradiantDirection = LinearGradientMode.Vertical;
                 HighlightBackColor = Blend(PrimaryColor, Color.White, 0.90);  // subtle primary tint
 
-                // ── Typography (Segoe UI baseline)
+                // -- Typography (Segoe UI baseline)
                 FontName = "Segoe UI";
                 FontFamily = FontName;
                 FontSize = 12f;
@@ -809,7 +809,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 FocusIndicatorColor = ActiveBorderColor;
                 IsDarkTheme = false;
 
-                // ── Buttons
+                // -- Buttons
                 ButtonBackColor = PrimaryColor;
                 ButtonForeColor = OnPrimaryColor;
                 ButtonBorderColor = Darken(PrimaryColor, 0.18);
@@ -835,7 +835,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ButtonHoverFont = ButtonStyle;
                 ButtonSelectedFont = ButtonStyle;
 
-                // ── Cards
+                // -- Cards
                 CardBackColor = SurfaceColor;
                 CardTextForeColor = ForeColor;
                 CardTitleForeColor = ForeColor;
@@ -850,7 +850,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 CardGradiantEndColor = CardBackColor;
                 CardGradiantDirection = LinearGradientMode.Vertical;
 
-                // ── Calendar
+                // -- Calendar
                 CalendarTitleFont = TitleSmall;
                 CalendarTitleForColor = ForeColor;
                 DaysHeaderFont = LabelMedium;
@@ -863,8 +863,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 CalendarBackColor = SurfaceColor;
                 CalendarForeColor = ForeColor;
                 CalendarTodayForeColor = PrimaryColor;
-                CalendarBorderColor = BorderColor;
-                CalendarHoverBackColor = Blend(PrimaryColor, Color.White, 0.92);
+                CalendarBorderColor = BorderColor;                CalendarHoverBackColor = Blend(PrimaryColor, Color.White, 0.92);
                 CalendarHoverForeColor = Darken(PrimaryColor, 0.35);
                 HeaderFont = TitleSmall;
                 MonthFont = TitleSmall;
@@ -875,7 +874,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 CalendarFooterColor = C(107, 114, 128);
                 FooterFont = LabelSmall;
 
-                // ── Charts
+                // -- Charts
                 ChartTitleFont = TitleSmall;
                 ChartSubTitleFont = BodySmall;
                 ChartBackColor = CardBackColor;
@@ -895,7 +894,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 C( 59, 130, 246), C( 34, 197,  94)
             };
 
-                // ── CheckBox / Radio
+                // -- CheckBox / Radio
                 CheckBoxBackColor = BackgroundColor;
                 CheckBoxForeColor = ForeColor;
                 CheckBoxBorderColor = BorderColor;
@@ -922,7 +921,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 RadioButtonSelectedForeColor = Darken(PrimaryColor, 0.35);
                 RadioButtonSelectedBackColor = Blend(PrimaryColor, Color.White, 0.90);
 
-                // ── ComboBox
+                // -- ComboBox
                 ComboBoxBackColor = BackgroundColor;
                 ComboBoxForeColor = ForeColor;
                 ComboBoxBorderColor = BorderColor;
@@ -937,7 +936,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ComboBoxItemFont = BodyMedium;
                 ComboBoxListFont = BodyMedium;
 
-                // ── Lists
+                // -- Lists
                 ListBackColor = CardBackColor;
                 ListForeColor = ForeColor;
                 ListBorderColor = BorderColor;
@@ -953,13 +952,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ListSelectedFont = BodyMedium;
                 ListUnSelectedFont = BodyMedium;
 
-                // ── Links
+                // -- Links
                 LinkColor = C(37, 99, 235);
                 VisitedLinkColor = C(109, 40, 217);
                 HoverLinkColor = C(59, 130, 246);
                 LinkHoverColor = HoverLinkColor;
 
-                // ── Labels
+                // -- Labels
                 LabelBackColor = BackgroundColor;
                 LabelForeColor = ForeColor;
                 LabelBorderColor = Color.Transparent; // will be normalized below
@@ -979,7 +978,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 SubLabelHoverBackColor = BackgroundColor;
                 SubLabelHoverForeColor = SubLabelForColor;
 
-                // ── TextBox
+                // -- TextBox
                 TextBoxBackColor = BackgroundColor;
                 TextBoxForeColor = ForeColor;
                 TextBoxBorderColor = BorderColor;
@@ -1002,7 +1001,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TextBoxHoverFont = BodyMedium;
                 TextBoxSelectedFont = BodyMedium;
 
-                // ── Grid
+                // -- Grid
                 GridHeaderFont = LabelMedium;
                 GridRowFont = BodyMedium;
                 GridCellFont = BodyMedium;
@@ -1034,7 +1033,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 SelectedRowBackColor = GridRowSelectedBackColor;
                 SelectedRowForeColor = GridRowSelectedForeColor;
 
-                // ── Navigation / Menu / Side Menu
+                // -- Navigation / Menu / Side Menu
                 NavigationTitleFont = TitleSmall;
                 NavigationSelectedFont = BodyMedium;
                 NavigationUnSelectedFont = BodyMedium;
@@ -1081,7 +1080,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 SideMenuGradiantEndColor = SideMenuBackColor;
                 SideMenuGradiantDirection = LinearGradientMode.Vertical;
 
-                // ── Progress Bar
+                // -- Progress Bar
                 ProgressBarBackColor = C(229, 231, 235);
                 ProgressBarForeColor = PrimaryColor;
                 ProgressBarBorderColor = BorderColor;
@@ -1095,7 +1094,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ProgressBarHoverBorderColor = ActiveBorderColor;
                 ProgressBarHoverInsideTextColor = OnPrimaryColor;
 
-                // ── Scrollbars
+                // -- Scrollbars
                 ScrollBarBackColor = C(243, 244, 246);
                 ScrollBarTrackColor = C(243, 244, 246);
                 ScrollBarThumbColor = C(209, 213, 219);
@@ -1103,7 +1102,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 ScrollBarHoverThumbColor = C(156, 163, 175);
                 ScrollBarActiveThumbColor = C(107, 114, 128);
 
-                // ── Status bar
+                // -- Status bar
                 StatusBarBackColor = C(248, 250, 252);
                 StatusBarForeColor = C(55, 65, 81);
                 StatusBarBorderColor = BorderColor;
@@ -1111,7 +1110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 StatusBarHoverForeColor = C(31, 41, 55);
                 StatusBarHoverBorderColor = ActiveBorderColor;
 
-                // ── Star rating
+                // -- Star rating
                 StarRatingBackColor = BackgroundColor;
                 StarRatingForeColor = C(234, 179, 8);
                 StarRatingFillColor = C(250, 204, 21);
@@ -1129,7 +1128,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 StarTitleForeColor = ForeColor;
                 StarTitleBackColor = BackgroundColor;
 
-                // ── Stats / Dashboard / Task cards
+                // -- Stats / Dashboard / Task cards
                 DashboardTitleFont = TitleSmall;
                 DashboardSubTitleFont = BodySmall;
                 DashboardBackColor = BackgroundColor;
@@ -1198,7 +1197,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TaskCardProgressValueBorderColor = PrimaryColor;
                 TaskCardProgressValueStyle = LabelMedium;
 
-                // ── Dialogs
+                // -- Dialogs
                 DialogBackColor = BackgroundColor;
                 DialogForeColor = ForeColor;
                 DialogYesButtonFont = ButtonStyle;
@@ -1261,7 +1260,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 DialogQuestionButtonHoverForeColor = Color.White;
                 DialogQuestionButtonHoverBorderColor = Darken(C(99, 102, 241), 0.18);
 
-                // ── Tooltips / Markdown
+                // -- Tooltips / Markdown
                 ToolTipBackColor = C(31, 41, 55);
                 ToolTipForeColor = Color.White;
                 ToolTipBorderColor = Color.Transparent;
@@ -1302,7 +1301,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 StrongText = TS(12, FontStyle.Bold, 700, ForeColor);
                 EmphasisText = TS(12, FontStyle.Italic, 400, ForeColor);
 
-                // ── Tabs
+                // -- Tabs
                 TabFont = BodyMedium;
                 TabHoverFont = BodyMedium;
                 TabSelectedFont = BodyMedium;
@@ -1320,7 +1319,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TabSelectedBorderColor = PrimaryColor;
                 TabHoverBorderColor = ActiveBorderColor;
 
-                // ── Trees
+                // -- Trees
                 TreeTitleFont = TitleSmall;
                 TreeNodeSelectedFont = BodyMedium;
                 TreeNodeUnSelectedFont = BodyMedium;
@@ -1335,7 +1334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 TreeNodeCheckedBoxForeColor = Darken(PrimaryColor, 0.35);
                 TreeNodeCheckedBoxBackColor = Blend(PrimaryColor, Color.White, 0.90);
 
-                // ── Login/Company popovers (marketing-ish)
+                // -- Login/Company popovers (marketing-ish)
                 LoginPopoverBackgroundColor = CardBackColor;
                 LoginTitleColor = ForeColor;
                 LoginSubtitleColor = C(75, 85, 99);
@@ -1368,7 +1367,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 CompanyLinkFont = BodyMedium;
                 CompanyButtonFont = ButtonStyle;
 
-                // ── Stepper / Switch
+                // -- Stepper / Switch
                 StepperTitleFont = TitleSmall;
                 StepperSelectedFont = BodyMedium;
                 StepperUnSelectedFont = BodyMedium;
@@ -1402,20 +1401,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 SwitchHoverBorderColor = ActiveBorderColor;
                 SwitchHoverForeColor = C(75, 85, 99);
 
-                // ── Status & Gradient tokens
+                // -- Status & Gradient tokens
                 StatusBarBackColor = StatusBarBackColor; // already set
                 GradientStartColor = BackgroundColor;
                 GradientEndColor = SurfaceColor;
                 GradientDirection = LinearGradientMode.Vertical;
 
-                // ── Fill ANY remaining null/empty properties via convention
+                // -- Fill ANY remaining null/empty properties via convention
                 FillTypographyDefaultsByConvention();
                 FillColorDefaultsByConvention();
             }
 
-            // ─────────────────────────────────────────────────────────────────────────
+            // -------------------------------------------------------------------------
             // REPLACE THE NOT IMPLEMENTED METHODS WITH THESE
-            // ─────────────────────────────────────────────────────────────────────────
+            // -------------------------------------------------------------------------
             public TypographyStyle GetAnswerFont() => BodyMedium ?? BodyStyle ?? TS(14, FontStyle.Regular, 400, ForeColor);
             public TypographyStyle GetBlockHeaderFont() => TitleSmall ?? TitleStyle ?? TS(18, FontStyle.Bold, 600, ForeColor);
             public TypographyStyle GetBlockTextFont() => BodyMedium ?? BodyStyle ?? TS(14, FontStyle.Regular, 400, ForeColor);
@@ -1434,9 +1433,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Themes
                 }
             }
 
-            // ─────────────────────────────────────────────────────────────────────────
+            // -------------------------------------------------------------------------
             // HELPERS
-            // ─────────────────────────────────────────────────────────────────────────
+            // -------------------------------------------------------------------------
             private static Color C(int r, int g, int b) => Color.FromArgb(255, r, g, b);
 
             private static Color Blend(Color a, Color b, double t)

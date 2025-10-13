@@ -8,7 +8,7 @@ using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
-    public partial class BeepDateDropDown : BaseControl
+    public partial class BeepDateDropDown 
     {
         // Core fields (shared across partials)
         internal DateTime _selectedDateTime = DateTime.MinValue;

@@ -25,13 +25,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
             using var textBrush = new SolidBrush(ctx.TextColor);
             if (!string.IsNullOrEmpty(ctx.XTitle))
             {
-                var size = g.MeasureString(ctx.XTitle, ctx.TitleFont);
+                var size = TextUtils.MeasureText(g,ctx.XTitle, ctx.TitleFont);
                 var x = ctx.PlotRect.Left + (ctx.PlotRect.Width - size.Width) / 2f;
                 g.DrawString(ctx.XTitle, ctx.TitleFont, textBrush, x, ctx.PlotRect.Bottom + 8);
             }
             if (!string.IsNullOrEmpty(ctx.YTitle))
             {
-                var size = g.MeasureString(ctx.YTitle, ctx.TitleFont);
+                var size = TextUtils.MeasureText(g,ctx.YTitle, ctx.TitleFont);
                 float x = ctx.PlotRect.Left - size.Height - 12;
                 float y = ctx.PlotRect.Top + (ctx.PlotRect.Height + size.Width) / 2f;
                 g.TranslateTransform(x, y);
@@ -158,11 +158,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts.Helpers
         {
             if (angle == 0)
             {
-                var size = g.MeasureString(text, font);
+                var size = TextUtils.MeasureText(g,text, font);
                 g.DrawString(text, font, brush, centerX ? x - size.Width / 2 : x - size.Width - 4, y);
                 return;
             }
-            var size2 = g.MeasureString(text, font);
+            var size2 = TextUtils.MeasureText(g,text, font);
             g.TranslateTransform(x, y);
             g.RotateTransform(angle);
             g.DrawString(text, font, brush, centerX ? -size2.Width / 2 : -size2.Width, 0);

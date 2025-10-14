@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             using var iconFont = new Font("Segoe UI Emoji", 32, FontStyle.Regular);
             using var iconBrush = new SolidBrush(Color.FromArgb(120, Theme.ForeColor));
             string imageIcon = "🖼️";
-            var iconSize = g.MeasureString(imageIcon, iconFont);
+            var iconSize = TextUtils.MeasureText(g,imageIcon, iconFont);
             g.DrawString(imageIcon, iconFont, iconBrush, imageRect.X + (imageRect.Width - iconSize.Width) / 2, imageRect.Y + (imageRect.Height - iconSize.Height) / 2);
         }
 
@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             g.DrawRoundedRectangle(buttonBorder, buttonRect, 4);
             using var iconFont = new Font("Segoe UI Emoji", 12, FontStyle.Regular);
             using var iconBrush = new SolidBrush(Color.White);
-            var iconSize = g.MeasureString(icon, iconFont);
+            var iconSize = TextUtils.MeasureText(g,icon, iconFont);
             g.DrawString(icon, iconFont, iconBrush, buttonRect.X + (buttonRect.Width - iconSize.Width) / 2, buttonRect.Y + (buttonRect.Height - iconSize.Height) / 2);
         }
 

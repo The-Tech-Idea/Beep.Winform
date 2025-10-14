@@ -355,7 +355,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Painters.Navigation
             using (var font = new Font("Segoe UI", 9))
             using (var brush = new SolidBrush(Color.FromArgb(108, 117, 125)))
             {
-                var infoSize = g.MeasureString(info, font);
+                var infoSize = TextUtils.MeasureText(g,info, font);
                 var infoRect = new Rectangle(
                     (int)(rect.Right - Padding - infoSize.Width), 
                     y, 

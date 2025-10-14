@@ -160,7 +160,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             
             // Calculate comment content height
             using var contentFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            var contentSize = g.MeasureString(comment.Content, contentFont, commentWidth - AVATAR_SIZE - COMMENT_PADDING * 3);
+            var contentSize = TextUtils.MeasureText(g,comment.Content, contentFont, commentWidth - AVATAR_SIZE - COMMENT_PADDING * 3);
             int commentHeight = Math.Max(60, (int)contentSize.Height + 40); // Min height for avatar + padding
             
             commentRect.Height = commentHeight;
@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             string timeText = FormatCommentTime(comment.CreatedAt);
             using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-            var timeSize = g.MeasureString(timeText, timeFont);
+            var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
             g.DrawString(timeText, timeFont, timeBrush, rect.Right - timeSize.Width, rect.Y);
 
             // Author badge (if applicable)
@@ -298,7 +298,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             using var voteBrush = new SolidBrush(voteTextColor);
             
             string voteText = comment.VoteScore.ToString();
-            var voteSize = g.MeasureString(voteText, voteFont);
+            var voteSize = TextUtils.MeasureText(g,voteText, voteFont);
             g.DrawString(voteText, voteFont, voteBrush, currentX + 22, rect.Y + 2);
 
             // Downvote button

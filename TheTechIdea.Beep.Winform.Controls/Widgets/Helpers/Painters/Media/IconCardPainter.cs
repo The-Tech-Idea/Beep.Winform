@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
 				g.FillEllipse(badgeBrush, _badgeRectCache);
 				using var starFont = new Font("Segoe UI Symbol", 8, FontStyle.Bold);
 				using var starBrush = new SolidBrush(Color.White);
-				var sz = g.MeasureString("★", starFont);
+				var sz = TextUtils.MeasureText(g,"★", starFont);
 				g.DrawString("★", starFont, starBrush, _badgeRectCache.X + (_badgeRectCache.Width - sz.Width) / 2, _badgeRectCache.Y + (_badgeRectCache.Height - sz.Height) / 2);
 			}
 		}

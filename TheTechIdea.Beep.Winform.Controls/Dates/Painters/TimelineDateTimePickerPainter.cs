@@ -203,7 +203,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     using (var brush = new SolidBrush(secondaryTextColor))
                     {
                         string label = current.ToString("MMM");
-                        var size = g.MeasureString(label, font);
+                        var size = TextUtils.MeasureText(g,label, font);
                         g.DrawString(label, font, brush, x - size.Width / 2, bounds.Y);
                     }
                 }
@@ -531,16 +531,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return layout;
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(420, 520);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             var result = new DateTimePickerHitTestResult();
             // Simplified hit testing for mini calendar
             return result;
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Timeline visual + calendar: Timeline(80) + Calendar(280) + Padding = 380px
+            return new Size(480, 380);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for timeline + compact calendar
+            // Timeline(60) + Calendar(240) + Padding = 320px
+            return new Size(400, 320);
         }
     }
 }

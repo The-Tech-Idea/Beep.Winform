@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards
                     (_instance.Config.Theme?.AccentColor ?? Color.Black) : 
                     Color.FromArgb(100, 100, 100)))
                 {
-                    var titleSize = g.MeasureString(step.Title, font);
+                    var titleSize = TextUtils.MeasureText(g,step.Title, font);
                     var titleX = centerX - titleSize.Width / 2;
                     var titleY = centerY + radius + 10;
 

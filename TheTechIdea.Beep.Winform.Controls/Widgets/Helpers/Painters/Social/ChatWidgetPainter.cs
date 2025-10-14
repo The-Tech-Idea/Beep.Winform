@@ -208,7 +208,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
 
             // Calculate message bubble dimensions
             using var messageFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
-            var textSize = g.MeasureString(message.Content, messageFont, messageWidth - MESSAGE_PADDING * 2);
+            var textSize = TextUtils.MeasureText(g,message.Content, messageFont, messageWidth - MESSAGE_PADDING * 2);
             int bubbleHeight = Math.Max(minHeight, (int)textSize.Height + MESSAGE_PADDING * 2);
 
             Rectangle bubbleRect;
@@ -269,7 +269,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             string timeText = FormatMessageTime(message.Timestamp);
             using var timeFont = new Font(Owner.Font.FontFamily, 7f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
-            var timeSize = g.MeasureString(timeText, timeFont);
+            var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
             
             float timeX = isCurrentUser ? 
                 bubbleRect.X - timeSize.Width - 4 : 

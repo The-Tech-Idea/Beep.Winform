@@ -482,11 +482,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return layout;
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(400, 450);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             var result = new DateTimePickerHitTestResult();
@@ -506,6 +501,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
 
             return result;
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Week-based grid: Header(50) + Week cells(280) + Padding = 350px
+            return new Size(420, 340);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for week view: Header(40) + Weeks(240) + Padding = 300px
+            return new Size(360, 300);
         }
     }
 }

@@ -6,6 +6,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
     public partial class BeepDateDropDown
     {
+        private TheTechIdea.Beep.Winform.Controls.Dates.Models.DatePickerMode _mode = TheTechIdea.Beep.Winform.Controls.Dates.Models.DatePickerMode.Single;
+
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Functional mode of the embedded BeepDateTimePicker (Single, Range, etc.).")]
+        [DefaultValue(TheTechIdea.Beep.Winform.Controls.Dates.Models.DatePickerMode.Single)]
+        public TheTechIdea.Beep.Winform.Controls.Dates.Models.DatePickerMode Mode
+        {
+            get => _mode;
+            set
+            {
+                if (_mode != value)
+                {
+                    _mode = value;
+                    // If popup picker exists, update its mode immediately
+                    if (_calendarView != null)
+                    {
+                        try { _calendarView.Mode = value; } catch { }
+                    }
+                    Invalidate();
+                }
+            }
+        }
+
         [Browsable(true)]
         [Category("Date")]
         [Description("Selected date/time or null if not set (MinValue means empty).")]

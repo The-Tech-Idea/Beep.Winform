@@ -189,7 +189,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
                 if (!string.IsNullOrEmpty(text))
                 {
                     using var font = owner.TextFont ?? new System.Drawing.Font("Segoe UI", 10f, System.Drawing.FontStyle.Regular);
-                    var sz = g.MeasureString(text, font);
+                    var sz = TextUtils.MeasureText(g, text, font);
                     if (sz.Width <= rect.Width - 4 && sz.Height <= rect.Height - 2)
                     {
                         var pt = new System.Drawing.PointF(rect.Left + (rect.Width - sz.Width) / 2, rect.Top + (rect.Height - sz.Height) / 2);

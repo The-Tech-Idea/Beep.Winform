@@ -236,7 +236,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             // Calculate text width if text exists
             if (!string.IsNullOrEmpty(item.Text))
             {
-                SizeF textSize = g.MeasureString(item.Text, _owner.Font);
+                SizeF textSize = TextUtils.MeasureText(g,item.Text, _owner.Font);
                 textWidth = (int)Math.Ceiling(textSize.Width);
             }
 
@@ -264,7 +264,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Helpers
             // Calculate text height if text exists
             if (!string.IsNullOrEmpty(item.Text))
             {
-                SizeF textSize = g.MeasureString(item.Text, _owner.Font);
+                SizeF textSize = TextUtils.MeasureText(g,item.Text, _owner.Font);
                 textHeight = (int)Math.Ceiling(textSize.Height);
             }
 

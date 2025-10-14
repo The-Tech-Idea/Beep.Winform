@@ -430,11 +430,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return layout;
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(350, 480);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             var result = new DateTimePickerHitTestResult();
@@ -497,6 +492,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
             
             return new DateTime(displayMonth.Year, displayMonth.Month, dayIndex);
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Padding(16*2=32) + Header(48) + DayNames(32) + Grid(252) + Footer(40) = 404px
+            int width = 350;
+            int height = 420; // Calendar + extended footer
+
+            if (properties.ShowCustomQuickDates)
+            {
+                height += 60;
+            }
+
+            return new Size(width, height);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Padding(16*2=32) + Header(48) + DayNames(32) + Grid(252) + Footer(40) = 404px
+            int padding = 16;
+            int headerHeight = 48;
+            int dayNamesHeight = 32;
+            int gridHeight = 252;
+            int footerHeight = 40;
+            int minHeight = padding * 2 + headerHeight + dayNamesHeight + gridHeight + footerHeight;
+            
+            int minWidth = 7 * 40 + padding * 2; // 7 cells * 40px + padding = 312px
+            
+            return new Size(Math.Max(minWidth, 340), Math.Max(minHeight, 410));
         }
     }
 }

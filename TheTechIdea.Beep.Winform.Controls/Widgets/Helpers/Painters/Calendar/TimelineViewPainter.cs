@@ -96,7 +96,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             // Draw timeline type indicator
             using var typeBrush = new SolidBrush(accentColor);
             string typeText = "Timeline View";
-            var typeSize = g.MeasureString(typeText, rangeFont);
+            var typeSize = TextUtils.MeasureText(g,typeText, rangeFont);
             g.DrawString(typeText, rangeFont, typeBrush, rect.Right - typeSize.Width, rect.Y + 16);
         }
 

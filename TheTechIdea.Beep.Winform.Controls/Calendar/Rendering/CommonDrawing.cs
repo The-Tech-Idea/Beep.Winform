@@ -22,7 +22,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar.Rendering
             int availableRight = rect.Right - rightMargin;
             int availableWidth = Math.Max(10, availableRight - availableLeft);
 
-            SizeF textSize = g.MeasureString(headerText, ctx.HeaderFont);
+            SizeF textSize = TextUtils.MeasureText(g,headerText, ctx.HeaderFont);
             float centeredX = rect.X + (rect.Width - textSize.Width) / 2f;
             float drawX = Math.Max(availableLeft, centeredX);
 

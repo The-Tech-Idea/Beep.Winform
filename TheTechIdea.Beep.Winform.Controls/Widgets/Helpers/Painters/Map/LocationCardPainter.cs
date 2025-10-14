@@ -95,7 +95,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             using var updateBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
             var lastUpdated = ctx.CustomData.ContainsKey("LastUpdated") ? (DateTime)ctx.CustomData["LastUpdated"] : DateTime.Now;
             string updateText = $"Updated: {lastUpdated:HH:mm}";
-            var updateSize = g.MeasureString(updateText, updateFont);
+            var updateSize = TextUtils.MeasureText(g,updateText, updateFont);
             g.DrawString(updateText, updateFont, updateBrush, ctx.FooterRect.Right - updateSize.Width, ctx.FooterRect.Y);
         }
 

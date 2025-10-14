@@ -84,27 +84,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             Invalidate();
         }
 
+        // Handle selection from embedded BeepDateTimePicker
+        private void CalendarView_DateChanged(object sender, TheTechIdea.Beep.Winform.Controls.Dates.Models.DateTimePickerEventArgs e)
+        {
+            if (e?.Date.HasValue == true)
+            {
+                SelectedDateTime = e.Date.Value;
+            }
+            ClosePopup();
+        }
+
         private bool IsDateValid(DateTime date)
         {
             if (_minDate.HasValue && date.Date < _minDate.Value.Date) return false;
             if (_maxDate.HasValue && date.Date > _maxDate.Value.Date) return false;
             return true;
-        }
-
-        // Calendar callbacks
-        private void CalendarView_OkClicked(object sender, TheTechIdea.Beep.Winform.Controls.DateTimeDialogResultEventArgs e)
-        {
-            if (e.SelectedDateTime.HasValue)
-            {
-                SelectedDateTime = e.SelectedDateTime.Value;
-                ClearValidationError();
-            }
-            ClosePopup();
-        }
-
-        private void CalendarView_CancelClicked(object sender, TheTechIdea.Beep.Winform.Controls.DateTimeDialogResultEventArgs e)
-        {
-            ClosePopup();
         }
     }
 }

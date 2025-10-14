@@ -26,7 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         private DateTime? _rangeEndDate;
         private TimeSpan? _selectedTime;
         private DateTime _displayMonth = DateTime.Today;
-    private List<DateTime> _selectedDates = new List<DateTime>();
+        private List<DateTime> _selectedDates = new List<DateTime>();
         
         // Constraints
         private DateTime _minDate = new DateTime(1900, 1, 1);
@@ -45,9 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         private TimeSpan _minTime = TimeSpan.Zero;
         private TimeSpan _maxTime = new TimeSpan(23, 59, 59);
 
-        // Dropdown and layout
-        private Form _dropdownForm;
-        private bool _isDropDownOpen = false;
+        // NO DROPDOWN - Direct painting like BeepDatePickerView
         private DateTimePickerLayout _layout;
         private DateTimePickerHoverState _hoverState = new DateTimePickerHoverState();
         
@@ -55,18 +53,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         private bool _isMouseDown = false;
         private Point _lastMousePosition = Point.Empty;
         
-        // Text display
-        private Rectangle _textDisplayRect;
-        private Rectangle _dropdownButtonRect;
-        private Rectangle _clearButtonRect;
-        
-        // Quick selection options
-        private bool _showToday = true;
-        private bool _showTomorrow = true;
-        private bool _showYesterday = true;
-        private bool _showThisWeek = true;
-        private bool _showThisMonth = true;
-
         // Appearance
         private bool _useScaledFont = false;
         private bool _useThemeFont = true;
@@ -79,8 +65,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         public event EventHandler<DateTimePickerEventArgs> DateChanged;
         public event EventHandler<DateTimePickerEventArgs> TimeChanged;
         public event EventHandler<DateTimePickerEventArgs> RangeChanged;
-        public event EventHandler DropDownOpened;
-        public event EventHandler DropDownClosed;
         public event EventHandler<DateTimePickerEventArgs> DateHovered;
         public event EventHandler<DateTimePickerEventArgs> QuickButtonClicked;
         public event EventHandler ClearClicked;
@@ -100,48 +84,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             RangeChanged?.Invoke(this, new DateTimePickerEventArgs(start, null, end, DatePickerMode.Range));
         }
 
-        protected virtual void OnDropDownOpened()
-        {
-            DropDownOpened?.Invoke(this, EventArgs.Empty);
-        }
-
-        protected virtual void OnDropDownClosed()
-        {
-            DropDownClosed?.Invoke(this, EventArgs.Empty);
-        }
-
         #endregion
 
         #region Constructor
 
         public BeepDateTimePicker() : base()
         {
+            // Use BaseControl's Minimalist painter to render the outer container (subtle 1px border, card-like)
+            // Our internal calendar UI is still painted by IDateTimePickerPainter inside DrawingRect.
+            PainterKind = BaseControlPainterKind.Minimalist;
+            // Prevent WinForms default black border from showing in addition to our painter border
+            BorderStyle = System.Windows.Forms.BorderStyle.None;
+            
             // Control configuration
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | 
                      ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | 
                      ControlStyles.Selectable, true);
             UpdateStyles();
             DoubleBuffered = true;
-            
-            // Default size
-            Size = new Size(250, 35);
-            MinimumSize = new Size(150, 30);
 
             // Initialize font
             _textFont = new Font("Segoe UI", 9.75f);
 
-            // Setup mouse events
-            MouseDown += OnMouseDownHandler;
-            MouseUp += OnMouseUpHandler;
-            MouseMove += OnMouseMoveHandler;
-            MouseClick += OnMouseClickHandler;
-            MouseLeave += OnMouseLeaveHandler;
-            
-            // Keyboard events
-            KeyDown += OnKeyDownHandler;
-            KeyPress += OnKeyPressHandler;
-
-            // Initialize painter
+            // Initialize painter - this will set default size
             InitializePainter();
 
             // Handle creation
@@ -179,6 +144,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
             // Create painter based on current mode
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
+            
+            // Set size based on painter requirements
+            if (_currentPainter != null)
+            {
+                var props = GetCurrentProperties();
+                var preferredSize = _currentPainter.GetPreferredSize(props);
+                var minimumSize = _currentPainter.GetMinimumSize(props);
+                
+                Size = preferredSize;
+                MinimumSize = minimumSize;
+            }
+            
             UpdateLayout();
         }
 
@@ -199,6 +176,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
             // Create painter based on mode - theme provides visual styling
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
+            
+            // Update size based on painter requirements
+            if (_currentPainter != null)
+            {
+                var props = GetCurrentProperties();
+                var preferredSize = _currentPainter.GetPreferredSize(props);
+                var minimumSize = _currentPainter.GetMinimumSize(props);
+                
+                Size = preferredSize;
+                MinimumSize = minimumSize;
+            }
+            
             UpdateLayout();
             Invalidate();
         }
@@ -211,76 +200,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             if (_currentPainter == null) return;
 
-            // Calculate text display and button rectangles
-            var clientRect = ClientRectangle;
-            var buttonWidth = Math.Min(30, clientRect.Height);
-            
-            _dropdownButtonRect = new Rectangle(
-                clientRect.Right - buttonWidth - 2,
-                clientRect.Y + 2,
-                buttonWidth,
-                clientRect.Height - 4
-            );
-
-            if (_allowClear && _selectedDate.HasValue)
+            // Calculate layout using painter
+            // Use the content area provided by BaseControl's outer painter (e.g., Minimalist)
+            // to avoid double-padding and mismatched borders
+            var bounds = DrawingRect;
+            if (bounds.Width <= 0 || bounds.Height <= 0)
             {
-                _clearButtonRect = new Rectangle(
-                    _dropdownButtonRect.Left - buttonWidth - 2,
-                    clientRect.Y + 2,
-                    buttonWidth,
-                    clientRect.Height - 4
-                );
-                
-                _textDisplayRect = new Rectangle(
-                    clientRect.X + 4,
-                    clientRect.Y + 2,
-                    clientRect.Width - (buttonWidth * 2) - 12,
-                    clientRect.Height - 4
-                );
+                // Fallback to full client area if DrawingRect isn't ready yet
+                bounds = ClientRectangle;
             }
-            else
-            {
-                _clearButtonRect = Rectangle.Empty;
-                _textDisplayRect = new Rectangle(
-                    clientRect.X + 4,
-                    clientRect.Y + 2,
-                    clientRect.Width - buttonWidth - 8,
-                    clientRect.Height - 4
-                );
-            }
-        }
-
-        private string GetFormattedText()
-        {
-            if (!_selectedDate.HasValue)
-                return string.Empty;
-
-            string dateText = _format switch
-            {
-                DatePickerFormat.ShortDate => _selectedDate.Value.ToShortDateString(),
-                DatePickerFormat.Long => _selectedDate.Value.ToLongDateString(),
-                DatePickerFormat.Custom => _selectedDate.Value.ToString("MMM dd, yyyy"),
-                _ => _selectedDate.Value.ToShortDateString()
-            };
-
-            if (_showTime && _selectedTime.HasValue)
-            {
-                dateText += " " + _selectedTime.Value.ToString(@"hh\:mm");
-            }
-
-            if (_mode == DatePickerMode.Range && _rangeEndDate.HasValue)
-            {
-                string endText = _format switch
-                {
-                    DatePickerFormat.ShortDate => _rangeEndDate.Value.ToShortDateString(),
-                    DatePickerFormat.Long => _rangeEndDate.Value.ToLongDateString(),
-                    DatePickerFormat.Custom => _rangeEndDate.Value.ToString("MMM dd, yyyy"),
-                    _ => _rangeEndDate.Value.ToShortDateString()
-                };
-                dateText += " - " + endText;
-            }
-
-            return dateText;
+            _layout = _currentPainter.CalculateLayout(bounds, GetCurrentProperties());
         }
 
         private DateTimePickerProperties GetCurrentProperties()
@@ -295,9 +224,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 TimeInterval = TimeSpan.FromMinutes(_timeIntervalMinutes),
                 MinDate = _minDate,
                 MaxDate = _maxDate,
-                ShowTodayButton = _showToday,
-                ShowTomorrowButton = _showTomorrow,
-                ShowCustomQuickDates = true
+                ShowTodayButton = true,
+                ShowTomorrowButton = true,
+                ShowCustomQuickDates = _showQuickButtons
             };
         }
 
@@ -309,7 +238,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             if (disposing)
             {
-                CloseDropDown();
                 _textFont?.Dispose();
             }
             base.Dispose(disposing);

@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                 {
                     using (var badgeFont = new Font(_owner.Font.FontFamily, _owner.Font.Size - 1.5f, FontStyle.Regular))
                     {
-                        var badgeSize = g.MeasureString(shortcut, badgeFont);
+                        var badgeSize = TextUtils.MeasureText(g, shortcut, badgeFont);
                         var badgeRect = new Rectangle(
                             contentBounds.Right - (int)badgeSize.Width - 24,
                             contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height - 4) / 2,

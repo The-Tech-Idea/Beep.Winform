@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             if (!string.IsNullOrEmpty(txt))
             {
                 using var f = new Font("Segoe UI", Math.Max(8, ringRect.Height/8f), FontStyle.Bold);
-                var sz = g.MeasureString(txt, f);
+                var sz = TextUtils.MeasureText(g, txt, f);
                 var pt = new PointF(ringRect.X + (ringRect.Width - sz.Width)/2, ringRect.Y + (ringRect.Height - sz.Height)/2 + iconSize/2f + 4);
                 using var br = new SolidBrush(theme.CardTextForeColor);
                 g.DrawString(txt, f, br, pt);

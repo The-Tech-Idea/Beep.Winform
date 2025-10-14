@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintBackground(Graphics g, Rectangle bounds)
         {
-            var bgColor = _theme?.CalendarBackColor ?? Color.White;
+            var bgColor = Color.Red;// _theme?.CalendarBackColor ?? Color.White;
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(200, 200, 200);
 
             using (var brush = new SolidBrush(bgColor))
@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
             var layout = new DateTimePickerLayout();
-            int padding = 10;
+            int padding = 0;
             int currentY = bounds.Y + padding;
 
             layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2 - 60, 32);
@@ -487,11 +487,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
 
             return layout;
-        }
-
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(520, 420);
         }
 
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
@@ -556,6 +551,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
             
             return new DateTime(displayMonth.Year, displayMonth.Month, dayIndex);
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Calendar(55%) + TimeSlots(45%) split layout
+            int width = 500;
+            int height = 400;
+
+            if (properties.ShowCustomQuickDates)
+            {
+                height += 60;
+            }
+
+            return new Size(width, height);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for readable calendar + time slots
+            // Calendar needs: ~250px, TimeSlots needs: ~200px
+            return new Size(420, 360);
         }
     }
 }

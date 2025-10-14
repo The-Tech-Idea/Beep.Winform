@@ -108,12 +108,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             using var iconFont = new Font("Segoe UI Emoji", 48, FontStyle.Regular);
             using var iconBrush = new SolidBrush(Color.FromArgb(150, Theme.ForeColor));
             string mediaIcon = "🖼️";
-            var iconSize = g.MeasureString(mediaIcon, iconFont);
+            var iconSize = TextUtils.MeasureText(g,mediaIcon, iconFont);
             g.DrawString(mediaIcon, iconFont, iconBrush, mediaRect.X + (mediaRect.Width - iconSize.Width) / 2, mediaRect.Y + (mediaRect.Height - iconSize.Height) / 2);
             string placeholderText = "No Media Selected";
             using var textFont = new Font("Segoe UI", 12, FontStyle.Regular);
             using var textBrush = new SolidBrush(Color.FromArgb(150, Theme.ForeColor));
-            var textSize = g.MeasureString(placeholderText, textFont);
+            var textSize = TextUtils.MeasureText(g,placeholderText, textFont);
             g.DrawString(placeholderText, textFont, textBrush, mediaRect.X + (mediaRect.Width - textSize.Width) / 2, mediaRect.Y + (mediaRect.Height - textSize.Height) / 2 + iconSize.Height + 10);
         }
 
@@ -147,7 +147,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             using var iconFont = new Font("Segoe UI Emoji", 12, FontStyle.Regular);
             using var iconBrush = new SolidBrush(Color.White);
             string icon = id switch { "prev" => "⏮️", "pause" => "⏸️", "play" => "▶️", "next" => "⏭️", _ => "🔄" };
-            var iconSize = g.MeasureString(icon, iconFont);
+            var iconSize = TextUtils.MeasureText(g,icon, iconFont);
             g.DrawString(icon, iconFont, iconBrush, rect.X + (rect.Width - iconSize.Width) / 2, rect.Y + (rect.Height - iconSize.Height) / 2);
         }
 
@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
                 // draw 'i'
                 using var f = new Font("Segoe UI", 10, FontStyle.Bold);
                 using var br = new SolidBrush(Color.White);
-                var sz = g.MeasureString("i", f);
+                var sz = TextUtils.MeasureText(g,"i", f);
                 g.DrawString("i", f, br, _infoRectCache.X + (_infoRectCache.Width - sz.Width) / 2, _infoRectCache.Y + (_infoRectCache.Height - sz.Height) / 2);
                 g.DrawEllipse(pen, _infoRectCache);
             }

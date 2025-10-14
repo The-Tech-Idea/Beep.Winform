@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             // Center text
             var txt = GetString(p, "CenterText", $"{(int)(pct*100)}%");
             using var f = new Font("Segoe UI", Math.Max(8, rect.Height/6f), FontStyle.Bold);
-            var sz = g.MeasureString(txt, f);
+            var sz = TextUtils.MeasureText(g,txt, f);
             var pt = new PointF(rect.X + (rect.Width - sz.Width)/2, rect.Y + (rect.Height - sz.Height)/2);
             using var br = new SolidBrush(theme.CardTextForeColor);
             g.DrawString(txt, f, br, pt);

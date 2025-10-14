@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
                 using var statusFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
                 using var statusBrush = new SolidBrush(Color.FromArgb(100, 150, 100));
                 string statusText = "Active Route";
-                var statusSize = g.MeasureString(statusText, statusFont);
+                var statusSize = TextUtils.MeasureText(g,statusText, statusFont);
                 g.DrawString(statusText, statusFont, statusBrush, ctx.FooterRect.Right - statusSize.Width, ctx.FooterRect.Y);
             }
         }

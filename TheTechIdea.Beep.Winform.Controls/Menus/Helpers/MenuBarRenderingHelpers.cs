@@ -450,7 +450,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
             {
                 using var tempBitmap = new Bitmap(1, 1);
                 using var g = Graphics.FromImage(tempBitmap);
-                var textSize = g.MeasureString(item.Text, font);
+                var textSize = TextUtils.MeasureText(g,item.Text, font);
                 width += (int)textSize.Width + 4; // Text + spacing
             }
             else if (!string.IsNullOrEmpty(item.Text))

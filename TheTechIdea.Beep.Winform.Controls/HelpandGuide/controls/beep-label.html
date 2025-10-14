@@ -539,7 +539,7 @@ label.TextChanged += (s, e) => {
     // Calculate required height based on text
     using (var graphics = descriptionLabel.CreateGraphics())
     {
-        var textSize = graphics.MeasureString(description, descriptionLabel.Font, maxWidth - 16);
+        var textSize =  TextUtils.MeasureText(graphics,description, descriptionLabel.Font, maxWidth - 16);
         descriptionLabel.Height = (int)Math.Ceiling(textSize.Height) + 16;
     }
 

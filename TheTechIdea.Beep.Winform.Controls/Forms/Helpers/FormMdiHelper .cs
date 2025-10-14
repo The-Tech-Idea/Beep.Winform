@@ -397,7 +397,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
             foreach (var f in ordered)
             {
                 var title = string.IsNullOrEmpty(f.Text) ? f.Name : f.Text;
-                var size = g.MeasureString(title, form.Font).ToSize();
+                var size = TextUtils.MeasureText(g,title, form.Font).ToSize();
                 int extra = (_tabPaddingX * 2) + (ShowCloseButtons ? 18 : 0);
                 if (AllowPinning) extra += 18;
                 if (ShowBadges && _badges.ContainsKey(f)) extra += 24;

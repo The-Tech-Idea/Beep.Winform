@@ -259,14 +259,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return new DateTimePickerLayout();
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(380, 440);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             return new DateTimePickerHitTestResult();
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Month grid (3x4 or 4x3): Header(50) + Grid(320) + Padding = 390px
+            return new Size(380, 390);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for month grid: Header(40) + Grid(260) + Padding = 320px
+            return new Size(340, 320);
         }
     }
 }

@@ -109,12 +109,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
             using var amountFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 11f, FontStyle.Bold);
             using var amountBrush = new SolidBrush(accentColor);
             string budgetText = $"{currencySymbol}{budgetAmount:N0}";
-            var amountSize = g.MeasureString(budgetText, amountFont);
+            var amountSize = TextUtils.MeasureText(g,budgetText, amountFont);
             g.DrawString(budgetText, amountFont, amountBrush, rect.Right - amountSize.Width, rect.Y);
             using var labelFont = new Font(Owner?.Font?.FontFamily ?? System.Drawing.SystemFonts.DefaultFont.FontFamily, 8f, FontStyle.Regular);
             using var labelBrush = new SolidBrush(Color.FromArgb(120, Theme?.ForeColor ?? Color.Black));
             string labelText = "Total Budget";
-            var labelSize = g.MeasureString(labelText, labelFont);
+            var labelSize = TextUtils.MeasureText(g,labelText, labelFont);
             g.DrawString(labelText, labelFont, labelBrush, rect.Right - labelSize.Width, rect.Y + 16);
         }
 

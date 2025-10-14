@@ -213,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             using var progressFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             using var progressBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
             string progressText = $"{currentStep} of {totalSteps} steps";
-            var progressSize = g.MeasureString(progressText, progressFont);
+            var progressSize = TextUtils.MeasureText(g,progressText, progressFont);
             g.DrawString(progressText, progressFont, progressBrush, rect.Right - progressSize.Width, rect.Y + 2);
         }
 

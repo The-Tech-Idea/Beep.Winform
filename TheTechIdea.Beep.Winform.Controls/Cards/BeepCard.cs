@@ -290,15 +290,15 @@ namespace TheTechIdea.Beep.Winform.Controls
             _painter?.Initialize(this, _currentTheme);
             _layoutContext = _painter?.AdjustLayout(DrawingRect, _layoutContext) ?? _layoutContext;
 
-            // // Draw background
-            // if (UseThemeColors && _currentTheme != null)
-            // {
-            //     _painter?.DrawBackground(g, _layoutContext);
-            // }
-            // else
-            // {
-            //     BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
-            // }
+            // Draw background
+            if (UseThemeColors && _currentTheme != null)
+            {
+                _painter?.DrawBackground(g, _layoutContext);
+            }
+            else
+            {
+                BeepStyling.PaintStyleBackground(g, DrawingRect, ControlStyle);
+            }
 
             // Paint image using StyledImagePainter
             if (_layoutContext.ShowImage && _layoutContext.ImageRect != Rectangle.Empty)
@@ -426,8 +426,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         public override void ApplyTheme()
         {
             if (_currentTheme == null) return;
-
+            base.ApplyTheme();
             BackColor = _currentTheme.CardBackColor;
+           
             InitializePainter();
             Invalidate();
         }

@@ -25,8 +25,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Cards.Helpers
             foreach (var tag in tags)
             {
                 if (string.IsNullOrWhiteSpace(tag)) continue;
-                
-                var textSize = g.MeasureString(tag, font);
+
+                var textSize = TextUtils.MeasureText(g,tag, font);
                 int w = Math.Min(120, (int)(textSize.Width + 16));
                 if (x + w > area.Right - 8) break;
                 

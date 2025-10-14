@@ -214,7 +214,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 PerformLayout();
             }
-            
+            BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
             Invalidate();
         }
 

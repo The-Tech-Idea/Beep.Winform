@@ -40,7 +40,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             string countText = $"{_text.Length}/{_maxLength}";
             using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
             {
-                var textSize = g.MeasureString(countText, font);
+                var textSize = TextUtils.MeasureText(g,countText, font);
                 var location = new PointF(Width - textSize.Width - 5, Height - textSize.Height - 2);
                 
                 Color textColor = _text.Length > _maxLength * 0.9 ? Color.Red : Color.Gray;
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     try
                     {
-                        var charCountHeight = (int)Math.Ceiling(graphics.MeasureString("0/0", font).Height);
+                        var charCountHeight = (int)Math.Ceiling( TextUtils.MeasureText(graphics,"00", font).Height);
                         textRect.Height = Math.Max(1, textRect.Height - charCountHeight);
                     }
                     catch

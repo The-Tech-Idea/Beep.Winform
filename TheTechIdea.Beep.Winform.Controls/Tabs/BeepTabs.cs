@@ -402,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 for (int i = 0; i < TabCount; i++)
                 {
                     string text = TabPages[i].Text;
-                    SizeF textSize = g.MeasureString(text, font);
+                    SizeF textSize = TextUtils.MeasureText(g,text, font);
                     if (vertical)
                     {
                         float height = textSize.Width + (GetScaledTextPadding() * 2);
@@ -530,7 +530,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (!vertical)
                 {
-                    SizeF textSize = g.MeasureString(text, font);
+                    SizeF textSize = TextUtils.MeasureText(g,text, font);
                     PointF textPoint = new PointF(tabRect.X + GetScaledTextPadding(), tabRect.Y + (tabRect.Height - textSize.Height) / 2);
                     g.DrawString(text, font, textBrush, textPoint);
                 }
@@ -539,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     GraphicsState state = g.Save();
                     g.TranslateTransform(tabRect.X + tabRect.Width / 2, tabRect.Y + tabRect.Height / 2);
                     g.RotateTransform(90);
-                    SizeF textSize = g.MeasureString(text, font);
+                    SizeF textSize = TextUtils.MeasureText(g,text, font);
                     PointF textPoint = new PointF(-textSize.Width / 2, -textSize.Height / 2);
                     g.DrawString(text, font, textBrush, textPoint);
                     g.Restore(state);

@@ -777,8 +777,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     
                     // *** Border painting moved to WM_NCPAINT (non-client area)
                     // Border is now painted in PaintNonClientBorder() via WndProc
-                    // System.Diagnostics.Debug.WriteLine($"[BeepiForm.OnPaint] About to call _borderPainter.PaintBorder, _borderPainter is null? {_borderPainter == null}");
-                    // _borderPainter?.PaintBorder(g, formPath);
+                    // System.Diagnostics.Debug.WriteLine($"[BeepiForm.OnPaint] About to call _borderPainterStyle.PaintBorder, _borderPainterStyle is null? {_borderPainterStyle == null}");
+                    // _borderPainterStyle?.PaintBorder(g, formPath);
                 }
                 _overlayRegistry.PaintOverlays(g);
             }
@@ -815,7 +815,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 // *** Border painting moved to WM_NCPAINT (non-client area)
                 // Border is now painted in PaintNonClientBorder() via WndProc
-                // _borderPainter?.PaintBorder(g, formPath);
+                // _borderPainterStyle?.PaintBorder(g, formPath);
             }
         }
         private GraphicsPath GetFormPath()
@@ -1047,7 +1047,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             //        // Delegate border painting to helper (single source of truth)
             //        Rectangle windowRect = new Rectangle(0, 0, Width, Height);
-            //        _borderPainter.PaintWindowBorder(g, windowRect, _borderRadius, _borderThickness);
+            //        _borderPainterStyle.PaintWindowBorder(g, windowRect, _borderRadius, _borderThickness);
             //    }
             //}
             //finally

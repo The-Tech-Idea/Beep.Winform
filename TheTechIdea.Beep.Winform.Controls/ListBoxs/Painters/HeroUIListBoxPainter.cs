@@ -140,7 +140,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ListBoxs.Painters
                     var badgeText = item.Description;
                     using (var badgeFont = new Font(_owner.Font.FontFamily, _owner.Font.Size - 1, FontStyle.Regular))
                     {
-                        var badgeSize = g.MeasureString(badgeText, badgeFont);
+                        var badgeSize = TextUtils.MeasureText(g, badgeText, badgeFont);
                         var badgeRect = new Rectangle(
                             contentBounds.Right - (int)badgeSize.Width - 20,
                             contentBounds.Y + (contentBounds.Height - (int)badgeSize.Height) / 2,

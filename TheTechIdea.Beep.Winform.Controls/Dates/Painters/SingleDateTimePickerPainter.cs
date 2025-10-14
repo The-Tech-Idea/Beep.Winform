@@ -58,17 +58,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintBackground(Graphics g, Rectangle bounds)
         {
-            var bgColor = _theme?.BackgroundColor ?? Color.White;
-            var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
-
+            // Let BaseControl (Minimalist) handle outer background/border.
+            // Only fill interior content area subtly when needed.
+            var bgColor = _theme?.CalendarBackColor ?? _theme?.BackgroundColor ?? Color.White;
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, bounds);
-            }
-
-            using (var pen = new Pen(borderColor, 1))
-            {
-                g.DrawRectangle(pen, bounds.X, bounds.Y, bounds.Width - 1, bounds.Height - 1);
             }
         }
 
@@ -284,25 +279,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
             var layout = new DateTimePickerLayout();
-            int padding = 16;
+            // Treat incoming bounds as content area from BaseControl painter; keep internal spacing minimal
+            int padding = 8;
             int currentY = bounds.Y + padding;
 
             layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2 - 72, 40);
             
-            int navButtonSize = 32;
+            int navButtonSize = 28;
             layout.PreviousButtonRect = new Rectangle(bounds.Right - padding - navButtonSize * 2 - 8, currentY + 4, navButtonSize, navButtonSize);
             layout.NextButtonRect = new Rectangle(bounds.Right - padding - navButtonSize, currentY + 4, navButtonSize, navButtonSize);
 
-            currentY += 48;
+            currentY += 40;
 
             layout.DayNamesRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 28);
-            currentY += 32;
+            currentY += 28;
 
             int gridWidth = bounds.Width - padding * 2;
-            layout.CalendarGridRect = new Rectangle(bounds.X + padding, currentY, gridWidth, 252);
+            // Scale grid height to available space to avoid overflow creating extra black areas
+            int availableHeight = bounds.Bottom - currentY - padding;
+            int gridHeight = Math.Max(120, Math.Min(availableHeight, 252));
+            layout.CalendarGridRect = new Rectangle(bounds.X + padding, currentY, gridWidth, gridHeight);
 
             layout.CellWidth = gridWidth / 7;
-            layout.CellHeight = 252 / 6;
+            layout.CellHeight = gridHeight / 6;
             layout.DayCellRects = new Rectangle[6, 7];
 
             for (int row = 0; row < 6; row++)
@@ -321,9 +320,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return layout;
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
+        public Size GetPreferredSize(DateTimePickerProperties properties)
         {
-            return new Size(350, 400);
+            // Padding(8*2=16) + Header(40) + DayNames(28) + Grid(200) = 284px
+            int width = 350;
+            int height = 300; // Header + day names + 6 weeks of cells
+            
+            if (properties.ShowCustomQuickDates)
+                height += 50;
+            
+            return new Size(width, height);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Padding(8*2=16) + Header(40) + DayNames(28) + MinGrid(120) = 204px
+            int padding = 8;
+            int headerHeight = 40;
+            int dayNamesHeight = 28;
+            int minGridHeight = 120;
+            int minHeight = padding * 2 + headerHeight + dayNamesHeight + minGridHeight;
+            
+            int minWidth = 7 * 35 + padding * 2; // 7 cells * 35px + padding = 261px
+            
+            return new Size(Math.Max(minWidth, 280), Math.Max(minHeight, 220));
         }
 
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)

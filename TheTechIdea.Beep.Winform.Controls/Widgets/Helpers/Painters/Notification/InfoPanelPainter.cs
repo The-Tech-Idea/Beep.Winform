@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
             bool hover = IsAreaHovered("InfoPanel_Toggle");
             using var font = new Font(Owner.Font.FontFamily, 10, FontStyle.Bold);
             using var brush = new SolidBrush(hover ? (Theme?.PrimaryColor ?? Color.Blue) : (Theme?.ForeColor ?? Color.Black));
-            var sz = g.MeasureString(glyph, font);
+            var sz = TextUtils.MeasureText(g,glyph, font);
             g.DrawString(glyph, font, brush, _toggleRect.X + (_toggleRect.Width - sz.Width) / 2, _toggleRect.Y + (_toggleRect.Height - sz.Height) / 2);
         }
 

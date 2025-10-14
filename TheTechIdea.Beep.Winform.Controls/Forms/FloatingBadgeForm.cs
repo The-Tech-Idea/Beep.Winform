@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
 
             // **🔹 STEP 1: Measure text size before drawing**
-            SizeF textSize = e.Graphics.MeasureString(BadgeText, BadgeFont);
+            SizeF textSize = TextUtils.MeasureText(e.Graphics,BadgeText, BadgeFont);
             int padding = 10;
             int badgeWidth = Math.Max((int)textSize.Width + padding, 20);
             int badgeHeight = Math.Max((int)textSize.Height + padding, 20);

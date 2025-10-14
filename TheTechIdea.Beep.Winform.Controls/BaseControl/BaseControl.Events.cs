@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             // Respect IsChild same as base BeepControl
-            base.OnPaintBackground(e);
+           // base.OnPaintBackground(e);
            
         }
         protected override void OnPaint(PaintEventArgs e)
@@ -65,10 +65,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Only clear the background when a painter is active. When PainterKind == None
                 // we let the control's own drawing (PaintInnerShape/DrawContent) handle the fill to
                 // avoid double-drawing or incorrect framed areas (designer previews, etc.).
-                if (PainterKind != BaseControlPainterKind.None && _painter != null)
-                {
+               // if (PainterKind != BaseControlPainterKind.None && _painter != null)
+               // {
                     e.Graphics.Clear(BackColor);
-                }
+               // }
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {

@@ -37,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ProgressBars.Painters
             using (var f = new Font(owner.TextFont?.FontFamily ?? new Font("Segoe UI", 9f).FontFamily, Math.Max(8, badgeRadius/2f), FontStyle.Bold))
             using (var tb = new SolidBrush(fore))
             {
-                var sz = g.MeasureString(text, f);
+                var sz = TextUtils.MeasureText(g, text, f);
                 g.DrawString(text, f, tb, new PointF(ellipse.X + (ellipse.Width - sz.Width)/2f, ellipse.Y + (ellipse.Height - sz.Height)/2f));
             }
         }

@@ -475,9 +475,31 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return layout;
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
+        public Size GetPreferredSize(DateTimePickerProperties properties)
         {
-            return new Size(400, 480);
+            // Padding(16*2=32) + Header(48) + DayNames(32) + Grid(180) + TimePickers(80) + RangeInfo(20) = 392px
+            int width = 400;
+            int height = 400; // Header + calendar + time picker
+            
+            if (properties.ShowCustomQuickDates)
+                height += 50;
+            
+            return new Size(width, height);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Padding(16*2=32) + Header(48) + DayNames(32) + Grid(180) + TimePickers(80) = 372px
+            int padding = 16;
+            int headerHeight = 48;
+            int dayNamesHeight = 32;
+            int gridHeight = 180;
+            int timePickersHeight = 80;
+            int minHeight = padding * 2 + headerHeight + dayNamesHeight + gridHeight + timePickersHeight;
+            
+            int minWidth = 7 * 40 + padding * 2; // 7 cells * 40px + padding = 312px
+            
+            return new Size(Math.Max(minWidth, 360), Math.Max(minHeight, 380));
         }
 
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)

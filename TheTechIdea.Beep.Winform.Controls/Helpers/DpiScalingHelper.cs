@@ -368,7 +368,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         }
 
         #endregion
-
+        #region Text utils
+      
+        #endregion
         #region Legacy Compatibility (old method names)
 
         /// <summary>

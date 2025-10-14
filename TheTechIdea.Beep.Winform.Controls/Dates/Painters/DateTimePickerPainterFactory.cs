@@ -35,6 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 DatePickerMode.WeekView => new WeekViewDateTimePickerPainter(owner, theme),
                 DatePickerMode.MonthView => new MonthViewDateTimePickerPainter(owner, theme),
                 DatePickerMode.YearView => new YearViewDateTimePickerPainter(owner, theme),
+                DatePickerMode.SidebarEvent => new SidebarEventDateTimePickerPainter(owner, theme),
+                DatePickerMode.FlexibleRange => new FlexibleRangeDateTimePickerPainter(owner, theme),
+                DatePickerMode.FilteredRange => new FilteredRangeDateTimePickerPainter(owner, theme),
+                DatePickerMode.Header => new HeaderDateTimePickerPainter(owner, theme),
                 _ => new SingleDateTimePickerPainter(owner, theme) // Default fallback
             };
         }

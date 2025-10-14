@@ -7,6 +7,7 @@ using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 
+
 namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
     /// <summary>
@@ -51,20 +52,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             PaintDayNamesHeader(g, layout.DayNamesRect, properties.FirstDayOfWeek);
             PaintCalendarGrid(g, layout, displayMonth, properties, hoverState);
 
-            // Compact today button
-            var todayButtonRect = new Rectangle(bounds.X + 8, layout.CalendarGridRect.Bottom + 4, bounds.Width - 16, 28);
-            PaintTodayButton(g, todayButtonRect, hoverState);
+            // Compact today button (clamped to bounds)
+            int bottomSpace = bounds.Bottom - (layout.CalendarGridRect.Bottom + 4);
+            if (bottomSpace >= 20)
+            {
+                int btnHeight = Math.Min(28, bottomSpace);
+                var todayButtonRect = new Rectangle(bounds.X + 8, layout.CalendarGridRect.Bottom + 4, bounds.Width - 16, btnHeight);
+                PaintTodayButton(g, todayButtonRect, hoverState);
+            }
         }
 
         private void PaintBackground(Graphics g, Rectangle bounds)
         {
-            var bgColor = _theme?.CalendarBackColor ?? Color.White;
+            var bgColor = _theme?.CalendarBackColor ?? _theme?.BackgroundColor ?? Color.White;
 
             using (var brush = new SolidBrush(bgColor))
             {
                 g.FillRectangle(brush, bounds);
             }
-            // No border for compact style
+            // No border for compact style - BaseControl painter handles outer border if any
         }
 
         private void PaintCompactHeader(Graphics g, Rectangle bounds, string headerText, DateTimePickerHoverState hoverState)
@@ -321,23 +327,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
             var layout = new DateTimePickerLayout();
-            int padding = 8; // Minimal padding
+            // Treat bounds as content area; keep padding minimal to match container
+            int padding = 6; // Minimal padding
             int currentY = bounds.Y + padding;
 
             // Compact header
             layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2 - 52, 26);
             
-            int navButtonSize = 24; // Smaller nav buttons
+            int navButtonSize = 22; // Smaller nav buttons
             layout.PreviousButtonRect = new Rectangle(bounds.Right - padding - navButtonSize * 2 - 4, currentY + 1, navButtonSize, navButtonSize);
             layout.NextButtonRect = new Rectangle(bounds.Right - padding - navButtonSize, currentY + 1, navButtonSize, navButtonSize);
 
-            currentY += 32;
+            currentY += 28;
 
-            layout.DayNamesRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 20);
-            currentY += 24;
+            layout.DayNamesRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 18);
+            currentY += 22;
 
             int gridWidth = bounds.Width - padding * 2;
-            int gridHeight = 180; // Compact grid
+            // Fit grid to available space to avoid trailing empty area that may appear as black bands
+            int availableHeight = bounds.Bottom - currentY - padding;
+            int gridHeight = Math.Max(108, Math.Min(availableHeight, 180)); // Compact grid
             layout.CalendarGridRect = new Rectangle(bounds.X + padding, currentY, gridWidth, gridHeight);
 
             layout.CellWidth = gridWidth / 7;
@@ -359,12 +368,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             return layout;
         }
-
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(280, 300); // Compact size
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             var result = new DateTimePickerHitTestResult();
@@ -427,6 +430,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
             
             return new DateTime(displayMonth.Year, displayMonth.Month, dayIndex);
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Padding(6*2=12) + Header(28) + DayNames(22) + Grid(150) + TodayBtn(32) = 244px
+            int width = 280;
+            int height = 260;
+
+            if (properties.ShowCustomQuickDates)
+            {
+                height += 40;
+            }
+
+            return new Size(width, height);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Padding(6*2=12) + Header(28) + DayNames(22) + MinGrid(108) + TodayBtn(optional 32) = 202px
+            // Using 180px for compact layout without today button
+            int padding = 6;
+            int headerHeight = 28;
+            int dayNamesHeight = 22;
+            int minGridHeight = 108;
+            int minHeight = padding * 2 + headerHeight + dayNamesHeight + minGridHeight;
+            
+            int minWidth = 7 * 30 + padding * 2; // 7 cells * 30px + padding = 222px
+            
+            return new Size(Math.Max(minWidth, 240), Math.Max(minHeight, 180));
         }
     }
 }

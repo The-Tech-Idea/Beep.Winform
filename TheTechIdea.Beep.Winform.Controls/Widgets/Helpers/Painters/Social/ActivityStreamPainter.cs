@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
                 string countText = $"({activityCount})";
                 using var countFont = new Font(Owner.Font.FontFamily, 9f, FontStyle.Regular);
                 using var countBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
-                var countSize = g.MeasureString(countText, countFont);
+                var countSize = TextUtils.MeasureText(g,countText, countFont);
                 g.DrawString(countText, countFont, countBrush, rect.Right - countSize.Width, rect.Y + 4);
             }
         }
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Social
             using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Color.FromArgb(100, Color.Black));
             string timeText = FormatTimeAgo(activity.Timestamp);
-            var timeSize = g.MeasureString(timeText, timeFont);
+            var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
             g.DrawString(timeText, timeFont, timeBrush, 
                 rect.Right - timeSize.Width, contentRect.Y + 2);
 

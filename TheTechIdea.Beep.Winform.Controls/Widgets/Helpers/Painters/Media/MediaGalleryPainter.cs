@@ -110,7 +110,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Media
             string icon = mediaIcons[index % mediaIcons.Length];
             using var iconFont = new Font("Segoe UI Emoji", 16, FontStyle.Regular);
             using var iconBrush = new SolidBrush(Theme.ForeColor);
-            var iconSize = g.MeasureString(icon, iconFont);
+            var iconSize = TextUtils.MeasureText(g,icon, iconFont);
             g.DrawString(icon, iconFont, iconBrush, itemRect.X + (itemRect.Width - iconSize.Width) / 2, itemRect.Y + (itemRect.Height - iconSize.Height) / 2);
         }
 

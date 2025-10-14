@@ -756,7 +756,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     }
 
                     // Calculate the size needed to render the full text
-                    SizeF textSize = graphics.MeasureString(Title, titleFont);
+                    SizeF textSize = TextUtils.MeasureText(graphics, Title, titleFont);
 
                     // Add extra vertical padding to prevent text from being cut off
                     int verticalPadding = 10; // More padding for taller fonts

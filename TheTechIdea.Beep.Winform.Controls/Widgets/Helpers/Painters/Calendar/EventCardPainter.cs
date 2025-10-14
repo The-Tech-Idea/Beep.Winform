@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
             
             using var statusFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Bold);
             using var statusBrush = new SolidBrush(statusColor);
-            var statusSize = g.MeasureString(status, statusFont);
+            var statusSize = TextUtils.MeasureText(g,status, statusFont);
             g.DrawString(status, statusFont, statusBrush, rect.Right - statusSize.Width, rect.Y);
         }
 

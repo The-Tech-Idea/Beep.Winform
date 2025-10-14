@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             if (!string.IsNullOrEmpty(config.Title))
             {
                 var titleFont = GetTitleFont(config);
-                var titleSize = g.MeasureString(config.Title, titleFont, DefaultMaxWidth - width);
+                var titleSize = TextUtils.MeasureText(g,config.Title, titleFont, DefaultMaxWidth - width);
                 titleHeight = (int)Math.Ceiling(titleSize.Height);
                 contentWidth = Math.Max(contentWidth, (int)Math.Ceiling(titleSize.Width));
                 height += titleHeight + DefaultTitleSpacing;
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
             if (!string.IsNullOrEmpty(config.Text))
             {
                 var textFont = GetTextFont(config);
-                var textSize = g.MeasureString(config.Text, textFont, DefaultMaxWidth - width);
+                var textSize = TextUtils.MeasureText(g,config.Text, textFont, DefaultMaxWidth - width);
                 contentWidth = Math.Max(contentWidth, (int)Math.Ceiling(textSize.Width));
                 height += (int)Math.Ceiling(textSize.Height);
             }

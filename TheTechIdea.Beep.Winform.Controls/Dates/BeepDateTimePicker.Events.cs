@@ -13,93 +13,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
     {
         #region Mouse Event Handlers
 
-        private void OnMouseDownHandler(object sender, MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
         {
-            _isMouseDown = true;
-            _lastMousePosition = e.Location;
+            base.OnMouseMove(e);
 
-            // Check dropdown button
-            if (_dropdownButtonRect.Contains(e.Location))
+            if (_currentPainter == null) return;
+
+            // Perform hit test on the painted calendar
+            var layout = _currentPainter.CalculateLayout(DrawingRect, GetCurrentProperties());
+            if (layout != null)
             {
-                _hoverState.IsPressed = true;
-                _hoverState.PressedArea = DateTimePickerHitArea.DropdownButton;
-                Invalidate();
-                return;
-            }
-
-            // Check clear button
-            if (_allowClear && _selectedDate.HasValue && _clearButtonRect.Contains(e.Location))
-            {
-                _hoverState.IsPressed = true;
-                _hoverState.PressedArea = DateTimePickerHitArea.ClearButton;
-                Invalidate();
-                return;
-            }
-        }
-
-        private void OnMouseUpHandler(object sender, MouseEventArgs e)
-        {
-            if (!_isMouseDown) return;
-
-            var pressedArea = _hoverState.PressedArea;
-            _isMouseDown = false;
-            _hoverState.ClearPress();
-
-            // Handle dropdown button click
-            if (pressedArea == DateTimePickerHitArea.DropdownButton && _dropdownButtonRect.Contains(e.Location))
-            {
-                if (_isDropDownOpen)
-                    CloseDropDown();
+                var hitResult = _currentPainter.HitTest(e.Location, layout, _displayMonth);
+                if (hitResult != null)
+                {
+                    _hoverState.HoverArea = hitResult.HitArea;
+                    _hoverState.HoveredDate = hitResult.Date;
+                    _hoverState.HoveredTime = hitResult.Time;
+                    _hoverState.HoverBounds = hitResult.HitBounds;
+                    Invalidate();
+                }
                 else
-                    OpenDropDown();
-                
-                Invalidate();
-                return;
-            }
-
-            // Handle clear button click
-            if (pressedArea == DateTimePickerHitArea.ClearButton && _clearButtonRect.Contains(e.Location))
-            {
-                ClearSelection();
-                Invalidate();
-                return;
+                {
+                    if (_hoverState.HoverArea != DateTimePickerHitArea.None)
+                    {
+                        _hoverState.ClearHover();
+                        Invalidate();
+                    }
+                }
             }
         }
 
-        private void OnMouseMoveHandler(object sender, MouseEventArgs e)
+        protected override void OnMouseLeave(EventArgs e)
         {
-            var oldHoverArea = _hoverState.HoverArea;
-            _hoverState.ClearHover();
-
-            // Check dropdown button hover
-            if (_dropdownButtonRect.Contains(e.Location))
-            {
-                _hoverState.HoverArea = DateTimePickerHitArea.DropdownButton;
-                _hoverState.HoverBounds = _dropdownButtonRect;
-            }
-            // Check clear button hover
-            else if (_allowClear && _selectedDate.HasValue && _clearButtonRect.Contains(e.Location))
-            {
-                _hoverState.HoverArea = DateTimePickerHitArea.ClearButton;
-                _hoverState.HoverBounds = _clearButtonRect;
-            }
-
-            // Invalidate if hover state changed
-            if (oldHoverArea != _hoverState.HoverArea)
-            {
-                Invalidate();
-            }
-
-            _lastMousePosition = e.Location;
-        }
-
-        private void OnMouseClickHandler(object sender, MouseEventArgs e)
-        {
-            // Click handling is done in MouseUp
-        }
-
-        private void OnMouseLeaveHandler(object sender, EventArgs e)
-        {
+            base.OnMouseLeave(e);
+            
             if (_hoverState.HoverArea != DateTimePickerHitArea.None)
             {
                 _hoverState.ClearHover();
@@ -107,32 +54,121 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
         }
 
+        protected override void OnMouseDown(MouseEventArgs e)
+        {
+            base.OnMouseDown(e);
+            _isMouseDown = true;
+        }
+
+        protected override void OnMouseUp(MouseEventArgs e)
+        {
+            base.OnMouseUp(e);
+            _isMouseDown = false;
+        }
+
+        protected override void OnMouseClick(MouseEventArgs e)
+        {
+            base.OnMouseClick(e);
+
+            if (_currentPainter == null) return;
+
+            // Perform hit test and handle click
+            var layout = _currentPainter.CalculateLayout(DrawingRect, GetCurrentProperties());
+            if (layout != null)
+            {
+                var hitResult = _currentPainter.HitTest(e.Location, layout, _displayMonth);
+                if (hitResult != null)
+                {
+                    HandleClick(hitResult);
+                }
+            }
+        }
+
+        private void HandleClick(DateTimePickerHitTestResult hitResult)
+        {
+            switch (hitResult.HitArea)
+            {
+                case DateTimePickerHitArea.DayCell:
+                    if (hitResult.Date.HasValue && IsDateInRange(hitResult.Date.Value))
+                    {
+                        if (_mode == DatePickerMode.Multiple)
+                        {
+                            ToggleMultipleDate(hitResult.Date.Value);
+                            Invalidate();
+                        }
+                        else
+                        {
+                            SetDate(hitResult.Date.Value);
+                        }
+                    }
+                    break;
+
+                case DateTimePickerHitArea.PreviousButton:
+                    NavigateToPreviousMonth();
+                    Invalidate();
+                    break;
+
+                case DateTimePickerHitArea.NextButton:
+                    NavigateToNextMonth();
+                    Invalidate();
+                    break;
+
+                case DateTimePickerHitArea.TimeSlot:
+                    if (hitResult.Time.HasValue && IsTimeInRange(hitResult.Time.Value))
+                    {
+                        SetTime(hitResult.Time.Value);
+                    }
+                    break;
+
+                case DateTimePickerHitArea.QuickButton:
+                    HandleQuickButton(hitResult.QuickButtonText);
+                    break;
+
+                case DateTimePickerHitArea.ClearButton:
+                    if (_allowClear)
+                    {
+                        ClearSelection();
+                    }
+                    break;
+            }
+        }
+
+        private void HandleQuickButton(string buttonText)
+        {
+            if (string.IsNullOrEmpty(buttonText)) return;
+
+            switch (buttonText.ToLower())
+            {
+                case "today":
+                    SelectToday();
+                    break;
+                case "tomorrow":
+                    SelectTomorrow();
+                    break;
+                case "yesterday":
+                    SelectYesterday();
+                    break;
+                case "this week":
+                    SelectThisWeek();
+                    break;
+                case "this month":
+                    SelectThisMonth();
+                    break;
+            }
+
+            Invalidate();
+        }
+
         #endregion
 
         #region Keyboard Event Handlers
 
-        private void OnKeyDownHandler(object sender, KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
+            base.OnKeyDown(e);
+
             switch (e.KeyCode)
             {
-                case Keys.Down:
-                case Keys.Space:
-                case Keys.Enter:
-                    if (!_isDropDownOpen)
-                    {
-                        OpenDropDown();
-                        e.Handled = true;
-                    }
-                    break;
-
-                case Keys.Escape:
-                    if (_isDropDownOpen)
-                    {
-                        CloseDropDown();
-                        e.Handled = true;
-                    }
-                    break;
-
                 case Keys.Delete:
                 case Keys.Back:
                     if (_allowClear && _selectedDate.HasValue)
@@ -166,50 +202,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     }
                     break;
 
-                case Keys.PageUp:
+                case Keys.Down:
                     if (_selectedDate.HasValue)
                     {
-                        NavigateDate(-30);
+                        NavigateDate(7);
                         e.Handled = true;
                     }
+                    break;
+
+                case Keys.PageUp:
+                    NavigateToPreviousMonth();
+                    e.Handled = true;
                     break;
 
                 case Keys.PageDown:
-                    if (_selectedDate.HasValue)
-                    {
-                        NavigateDate(30);
-                        e.Handled = true;
-                    }
+                    NavigateToNextMonth();
+                    e.Handled = true;
                     break;
 
                 case Keys.Home:
-                    SetToday();
+                    SelectToday();
                     e.Handled = true;
                     break;
             }
-        }
-
-        private void OnKeyPressHandler(object sender, KeyPressEventArgs e)
-        {
-            // Handle character input if needed for custom date entry
-        }
-
-        #endregion
-
-        #region Dropdown Event Handlers
-
-        private void OnDropdownFormClosed(object sender, FormClosedEventArgs e)
-        {
-            _isDropDownOpen = false;
-            _dropdownForm = null;
-            OnDropDownClosed();
-            Invalidate();
-            Focus();
-        }
-
-        private void OnDropdownFormDeactivate(object sender, EventArgs e)
-        {
-            CloseDropDown();
         }
 
         #endregion
@@ -225,17 +240,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            Invalidate();
-        }
-
-        #endregion
-
-        #region Resize Event Handlers
-
-        protected override void OnResize(EventArgs e)
-        {
-            base.OnResize(e);
-            UpdateLayout();
             Invalidate();
         }
 

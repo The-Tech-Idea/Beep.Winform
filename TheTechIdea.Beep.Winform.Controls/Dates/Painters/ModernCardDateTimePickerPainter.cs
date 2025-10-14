@@ -469,11 +469,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return layout;
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(380, 520);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             var result = new DateTimePickerHitTestResult();
@@ -536,6 +531,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
             
             return new DateTime(displayMonth.Year, displayMonth.Month, dayIndex);
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Quick buttons + calendar: Buttons(100) + Calendar(280) + Padding = 400px
+            int width = 380;
+            int height = 400; // Modern card layout height
+
+            if (properties.ShowCustomQuickDates)
+            {
+                height += 60;
+            }
+
+            return new Size(width, height);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for quick buttons + compact calendar
+            // Buttons(80) + Calendar(240) + Padding = 340px
+            return new Size(360, 340);
         }
     }
 }

@@ -245,7 +245,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Wizards.Helpers
         /// </summary>
         public static int CalculateButtonWidth(Graphics g, string text, Font font, int minWidth = 80, int padding = 32)
         {
-            var size = g.MeasureString(text, font);
+            var size = TextUtils.MeasureText(g,text, font);
             return Math.Max(minWidth, (int)Math.Ceiling(size.Width) + padding);
         }
 

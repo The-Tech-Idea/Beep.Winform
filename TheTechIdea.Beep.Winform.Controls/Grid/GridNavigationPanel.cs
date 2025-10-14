@@ -295,7 +295,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             using (var font = new Font(Font.FontFamily, 9f))
             using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
             {
-                SizeF textSize = g.MeasureString(recordCounter, font);
+                SizeF textSize = TextUtils.MeasureText(g,recordCounter, font);
                 float recordX = x;
 
                 int navButtonWidth = 20;
@@ -356,7 +356,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
             using (var font = new Font(Font.FontFamily, 9f))
             using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
             {
-                SizeF textSize = g.MeasureString(pageCounter, font);
+                SizeF textSize = TextUtils.MeasureText(g, pageCounter, font);
                 pageButtonX -= (int)textSize.Width + _buttonSpacing;
                 var textRect = new RectangleF(pageButtonX, y + (_buttonSize - textSize.Height) / 2, 
                     textSize.Width, textSize.Height);

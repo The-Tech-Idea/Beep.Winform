@@ -325,7 +325,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             // Text width
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var textSize = graphics.MeasureString(item.Text, _textFont);
+                var textSize =  TextUtils.MeasureText(graphics,item.Text, _textFont);
                 width += (int)Math.Ceiling(textSize.Width);
                 
                 // Account for subtitle

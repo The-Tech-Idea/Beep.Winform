@@ -132,6 +132,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         DualCalendar,       // Side-by-side month view for range selection
         WeekView,           // Week-based calendar view
         MonthView,          // Month picker view
-        YearView            // Year picker view
+        YearView,           // Year picker view
+        SidebarEvent,       // Sidebar event calendar with large date + event list + mini calendar
+        FlexibleRange,      // Flexible range picker with tabs and quick date options
+        FilteredRange,      // Range picker with quick filter sidebar + dual calendar + time
+        Header              // Prominent header calendar with large formatted date display
     }
 }

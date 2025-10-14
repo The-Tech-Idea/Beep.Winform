@@ -108,7 +108,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 // Item text
                 var font = isActive ? activeFont : regularFont;
                 var brush = isActive ? activeBrush : regularBrush;
-                var textSize = g.MeasureString(item.Text, font);
+                var textSize = TextUtils.MeasureText(g,item.Text, font);
                 var textRect = new Rectangle(x - 4, y - 10, (int)textSize.Width + 8, 20);
 
                 // Item background for active or hovered item

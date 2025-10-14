@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Map
             using var timeFont = new Font(Owner.Font.FontFamily, 8f, FontStyle.Regular);
             using var timeBrush = new SolidBrush(Color.FromArgb(120, Color.Black));
             string timeText = $"Last update: {lastUpdated:HH:mm:ss}";
-            var timeSize = g.MeasureString(timeText, timeFont);
+            var timeSize = TextUtils.MeasureText(g,timeText, timeFont);
             g.DrawString(timeText, timeFont, timeBrush, ctx.FooterRect.Right - timeSize.Width, ctx.FooterRect.Y);
         }
 

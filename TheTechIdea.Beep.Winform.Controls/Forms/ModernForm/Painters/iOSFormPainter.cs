@@ -90,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             // iOS: Centered title (different from others!)
             var textRect = owner.CurrentLayout.TitleRect;
-            var textSize = g.MeasureString(owner.Text ?? string.Empty, owner.Font);
+            var textSize = TextUtils.MeasureText(g,owner.Text ?? string.Empty, owner.Font);
             var centeredX = (owner.ClientSize.Width - (int)textSize.Width) / 2;
             var centeredRect = new Rectangle(centeredX, textRect.Y, (int)textSize.Width, textRect.Height);
             

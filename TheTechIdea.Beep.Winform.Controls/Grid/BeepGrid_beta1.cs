@@ -2757,7 +2757,7 @@
 //            using (var font = new Font(Font.FontFamily, 9f))
 //            using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
 //            {
-//                SizeF textSize = g.MeasureString(recordCounter, font);
+//                SizeF textSize = TextUtils.MeasureText(g,recordCounter, font);
 //                float recordX = rect.Left + (rect.Width - textSize.Width) / 2;
 
 //                // Add record navigation buttons around the counter
@@ -2807,7 +2807,7 @@
 //            using (var font = new Font(Font.FontFamily, 9f))
 //            using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
 //            {
-//                SizeF textSize = g.MeasureString(pageCounter, font);
+//                SizeF textSize = TextUtils.MeasureText(g,pageCounter, font);
 //                pageButtonX -= (int)textSize.Width + padding;
 //                g.DrawString(pageCounter, font, brush, pageButtonX, y + (buttonHeight - textSize.Height) / 2);
 //            }

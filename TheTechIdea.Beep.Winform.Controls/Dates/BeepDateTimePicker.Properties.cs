@@ -310,86 +310,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         #endregion
 
         #region Quick Button Properties
+        // Legacy per-button toggles removed in direct-rendering redesign.
+        // Use ShowQuickButtons + painter-specific quick buttons defined by theme/properties.
+        // Note: Legacy per-button toggle 'ShowThisWeek' has been removed.
+        // Quick buttons visibility is controlled by the single 'ShowQuickButtons' flag.
+        // Painters decide which quick options to show via DateTimePickerProperties.ShowCustomQuickDates.
 
-        [Category("Quick Buttons")]
-        [Description("Show 'Today' quick button")]
-        [DefaultValue(true)]
-        public bool ShowToday
-        {
-            get => _showToday;
-            set
-            {
-                if (_showToday != value)
-                {
-                    _showToday = value;
-                    Invalidate();
-                }
-            }
-        }
-
-        [Category("Quick Buttons")]
-        [Description("Show 'Tomorrow' quick button")]
-        [DefaultValue(true)]
-        public bool ShowTomorrow
-        {
-            get => _showTomorrow;
-            set
-            {
-                if (_showTomorrow != value)
-                {
-                    _showTomorrow = value;
-                    Invalidate();
-                }
-            }
-        }
-
-        [Category("Quick Buttons")]
-        [Description("Show 'Yesterday' quick button")]
-        [DefaultValue(true)]
-        public bool ShowYesterday
-        {
-            get => _showYesterday;
-            set
-            {
-                if (_showYesterday != value)
-                {
-                    _showYesterday = value;
-                    Invalidate();
-                }
-            }
-        }
-
-        [Category("Quick Buttons")]
-        [Description("Show 'This Week' quick button")]
-        [DefaultValue(true)]
-        public bool ShowThisWeek
-        {
-            get => _showThisWeek;
-            set
-            {
-                if (_showThisWeek != value)
-                {
-                    _showThisWeek = value;
-                    Invalidate();
-                }
-            }
-        }
-
-        [Category("Quick Buttons")]
-        [Description("Show 'This Month' quick button")]
-        [DefaultValue(true)]
-        public bool ShowThisMonth
-        {
-            get => _showThisMonth;
-            set
-            {
-                if (_showThisMonth != value)
-                {
-                    _showThisMonth = value;
-                    Invalidate();
-                }
-            }
-        }
+        // Legacy per-button toggle removed: 'ShowThisMonth'. Use ShowQuickButtons and theme configuration instead.
 
         #endregion
 
@@ -447,8 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         #region Read-Only State Properties
 
-        [Browsable(false)]
-        public bool IsDropDownOpen => _isDropDownOpen;
+    // Legacy dropdown state removed. Control renders directly with no dropdown.
 
         [Browsable(false)]
         public DateTime DisplayMonth => _displayMonth;

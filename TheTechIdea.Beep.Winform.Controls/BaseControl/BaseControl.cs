@@ -157,7 +157,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             this.SetStyle(ControlStyles.UserPaint, true);
             this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-            this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            //this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
             // Don't force redraw on resize for better performance
             SetStyle(ControlStyles.ResizeRedraw, false);
 

@@ -93,9 +93,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties);
 
         /// <summary>
-        /// Get the preferred size for the dropdown
+        /// Get the preferred size for direct rendering (no dropdown)
         /// </summary>
-        Size GetPreferredDropDownSize(DateTimePickerProperties properties);
+        Size GetPreferredSize(DateTimePickerProperties properties);
+
+        /// <summary>
+        /// Get the minimum size required by this painter
+        /// </summary>
+        Size GetMinimumSize(DateTimePickerProperties properties);
 
         /// <summary>
         /// Hit test to determine which component was clicked

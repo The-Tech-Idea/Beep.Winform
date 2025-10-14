@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     using (var g = CreateGraphics())
                     using (var font = new Font(_textFont.FontFamily, _textFont.Size * 0.8f))
                     {
-                        var charCountHeight = (int)Math.Ceiling(g.MeasureString("0/0", font).Height);
+                        var charCountHeight = (int)Math.Ceiling(TextUtils.MeasureText(g,"0/0", font).Height);
                         _textRect.Height = Math.Max(1, _textRect.Height - charCountHeight);
                     }
                 }
@@ -243,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             
             try
             {
-                var lineSize = g.MeasureString(line, _textFont);
+                var lineSize = TextUtils.MeasureText(g,line, _textFont);
                 if (lineSize.Width <= _textRect.Width)
                 {
                     result.Add(line);
@@ -272,7 +272,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 
                 try
                 {
-                    var testSize = g.MeasureString(testLine, _textFont);
+                    var testSize = TextUtils.MeasureText(g,testLine, _textFont);
                     
                     if (testSize.Width <= _textRect.Width)
                     {
@@ -289,7 +289,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                         {
                             try
                             {
-                                if (g.MeasureString(word, _textFont).Width > _textRect.Width)
+                                if (TextUtils.MeasureText(g,word, _textFont).Width > _textRect.Width)
                                 {
                                     result.AddRange(WrapLongWord(word, g));
                                     currentLine = "";
@@ -353,7 +353,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             foreach (char c in word)
             {
                 var testPart = currentPart + c;
-                var testSize = g.MeasureString(testPart, _textFont);
+                var testSize = TextUtils.MeasureText(g,testPart, _textFont);
                 
                 if (testSize.Width <= _textRect.Width)
                 {
@@ -388,7 +388,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 using (Graphics g = CreateGraphics())
                 {
-                    var textSize = g.MeasureString(string.IsNullOrEmpty(Text) ? PlaceholderText : Text, TextFont);
+                    var textSize = TextUtils.MeasureText(g,string.IsNullOrEmpty(Text) ? PlaceholderText : Text, TextFont);
                     int width = (int)Math.Ceiling(textSize.Width) + Padding.Horizontal + (BorderWidth * 2);
                     int height = (int)Math.Ceiling(textSize.Height) + Padding.Vertical + (BorderWidth * 2);
                     return new Size(width, height);

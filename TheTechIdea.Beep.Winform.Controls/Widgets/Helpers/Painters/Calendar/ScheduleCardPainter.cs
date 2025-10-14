@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Calendar
 
             // Main date
             var dateText = date.ToString("MMM dd");
-            var dateSize = g.MeasureString(dateText, dateFont);
+            var dateSize = TextUtils.MeasureText(g,dateText, dateFont);
             g.DrawString(dateText, dateFont, dateBrush, headerRect.Left, headerRect.Top);
 
             // Day of week

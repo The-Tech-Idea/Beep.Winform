@@ -2,6 +2,7 @@ using TheTechIdea.Beep.Winform.Controls.Common;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
 {
+    
     /// <summary>
     /// Border radius and width definitions for all design systems
     /// Each style has distinct border characteristics

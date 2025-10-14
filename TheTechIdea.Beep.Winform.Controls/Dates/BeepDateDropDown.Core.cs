@@ -13,11 +13,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         // Core fields (shared across partials)
         internal DateTime _selectedDateTime = DateTime.MinValue;
         internal bool _isPopupOpen = false;
-        internal TheTechIdea.Beep.Winform.Controls.BeepDatePickerView _calendarView;
+    internal TheTechIdea.Beep.Winform.Controls.Dates.BeepDateTimePicker _calendarView;
         internal BeepPopupForm _popup;
         internal Font _textFont;
         internal int _buttonWidth => ScaleValue(20);
-        internal int _padding => ScaleValue(4);
+        internal int _padding = 0; //=> ScaleValue(4);
         internal bool _showDropDown = true;
         // Use a simple image path and StyledImagePainter for rendering instead of BeepImage instance
         internal string _calendarIconPath;
@@ -127,8 +127,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             if (!_isPopupOpen) return;
             if (_calendarView != null)
             {
-                _calendarView.OkClicked -= CalendarView_OkClicked;
-                _calendarView.CancelClicked -= CalendarView_CancelClicked;
+                // Unsubscribe events from internal picker
+                _calendarView.DateChanged -= CalendarView_DateChanged;
             }
             _popup?.CloseCascade();
             _popup = null;
@@ -148,12 +148,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 Theme = Theme
             };
 
-            _calendarView = new TheTechIdea.Beep.Winform.Controls.BeepDatePickerView { Dock = DockStyle.Fill, Theme = Theme };
-            if (_selectedDateTime != DateTime.MinValue) _calendarView.SelectedDateTime = _selectedDateTime;
+            // Create the internal BeepDateTimePicker and configure it
+            _calendarView = new TheTechIdea.Beep.Winform.Controls.Dates.BeepDateTimePicker { Dock = DockStyle.Fill, Theme = Theme };
+            // Apply mode and constraints
+            try { _calendarView.Mode = _mode; } catch { }
+            if (_minDate.HasValue) { try { _calendarView.MinDate = _minDate.Value; } catch { } }
+            if (_maxDate.HasValue) { try { _calendarView.MaxDate = _maxDate.Value; } catch { } }
+            // Push initial selection
+            if (_selectedDateTime != DateTime.MinValue)
+            {
+                try { _calendarView.SelectedDate = _selectedDateTime; } catch { }
+            }
 
             // event handlers are implemented in Events partial
-            _calendarView.OkClicked += CalendarView_OkClicked;
-            _calendarView.CancelClicked += CalendarView_CancelClicked;
+            _calendarView.DateChanged += CalendarView_DateChanged;
 
             int desiredW = Math.Max(300, _calendarView.MinimumSize.Width + 16);
             int desiredH = Math.Max(360, _calendarView.MinimumSize.Height + 16);

@@ -26,8 +26,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         // The control raises events for date changes and dropdown open/close actions
         // It is designed for easy integration into forms and applications requiring date input
         // It can be themed and customized to match application styles
-        // it well supports keyboard navigation and accessibility features
-        // it well use BeepDateTimePicker for date selection UI in Popup or DropDown
+        // it well supports keyboard navigation and accessibility feature
         // Different date formats can be set via properties
         // Different calendar views (month, year) can be toggled  via properties
         // Min and Max date constraints can be enforced via properties

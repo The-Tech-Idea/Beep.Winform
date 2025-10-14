@@ -266,8 +266,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     var subFont = Font;
 
                     // Measure both
-                    var headerSize = g.MeasureString(headerText, headerFont);
-                    var subSize = g.MeasureString(subText, subFont);
+                    var headerSize = TextUtils.MeasureText(g,headerText, headerFont);
+                    var subSize = TextUtils.MeasureText(g,subText, subFont);
 
                     // Total vertical space
                     float totalTextHeight = headerSize.Height + subSize.Height;

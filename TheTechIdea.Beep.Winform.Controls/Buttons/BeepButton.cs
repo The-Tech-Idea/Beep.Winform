@@ -1638,12 +1638,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
             else if (!string.IsNullOrEmpty(Text))
             {
-                // For text buttons, measure actual text
-                using (Graphics g = CreateGraphics())
-                {
-                    var measuredSize = g.MeasureString(Text, _textFont ?? Font);
-                    baseContentSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
-                }
+                var measuredSize = TextUtils.MeasureText(Text, _textFont ?? Font);
+                baseContentSize = new Size((int)Math.Ceiling(measuredSize.Width), (int)Math.Ceiling(measuredSize.Height));
             }
             else
             {

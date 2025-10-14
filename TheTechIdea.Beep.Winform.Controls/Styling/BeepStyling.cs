@@ -15,12 +15,13 @@ using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
 using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
-using TheTechIdea.Beep.Winform.Controls.Styling.TextPainters;
+
 using TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.TextPainters;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling
 {

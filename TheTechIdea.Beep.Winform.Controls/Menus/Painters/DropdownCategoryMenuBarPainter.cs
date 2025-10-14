@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
 
             using var bmp = new Bitmap(1, 1);
             using var g = Graphics.FromImage(bmp);
-            var textSize = g.MeasureString(item.Text ?? "", ctx.TextFont);
+            var textSize = TextUtils.MeasureText(g,item.Text ?? "", ctx.TextFont);
 
             int width = (int)Math.Ceiling(textSize.Width) + ScaleValue(40); // Padding + arrow space
             if (!string.IsNullOrEmpty(item.ImagePath))

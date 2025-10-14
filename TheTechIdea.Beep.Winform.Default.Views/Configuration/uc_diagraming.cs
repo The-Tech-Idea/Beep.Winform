@@ -15,7 +15,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
     public partial class uc_diagraming : TemplateUserControl, IAddinVisSchema
     {
-        public uc_diagraming(IServiceProvider services): base(services)
+        public uc_diagraming(IServiceProvider services) : base(services)
         {
             base.Initialize();
             InitializeComponent();
@@ -58,12 +58,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             base.Configure(settings);
             viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
-          
+
             // Wire grid events
             beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;
         }
 
-      
+
         private void beepGridPro1_SaveCalled(object? sender, EventArgs e)
         {
             viewModel.Save();
@@ -86,8 +86,12 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
                 classhandlers.Items.Add(item1);
                 beepComboBox1.ListItems.Add(item1);
             }
-          
+
         }
-    
+
+        private void MainTemplatePanel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

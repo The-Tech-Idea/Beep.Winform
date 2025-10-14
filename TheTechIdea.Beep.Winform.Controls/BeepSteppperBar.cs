@@ -691,7 +691,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             string text = (stepIndex + 1).ToString();
             var font = this.Font ?? new Font("Segoe UI", 10, FontStyle.Bold);
-            var textSize = graphics.MeasureString(text, font);
+            var textSize = TextUtils.MeasureText(graphics,text, font);
             var textX = rect.Left + (rect.Width - textSize.Width) / 2;
             var textY = rect.Top + (rect.Height - textSize.Height) / 2;
             
@@ -725,7 +725,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (string.IsNullOrEmpty(label)) return;
             
             var font = new Font(this.Font?.FontFamily ?? FontFamily.GenericSansSerif, 9, FontStyle.Regular);
-            var textSize = graphics.MeasureString(label, font);
+            var textSize = TextUtils.MeasureText(graphics,label, font);
             
             Color textColor = GetStepState(stepIndex) == StepState.Active ? 
                 (_currentTheme?.CardTitleForeColor ?? Color.Black) :

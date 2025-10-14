@@ -409,14 +409,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return new DateTimePickerLayout();
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(620, 420);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             return new DateTimePickerHitTestResult();
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Side-by-side calendars: (Calendar_Width * 2) + Gap + Padding
+            // Each calendar: ~280px, Gap: 20px, Padding: 40px = 620px
+            return new Size(640, 320);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for two readable calendars side-by-side
+            // Each calendar: ~240px, Gap: 16px, Padding: 32px = 528px
+            return new Size(560, 280);
         }
     }
 }

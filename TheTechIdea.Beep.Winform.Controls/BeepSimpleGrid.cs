@@ -8135,7 +8135,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (var font = new Font(Font.FontFamily, 9f))
             using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
             {
-                SizeF textSize = g.MeasureString(recordCounter, font);
+                SizeF textSize = TextUtils.MeasureText(g, recordCounter, font);
 
                 // Center x position for record counter text
                 float recordX = rect.Left + ((rect.Width - textSize.Width) / 2);
@@ -8186,7 +8186,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (var font = new Font(Font.FontFamily, 9f))
             using (var brush = new SolidBrush(_currentTheme.GridHeaderForeColor))
             {
-                SizeF textSize = g.MeasureString(pageCounter, font);
+                SizeF textSize = TextUtils.MeasureText(g, pageCounter, font);
                 pageButtonX -= (int)textSize.Width + padding;
                 g.DrawString(pageCounter, font, brush, pageButtonX, y + (buttonHeight - textSize.Height) / 2);
             }
@@ -8899,7 +8899,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 float titleH = 0, dateH = 0;
                 if (!string.IsNullOrEmpty(reportTitle))
                 {
-                    var sz = g.MeasureString(reportTitle, titleFont);
+                    var sz = TextUtils.MeasureText(g,reportTitle, titleFont);
                     float tx = left + (e.MarginBounds.Width - sz.Width) / 2;
                     g.DrawString(reportTitle, titleFont, Brushes.Black, tx, y);
                     titleH = sz.Height;
@@ -8908,7 +8908,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (showDateTime)
                 {
                     string dtText = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
-                    var dtSz = g.MeasureString(dtText, smallFont);
+                    var dtSz = TextUtils.MeasureText(g,dtText, smallFont);
                     float dx = right - dtSz.Width;
                     g.DrawString(dtText, smallFont, Brushes.Black, dx, y);
                     dateH = dtSz.Height;
@@ -9003,7 +9003,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // --- 4) Footer: page number ---
                 using var footerFont = smallFont;
                 string pg = $"Page {_printPageNumber}- {totalPages}";
-                var pgSz = g.MeasureString(pg, footerFont);
+                var pgSz = TextUtils.MeasureText(g,pg, footerFont);
                 float px = left + (e.MarginBounds.Width - pgSz.Width) / 2;
                 float py = bottom + 10;
                 g.DrawString(pg, footerFont, Brushes.Black, px, py);
@@ -9070,7 +9070,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int headerHeight = 0;
             using (var titleFont = new Font(this.Font.FontFamily, 16f, FontStyle.Bold))
             {
-                headerHeight += (int)g.MeasureString("Sample", titleFont).Height + 10;
+                headerHeight += (int)TextUtils.MeasureText(g,"Sample", titleFont).Height + 10;
             }
             headerHeight += ColumnHeaderHeight;
 
@@ -9102,7 +9102,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 string headerText = column.ColumnCaption ?? column.ColumnName ?? "";
                 if (!string.IsNullOrEmpty(headerText))
                 {
-                    SizeF headerSize = g.MeasureString(headerText, _columnHeadertextFont ?? Font);
+                    SizeF headerSize = TextUtils.MeasureText(g,headerText, _columnHeadertextFont ?? Font);
                     maxWidth = Math.Max(maxWidth, (int)headerSize.Width + padding);
                 }
 
@@ -9133,7 +9133,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                                 if (!string.IsNullOrEmpty(cellText))
                                 {
-                                    SizeF cellSize = g.MeasureString(cellText, Font);
+                                    SizeF cellSize = TextUtils.MeasureText(g,cellText, Font);
                                     maxWidth = Math.Max(maxWidth, (int)cellSize.Width + padding);
                                 }
                             }

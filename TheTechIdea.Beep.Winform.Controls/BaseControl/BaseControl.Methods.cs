@@ -11,6 +11,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -66,6 +67,185 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
             }
             catch { /* keep previous painter if any */ }
+        }
+        private void UpdatePainterFromKind()
+        {
+            switch (_painterKind)
+            {
+                case BaseControlPainterKind.None:
+                    _painter = null; // No painter - control handles its own rendering
+                    break;
+                case BaseControlPainterKind.Classic:
+                    _painter = new ClassicBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Material:
+                    _painter = new MaterialBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Card:
+                    _painter = new CardBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.NeoBrutalist:
+                    _painter = new NeoBrutalistBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.ReadingCard:
+                    _painter = new ReadingCardBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Minimalist:
+                    _painter = new MinimalistBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Glassmorphism:
+                    _painter = new GlassmorphismBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Neumorphism:
+                    _painter = new NeumorphismBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.FluentAcrylic:
+                    _painter = new FluentAcrylicBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.SimpleButton:
+                    _painter = new ButtonBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.KeyboardShortcut:
+                    _painter = new ShortcutCardBaseControlPainter();
+                    break;
+                case BaseControlPainterKind.Auto:
+                default:
+                    // Auto defaults to Classic painter
+                    _painter = new MinimalistBaseControlPainter();
+                    break;
+            }
+        }
+        private void UpdateBorderPainter()
+        {
+            // The BorderPainterFactory can be used to validate styles or perform other initialization
+            // Since painters use static methods, we don't store instances but just ensure the style is valid
+
+            // Validate that the border painter style has a corresponding implementation
+            if (_borderPainterStyle != BeepControlStyle.None)
+            {
+                // Use the factory to validate the style is supported
+                // The factory's CreatePainter would return a wrapper, but we can't use it due to static interface constraints
+                // Instead, we just validate the style is in our supported set
+                var supportedStyles = new[]
+                {
+                    BeepControlStyle.Material3, BeepControlStyle.iOS15, BeepControlStyle.AntDesign,
+                    BeepControlStyle.Fluent2, BeepControlStyle.MaterialYou, BeepControlStyle.Windows11Mica,
+                    BeepControlStyle.MacOSBigSur, BeepControlStyle.ChakraUI, BeepControlStyle.TailwindCard,
+                    BeepControlStyle.NotionMinimal, BeepControlStyle.Minimal, BeepControlStyle.VercelClean,
+                    BeepControlStyle.StripeDashboard, BeepControlStyle.DarkGlow, BeepControlStyle.DiscordStyle,
+                    BeepControlStyle.GradientModern, BeepControlStyle.GlassAcrylic, BeepControlStyle.Neumorphism,
+                    BeepControlStyle.Bootstrap, BeepControlStyle.FigmaCard, BeepControlStyle.PillRail,
+                    BeepControlStyle.Apple, BeepControlStyle.Fluent, BeepControlStyle.Material,
+                    BeepControlStyle.WebFramework, BeepControlStyle.Effect
+                };
+
+                if (!supportedStyles.Contains(_borderPainterStyle))
+                {
+                    // Fallback to a default style if unsupported
+                    _borderPainterStyle = BeepControlStyle.Minimal;
+                }
+            }
+
+            // Trigger a repaint if the border style changed
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Invokes the appropriate static border painter based on current BorderPainterStyle
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="path">Border path to paint</param>
+        /// <param name="isFocused">Whether control is focused</param>
+        /// <param name="state">Current control state</param>
+        protected void InvokeBorderPainter(Graphics g, GraphicsPath path, bool isFocused, ControlState state = ControlState.Normal)
+        {
+            if (_borderPainterStyle == BeepControlStyle.None || _currentTheme == null)
+                return;
+
+            bool useTheme = true; // Use theme colors by default
+
+            // Dispatch to the appropriate static painter based on style
+            switch (_borderPainterStyle)
+            {
+                case BeepControlStyle.Material3:
+                    Material3BorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.iOS15:
+                    iOS15BorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.AntDesign:
+                    AntDesignBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Fluent2:
+                    Fluent2BorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.MaterialYou:
+                    MaterialYouBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Windows11Mica:
+                    Windows11MicaBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.MacOSBigSur:
+                    MacOSBigSurBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.ChakraUI:
+                    ChakraUIBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.TailwindCard:
+                    TailwindCardBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.NotionMinimal:
+                    NotionMinimalBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Minimal:
+                    MinimalBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.VercelClean:
+                    VercelCleanBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.StripeDashboard:
+                    StripeDashboardBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.DarkGlow:
+                    DarkGlowBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.DiscordStyle:
+                    DiscordStyleBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.GradientModern:
+                    GradientModernBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.GlassAcrylic:
+                    GlassAcrylicBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Neumorphism:
+                    NeumorphismBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Bootstrap:
+                    BootstrapBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.FigmaCard:
+                    FigmaCardBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.PillRail:
+                    PillRailBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Apple:
+                    AppleBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Fluent:
+                    FluentBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Material:
+                    MaterialBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.WebFramework:
+                    WebFrameworkBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+                case BeepControlStyle.Effect:
+                    EffectBorderPainter.Paint(g, path, isFocused, _borderPainterStyle, _currentTheme, useTheme, state);
+                    break;
+            }
         }
 
         #region Theme Methods
@@ -462,7 +642,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             // Ensure DPI info stays updated when drawing on new monitor contexts
             UpdateDpiScaling(g);
-
+            g.Clear(BackColor);
             if (EnableHighQualityRendering)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;

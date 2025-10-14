@@ -288,7 +288,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ToolTips.Painters
                 }
 
                 // Measure title height for text positioning
-                var titleSize = g.MeasureString(config.Title, titleFont, contentWidth);
+                var titleSize = TextUtils.MeasureText(g,config.Title, titleFont, contentWidth);
                 currentY += (int)Math.Ceiling(titleSize.Height) + DefaultTitleSpacing;
             }
 

@@ -131,7 +131,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     {
                         using (var headerFont = new Font(_grid.Font.FontFamily, _grid.Font.Size, FontStyle.Bold))
                         {
-                            SizeF headerSize = g.MeasureString(headerText, headerFont);
+                            SizeF headerSize = TextUtils.MeasureText(g, headerText, headerFont);
                             maxWidth = Math.Max(maxWidth, (int)headerSize.Width + padding);
                         }
                     }
@@ -163,7 +163,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                                 if (!string.IsNullOrEmpty(cellText))
                                 {
-                                    SizeF cellSize = g.MeasureString(cellText, _grid.Font);
+                                    SizeF cellSize = TextUtils.MeasureText(g, cellText, _grid.Font);
                                     maxWidth = Math.Max(maxWidth, (int)cellSize.Width + padding);
                                 }
                             }
@@ -223,7 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                         string headerText = column.ColumnCaption ?? column.ColumnName ?? "";
                         if (!string.IsNullOrEmpty(headerText))
                         {
-                            SizeF headerSize = g.MeasureString(headerText, headerFont);
+                            SizeF headerSize = TextUtils.MeasureText(g, headerText, headerFont);
                             column.Width = Math.Max(50, (int)headerSize.Width + 20); // 20px padding
                         }
                     }

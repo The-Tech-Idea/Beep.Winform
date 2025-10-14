@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers
                 "✓ Form is valid" : 
                 $"⚠ {errorCount} error{(errorCount > 1 ? "s" : "")} found";
             
-            var statusSize = g.MeasureString(statusText, statusFont);
+            var statusSize = TextUtils.MeasureText(g,statusText, statusFont);
             g.DrawString(statusText, statusFont, statusBrush, rect.Right - statusSize.Width, rect.Y);
             
             // Draw progress indicator

@@ -166,7 +166,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Painters
                 using var g = Graphics.FromImage(tempBitmap);
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
                 
-                var textSize = g.MeasureString(item.Text, ctx.TextFont);
+                var textSize = TextUtils.MeasureText(g,item.Text, ctx.TextFont);
                 width += (int)Math.Ceiling(textSize.Width) + 8; // Text + Material spacing
             }
 

@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             {
                 using (Brush titleBrush = new SolidBrush(ChartTitleForeColor))
                 {
-                    SizeF titleSize = g.MeasureString(ChartTitle, ChartTitleFont);
+                    SizeF titleSize = TextUtils.MeasureText(g,ChartTitle, ChartTitleFont);
                     g.DrawString(ChartTitle, ChartTitleFont, titleBrush, textAreaLeft, currentY);
                     currentY += (int)titleSize.Height + 5;
                 }
@@ -83,7 +83,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             {
                 using (Brush valueBrush = new SolidBrush(ChartTextColor))
                 {
-                    SizeF valueSize = g.MeasureString(ChartValue, ChartValueFont);
+                    SizeF valueSize = TextUtils.MeasureText(g,ChartValue, ChartValueFont);
                     g.DrawString(ChartValue, ChartValueFont, valueBrush, textAreaLeft, currentY);
                     currentY += (int)valueSize.Height + 5;
                 }
@@ -93,7 +93,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Charts
             {
                 using (Brush subBrush = new SolidBrush(ChartLineColor))
                 {
-                    SizeF subSize = g.MeasureString(ChartSubtitle, ChartSubtitleFont);
+                    SizeF subSize = TextUtils.MeasureText(g,ChartSubtitle, ChartSubtitleFont);
                     g.DrawString(ChartSubtitle, ChartSubtitleFont, subBrush, textAreaLeft, currentY);
                     currentY += (int)subSize.Height + 10;
                 }

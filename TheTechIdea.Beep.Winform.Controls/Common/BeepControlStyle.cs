@@ -3,9 +3,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
     /// <summary>
     /// Unified visual styles for all Beep navigation controls
     /// Used by BeepSideBar, TopNavBar, BottomNavBar, and other navigation components
+    /// Get border styles for various design systems in BorderPainters directory
     /// </summary>
     public enum BeepControlStyle
     {
+        /// <summary>No special styling, default appearance</summary>
+        None = -1,
         /// <summary>Material Design 3 with tonal surfaces and elevation</summary>
         Material3 = 0,
 
@@ -53,10 +56,35 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
 
         /// <summary>Gradient background with modern glassmorphism</summary>
         GradientModern = 15,
+
+        /// <summary>Glass acrylic with transparency and blur effects</summary>
         GlassAcrylic = 16,
+
+        /// <summary>Neumorphism soft UI with extruded shadows</summary>
         Neumorphism = 17,
+
+        /// <summary>Bootstrap framework styling with utility classes</summary>
         Bootstrap = 18,
+
+        /// <summary>Figma card design with modern shadows and spacing</summary>
         FigmaCard = 19,
-        PillRail = 20
+
+        /// <summary>Pill-shaped rail navigation with rounded edges</summary>
+        PillRail = 20,
+
+        /// <summary>Apple design language with rounded corners and shadows</summary>
+        Apple = 21,
+
+        /// <summary>Microsoft Fluent design system (legacy)</summary>
+        Fluent = 22,
+
+        /// <summary>Material Design (legacy) with paper elevation</summary>
+        Material = 23,
+
+        /// <summary>Web framework generic styling</summary>
+        WebFramework = 24,
+
+        /// <summary>Effect-based borders with custom animations and visual effects</summary>
+        Effect = 25
     }
 }

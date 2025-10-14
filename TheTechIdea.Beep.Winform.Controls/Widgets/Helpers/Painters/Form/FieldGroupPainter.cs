@@ -159,7 +159,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Form
             }
             
             // Draw label
-            var labelSize = g.MeasureString(field.Label, labelFont);
+            var labelSize = TextUtils.MeasureText(g,field.Label, labelFont);
             g.DrawString(field.Label, labelFont, labelBrush, labelRect);
             
             // Draw required asterisk in red if needed

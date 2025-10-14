@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.RadioGroup.Renderers
             int w = 100;
             if (!string.IsNullOrEmpty(item.Text))
             {
-                var s = g.MeasureString(item.Text, _textFont);
+                var s = TextUtils.MeasureText(g,item.Text, _textFont);
                 w = (int)s.Width + 70;
                 h = Math.Max(h, (int)s.Height + 8);
             }

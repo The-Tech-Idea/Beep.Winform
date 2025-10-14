@@ -355,14 +355,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return new DateTimePickerLayout();
         }
 
-        public Size GetPreferredDropDownSize(DateTimePickerProperties properties)
-        {
-            return new Size(380, 460);
-        }
-
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
         {
             return new DateTimePickerHitTestResult();
+        }
+
+        public Size GetPreferredSize(DateTimePickerProperties properties)
+        {
+            // Quarter buttons + month grid: Buttons(100) + Grid(300) + Padding = 420px
+            return new Size(380, 420);
+        }
+
+        public Size GetMinimumSize(DateTimePickerProperties properties)
+        {
+            // Minimum for quarter selector + month grid
+            // Buttons(80) + Grid(240) + Padding = 340px
+            return new Size(340, 340);
         }
     }
 }

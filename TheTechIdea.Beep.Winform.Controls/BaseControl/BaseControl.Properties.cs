@@ -1,16 +1,18 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Report;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Utilities;
-using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+using TheTechIdea.Beep.Winform.Controls.Converters;
+using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 
 
 
@@ -35,7 +37,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             Neumorphism,
             FluentAcrylic // NEW
         }
-
+      
+        private BeepControlStyle _borderPainterStyle = BeepControlStyle.None;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Select the painter (renderer) used to draw the control. Auto picks Material when Material ProgressBarStyle is enabled, otherwise Classic.")]
+        public BeepControlStyle BorderPainter
+        {
+            get => _borderPainterStyle;
+            set
+            {
+                if (_borderPainterStyle == value) return;
+                _borderPainterStyle = value;
+                UpdateBorderPainter();
+                Invalidate();
+            }
+        }
+        private IBorderPainter _currentBorderPainter = null;
         private BaseControlPainterKind _painterKind = BaseControlPainterKind.Auto;
         [Browsable(true)]
         [Category("Appearance")]
@@ -52,53 +70,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
         public bool EnableMaterialStyle { get;set; } = false;
-        private void UpdatePainterFromKind()
-        {
-            switch (_painterKind)
-            {
-                case BaseControlPainterKind.None:
-                    _painter = null; // No painter - control handles its own rendering
-                    break;
-                case BaseControlPainterKind.Classic:
-                    _painter = new ClassicBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Material:
-                    _painter = new MaterialBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Card:
-                    _painter = new CardBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.NeoBrutalist:
-                    _painter = new NeoBrutalistBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.ReadingCard:
-                    _painter = new ReadingCardBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Minimalist:
-                    _painter = new MinimalistBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Glassmorphism:
-                    _painter = new GlassmorphismBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Neumorphism:
-                    _painter = new NeumorphismBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.FluentAcrylic:
-                    _painter = new FluentAcrylicBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.SimpleButton:
-                    _painter = new ButtonBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.KeyboardShortcut:
-                    _painter = new ShortcutCardBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Auto:
-                default:
-                    // Auto defaults to Classic painter
-                    _painter = new MinimalistBaseControlPainter();
-                    break;
-            }
-        }
+
         #endregion
 
         #region Text Property Override

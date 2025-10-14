@@ -800,7 +800,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 string label = _ratingLabels[_selectedRating - 1];
                 using (SolidBrush brush = new SolidBrush(_labelColor))
                 {
-                    SizeF textSize = graphics.MeasureString(label, _labelFont);
+                    SizeF textSize = TextUtils.MeasureText(graphics,label, _labelFont);
                     PointF textPos = new PointF(
                         rectangle.Left + (rectangle.Width - textSize.Width) / 2,
                         startY + starSize + 5);
@@ -829,7 +829,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     using (SolidBrush brush = new SolidBrush(Color.FromArgb(128, _labelColor)))
                     {
                         Font infoFont = new Font(_labelFont.FontFamily, 7, FontStyle.Regular);
-                        SizeF textSize = graphics.MeasureString(info, infoFont);
+                        SizeF textSize = TextUtils.MeasureText(graphics,info, infoFont);
                         PointF textPos = new PointF(
                             rectangle.Left + (rectangle.Width - textSize.Width) / 2,
                             rectangle.Bottom - textSize.Height - 2);

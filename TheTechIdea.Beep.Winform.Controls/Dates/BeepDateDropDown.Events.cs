@@ -7,98 +7,172 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
     public partial class BeepDateDropDown
     {
-        // Events and input handling
+        /// <summary>
+        /// Handle text changes from base BeepTextBox
+        /// </summary>
+        private void BeepDateDropDown_TextChanged(object sender, EventArgs e)
+        {
+            // Trigger segment recalculation
+            _segmentsNeedRecalculation = true;
+            
+            // Don't parse while user is still typing in certain modes
+            if (!ValidateOnKeyPress && Focused)
+                return;
+
+            // Parse the text and update date(s)
+            ParseAndUpdateDate(Text);
+        }
+
+        /// <summary>
+        /// Override mouse down to handle dropdown button
+        /// </summary>
         protected override void OnMouseDown(MouseEventArgs e)
         {
+            // Check if click is on the image (calendar icon)
+            if (_showDropDown && ImageVisible)
+            {
+                Rectangle imageRect = GetImageBounds();
+                if (imageRect.Contains(e.Location))
+                {
+                    TogglePopup();
+                    return;
+                }
+            }
+
             base.OnMouseDown(e);
-            if (_readOnly) return;
-            var content = GetContentRectForDrawing();
-            var btn = GetButtonRect(content);
-            if (_showDropDown && btn.Contains(e.Location))
-            {
-                TogglePopup();
-            }
-            else
-            {
-                _isEditing = true;
-                _inputText = SelectedDateTime == DateTime.MinValue ? string.Empty : SelectedDateTime.ToString(CultureInfo.CurrentCulture);
-                Invalidate();
-            }
         }
 
+        /// <summary>
+        /// Override key down for dropdown shortcuts
+        /// </summary>
         protected override void OnKeyDown(KeyEventArgs e)
         {
+            // F4 or Alt+Down opens dropdown
+            if (e.KeyCode == Keys.F4 || (e.Alt && e.KeyCode == Keys.Down))
+            {
+                if (_showDropDown)
+                {
+                    TogglePopup();
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+            }
+
+            // Escape closes dropdown or clears text
+            if (e.KeyCode == Keys.Escape)
+            {
+                if (_isPopupOpen)
+                {
+                    ClosePopup();
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+                else if (_allowEmpty)
+                {
+                    Text = string.Empty;
+                    _selectedDateTime = null;
+                    _startDate = null;
+                    _endDate = null;
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                    return;
+                }
+            }
+
             base.OnKeyDown(e);
-            if (_readOnly) return;
-            if (e.KeyCode == Keys.F4 || (e.Modifiers == Keys.Alt && e.KeyCode == Keys.Down))
-            {
-                TogglePopup();
-                e.Handled = true;
-            }
         }
 
-        protected override void OnKeyPress(KeyPressEventArgs e)
-        {
-            base.OnKeyPress(e);
-            if (_readOnly) return;
-            if (!_isEditing) _isEditing = true;
-            if (e.KeyChar == (char)Keys.Escape) { _isEditing = false; _inputText = SelectedDateTime == DateTime.MinValue ? string.Empty : SelectedDateTime.ToString(CultureInfo.CurrentCulture); Invalidate(); return; }
-            if (e.KeyChar == (char)Keys.Return)
-            {
-                if (string.IsNullOrWhiteSpace(_inputText))
-                {
-                    if (_allowEmpty) { SelectedDateTime = DateTime.MinValue; }
-                    _isEditing = false; Invalidate(); return;
-                }
-                if (DateTime.TryParse(_inputText, CultureInfo.CurrentCulture, DateTimeStyles.None, out var result) && IsDateValid(result))
-                {
-                    SelectedDateTime = result;
-                    _isEditing = false;
-                }
-                else
-                {
-                    // show validation feedback using BaseControl helper
-                    SetValidationError("Invalid date");
-                }
-                Invalidate();
-                return;
-            }
-
-            if (char.IsControl(e.KeyChar)) return;
-            if (char.IsDigit(e.KeyChar) || "/- :".Contains(e.KeyChar))
-            {
-                _inputText += e.KeyChar;
-                Invalidate();
-            }
-            else
-            {
-                e.Handled = true;
-            }
-        }
-
+        /// <summary>
+        /// Override lost focus to validate if configured
+        /// </summary>
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
-            _isEditing = false;
-            _inputText = string.Empty;
-            Invalidate();
+
+            // Validate and parse on lost focus if enabled
+            if (ValidateOnLostFocus && !string.IsNullOrWhiteSpace(Text))
+            {
+                ParseAndUpdateDate(Text);
+            }
+
+            // Close popup if open
+            if (_isPopupOpen)
+            {
+                ClosePopup();
+            }
         }
 
-        // Handle selection from embedded BeepDateTimePicker
-        private void CalendarView_DateChanged(object sender, TheTechIdea.Beep.Winform.Controls.Dates.Models.DateTimePickerEventArgs e)
+        /// <summary>
+        /// Handle date selection from the calendar popup
+        /// </summary>
+        private void CalendarView_DateChanged(object sender, Models.DateTimePickerEventArgs e)
         {
             if (e?.Date.HasValue == true)
             {
-                SelectedDateTime = e.Date.Value;
+                switch (_mode)
+                {
+                    case Models.DatePickerMode.Single:
+                    case Models.DatePickerMode.SingleWithTime:
+                        SelectedDateTime = e.Date.Value;
+                        break;
+
+                    case Models.DatePickerMode.Range:
+                    case Models.DatePickerMode.RangeWithTime:
+                        // For range, we need to handle start and end dates
+                        // If start is not set, set it. If start is set, set end.
+                        if (!_startDate.HasValue)
+                        {
+                            StartDate = e.Date.Value;
+                        }
+                        else if (!_endDate.HasValue || e.Date.Value != _startDate.Value)
+                        {
+                            EndDate = e.Date.Value;
+                            
+                            // Swap if end is before start
+                            if (_endDate.Value < _startDate.Value)
+                            {
+                                var temp = _startDate.Value;
+                                _startDate = _endDate;
+                                _endDate = temp;
+                                UpdateTextFromDateRange();
+                            }
+                            
+                            // Close popup after range is complete
+                            ClosePopup();
+                        }
+                        break;
+                }
             }
-            ClosePopup();
+            else
+            {
+                // Single date mode - close popup
+                if (_mode == Models.DatePickerMode.Single || _mode == Models.DatePickerMode.SingleWithTime)
+                {
+                    ClosePopup();
+                }
+            }
         }
 
-        private bool IsDateValid(DateTime date)
+        /// <summary>
+        /// Get bounds of the calendar icon/image
+        /// </summary>
+        private Rectangle GetImageBounds()
         {
-            if (_minDate.HasValue && date.Date < _minDate.Value.Date) return false;
-            if (_maxDate.HasValue && date.Date > _maxDate.Value.Date) return false;
-            return true;
+            if (!ImageVisible || BeepImage == null)
+                return Rectangle.Empty;
+
+            // Calculate image bounds based on ImageAlign and TextImageRelation
+            // This is a simplified calculation - actual bounds depend on layout
+            int imgWidth = MaxImageSize.Width;
+            int imgHeight = MaxImageSize.Height;
+
+            Rectangle bounds = ClientRectangle;
+            int x = bounds.Right - imgWidth - _dropdownPadding - BorderWidth;
+            int y = bounds.Y + (bounds.Height - imgHeight) / 2;
+
+            return new Rectangle(x, y, imgWidth, imgHeight);
         }
     }
 }

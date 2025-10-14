@@ -58,7 +58,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 int btnHeight = Math.Min(28, bottomSpace);
                 var todayButtonRect = new Rectangle(bounds.X + 8, layout.CalendarGridRect.Bottom + 4, bounds.Width - 16, btnHeight);
-                PaintTodayButton(g, todayButtonRect, hoverState);
+                PaintTodayButton(g, todayButtonRect, hoverState, properties);
             }
         }
 
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        private void PaintTodayButton(Graphics g, Rectangle bounds, DateTimePickerHoverState hoverState)
+        private void PaintTodayButton(Graphics g, Rectangle bounds, DateTimePickerHoverState hoverState, DateTimePickerProperties properties)
         {
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var accentColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
@@ -113,7 +113,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     Alignment = StringAlignment.Center,
                     LineAlignment = StringAlignment.Center
                 };
-                g.DrawString("Today", font, brush, bounds, format);
+                g.DrawString(properties?.TodayButtonText ?? "Today", font, brush, bounds, format);
             }
         }
 

@@ -221,11 +221,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
-            BorderRadius = 8;
+        
             ClientSize = new Size(637, 771);
             Controls.Add(_beepListBox);
             Name = "BeepPopupListForm";
-            StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepPopupListForm.StylePresets.Presets");
             Text = "BeepPopupListForm";
             Theme = "DefaultType";
             ResumeLayout(false);

@@ -84,22 +84,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 currentY += 30;
             }
 
-            // Current Events section
+            // Current Events section - Use property for header text
             currentY += 20;
             using (var smallFont = new Font(_theme?.FontName ?? "Segoe UI", 9f))
             using (var brush = new SolidBrush(secondaryTextColor))
             {
-                g.DrawString("Current Events", smallFont, brush, bounds.X + padding, currentY);
+                // Get properties for current picker state
+                var props = GetPropertiesFromOwner();
+                g.DrawString(props?.EventsSectionHeader ?? "Current Events", smallFont, brush, bounds.X + padding, currentY);
                 currentY += 25;
             }
 
-            // Sample event entries (placeholder)
+            // Sample event entries - Use properties for event text
             var eventFont = new Font(_theme?.FontName ?? "Segoe UI", 8.5f);
             using (var brush = new SolidBrush(textColor))
             {
-                g.DrawString("See Daily CS Image", eventFont, brush, bounds.X + padding, currentY);
+                var props = GetPropertiesFromOwner();
+                g.DrawString(props?.Event1Text ?? "See Daily CS Image", eventFont, brush, bounds.X + padding, currentY);
                 currentY += 20;
-                g.DrawString("See Daily Events", eventFont, brush, bounds.X + padding, currentY);
+                g.DrawString(props?.Event2Text ?? "See Daily Events", eventFont, brush, bounds.X + padding, currentY);
                 currentY += 35;
             }
 
@@ -134,13 +137,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 g.DrawLine(pen, centerX, centerY - 6, centerX, centerY + 6);
             }
 
-            // Text
+            // Text - Use property for button text
             using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f))
             using (var brush = new SolidBrush(textColor))
             {
                 var format = new StringFormat { LineAlignment = StringAlignment.Center };
-                g.DrawString("Create an Event", font, brush, bounds.X + 12, centerY, format);
+                var props = GetPropertiesFromOwner();
+                g.DrawString(props?.CreateEventButtonText ?? "Create an Event", font, brush, bounds.X + 12, centerY, format);
             }
+        }
+
+        // Helper method to get properties from owner
+        private DateTimePickerProperties GetPropertiesFromOwner()
+        {
+            // Attempt to get properties from the owner BeepDateTimePicker
+            // This would need to be implemented in BeepDateTimePicker to expose properties
+            // For now, return null and use defaults
+            return null;
         }
 
         private void PaintCalendarSection(Graphics g, Rectangle bounds, DateTimePickerProperties properties, DateTime displayMonth, DateTimePickerHoverState hoverState)

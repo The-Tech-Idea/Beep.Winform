@@ -253,8 +253,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var layout = new PainterLayoutInfo();
             var metrics = GetMetrics(owner);
             
-            int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
             owner._hits.Clear();
+            
+            // If caption bar is hidden, skip button layout
+            if (!owner.ShowCaptionBar)
+            {
+                layout.CaptionRect = Rectangle.Empty;
+                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
+                owner.CurrentLayout = layout;
+                return;
+            }
+            
+            int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
             
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
             owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
@@ -266,19 +276,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int leftX = 10;
             
             // Close button (red circle, leftmost)
-            layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-            leftX += buttonSize + buttonSpacing;
+            if (owner.ShowCloseButton)
+            {
+                layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+                leftX += buttonSize + buttonSpacing;
+            }
             
-            // Minimize button (yellow circle, middle)
-            layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-            leftX += buttonSize + buttonSpacing;
-            
-            // Maximize button (green circle, right of traffic lights)
-            layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-            leftX += buttonSize + buttonSpacing;
+            // Minimize/Maximize buttons (yellow/green circles)
+            if (owner.ShowMinMaxButtons)
+            {
+                layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+                leftX += buttonSize + buttonSpacing;
+                
+                layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+                leftX += buttonSize + buttonSpacing;
+            }
             
             // RIGHT side: Theme/Style buttons (standard Windows-style placement)
             int buttonWidth = 32; // Larger for theme/style buttons

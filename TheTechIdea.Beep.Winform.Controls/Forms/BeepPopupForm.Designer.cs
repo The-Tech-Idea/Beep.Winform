@@ -36,17 +36,14 @@
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
-            BorderRadius = 20;
-            BorderThickness = 3;
+           
             ClientSize = new Size(800, 450);
             Name = "BeepPopupForm";
             ShowCaptionBar = false;
             ShowIcon = false;
             ShowInTaskbar = false;
           
-            ShowSnapHints = false;
-            ShowSystemButtons = false;
-            StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepPopupForm.StylePresets.Presets");
+         
             Text = "BeepPopupForm";
             Theme = "DefaultType";
             ResumeLayout(false);

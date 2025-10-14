@@ -37,8 +37,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (needsResize)
             {
                 // Calculate a new overall form size: content size plus twice the border thickness.
-                int overallWidth = newContentWidth + 2 * _borderThickness;
-                int overallHeight = newContentHeight + 2 * _borderThickness;
+                int overallWidth = newContentWidth ;
+                int overallHeight = newContentHeight ;
                 this.Size = new Size(overallWidth, overallHeight);
 
                 // Update the content rectangle after resizing.

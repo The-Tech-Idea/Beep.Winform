@@ -228,9 +228,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var layout = new PainterLayoutInfo();
             FormPainterMetrics metrics = FormPainterMetrics.DefaultFor(FormStyle.Material, owner.UseThemeColors ? owner.CurrentTheme : null);
+            
+            owner._hits.Clear();
+            
+            // If caption bar is hidden, skip button layout
+            if (!owner.ShowCaptionBar)
+            {
+                layout.CaptionRect = Rectangle.Empty;
+                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
+                owner.CurrentLayout = layout;
+                return;
+            }
+            
             // Calculate caption height based on font and padding (Material Design 3 uses more padding)
             var captionHeight = owner.Font.Height + 32; // 16px padding top and bottom for Material 3
-            owner._hits.Clear();
+            
             // Set caption rectangle
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
             
@@ -243,19 +255,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var buttonX = owner.ClientSize.Width - buttonSize.Width;
             
             // Close button
-            layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-            buttonX -= buttonSize.Width;
+            if (owner.ShowCloseButton)
+            {
+                layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
             
-            // Maximize button
-            layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonSize.Width;
-            
-            // Minimize button
-            layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonSize.Width;
+            // Maximize/Minimize buttons
+            if (owner.ShowMinMaxButtons)
+            {
+                layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+                
+                layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
             
             // Style button (if shown)
             if (owner.ShowStyleButton)

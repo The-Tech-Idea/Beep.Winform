@@ -780,8 +780,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             CalendarOpened?.Invoke(this, EventArgs.Empty);
             _calendarPopup = new BeepPopupForm
             {
-                BorderThickness = 1,
-                BorderRadius = this.BorderRadius,
+               
                 Theme = Theme
             };
 

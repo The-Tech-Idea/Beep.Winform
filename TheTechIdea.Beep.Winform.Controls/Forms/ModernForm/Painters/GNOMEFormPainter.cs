@@ -310,6 +310,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
         {
             var layout = new PainterLayoutInfo();
+            
+            if (!owner.ShowCaptionBar)
+            {
+                layout.CaptionRect = Rectangle.Empty;
+                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
+                owner.CurrentLayout = layout;
+                return;
+            }
+            
             var captionHeight = owner.Font.Height + 20;
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
             layout.ContentRect = new Rectangle(0, captionHeight, owner.ClientSize.Width, owner.ClientSize.Height - captionHeight);
@@ -318,18 +327,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var buttonY = 0;
             var buttonX = owner.ClientSize.Width - buttonSize.Width;
             
-            // GNOME typically has close button on the right
-            layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-            buttonX -= buttonSize.Width;
+            if (owner.ShowCloseButton)
+            {
+                layout.CloseButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
             
-            layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonSize.Width;
-            
-            layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
-            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonSize.Width;
+            if (owner.ShowMinMaxButtons)
+            {
+                layout.MaximizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+                
+                layout.MinimizeButtonRect = new Rectangle(buttonX, buttonY, buttonSize.Width, buttonSize.Height);
+                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+                buttonX -= buttonSize.Width;
+            }
             
             if (owner.ShowStyleButton)
             {

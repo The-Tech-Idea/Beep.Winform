@@ -8,6 +8,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
     /// </summary>
     public class DateTimePickerProperties
     {
+        // Return Type - SINGLE SOURCE OF TRUTH
+        /// <summary>
+        /// Defines what type of date/time value this control returns
+        /// This drives the behavior of both BeepDateTimePicker and BeepDateDropDown
+        /// </summary>
+        public ReturnDateTimeType ReturnType { get; set; } = ReturnDateTimeType.Date;
+
         // Display Settings
         public DatePickerFormat Format { get; set; } = DatePickerFormat.Long;
         public DatePickerView DefaultView { get; set; } = DatePickerView.Days;
@@ -78,5 +85,77 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         // Dropdown Dimensions
         public Size DropDownSize { get; set; } = new Size(320, 350);
         public bool AutoSizeDropDown { get; set; } = true;
+
+        // Customizable Text Properties for Sidebar Event Painter
+        /// <summary>
+        /// Header text for events section in sidebar (default: "Current Events")
+        /// </summary>
+        public string EventsSectionHeader { get; set; } = "Current Events";
+
+        /// <summary>
+        /// First event item text (default: "See Daily CS Image")
+        /// </summary>
+        public string Event1Text { get; set; } = "See Daily CS Image";
+
+        /// <summary>
+        /// Second event item text (default: "See Daily Events")
+        /// </summary>
+        public string Event2Text { get; set; } = "See Daily Events";
+
+        /// <summary>
+        /// Text for create event button (default: "Create an Event")
+        /// </summary>
+        public string CreateEventButtonText { get; set; } = "Create an Event";
+
+        // Additional customizable text properties for other painters
+        /// <summary>
+        /// Today button text (default: "Today")
+        /// </summary>
+        public string TodayButtonText { get; set; } = "Today";
+
+        /// <summary>
+        /// Tomorrow button text (default: "Tomorrow")
+        /// </summary>
+        public string TomorrowButtonText { get; set; } = "Tomorrow";
+
+        /// <summary>
+        /// Yesterday button text (default: "Yesterday")
+        /// </summary>
+        public string YesterdayButtonText { get; set; } = "Yesterday";
+
+        /// <summary>
+        /// Apply button text (default: "Apply")
+        /// </summary>
+        public string ApplyButtonText { get; set; } = "Apply";
+
+        /// <summary>
+        /// Cancel button text (default: "Cancel")
+        /// </summary>
+        public string CancelButtonText { get; set; } = "Cancel";
+
+        /// <summary>
+        /// Clear button text (default: "Clear")
+        /// </summary>
+        public string ClearButtonText { get; set; } = "Clear";
+
+        /// <summary>
+        /// Week text format (default: "Week")
+        /// </summary>
+        public string WeekText { get; set; } = "Week";
+
+        /// <summary>
+        /// Month text format (default: "Month")
+        /// </summary>
+        public string MonthText { get; set; } = "Month";
+
+        /// <summary>
+        /// Year text format (default: "Year")
+        /// </summary>
+        public string YearText { get; set; } = "Year";
+
+        /// <summary>
+        /// Quarter text format (default: "Q{0}")
+        /// </summary>
+        public string QuarterTextFormat { get; set; } = "Q{0}";
     }
 }

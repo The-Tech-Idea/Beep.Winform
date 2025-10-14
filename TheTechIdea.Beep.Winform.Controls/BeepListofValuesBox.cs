@@ -118,7 +118,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _dropdownButton.Click += DropdownButton_Click;
 
             _popupGridForm = new BeepPopupGridForm();
-            _popupGridForm.BorderThickness = 4;
+           
             _popupGridForm.RowSelected += PopupGridForm_RowSelected;
             _popupGridForm.Theme = Theme;
 

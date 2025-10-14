@@ -114,6 +114,49 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
     }
 
     /// <summary>
+    /// Defines what type of date/time value is returned by the control
+    /// This is the single source of truth for both BeepDateTimePicker and BeepDateDropDown
+    /// </summary>
+    public enum ReturnDateTimeType
+    {
+        /// <summary>
+        /// Returns DateTime? with date only (time set to 00:00:00)
+        /// Example: 10/15/2025 00:00:00
+        /// </summary>
+        Date,
+
+        /// <summary>
+        /// Returns DateTime? with date and time
+        /// Example: 10/15/2025 2:30 PM
+        /// </summary>
+        DateTime,
+
+        /// <summary>
+        /// Returns (DateTime? start, DateTime? end) with dates only (times set to 00:00:00)
+        /// Example: (10/15/2025 00:00:00, 10/20/2025 00:00:00)
+        /// </summary>
+        DateRange,
+
+        /// <summary>
+        /// Returns (DateTime? start, DateTime? end) with dates and times
+        /// Example: (10/15/2025 9:00 AM, 10/15/2025 5:00 PM)
+        /// </summary>
+        DateTimeRange,
+
+        /// <summary>
+        /// Returns DateTime[] array of selected dates (for multiple selection)
+        /// Example: [10/15/2025, 10/16/2025, 10/20/2025]
+        /// </summary>
+        MultipleDates,
+
+        /// <summary>
+        /// Returns TimeSpan? with time only (for time-only pickers)
+        /// Example: 14:30:00
+        /// </summary>
+        TimeOnly
+    }
+
+    /// <summary>
     /// Defines the functional mode/type of the DateTimePicker
     /// Each mode has distinct layout and functionality, styled by current BeepTheme
     /// </summary>

@@ -299,7 +299,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_beepListBox.ListItems.Count == 0) return ;
 
           
-            _beepListBox.TitleText = Title;
+            _beepListBox.TitleText = Text;
 
             // Get the actual needed height
             int neededHeight = _beepListBox.GetMaxHeight();

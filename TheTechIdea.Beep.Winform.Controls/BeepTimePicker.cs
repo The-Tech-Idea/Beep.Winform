@@ -867,8 +867,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             _timePopup = new BeepPopupForm
             {
-                BorderThickness = 1,
-                BorderRadius = this.BorderRadius,
+               
                 Size = new Size(250, 300),
                 Theme = Theme
             };

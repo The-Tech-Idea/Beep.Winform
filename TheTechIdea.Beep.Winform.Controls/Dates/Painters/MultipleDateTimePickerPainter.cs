@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             PaintSelectionCount(g, new Rectangle(bounds.X + 16, layout.CalendarGridRect.Bottom + 8, bounds.Width - 32, 28));
 
             // Paint clear button
-            PaintClearButton(g, new Rectangle(bounds.X + 16, layout.CalendarGridRect.Bottom + 40, bounds.Width - 32, 32), hoverState);
+            PaintClearButton(g, new Rectangle(bounds.X + 16, layout.CalendarGridRect.Bottom + 40, bounds.Width - 32, 32), hoverState, properties);
         }
 
         private void PaintBackground(Graphics g, Rectangle bounds)
@@ -97,7 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        private void PaintClearButton(Graphics g, Rectangle bounds, DateTimePickerHoverState hoverState)
+        private void PaintClearButton(Graphics g, Rectangle bounds, DateTimePickerHoverState hoverState, DateTimePickerProperties properties)
         {
             var textColor = _theme?.ForeColor ?? Color.Black;
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
@@ -132,7 +132,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     Alignment = StringAlignment.Center,
                     LineAlignment = StringAlignment.Center
                 };
-                g.DrawString("Clear Selection", font, brush, bounds, format);
+                g.DrawString(properties?.ClearButtonText ?? "Clear Selection", font, brush, bounds, format);
             }
         }
 

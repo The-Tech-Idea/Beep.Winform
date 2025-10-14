@@ -72,7 +72,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.StartPosition = FormStartPosition.Manual;
             this.ShowCaptionBar= false;
             this.ShowIcon = false;
-            this.ShowSystemButtons = false;
+          
             this.ShowInTaskbar = false;
             this.Size = new Size(300, 200);
             this.Deactivate += (s, e) => this.CloseCascade();

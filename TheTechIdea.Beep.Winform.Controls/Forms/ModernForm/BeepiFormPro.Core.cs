@@ -130,6 +130,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         private bool _showStyleButton = false;
         private bool _showProfileButton = false;
         private bool _showSearchBox = false;
+        private bool _showCloseButton = true;
+        private bool _showMinMaxButtons = true;
 
         // Events for region interaction
         public event EventHandler<RegionEventArgs> RegionHover;
@@ -486,6 +488,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
         }
 
+        /// <summary>
+        /// Gets or sets whether to show the close button in the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(true)]
+        [System.ComponentModel.Description("Show close button in caption bar")]
+        public bool ShowCloseButton
+        {
+            get => _showCloseButton;
+            set
+            {
+                if (_showCloseButton != value)
+                {
+                    _showCloseButton = value;
+                    Invalidate();
+                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to show minimize and maximize buttons in the caption bar
+        /// </summary>
+        [System.ComponentModel.Category("Beep Caption")]
+        [System.ComponentModel.DefaultValue(true)]
+        [System.ComponentModel.Description("Show minimize and maximize buttons in caption bar")]
+        public bool ShowMinMaxButtons
+        {
+            get => _showMinMaxButtons;
+            set
+            {
+                if (_showMinMaxButtons != value)
+                {
+                    _showMinMaxButtons = value;
+                    Invalidate();
+                    if (!DesignMode) RecalculateLayoutAndHitAreas();
+                }
+            }
+        }
+
         // Public API to register regions
         public void AddRegion(FormRegion region)
         {
@@ -552,6 +594,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 Dock = RegionDock.Caption,
                 OnPaint = (g, r) =>
                 {
+                    if (!_showMinMaxButtons || r.Width <= 0 || r.Height <= 0) return;
                     bool isHover = _interact?.IsHovered(_hits?.GetHitArea("minimize")) ?? false;
                     FormPainterRenderHelper.DrawSystemButton(
                         g,
@@ -571,6 +614,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 Dock = RegionDock.Caption,
                 OnPaint = (g, r) =>
                 {
+                    if (!_showMinMaxButtons || r.Width <= 0 || r.Height <= 0) return;
                     bool isHover = _interact?.IsHovered(_hits?.GetHitArea("maximize")) ?? false;
                     string symbol = WindowState == FormWindowState.Maximized ? "❐" : "□";
                     FormPainterRenderHelper.DrawSystemButton(
@@ -591,6 +635,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 Dock = RegionDock.Caption,
                 OnPaint = (g, r) =>
                 {
+                    if (!_showCloseButton || r.Width <= 0 || r.Height <= 0) return;
                     bool isHover = _interact?.IsHovered(_hits?.GetHitArea("close")) ?? false;
                     FormPainterRenderHelper.DrawSystemButton(
                         g,

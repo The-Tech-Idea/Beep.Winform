@@ -466,23 +466,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             int captionHeight = Math.Max(metrics.CaptionHeight, (int)(owner.Font.Height * metrics.FontHeightMultiplier));
             owner._hits.Clear();
             
+            // Check if caption bar should be hidden
+            if (!owner.ShowCaptionBar)
+            {
+                layout.CaptionRect = Rectangle.Empty;
+                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
+                owner.CurrentLayout = layout;
+                return;
+            }
+            
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
             owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
             
             int buttonWidth = metrics.ButtonWidth;
             int buttonX = owner.ClientSize.Width - buttonWidth;
             
-            layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
-            buttonX -= buttonWidth;
+            if (owner.ShowCloseButton)
+            {
+                layout.CloseButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.Register("close", layout.CloseButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
             
-            layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonWidth;
-            
-            layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
-            owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-            buttonX -= buttonWidth;
+            if (owner.ShowMinMaxButtons)
+            {
+                layout.MaximizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.Register("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+                
+                layout.MinimizeButtonRect = new Rectangle(buttonX, 0, buttonWidth, captionHeight);
+                owner._hits.Register("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+                buttonX -= buttonWidth;
+            }
             
             // Style button (if shown)
             if (owner.ShowStyleButton)

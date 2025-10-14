@@ -59,7 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintBackground(Graphics g, Rectangle bounds)
         {
-            var bgColor = Color.Red;// _theme?.CalendarBackColor ?? Color.White;
+            var bgColor =  _theme?.CalendarBackColor ?? Color.White;
             var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(200, 200, 200);
 
             using (var brush = new SolidBrush(bgColor))
@@ -452,7 +452,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
             var layout = new DateTimePickerLayout();
-            int padding = 0;
+            int padding = 8;
             int currentY = bounds.Y + padding;
 
             layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2 - 60, 32);

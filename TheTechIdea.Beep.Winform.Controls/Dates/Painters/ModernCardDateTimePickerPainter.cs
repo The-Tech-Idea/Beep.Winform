@@ -100,8 +100,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             var buttons = new[]
             {
-                ("Today", DateTime.Today),
-                ("Tomorrow", DateTime.Today.AddDays(1)),
+                (properties?.TodayButtonText ?? "Today", DateTime.Today),
+                (properties?.TomorrowButtonText ?? "Tomorrow", DateTime.Today.AddDays(1)),
                 ("Next Week", DateTime.Today.AddDays(7)),
                 ("Next Month", DateTime.Today.AddMonths(1))
             };

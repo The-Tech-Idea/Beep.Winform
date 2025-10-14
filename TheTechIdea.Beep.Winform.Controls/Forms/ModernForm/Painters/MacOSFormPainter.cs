@@ -270,12 +270,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var layout = new PainterLayoutInfo();
             
+            owner._hits.Clear();
+            
+            // If caption bar is hidden, skip button layout
+            if (!owner.ShowCaptionBar)
+            {
+                layout.CaptionRect = Rectangle.Empty;
+                layout.ContentRect = new Rectangle(0, 0, owner.ClientSize.Width, owner.ClientSize.Height);
+                owner.CurrentLayout = layout;
+                return;
+            }
+            
             // Calculate caption height based on font and padding (macOS uses standard padding)
             var captionHeight = owner.Font.Height + 16; // 8px padding top and bottom
             
             // Set caption rectangle
             layout.CaptionRect = new Rectangle(0, 0, owner.ClientSize.Width, captionHeight);
-            owner._hits.Clear();
             owner._hits.Register("caption", layout.CaptionRect, HitAreaType.Drag);
             
             // macOS: Traffic light buttons positioned on the LEFT
@@ -285,19 +295,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var leftX = 12; // Start from left edge with padding
             
             // Close button (red, leftmost)
-            layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-            owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
-            leftX += buttonSize + buttonSpacing;
+            if (owner.ShowCloseButton)
+            {
+                layout.CloseButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+                owner._hits.RegisterHitArea("close", layout.CloseButtonRect, HitAreaType.Button);
+                leftX += buttonSize + buttonSpacing;
+            }
             
-            // Minimize button (yellow, middle)
-            layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-            owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
-            leftX += buttonSize + buttonSpacing;
-            
-            // Maximize button (green, rightmost of traffic lights)
-            layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
-            owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
-            leftX += buttonSize + buttonSpacing;
+            // Minimize/Maximize buttons (yellow/green, middle/right of traffic lights)
+            if (owner.ShowMinMaxButtons)
+            {
+                layout.MinimizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+                owner._hits.RegisterHitArea("minimize", layout.MinimizeButtonRect, HitAreaType.Button);
+                leftX += buttonSize + buttonSpacing;
+                
+                layout.MaximizeButtonRect = new Rectangle(leftX, buttonY, buttonSize, buttonSize);
+                owner._hits.RegisterHitArea("maximize", layout.MaximizeButtonRect, HitAreaType.Button);
+                leftX += buttonSize + buttonSpacing;
+            }
             
             // RIGHT side: Theme/Style buttons (standard Windows-style placement)
             var rightButtonWidth = 32;

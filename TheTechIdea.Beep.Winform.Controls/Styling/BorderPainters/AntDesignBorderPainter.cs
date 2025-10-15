@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class AntDesignBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -57,6 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             }
 
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
+
+            // Return the area inside the border
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
     }
 }

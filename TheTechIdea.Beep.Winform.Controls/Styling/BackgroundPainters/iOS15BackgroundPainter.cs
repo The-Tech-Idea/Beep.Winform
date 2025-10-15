@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class iOS15BackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -59,10 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             using (var brush = new SolidBrush(stateColor))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
 
             // Add translucent white overlay (iOS blur effect) with state-aware intensity
@@ -72,10 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 Color overlayColor = Color.FromArgb(overlayAlpha, Color.White);
                 using (var brush = new SolidBrush(overlayColor))
                 {
-                    if (path != null)
-                        g.FillPath(brush, path);
-                    else
-                        g.FillRectangle(brush, bounds);
+                    g.FillPath(brush, path);
                 }
             }
         }

@@ -11,15 +11,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class NotionMinimalShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
             // Notion Minimal UX: Very subtle shadows only on interaction
-            if (!StyleShadows.HasShadow(style)) return;
+            if (!StyleShadows.HasShadow(style)) return path;
 
             // Only show shadow on interaction states (Notion's subtle depth)
-            if (state == ControlState.Normal) return;
+            if (state == ControlState.Normal) return path;
 
             float shadowOpacity = 0.06f; // Very subtle
             if (state == ControlState.Hovered)
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
             int offsetX = StyleShadows.GetShadowOffsetX(style);
 
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 6);
+            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 6);
         }
     }
 }

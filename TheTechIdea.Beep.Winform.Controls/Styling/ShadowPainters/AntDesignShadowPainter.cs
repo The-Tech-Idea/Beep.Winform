@@ -11,12 +11,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class AntDesignShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level1,
             ControlState state = ControlState.Normal)
         {
             // Ant Design UX: Proper shadow hierarchy with elevation levels
-            if (!StyleShadows.HasShadow(style)) return;
+            if (!StyleShadows.HasShadow(style)) return path;
 
             // Ant Design shadow hierarchy based on elevation and state
             float shadowOpacity = 0.16f; // Base Ant Design shadow
@@ -51,7 +51,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
             int offsetX = StyleShadows.GetShadowOffsetX(style);
 
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, shadowOpacity, shadowLayers);
+            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, shadowLayers);
         }
     }
 }

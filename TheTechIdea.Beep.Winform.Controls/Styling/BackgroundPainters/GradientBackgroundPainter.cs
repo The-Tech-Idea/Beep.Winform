@@ -14,11 +14,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// <summary>
         /// Paint gradient background for GradientModern style
         /// </summary>
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color primary = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
             Color secondary = GetColor(style, StyleColors.GetSecondary, "Secondary", theme, useThemeColors);
             
+            RectangleF bounds = path.GetBounds();
             using (var gradientBrush = new LinearGradientBrush(
                 bounds,
                 primary,

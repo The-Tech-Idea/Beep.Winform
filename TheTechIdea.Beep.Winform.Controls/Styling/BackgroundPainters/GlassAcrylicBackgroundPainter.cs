@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class GlassAcrylicBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -33,67 +33,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color baseGlass = Color.FromArgb(baseAlpha, baseColor);
             using (var brush = new SolidBrush(baseGlass))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
 
-            // Layer 2: Top highlight (15% alpha = 38) - INLINE WithAlpha
-            Rectangle highlightRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height / 3);
+            // Get bounds for clip region calculations
+            RectangleF bounds = path.GetBounds();
+
+            // Layer 2: Top highlight (15% alpha = 38) - Top third region
             Color highlightGlass = Color.FromArgb(38, Color.White);
             using (var brush = new SolidBrush(highlightGlass))
+            using (var highlightRegion = new Region(path))
             {
-                if (path != null)
+                // Clip to top third
+                using (var clipRect = new GraphicsPath())
                 {
-                    // INLINE CreateRoundedRectangle for highlight layer
-                    using (var highlightPath = new GraphicsPath())
-                    {
-                        int radius = 6;
-                        int diameter = radius * 2;
-                        if (highlightRect.Width > 0 && highlightRect.Height > 0)
-                        {
-                            highlightPath.AddArc(highlightRect.X, highlightRect.Y, diameter, diameter, 180, 90);
-                            highlightPath.AddArc(highlightRect.Right - diameter, highlightRect.Y, diameter, diameter, 270, 90);
-                            highlightPath.AddArc(highlightRect.Right - diameter, highlightRect.Bottom - diameter, diameter, diameter, 0, 90);
-                            highlightPath.AddArc(highlightRect.X, highlightRect.Bottom - diameter, diameter, diameter, 90, 90);
-                            highlightPath.CloseFigure();
-                            g.FillPath(brush, highlightPath);
-                        }
-                    }
-                }
-                else
-                {
-                    g.FillRectangle(brush, highlightRect);
+                    clipRect.AddRectangle(new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height / 3));
+                    highlightRegion.Intersect(clipRect);
+                    g.SetClip(highlightRegion, CombineMode.Replace);
+                    g.FillPath(brush, path);
+                    g.ResetClip();
                 }
             }
 
-            // Layer 3: Subtle shine (25% alpha = 64) - INLINE WithAlpha
-            Rectangle shineRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, bounds.Height / 5);
+            // Layer 3: Subtle shine (25% alpha = 64) - Top fifth region
             Color shineGlass = Color.FromArgb(64, Color.White);
             using (var brush = new SolidBrush(shineGlass))
+            using (var shineRegion = new Region(path))
             {
-                if (path != null)
+                // Clip to top fifth
+                using (var clipRect = new GraphicsPath())
                 {
-                    // INLINE CreateRoundedRectangle for shine layer
-                    using (var shinePath = new GraphicsPath())
-                    {
-                        int radius = 6;
-                        int diameter = radius * 2;
-                        if (shineRect.Width > 0 && shineRect.Height > 0)
-                        {
-                            shinePath.AddArc(shineRect.X, shineRect.Y, diameter, diameter, 180, 90);
-                            shinePath.AddArc(shineRect.Right - diameter, shineRect.Y, diameter, diameter, 270, 90);
-                            shinePath.AddArc(shineRect.Right - diameter, shineRect.Bottom - diameter, diameter, diameter, 0, 90);
-                            shinePath.AddArc(shineRect.X, shineRect.Bottom - diameter, diameter, diameter, 90, 90);
-                            shinePath.CloseFigure();
-                            g.FillPath(brush, shinePath);
-                        }
-                    }
-                }
-                else
-                {
-                    g.FillRectangle(brush, shineRect);
+                    clipRect.AddRectangle(new RectangleF(bounds.X, bounds.Y, bounds.Width, bounds.Height / 5));
+                    shineRegion.Intersect(clipRect);
+                    g.SetClip(shineRegion, CombineMode.Replace);
+                    g.FillPath(brush, path);
+                    g.ResetClip();
                 }
             }
         }

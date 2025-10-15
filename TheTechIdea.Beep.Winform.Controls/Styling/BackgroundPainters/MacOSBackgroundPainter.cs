@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// <summary>
         /// Paint macOS background with system-style appearance
         /// </summary>
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             
@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
             
             // macOS has a subtle gradient for depth
+            RectangleF bounds = path.GetBounds();
             Color topTint = Color.FromArgb(12, 255, 255, 255);
             Color bottomTint = Color.FromArgb(5, 0, 0, 0);
             using (var gradientBrush = new LinearGradientBrush(

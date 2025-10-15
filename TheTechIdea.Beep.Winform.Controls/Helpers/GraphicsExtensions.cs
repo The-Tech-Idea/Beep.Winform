@@ -11,6 +11,280 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// </summary>
     public static class GraphicsExtensions
     {
+        /// <summary>
+        /// Scales all points in a GraphicsPath toward its centroid by 'inset' pixels.
+        /// Works for convex shapes, may distort concave/complex shapes.
+        /// </summary>
+        public static GraphicsPath ScalePathTowardCentroid(this GraphicsPath path, float inset)
+        {
+            var points = path.PathPoints;
+            if (points.Length == 0) return path;
+
+            // Calculate centroid
+            float cx = 0, cy = 0;
+            foreach (var pt in points)
+            {
+                cx += pt.X;
+                cy += pt.Y;
+            }
+            cx /= points.Length;
+            cy /= points.Length;
+
+            // Scale each point toward centroid
+            PointF[] newPoints = new PointF[points.Length];
+            for (int i = 0; i < points.Length; i++)
+            {
+                float dx = points[i].X - cx;
+                float dy = points[i].Y - cy;
+                float length = (float)Math.Sqrt(dx * dx + dy * dy);
+                float scale = (length > 0) ? (length - inset) / length : 1f;
+                newPoints[i] = new PointF(cx + dx * scale, cy + dy * scale);
+            }
+
+            var newPath = new GraphicsPath();
+            newPath.AddPolygon(newPoints);
+            return newPath;
+        }
+
+        /// <summary>
+        /// Attempts to detect the basic shape type of a GraphicsPath (rectangle, ellipse, polygon, custom).
+        /// </summary>
+        public static string DetectShapeType(this GraphicsPath path)
+        {
+            var points = path.PathPoints;
+            if (points.Length == 4)
+                return "Rectangle";
+            if (points.Length > 4 && path.PathTypes.All(t => t == 0))
+                return "Polygon";
+            var bounds = path.GetBounds();
+            if (points.Length > 8 && Math.Abs(bounds.Width - bounds.Height) < 2)
+                return "Ellipse";
+            return "Custom";
+        }
+
+        /// <summary>
+        /// Creates an inset path for any shape type using multiple strategies.
+        /// This is the main entry point for creating inset paths.
+        /// </summary>
+        public static GraphicsPath CreateInsetPath(this GraphicsPath originalPath, float inset, int radius = 0)
+        {
+            if (originalPath == null || inset <= 0)
+                return originalPath;
+
+            var bounds = originalPath.GetBounds();
+            var pointCount = originalPath.PointCount;
+
+            // Strategy 1: Rectangle (4 points)
+            if (pointCount == 4)
+            {
+                RectangleF innerRect = RectangleF.Inflate(bounds, -inset, -inset);
+                var innerPath = new GraphicsPath();
+                innerPath.AddRectangle(innerRect);
+                return innerPath;
+            }
+
+            // Strategy 2: Rounded Rectangle (typically 8+ points with arcs)
+            if (pointCount >= 8 && HasArcs(originalPath))
+            {
+                // Calculate new radius (reduced by inset)
+                int newRadius = Math.Max(0, radius - (int)inset);
+                Rectangle innerRect = Rectangle.Round(RectangleF.Inflate(bounds, -inset, -inset));
+                return CreateRoundedRectanglePath(innerRect, newRadius);
+            }
+
+            // Strategy 3: Ellipse/Circle
+            if (IsEllipse(originalPath, bounds))
+            {
+                RectangleF innerRect = RectangleF.Inflate(bounds, -inset, -inset);
+                var innerPath = new GraphicsPath();
+                innerPath.AddEllipse(innerRect);
+                return innerPath;
+            }
+
+            // Strategy 4: Polygon with straight edges
+            if (IsPolygon(originalPath))
+            {
+                return CreateInsetPolygon(originalPath, inset);
+            }
+
+            // Strategy 5: Fallback - Scale toward centroid (works for most convex shapes)
+            return ScalePathTowardCentroid(originalPath, inset);
+        }
+
+        /// <summary>
+        /// Creates an inset polygon by moving each edge inward perpendicular to the edge.
+        /// Works well for convex polygons.
+        /// </summary>
+        public static GraphicsPath CreateInsetPolygon(this GraphicsPath originalPath, float inset)
+        {
+            var points = originalPath.PathPoints;
+            if (points.Length < 3) return originalPath;
+
+            List<PointF> insetPoints = new List<PointF>();
+
+            for (int i = 0; i < points.Length; i++)
+            {
+                int prevIndex = (i - 1 + points.Length) % points.Length;
+                int nextIndex = (i + 1) % points.Length;
+
+                PointF prev = points[prevIndex];
+                PointF current = points[i];
+                PointF next = points[nextIndex];
+
+                // Calculate edge normals
+                PointF edge1Normal = GetPerpendicular(prev, current);
+                PointF edge2Normal = GetPerpendicular(current, next);
+
+                // Average the normals for this vertex
+                PointF avgNormal = new PointF(
+                    (edge1Normal.X + edge2Normal.X) / 2,
+                    (edge1Normal.Y + edge2Normal.Y) / 2);
+
+                // Normalize
+                float length = (float)Math.Sqrt(avgNormal.X * avgNormal.X + avgNormal.Y * avgNormal.Y);
+                if (length > 0)
+                {
+                    avgNormal.X /= length;
+                    avgNormal.Y /= length;
+                }
+
+                // Move point inward
+                insetPoints.Add(new PointF(
+                    current.X + avgNormal.X * inset,
+                    current.Y + avgNormal.Y * inset));
+            }
+
+            var insetPath = new GraphicsPath();
+            if (insetPoints.Count > 0)
+            {
+                insetPath.AddPolygon(insetPoints.ToArray());
+            }
+            return insetPath;
+        }
+
+        /// <summary>
+        /// Gets the perpendicular (inward-pointing normal) for an edge.
+        /// </summary>
+        private static PointF GetPerpendicular(PointF p1, PointF p2)
+        {
+            float dx = p2.X - p1.X;
+            float dy = p2.Y - p1.Y;
+            float length = (float)Math.Sqrt(dx * dx + dy * dy);
+
+            if (length == 0) return new PointF(0, 0);
+
+            // Perpendicular vector (rotated 90 degrees clockwise for inward normal)
+            return new PointF(-dy / length, dx / length);
+        }
+
+        /// <summary>
+        /// Checks if a path contains arc segments (indicates rounded rectangle or curved shape).
+        /// </summary>
+        private static bool HasArcs(GraphicsPath path)
+        {
+            var types = path.PathTypes;
+            foreach (var type in types)
+            {
+                // PathPointType.Bezier (3) indicates curve segments
+                if ((type & 3) == 3) return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Checks if a path is likely an ellipse by comparing point distribution.
+        /// </summary>
+        private static bool IsEllipse(GraphicsPath path, RectangleF bounds)
+        {
+            var points = path.PathPoints;
+            if (points.Length < 8) return false;
+
+            // Check if points are evenly distributed around the perimeter
+            float centerX = bounds.X + bounds.Width / 2;
+            float centerY = bounds.Y + bounds.Height / 2;
+
+            int quadrantCounts = 0;
+            bool[] quadrants = new bool[4];
+
+            foreach (var pt in points)
+            {
+                int quadrant = GetQuadrant(pt.X - centerX, pt.Y - centerY);
+                if (!quadrants[quadrant])
+                {
+                    quadrants[quadrant] = true;
+                    quadrantCounts++;
+                }
+            }
+
+            // If points are in all 4 quadrants, likely an ellipse
+            return quadrantCounts == 4;
+        }
+
+        /// <summary>
+        /// Gets the quadrant of a point relative to center (0=top-right, 1=top-left, 2=bottom-left, 3=bottom-right).
+        /// </summary>
+        private static int GetQuadrant(float x, float y)
+        {
+            if (x >= 0 && y <= 0) return 0; // Top-right
+            if (x < 0 && y <= 0) return 1;  // Top-left
+            if (x < 0 && y > 0) return 2;   // Bottom-left
+            return 3;                        // Bottom-right
+        }
+
+        /// <summary>
+        /// Checks if a path is a polygon (all straight line segments).
+        /// </summary>
+        private static bool IsPolygon(GraphicsPath path)
+        {
+            var types = path.PathTypes;
+            foreach (var type in types)
+            {
+                // PathPointType.Line (1) indicates straight line segments
+                // If we find curves (3) or other types, it's not a simple polygon
+                if ((type & 3) == 3) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Creates an inset path using widening technique (experimental).
+        /// This uses GraphicsPath.Widen to create an outline, then attempts to extract the inner region.
+        /// Note: This is a best-effort approach and may not work perfectly for all shapes.
+        /// </summary>
+        public static GraphicsPath CreateInsetPathByWidening(this GraphicsPath originalPath, float inset)
+        {
+            if (originalPath == null || inset <= 0)
+                return originalPath;
+
+            try
+            {
+                // Clone the original path
+                var workingPath = (GraphicsPath)originalPath.Clone();
+
+                // Create a pen with width equal to inset * 2 (to get inset on both sides)
+                using (Pen pen = new Pen(Color.Black, inset * 2))
+                {
+                    // Widen creates an outline path
+                    workingPath.Widen(pen);
+
+                    // The widened path now represents the border area
+                    // We need to extract the inner portion
+                    // This is a simplified approach - for complex shapes, this may not work perfectly
+                    var bounds = workingPath.GetBounds();
+                    RectangleF innerRect = RectangleF.Inflate(bounds, -inset, -inset);
+
+                    var innerPath = new GraphicsPath();
+                    innerPath.AddRectangle(innerRect);
+                    return innerPath;
+                }
+            }
+            catch
+            {
+                // If widening fails, fall back to centroid scaling
+                return ScalePathTowardCentroid(originalPath, inset);
+            }
+        }
+
         // NOTE: Path-first overloads to avoid Rectangle/RectangleF usage in renderer code
         // Renderers should use these overloads to keep code "rectangle-free" by passing floats or paths.
 
@@ -900,7 +1174,37 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             path.AddRectangle(rect);
             return path;
         }
+        /// <summary>
+        /// Create rounded rectangle path
+        /// </summary>
+        private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            if (radius == 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
 
+            int diameter = radius * 2;
+            Size size = new Size(diameter, diameter);
+            Rectangle arc = new Rectangle(bounds.Location, size);
+
+            // Top left
+            path.AddArc(arc, 180, 90);
+            // Top right
+            arc.X = bounds.Right - diameter;
+            path.AddArc(arc, 270, 90);
+            // Bottom right
+            arc.Y = bounds.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+            // Bottom left
+            arc.X = bounds.Left;
+            path.AddArc(arc, 90, 90);
+
+            path.CloseFigure();
+            return path;
+        }
         /// <summary>
         /// Gets bounds from GraphicsPath as Rectangle
         /// </summary>

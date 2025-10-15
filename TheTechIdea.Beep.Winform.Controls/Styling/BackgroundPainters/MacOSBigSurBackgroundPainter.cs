@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class MacOSBigSurBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -68,12 +68,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color topColor = Color.FromArgb(stateColor.A, topR, topG, topB);
             Color bottomColor = stateColor;
 
+            RectangleF bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, 90f))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
 
             // Add very subtle white overlay on hover (macOS vibrancy)
@@ -82,10 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 Color vibrancyOverlay = Color.FromArgb(10, Color.White);
                 using (var brush = new SolidBrush(vibrancyOverlay))
                 {
-                    if (path != null)
-                        g.FillPath(brush, path);
-                    else
-                        g.FillRectangle(brush, bounds);
+                    g.FillPath(brush, path);
                 }
             }
             else if (state == ControlState.Pressed)
@@ -94,10 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 Color pressOverlay = Color.FromArgb(15, Color.Black);
                 using (var brush = new SolidBrush(pressOverlay))
                 {
-                    if (path != null)
-                        g.FillPath(brush, path);
-                    else
-                        g.FillRectangle(brush, bounds);
+                    g.FillPath(brush, path);
                 }
             }
         }

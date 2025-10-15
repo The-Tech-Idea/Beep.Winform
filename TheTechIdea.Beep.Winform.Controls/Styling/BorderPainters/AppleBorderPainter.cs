@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class AppleBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -60,6 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 50); // Subtle Apple focus ring
                 BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
+
+            return path;
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)

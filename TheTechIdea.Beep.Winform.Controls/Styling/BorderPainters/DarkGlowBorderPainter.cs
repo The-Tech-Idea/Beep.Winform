@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class DarkGlowBorderPainter 
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -25,39 +25,32 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
             switch (state)
             {
                 case ControlState.Hovered:
-                    // DarkGlow: Brighter glow on hover (80% intensity)
                     glowIntensity = 0.8f;
                     break;
-
                 case ControlState.Pressed:
-                    // DarkGlow: Intense glow on press (100% intensity + thicker)
                     glowIntensity = 1.0f;
-                    glowWidth *= 1.3f; // Thicker glow
+                    glowWidth *= 1.3f;
                     break;
-
                 case ControlState.Selected:
-                    // DarkGlow: Full intensity glow for selection
-                    glowIntensity = 1.2f; // Extra bright
+                    glowIntensity = 1.2f;
                     break;
-
                 case ControlState.Disabled:
-                    // DarkGlow: Very dim glow (20% intensity)
                     glowIntensity = 0.2f;
                     break;
-
-                default: // Normal
-                    // DarkGlow: Standard subtle glow (60% intensity)
+                default:
                     glowIntensity = 0.6f;
                     break;
             }
 
-            // Focus overrides state (strong pulse)
             if (isFocused)
             {
-                glowIntensity = 1.5f; // Strong pulse on focus
+                glowIntensity = 1.5f;
             }
 
             BorderPainterHelpers.PaintGlowBorder(g, path, glowColor, glowWidth, glowIntensity);
+
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(glowWidth);
         }
     }
 }

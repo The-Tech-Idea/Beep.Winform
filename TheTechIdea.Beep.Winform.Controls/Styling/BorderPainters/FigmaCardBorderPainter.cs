@@ -12,59 +12,51 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class FigmaCardBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Get Figma colors
             Color baseBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(227, 227, 227));
             Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(24, 160, 251));
-            
             Color borderColor = baseBorderColor;
             bool showRing = false;
 
-            // Figma UX: Subtle blue tints
             switch (state)
             {
                 case ControlState.Hovered:
-                    // Figma: Subtle hover tint (40 alpha)
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 40);
-                    showRing = true; // Preview ring
+                    showRing = true;
                     break;
-                    
                 case ControlState.Pressed:
-                    // Figma: Stronger tint (70 alpha) + ring
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 70);
                     showRing = true;
                     break;
-                    
                 case ControlState.Selected:
-                    // Figma: Full blue + prominent ring
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 140);
                     showRing = true;
                     break;
-                    
                 case ControlState.Disabled:
-                    // Figma: Light disabled (45 alpha)
                     borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 45);
                     break;
             }
 
-            // Focus overrides state
             if (isFocused)
             {
                 showRing = true;
             }
 
-            // Paint border
-            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, StyleBorders.GetBorderWidth(style), state);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Figma: Add focus ring (Figma blue)
             if (showRing)
             {
-                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 70); // Figma focus ring
+                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 70);
                 BorderPainterHelpers.PaintRing(g, path, focusRing, 2.0f, 1.0f);
             }
+
+            // Return the area inside the border
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
     }
 }

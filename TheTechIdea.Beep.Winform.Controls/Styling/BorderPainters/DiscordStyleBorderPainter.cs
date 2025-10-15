@@ -13,23 +13,25 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class DiscordStyleBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
-            ControlState state =    ControlState.Normal)
+            ControlState state = ControlState.Normal)
         {
-            // Discord UX: No borders normally, subtle focus glow
             Color borderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(66, 70, 77));
+            float borderWidth = StyleBorders.GetBorderWidth(style);
 
-            // Discord: Very subtle border normally, no change on hover
-            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, StyleBorders.GetBorderWidth(style), state);
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Discord: Add subtle focus glow (Discord blurple)
             if (isFocused)
             {
                 Color glowColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(88, 101, 242));
-                Color focusGlow = BorderPainterHelpers.WithAlpha(glowColor, 30); // Very subtle glow
+                Color focusGlow = BorderPainterHelpers.WithAlpha(glowColor, 30);
                 BorderPainterHelpers.PaintGlowBorder(g, path, focusGlow, StyleBorders.GetGlowWidth(style));
             }
+
+            // Return the area inside the border (shrink path by borderWidth)
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
     }
 }

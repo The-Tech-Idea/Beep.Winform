@@ -11,7 +11,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class Windows11MicaShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level1,
             ControlState state = ControlState.Normal)
         {
@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (!StyleShadows.HasShadow(style))
             {
                 // Explicitly no shadow for Mica - intentionally empty
-                return;
+                return path;
             }
 
             // If for some reason HasShadow returns true, use very minimal shadow
@@ -30,7 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
             int offsetX = StyleShadows.GetShadowOffsetX(style);
 
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, 0.08f, blur / 4);
+            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, 0.08f, blur / 4);
         }
     }
 }

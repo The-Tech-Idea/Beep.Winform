@@ -12,12 +12,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class DarkGlowShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level0,
             ControlState state = ControlState.Normal)
         {
             // DarkGlow UX: Colored glow effect with state-aware intensity
-            if (!StyleShadows.HasShadow(style)) return;
+            if (!StyleShadows.HasShadow(style)) return path;
 
             // DarkGlow uses colored glow instead of traditional shadow
             Color glowColor = StyleShadows.GetShadowColor(style); // Purple glow from StyleShadows
@@ -39,7 +39,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 glowIntensity = 0.8f; // Press: moderate glow
 
-            ShadowPainterHelpers.PaintGlow(g, bounds, radius, glowColor, glowIntensity);
+            return ShadowPainterHelpers.PaintGlow(g, path, radius, glowColor, glowIntensity);
         }
     }
 }

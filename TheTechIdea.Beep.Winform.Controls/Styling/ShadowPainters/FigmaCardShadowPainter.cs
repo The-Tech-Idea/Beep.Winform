@@ -13,12 +13,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class FigmaCardShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
             ControlState state = ControlState.Normal,
             MaterialElevation elevation = MaterialElevation.Level1)
         {
             if (!StyleShadows.HasShadow(style))
-                return;
+                return path;
 
             // Figma cards use subtle shadows that become more prominent on interaction
             float opacity = state switch
@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetX = StyleShadows.GetShadowOffsetX(style);
             Color shadowColor = StyleShadows.GetShadowColor(style);
 
-            ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, offsetX, offsetY, shadowColor, opacity, blur);
+            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, opacity, blur);
         }
     }
 }

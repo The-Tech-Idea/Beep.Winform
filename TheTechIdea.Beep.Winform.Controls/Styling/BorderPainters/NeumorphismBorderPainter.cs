@@ -11,12 +11,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class NeumorphismBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
             // Neumorphism doesn't use visible borders - the embossed effect is created by the background
             // No border painting needed
+            return path;
         }
     }
 }

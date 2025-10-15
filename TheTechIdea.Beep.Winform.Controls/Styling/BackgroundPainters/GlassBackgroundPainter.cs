@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// <summary>
         /// Paint glass/acrylic background
         /// </summary>
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             // Base frosted glass color (semi-transparent white)
             Color glassColor = Color.FromArgb(180, 255, 255, 255);
@@ -24,6 +24,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
             
             // Subtle gradient overlay for depth
+            RectangleF bounds = path.GetBounds();
             Color topGlass = Color.FromArgb(60, 255, 255, 255);
             Color bottomGlass = Color.FromArgb(20, 255, 255, 255);
             using (var gradientBrush = new LinearGradientBrush(

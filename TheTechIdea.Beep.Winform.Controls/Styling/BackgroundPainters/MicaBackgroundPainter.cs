@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// <summary>
         /// Paint Windows 11 Mica background
         /// </summary>
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             
@@ -25,6 +25,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
             
             // Very subtle gradient for depth
+            RectangleF bounds = path.GetBounds();
             Color topTint = Color.FromArgb(8, 255, 255, 255);
             Color bottomTint = Color.FromArgb(4, 0, 0, 0);
             using (var gradientBrush = new LinearGradientBrush(

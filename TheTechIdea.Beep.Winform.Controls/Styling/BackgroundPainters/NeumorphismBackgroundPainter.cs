@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class NeumorphismBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -45,20 +45,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             using (var brush = new SolidBrush(baseColor))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
 
-            // INLINE INNER HIGHLIGHT - Neumorphism: Top half highlight, INVERTED when pressed (10% darken vs 10% lighten)
-            Rectangle highlightRect = new Rectangle(
-                bounds.X + 2,
-                bounds.Y + 2,
-                bounds.Width - 4,
-                bounds.Height / 2
-            );
+            // Get bounds for clipping calculations
+            RectangleF bounds = path.GetBounds();
 
+            // INLINE INNER HIGHLIGHT - Neumorphism: Top half highlight, INVERTED when pressed (10% darken vs 10% lighten)
             // INLINE LIGHTEN/DARKEN CALCULATION - Pressed inverts to darken (-10%), otherwise lighten (+10%)
             Color highlightColor;
             if (state == ControlState.Pressed)
@@ -84,28 +77,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             Color highlightColorWithAlpha = Color.FromArgb(60, highlightColor);
             
             using (var brush = new SolidBrush(highlightColorWithAlpha))
+            using (var highlightRegion = new Region(path))
             {
-                if (path != null)
+                // Create inset path (2px inset) and clip to top half
+                using (var insetPath = BackgroundPainterHelpers.CreateInsetPath(path, 2))
                 {
-                    // INLINE CreateRoundedRectangle for highlight
-                    using (var highlightPath = new GraphicsPath())
+                    RectangleF insetBounds = insetPath.GetBounds();
+                    using (var clipRect = new GraphicsPath())
                     {
-                        int radius = 6;
-                        int diameter = radius * 2;
-                        if (highlightRect.Width > 0 && highlightRect.Height > 0)
-                        {
-                            highlightPath.AddArc(highlightRect.X, highlightRect.Y, diameter, diameter, 180, 90);
-                            highlightPath.AddArc(highlightRect.Right - diameter, highlightRect.Y, diameter, diameter, 270, 90);
-                            highlightPath.AddArc(highlightRect.Right - diameter, highlightRect.Bottom - diameter, diameter, diameter, 0, 90);
-                            highlightPath.AddArc(highlightRect.X, highlightRect.Bottom - diameter, diameter, diameter, 90, 90);
-                            highlightPath.CloseFigure();
-                            g.FillPath(brush, highlightPath);
-                        }
+                        clipRect.AddRectangle(new RectangleF(insetBounds.X, insetBounds.Y, insetBounds.Width, insetBounds.Height / 2));
+                        highlightRegion.MakeEmpty();
+                        highlightRegion.Union(insetPath);
+                        highlightRegion.Intersect(clipRect);
+                        g.SetClip(highlightRegion, CombineMode.Replace);
+                        g.FillPath(brush, insetPath);
+                        g.ResetClip();
                     }
-                }
-                else
-                {
-                    g.FillRectangle(brush, highlightRect);
                 }
             }
         }

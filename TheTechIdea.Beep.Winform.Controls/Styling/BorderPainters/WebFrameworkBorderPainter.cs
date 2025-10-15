@@ -13,64 +13,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class WebFrameworkBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Web Framework UX: Outlined borders with standardized ring effects
             if (StyleBorders.IsFilled(style))
-                return;
+                return path;
 
             Color baseBorderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
             Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
-            
             Color borderColor = baseBorderColor;
             float borderWidth = StyleBorders.GetBorderWidth(style);
             bool showRing = false;
 
-            // Web Framework: Standardized state behaviors
             switch (state)
             {
                 case ControlState.Hovered:
-                    // Web Framework: Subtle hover tint (50 alpha standard)
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 50);
-                    showRing = true; // Preview ring
+                    showRing = true;
                     break;
-                    
                 case ControlState.Pressed:
-                    // Web Framework: Primary border with ring
                     borderColor = primaryColor;
                     borderWidth = Math.Max(borderWidth * 1.2f, 1.5f);
                     showRing = true;
                     break;
-                    
                 case ControlState.Selected:
-                    // Web Framework: Full primary + ring
                     borderColor = primaryColor;
                     showRing = true;
                     break;
-                    
                 case ControlState.Disabled:
-                    // Web Framework: Standard disabled
                     borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 50);
                     break;
             }
 
-            // Focus overrides state
             if (isFocused)
             {
                 showRing = true;
             }
 
-            // Paint border
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Web Framework: Standardized focus ring effects for all frameworks
             if (showRing)
             {
-                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 60); // Standardized opacity
+                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 60);
                 BorderPainterHelpers.PaintRing(g, path, focusRing, StyleBorders.GetRingWidth(style), StyleBorders.GetRingOffset(style));
             }
+
+            // Return the area inside the border
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
         
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)

@@ -13,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class DarkGlowBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -48,10 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             // Fill dark background
             using (var brush = new SolidBrush(darkColor))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
 
             // INLINE GLOW INTENSITY MODULATION - DarkGlow neon philosophy: Glow intensifies on hover (30%), dims on press (-30%), moderate on selected (20%), slight on focus (10%), fades on disabled (-60%)
@@ -65,99 +62,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 _ => 1.0f
             };
 
-            // INLINE GEOMETRY + GLOW RING 1 (80% alpha base, 1px inset)
-            Rectangle glow1 = new Rectangle(
-                bounds.X + 1,
-                bounds.Y + 1,
-                bounds.Width - 2,
-                bounds.Height - 2
-            );
-            int alpha1 = Math.Min(255, (int)(80 * glowMultiplier));
-            Color glowColor1 = Color.FromArgb(alpha1, glowColor);
-            using (var pen = new Pen(glowColor1, 1f))
+            // GLOW RING 1 (80% alpha base, 1px inset)
+            using (var glowPath1 = BackgroundPainterHelpers.CreateInsetPath(path, 1))
             {
-                if (path != null)
+                int alpha1 = Math.Min(255, (int)(80 * glowMultiplier));
+                Color glowColor1 = Color.FromArgb(alpha1, glowColor);
+                using (var pen = new Pen(glowColor1, 1f))
                 {
-                    // INLINE CreateRoundedRectangle for glow ring 1
-                    using (var glowPath = new GraphicsPath())
-                    {
-                        int radius = 4;
-                        int diameter = radius * 2;
-                        glowPath.AddArc(glow1.X, glow1.Y, diameter, diameter, 180, 90);
-                        glowPath.AddArc(glow1.Right - diameter, glow1.Y, diameter, diameter, 270, 90);
-                        glowPath.AddArc(glow1.Right - diameter, glow1.Bottom - diameter, diameter, diameter, 0, 90);
-                        glowPath.AddArc(glow1.X, glow1.Bottom - diameter, diameter, diameter, 90, 90);
-                        glowPath.CloseFigure();
-                        g.DrawPath(pen, glowPath);
-                    }
-                }
-                else
-                {
-                    g.DrawRectangle(pen, glow1);
+                    g.DrawPath(pen, glowPath1);
                 }
             }
 
-            // INLINE GEOMETRY + GLOW RING 2 (40% alpha base, 3px inset)
-            Rectangle glow2 = new Rectangle(
-                bounds.X + 3,
-                bounds.Y + 3,
-                bounds.Width - 6,
-                bounds.Height - 6
-            );
-            int alpha2 = Math.Min(255, (int)(40 * glowMultiplier));
-            Color glowColor2 = Color.FromArgb(alpha2, glowColor);
-            using (var pen = new Pen(glowColor2, 1f))
+            // GLOW RING 2 (40% alpha base, 3px inset)
+            using (var glowPath2 = BackgroundPainterHelpers.CreateInsetPath(path, 3))
             {
-                if (path != null)
+                int alpha2 = Math.Min(255, (int)(40 * glowMultiplier));
+                Color glowColor2 = Color.FromArgb(alpha2, glowColor);
+                using (var pen = new Pen(glowColor2, 1f))
                 {
-                    // INLINE CreateRoundedRectangle for glow ring 2
-                    using (var glowPath = new GraphicsPath())
-                    {
-                        int radius = 4;
-                        int diameter = radius * 2;
-                        glowPath.AddArc(glow2.X, glow2.Y, diameter, diameter, 180, 90);
-                        glowPath.AddArc(glow2.Right - diameter, glow2.Y, diameter, diameter, 270, 90);
-                        glowPath.AddArc(glow2.Right - diameter, glow2.Bottom - diameter, diameter, diameter, 0, 90);
-                        glowPath.AddArc(glow2.X, glow2.Bottom - diameter, diameter, diameter, 90, 90);
-                        glowPath.CloseFigure();
-                        g.DrawPath(pen, glowPath);
-                    }
-                }
-                else
-                {
-                    g.DrawRectangle(pen, glow2);
+                    g.DrawPath(pen, glowPath2);
                 }
             }
 
-            // INLINE GEOMETRY + GLOW RING 3 (20% alpha base, 6px inset)
-            Rectangle glow3 = new Rectangle(
-                bounds.X + 6,
-                bounds.Y + 6,
-                bounds.Width - 12,
-                bounds.Height - 12
-            );
-            int alpha3 = Math.Min(255, (int)(20 * glowMultiplier));
-            Color glowColor3 = Color.FromArgb(alpha3, glowColor);
-            using (var pen = new Pen(glowColor3, 1f))
+            // GLOW RING 3 (20% alpha base, 6px inset)
+            using (var glowPath3 = BackgroundPainterHelpers.CreateInsetPath(path, 6))
             {
-                if (path != null)
+                int alpha3 = Math.Min(255, (int)(20 * glowMultiplier));
+                Color glowColor3 = Color.FromArgb(alpha3, glowColor);
+                using (var pen = new Pen(glowColor3, 1f))
                 {
-                    // INLINE CreateRoundedRectangle for glow ring 3
-                    using (var glowPath = new GraphicsPath())
-                    {
-                        int radius = 4;
-                        int diameter = radius * 2;
-                        glowPath.AddArc(glow3.X, glow3.Y, diameter, diameter, 180, 90);
-                        glowPath.AddArc(glow3.Right - diameter, glow3.Y, diameter, diameter, 270, 90);
-                        glowPath.AddArc(glow3.Right - diameter, glow3.Bottom - diameter, diameter, diameter, 0, 90);
-                        glowPath.AddArc(glow3.X, glow3.Bottom - diameter, diameter, diameter, 90, 90);
-                        glowPath.CloseFigure();
-                        g.DrawPath(pen, glowPath);
-                    }
-                }
-                else
-                {
-                    g.DrawRectangle(pen, glow3);
+                    g.DrawPath(pen, glowPath3);
                 }
             }
         }

@@ -243,6 +243,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ThemeManagement
         // Get current theme object
         public static IBeepTheme CurrentTheme => GetTheme(_currentThemeName);
 
+        public static IBeepTheme DefaultTheme { get; internal set; }
+
         // Get theme by name
         public static IBeepTheme GetTheme(string themeName)
         {

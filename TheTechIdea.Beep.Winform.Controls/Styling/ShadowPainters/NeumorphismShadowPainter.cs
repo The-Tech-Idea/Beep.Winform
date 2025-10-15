@@ -14,12 +14,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class NeumorphismShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
             // Neumorphism UX: Dual shadow system (light top-left, dark bottom-right) with state support
-            if (!StyleShadows.UsesDualShadows(style)) return;
+            if (!StyleShadows.UsesDualShadows(style)) return path;
 
             // Adjust shadow intensity based on state
             float shadowIntensity = 1.0f; // Base neumorphic intensity
@@ -50,58 +50,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             shadowColor = Color.FromArgb((int)(shadowColor.A * shadowIntensity), shadowColor);
             highlightColor = Color.FromArgb((int)(highlightColor.A * shadowIntensity), highlightColor);
 
-            // Dark shadow (bottom-right)
-            Rectangle shadowBounds = new Rectangle(
-                bounds.X + offsetX,
-                bounds.Y + offsetY,
-                bounds.Width,
-                bounds.Height
-            );
-
-            using (var shadowBrush = new SolidBrush(shadowColor))
-            using (var path = CreateRoundedRectangle(shadowBounds, radius))
-            {
-                g.FillPath(shadowBrush, path);
-            }
-
-            // Light highlight (top-left)
-            Rectangle highlightBounds = new Rectangle(
-                bounds.X - offsetX,
-                bounds.Y - offsetY,
-                bounds.Width,
-                bounds.Height
-            );
-
-            using (var highlightBrush = new SolidBrush(highlightColor))
-            using (var path = CreateRoundedRectangle(highlightBounds, radius))
-            {
-                g.FillPath(highlightBrush, path);
-            }
-        }
-        
-        private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-            if (radius == 0)
-            {
-                path.AddRectangle(bounds);
-                return path;
-            }
-            
-            int diameter = radius * 2;
-            Size size = new Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
-            
-            path.AddArc(arc, 180, 90);
-            arc.X = bounds.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = bounds.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = bounds.Left;
-            path.AddArc(arc, 90, 90);
-            
-            path.CloseFigure();
-            return path;
+            // Use the helper method for neumorphic shadows
+            return ShadowPainterHelpers.PaintNeumorphicShadow(g, path, radius, shadowColor);
         }
     }
 }

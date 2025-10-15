@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// <summary>
         /// Paint Material Design background with subtle elevation
         /// </summary>
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             
@@ -24,13 +24,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
             
             // Subtle top highlight for material elevation
+            RectangleF bounds = path.GetBounds();
             Color highlight = Color.FromArgb(15, 255, 255, 255);
-            Rectangle highlightRect = new Rectangle(bounds.X, bounds.Y, bounds.Width, 2);
             using (var highlightBrush = new SolidBrush(highlight))
+            using (var highlightRegion = new Region(path))
             {
-                g.SetClip(path);
-                g.FillRectangle(highlightBrush, highlightRect);
-                g.ResetClip();
+                // Clip to top 2px
+                using (var clipRect = new GraphicsPath())
+                {
+                    clipRect.AddRectangle(new RectangleF(bounds.X, bounds.Y, bounds.Width, 2));
+                    highlightRegion.Intersect(clipRect);
+                    g.SetClip(highlightRegion, CombineMode.Replace);
+                    g.FillPath(highlightBrush, path);
+                    g.ResetClip();
+                }
             }
         }
         

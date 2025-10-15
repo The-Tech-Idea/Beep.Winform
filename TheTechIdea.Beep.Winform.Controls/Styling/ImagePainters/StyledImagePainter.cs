@@ -29,6 +29,149 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
         // Pre-render coalescing
         private static CancellationTokenSource _preRenderCts = null;
         private static readonly object _preRenderLock = new object();
+        #region Paint Methods with GraphicsPath and not rectangle
+
+        public static void Paint(Graphics g, GraphicsPath path, string imagePath, BeepControlStyle style)
+        {
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+
+            ImagePainter painter = GetOrCreatePainter(imagePath);
+            if (painter == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                return;
+            }
+
+            int radius = StyleBorders.GetRadius(style);
+
+            using (var path = CreateRoundedRectangle(bounds, radius))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.SetClip(path);
+                painter.DrawImage(g, bounds);
+                g.ResetClip();
+            }
+        }
+
+        public static void Paint(Graphics g, GraphicsPath path, string imagePath)
+        {
+            if (string.IsNullOrEmpty(imagePath))
+                return;
+
+            ImagePainter painter = GetOrCreatePainter(imagePath);
+            if (painter == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StyledImagePainter] Unable to resolve image '{imagePath}'");
+                return;
+            }
+
+            using (var path = CreateRoundedRectangle(bounds, 0))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.SetClip(path);
+                painter.DrawImage(g, bounds);
+                g.ResetClip();
+            }
+        }
+
+        public static void PaintWithTint(Graphics g, GraphicsPath path, string imagePath, Color tint, float opacity = 1f, int cornerRadius = 0)
+        {
+            if (string.IsNullOrEmpty(imagePath) || bounds.IsEmpty) return;
+
+            string key = GetTintCacheKey(imagePath, tint, opacity, bounds.Size);
+            if (_tintedCache.TryGetValue(key, out var tinted) && tinted != null)
+            {
+                using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+                {
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.SetClip(path);
+                    g.DrawImage(tinted, bounds);
+                    g.ResetClip();
+                }
+                return;
+            }
+
+            Image baseImage = LoadImage(imagePath);
+            if (baseImage == null)
+            {
+                var painter = GetOrCreatePainter(imagePath);
+                if (painter != null)
+                {
+                    var oldApply = painter.ApplyThemeOnImage;
+                    var oldFill = painter.FillColor;
+                    var oldOpacity = painter.Opacity;
+                    try
+                    {
+                        painter.ApplyThemeOnImage = true;
+                        painter.FillColor = tint;
+                        painter.Opacity = opacity;
+                        using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+                        {
+                            g.SmoothingMode = SmoothingMode.AntiAlias;
+                            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                            g.SetClip(path);
+                            painter.DrawImage(g, bounds);
+                            g.ResetClip();
+                        }
+                    }
+                    finally
+                    {
+                        painter.ApplyThemeOnImage = oldApply;
+                        painter.FillColor = oldFill;
+                        painter.Opacity = oldOpacity;
+                    }
+                }
+                return;
+            }
+
+            Bitmap bmp = new Bitmap(Math.Max(1, bounds.Width), Math.Max(1, bounds.Height));
+            using (var tg = Graphics.FromImage(bmp))
+            {
+                tg.Clear(Color.Transparent);
+                tg.SmoothingMode = SmoothingMode.HighQuality;
+                tg.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                tg.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+                Rectangle dest = new Rectangle(0, 0, bmp.Width, bmp.Height);
+
+                float rFactor = tint.R / 255f;
+                float gFactor = tint.G / 255f;
+                float bFactor = tint.B / 255f;
+                float aFactor = opacity;
+
+                var cm = new ColorMatrix(new float[][] {
+                    new float[] { rFactor, 0, 0, 0, 0 },
+                    new float[] { 0, gFactor, 0, 0, 0 },
+                    new float[] { 0, 0, bFactor, 0, 0 },
+                    new float[] { 0, 0, 0, aFactor, 0 },
+                    new float[] { 0, 0, 0, 0, 1 }
+                });
+
+                using (var ia = new ImageAttributes())
+                {
+                    ia.SetColorMatrix(cm, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+                    tg.DrawImage(baseImage, dest, 0, 0, baseImage.Width, baseImage.Height, GraphicsUnit.Pixel, ia);
+                }
+            }
+
+            _tintedCache[key] = bmp;
+
+            using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+            {
+                g.SmoothingMode = SmoothingMode.AntiAlias;
+                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                g.SetClip(path);
+                g.DrawImage(bmp, bounds);
+                g.ResetClip();
+            }
+        }
+
+        #endregion
+
 
         public static void Paint(Graphics g, Rectangle bounds, string imagePath, BeepControlStyle style)
         {

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class DiscordStyleBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -64,10 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
 
             using (var brush = new SolidBrush(stateColor))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
 
             // Add subtle gaming glow overlay on hover (Discord-specific)
@@ -76,10 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 Color glowOverlay = Color.FromArgb(20, primaryColor);
                 using (var brush = new SolidBrush(glowOverlay))
                 {
-                    if (path != null)
-                        g.FillPath(brush, path);
-                    else
-                        g.FillRectangle(brush, bounds);
+                    g.FillPath(brush, path);
                 }
             }
         }

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class GradientModernBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -49,24 +49,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                     break;
             }
 
-            // Apply intensity to primary color
-            int intensifiedR = Math.Min(255, Math.Max(0, (int)(primaryColor.R * gradientIntensity)));
-            int intensifiedG = Math.Min(255, Math.Max(0, (int)(primaryColor.G * gradientIntensity)));
-            int intensifiedB = Math.Min(255, Math.Max(0, (int)(primaryColor.B * gradientIntensity)));
-            Color gradientStart = Color.FromArgb(primaryColor.A, intensifiedR, intensifiedG, intensifiedB);
-
-            // Create gradient end color (30% darker than start for modern depth)
-            int endR = Math.Max(0, (int)(gradientStart.R * 0.70f));
-            int endG = Math.Max(0, (int)(gradientStart.G * 0.70f));
-            int endB = Math.Max(0, (int)(gradientStart.B * 0.70f));
-            Color gradientEnd = Color.FromArgb(primaryColor.A, endR, endG, endB);
-
-            using (var brush = new LinearGradientBrush(bounds, gradientStart, gradientEnd, 90f))
+            // Apply gradient fill using GraphicsPath
+            using (var gradientBrush = new LinearGradientBrush(path.GetBounds(), primaryColor, ControlPaint.Dark(primaryColor, gradientIntensity), LinearGradientMode.Vertical))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(gradientBrush, path);
             }
         }
     }

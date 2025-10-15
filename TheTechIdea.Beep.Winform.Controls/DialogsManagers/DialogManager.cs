@@ -9,207 +9,206 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.DialogsManagers
 {
-    public class DialogManager : Component,IDialogManager
+     public   static partial class DialogManager 
     {
-        public BeepPopupForm HostForm { get; }
-        public DialogManager(BeepPopupForm popupForm)
+         public static BeepPopupForm HostForm { get; private set; }
+
+        public static void SetHostForm(BeepPopupForm popupForm)
         {
-            HostForm= popupForm;
+             HostForm = popupForm;
         }
 
-       
-
-        public void CloseProgress(int token)
-        {
-            throw new NotImplementedException();
-        }
-
-        public DialogReturn Confirm(string title, string message, BeepDialogButtonSchema schema, BeepDialogIcon icon)
+         public static  void CloseProgress(int token)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn Confirm(string title, string message, IEnumerable<Vis.Modules.BeepDialogButtons> buttons, BeepDialogIcon icon, Vis.Modules.BeepDialogButtons? defaultButton = null)
+         public static  DialogReturn Confirm(string title, string message, BeepDialogButtonSchema schema, BeepDialogIcon icon)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn ConfirmOverwrite(string filePath)
+         public static  DialogReturn Confirm(string title, string message, IEnumerable<Vis.Modules.BeepDialogButtons> buttons, BeepDialogIcon icon, Vis.Modules.BeepDialogButtons? defaultButton = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn DialogCombo(string text, List<SimpleItem> comboSource, string DisplyMember, string ValueMember)
+         public static  DialogReturn ConfirmOverwrite(string filePath)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputBox(string title, string promptText)
+         public static  DialogReturn DialogCombo(string text, List<SimpleItem> comboSource, string DisplyMember, string ValueMember)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputBoxYesNo(string title, string promptText)
+         public static  DialogReturn InputBox(string title, string promptText)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputCheckList(string title, string promptText, List<SimpleItem> items)
+         public static  DialogReturn InputBoxYesNo(string title, string promptText)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputComboBox(string title, string promptText, List<SimpleItem> itvalues)
+         public static  DialogReturn InputCheckList(string title, string promptText, List<SimpleItem> items)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputComboBox(string title, string promptText, List<string> values)
+         public static  DialogReturn InputComboBox(string title, string promptText, List<SimpleItem> itvalues)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputDateTime(string title, string promptText, DateTime? min = null, DateTime? max = null, DateTime? @default = null)
+         public static  DialogReturn InputComboBox(string title, string promptText, List<string> values)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputDouble(string title, string promptText, double? min = null, double? max = null, double? @default = null, int? decimals = null)
+         public static  DialogReturn InputDateTime(string title, string promptText, DateTime? min = null, DateTime? max = null, DateTime? @default = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputInt(string title, string promptText, int? min = null, int? max = null, int? @default = null)
+         public static  DialogReturn InputDouble(string title, string promptText, double? min = null, double? max = null, double? @default = null, int? decimals = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputLargeBox(string title, string promptText)
+         public static  DialogReturn InputInt(string title, string promptText, int? min = null, int? max = null, int? @default = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputListBox(string title, string promptText, List<SimpleItem> itvalues)
+         public static  DialogReturn InputLargeBox(string title, string promptText)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputPassword(string title, string promptText, bool masked = true)
+         public static  DialogReturn InputListBox(string title, string promptText, List<SimpleItem> itvalues)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputRadioGroupBox(string title, string promptText, List<SimpleItem> itvalues)
+         public static  DialogReturn InputPassword(string title, string promptText, bool masked = true)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn InputTimeSpan(string title, string promptText, TimeSpan? min = null, TimeSpan? max = null, TimeSpan? @default = null)
+         public static  DialogReturn InputRadioGroupBox(string title, string promptText, List<SimpleItem> itvalues)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn LoadFileDialog(string exts, string dir, string filter)
+         public static  DialogReturn InputTimeSpan(string title, string promptText, TimeSpan? min = null, TimeSpan? max = null, TimeSpan? @default = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn LoadFileDialog(string exts, string dir, string filter, string initialFileName)
+         public static  DialogReturn LoadFileDialog(string exts, string dir, string filter)
         {
             throw new NotImplementedException();
         }
 
-        public List<string> LoadFilesDialog(string exts, string dir, string filter)
+         public static  DialogReturn LoadFileDialog(string exts, string dir, string filter, string initialFileName)
         {
             throw new NotImplementedException();
         }
 
-        public void MsgBox(string title, string promptText)
+         public static  List<string> LoadFilesDialog(string exts, string dir, string filter)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn MultiSelect(string title, string promptText, List<SimpleItem> items)
+         public static  void MsgBox(string title, string promptText)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SaveFileDialog(string exts, string dir, string filter)
+         public static  DialogReturn MultiSelect(string title, string promptText, List<SimpleItem> items)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SaveFileDialog(string exts, string dir, string filter, string defaultFileName)
+         public static  DialogReturn SaveFileDialog(string exts, string dir, string filter)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectColor(string title = null, string initialColor = null)
+         public static  DialogReturn SaveFileDialog(string exts, string dir, string filter, string defaultFileName)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectFile(List<SimpleItem> files, string filter)
+         public static  DialogReturn SelectColor(string title = null, string initialColor = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectFolderDialog()
+         public static  DialogReturn SelectFile(List<SimpleItem> files, string filter)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectFolderDialog(string title, string initialDir, bool allowCreate)
+         public static  DialogReturn SelectFolderDialog()
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectFont(string title = null, string initialFont = null)
+         public static  DialogReturn SelectFolderDialog(string title, string initialDir, bool allowCreate)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectSpecialDirectoriesComboBox()
+         public static  DialogReturn SelectFont(string title = null, string initialFont = null)
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectSpecialDirectoriesListBox()
+         public static  DialogReturn SelectSpecialDirectoriesComboBox()
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn SelectSpecialDirectoriesRadioGroupBox()
+         public static  DialogReturn SelectSpecialDirectoriesListBox()
         {
             throw new NotImplementedException();
         }
 
-        public DialogReturn ShowAlert(string title, string message, string icon)
+         public static  DialogReturn SelectSpecialDirectoriesRadioGroupBox()
         {
             throw new NotImplementedException();
         }
 
-        public void ShowException(string title, Exception ex)
+         public static  DialogReturn ShowAlert(string title, string message, string icon)
         {
             throw new NotImplementedException();
         }
 
-        public void ShowMessege(string title, string message, string icon)
+         public static  void ShowException(string title, Exception ex)
         {
             throw new NotImplementedException();
         }
 
-        public int ShowProgress(string title, string message = null)
+         public static  void ShowMessege(string title, string message, string icon)
         {
             throw new NotImplementedException();
         }
 
-        public void ShowToast(string message, int durationMs = 3000, string icon = null)
+         public static  int ShowProgress(string title, string message = null)
         {
             throw new NotImplementedException();
         }
 
-        public void UpdateProgress(int token, int percent, string status = null)
+         public static  void ShowToast(string message, int durationMs = 3000, string icon = null)
+        {
+            throw new NotImplementedException();
+        }
+
+         public static  void UpdateProgress(int token, int percent, string status = null)
         {
             throw new NotImplementedException();
         }

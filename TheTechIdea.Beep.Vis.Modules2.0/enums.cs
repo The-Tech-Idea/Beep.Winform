@@ -418,7 +418,8 @@ namespace TheTechIdea.Beep.Vis.Modules
         Information,
         Warning,
         Error,
-        Question
+        Question,
+        Success
     }
 
     //
@@ -501,6 +502,17 @@ namespace TheTechIdea.Beep.Vis.Modules
         // Summary:
         //     The second XButton was pressed.
         XButton2 = 0x1000000
+    }
+    public enum  DialogShowAnimation
+    {
+        None,
+        FadeIn,
+        SlideInFromTop,
+        SlideInFromBottom,
+        SlideInFromLeft,
+        SlideInFromRight,
+        ZoomIn
+
     }
     public enum TextBoxMaskFormat
     {

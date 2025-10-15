@@ -13,53 +13,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class MaterialBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Material UX: Focus border thickening for accessibility
             if (StyleBorders.IsFilled(style))
-                return;
+                return path;
 
             Color borderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
             Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);
             float borderWidth = StyleBorders.GetBorderWidth(style);
 
-            // Original Material Design UX: Bold, clear state transitions
             switch (state)
             {
                 case ControlState.Hovered:
-                    // Material: Hover tint with transparency
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 70);
                     break;
-                    
                 case ControlState.Pressed:
-                    // Material: Bold press state with dramatic thickening
                     borderColor = primaryColor;
-                    borderWidth = Math.Max(borderWidth * 2.5f, 3.0f); // 2.5x or minimum 3px
+                    borderWidth = Math.Max(borderWidth * 2.5f, 3.0f);
                     break;
-                    
                 case ControlState.Selected:
-                    // Material: Full primary color with standard thickening
                     borderColor = primaryColor;
-                    borderWidth = Math.Max(borderWidth * 1.5f, 2.0f); // 1.5x or minimum 2px
+                    borderWidth = Math.Max(borderWidth * 1.5f, 2.0f);
                     break;
-                    
                 case ControlState.Disabled:
-                    // Material: Low-contrast disabled state
                     borderColor = BorderPainterHelpers.WithAlpha(borderColor, 40);
-                    borderWidth *= 0.8f; // Slightly thinner for disabled
+                    borderWidth *= 0.8f;
                     break;
             }
 
-            // Material: Focus border thickening (Material Design guideline) - overrides state
             if (isFocused)
             {
-                borderWidth = Math.Max(borderWidth * 2.0f, 2.0f); // At least 2px on focus
-                borderColor = primaryColor; // Full focus color
+                borderWidth = Math.Max(borderWidth * 2.0f, 2.0f);
+                borderColor = primaryColor;
             }
 
             BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
+
+            // Return the area inside the border
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
         
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)

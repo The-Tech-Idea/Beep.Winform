@@ -12,26 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class BackgroundPainterHelpers
     {
-        /// <summary>
-        /// Create a rounded rectangle path
-        /// </summary>
-        public static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
-        {
-            var path = new GraphicsPath();
-            if (radius <= 0 || bounds.Width < radius * 2 || bounds.Height < radius * 2)
-            {
-                path.AddRectangle(bounds);
-                return path;
-            }
-
-            path.AddArc(bounds.X, bounds.Y, radius * 2, radius * 2, 180, 90);
-            path.AddArc(bounds.Right - radius * 2, bounds.Y, radius * 2, radius * 2, 270, 90);
-            path.AddArc(bounds.Right - radius * 2, bounds.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
-            path.AddArc(bounds.X, bounds.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
-            path.CloseFigure();
-            return path;
-        }
-
+      
         /// <summary>
         /// Lighten a color by a percentage
         /// </summary>

@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class StripeDashboardBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -67,12 +67,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             int topB = Math.Min(255, stateColor.B + (int)(255 * 0.03f));
             Color topColor = Color.FromArgb(stateColor.A, topR, topG, topB);
 
+            RectangleF bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(bounds, topColor, stateColor, 90f))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
         }
     }

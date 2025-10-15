@@ -14,7 +14,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         /// <summary>
         /// Paint iOS background with subtle blur effect
         /// </summary>
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors)
         {
             Color bgColor = GetColor(style, StyleColors.GetBackground, "Background", theme, useThemeColors);
             
@@ -31,13 +31,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 g.FillPath(overlayBrush, path);
             }
             
-            // Very subtle bottom shadow for depth
-            Rectangle bottomShadow = new Rectangle(bounds.X, bounds.Bottom - 1, bounds.Width, 1);
+            // Very subtle bottom shadow for depth using clipped region
+            RectangleF bounds = path.GetBounds();
             using (var shadowBrush = new SolidBrush(Color.FromArgb(20, 0, 0, 0)))
+            using (var bottomRegion = new Region(path))
             {
-                g.SetClip(path);
-                g.FillRectangle(shadowBrush, bottomShadow);
-                g.ResetClip();
+                // Clip to bottom 1px line
+                using (var clipRect = new GraphicsPath())
+                {
+                    clipRect.AddRectangle(new RectangleF(bounds.X, bounds.Bottom - 1, bounds.Width, 1));
+                    bottomRegion.Intersect(clipRect);
+                    g.SetClip(bottomRegion, CombineMode.Replace);
+                    g.FillPath(shadowBrush, path);
+                    g.ResetClip();
+                }
             }
         }
         

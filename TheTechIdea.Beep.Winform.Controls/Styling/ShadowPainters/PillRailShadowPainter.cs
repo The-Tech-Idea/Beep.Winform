@@ -12,15 +12,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class PillRailShadowPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
+       public static GraphicsPath Paint(Graphics g, GraphicsPath path, int radius, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, 
             ControlState state = ControlState.Normal,
             MaterialElevation elevation = MaterialElevation.Level0)
         {
             // Pill rail style has no shadows for clean flat appearance
             if (!StyleShadows.HasShadow(style))
-                return;
-
+                return path;
+            
             // This should not execute for PillRail style, but structure is in place for consistency
+            return path;
         }
     }
 }

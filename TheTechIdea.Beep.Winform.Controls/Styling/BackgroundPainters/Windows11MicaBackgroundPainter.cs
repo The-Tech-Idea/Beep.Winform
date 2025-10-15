@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
     /// </summary>
     public static class Windows11MicaBackgroundPainter
     {
-        public static void Paint(Graphics g, Rectangle bounds, GraphicsPath path, 
+        public static void Paint(Graphics g, GraphicsPath path, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -88,12 +88,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             int bottomB = Math.Max(0, stateColor.B - (int)(stateColor.B * 0.02f));
             Color bottomColor = Color.FromArgb(stateColor.A, bottomR, bottomG, bottomB);
 
+            RectangleF bounds = path.GetBounds();
             using (var brush = new LinearGradientBrush(bounds, topColor, bottomColor, 90f))
             {
-                if (path != null)
-                    g.FillPath(brush, path);
-                else
-                    g.FillRectangle(brush, bounds);
+                g.FillPath(brush, path);
             }
         }
     }

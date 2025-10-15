@@ -12,7 +12,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class ChakraUIBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
@@ -68,6 +68,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                 float ringOffset = StyleBorders.GetRingOffset(style); // 1.5f for Chakra
                 BorderPainterHelpers.PaintRing(g, path, focusRing, ringWidth, ringOffset);
             }
+
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
     }
 }

@@ -46,61 +46,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
         /// <summary>
         /// Paints a soft multi-layer shadow
         /// </summary>
-        public static void PaintSoftShadow(Graphics g, Rectangle bounds, int radius, int offsetX, int offsetY, 
+        public static GraphicsPath PaintSoftShadow(Graphics g, GraphicsPath bounds, int radius, int offsetX, int offsetY, 
             Color shadowColor, float opacity, int layers = 6)
         {
-            if (opacity <= 0 || opacity > 1) return;
+            if (opacity <= 0 || opacity > 1) return bounds;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.CompositingQuality = CompositingQuality.HighQuality;
 
-            Rectangle shadowRect = new Rectangle(
-                bounds.X + offsetX,
-                bounds.Y + offsetY,
-                bounds.Width,
-                bounds.Height
-            );
-
-            for (int i = 1; i <= layers; i++)
+            // Create offset shadow path
+            using (Matrix offsetMatrix = new Matrix())
             {
-                float layerOpacityFactor = (float)(layers - i + 1) / layers;
-                float finalOpacity = opacity * layerOpacityFactor * 0.6f;
-                int layerAlpha = Math.Max(5, (int)(255 * finalOpacity));
-
-                Color layerShadowColor = Color.FromArgb(layerAlpha, shadowColor);
-
-                int spread = i - 1;
-                Rectangle layerRect = new Rectangle(
-                    shadowRect.X - spread,
-                    shadowRect.Y - spread,
-                    shadowRect.Width + (spread * 2),
-                    shadowRect.Height + (spread * 2)
-                );
-
-                using (SolidBrush shadowBrush = new SolidBrush(layerShadowColor))
+                offsetMatrix.Translate(offsetX, offsetY);
+                
+                for (int i = 1; i <= layers; i++)
                 {
-                    if (radius > 0)
+                    float layerOpacityFactor = (float)(layers - i + 1) / layers;
+                    float finalOpacity = opacity * layerOpacityFactor * 0.6f;
+                    int layerAlpha = Math.Max(5, (int)(255 * finalOpacity));
+
+                    Color layerShadowColor = Color.FromArgb(layerAlpha, shadowColor);
+
+                    int spread = i - 1;
+                    
+                    using (GraphicsPath shadowPath = (GraphicsPath)bounds.Clone())
                     {
-                        int shadowRadius = Math.Max(0, radius + spread);
-                        using (GraphicsPath shadowPath = CreateRoundedRectangle(layerRect, shadowRadius))
+                        shadowPath.Transform(offsetMatrix);
+                        
+                        // Apply spread if needed
+                        if (spread > 0)
                         {
-                            g.FillPath(shadowBrush, shadowPath);
+                            using (GraphicsPath expandedPath = shadowPath.CreateInsetPath(-spread))
+                            {
+                                using (SolidBrush shadowBrush = new SolidBrush(layerShadowColor))
+                                {
+                                    g.FillPath(shadowBrush, expandedPath);
+                                }
+                            }
                         }
-                    }
-                    else
-                    {
-                        g.FillRectangle(shadowBrush, layerRect);
+                        else
+                        {
+                            using (SolidBrush shadowBrush = new SolidBrush(layerShadowColor))
+                            {
+                                g.FillPath(shadowBrush, shadowPath);
+                            }
+                        }
                     }
                 }
             }
+            
+            // Return the area inside the shadow using shape-aware inset
+            return bounds.CreateInsetPath(radius);
         }
 
         /// <summary>
         /// Paints Material Design elevation shadow
         /// </summary>
-        public static void PaintMaterialShadow(Graphics g, Rectangle bounds, int radius, MaterialElevation elevation)
+        public static GraphicsPath PaintMaterialShadow(Graphics g, GraphicsPath bounds, int radius, MaterialElevation elevation)
         {
-            if (elevation == MaterialElevation.Level0) return;
+            if (elevation == MaterialElevation.Level0) return bounds;
 
             // Material shadows use two layers: key light (top) and ambient light (bottom)
             int elevationValue = (int)elevation;
@@ -120,60 +124,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             
             // Draw key shadow on top (smaller, more defined)
             PaintSoftShadow(g, bounds, radius, 0, keyOffsetY, keyShadowColor, 0.4f, keyBlur);
+            
+            // Return the area inside the shadow using shape-aware inset
+            return bounds.CreateInsetPath(radius);
         }
 
         /// <summary>
         /// Paints neumorphic embossed shadow (dual shadow for raised effect)
         /// </summary>
-        public static void PaintNeumorphicShadow(Graphics g, Rectangle bounds, int radius, Color backgroundColor)
+        public static GraphicsPath PaintNeumorphicShadow(Graphics g, GraphicsPath bounds, int radius, Color backgroundColor)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Light shadow (top-left)
             Color lightShadow = Lighten(backgroundColor, 0.15f);
-            Rectangle lightRect = new Rectangle(bounds.X - 4, bounds.Y - 4, bounds.Width, bounds.Height);
             
-            using (SolidBrush lightBrush = new SolidBrush(Color.FromArgb(80, lightShadow)))
+            using (GraphicsPath lightPath = (GraphicsPath)bounds.Clone())
+            using (Matrix lightMatrix = new Matrix())
             {
-                if (radius > 0)
+                lightMatrix.Translate(-4, -4);
+                lightPath.Transform(lightMatrix);
+                
+                using (SolidBrush lightBrush = new SolidBrush(Color.FromArgb(80, lightShadow)))
                 {
-                    using (GraphicsPath lightPath = CreateRoundedRectangle(lightRect, radius))
-                    {
-                        g.FillPath(lightBrush, lightPath);
-                    }
-                }
-                else
-                {
-                    g.FillRectangle(lightBrush, lightRect);
+                    g.FillPath(lightBrush, lightPath);
                 }
             }
 
             // Dark shadow (bottom-right)
             Color darkShadow = Darken(backgroundColor, 0.15f);
-            Rectangle darkRect = new Rectangle(bounds.X + 4, bounds.Y + 4, bounds.Width, bounds.Height);
             
-            using (SolidBrush darkBrush = new SolidBrush(Color.FromArgb(80, darkShadow)))
+            using (GraphicsPath darkPath = (GraphicsPath)bounds.Clone())
+            using (Matrix darkMatrix = new Matrix())
             {
-                if (radius > 0)
+                darkMatrix.Translate(4, 4);
+                darkPath.Transform(darkMatrix);
+                
+                using (SolidBrush darkBrush = new SolidBrush(Color.FromArgb(80, darkShadow)))
                 {
-                    using (GraphicsPath darkPath = CreateRoundedRectangle(darkRect, radius))
-                    {
-                        g.FillPath(darkBrush, darkPath);
-                    }
-                }
-                else
-                {
-                    g.FillRectangle(darkBrush, darkRect);
+                    g.FillPath(darkBrush, darkPath);
                 }
             }
+            
+            // Return the area inside the shadow using shape-aware inset
+            return bounds.CreateInsetPath(radius);
         }
 
         /// <summary>
         /// Paints a glow effect (for DarkGlow style)
         /// </summary>
-        public static void PaintGlow(Graphics g, Rectangle bounds, int radius, Color glowColor, float intensity)
+        public static GraphicsPath PaintGlow(Graphics g, GraphicsPath bounds, int radius, Color glowColor, float intensity)
         {
-            if (intensity <= 0) return;
+            if (intensity <= 0) return bounds;
 
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
@@ -183,28 +185,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 int alpha = (int)(30 * intensity * (1f - (float)i / glowSize));
                 if (alpha <= 0) continue;
 
-                Rectangle glowRect = new Rectangle(
-                    bounds.X - i,
-                    bounds.Y - i,
-                    bounds.Width + (i * 2),
-                    bounds.Height + (i * 2)
-                );
-
+                // Create expanded glow path using negative inset (outset)
+                using (GraphicsPath glowPath = bounds.CreateInsetPath(-i))
                 using (SolidBrush glowBrush = new SolidBrush(Color.FromArgb(alpha, glowColor)))
                 {
-                    if (radius > 0)
-                    {
-                        using (GraphicsPath glowPath = CreateRoundedRectangle(glowRect, radius + i))
-                        {
-                            g.FillPath(glowBrush, glowPath);
-                        }
-                    }
-                    else
-                    {
-                        g.FillRectangle(glowBrush, glowRect);
-                    }
+                    g.FillPath(glowBrush, glowPath);
                 }
             }
+            
+            // Return the area inside the glow using shape-aware inset
+            return bounds.CreateInsetPath(radius);
         }
 
         /// <summary>

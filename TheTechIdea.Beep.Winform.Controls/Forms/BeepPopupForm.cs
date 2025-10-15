@@ -6,12 +6,12 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepPopupForm : BeepiFormPro, IPopupDisplayContainer
+    public partial class BeepPopupForm : BeepiFormPro
     {
         #region IPopupDisplayContainer Implementation
-       public DialogReturn Result { get; set; }
+        public DialogReturn Result { get; set; }
         public string DisplayName => this.Name;
-        
+
         #endregion
         private bool _inpopMode = false;
         [Browsable(false)]
@@ -27,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     FormStyle = FormStyle.Modern;
                     ShowCaptionBar = false;
                     ShowMinMaxButtons = false;
-                   
+
                     //Padding = new Padding(5);
                     //BorderRadius = 3;
                 }
@@ -37,9 +37,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                     FormStyle = FormStyle.Modern;
                     ShowCaptionBar = true;
                     ShowMinMaxButtons = true;
-                  
-                   // Padding = new Padding(10);
-                   // BorderRadius = 3;
+
+                    // Padding = new Padding(10);
+                    // BorderRadius = 3;
                 }
             }
         }
@@ -98,9 +98,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        IBeepUIComponent IPopupDisplayContainer.TriggerControl { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
-        public BeepPopupForm():base()
+        public BeepPopupForm() : base()
         {
             InitializePopupForm();
 
@@ -113,13 +112,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             InPopMode = true;
 
             FormStyle = FormStyle.Modern;
-          
+
             // Ensure popup is truly borderless and captionless
             ShowCaptionBar = true;
             ShowMinMaxButtons = false;
             ShowStyleButton = false;
             ShowCloseButton = true;
-            ShowThemeButton=false;
+            ShowThemeButton = false;
 
             // Initialize DPI scaling first
             //UpdateDpiScaling();
@@ -155,7 +154,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Do not start the timer here; it will be started after the popup is shown
         }
 
-        public void StartTimers()  { if (_autoclose) _closeTimer.Start(); }
+        public void StartTimers() { if (_autoclose) _closeTimer.Start(); }
 
         public void StopTimers() => _closeTimer.Stop();
 
@@ -560,7 +559,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         #region Child Popup Management
 
-        public  async void SetChildPopupForm(BeepPopupForm childPopupForm)
+        public async void SetChildPopupForm(BeepPopupForm childPopupForm)
         {
             _isOpeningChild = true; // Set flag to prevent closing during child creation
             // Assign to property (wire parent/handlers in setter)
@@ -573,7 +572,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _isOpeningChild = false; // Reset flag after child is set
         }
 
-     
+
         #endregion
     }
 }

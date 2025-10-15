@@ -13,55 +13,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     /// </summary>
     public static class PillRailBorderPainter
     {
-        public static void Paint(Graphics g, GraphicsPath path, bool isFocused,
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused,
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors,
             ControlState state = ControlState.Normal)
         {
-            // Get Pill Rail colors
             Color baseBorderColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Border", Color.FromArgb(229, 231, 235));
             Color primaryColor = BorderPainterHelpers.GetColorFromStyleOrTheme(theme, useThemeColors, "Primary", Color.FromArgb(107, 114, 128));
-
             Color borderColor = baseBorderColor;
             bool showRing = false;
 
-            // Pill Rail UX: Soft, rounded minimalism with gentle transitions
             switch (state)
             {
                 case ControlState.Hovered:
-                    // Pill Rail: Very subtle hover tint (40 alpha for soft feedback)
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 40);
                     break;
-
                 case ControlState.Pressed:
-                    // Pill Rail: Slightly stronger tint (70 alpha for soft press)
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 70);
                     break;
-
                 case ControlState.Selected:
-                    // Pill Rail: Full primary with soft transparency (140 alpha)
                     borderColor = BorderPainterHelpers.WithAlpha(primaryColor, 140);
                     showRing = true;
                     break;
-
                 case ControlState.Disabled:
-                    // Pill Rail: Soft disabled (45 alpha for gentle disabled)
                     borderColor = BorderPainterHelpers.WithAlpha(baseBorderColor, 45);
                     break;
             }
 
-            // Focus overrides state
             if (isFocused)
             {
                 showRing = true;
             }
 
-            // Paint border
-            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, StyleBorders.GetBorderWidth(style), state);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
+            BorderPainterHelpers.PaintSimpleBorder(g, path, borderColor, borderWidth, state);
 
-            // Pill Rail: Add subtle focus ring
             if (showRing)
             {
-                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 50); // Subtle focus ring
+                Color focusRing = BorderPainterHelpers.WithAlpha(primaryColor, 50);
                 float ringWidth = StyleBorders.GetRingWidth(style);
                 float ringOffset = StyleBorders.GetRingOffset(style);
                 if (ringWidth > 0)
@@ -69,6 +57,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
                     BorderPainterHelpers.PaintRing(g, path, focusRing, ringWidth, ringOffset);
                 }
             }
+
+            // Return the area inside the border
+                // Return the area inside the border using shape-aware inset
+                return path.CreateInsetPath(borderWidth);
         }
     }
 }

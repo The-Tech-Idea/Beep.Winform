@@ -1,17 +1,18 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
-using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.BaseImage;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 {
@@ -45,14 +46,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
             int radius = StyleBorders.GetRadius(style);
 
-            using (var path = CreateRoundedRectangle(bounds, radius))
+            using (var roundedPath = GraphicsExtensions.GetRoundedRectPath(path.GetBoundsRect(), radius))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.SetClip(path);
-                painter.DrawImage(g, bounds);
+                g.SetClip(roundedPath);
+                painter.DrawImage(g, roundedPath.GetBoundsRect());
                 g.ResetClip();
             }
+            
         }
 
         public static void Paint(Graphics g, GraphicsPath path, string imagePath)
@@ -67,29 +69,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            using (var path = CreateRoundedRectangle(bounds, 0))
-            {
+    
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SetClip(path);
-                painter.DrawImage(g, bounds);
+                painter.DrawImage(g, path.GetBoundsRect());
                 g.ResetClip();
-            }
+            
         }
 
         public static void PaintWithTint(Graphics g, GraphicsPath path, string imagePath, Color tint, float opacity = 1f, int cornerRadius = 0)
         {
-            if (string.IsNullOrEmpty(imagePath) || bounds.IsEmpty) return;
-
+            if (string.IsNullOrEmpty(imagePath) ) return;
+            Rectangle bounds = Rectangle.Ceiling(path.GetBounds());
             string key = GetTintCacheKey(imagePath, tint, opacity, bounds.Size);
             if (_tintedCache.TryGetValue(key, out var tinted) && tinted != null)
             {
-                using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+                using (var roundedPath = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
                 {
                     g.SmoothingMode = SmoothingMode.AntiAlias;
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.SetClip(path);
-                    g.DrawImage(tinted, bounds);
+                    g.SetClip(roundedPath);
+                    g.DrawImage(tinted, roundedPath.GetBoundsRect());
                     g.ResetClip();
                 }
                 return;
@@ -109,12 +110,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                         painter.ApplyThemeOnImage = true;
                         painter.FillColor = tint;
                         painter.Opacity = opacity;
-                        using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+                        using (var bounds1   = GraphicsExtensions.GetRoundedRectPath(path.GetBoundsRect(), cornerRadius))
                         {
                             g.SmoothingMode = SmoothingMode.AntiAlias;
                             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                             g.SetClip(path);
-                            painter.DrawImage(g, bounds);
+                            painter.DrawImage(g, bounds1.GetBoundsRect());
                             g.ResetClip();
                         }
                     }
@@ -160,12 +161,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
             _tintedCache[key] = bmp;
 
-            using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+            using (var bound2 = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SetClip(path);
-                g.DrawImage(bmp, bounds);
+                g.DrawImage(bmp, bound2.GetBoundsRect());
                 g.ResetClip();
             }
         }
@@ -187,12 +188,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
             int radius = StyleBorders.GetRadius(style);
 
-            using (var path = CreateRoundedRectangle(bounds, radius))
+            using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, radius))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                 g.SetClip(path);
-                painter.DrawImage(g, bounds);
+                painter.DrawImage(g, path.GetBoundsRect());
                 g.ResetClip();
             }
         }
@@ -209,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                 return;
             }
 
-            using (var path = CreateRoundedRectangle(bounds, 0))
+            using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, 0))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -226,7 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             string key = GetTintCacheKey(imagePath, tint, opacity, bounds.Size);
             if (_tintedCache.TryGetValue(key, out var tinted) && tinted != null)
             {
-                using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+                using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
                 {
                     g.SmoothingMode = SmoothingMode.AntiAlias;
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -251,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
                         painter.ApplyThemeOnImage = true;
                         painter.FillColor = tint;
                         painter.Opacity = opacity;
-                        using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+                        using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
                         {
                             g.SmoothingMode = SmoothingMode.AntiAlias;
                             g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -302,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
             _tintedCache[key] = bmp;
 
-            using (var path = CreateRoundedRectangle(bounds, cornerRadius))
+            using (var path = GraphicsExtensions.GetRoundedRectPath(bounds, cornerRadius))
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
@@ -527,29 +528,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
             if (string.IsNullOrEmpty(imagePath)) ClearCache(); else RemoveFromCache(imagePath);
         }
 
-        private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-            if (radius == 0)
-            {
-                path.AddRectangle(bounds);
-                return path;
-            }
-
-            int diameter = radius * 2;
-            Size size = new Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
-
-            path.AddArc(arc, 180, 90);
-            arc.X = bounds.Right - diameter;
-            path.AddArc(arc, 270, 90);
-            arc.Y = bounds.Bottom - diameter;
-            path.AddArc(arc, 0, 90);
-            arc.X = bounds.Left;
-            path.AddArc(arc, 90, 90);
-
-            path.CloseFigure();
-            return path;
-        }
+    
     }
 }

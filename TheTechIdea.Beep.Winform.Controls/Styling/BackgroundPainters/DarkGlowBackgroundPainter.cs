@@ -63,7 +63,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             };
 
             // GLOW RING 1 (80% alpha base, 1px inset)
-            using (var glowPath1 = BackgroundPainterHelpers.CreateInsetPath(path, 1))
+            using (var glowPath1 = GraphicsExtensions.CreateInsetPath(path, 1))
             {
                 int alpha1 = Math.Min(255, (int)(80 * glowMultiplier));
                 Color glowColor1 = Color.FromArgb(alpha1, glowColor);
@@ -74,7 +74,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
 
             // GLOW RING 2 (40% alpha base, 3px inset)
-            using (var glowPath2 = BackgroundPainterHelpers.CreateInsetPath(path, 3))
+            using (var glowPath2 = GraphicsExtensions.CreateInsetPath(path, 3))
             {
                 int alpha2 = Math.Min(255, (int)(40 * glowMultiplier));
                 Color glowColor2 = Color.FromArgb(alpha2, glowColor);
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
 
             // GLOW RING 3 (20% alpha base, 6px inset)
-            using (var glowPath3 = BackgroundPainterHelpers.CreateInsetPath(path, 6))
+            using (var glowPath3 = GraphicsExtensions.CreateInsetPath(path, 6))
             {
                 int alpha3 = Math.Min(255, (int)(20 * glowMultiplier));
                 Color glowColor3 = Color.FromArgb(alpha3, glowColor);

@@ -33,7 +33,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 int alpha = (int)(30 * (1 - (float)i / glowSize));
                 Color glowStep = Color.FromArgb(alpha, glowColor);
                 
-                using (var innerPath = BackgroundPainterHelpers.CreateInsetPath(path, i))
+                using (var innerPath = GraphicsExtensions.CreateInsetPath(path, i))
                 using (var glowPen = new Pen(glowStep, 2f))
                 {
                     g.DrawPath(glowPen, innerPath);

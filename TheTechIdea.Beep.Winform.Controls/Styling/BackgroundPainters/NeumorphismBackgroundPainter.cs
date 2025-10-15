@@ -80,7 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             using (var highlightRegion = new Region(path))
             {
                 // Create inset path (2px inset) and clip to top half
-                using (var insetPath = BackgroundPainterHelpers.CreateInsetPath(path, 2))
+                using (var insetPath = GraphicsExtensions.CreateInsetPath(path, 2))
                 {
                     RectangleF insetBounds = insetPath.GetBounds();
                     using (var clipRect = new GraphicsPath())

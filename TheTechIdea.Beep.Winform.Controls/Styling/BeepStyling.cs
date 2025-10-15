@@ -336,11 +336,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// <summary>
         /// Paint buttons (e.g., up/down for numeric controls) for the current style
         /// </summary>
-        public static void PaintStyleButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath, bool isFocused)
+        public static void PaintStyleButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath,BeepControlStyle style, bool isFocused)
         {
-            PaintStyleButtons(g, upButtonPath, downButtonPath, isFocused, CurrentControlStyle);
+            // Paint Shadows
+
+
+
+            // Paint Borders
+
+
+            // Paint Background
         }
-        
+
         /// <summary>
         /// Paint spinner buttons (up/down arrows for numeric controls) for a specific style
         /// </summary>

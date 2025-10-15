@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         {
             // Apple UX: Subtle outlined borders with focus rings
             if (StyleBorders.IsFilled(style))
-                return;
+                return path;
 
             Color baseBorderColor = GetColor(style, StyleColors.GetBorder, "Border", theme, useThemeColors);
             Color primaryColor = GetColor(style, StyleColors.GetPrimary, "Primary", theme, useThemeColors);

@@ -11,6 +11,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// </summary>
     public static class GraphicsExtensions
     {
+        public static GraphicsPath CreateInsetPath(GraphicsPath originalPath, int inset)
+        {
+           
+            return originalPath.CreateInsetPath((float)inset);
+        }
         /// <summary>
         /// Scales all points in a GraphicsPath toward its centroid by 'inset' pixels.
         /// Works for convex shapes, may distort concave/complex shapes.

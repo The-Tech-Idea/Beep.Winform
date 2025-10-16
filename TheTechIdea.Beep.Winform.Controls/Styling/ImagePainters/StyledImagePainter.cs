@@ -173,6 +173,441 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters
 
         #endregion
 
+        #region "Advanced Shape-Based Image Painting"
+
+        /// <summary>
+        /// Paints image inside a circle
+        /// </summary>
+        public static void PaintInCircle(Graphics g, float centerX, float centerY, float radius, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateCircle(centerX, centerY, radius))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a triangle
+        /// </summary>
+        public static void PaintInTriangle(Graphics g, float centerX, float centerY, float size, string imagePath, float rotation = 0f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateTriangle(centerX, centerY, size, rotation))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a star shape
+        /// </summary>
+        public static void PaintInStar(Graphics g, float centerX, float centerY, float outerRadius, float innerRadius, string imagePath, int points = 5, float rotation = 0f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateStar(centerX, centerY, outerRadius, innerRadius, points, rotation))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a hexagon
+        /// </summary>
+        public static void PaintInHexagon(Graphics g, float centerX, float centerY, float size, string imagePath, float rotation = 0f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateHexagon(centerX, centerY, size, rotation))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a pentagon
+        /// </summary>
+        public static void PaintInPentagon(Graphics g, float centerX, float centerY, float size, string imagePath, float rotation = 0f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreatePentagon(centerX, centerY, size, rotation))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside an octagon
+        /// </summary>
+        public static void PaintInOctagon(Graphics g, float centerX, float centerY, float size, string imagePath, float rotation = 0f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateOctagon(centerX, centerY, size, rotation))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a regular polygon with any number of sides
+        /// </summary>
+        public static void PaintInPolygon(Graphics g, float centerX, float centerY, float size, int sides, string imagePath, float rotation = 0f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateRegularPolygon(centerX, centerY, size, sides, rotation))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a diamond/rhombus shape
+        /// </summary>
+        public static void PaintInDiamond(Graphics g, float centerX, float centerY, float width, float height, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateDiamond(centerX, centerY, width, height))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a pill/capsule shape
+        /// </summary>
+        public static void PaintInPill(Graphics g, float x, float y, float width, float height, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreatePill(x, y, width, height))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a heart shape
+        /// </summary>
+        public static void PaintInHeart(Graphics g, float centerX, float centerY, float size, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateHeart(centerX, centerY, size))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a cloud shape
+        /// </summary>
+        public static void PaintInCloud(Graphics g, float x, float y, float width, float height, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateCloud(x, y, width, height))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a gear/cog shape
+        /// </summary>
+        public static void PaintInGear(Graphics g, float centerX, float centerY, float outerRadius, float innerRadius, string imagePath, int teeth = 12, float toothDepth = 0.3f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateGear(centerX, centerY, outerRadius, innerRadius, teeth, toothDepth))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a tab shape (for tab controls)
+        /// </summary>
+        public static void PaintInTab(Graphics g, float x, float y, float width, float height, string imagePath, float cornerRadius = 8f, GraphicsExtensions.TabPosition position = GraphicsExtensions.TabPosition.Top, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateTab(x, y, width, height, cornerRadius, position))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a tag/label shape
+        /// </summary>
+        public static void PaintInTag(Graphics g, float x, float y, float width, float height, string imagePath, float cornerRadius = 5f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateTag(x, y, width, height, cornerRadius))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a breadcrumb item shape
+        /// </summary>
+        public static void PaintInBreadcrumb(Graphics g, float x, float y, float width, float height, string imagePath, float arrowSize = 10f, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateBreadcrumb(x, y, width, height, arrowSize))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a badge (circular notification badge)
+        /// </summary>
+        public static void PaintInBadge(Graphics g, float x, float y, float size, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateBadge(x, y, size))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside a speech bubble shape
+        /// </summary>
+        public static void PaintInSpeechBubble(Graphics g, float x, float y, float width, float height, string imagePath, float cornerRadius = 10f, float tailSize = 15f, GraphicsExtensions.SpeechBubbleTailPosition tailPosition = GraphicsExtensions.SpeechBubbleTailPosition.BottomLeft, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateSpeechBubble(x, y, width, height, cornerRadius, tailSize, tailPosition))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside an arrow shape
+        /// </summary>
+        public static void PaintInArrow(Graphics g, float x, float y, float width, float height, string imagePath, GraphicsExtensions.ArrowDirection direction = GraphicsExtensions.ArrowDirection.Right, Color? tint = null, float opacity = 1f)
+        {
+            using (var path = GraphicsExtensions.CreateArrow(x, y, width, height, direction))
+            {
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+        }
+
+        /// <summary>
+        /// Paints image inside any custom GraphicsPath shape
+        /// </summary>
+        public static void PaintInCustomShape(Graphics g, GraphicsPath customPath, string imagePath, Color? tint = null, float opacity = 1f, int cornerRadius = 0)
+        {
+            if (customPath == null) return;
+            
+            if (tint.HasValue)
+                PaintWithTint(g, customPath, imagePath, tint.Value, opacity, cornerRadius);
+            else
+                Paint(g, customPath, imagePath);
+        }
+
+        /// <summary>
+        /// Paints image with a glow effect inside a shape
+        /// </summary>
+        public static void PaintWithGlow(Graphics g, GraphicsPath path, string imagePath, Color glowColor, int glowSize = 10, Color? tint = null, float opacity = 1f)
+        {
+            if (path == null || string.IsNullOrEmpty(imagePath)) return;
+
+            // Draw glow first
+            GraphicsExtensions.DrawGlow(g, path, glowColor, glowSize);
+
+            // Then draw image
+            if (tint.HasValue)
+                PaintWithTint(g, path, imagePath, tint.Value, opacity);
+            else
+                Paint(g, path, imagePath);
+        }
+
+        /// <summary>
+        /// Paints image with a shadow effect
+        /// </summary>
+        public static void PaintWithShadow(Graphics g, GraphicsPath path, string imagePath, float shadowOffsetX, float shadowOffsetY, Color shadowColor, Color? tint = null, float opacity = 1f)
+        {
+            if (path == null || string.IsNullOrEmpty(imagePath)) return;
+
+            // Draw shadow first
+            using (var shadowPath = GraphicsExtensions.CreateShadowPath(path, shadowOffsetX, shadowOffsetY))
+            {
+                using (var shadowBrush = new SolidBrush(shadowColor))
+                {
+                    g.FillPath(shadowBrush, shadowPath);
+                }
+            }
+
+            // Then draw image
+            if (tint.HasValue)
+                PaintWithTint(g, path, imagePath, tint.Value, opacity);
+            else
+                Paint(g, path, imagePath);
+        }
+
+        /// <summary>
+        /// Paints image with both gradient overlay and shape clipping
+        /// </summary>
+        public static void PaintWithGradientOverlay(Graphics g, GraphicsPath path, string imagePath, Color gradientStart, Color gradientEnd, float gradientAngle = 90f, float overlayOpacity = 0.5f)
+        {
+            if (path == null || string.IsNullOrEmpty(imagePath)) return;
+
+            // Paint base image
+            Paint(g, path, imagePath);
+
+            // Apply gradient overlay
+            using (var gradientBrush = GraphicsExtensions.CreateLinearGradientFromPath(path, 
+                Color.FromArgb((int)(255 * overlayOpacity), gradientStart),
+                Color.FromArgb((int)(255 * overlayOpacity), gradientEnd),
+                gradientAngle))
+            {
+                g.SetClip(path);
+                g.FillPath(gradientBrush, path);
+                g.ResetClip();
+            }
+        }
+
+        /// <summary>
+        /// Paints image rotated inside a shape
+        /// </summary>
+        public static void PaintRotated(Graphics g, GraphicsPath path, string imagePath, float rotationDegrees, Color? tint = null, float opacity = 1f)
+        {
+            if (path == null || string.IsNullOrEmpty(imagePath)) return;
+
+            var bounds = path.GetBounds();
+            var center = new PointF(bounds.X + bounds.Width / 2, bounds.Y + bounds.Height / 2);
+
+            var state = g.Save();
+            try
+            {
+                g.TranslateTransform(center.X, center.Y);
+                g.RotateTransform(rotationDegrees);
+                g.TranslateTransform(-center.X, -center.Y);
+
+                if (tint.HasValue)
+                    PaintWithTint(g, path, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, path, imagePath);
+            }
+            finally
+            {
+                g.Restore(state);
+            }
+        }
+
+        /// <summary>
+        /// Paints image tiled inside a shape
+        /// </summary>
+        public static void PaintTiled(Graphics g, GraphicsPath path, string imagePath, float tileWidth, float tileHeight)
+        {
+            if (path == null || string.IsNullOrEmpty(imagePath)) return;
+
+            var painter = GetOrCreatePainter(imagePath);
+            if (painter == null) return;
+
+            var bounds = path.GetBounds();
+            g.SetClip(path);
+
+            for (float y = bounds.Y; y < bounds.Bottom; y += tileHeight)
+            {
+                for (float x = bounds.X; x < bounds.Right; x += tileWidth)
+                {
+                    var tileRect = new Rectangle(
+                        (int)x, (int)y,
+                        (int)Math.Min(tileWidth, bounds.Right - x),
+                        (int)Math.Min(tileHeight, bounds.Bottom - y)
+                    );
+                    painter.DrawImage(g, tileRect);
+                }
+            }
+
+            g.ResetClip();
+        }
+
+        /// <summary>
+        /// Paints image with aspect ratio preserved inside shape
+        /// </summary>
+        public static void PaintAspectFit(Graphics g, GraphicsPath path, string imagePath, Color? tint = null, float opacity = 1f)
+        {
+            if (path == null || string.IsNullOrEmpty(imagePath)) return;
+
+            var painter = GetOrCreatePainter(imagePath);
+            if (painter == null) return;
+
+            var bounds = path.GetBounds();
+            var image = LoadImage(imagePath);
+            if (image == null) return;
+
+            // Calculate aspect-fit rectangle
+            float imageAspect = (float)image.Width / image.Height;
+            float boundsAspect = bounds.Width / bounds.Height;
+            
+            RectangleF destRect;
+            if (imageAspect > boundsAspect)
+            {
+                // Image is wider - fit to width
+                float height = bounds.Width / imageAspect;
+                float yOffset = (bounds.Height - height) / 2;
+                destRect = new RectangleF(bounds.X, bounds.Y + yOffset, bounds.Width, height);
+            }
+            else
+            {
+                // Image is taller - fit to height
+                float width = bounds.Height * imageAspect;
+                float xOffset = (bounds.Width - width) / 2;
+                destRect = new RectangleF(bounds.X + xOffset, bounds.Y, width, bounds.Height);
+            }
+
+            using (var fitPath = GraphicsExtensions.CreateRectanglePath(destRect))
+            {
+                g.SetClip(path); // Clip to original shape
+                
+                if (tint.HasValue)
+                    PaintWithTint(g, fitPath, imagePath, tint.Value, opacity);
+                else
+                    Paint(g, fitPath, imagePath);
+                    
+                g.ResetClip();
+            }
+        }
+
+        #endregion
+
 
         public static void Paint(Graphics g, Rectangle bounds, string imagePath, BeepControlStyle style)
         {

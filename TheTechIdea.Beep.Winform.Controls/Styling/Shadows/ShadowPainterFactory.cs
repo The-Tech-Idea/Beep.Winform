@@ -1,0 +1,571 @@
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
+using static TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters.ShadowPainterHelpers;
+
+namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
+{
+    /// <summary>
+    /// Factory for creating shadow painter instances based on BeepControlStyle and shadow type
+    /// </summary>
+    public static class ShadowPainterFactory
+    {
+        /// <summary>
+        /// Creates a shadow painter instance for the specified style
+        /// </summary>
+        /// <param name="style">The control style to create a shadow painter for</param>
+        /// <param name="shadowType">Optional specific shadow type override</param>
+        /// <returns>An IShadowPainter implementation, or null for None style</returns>
+        public static IShadowPainter CreatePainter(BeepControlStyle style, ShadowType? shadowType = null)
+        {
+            // If specific shadow type is requested, use that
+            if (shadowType.HasValue)
+            {
+                return CreateByType(shadowType.Value);
+            }
+
+            // Otherwise, create based on style
+            return style switch
+            {
+                BeepControlStyle.None => null,
+                BeepControlStyle.Material3 => new MaterialShadowPainterWrapper(MaterialElevation.Level2),
+                BeepControlStyle.iOS15 => new CardShadowPainterWrapper(CardShadowStyle.Small),
+                BeepControlStyle.AntDesign => new CardShadowPainterWrapper(CardShadowStyle.Medium),
+                BeepControlStyle.Fluent2 => new FloatingShadowPainterWrapper(4),
+                BeepControlStyle.MaterialYou => new MaterialShadowPainterWrapper(MaterialElevation.Level3),
+                BeepControlStyle.Windows11Mica => new AmbientShadowPainterWrapper(6, 0.2f),
+                BeepControlStyle.MacOSBigSur => new CardShadowPainterWrapper(CardShadowStyle.Small),
+                BeepControlStyle.ChakraUI => new CardShadowPainterWrapper(CardShadowStyle.Medium),
+                BeepControlStyle.TailwindCard => new CardShadowPainterWrapper(CardShadowStyle.Large),
+                BeepControlStyle.NotionMinimal => new CardShadowPainterWrapper(CardShadowStyle.Small),
+                BeepControlStyle.Minimal => new CardShadowPainterWrapper(CardShadowStyle.Small),
+                BeepControlStyle.VercelClean => new CardShadowPainterWrapper(CardShadowStyle.Medium),
+                BeepControlStyle.StripeDashboard => new CardShadowPainterWrapper(CardShadowStyle.Large),
+                BeepControlStyle.DarkGlow => new NeonGlowPainterWrapper(Color.FromArgb(100, 150, 255), 0.8f, 16),
+                BeepControlStyle.DiscordStyle => new ColoredShadowPainterWrapper(Color.FromArgb(88, 101, 242)),
+                BeepControlStyle.GradientModern => new FloatingShadowPainterWrapper(8),
+                BeepControlStyle.GlassAcrylic => new GlassShadowPainterWrapper(Color.FromArgb(150, 200, 255), 0.3f),
+                BeepControlStyle.Neumorphism => new NeumorphicShadowPainterWrapper(SystemColors.Control),
+                BeepControlStyle.Bootstrap => new CardShadowPainterWrapper(CardShadowStyle.Medium),
+                BeepControlStyle.FigmaCard => new CardShadowPainterWrapper(CardShadowStyle.Medium),
+                BeepControlStyle.PillRail => new AmbientShadowPainterWrapper(4, 0.25f),
+                BeepControlStyle.Apple => new AppleStyleShadowPainterWrapper(),
+                BeepControlStyle.Fluent => new FluentStyleShadowPainterWrapper(),
+                BeepControlStyle.Material => new MaterialStyleShadowPainterWrapper(),
+                BeepControlStyle.WebFramework => new WebFrameworkStyleShadowPainterWrapper(),
+                BeepControlStyle.Effect => new EffectStyleShadowPainterWrapper(),
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Creates a shadow painter by specific type
+        /// </summary>
+        public static IShadowPainter CreateByType(ShadowType shadowType)
+        {
+            return shadowType switch
+            {
+                ShadowType.None => null,
+                ShadowType.Soft => new SoftShadowPainterWrapper(),
+                ShadowType.Card => new CardShadowPainterWrapper(CardShadowStyle.Medium),
+                ShadowType.Material => new MaterialShadowPainterWrapper(MaterialElevation.Level2),
+                ShadowType.Floating => new FloatingShadowPainterWrapper(8),
+                ShadowType.Drop => new DropShadowPainterWrapper(),
+                ShadowType.Inner => new InnerShadowPainterWrapper(),
+                ShadowType.Long => new LongShadowPainterWrapper(),
+                ShadowType.Colored => new ColoredShadowPainterWrapper(Color.Blue),
+                ShadowType.Neon => new NeonGlowPainterWrapper(Color.Cyan, 1f, 12),
+                ShadowType.Ambient => new AmbientShadowPainterWrapper(6, 0.3f),
+                ShadowType.Perspective => new PerspectiveShadowPainterWrapper(),
+                ShadowType.Double => new DoubleShadowPainterWrapper(),
+                ShadowType.Neumorphic => new NeumorphicShadowPainterWrapper(SystemColors.Control),
+                ShadowType.Glass => new GlassShadowPainterWrapper(Color.White, 0.2f),
+                ShadowType.BorderGlow => new BorderGlowPainterWrapper(Color.Blue),
+                _ => null
+            };
+        }
+
+        /// <summary>
+        /// Creates a shadow painter with preset configuration
+        /// </summary>
+        public static IShadowPainter CreateByPreset(ModernShadowPreset preset)
+        {
+            return new PresetShadowPainterWrapper(preset);
+        }
+
+        /// <summary>
+        /// Creates an adaptive shadow painter that calculates optimal shadow based on control size
+        /// </summary>
+        public static IShadowPainter CreateAdaptive(ShadowIntensity intensity = ShadowIntensity.Medium)
+        {
+            return new AdaptiveShadowPainterWrapper(intensity);
+        }
+    }
+
+    #region Shadow Painter Interface
+    /// <summary>
+    /// Interface for shadow painter implementations
+    /// </summary>
+    public interface IShadowPainter
+    {
+        /// <summary>
+        /// Paints shadow for the specified path
+        /// </summary>
+        GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null);
+    }
+    #endregion
+
+    #region Wrapper Base Class
+    /// <summary>
+    /// Base wrapper class that implements IShadowPainter by delegating to static helper methods
+    /// </summary>
+    public abstract class ShadowPainterWrapperBase : IShadowPainter
+    {
+        public abstract GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null);
+    }
+    #endregion
+
+    #region Concrete Shadow Painter Wrappers
+
+    /// <summary>
+    /// Soft shadow painter wrapper
+    /// </summary>
+    public class SoftShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly int _offsetX;
+        private readonly int _offsetY;
+        private readonly Color _shadowColor;
+        private readonly float _opacity;
+        private readonly int _layers;
+
+        public SoftShadowPainterWrapper(int offsetX = 0, int offsetY = 4, Color? shadowColor = null, float opacity = 0.3f, int layers = 6)
+        {
+            _offsetX = offsetX;
+            _offsetY = offsetY;
+            _shadowColor = shadowColor ?? Color.Black;
+            _opacity = opacity;
+            _layers = layers;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintSoftShadow(g, bounds, radius, _offsetX, _offsetY, _shadowColor, _opacity, _layers);
+        }
+    }
+
+    /// <summary>
+    /// Card shadow painter wrapper
+    /// </summary>
+    public class CardShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly CardShadowStyle _style;
+
+        public CardShadowPainterWrapper(CardShadowStyle style = CardShadowStyle.Medium)
+        {
+            _style = style;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintCardShadow(g, bounds, radius, _style);
+        }
+    }
+
+    /// <summary>
+    /// Material shadow painter wrapper
+    /// </summary>
+    public class MaterialShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly MaterialElevation _elevation;
+
+        public MaterialShadowPainterWrapper(MaterialElevation elevation = MaterialElevation.Level2)
+        {
+            _elevation = elevation;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintMaterialShadow(g, bounds, radius, _elevation);
+        }
+    }
+
+    /// <summary>
+    /// Floating shadow painter wrapper
+    /// </summary>
+    public class FloatingShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly int _elevation;
+
+        public FloatingShadowPainterWrapper(int elevation = 8)
+        {
+            _elevation = elevation;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintFloatingShadow(g, bounds, radius, _elevation);
+        }
+    }
+
+    /// <summary>
+    /// Drop shadow painter wrapper
+    /// </summary>
+    public class DropShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly int _offsetX;
+        private readonly int _offsetY;
+        private readonly int _blurRadius;
+        private readonly Color _shadowColor;
+        private readonly float _opacity;
+
+        public DropShadowPainterWrapper(int offsetX = 0, int offsetY = 4, int blurRadius = 8, Color? shadowColor = null, float opacity = 0.5f)
+        {
+            _offsetX = offsetX;
+            _offsetY = offsetY;
+            _blurRadius = blurRadius;
+            _shadowColor = shadowColor ?? Color.Black;
+            _opacity = opacity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintDropShadow(g, bounds, radius, _offsetX, _offsetY, _blurRadius, _shadowColor, _opacity);
+        }
+    }
+
+    /// <summary>
+    /// Inner shadow painter wrapper
+    /// </summary>
+    public class InnerShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly int _depth;
+        private readonly Color? _shadowColor;
+
+        public InnerShadowPainterWrapper(int depth = 4, Color? shadowColor = null)
+        {
+            _depth = depth;
+            _shadowColor = shadowColor;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintInnerShadow(g, bounds, radius, _depth, _shadowColor);
+        }
+    }
+
+    /// <summary>
+    /// Long shadow painter wrapper
+    /// </summary>
+    public class LongShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly float _angle;
+        private readonly int _length;
+        private readonly Color? _shadowColor;
+
+        public LongShadowPainterWrapper(float angle = 45f, int length = 20, Color? shadowColor = null)
+        {
+            _angle = angle;
+            _length = length;
+            _shadowColor = shadowColor;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintLongShadow(g, bounds, radius, _angle, _length, _shadowColor);
+        }
+    }
+
+    /// <summary>
+    /// Colored shadow painter wrapper
+    /// </summary>
+    public class ColoredShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly Color _baseColor;
+        private readonly int _offsetX;
+        private readonly int _offsetY;
+        private readonly float _intensity;
+
+        public ColoredShadowPainterWrapper(Color baseColor, int offsetX = 0, int offsetY = 4, float intensity = 0.6f)
+        {
+            _baseColor = baseColor;
+            _offsetX = offsetX;
+            _offsetY = offsetY;
+            _intensity = intensity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintColoredShadow(g, bounds, radius, _baseColor, _offsetX, _offsetY, _intensity);
+        }
+    }
+
+    /// <summary>
+    /// Neon glow painter wrapper
+    /// </summary>
+    public class NeonGlowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly Color _glowColor;
+        private readonly float _intensity;
+        private readonly int _glowRadius;
+
+        public NeonGlowPainterWrapper(Color glowColor, float intensity = 1f, int glowRadius = 12)
+        {
+            _glowColor = glowColor;
+            _intensity = intensity;
+            _glowRadius = glowRadius;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintNeonGlow(g, bounds, radius, _glowColor, _intensity, _glowRadius);
+        }
+    }
+
+    /// <summary>
+    /// Ambient shadow painter wrapper
+    /// </summary>
+    public class AmbientShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly int _spread;
+        private readonly float _opacity;
+
+        public AmbientShadowPainterWrapper(int spread = 4, float opacity = 0.3f)
+        {
+            _spread = spread;
+            _opacity = opacity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintAmbientShadow(g, bounds, radius, _spread, _opacity);
+        }
+    }
+
+    /// <summary>
+    /// Perspective shadow painter wrapper
+    /// </summary>
+    public class PerspectiveShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly PerspectiveDirection _direction;
+        private readonly float _intensity;
+
+        public PerspectiveShadowPainterWrapper(PerspectiveDirection direction = PerspectiveDirection.BottomRight, float intensity = 0.5f)
+        {
+            _direction = direction;
+            _intensity = intensity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintPerspectiveShadow(g, bounds, radius, _direction, _intensity);
+        }
+    }
+
+    /// <summary>
+    /// Double shadow painter wrapper
+    /// </summary>
+    public class DoubleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly Color _color1;
+        private readonly Color _color2;
+        private readonly int _offset1X, _offset1Y, _offset2X, _offset2Y;
+
+        public DoubleShadowPainterWrapper(Color? color1 = null, Color? color2 = null, 
+            int offset1X = 2, int offset1Y = 2, int offset2X = 4, int offset2Y = 4)
+        {
+            _color1 = color1 ?? Color.FromArgb(100, 0, 0, 0);
+            _color2 = color2 ?? Color.FromArgb(60, 0, 0, 0);
+            _offset1X = offset1X;
+            _offset1Y = offset1Y;
+            _offset2X = offset2X;
+            _offset2Y = offset2Y;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintDoubleShadow(g, bounds, radius, _color1, _color2, 
+                _offset1X, _offset1Y, _offset2X, _offset2Y);
+        }
+    }
+
+    /// <summary>
+    /// Neumorphic shadow painter wrapper
+    /// </summary>
+    public class NeumorphicShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly Color _backgroundColor;
+
+        public NeumorphicShadowPainterWrapper(Color backgroundColor)
+        {
+            _backgroundColor = backgroundColor;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintNeumorphicShadow(g, bounds, radius, _backgroundColor);
+        }
+    }
+
+    /// <summary>
+    /// Glass shadow painter wrapper
+    /// </summary>
+    public class GlassShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly Color _tintColor;
+        private readonly float _opacity;
+
+        public GlassShadowPainterWrapper(Color tintColor, float opacity = 0.2f)
+        {
+            _tintColor = tintColor;
+            _opacity = opacity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintGlassShadow(g, bounds, radius, _tintColor, _opacity);
+        }
+    }
+
+    /// <summary>
+    /// Border glow painter wrapper
+    /// </summary>
+    public class BorderGlowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly Color _glowColor;
+        private readonly int _glowWidth;
+        private readonly float _intensity;
+
+        public BorderGlowPainterWrapper(Color glowColor, int glowWidth = 3, float intensity = 0.8f)
+        {
+            _glowColor = glowColor;
+            _glowWidth = glowWidth;
+            _intensity = intensity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.PaintBorderGlow(g, bounds, radius, _glowColor, _glowWidth, _intensity);
+        }
+    }
+
+    /// <summary>
+    /// Preset shadow painter wrapper
+    /// </summary>
+    public class PresetShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly ModernShadowPreset _preset;
+
+        public PresetShadowPainterWrapper(ModernShadowPreset preset)
+        {
+            _preset = preset;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return ShadowPainterHelpers.ApplyModernShadowPreset(g, bounds, radius, _preset);
+        }
+    }
+
+    /// <summary>
+    /// Adaptive shadow painter wrapper
+    /// </summary>
+    public class AdaptiveShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        private readonly ShadowIntensity _intensity;
+
+        public AdaptiveShadowPainterWrapper(ShadowIntensity intensity = ShadowIntensity.Medium)
+        {
+            _intensity = intensity;
+        }
+
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            var (offsetX, offsetY, blur, opacity) = ShadowPainterHelpers.CalculateAdaptiveShadow(bounds, _intensity);
+            return ShadowPainterHelpers.PaintDropShadow(g, bounds, radius, offsetX, offsetY, blur, Color.Black, opacity);
+        }
+    }
+
+    /// <summary>
+    /// Apple style shadow painter wrapper
+    /// </summary>
+    public class AppleStyleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return AppleShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Apple, theme, true, ControlState.Normal);
+        }
+    }
+
+    /// <summary>
+    /// Fluent (legacy) style shadow painter wrapper
+    /// </summary>
+    public class FluentStyleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return FluentShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Fluent, theme, true, ControlState.Normal);
+        }
+    }
+
+    /// <summary>
+    /// Material (legacy) style shadow painter wrapper
+    /// </summary>
+    public class MaterialStyleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return MaterialShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Material, theme, true, MaterialElevation.Level2, ControlState.Normal);
+        }
+    }
+
+    /// <summary>
+    /// WebFramework style shadow painter wrapper
+    /// </summary>
+    public class WebFrameworkStyleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return WebFrameworkShadowPainter.Paint(g, bounds, radius, BeepControlStyle.WebFramework, theme, true, ControlState.Normal);
+        }
+    }
+
+    /// <summary>
+    /// Effect style shadow painter wrapper
+    /// </summary>
+    public class EffectStyleShadowPainterWrapper : ShadowPainterWrapperBase
+    {
+        public override GraphicsPath Paint(Graphics g, GraphicsPath bounds, int radius, IBeepTheme theme = null)
+        {
+            return EffectShadowPainter.Paint(g, bounds, radius, BeepControlStyle.Effect, theme, true, ControlState.Normal);
+        }
+    }
+
+    #endregion
+
+    #region Shadow Type Enumeration
+    /// <summary>
+    /// Types of shadows available
+    /// </summary>
+    public enum ShadowType
+    {
+        None,
+        Soft,
+        Card,
+        Material,
+        Floating,
+        Drop,
+        Inner,
+        Long,
+        Colored,
+        Neon,
+        Ambient,
+        Perspective,
+        Double,
+        Neumorphic,
+        Glass,
+        BorderGlow
+    }
+    #endregion
+}

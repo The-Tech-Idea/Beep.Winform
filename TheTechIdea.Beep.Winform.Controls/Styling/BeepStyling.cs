@@ -161,20 +161,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// <summary>
         /// Paint background for the current style with GraphicsPath
         /// </summary>
-        public static void PaintStyleBackground(Graphics g, Rectangle rect)
+        public static void PaintStyleBackground(Graphics g, GraphicsPath path)
         {
-            GraphicsPath path = CreateStylePath(rect, CurrentControlStyle);
-
-           
-            PaintStyleBackground(g, path, CurrentControlStyle, UseThemeColors);
+            PaintStyleBackground(g, path, CurrentControlStyle);
         }
         
         /// <summary>
         /// Paint background for a specific style with GraphicsPath
         /// </summary>
-        public static void PaintStyleBackground(Graphics g, Rectangle rect, BeepControlStyle style)
+        public static void PaintStyleBackground(Graphics g, GraphicsPath path, BeepControlStyle style)
         {
-            GraphicsPath path = CreateStylePath(rect, CurrentControlStyle);
             PaintStyleBackground(g, path, style, UseThemeColors);
         }
         
@@ -336,18 +332,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// <summary>
         /// Paint buttons (e.g., up/down for numeric controls) for the current style
         /// </summary>
-        public static void PaintStyleButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath,BeepControlStyle style, bool isFocused)
+        public static void PaintStyleButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath, bool isFocused)
         {
-            // Paint Shadows
-
-
-
-            // Paint Borders
-
-
-            // Paint Background
+            PaintStyleButtons(g, upButtonPath, downButtonPath, isFocused, CurrentControlStyle);
         }
-
+        
         /// <summary>
         /// Paint spinner buttons (up/down arrows for numeric controls) for a specific style
         /// </summary>
@@ -527,6 +516,316 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             StyledImagePainter.RemoveFromCache(imagePath);
         }
         
+        #endregion
+
+        #region Complete Control Painting with Factories (GraphicsPath Only - Returns Internal Drawing Area)
+
+        /// <summary>
+        /// Paint complete control using all three painter systems (Shadow → Background → Border)
+        /// Returns the internal drawing area (content area) GraphicsPath after accounting for borders and shadows
+        /// </summary>
+        /// <param name="g">Graphics context</param>
+        /// <param name="controlPath">Control bounds as GraphicsPath</param>
+        /// <param name="style">Control style to use</param>
+        /// <param name="theme">Theme to apply</param>
+        /// <param name="useThemeColors">Whether to use theme colors</param>
+        /// <param name="state">Control state (Normal, Hovered, Pressed, etc.)</param>
+        /// <returns>GraphicsPath representing the internal content area</returns>
+        public static GraphicsPath PaintControl(
+            Graphics g,
+            GraphicsPath controlPath,
+            BeepControlStyle style,
+            IBeepTheme theme,
+            bool useThemeColors,
+            ControlState state = ControlState.Normal)
+        {
+            if (controlPath == null)
+                return null;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+
+            int radius = StyleBorders.GetRadius(style);
+            GraphicsPath currentPath = (GraphicsPath)controlPath.Clone();
+
+            // === STEP 1: Apply padding to get content area first ===
+            GraphicsPath contentPath = currentPath;
+            int padding = StyleSpacing.GetPadding(style);
+            if (padding > 0)
+            {
+                contentPath = currentPath.CreateInsetPath(padding);
+                if (contentPath == null)
+                    contentPath = currentPath;
+            }
+
+            // === STEP 2: Paint Inner Shadow (paints around content area, returns smaller path) ===
+            GraphicsPath pathAfterShadow = contentPath;
+            if (StyleShadows.HasShadow(style) && state != ControlState.Disabled)
+            {
+                var shadowPainter = ShadowPainterFactory.CreatePainter(style);
+                if (shadowPainter != null)
+                {
+                    pathAfterShadow = shadowPainter.Paint(g, contentPath, radius, theme);
+                    if (pathAfterShadow == null)
+                        pathAfterShadow = contentPath;
+                }
+            }
+
+            // === STEP 3: Paint Border (uses shadow path, returns smaller path after border) ===
+            GraphicsPath pathAfterBorder = pathAfterShadow;
+            var borderPainter = BorderPainterFactory.CreatePainter(style);
+            if (borderPainter != null)
+            {
+                bool isFocused = (state == ControlState.Focused);
+                pathAfterBorder = borderPainter.Paint(g, pathAfterShadow, isFocused, style, theme, useThemeColors, state);
+                if (pathAfterBorder == null)
+                    pathAfterBorder = pathAfterShadow;
+            }
+
+            // === STEP 4: Paint Background (fills the area between border and final content) ===
+            var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+            if (backgroundPainter != null)
+            {
+                backgroundPainter.Paint(g, pathAfterBorder, style, theme, useThemeColors, state);
+            }
+
+            // Cleanup intermediate paths if they're different
+            if (contentPath != currentPath && contentPath != pathAfterBorder)
+                contentPath.Dispose();
+            if (pathAfterShadow != contentPath && pathAfterShadow != pathAfterBorder)
+                pathAfterShadow.Dispose();
+
+            return pathAfterBorder; // Return final drawing area (inside border)
+        }
+
+        /// <summary>
+        /// Paint complete control with current style and theme
+        /// </summary>
+        public static GraphicsPath PaintControl(
+            Graphics g,
+            GraphicsPath controlPath,
+            ControlState state = ControlState.Normal)
+        {
+            return PaintControl(g, controlPath, CurrentControlStyle, CurrentTheme, UseThemeColors, state);
+        }
+
+        /// <summary>
+        /// Paint control with image in content area
+        /// Returns the content area path after image is painted
+        /// </summary>
+        public static GraphicsPath PaintControlWithImage(
+            Graphics g,
+            GraphicsPath controlPath,
+            string imagePath,
+            BeepControlStyle style,
+            IBeepTheme theme,
+            bool useThemeColors,
+            ControlState state = ControlState.Normal)
+        {
+            // Paint control layers and get content path
+            GraphicsPath contentPath = PaintControl(g, controlPath, style, theme, useThemeColors, state);
+            
+            if (contentPath == null)
+                return null;
+
+            // Paint image in content area
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                StyledImagePainter.Paint(g, contentPath, imagePath, style);
+            }
+
+            return contentPath; // Caller is responsible for disposing
+        }
+
+        /// <summary>
+        /// Paint control with text in content area
+        /// Returns the content area path after text is painted
+        /// </summary>
+        public static GraphicsPath PaintControlWithText(
+            Graphics g,
+            GraphicsPath controlPath,
+            string text,
+            BeepControlStyle style,
+            IBeepTheme theme,
+            bool useThemeColors,
+            ControlState state = ControlState.Normal)
+        {
+            // Paint control layers and get content path
+            GraphicsPath contentPath = PaintControl(g, controlPath, style, theme, useThemeColors, state);
+            
+            if (contentPath == null)
+                return null;
+
+            // Paint text in content area
+            if (!string.IsNullOrEmpty(text))
+            {
+                RectangleF contentBounds = contentPath.GetBounds();
+                bool isFocused = (state == ControlState.Focused);
+                
+                // Get appropriate font
+                Font textFont = StyleTypography.GetFont(style);
+                Color textColor = useThemeColors && theme != null 
+                    ? theme.ForeColor 
+                    : StyleColors.GetForeground(style);
+
+                // Draw text centered in content area
+                using (SolidBrush brush = new SolidBrush(textColor))
+                {
+                    StringFormat format = new StringFormat
+                    {
+                        Alignment = StringAlignment.Center,
+                        LineAlignment = StringAlignment.Center,
+                        Trimming = StringTrimming.EllipsisCharacter
+                    };
+
+                    g.DrawString(text, textFont, brush, contentBounds, format);
+                }
+            }
+
+            return contentPath; // Caller is responsible for disposing
+        }
+
+        /// <summary>
+        /// Helper method to create rounded rectangle path from RectangleF
+        /// </summary>
+        private static GraphicsPath CreateRoundedRectanglePath(RectangleF bounds, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            
+            if (radius <= 0 || radius > bounds.Height / 2 || radius > bounds.Width / 2)
+            {
+                // No radius or invalid radius - use rectangle
+                path.AddRectangle(bounds);
+            }
+            else
+            {
+                float diameter = radius * 2;
+                SizeF size = new SizeF(diameter, diameter);
+                RectangleF arc = new RectangleF(bounds.Location, size);
+                
+                // Top-left arc
+                path.AddArc(arc, 180, 90);
+                
+                // Top-right arc
+                arc.X = bounds.Right - diameter;
+                path.AddArc(arc, 270, 90);
+                
+                // Bottom-right arc
+                arc.Y = bounds.Bottom - diameter;
+                path.AddArc(arc, 0, 90);
+                
+                // Bottom-left arc
+                arc.X = bounds.Left;
+                path.AddArc(arc, 90, 90);
+                
+                path.CloseFigure();
+            }
+            
+            return path;
+        }
+
+        /// <summary>
+        /// Paint only inner shadow for a control (useful for pre-rendering shadows)
+        /// Shadow is painted INSIDE the control bounds, between border and content area
+        /// Returns the shadow depth used
+        /// </summary>
+        public static int PaintControlInnerShadow(
+            Graphics g,
+            GraphicsPath controlPath,
+            BeepControlStyle style,
+            IBeepTheme theme,
+            ControlState state = ControlState.Normal)
+        {
+            if (controlPath == null)
+                return 0;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            int radius = StyleBorders.GetRadius(style);
+
+            int shadowDepth = 0;
+            if (StyleShadows.HasShadow(style) && state != ControlState.Disabled)
+            {
+                shadowDepth = Math.Max(2, StyleShadows.GetShadowBlur(style) / 2);
+                Color shadowColor = StyleShadows.GetShadowColor(style);
+                ShadowPainterHelpers.PaintInnerShadow(g, controlPath, radius, shadowDepth, shadowColor);
+            }
+
+            return shadowDepth;
+        }
+
+        /// <summary>
+        /// Get the internal content path for a control (without actually painting)
+        /// Useful for layout calculations
+        /// </summary>
+        public static GraphicsPath GetContentPath(
+            GraphicsPath controlPath,
+            BeepControlStyle style)
+        {
+            if (controlPath == null)
+                return null;
+
+            RectangleF bounds = controlPath.GetBounds();
+            int borderWidth = StyleBorders.GetBorderWidth(style);
+            int padding = StyleSpacing.GetPadding(style);
+            int radius = StyleBorders.GetRadius(style);
+            
+            // Deflate bounds for internal content area
+            float inset = borderWidth + padding;
+            RectangleF contentBounds = new RectangleF(
+                bounds.X + inset,
+                bounds.Y + inset,
+                bounds.Width - (inset * 2),
+                bounds.Height - (inset * 2)
+            );
+
+            // Ensure valid bounds
+            if (contentBounds.Width <= 0 || contentBounds.Height <= 0)
+                return null;
+
+            int contentRadius = Math.Max(0, radius - borderWidth - (padding / 2));
+            return CreateRoundedRectanglePath(contentBounds, contentRadius);
+        }
+
+        /// <summary>
+        /// Paint only background layer (no shadow or border)
+        /// </summary>
+        public static void PaintControlBackground(
+            Graphics g,
+            GraphicsPath controlPath,
+            BeepControlStyle style,
+            IBeepTheme theme,
+            bool useThemeColors,
+            ControlState state = ControlState.Normal)
+        {
+            if (controlPath == null) return;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            var backgroundPainter = BackgroundPainterFactory.CreatePainter(style);
+            backgroundPainter?.Paint(g, controlPath, style, theme, useThemeColors, state);
+        }
+
+        /// <summary>
+        /// Paint only border layer (no shadow or background)
+        /// </summary>
+        public static void PaintControlBorder(
+            Graphics g,
+            GraphicsPath controlPath,
+            BeepControlStyle style,
+            IBeepTheme theme,
+            bool useThemeColors,
+            ControlState state = ControlState.Normal)
+        {
+            if (controlPath == null) return;
+
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            var borderPainter = BorderPainterFactory.CreatePainter(style);
+            if (borderPainter != null)
+            {
+                bool isFocused = (state == ControlState.Focused);
+                borderPainter.Paint(g, controlPath, isFocused, style, theme, useThemeColors, state);
+            }
+        }
+
         #endregion
     }
 }

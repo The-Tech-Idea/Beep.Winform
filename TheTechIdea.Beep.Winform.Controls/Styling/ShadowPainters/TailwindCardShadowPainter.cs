@@ -50,13 +50,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 shadowLayers += 1;
             }
 
-            // Use StyleShadows for consistent Tailwind shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, shadowLayers);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintLayeredShadow(g, path, radius, shadowOpacity, shadowLayers);
+            return remainingPath;
         }
     }
 }

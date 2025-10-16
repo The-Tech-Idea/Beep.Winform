@@ -37,6 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Bootstrap => true,             // Card shadow
                 BeepControlStyle.FigmaCard => true,             // Figma elevation
                 BeepControlStyle.PillRail => false,             // Flat pills
+                BeepControlStyle.Apple => true,                 // Apple subtle shadow
+                BeepControlStyle.Fluent => true,                // Fluent layered shadow
+                BeepControlStyle.Material => true,              // Material elevation
+                BeepControlStyle.WebFramework => true,          // Web box-shadow
+                BeepControlStyle.Effect => true,                // Effect dramatic shadow
                 _ => false
             };
         }
@@ -61,6 +66,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Neumorphism => 20,             // Neo soft large
                 BeepControlStyle.Bootstrap => 8,                // Bootstrap subtle
                 BeepControlStyle.FigmaCard => 10,               // Figma standard
+                BeepControlStyle.Apple => 5,                    // Apple very subtle
+                BeepControlStyle.Fluent => 8,                   // Fluent subtle
+                BeepControlStyle.Material => 12,                // Material soft
+                BeepControlStyle.WebFramework => 8,             // Web standard
+                BeepControlStyle.Effect => 20,                  // Effect dramatic
                 _ => 8
             };
         }
@@ -85,6 +95,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Neumorphism => 0,              // No spread (dual shadows)
                 BeepControlStyle.Bootstrap => 0,                // No spread
                 BeepControlStyle.FigmaCard => -1,               // Slight inset
+                BeepControlStyle.Apple => 0,                    // No spread
+                BeepControlStyle.Fluent => 0,                   // No spread
+                BeepControlStyle.Material => -2,                // Inset slightly
+                BeepControlStyle.WebFramework => 1,             // Slight spread
+                BeepControlStyle.Effect => 4,                   // Effect expands
                 _ => 0
             };
         }
@@ -109,6 +124,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Neumorphism => 10,             // Neo below
                 BeepControlStyle.Bootstrap => 2,                // Subtle below
                 BeepControlStyle.FigmaCard => 4,                // Below
+                BeepControlStyle.Apple => 1,                    // Very subtle below
+                BeepControlStyle.Fluent => 2,                   // Subtle below
+                BeepControlStyle.Material => 4,                 // Below
+                BeepControlStyle.WebFramework => 2,             // Subtle below
+                BeepControlStyle.Effect => 8,                   // Dramatic below
                 _ => 2
             };
         }
@@ -145,6 +165,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Neumorphism => Color.FromArgb(50, 163, 177, 198), // Soft blue-gray
                 BeepControlStyle.Bootstrap => Color.FromArgb(40, 0, 0, 0),      // Bootstrap subtle
                 BeepControlStyle.FigmaCard => Color.FromArgb(40, 0, 0, 0),      // Figma subtle
+                BeepControlStyle.Apple => Color.FromArgb(25, 0, 0, 0),          // Apple very subtle
+                BeepControlStyle.Fluent => Color.FromArgb(30, 0, 0, 0),         // Fluent very subtle
+                BeepControlStyle.Material => Color.FromArgb(60, 0, 0, 0),       // Material soft
+                BeepControlStyle.WebFramework => Color.FromArgb(30, 0, 0, 0),   // Web subtle
+                BeepControlStyle.Effect => Color.FromArgb(100, 80, 120, 255),   // Effect blue-purple glow
                 _ => Color.FromArgb(40, 0, 0, 0)
             };
         }

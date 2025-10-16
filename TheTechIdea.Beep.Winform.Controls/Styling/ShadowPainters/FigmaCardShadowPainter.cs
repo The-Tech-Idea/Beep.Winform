@@ -20,7 +20,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             if (!StyleShadows.HasShadow(style))
                 return path;
 
-            // Figma cards use subtle shadows that become more prominent on interaction
+            // Calculate shadow properties based on state
             float opacity = state switch
             {
                 ControlState.Hovered => 0.20f,    // More visible on hover
@@ -30,12 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 _ => 0.16f  // Normal state
             };
 
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-            Color shadowColor = StyleShadows.GetShadowColor(style);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), opacity, StyleShadows.GetShadowBlur(style));
 
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, opacity, blur);
+            return remainingPath;
         }
     }
 }

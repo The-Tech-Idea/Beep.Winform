@@ -15,22 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             MaterialElevation elevation = MaterialElevation.Level1,
             ControlState state = ControlState.Normal)
         {
-            // Windows 11 Mica UX: Mica effects don't need traditional shadows
-            // Mica gets its depth from the background blur effect, not shadows
-            if (!StyleShadows.HasShadow(style))
-            {
-                // Explicitly no shadow for Mica - intentionally empty
-                return path;
-            }
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // If for some reason HasShadow returns true, use very minimal shadow
-            // But this should not happen for Mica styles
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, 0.08f, blur / 4);
+            // Paint minimal shadow for Mica style
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), 0.08f, StyleShadows.GetShadowBlur(style) / 4);
+            return remainingPath;
         }
     }
 }

@@ -39,7 +39,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 glowIntensity = 0.8f; // Press: moderate glow
 
-            return ShadowPainterHelpers.PaintGlow(g, path, radius, glowColor, glowIntensity);
+            // Paint glow
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintGlow(g, path, radius, glowColor, glowIntensity);
+
+            return remainingPath;
         }
     }
 }

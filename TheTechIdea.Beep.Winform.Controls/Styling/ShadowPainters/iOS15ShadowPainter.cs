@@ -27,13 +27,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 blurIntensity = 0.08f; // Reduced on press (pressed in effect)
 
-            // Use StyleShadows for consistent iOS blur behavior
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, blurIntensity, blur / 3);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), blurIntensity, StyleShadows.GetShadowBlur(style) / 3);
+            return remainingPath;
         }
     }
 }

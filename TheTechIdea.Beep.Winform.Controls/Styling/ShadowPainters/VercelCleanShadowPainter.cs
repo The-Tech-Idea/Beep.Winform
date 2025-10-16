@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             // Only show shadow on interaction states (Vercel's minimal depth)
             if (state == ControlState.Normal) return path;
 
+            // Calculate shadow properties based on state
             float shadowOpacity = 0.05f; // Very subtle
             if (state == ControlState.Hovered)
                 shadowOpacity = 0.08f; // Slightly more on hover
@@ -29,13 +30,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 shadowOpacity = 0.03f; // Minimal on press
 
-            // Use StyleShadows for consistent Vercel shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 8);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 8);
+            return remainingPath;
         }
     }
 }

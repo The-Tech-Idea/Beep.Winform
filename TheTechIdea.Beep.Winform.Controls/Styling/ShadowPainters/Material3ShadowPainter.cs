@@ -39,13 +39,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     break;
             }
 
-            // Use StyleShadows for consistent Material3 shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-
-        return    ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, 0.6f, blur / 2);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), 0.6f, StyleShadows.GetShadowBlur(style) / 2);
+            return remainingPath;
             // Return the area inside the shadow using shape-aware inset
            // return path.CreateInsetPath(radius);
         }

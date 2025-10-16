@@ -64,7 +64,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 blur += 2;
             }
 
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur);
+
+            return remainingPath;
         }
     }
 }

@@ -51,7 +51,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             highlightColor = Color.FromArgb((int)(highlightColor.A * shadowIntensity), highlightColor);
 
             // Use the helper method for neumorphic shadows
-            return ShadowPainterHelpers.PaintNeumorphicShadow(g, path, radius, shadowColor);
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintNeumorphicShadow(g, path, radius, shadowColor);
+
+            return remainingPath;
         }
     }
 }

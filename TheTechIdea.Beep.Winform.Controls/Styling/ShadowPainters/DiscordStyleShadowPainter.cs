@@ -21,6 +21,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             // Only show shadow on interaction states (Discord's subtle depth)
             if (state == ControlState.Normal) return path;
 
+            // Calculate shadow properties based on state
             float shadowOpacity = 0.12f; // Minimal
             if (state == ControlState.Hovered)
                 shadowOpacity = 0.18f; // Slightly more on hover
@@ -29,13 +30,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 shadowOpacity = 0.08f; // Minimal on press
 
-            // Use StyleShadows for consistent Discord shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 5);
 
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 5);
+            return remainingPath;
         }
     }
 }

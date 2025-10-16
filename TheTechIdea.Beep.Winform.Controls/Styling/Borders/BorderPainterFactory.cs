@@ -80,13 +80,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
         /// <summary>
         /// Delegates to the static Paint method of the concrete painter
         /// </summary>
-        protected abstract void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected abstract GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state);
 
-        public void Paint(Graphics g, GraphicsPath path, bool isFocused, 
+        public GraphicsPath Paint(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state = ControlState.Normal)
         {
-            PaintStatic(g, path, isFocused, style, theme, useThemeColors, state);
+            return PaintStatic(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
     #endregion
@@ -95,260 +95,260 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters
     public class Material3BorderPainterWrapper : BorderPainterWrapperBase
     {
         public Material3BorderPainterWrapper() : base(BeepControlStyle.Material3) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            Material3BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return Material3BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class iOS15BorderPainterWrapper : BorderPainterWrapperBase
     {
         public iOS15BorderPainterWrapper() : base(BeepControlStyle.iOS15) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            iOS15BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return iOS15BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class AntDesignBorderPainterWrapper : BorderPainterWrapperBase
     {
         public AntDesignBorderPainterWrapper() : base(BeepControlStyle.AntDesign) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            AntDesignBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return AntDesignBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class Fluent2BorderPainterWrapper : BorderPainterWrapperBase
     {
         public Fluent2BorderPainterWrapper() : base(BeepControlStyle.Fluent2) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            Fluent2BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return Fluent2BorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class MaterialYouBorderPainterWrapper : BorderPainterWrapperBase
     {
         public MaterialYouBorderPainterWrapper() : base(BeepControlStyle.MaterialYou) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            MaterialYouBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return MaterialYouBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class Windows11MicaBorderPainterWrapper : BorderPainterWrapperBase
     {
         public Windows11MicaBorderPainterWrapper() : base(BeepControlStyle.Windows11Mica) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            Windows11MicaBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return Windows11MicaBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class MacOSBigSurBorderPainterWrapper : BorderPainterWrapperBase
     {
         public MacOSBigSurBorderPainterWrapper() : base(BeepControlStyle.MacOSBigSur) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            MacOSBigSurBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return MacOSBigSurBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class ChakraUIBorderPainterWrapper : BorderPainterWrapperBase
     {
         public ChakraUIBorderPainterWrapper() : base(BeepControlStyle.ChakraUI) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            ChakraUIBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return ChakraUIBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class TailwindCardBorderPainterWrapper : BorderPainterWrapperBase
     {
         public TailwindCardBorderPainterWrapper() : base(BeepControlStyle.TailwindCard) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            TailwindCardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return TailwindCardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class NotionMinimalBorderPainterWrapper : BorderPainterWrapperBase
     {
         public NotionMinimalBorderPainterWrapper() : base(BeepControlStyle.NotionMinimal) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            NotionMinimalBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return NotionMinimalBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class MinimalBorderPainterWrapper : BorderPainterWrapperBase
     {
         public MinimalBorderPainterWrapper() : base(BeepControlStyle.Minimal) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            MinimalBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return MinimalBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class VercelCleanBorderPainterWrapper : BorderPainterWrapperBase
     {
         public VercelCleanBorderPainterWrapper() : base(BeepControlStyle.VercelClean) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            VercelCleanBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return VercelCleanBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class StripeDashboardBorderPainterWrapper : BorderPainterWrapperBase
     {
         public StripeDashboardBorderPainterWrapper() : base(BeepControlStyle.StripeDashboard) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            StripeDashboardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return StripeDashboardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class DarkGlowBorderPainterWrapper : BorderPainterWrapperBase
     {
         public DarkGlowBorderPainterWrapper() : base(BeepControlStyle.DarkGlow) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            DarkGlowBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return DarkGlowBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class DiscordStyleBorderPainterWrapper : BorderPainterWrapperBase
     {
         public DiscordStyleBorderPainterWrapper() : base(BeepControlStyle.DiscordStyle) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            DiscordStyleBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return DiscordStyleBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class GradientModernBorderPainterWrapper : BorderPainterWrapperBase
     {
         public GradientModernBorderPainterWrapper() : base(BeepControlStyle.GradientModern) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            GradientModernBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return GradientModernBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class GlassAcrylicBorderPainterWrapper : BorderPainterWrapperBase
     {
         public GlassAcrylicBorderPainterWrapper() : base(BeepControlStyle.GlassAcrylic) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            GlassAcrylicBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return GlassAcrylicBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class NeumorphismBorderPainterWrapper : BorderPainterWrapperBase
     {
         public NeumorphismBorderPainterWrapper() : base(BeepControlStyle.Neumorphism) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            NeumorphismBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return NeumorphismBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class BootstrapBorderPainterWrapper : BorderPainterWrapperBase
     {
         public BootstrapBorderPainterWrapper() : base(BeepControlStyle.Bootstrap) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            BootstrapBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return BootstrapBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class FigmaCardBorderPainterWrapper : BorderPainterWrapperBase
     {
         public FigmaCardBorderPainterWrapper() : base(BeepControlStyle.FigmaCard) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            FigmaCardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return FigmaCardBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class PillRailBorderPainterWrapper : BorderPainterWrapperBase
     {
         public PillRailBorderPainterWrapper() : base(BeepControlStyle.PillRail) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            PillRailBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return PillRailBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class AppleBorderPainterWrapper : BorderPainterWrapperBase
     {
         public AppleBorderPainterWrapper() : base(BeepControlStyle.Apple) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            AppleBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return AppleBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class FluentBorderPainterWrapper : BorderPainterWrapperBase
     {
         public FluentBorderPainterWrapper() : base(BeepControlStyle.Fluent) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            FluentBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return FluentBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class MaterialBorderPainterWrapper : BorderPainterWrapperBase
     {
         public MaterialBorderPainterWrapper() : base(BeepControlStyle.Material) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            MaterialBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return MaterialBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class WebFrameworkBorderPainterWrapper : BorderPainterWrapperBase
     {
         public WebFrameworkBorderPainterWrapper() : base(BeepControlStyle.WebFramework) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            WebFrameworkBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return WebFrameworkBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
 
     public class EffectBorderPainterWrapper : BorderPainterWrapperBase
     {
         public EffectBorderPainterWrapper() : base(BeepControlStyle.Effect) { }
-        protected override void PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
+        protected override GraphicsPath PaintStatic(Graphics g, GraphicsPath path, bool isFocused, 
             BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
-            EffectBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
+            return EffectBorderPainter.Paint(g, path, isFocused, style, theme, useThemeColors, state);
         }
     }
     #endregion

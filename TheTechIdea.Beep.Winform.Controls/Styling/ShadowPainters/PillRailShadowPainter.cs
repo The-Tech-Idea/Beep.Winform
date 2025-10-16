@@ -19,9 +19,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             // Pill rail style has no shadows for clean flat appearance
             if (!StyleShadows.HasShadow(style))
                 return path;
-            
-            // This should not execute for PillRail style, but structure is in place for consistency
-            return path;
+
+            GraphicsPath remainingPath = (GraphicsPath)path.Clone();
+
+            return remainingPath;
         }
     }
 }

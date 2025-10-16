@@ -18,7 +18,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             // Fluent2 UX: Subtle elevation with state changes
             if (!StyleShadows.HasShadow(style)) return path;
 
-            // Adjust shadow intensity based on state
+            // Calculate shadow properties based on state
             float shadowOpacity = 0.25f; // Base Fluent subtle shadow
             if (state == ControlState.Hovered)
                 shadowOpacity = 0.35f; // More prominent on hover
@@ -27,13 +27,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             else if (state == ControlState.Pressed)
                 shadowOpacity = 0.15f; // Reduced on press
 
-            // Use StyleShadows for consistent Fluent shadows
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            // Paint shadows
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), shadowOpacity, StyleShadows.GetShadowBlur(style) / 2);
 
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 2);
+            return remainingPath;
         }
     }
 }

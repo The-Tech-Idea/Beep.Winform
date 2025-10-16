@@ -35,7 +35,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             int offsetY = StyleShadows.GetShadowOffsetY(style);
             int offsetX = StyleShadows.GetShadowOffsetX(style);
 
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 6);
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, blur / 6);
+
+            return remainingPath;
         }
     }
 }

@@ -12,19 +12,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
     /// </summary>
     public static class StandardShadowPainter
     {
-       public static GraphicsPath Paint(Graphics g, GraphicsPath path, BeepControlStyle style, GraphicsPath borderPath)
+        public static GraphicsPath Paint(Graphics g, GraphicsPath path, BeepControlStyle style, GraphicsPath borderPath)
         {
             if (!StyleShadows.HasShadow(style))
                 return path;
-            
+
             int blur = StyleShadows.GetShadowBlur(style);
             int offsetY = StyleShadows.GetShadowOffsetY(style);
             int offsetX = StyleShadows.GetShadowOffsetX(style);
             Color shadowColor = StyleShadows.GetShadowColor(style);
             int radius = StyleBorders.GetRadius(style);
-            
+
             // Use helper for standard shadow
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, 0.16f, blur);
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(
+                g, path, radius, offsetX, offsetY, shadowColor, 0.16f, blur);
+
+            return remainingPath;
         }
     }
 }

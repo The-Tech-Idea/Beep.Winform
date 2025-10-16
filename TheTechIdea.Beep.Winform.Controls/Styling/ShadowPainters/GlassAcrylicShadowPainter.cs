@@ -15,22 +15,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             MaterialElevation elevation = MaterialElevation.Level2,
             ControlState state = ControlState.Normal)
         {
-            // Glass Acrylic UX: Glass effects don't need traditional shadows
-            // Glass gets its depth from the background blur effect, not shadows
-            if (!StyleShadows.HasShadow(style))
-            {
-                // Explicitly no shadow for glass styles - intentionally empty
-                return path;
-            }
+            if (!StyleShadows.HasShadow(style)) return path;
 
-            // If for some reason HasShadow returns true, use very minimal shadow
-            // But this should not happen for glass styles
-            Color shadowColor = StyleShadows.GetShadowColor(style);
-            int blur = StyleShadows.GetShadowBlur(style);
-            int offsetY = StyleShadows.GetShadowOffsetY(style);
-            int offsetX = StyleShadows.GetShadowOffsetX(style);
-
-            return ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, 0.08f, blur / 6);
+            // Paint minimal shadow for glass styles
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, 0, 0, StyleShadows.GetShadowColor(style), 0.08f, StyleShadows.GetShadowBlur(style) / 6);
+            return remainingPath;
         }
     }
 }

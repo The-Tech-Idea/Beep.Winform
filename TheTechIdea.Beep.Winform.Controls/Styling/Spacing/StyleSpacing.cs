@@ -36,6 +36,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Bootstrap => 12,               // Bootstrap standard
                 BeepControlStyle.FigmaCard => 16,               // Figma 8px grid
                 BeepControlStyle.PillRail => 8,                 // Pill compact
+                BeepControlStyle.Apple => 12,                   // Apple comfortable
+                BeepControlStyle.Fluent => 8,                   // Fluent compact
+                BeepControlStyle.Material => 16,                // Material 8dp grid
+                BeepControlStyle.WebFramework => 16,            // Web standard
+                BeepControlStyle.Effect => 20,                  // Effect generous
                 _ => 12
             };
         }
@@ -68,6 +73,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Bootstrap => 8,                // Bootstrap standard
                 BeepControlStyle.FigmaCard => 8,                // Figma comfortable
                 BeepControlStyle.PillRail => 4,                 // Pill tight
+                BeepControlStyle.Apple => 2,                    // Apple minimal spacing
+                BeepControlStyle.Fluent => 4,                   // Fluent tight
+                BeepControlStyle.Material => 4,                 // Material tight
+                BeepControlStyle.WebFramework => 8,             // Web comfortable
+                BeepControlStyle.Effect => 8,                   // Effect spacious
                 _ => 4
             };
         }
@@ -100,6 +110,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Bootstrap => 20,               // Bootstrap standard
                 BeepControlStyle.FigmaCard => 20,               // Figma standard
                 BeepControlStyle.PillRail => 20,                // Pill standard
+                BeepControlStyle.Apple => 22,                   // Apple SF Symbols size
+                BeepControlStyle.Fluent => 20,                  // Fluent standard
+                BeepControlStyle.Material => 24,                // Material standard
+                BeepControlStyle.WebFramework => 20,            // Web standard
+                BeepControlStyle.Effect => 24,                  // Effect larger
                 _ => 20
             };
         }
@@ -132,6 +147,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Bootstrap => 20,               // Bootstrap standard
                 BeepControlStyle.FigmaCard => 20,               // Figma standard
                 BeepControlStyle.PillRail => 16,                // Pill compact
+                BeepControlStyle.Apple => 16,                   // Apple tight hierarchy
+                BeepControlStyle.Fluent => 16,                  // Fluent compact
+                BeepControlStyle.Material => 24,                // Material generous
+                BeepControlStyle.WebFramework => 20,            // Web standard
+                BeepControlStyle.Effect => 24,                  // Effect spacious
                 _ => 20
             };
         }
@@ -164,6 +184,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Bootstrap => 40,               // Bootstrap standard
                 BeepControlStyle.FigmaCard => 40,               // Figma standard
                 BeepControlStyle.PillRail => 40,                // Pill standard
+                BeepControlStyle.Apple => 44,                   // Apple iOS/macOS standard
+                BeepControlStyle.Fluent => 40,                  // Fluent standard
+                BeepControlStyle.Material => 48,                // Material touch target
+                BeepControlStyle.WebFramework => 40,            // Web standard
+                BeepControlStyle.Effect => 48,                  // Effect generous
                 _ => 40
             };
         }

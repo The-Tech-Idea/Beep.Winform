@@ -9,7 +9,7 @@ using TheTechIdea.Beep.Vis.Modules;
 
 namespace TheTechIdea.Beep.Winform.Controls.Themes
 {
-    internal class DefaultBeepTheme : IBeepTheme
+    public class DefaultBeepTheme : IBeepTheme
     {
         public string ThemeName { get; set; } = "DefaultBeepTheme";
 

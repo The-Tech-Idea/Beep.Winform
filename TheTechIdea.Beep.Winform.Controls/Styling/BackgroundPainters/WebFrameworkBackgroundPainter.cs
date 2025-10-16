@@ -108,6 +108,43 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
             }
         }
         
+        /// <summary>
+        /// Paints the background based on the control style.
+        /// </summary>
+        /// <param name="g">The graphics object to paint on.</param>
+        /// <param name="path">The graphics path defining the shape to paint.</param>
+        /// <param name="style">The control style.</param>
+        /// <param name="theme">The theme information.</param>
+        /// <param name="useThemeColors">Whether to use theme colors.</param>
+        /// <param name="state">The control state.</param>
+        public static void Paint(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            switch (style)
+            {
+                case BeepControlStyle.Bootstrap:
+                    PaintBootstrap(g, path, style, theme, useThemeColors);
+                    break;
+                case BeepControlStyle.TailwindCard:
+                    PaintTailwind(g, path, style, theme, useThemeColors);
+                    break;
+                case BeepControlStyle.DiscordStyle:
+                    PaintDiscord(g, path, style, theme, useThemeColors);
+                    break;
+                case BeepControlStyle.StripeDashboard:
+                    PaintStripe(g, path, style, theme, useThemeColors);
+                    break;
+                case BeepControlStyle.FigmaCard:
+                    PaintFigma(g, path, style, theme, useThemeColors);
+                    break;
+                case BeepControlStyle.WebFramework:
+                    // Default to Bootstrap for generic WebFramework style
+                    PaintBootstrap(g, path, style, theme, useThemeColors);
+                    break;
+                default:
+                    throw new NotSupportedException($"Style {style} is not supported by WebFrameworkBackgroundPainter.");
+            }
+        }
+        
         private static Color GetColor(BeepControlStyle style, System.Func<BeepControlStyle, Color> styleColorFunc, string themeColorKey, IBeepTheme theme, bool useThemeColors)
         {
             if (useThemeColors && theme != null)

@@ -35,10 +35,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(33, 150, 243);
                     remainingPath = ShadowPainterHelpers.PaintDoubleShadow(
                         g, path, radius,
-                        innerOffset: 0, innerBlur: 8,
-                        innerColor: Color.FromArgb(70, accentColor),
-                        outerOffset: 0, outerBlur: 16,
-                        outerColor: Color.FromArgb(40, 0, 0, 0)
+                        color1: Color.FromArgb(70, accentColor),
+                        color2: Color.FromArgb(40, 0, 0, 0),
+                        offset1X: 0, offset1Y: 0,
+                        offset2X: 0, offset2Y: 0
                     );
                     break;
 

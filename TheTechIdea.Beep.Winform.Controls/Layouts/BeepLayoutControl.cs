@@ -109,7 +109,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Layouts
             base.OnPaint(e);
 
             // Background and optional style using BeepStyling
-            BeepStyling.PaintStyleBackground(e.Graphics, DrawingRect);
+            BeepStyling.PaintStyleBackground(e.Graphics, DrawingRect,ControlStyle);
 
             // Optional: draw a subtle border using current theme
             var themeBorder = BeepStyling.GetThemeColor("Border");

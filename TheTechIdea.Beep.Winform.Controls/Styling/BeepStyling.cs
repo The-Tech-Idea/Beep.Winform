@@ -2,26 +2,26 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using System.Reflection;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Common;
-using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
-using TheTechIdea.Beep.Winform.Controls.Styling.Spacing;
-using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
-using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
-using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
-
-using TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters;
-using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
-using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
+using TheTechIdea.Beep.Winform.Controls.Styling.Colors;
 using TheTechIdea.Beep.Winform.Controls.Styling.ImagePainters;
-using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Styling.PathPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Shadows;
+using TheTechIdea.Beep.Winform.Controls.Styling.Spacing;
+using TheTechIdea.Beep.Winform.Controls.Styling.SpinnerButtonPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.TextPainters;
+using TheTechIdea.Beep.Winform.Controls.Styling.Typography;
 
 namespace TheTechIdea.Beep.Winform.Controls.Styling
 {
@@ -334,7 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         /// </summary>
         public static void PaintStyleButtons(Graphics g, GraphicsPath upButtonPath, GraphicsPath downButtonPath, bool isFocused)
         {
-            PaintStyleButtons(g, upButtonPath, downButtonPath, isFocused, CurrentControlStyle);
+            PaintStyleSpinnerButtons(g, upButtonPath, downButtonPath, isFocused, CurrentControlStyle);
         }
         
         /// <summary>
@@ -765,7 +765,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 return null;
 
             RectangleF bounds = controlPath.GetBounds();
-            int borderWidth = StyleBorders.GetBorderWidth(style);
+            float borderWidth = StyleBorders.GetBorderWidth(style);
             int padding = StyleSpacing.GetPadding(style);
             int radius = StyleBorders.GetRadius(style);
             
@@ -782,8 +782,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             if (contentBounds.Width <= 0 || contentBounds.Height <= 0)
                 return null;
 
-            int contentRadius = Math.Max(0, radius - borderWidth - (padding / 2));
-            return CreateRoundedRectanglePath(contentBounds, contentRadius);
+            float contentRadius = Math.Max(0, radius - borderWidth - (padding / 2));
+            return CreateRoundedRectanglePath(contentBounds, (int)contentRadius);
         }
 
         /// <summary>
@@ -824,6 +824,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 bool isFocused = (state == ControlState.Focused);
                 borderPainter.Paint(g, controlPath, isFocused, style, theme, useThemeColors, state);
             }
+        }
+
+        public static void PaintStyleBackground(Graphics g, Rectangle drawingRect, BeepControlStyle controlStyle)
+        {
+            if (g == null) throw new ArgumentNullException(nameof(g));
+            GraphicsPath path = CreateStylePath(drawingRect, controlStyle);
+            PaintStyleBackground(g, path, controlStyle, UseThemeColors);
         }
 
         #endregion

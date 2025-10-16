@@ -48,15 +48,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(120, 100, 255);
                     remainingPath = ShadowPainterHelpers.PaintDoubleShadow(
                         g, path, radius,
-                        innerColor: Color.FromArgb(80, accentColor),
-                        innerBlur: 10,
-                        outerColor: Color.FromArgb(60, accentColor.R, accentColor.G, Math.Min(255, accentColor.B + 50)),
-                        outerBlur: 20
+                        color1: Color.FromArgb(80, accentColor),
+                        color2: Color.FromArgb(60, accentColor.R, accentColor.G, Math.Min(255, accentColor.B + 50)),
+                        offset1X: 0, offset1Y: 0,
+                        offset2X: 0, offset2Y: 0
                     );
                     break;
 
                 case ControlState.Disabled:
-                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, CardShadowStyle.Small);
+                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, ShadowPainterHelpers.CardShadowStyle.Small);
                     break;
 
                 case ControlState.Focused:
@@ -64,9 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     Color focusColor = useThemeColors ? theme.AccentColor : Color.FromArgb(80, 150, 255);
                     remainingPath = ShadowPainterHelpers.PaintPerspectiveShadow(
                         g, path, radius,
-                        direction: PerspectiveDirection.BottomRight,
-                        distance: 10,
-                        shadowColor: Color.FromArgb(80, focusColor)
+                        direction: ShadowPainterHelpers.PerspectiveDirection.BottomRight,
+                        intensity: 0.8f
                     );
                     break;
 

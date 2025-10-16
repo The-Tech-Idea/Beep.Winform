@@ -23,11 +23,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
             {
                 case ControlState.Hovered:
                 case ControlState.Pressed:
-                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, CardShadowStyle.Small);
+                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, ShadowPainterHelpers.CardShadowStyle.Small);
                     break;
                 case ControlState.Selected:
                     Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 122, 255);
-                    remainingPath = ShadowPainterHelpers.PaintColoredShadow(g, path, radius, 0, 0, 10, Color.FromArgb(80, accentColor), 2);
+                    remainingPath = ShadowPainterHelpers.PaintColoredShadow(g, path, radius, accentColor, 0, 0, 0.8f);
                     break;
                 case ControlState.Disabled:
                     return path;

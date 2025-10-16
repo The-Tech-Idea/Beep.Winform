@@ -50,8 +50,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                 shadowLayers += 1;
             }
 
-            // Paint shadows
-            GraphicsPath remainingPath = ShadowPainterHelpers.PaintLayeredShadow(g, path, radius, shadowOpacity, shadowLayers);
+            // Paint shadows using soft shadow with calculated opacity
+            Color shadowColor = StyleShadows.GetShadowColor(style);
+            int offsetY = StyleShadows.GetShadowOffsetY(style);
+            int offsetX = StyleShadows.GetShadowOffsetX(style);
+            GraphicsPath remainingPath = ShadowPainterHelpers.PaintSoftShadow(g, path, radius, offsetX, offsetY, shadowColor, shadowOpacity, shadowLayers);
             return remainingPath;
         }
     }

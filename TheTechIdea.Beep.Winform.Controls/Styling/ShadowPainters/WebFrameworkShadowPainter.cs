@@ -24,10 +24,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     // Web hover: Medium shadow with spread
                     remainingPath = ShadowPainterHelpers.PaintColoredShadow(
                         g, path, radius,
+                        baseColor: Color.FromArgb(40, 0, 0, 0),
                         offsetX: 0, offsetY: 4,
-                        blur: 12,
-                        shadowColor: Color.FromArgb(40, 0, 0, 0),
-                        spreadRadius: 2
+                        intensity: 0.4f
                     );
                     break;
 
@@ -35,10 +34,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     // Web pressed: Inner shadow (inset effect)
                     remainingPath = ShadowPainterHelpers.PaintInnerShadow(
                         g, path, radius,
-                        offsetX: 0, offsetY: 2,
-                        blur: 4,
-                        shadowColor: Color.FromArgb(50, 0, 0, 0),
-                        inset: 3
+                        depth: 3,
+                        shadowColor: Color.FromArgb(50, 0, 0, 0)
                     );
                     break;
 
@@ -47,10 +44,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(59, 130, 246);
                     remainingPath = ShadowPainterHelpers.PaintColoredShadow(
                         g, path, radius,
+                        baseColor: Color.FromArgb(80, accentColor),
                         offsetX: 0, offsetY: 0,
-                        blur: 10,
-                        shadowColor: Color.FromArgb(80, accentColor),
-                        spreadRadius: 3
+                        intensity: 0.8f
                     );
                     break;
 

@@ -25,11 +25,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.ShadowPainters
                     remainingPath = ShadowPainterHelpers.PaintFloatingShadow(g, path, radius, 4);
                     break;
                 case ControlState.Pressed:
-                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, CardShadowStyle.Small);
+                    remainingPath = ShadowPainterHelpers.PaintCardShadow(g, path, radius, ShadowPainterHelpers.CardShadowStyle.Small);
                     break;
                 case ControlState.Selected:
                     Color accentColor = useThemeColors ? theme.AccentColor : Color.FromArgb(0, 120, 212);
-                    remainingPath = ShadowPainterHelpers.PaintAmbientShadow(g, path, radius, Color.FromArgb(60, accentColor), 8, 0.7f);
+                    remainingPath = ShadowPainterHelpers.PaintAmbientShadow(g, path, radius, spread: 8, opacity: 0.7f);
                     break;
                 case ControlState.Disabled:
                     return path;

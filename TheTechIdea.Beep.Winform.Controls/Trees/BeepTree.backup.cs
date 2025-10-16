@@ -62,13 +62,12 @@ namespace TheTechIdea.Beep.Winform.Controls
         #endregion
         #region "Properties"
 
-        // With these:
-        // With these:
-        private int GetScaledBoxSize() => ScaleValue(14);
-        private int GetScaledImageSize() => ScaleValue(20);
-        private int GetScaledMinRowHeight() => ScaleValue(24);
-        private int GetScaledIndentWidth() => ScaleValue(16);
-        private int GetScaledVerticalPadding() => ScaleValue(4);
+        // Framework handles DPI scaling
+        private int GetScaledBoxSize() => 14;
+        private int GetScaledImageSize() => 20;
+        private int GetScaledMinRowHeight() => 24;
+        private int GetScaledIndentWidth() => 16;
+        private int GetScaledVerticalPadding() => 4;
        // private int GetScaledMinRowHeight() = 24;
       //  private int GetScaledIndentWidth() = 16;
       //  private int GetScaledVerticalPadding() = 4;
@@ -1696,17 +1695,17 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 ScrollOrientation = Orientation.Vertical,
                 Visible = false,
-                Width = ScaleValue(15)  // Slightly wider for better usability
+                Width = 15  // Framework handles DPI scaling
             };
             _verticalScrollBar.Scroll += VerticalScrollBar_Scroll;
             Controls.Add(_verticalScrollBar);
 
-            // Create horizontal scrollbar with DPI-scaled height
+            // Create horizontal scrollbar - framework handles DPI scaling
             _horizontalScrollBar = new BeepScrollBar
             {
                 ScrollOrientation = Orientation.Horizontal,
                 Visible = false,
-                Height = ScaleValue(15)  // Slightly taller for better usability
+                Height = 15  // Framework handles DPI scaling
             };
             _horizontalScrollBar.Scroll += HorizontalScrollBar_Scroll;
             Controls.Add(_horizontalScrollBar);

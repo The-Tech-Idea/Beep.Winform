@@ -129,46 +129,50 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         #endregion
 
-        #region DPI Scaling Support
-        [Category("DPI/Scaling")]
+        #region DPI Scaling Support - .NET 8/9+ Framework Approach
+        // REMOVED: Manual DPI scaling helpers (DisableDpiAndScaling, DpiScaleFactor, ScaleValue, etc.)
+        // .NET 8/9+ handles DPI automatically via AutoScaleMode.Inherit and DeviceDpi property.
+        // 
+        // If you need DPI information at runtime, use:
+        //   - this.DeviceDpi (property available in .NET Core 3.0+)
+        //   - Graphics.DpiX / Graphics.DpiY
+        //
+        // The framework automatically scales controls, fonts, and layouts.
+        // Reference: https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
+        
+        /// <summary>
+        /// Gets the current device DPI for this control.
+        /// This is a framework property available in .NET Core 3.0+
+        /// </summary>
         [Browsable(false)]
-        [Description("Disable all DPI/scaling logic for this control (AutoScale, DPI-based size/font scaling).")]
-    private bool _disableDpiAndScaling = false; // default opt-out of custom scaling
-        [Category("DPI/Scaling")]
-        [Browsable(false)]
-        public bool DisableDpiAndScaling
-        {
-            get => _disableDpiAndScaling;
-            set
-            {
-                _disableDpiAndScaling = value;
-                // Do not force AutoScale changes; let the framework/parent form handle scaling
-                Invalidate();
-            }
-        }
-
-        [Category("DPI/Scaling")]
-        [Browsable(false)]
-        protected float DpiScaleFactor => DisableDpiAndScaling || _dpi == null ? 1.0f : _dpi.DpiScaleFactor;
-
-        protected virtual void UpdateDpiScaling(Graphics g)
-        {
-            if (DisableDpiAndScaling || _dpi == null) return;
-            _dpi.UpdateDpiScaling(g);
-        }
-        public int ScaleValue(int value) => (DisableDpiAndScaling || _dpi == null) ? value : _dpi.ScaleValue(value);
-        public Size ScaleSize(Size size) => (DisableDpiAndScaling || _dpi == null) ? size : _dpi.ScaleSize(size);
-        public Font ScaleFont(Font font) => (DisableDpiAndScaling || _dpi == null) ? font : _dpi.ScaleFont(font);
-        public Padding ScalePadding(Padding padding) => (DisableDpiAndScaling || _dpi == null) ? padding : _dpi.ScalePadding(padding);
-        public Rectangle ScaleRectangle(Rectangle rect) => (DisableDpiAndScaling || _dpi == null) ? rect : _dpi.ScaleRectangle(rect);
-        public Point ScalePoint(Point point) => (DisableDpiAndScaling || _dpi == null) ? point : new Point(_dpi.ScaleValue(point.X), _dpi.ScaleValue(point.Y));
-        public SizeF ScaleSizeF(SizeF size) => (DisableDpiAndScaling || _dpi == null) ? size : _dpi.ScaleSize(size);
-    public PointF ScalePointF(PointF point) => (DisableDpiAndScaling || _dpi == null) ? point : new PointF(_dpi.ScaleValue(point.X), _dpi.ScaleValue(point.Y));
+        public float CurrentDeviceDpi => this.DeviceDpi;
 
         /// <summary>
-        /// Returns a scaled image size based on the current DPI scale.
+        /// Gets the DPI scale factor relative to 96 DPI (1.0 = 96 DPI, 1.5 = 144 DPI, 2.0 = 192 DPI)
         /// </summary>
-        public Size GetScaledImageSize(Size baseSize) => (DisableDpiAndScaling || _dpi == null) ? baseSize : _dpi.ScaleSize(baseSize);
+        [Browsable(false)]
+        public float CurrentDpiScaleFactor => this.DeviceDpi / 96.0f;
+
+        // REMOVED: ScaleValue, ScaleSize, GetScaledFont methods
+        // The .NET 8/9+ framework handles all DPI scaling automatically.
+        // No manual scaling methods should be used.
+
+        #endregion
+
+        #region Image Scaling Support
+        /// <summary>
+        /// Returns a scaled image size based on the current DPI scale.
+        /// Uses framework's DeviceDpi property for accurate scaling.
+        /// </summary>
+        public Size GetScaledImageSize(Size baseSize)
+        {
+            float scaleFactor = CurrentDpiScaleFactor;
+            if (Math.Abs(scaleFactor - 1.0f) < 0.01f) return baseSize;
+            return new Size(
+                (int)Math.Round(baseSize.Width * scaleFactor),
+                (int)Math.Round(baseSize.Height * scaleFactor)
+            );
+        }
 
         /// <summary>
         /// Returns a scaled image size based on the current DPI scale.
@@ -271,9 +275,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             RescaleImageListImages(imageList, target);
         }
 
+    /// <summary>
+    /// Gets the current DPI of the control using framework's DeviceDpi property.
+    /// Returns 96 (100% scaling) if DeviceDpi is not available.
+    /// </summary>
     [Category("DPI/Scaling")]
     [Browsable(false)]
-    public int CurrentDpi => (DisableDpiAndScaling || _dpi == null) ? 96 : _dpi.CurrentDpi;
+    public int CurrentDpi => this.DeviceDpi > 0 ? this.DeviceDpi : 96;
 
     /// <summary>
     /// Raised when the DPI scaling factor changes (per-monitor DPI changes, window moved between monitors, etc.).
@@ -289,11 +297,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             DpiChanged?.Invoke(this, EventArgs.Empty);
         }
 
-        // Internal hook used by ControlDpiHelper to raise the public event and virtual method.
-        internal void OnDpiChangedInternal()
-        {
-            OnDpiChanged();
-        }
+        // REMOVED: OnDpiChangedInternal() - no longer needed without ControlDpiHelper
+        // The framework handles DPI change events via OnDpiChangedAfterParent
         #endregion
 
         #region Theme Management

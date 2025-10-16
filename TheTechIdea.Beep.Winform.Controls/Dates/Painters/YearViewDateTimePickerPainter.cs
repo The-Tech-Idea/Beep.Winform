@@ -69,7 +69,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintDecadeHeader(Graphics g, Rectangle bounds, int startYear, int endYear, DateTimePickerHoverState hoverState)
         {
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 18f, FontStyle.Bold);
 
@@ -92,7 +92,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintDecadeNavButton(Graphics g, Rectangle bounds, bool isNext, bool isHovered, bool isPressed)
         {
-            var iconColor = _theme?.ForeColor ?? Color.Black;
+            var iconColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
 
             if (isPressed || isHovered)
@@ -164,9 +164,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintYearCell(Graphics g, Rectangle bounds, int year, bool isSelected, bool isCurrent, bool isOutOfDecade, bool isHovered, bool isPressed)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var textColor = _theme?.ForeColor ?? Color.Black;
-            var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var textColor = _theme?.CalendarForeColor ?? Color.Black;
+            var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
+            var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 16f);
@@ -187,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 {
                     g.FillPath(brush, path);
                 }
-                textColor = Color.White;
+                textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
             }
             else if (isPressed || isHovered)
             {
@@ -214,7 +215,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Current year indicator
             if (isCurrent && !isSelected)
             {
-                using (var pen = new Pen(accentColor, 2))
+                using (var pen = new Pen(todayColor, 2))
                 using (var path = GetRoundedRectPath(bounds, 10))
                 {
                     g.DrawPath(pen, path);

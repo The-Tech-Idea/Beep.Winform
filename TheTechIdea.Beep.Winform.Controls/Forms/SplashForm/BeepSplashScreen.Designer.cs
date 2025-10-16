@@ -75,7 +75,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage.DisabledBackColor = Color.Gray;
             _logoImage.DisabledBorderColor = Color.Empty;
             _logoImage.DisabledForeColor = Color.Empty;
-            _logoImage.DisableDpiAndScaling = true;
+            // REMOVED: DisableDpiAndScaling - .NET 8/9+ handles DPI automatically
             _logoImage.DrawingRect = new Rectangle(0, 0, 443, 395);
             _logoImage.Easing = EasingType.Linear;
             _logoImage.EmbeddedImagePath = null;
@@ -230,7 +230,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.DisabledBackColor = Color.LightGray;
             _titleLabel.DisabledBorderColor = Color.Gray;
             _titleLabel.DisabledForeColor = Color.Gray;
-            _titleLabel.DisableDpiAndScaling = false;
+            // REMOVED: DisableDpiAndScaling - .NET 8/9+ handles DPI automatically
             _titleLabel.DrawingRect = new Rectangle(1, 1, 441, 52);
             _titleLabel.Easing = EasingType.Linear;
             _titleLabel.EnableHighQualityRendering = true;

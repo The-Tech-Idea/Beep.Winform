@@ -32,11 +32,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepButton CurrenItemButton { get; private set; }
         private string _hoveredMenuItemName; // Track currently hovered menu item
 
-        // DPI-aware properties - use scaled values throughout
-        private int ScaledMenuItemHeight => ScaleValue(MenuItemHeight);
-        private int ScaledImageSize => ScaleValue(_imagesize);
-        private int ScaledMenuItemWidth => ScaleValue(_menuItemWidth);
-        private Size ScaledButtonSize => ScaleSize(ButtonSize);
+        // Constants - framework handles DPI scaling
+        private int ScaledMenuItemHeight => MenuItemHeight;
+        private int ScaledImageSize => _imagesize;
+        private int ScaledMenuItemWidth => _menuItemWidth;
+        private Size ScaledButtonSize => ButtonSize;
 
         private int _selectedIndex = -1;
 
@@ -173,8 +173,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (value > 0)
                 {
-                    // Ensure image size fits within menu item height with padding
-                    int maxSize = Math.Max(16, MenuItemHeight - ScaleValue(4));
+                    // Ensure image size fits within menu item height with padding - framework handles DPI scaling
+                    int maxSize = Math.Max(16, MenuItemHeight - 4);
                     _imagesize = Math.Min(value, maxSize);
                     
                     InitializeDrawingComponents();
@@ -198,7 +198,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (Width <= 0 || Height <= 0)
             {
                 Width = 200;
-                Height = ScaledMenuItemHeight + ScaleValue(2);
+                Height = ScaledMenuItemHeight + 2; // Framework handles DPI scaling
             }
           
             ApplyThemeToChilds = true;
@@ -228,7 +228,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             RefreshHitAreas();
         }
 
-        protected override Size DefaultSize => new Size(200, ScaledMenuItemHeight + ScaleValue(2));
+        protected override Size DefaultSize => new Size(200, ScaledMenuItemHeight + 2); // Framework handles DPI scaling
 
         private void InitializeDrawingComponents()
         {
@@ -333,10 +333,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             var rects = new List<Rectangle>();
             if (items == null || items.Count == 0) return rects;
 
-            int gapBetweenButtons = ScaleValue(5);
-            int startX = ScaleValue(5);
+            // Framework handles DPI scaling
+            int gapBetweenButtons = 5;
+            int startX = 5;
             int buttonTop = (Height - ScaledMenuItemHeight) / 2;
-            if (buttonTop < 0) buttonTop = ScaleValue(1);
+            if (buttonTop < 0) buttonTop = 1;
 
             int currentX = startX;
 
@@ -363,7 +364,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private int CalculateMenuItemWidth(SimpleItem item)
         {
-            if (item == null) return ScaleValue(80);
+            if (item == null) return 80; // Framework handles DPI scaling
 
             // Measure text width using safer TextRenderer.MeasureText without Graphics object
             int textWidth = 0;
@@ -375,13 +376,13 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textWidth = textSize.Width;
             }
 
-            // Add space for image if present
-            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + ScaleValue(4) : 0;
+            // Add space for image if present - framework handles DPI scaling
+            int imageWidth = !string.IsNullOrEmpty(item.ImagePath) ? ScaledImageSize + 4 : 0;
 
-            // Add padding
-            int totalWidth = textWidth + imageWidth + ScaleValue(10); // 10 pixels padding
+            // Add padding - framework handles DPI scaling
+            int totalWidth = textWidth + imageWidth + 10; // 10 pixels padding
 
-            return Math.Max(totalWidth, ScaleValue(60)); // Minimum width
+            return Math.Max(totalWidth, 60); // Minimum width
         }
 
         private void HandleMenuItemClick(SimpleItem item, int index)
@@ -828,16 +829,16 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Measure font height
             int fontHeight = _textFont.Height;
 
-            // Calculate minimum height needed: font height + padding
-            int minHeight = fontHeight + ScaleValue(8); // 8 pixels padding (4 top + 4 bottom)
+            // Calculate minimum height needed: font height + padding - framework handles DPI scaling
+            int minHeight = fontHeight + 8; // 8 pixels padding (4 top + 4 bottom)
 
             // Update MenuItemHeight if current value is too small
             if (_menuItemHeight < minHeight)
             {
                 _menuItemHeight = minHeight;
                 
-                // Update control height
-                int newHeight = ScaledMenuItemHeight + ScaleValue(4);
+                // Update control height - framework handles DPI scaling
+                int newHeight = ScaledMenuItemHeight + 4;
                 if (Height != newHeight)
                 {
                     Height = newHeight;
@@ -861,8 +862,8 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Refresh hit areas with new scaled positions
             RefreshHitAreas();
 
-            // Update control height
-            Height = ScaledMenuItemHeight + ScaleValue(4);
+            // Update control height - framework handles DPI scaling
+            Height = ScaledMenuItemHeight + 4;
 
             Invalidate();
         }

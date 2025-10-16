@@ -91,10 +91,10 @@ namespace TheTechIdea.Beep.Winform.Controls
             Controls.Add(TabContainerPanel);
 
             TabContainerPanel.TabRemoved += TabContainerPanel_TabRemoved;
-            // Use DPI-scaled padding and size
-            Padding = new Padding(ScaleValue(2));
+            // Framework handles DPI scaling
+            Padding = new Padding(2);
             Name = "BeepDisplayContainer";
-            Size = ScaleSize(new Size(400, 300));
+            Size = new Size(400, 300);
 
             ResumeLayout(false);
         }
@@ -300,9 +300,9 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var tabPage = new TabPage { Text = TitleText, Tag = control };
 
                 if (control is Control winControl)
-                { // Use DPI-scaled values
-                    winControl.Margin = new Padding(ScaleValue(5));
-                    winControl.Padding = new Padding(ScaleValue(5));
+                { // Framework handles DPI scaling
+                    winControl.Margin = new Padding(5);
+                    winControl.Padding = new Padding(5);
 
                     winControl.Dock = DockStyle.Fill;
                     winControl.Padding = new Padding(5);

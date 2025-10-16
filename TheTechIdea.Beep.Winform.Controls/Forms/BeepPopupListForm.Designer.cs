@@ -67,7 +67,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _beepListBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             _beepListBox.DisabledBorderColor = Color.LightGray;
             _beepListBox.DisabledForeColor = Color.Gray;
-            _beepListBox.DisableDpiAndScaling = true;
+            // REMOVED: DisableDpiAndScaling - .NET 8/9+ handles DPI automatically
             _beepListBox.Dock = DockStyle.Fill;
             _beepListBox.DrawingRect = new Rectangle(24, 8, 587, 753);
             _beepListBox.Easing = EasingType.Linear;

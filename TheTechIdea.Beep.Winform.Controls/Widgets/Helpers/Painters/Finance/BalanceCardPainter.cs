@@ -79,8 +79,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void CalculateLayout(out Rectangle logoRect, out Rectangle balanceRect, 
             out Rectangle accountRect, out Rectangle securityRect, WidgetContext ctx)
         {
-            int padding = Owner?.ScaleValue(20) ?? 20;
-            int spacing = Owner?.ScaleValue(8) ?? 8;
+            // Framework handles DPI scaling
+            int padding = 20;
+            int spacing = 8;
 
             int leftEdge = ctx.DrawingRect.Left + padding;
             int rightEdge = ctx.DrawingRect.Right - padding;

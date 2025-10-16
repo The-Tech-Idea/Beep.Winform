@@ -76,7 +76,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             Title.DisabledBackColor = Color.LightGray;
             Title.DisabledBorderColor = Color.Gray;
             Title.DisabledForeColor = Color.Gray;
-            Title.DisableDpiAndScaling = true;
+            // REMOVED: DisableDpiAndScaling - .NET 8/9+ handles DPI automatically
             Title.Dock = DockStyle.Top;
             Title.DrawingRect = new Rectangle(1, 0, 938, 38);
             Title.Easing = EasingType.Linear;
@@ -257,7 +257,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepLabel1.DisabledBackColor = Color.LightGray;
             beepLabel1.DisabledBorderColor = Color.Gray;
             beepLabel1.DisabledForeColor = Color.Gray;
-            beepLabel1.DisableDpiAndScaling = true;
+           
             beepLabel1.DrawingRect = new Rectangle(1, 0, 183, 40);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
@@ -445,7 +445,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.DisabledBackColor = Color.FromArgb(200, 200, 200);
             messege.DisabledBorderColor = Color.LightGray;
             messege.DisabledForeColor = Color.Gray;
-            messege.DisableDpiAndScaling = true;
+          
             messege.DrawingRect = new Rectangle(1, 0, 914, 554);
             messege.Easing = EasingType.Linear;
             messege.EnableHighQualityRendering = true;
@@ -643,7 +643,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             LogopictureBox.DisabledBorderColor = Color.LightGray;
             LogopictureBox.DisabledForeColor = Color.Gray;
-            LogopictureBox.DisableDpiAndScaling = true;
+         
             LogopictureBox.DrawingRect = new Rectangle(1, 0, 45, 40);
             LogopictureBox.Easing = EasingType.Linear;
             LogopictureBox.EmbeddedImagePath = null;
@@ -827,7 +827,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.DisabledBackColor = Color.FromArgb(200, 200, 200);
             _spinnerImage.DisabledBorderColor = Color.LightGray;
             _spinnerImage.DisabledForeColor = Color.Gray;
-            _spinnerImage.DisableDpiAndScaling = true;
+        
             _spinnerImage.DrawingRect = new Rectangle(1, 0, 121, 105);
             _spinnerImage.Easing = EasingType.Linear;
             _spinnerImage.EmbeddedImagePath = null;
@@ -1011,7 +1011,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepImage1.DisabledBorderColor = Color.LightGray;
             beepImage1.DisabledForeColor = Color.Gray;
-            beepImage1.DisableDpiAndScaling = false;
+        
             beepImage1.DrawingRect = new Rectangle(0, 0, 100, 100);
             beepImage1.Easing = EasingType.Linear;
             beepImage1.EmbeddedImagePath = null;

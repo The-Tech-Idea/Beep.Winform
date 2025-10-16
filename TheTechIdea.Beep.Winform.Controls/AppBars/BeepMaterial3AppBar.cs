@@ -234,8 +234,8 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         public BeepMaterial3AppBar() : base()
         {
-            // Set up base control properties
-            Size = new Size(800, ScaleValue(MD3_SMALL_HEIGHT));
+            // Set up base control properties - framework handles DPI scaling
+            Size = new Size(800, MD3_SMALL_HEIGHT);
             
             // Initialize components
             InitializeComponents();
@@ -253,8 +253,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private void InitializeComponents()
         {
-            var touchTarget = ScaleValue(MD3_TOUCH_TARGET);
-            var iconSize = ScaleValue(MD3_ICON_SIZE);
+            // Framework handles DPI scaling automatically
+            var touchTarget = MD3_TOUCH_TARGET;
+            var iconSize = MD3_ICON_SIZE;
 
             // Navigation icon
             _navigationIcon = new BeepImage
@@ -275,10 +276,10 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 AutoSize = false
             };
 
-            // Search field
+            // Search field - framework handles DPI scaling
             _searchBox = new BeepTextBox
             {
-                Height = ScaleValue(MD3_SEARCH_HEIGHT),
+                Height = MD3_SEARCH_HEIGHT,
                 PlaceholderText = "Search...",
                 Visible = _showSearch,
                 IsChild = true,
@@ -308,8 +309,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private BeepButton CreateActionButton()
         {
-            var touchTarget = ScaleValue(MD3_TOUCH_TARGET);
-            var iconSize = ScaleValue(MD3_ICON_SIZE);
+            // Framework handles DPI scaling automatically
+            var touchTarget = MD3_TOUCH_TARGET;
+            var iconSize = MD3_ICON_SIZE;
 
             return new BeepButton
             {
@@ -354,13 +356,14 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private void ApplyVariantSettings()
         {
+            // Framework handles DPI scaling automatically
             int height = _variant switch
             {
-                Material3AppBarVariant.Small => ScaleValue(MD3_SMALL_HEIGHT),
-                Material3AppBarVariant.CenterAligned => ScaleValue(MD3_SMALL_HEIGHT),
-                Material3AppBarVariant.Medium => ScaleValue(MD3_MEDIUM_HEIGHT),
-                Material3AppBarVariant.Large => ScaleValue(MD3_LARGE_HEIGHT),
-                _ => ScaleValue(MD3_SMALL_HEIGHT)
+                Material3AppBarVariant.Small => MD3_SMALL_HEIGHT,
+                Material3AppBarVariant.CenterAligned => MD3_SMALL_HEIGHT,
+                Material3AppBarVariant.Medium => MD3_MEDIUM_HEIGHT,
+                Material3AppBarVariant.Large => MD3_LARGE_HEIGHT,
+                _ => MD3_SMALL_HEIGHT
             };
 
             Height = height;
@@ -395,11 +398,12 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
 
         private void CalculateLayout()
         {
-            var startPadding = ScaleValue(MD3_START_PADDING);
-            var endPadding = ScaleValue(MD3_END_PADDING);
-            var iconSpacing = ScaleValue(MD3_ICON_SPACING);
-            var touchTarget = ScaleValue(MD3_TOUCH_TARGET);
-            var iconSize = ScaleValue(MD3_ICON_SIZE);
+            // Framework handles DPI scaling automatically
+            var startPadding = MD3_START_PADDING;
+            var endPadding = MD3_END_PADDING;
+            var iconSpacing = MD3_ICON_SPACING;
+            var touchTarget = MD3_TOUCH_TARGET;
+            var iconSize = MD3_ICON_SIZE;
 
             var rect = DrawingRect;
             var centerY = rect.Y + rect.Height / 2;
@@ -465,29 +469,29 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                 rightX = _action1Rect.Left - iconSpacing;
             }
 
-            // Search field or title
+            // Search field or title - framework handles DPI scaling
             if (_showSearch && _isSearchActive)
             {
                 _searchRect = new Rectangle(
                     currentX,
-                    centerY - ScaleValue(MD3_SEARCH_HEIGHT) / 2,
+                    centerY - MD3_SEARCH_HEIGHT / 2,
                     rightX - currentX - iconSpacing,
-                    ScaleValue(MD3_SEARCH_HEIGHT)
+                    MD3_SEARCH_HEIGHT
                 );
             }
             else
             {
-                // Title area
+                // Title area - framework handles DPI scaling
                 if (_variant == Material3AppBarVariant.CenterAligned)
                 {
                     // Center the title
-                    var titleWidth = Math.Min(ScaleValue(200), rightX - currentX - iconSpacing);
+                    var titleWidth = Math.Min(200, rightX - currentX - iconSpacing);
                     var titleX = currentX + (rightX - currentX - titleWidth) / 2;
                     _titleRect = new Rectangle(
                         titleX,
-                        centerY - ScaleValue(28) / 2,
+                        centerY - 28 / 2,
                         titleWidth,
-                        ScaleValue(28)
+                        28
                     );
                 }
                 else
@@ -495,9 +499,9 @@ namespace TheTechIdea.Beep.Winform.Controls.AppBars
                     // Left-aligned title
                     _titleRect = new Rectangle(
                         currentX,
-                        centerY - ScaleValue(28) / 2,
+                        centerY - 28 / 2,
                         rightX - currentX - iconSpacing,
-                        ScaleValue(28)
+                        28
                     );
                 }
             }

@@ -62,11 +62,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         // create a public event for beepImage.onClick
         public EventHandler<BeepEventDataArgs> ImageClicked { get; set; }
 
-        // Prevent DPI scaling at control-level
-        [Browsable(true)]
-        [Category("Layout")]
-        [Description("Disable DPI/auto-scaling for this control.")]
-        public bool DisableDpiAndScaling { get => base.DisableDpiAndScaling; set => base.DisableDpiAndScaling = value; }
+        // REMOVED: DisableDpiAndScaling property - .NET 8/9+ handles DPI automatically via framework
+        // DPI scaling is managed by the framework using AutoScaleMode.Inherit
 
         private ButtonType _buttonType = ButtonType.Normal;
         [Browsable(true)]
@@ -1480,12 +1477,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                 textColor = DisabledForeColor;
             }
 
-            // Use scaled font if configured
+            // Framework handles DPI scaling automatically - use font directly
             Font scaledFont = _textFont;
-            if (UseScaledFont)
-            {
-                scaledFont = GetScaledFont(g, Text, contentRect.Size, _textFont);
-            }
 
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 

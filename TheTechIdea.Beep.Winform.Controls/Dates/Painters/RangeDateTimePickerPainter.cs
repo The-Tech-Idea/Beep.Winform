@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         {
             if (!rangeStart.HasValue || !rangeEnd.HasValue) return;
 
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var rangeColor = Color.FromArgb(40, accentColor); // Semi-transparent accent
 
             using (var brush = new SolidBrush(rangeColor))
@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintRangeInfo(Graphics g, Rectangle infoBounds)
         {
-            var textColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
+            var textColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
 
             string infoText = "";
@@ -120,9 +120,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
+            var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var rangeColor = Color.FromArgb(50, accentColor);
 
             cellBounds.Inflate(-2, -2);
@@ -143,7 +144,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 {
                     g.FillEllipse(brush, cellBounds);
                 }
-                textColor = Color.White;
+                textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
             }
             else if (isPressed)
             {
@@ -164,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Today indicator
             if (isToday && !isSelected)
             {
-                using (var pen = new Pen(accentColor, 2))
+                using (var pen = new Pen(todayColor, 2))
                 {
                     g.DrawEllipse(pen, cellBounds);
                 }
@@ -192,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 14f, FontStyle.Bold);
 
             using (var brush = new SolidBrush(textColor))
@@ -208,7 +209,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintNavigationButton(Graphics g, Rectangle buttonBounds, bool isNext, bool isHovered, bool isPressed)
         {
-            var iconColor = _theme?.ForeColor ?? Color.Black;
+            var iconColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
 
             if (isPressed || isHovered)
@@ -243,7 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
-            var textColor = _theme?.SecondaryTextColor ?? Color.FromArgb(128, 128, 128);
+            var textColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(128, 128, 128);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
 
             string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;

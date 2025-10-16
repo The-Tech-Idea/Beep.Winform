@@ -156,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbFilterCol1.DisabledBorderColor = Color.LightGray;
             cmbFilterCol1.DisabledForeColor = Color.Gray;
-            cmbFilterCol1.DisableDpiAndScaling = false;
+         
             cmbFilterCol1.Dock = DockStyle.Fill;
             cmbFilterCol1.DrawingRect = new Rectangle(24, 8, 168, 40);
             cmbFilterCol1.Easing = Vis.Modules.EasingType.Linear;
@@ -331,7 +331,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbFilterVal1.DisabledBorderColor = Color.LightGray;
             cmbFilterVal1.DisabledForeColor = Color.Gray;
-            cmbFilterVal1.DisableDpiAndScaling = false;
+         
             cmbFilterVal1.Dock = DockStyle.Fill;
             cmbFilterVal1.DrawingRect = new Rectangle(24, 8, 168, 40);
             cmbFilterVal1.Easing = Vis.Modules.EasingType.Linear;
@@ -506,7 +506,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterCol2.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbFilterCol2.DisabledBorderColor = Color.LightGray;
             cmbFilterCol2.DisabledForeColor = Color.Gray;
-            cmbFilterCol2.DisableDpiAndScaling = false;
+        
             cmbFilterCol2.Dock = DockStyle.Fill;
             cmbFilterCol2.DrawingRect = new Rectangle(24, 8, 168, 40);
             cmbFilterCol2.Easing = Vis.Modules.EasingType.Linear;
@@ -681,7 +681,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbFilterVal2.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbFilterVal2.DisabledBorderColor = Color.LightGray;
             cmbFilterVal2.DisabledForeColor = Color.Gray;
-            cmbFilterVal2.DisableDpiAndScaling = false;
+        
             cmbFilterVal2.Dock = DockStyle.Fill;
             cmbFilterVal2.DrawingRect = new Rectangle(24, 8, 168, 40);
             cmbFilterVal2.Easing = Vis.Modules.EasingType.Linear;
@@ -856,7 +856,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbGroupBy.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbGroupBy.DisabledBorderColor = Color.LightGray;
             cmbGroupBy.DisabledForeColor = Color.Gray;
-            cmbGroupBy.DisableDpiAndScaling = false;
+         
             cmbGroupBy.Dock = DockStyle.Fill;
             cmbGroupBy.DrawingRect = new Rectangle(24, 8, 168, 40);
             cmbGroupBy.Easing = Vis.Modules.EasingType.Linear;
@@ -1031,7 +1031,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             cmbOrderBy.DisabledBackColor = Color.FromArgb(200, 200, 200);
             cmbOrderBy.DisabledBorderColor = Color.LightGray;
             cmbOrderBy.DisabledForeColor = Color.Gray;
-            cmbOrderBy.DisableDpiAndScaling = false;
+         
             cmbOrderBy.Dock = DockStyle.Fill;
             cmbOrderBy.DrawingRect = new Rectangle(24, 8, 168, 40);
             cmbOrderBy.Easing = Vis.Modules.EasingType.Linear;
@@ -1205,7 +1205,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             rbOrder.DisabledBackColor = Color.White;
             rbOrder.DisabledBorderColor = Color.Empty;
             rbOrder.DisabledForeColor = Color.Black;
-            rbOrder.DisableDpiAndScaling = true;
+          
             rbOrder.Dock = DockStyle.Left;
             rbOrder.DrawingRect = new Rectangle(0, 0, 216, 32);
             rbOrder.Easing = Vis.Modules.EasingType.Linear;
@@ -1340,7 +1340,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             chkShowHeaders.DisabledBackColor = Color.LightGray;
             chkShowHeaders.DisabledBorderColor = Color.Gray;
             chkShowHeaders.DisabledForeColor = Color.DarkGray;
-            chkShowHeaders.DisableDpiAndScaling = false;
+         
             chkShowHeaders.Dock = DockStyle.Left;
             chkShowHeaders.DrawingRect = new Rectangle(8, 0, 200, 56);
             chkShowHeaders.Easing = Vis.Modules.EasingType.Linear;
@@ -1555,7 +1555,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnExport.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnExport.DisabledBorderColor = Color.Gray;
             btnExport.DisabledForeColor = Color.Gray;
-            btnExport.DisableDpiAndScaling = false;
+         
             btnExport.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnExport.Easing = Vis.Modules.EasingType.Linear;
             btnExport.EmbeddedImagePath = null;
@@ -1749,7 +1749,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnApply.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnApply.DisabledBorderColor = Color.Gray;
             btnApply.DisabledForeColor = Color.Gray;
-            btnApply.DisableDpiAndScaling = false;
+        
             btnApply.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnApply.Easing = Vis.Modules.EasingType.Linear;
             btnApply.EmbeddedImagePath = null;
@@ -1943,7 +1943,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnReset.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnReset.DisabledBorderColor = Color.Gray;
             btnReset.DisabledForeColor = Color.Gray;
-            btnReset.DisableDpiAndScaling = false;
+         
             btnReset.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnReset.Easing = Vis.Modules.EasingType.Linear;
             btnReset.EmbeddedImagePath = null;
@@ -2137,7 +2137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Filters
             btnClose.DisabledBackColor = Color.FromArgb(200, 200, 200);
             btnClose.DisabledBorderColor = Color.Gray;
             btnClose.DisabledForeColor = Color.Gray;
-            btnClose.DisableDpiAndScaling = false;
+         
             btnClose.DrawingRect = new Rectangle(24, 8, 72, 28);
             btnClose.Easing = Vis.Modules.EasingType.Linear;
             btnClose.EmbeddedImagePath = null;

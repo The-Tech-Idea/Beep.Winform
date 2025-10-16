@@ -148,7 +148,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                     try
                     {
                         var themeFont = ThemeManagement.BeepThemesManager.ToFont(_currentTheme.LabelFont);
-                        TextFont = UseScaledFont ? ScaleFont(themeFont) : themeFont;
+                        // Framework handles DPI scaling automatically
+                        TextFont = themeFont;
                     }
                     catch { /* keep existing TextFont on failure */ }
                 }

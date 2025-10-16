@@ -17,8 +17,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         internal bool _isPopupOpen = false;
         internal BeepDateTimePicker _calendarView;
         internal BeepPopupForm _popup;
-        internal int _buttonWidth => ScaleValue(24);
-        internal int _dropdownPadding => ScaleValue(4);
+        // Constants - framework handles DPI scaling
+        internal int _buttonWidth => 24;
+        internal int _dropdownPadding => 4;
         internal bool _showDropDown = true;
         
         // SINGLE SOURCE OF TRUTH - Return Type

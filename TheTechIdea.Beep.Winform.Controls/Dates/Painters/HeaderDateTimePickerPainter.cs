@@ -50,7 +50,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         private void PaintLargeHeader(Graphics g, Rectangle bounds, DateTime selectedDate)
         {
             // Header background with accent color
-            var headerColor = _theme?.AccentColor ?? Color.FromArgb(100, 180, 220);
+            var headerColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(100, 180, 220);
             using (var brush = new SolidBrush(headerColor))
             {
                 g.FillRectangle(brush, bounds);
@@ -98,7 +98,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var headerText = displayMonth.ToString("MMMM yyyy");
             var headerRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 24);
             using (var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold))
-            using (var brush = new SolidBrush(_theme?.ForeColor ?? Color.Black))
+            using (var brush = new SolidBrush(_theme?.CalendarTitleForColor ?? Color.Black))
             {
                 var format = new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center };
                 g.DrawString(headerText, font, brush, headerRect, format);
@@ -179,9 +179,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(100, 180, 220);
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(100, 180, 220);
+            var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
+            var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(100, 180, 220);
 
             cellBounds.Inflate(-3, -3);
 
@@ -192,7 +193,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 {
                     g.FillEllipse(brush, cellBounds);
                 }
-                textColor = Color.White;
+                textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
             }
             else if (isHovered)
             {
@@ -205,7 +206,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Today indicator (subtle)
             if (isToday && !isSelected)
             {
-                using (var pen = new Pen(accentColor, 1))
+                using (var pen = new Pen(todayColor, 1))
                 {
                     g.DrawEllipse(pen, cellBounds);
                 }
@@ -233,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
-            var textColor = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
+            var textColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(120, 120, 120);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 8f);
 
             string[] dayNames = CultureInfo.CurrentCulture.DateTimeFormat.AbbreviatedDayNames;

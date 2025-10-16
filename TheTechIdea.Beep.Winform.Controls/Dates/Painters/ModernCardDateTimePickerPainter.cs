@@ -205,9 +205,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
+            var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
 
             cellBounds.Inflate(-2, -2);
 
@@ -219,7 +220,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 {
                     g.FillPath(brush, path);
                 }
-                textColor = Color.White;
+                textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
             }
             else if (isPressed)
             {
@@ -242,7 +243,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Today indicator - underline
             if (isToday && !isSelected)
             {
-                using (var pen = new Pen(accentColor, 2))
+                using (var pen = new Pen(todayColor, 2))
                 {
                     g.DrawLine(pen, cellBounds.X + 8, cellBounds.Bottom - 4, cellBounds.Right - 8, cellBounds.Bottom - 4);
                 }

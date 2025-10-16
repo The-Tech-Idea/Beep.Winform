@@ -234,10 +234,38 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         }
 
         #endregion
+
+        #region Theme Support
         public override void ApplyTheme()
         {
             base.ApplyTheme();
+
+            if (_currentTheme == null)
+                return;
+
+            // Apply calendar-specific theme properties to the control
+            BackColor = _currentTheme.CalendarBackColor;
+            ForeColor = _currentTheme.CalendarForeColor;
+            
+            // CRITICAL: Reinitialize the painter with the updated theme
+            // so it gets the new calendar color scheme
+            if (_currentPainter != null)
+            {
+                _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
+            }
+            
+            // The painters now use these calendar theme colors:
+            // - CalendarTitleForColor (headers, navigation buttons)
+            // - CalendarDaysHeaderForColor (day names like Mon, Tue, Wed)
+            // - CalendarSelectedDateBackColor (selected date backgrounds, accent colors)
+            // - CalendarSelectedDateForColor (text color on selected dates)
+            // - CalendarTodayForeColor (today indicator ring/outline)
+            // - CalendarForeColor (regular unselected date text)
+            // - CalendarBorderColor (borders around calendar elements)
+            // - CalendarHoverBackColor (hover state backgrounds)
+
             Invalidate();
         }
+        #endregion
     }
 }

@@ -33,9 +33,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _isPopupOpen = false;
         private Font _textFont;
         private BeepImage calendarIcon;
-        // DPI-aware constants like BeepComboBox
-        private int _buttonWidth => ScaleValue(24);
-        private int _padding => ScaleValue(3);
+        // Constants - framework handles DPI scaling
+        private int _buttonWidth => 24;
+        private int _padding => 3;
 
         // Business application features
         private DateTime? _minDate = null;
@@ -736,7 +736,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         private void DrawDropdownArrow(Graphics g, Rectangle workingRect)
         {
-            int arrowVisualSize = Math.Min(ScaleValue(12), Math.Min(_buttonWidth - (_padding * 2), workingRect.Height - (_padding * 2)));
+            // Framework handles DPI scaling
+            int arrowVisualSize = Math.Min(12, Math.Min(_buttonWidth - (_padding * 2), workingRect.Height - (_padding * 2)));
             int arrowX = workingRect.Left + (workingRect.Width - arrowVisualSize) / 2;
             int arrowY = workingRect.Top + (workingRect.Height - arrowVisualSize) / 2;
             Rectangle arrowRect = new Rectangle(arrowX, arrowY, arrowVisualSize, arrowVisualSize);

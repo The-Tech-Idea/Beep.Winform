@@ -34,9 +34,9 @@ namespace TheTechIdea.Beep.Winform.Controls
         private string _subHeaderText = string.Empty;
         // Add spacing between header and subheader
     private int _headerSubheaderSpacing = 2;
-    // DPI-scaled helpers
-    private int DpiOffset => ScaleValue(offset);
-    private int DpiHeaderSubheaderSpacing => ScaleValue(_headerSubheaderSpacing);
+    // Constants - framework handles DPI scaling
+    private int DpiOffset => offset;
+    private int DpiHeaderSubheaderSpacing => _headerSubheaderSpacing;
     private Size DpiMaxImageSize => GetScaledImageSize(_maxImageSize);
         #endregion "Fields"
 
@@ -572,7 +572,8 @@ namespace TheTechIdea.Beep.Winform.Controls
                         new Size(int.MaxValue, int.MaxValue),
                         TextFormatFlags.SingleLine
                     );
-                    return new Size(200, measured.Height + ScaleValue(6));
+                    // Framework handles DPI scaling
+                    return new Size(200, measured.Height + 6);
                 }
             }
         }
@@ -618,8 +619,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.DrawContent(g);
             UpdateDrawingRect();
-            // Apply a small inner inset to prevent clipping and tighten baseline look
-            var inset = Math.Max(1, ScaleValue(1));
+            // Apply a small inner inset to prevent clipping - framework handles DPI scaling
+            var inset = Math.Max(1, 1);
             var rect = DrawingRect;
             rect.Inflate(-inset, -inset);
             contentRect = rect;
@@ -632,9 +633,9 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             bool hasSubHeader = !string.IsNullOrEmpty(SubHeaderText);
 
-            Font scaledFont = _useScaledfont ? GetScaledFont(g, Text, contentRect.Size, _textFont) : _textFont;
-            Font scaledSubHeaderFont = hasSubHeader ?
-                (_useScaledfont ? GetScaledFont(g, SubHeaderText, contentRect.Size, SubHeaderFont) : SubHeaderFont) : null;
+            // Framework handles DPI scaling automatically - use fonts directly
+            Font scaledFont = _textFont;
+            Font scaledSubHeaderFont = hasSubHeader ? SubHeaderFont : null;
 
             Size imageSize = beepImage.HasImage ? beepImage.GetImageSize() : Size.Empty;
 

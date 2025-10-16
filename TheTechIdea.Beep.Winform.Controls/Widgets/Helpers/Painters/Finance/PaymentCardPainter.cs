@@ -30,7 +30,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         {
             ctx.DrawingRect = Owner?.DrawingRect ?? drawingRect;
             CalculateLayout(out cardDetailsRect, out balanceRect, out expiryRect, out cardIconRect, ctx);
-            int pad = Owner?.ScaleValue(12) ?? 12;
+            // Framework handles DPI scaling
+            int pad = 12;
             if (!string.IsNullOrEmpty(ctx.Title))
             {
                 ctx.HeaderRect = new Rectangle(
@@ -56,9 +57,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Widgets.Helpers.Painters.Finance
         private void CalculateLayout(out Rectangle cardDetailsRect, out Rectangle balanceRect, 
             out Rectangle expiryRect, out Rectangle cardIconRect, WidgetContext ctx)
         {
-            // Use DPI-scaled values consistently like BeepAppBar
-            int padding = Owner?.ScaleValue(12) ?? 12;
-            int spacing = Owner?.ScaleValue(8) ?? 8;
+            // Framework handles DPI scaling
+            int padding = 12;
+            int spacing = 8;
 
             // CRITICAL: Calculate available areas within BaseControl's DrawingRect
             int leftEdge = ctx.DrawingRect.Left + padding;

@@ -285,64 +285,64 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
             }
         }
 
-        #region DPI Scaling Helpers
+        #region DPI Scaling Helpers - Framework handles DPI automatically
         /// <summary>
-        /// Scales an integer value based on current DPI from owner control
+        /// Returns value unchanged - framework handles DPI scaling
         /// </summary>
         protected int ScaleValue(int value)
         {
-            return Owner?.ScaleValue(value) ?? value;
+            return value;
         }
 
         /// <summary>
-        /// Scales a Size based on current DPI from owner control
+        /// Returns size unchanged - framework handles DPI scaling
         /// </summary>
         protected Size ScaleSize(Size size)
         {
-            return Owner?.ScaleSize(size) ?? size;
+            return size;
         }
 
         /// <summary>
-        /// Scales a Padding based on current DPI from owner control
+        /// Returns padding unchanged - framework handles DPI scaling
         /// </summary>
         protected Padding ScalePadding(Padding padding)
         {
-            return Owner?.ScalePadding(padding) ?? padding;
+            return padding;
         }
 
         /// <summary>
-        /// Scales a Rectangle based on current DPI from owner control
+        /// Returns rectangle unchanged - framework handles DPI scaling
         /// </summary>
         protected Rectangle ScaleRectangle(Rectangle rect)
         {
-            return Owner?.ScaleRectangle(rect) ?? rect;
+            return rect;
         }
 
         /// <summary>
-        /// Scales a Point based on current DPI from owner control
+        /// Returns point unchanged - framework handles DPI scaling
         /// </summary>
         protected Point ScalePoint(Point point)
         {
-            return Owner?.ScalePoint(point) ?? point;
+            return point;
         }
 
         /// <summary>
-        /// Scales a Font based on current DPI from owner control
+        /// Returns font unchanged - framework handles DPI scaling
         /// </summary>
         protected Font ScaleFont(Font font)
         {
-            return Owner?.ScaleFont(font) ?? font;
+            return font;
         }
 
         /// <summary>
         /// Gets the current DPI from owner control
         /// </summary>
-        protected int CurrentDpi => Owner?.CurrentDpi ?? 96;
+        protected float CurrentDpi => (Owner?.CurrentDeviceDpi ?? 96);
 
         /// <summary>
-        /// Gets the DPI scale factor from owner control
+        /// Gets the DPI scale factor from owner control - framework handles DPI scaling
         /// </summary>
-        protected float DpiScaleFactor => (float)CurrentDpi / 96f;
+        protected float DpiScaleFactor => 1.0f;
         #endregion
         #endregion
 

@@ -207,12 +207,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 		}
 		#endregion
 
-		#region Scaling helpers
-	internal int GetScaledBoxSize() => ScaleValue(14);
-	internal int GetScaledImageSize() => ScaleValue(20);
-	internal int GetScaledMinRowHeight() => ScaleValue(24);
-	internal int GetScaledIndentWidth() => ScaleValue(16);
-	internal int GetScaledVerticalPadding() => ScaleValue(4);
+		#region Scaling helpers - framework handles DPI scaling
+	internal int GetScaledBoxSize() => 14;
+	internal int GetScaledImageSize() => 20;
+	internal int GetScaledMinRowHeight() => 24;
+	internal int GetScaledIndentWidth() => 16;
+	internal int GetScaledVerticalPadding() => 4;
 	#endregion
 
 		#region Accessors used by helpers and painters

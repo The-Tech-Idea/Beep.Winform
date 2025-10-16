@@ -263,12 +263,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Trees.Painters
         }
 
         /// <summary>
-        /// Helper to get scaled value based on DPI.
+        /// Helper to get scaled value - framework handles DPI scaling
         /// </summary>
         protected int Scale(int value)
         {
-            // Use owner's scaling helper to avoid accessing protected DpiScaleFactor directly
-            return _owner != null ? _owner.ScaleValue(value) : value;
+            // Framework handles DPI scaling automatically
+            return value;
         }
 
         /// <summary>

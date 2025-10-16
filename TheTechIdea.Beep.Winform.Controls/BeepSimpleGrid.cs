@@ -7559,7 +7559,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         #region Theme
         public override void ApplyTheme()
         {
-      //      base.ApplyTheme();
+           base.ApplyTheme();
             this.BackColor = _currentTheme.GridBackColor;
             this.ForeColor = _currentTheme.GridForeColor;
             SelectedForeColor = _currentTheme.GridForeColor;

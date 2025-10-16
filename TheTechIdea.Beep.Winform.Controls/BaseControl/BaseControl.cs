@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         internal ControlHitTestHelper _hitTest;
         internal ControlInputHelper _input;
         internal ControlExternalDrawingHelper _externalDrawing;
-        internal ControlDpiHelper _dpi;
+        // REMOVED: ControlDpiHelper _dpi - .NET 8/9+ handles DPI automatically via framework
         internal ControlDataBindingHelper _dataBinding;
      //   internal BaseControlMaterialHelper _materialHelper; // kept for binary compatibility; no longer constructed/used at runtime
         internal IBaseControlPainter _painter; // strategy-based painter (optional)
@@ -169,22 +169,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             try
             {
                 IsChild=true;
-                // CRITICAL: Per Microsoft docs, avoid manual DPI scaling when parent handles it
-                // Only create DPI helper if explicitly enabled AND parent uses AutoScaleMode.None
-                // Most controls should rely on framework scaling via AutoScaleMode.Inherit
-                if (!DisableDpiAndScaling)
-                {
-                    // Check if we need manual DPI - only if parent doesn't provide scaling
-                    var parentForm = FindForm();
-                    bool parentHandlesScaling = parentForm?.AutoScaleMode == AutoScaleMode.Font || 
-                                               parentForm?.AutoScaleMode == AutoScaleMode.Dpi;
-                    
-                    // Only create manual DPI helper if parent doesn't handle scaling
-                    if (!parentHandlesScaling)
-                    {
-                        _dpi = new ControlDpiHelper(this);
-                    }
-                }
+                
+                // .NET 8/9+ High-DPI Support:
+                // Modern .NET WinForms handles DPI automatically via AutoScaleMode.Inherit.
+                // No manual DPI helper needed - the framework uses DeviceDpi property internally.
+                // Reference: https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
                 
                 _dataBinding = new ControlDataBindingHelper(this);
                 _externalDrawing = new ControlExternalDrawingHelper(this);
@@ -245,12 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             try
             {
-                // Create only the most essential helpers
-                if (_dpi == null && !DisableDpiAndScaling)
-                {
-                    Console.WriteLine("Creating minimal DPI helper for fallback");
-                    _dpi = new ControlDpiHelper(this);
-                }
+                // REMOVED: DPI helper creation - .NET 8/9+ handles DPI automatically
                 
                 if (_externalDrawing == null)
                 {
@@ -498,32 +482,27 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <summary>
         /// Handle DPI changes for Per-Monitor V2 DPI awareness
         /// Per Microsoft docs: Use DpiChanged events for dynamic DPI scenarios
-        /// https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
+        /// Per Microsoft docs: "DpiChangedAfterParent is raised when the parent's DPI changes"
+        /// Reference: https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
         /// </summary>
         protected override void OnDpiChangedAfterParent(EventArgs e)
         {
             base.OnDpiChangedAfterParent(e);
             
-            // If we have a manual DPI helper, update it
-            if (_dpi != null && !DisableDpiAndScaling)
+            // .NET 8/9+ automatically handles DPI changes via framework
+            // We just need to notify painter to update layout if present
+            try
             {
-                try
+                if (IsHandleCreated && !IsDisposed)
                 {
-                   
-                  
-                    // Invalidate to redraw with new DPI
-                    if (IsHandleCreated && !IsDisposed)
-                    {
-                        _dpi.UpdateDpi();
-                        UpdateDrawingRect();
-                        _painter?.UpdateLayout(this);
-                        Invalidate();
-                    }
+                    UpdateDrawingRect();
+                    _painter?.UpdateLayout(this);
+                    Invalidate();
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine($"BaseControl.OnDpiChangedAfterParent error: {ex.Message}");
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"BaseControl.OnDpiChangedAfterParent error: {ex.Message}");
             }
         }
 

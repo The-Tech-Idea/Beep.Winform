@@ -73,10 +73,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintDualTimePickers(Graphics g, Rectangle bounds, DateTimePickerHoverState hoverState)
         {
-            var textColor = _theme?.ForeColor ?? Color.Black;
-            var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
+            var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
+            var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(200, 200, 200);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 9f);
             var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 9f, FontStyle.Bold);
 
@@ -101,10 +101,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintTimePickerSection(Graphics g, Rectangle bounds, string label, DateTime? date, DateTimePickerHoverState hoverState, bool isStart)
         {
-            var textColor = _theme?.ForeColor ?? Color.Black;
-            var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(100, 100, 100);
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
+            var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
+            var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(100, 100, 100);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 8.5f);
             var boldFont = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 9f, FontStyle.Bold);
 
@@ -153,10 +153,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintTimeSpinner(Graphics g, Rectangle bounds, string value, string label, bool isStart, bool isHour)
         {
-            var textColor = _theme?.ForeColor ?? Color.Black;
-            var secondaryTextColor = _theme?.SecondaryTextColor ?? Color.FromArgb(120, 120, 120);
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var borderColor = _theme?.BorderColor ?? Color.FromArgb(220, 220, 220);
+            var textColor = _theme?.CalendarForeColor ?? Color.Black;
+            var secondaryTextColor = _theme?.CalendarDaysHeaderForColor ?? Color.FromArgb(120, 120, 120);
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var borderColor = _theme?.CalendarBorderColor ?? Color.FromArgb(220, 220, 220);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f) ?? new Font("Segoe UI", 10f);
             var smallFont = new Font("Segoe UI", 7f);
@@ -207,9 +207,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
         {
-            var accentColor = _theme?.AccentColor ?? Color.FromArgb(0, 120, 215);
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
+            var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var rangeColor = Color.FromArgb(50, accentColor);
 
             cellBounds.Inflate(-2, -2);
@@ -230,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 {
                     g.FillEllipse(brush, cellBounds);
                 }
-                textColor = Color.White;
+                textColor = _theme?.CalendarSelectedDateForColor ?? Color.White;
             }
             else if (isPressed)
             {
@@ -251,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Today indicator
             if (isToday && !isSelected)
             {
-                using (var pen = new Pen(accentColor, 2))
+                using (var pen = new Pen(todayColor, 2))
                 {
                     g.DrawEllipse(pen, cellBounds);
                 }
@@ -279,7 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered)
         {
-            var textColor = _theme?.ForeColor ?? Color.Black;
+            var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
             var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold) ?? new Font("Segoe UI", 14f, FontStyle.Bold);
 
             using (var brush = new SolidBrush(textColor))

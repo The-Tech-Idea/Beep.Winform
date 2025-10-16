@@ -341,12 +341,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         public virtual void SafeApplyFont(Font newFont, bool preserveLocation = true)
         {
-            if (_dpi == null || DisableDpiAndScaling)
+            Font = newFont;
+            if (!preserveLocation)
             {
-                Font = newFont;
-                return;
+                // Allow control to reposition if needed
+                PerformLayout();
             }
-            _dpi.SafeApplyFont(newFont, preserveLocation);
         }
         #endregion
 
@@ -456,42 +456,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
        
 
-        #region Image and Size Utility Methods (from BeepControl)
-        public float GetScaleFactor(SizeF imageSize, Size targetSize)
-        {
-            if (_dpi == null || DisableDpiAndScaling) return 1.0f;
-            return _dpi.GetScaleFactor(imageSize, targetSize, ScaleMode);
-        }
-
-        public RectangleF GetScaledBounds(SizeF imageSize, Rectangle targetRect)
-        {
-            if (_dpi == null || DisableDpiAndScaling) return new RectangleF(targetRect.Location, new SizeF(imageSize.Width, imageSize.Height));
-            return _dpi.GetScaledBounds(imageSize, targetRect, ScaleMode);
-        }
-
-        public RectangleF GetScaledBounds(SizeF imageSize)
-        {
-            if (_dpi == null || DisableDpiAndScaling) return new RectangleF(Point.Empty, new SizeF(imageSize.Width, imageSize.Height));
-            return _dpi.GetScaledBounds(imageSize, ScaleMode);
-        }
-
-        public Size GetSuitableSizeForTextAndImage(Size imageSize, Size maxImageSize, TextImageRelation textImageRelation)
-        {
-            if (_dpi == null || DisableDpiAndScaling) return maxImageSize;
-            return _dpi.GetSuitableSizeForTextAndImage(imageSize, maxImageSize, textImageRelation);
-        }
-
-        // Parity alias for exact name as in base
-        public Size GetSuitableSizeForTextandImage(Size imageSize, Size MaxImageSize, TextImageRelation TextImageRelation)
-        {
-            return GetSuitableSizeForTextAndImage(imageSize, MaxImageSize, TextImageRelation);
-        }
-
-        public Font GetScaledFont(Graphics g, string text, Size maxSize, Font originalFont)
-        {
-            if (_dpi == null || DisableDpiAndScaling) return originalFont;
-            return _dpi.GetScaledFont(g, text, maxSize, originalFont);
-        }
+        #region Image and Size Utility Methods - .NET 8/9+ Simplified
+        // REMOVED: Manual scaling methods that used ControlDpiHelper
+        // The framework now handles DPI scaling automatically.
+        // If you need image scaling, use GetScaledImageSize() from BaseControl.Properties.cs
+        // which uses the framework's DeviceDpi property.
         #endregion
 
         public override Size GetPreferredSize(Size proposedSize)
@@ -640,8 +609,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
         protected virtual void DrawContent(Graphics g)
         {
-            // Ensure DPI info stays updated when drawing on new monitor contexts
-            UpdateDpiScaling(g);
+            // DPI is automatically handled by the framework in .NET 8/9+
+            // No manual UpdateDpiScaling needed
             g.Clear(BackColor);
             if (EnableHighQualityRendering)
             {
@@ -1029,8 +998,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             var requiredSize = CalculateMinimumSizeForMaterial(baseContentSize);
             
-            // Apply DPI scaling
-            requiredSize = ScaleSize(requiredSize);
+            // DPI scaling is handled automatically by the framework in .NET 8/9+
+            // No manual scaling needed here
 
             // Respect maximum size constraints if specified
             if (respectMaximumSize && MaximumSize != Size.Empty)
@@ -1067,7 +1036,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// returns the effective minimum including Material padding and effects.
         /// </summary>
         /// <param name="baseContentMinimum">The intrinsic minimum of the control's content.</param>
-        /// <returns>Minimum size including Material padding, effects and icons, DPI-scaled.</returns>
+        /// <returns>Minimum size including Material padding, effects and icons (DPI scaling handled by framework).</returns>
         protected Size GetEffectiveMaterialMinimum(Size baseContentMinimum)
         {
             if (PainterKind != BaseControlPainterKind.Material)
@@ -1075,7 +1044,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             return baseContentMinimum;
 
             var min = CalculateMinimumSizeForMaterial(baseContentMinimum);
-            return ScaleSize(min);
+            // DPI scaling is handled automatically by the framework in .NET 8/9+
+            return min;
         }
 
 
@@ -1084,7 +1054,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             return ControlPaintHelper.GetRoundedRectPath(rect, radius);
         }
-        //// Handle runtime per-monitor DPI changes
+        //// REMOVED: Manual DPI handling via WM_DPICHANGED message
+        //// .NET 8/9+ handles per-monitor DPI changes automatically via OnDpiChangedAfterParent
         //private const int WM_DPICHANGED = 0x02E0;
         //protected override void WndProc(ref Message m)
         //{
@@ -1092,9 +1063,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         //    {
         //        try
         //        {
-        //            if (!DisableDpiAndScaling && _dpi != null)
-        //            {
-        //                _dpi.UpdateDpiFromControl();
+        //            // Framework handles this automatically
         //                // Refresh layout dependent on DPI
         //                //  ;
         //                // UpdateMaterialLayout();

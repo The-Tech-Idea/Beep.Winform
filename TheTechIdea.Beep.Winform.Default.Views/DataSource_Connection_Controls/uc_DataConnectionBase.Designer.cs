@@ -1,4 +1,4 @@
-﻿
+
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 
@@ -100,7 +100,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             beepPanel1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepPanel1.DisabledBorderColor = Color.LightGray;
             beepPanel1.DisabledForeColor = Color.Gray;
-            beepPanel1.DisableDpiAndScaling = false;
+            //beepPanel1.DisableDpiAndScaling = false;
             beepPanel1.Dock = DockStyle.Fill;
             beepPanel1.DrawingRect = new Rectangle(8, 0, 620, 723);
             beepPanel1.Easing = Vis.Modules.EasingType.Linear;
@@ -315,7 +315,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionNamebeepTextBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             ConnectionNamebeepTextBox.DisabledBorderColor = Color.LightGray;
             ConnectionNamebeepTextBox.DisabledForeColor = Color.Gray;
-            ConnectionNamebeepTextBox.DisableDpiAndScaling = false;
+            //ConnectionNamebeepTextBox.DisableDpiAndScaling = false;
             ConnectionNamebeepTextBox.DrawingRect = new Rectangle(24, 8, 368, 33);
             ConnectionNamebeepTextBox.Easing = Vis.Modules.EasingType.Linear;
             ConnectionNamebeepTextBox.EnableHighQualityRendering = true;
@@ -498,7 +498,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverbeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             DriverbeepComboBox.DisabledBorderColor = Color.LightGray;
             DriverbeepComboBox.DisabledForeColor = Color.Gray;
-            DriverbeepComboBox.DisableDpiAndScaling = false;
+            //DriverbeepComboBox.DisableDpiAndScaling = false;
             DriverbeepComboBox.DrawingRect = new Rectangle(24, 8, 336, 40);
             DriverbeepComboBox.Easing = Vis.Modules.EasingType.Linear;
             DriverbeepComboBox.EnableHighQualityRendering = true;
@@ -670,7 +670,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             ConnectionStringbeepTextBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             ConnectionStringbeepTextBox.DisabledBorderColor = Color.LightGray;
             ConnectionStringbeepTextBox.DisabledForeColor = Color.Gray;
-            ConnectionStringbeepTextBox.DisableDpiAndScaling = false;
+            //ConnectionStringbeepTextBox.DisableDpiAndScaling = false;
             ConnectionStringbeepTextBox.DrawingRect = new Rectangle(24, 8, 336, 258);
             ConnectionStringbeepTextBox.Easing = Vis.Modules.EasingType.Linear;
             ConnectionStringbeepTextBox.EnableHighQualityRendering = true;
@@ -853,7 +853,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             DriverVersionbeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             DriverVersionbeepComboBox.DisabledBorderColor = Color.LightGray;
             DriverVersionbeepComboBox.DisabledForeColor = Color.Gray;
-            DriverVersionbeepComboBox.DisableDpiAndScaling = false;
+            //DriverVersionbeepComboBox.DisableDpiAndScaling = false;
             DriverVersionbeepComboBox.DrawingRect = new Rectangle(24, 8, 336, 40);
             DriverVersionbeepComboBox.Easing = Vis.Modules.EasingType.Linear;
             DriverVersionbeepComboBox.EnableHighQualityRendering = true;
@@ -1025,7 +1025,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             CancelbeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
             CancelbeepButton.DisabledBorderColor = Color.Gray;
             CancelbeepButton.DisabledForeColor = Color.Gray;
-            CancelbeepButton.DisableDpiAndScaling = false;
+            //CancelbeepButton.DisableDpiAndScaling = false;
             CancelbeepButton.DrawingRect = new Rectangle(24, 8, 82, 44);
             CancelbeepButton.Easing = Vis.Modules.EasingType.Linear;
             CancelbeepButton.EmbeddedImagePath = null;
@@ -1217,7 +1217,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
             SavebeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
             SavebeepButton.DisabledBorderColor = Color.Gray;
             SavebeepButton.DisabledForeColor = Color.Gray;
-            SavebeepButton.DisableDpiAndScaling = false;
+            //SavebeepButton.DisableDpiAndScaling = false;
             SavebeepButton.DrawingRect = new Rectangle(24, 8, 82, 44);
             SavebeepButton.Easing = Vis.Modules.EasingType.Linear;
             SavebeepButton.EmbeddedImagePath = null;

@@ -846,27 +846,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
         }
 
-        /// <summary>
-        /// Handle DPI changes to refresh layout and sizes
-        /// </summary>
-        protected override void OnDpiChanged()
-        {
-            base.OnDpiChanged();
-
-            // Recalculate menu item height for new DPI
-            UpdateMenuItemHeightForFont();
-
-            // Reinitialize drawing components with new scaled sizes
-            InitializeDrawingComponents();
-
-            // Refresh hit areas with new scaled positions
-            RefreshHitAreas();
-
-            // Update control height - framework handles DPI scaling
-            Height = ScaledMenuItemHeight + 4;
-
-            Invalidate();
-        }
+       
 
         /// <summary>
         /// Handle font changes to recalculate required height

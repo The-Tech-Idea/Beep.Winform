@@ -40,6 +40,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         public bool ShowTime { get; set; } = false;
         public TimeSpan? SelectedTime { get; set; }
         public TimeSpan TimeInterval { get; set; } = TimeSpan.FromMinutes(30);
+        public int TimeIntervalMinutes { get; set; } = 30;
+        public int TimeStartHour { get; set; } = 0;
+        public int TimeEndHour { get; set; } = 23;
+        public TimeSpan MinTime { get; set; } = TimeSpan.Zero;
+        public TimeSpan MaxTime { get; set; } = new TimeSpan(23, 59, 59);
         public string TimeFormat { get; set; } = "h:mm tt";
 
         // Visual Settings

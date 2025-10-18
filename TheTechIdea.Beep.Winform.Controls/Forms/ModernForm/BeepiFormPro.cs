@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Styling;
 using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
@@ -36,43 +37,47 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
         public BeepiFormPro()
         {
-         
+
 
             InitializeComponent();
-         
+
             // Enable double buffering and optimized painting
-            SetStyle(ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.OptimizedDoubleBuffer | 
-                     ControlStyles.ResizeRedraw | 
-                     ControlStyles.UserPaint , true);
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.UserPaint | ControlStyles.SupportsTransparentBackColor, true);
             UpdateStyles();
-            
+            BackColor = Color.Transparent; // we paint everything   
             _layout = new BeepiFormProLayoutManager(this);
             _hits = new BeepiFormProHitAreaManager(this);
             _interact = new BeepiFormProInteractionManager(this, _hits);
-            
+
             // Don't hardcode painter - ApplyFormStyle() will set the correct one based on FormStyle property
             //BackColor = Color.White; // we paint everything
             InitializeBuiltInRegions();
 
             ApplyFormStyle(); // This sets ActivePainter based on FormStyle (which can be set at design time)
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
+
+            // Update window region when handle is created
+            this.HandleCreated += (s, e) => UpdateWindowRegion();
+            this.Resize += (s, e) => UpdateWindowRegion();
         }
-       
-        
+
+
         protected override void OnDpiChanged(DpiChangedEventArgs e)
         {
             base.OnDpiChanged(e);
-            
+
             // Update our DPI scale when monitor DPI changes
-            UpdateDpiScale();
-            
+            // UpdateDpiScale();
+
             // Force layout recalculation for custom chrome elements
-            if(ActivePainter!=null)
+            if (ActivePainter != null)
                 ActivePainter.CalculateLayoutAndHitAreas(this);
             Invalidate();
         }
-      
+
         private void ApplyFormStyle()
         {
             switch (FormStyle)
@@ -85,7 +90,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     FormBorderStyle = FormBorderStyle.None;
                     ActivePainter = new MinimalFormPainter();
                     break;
-               
+
                 case FormStyle.MacOS:
                     FormBorderStyle = FormBorderStyle.None;
                     ActivePainter = new MacOSFormPainter();
@@ -208,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     ActivePainter = new MinimalFormPainter();
                     break;
             }
-            
+
             // Force layout recalculation to reposition child controls based on new DisplayRectangle
             if (!DesignMode)
             {
@@ -219,24 +224,96 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         }
 
         /// <summary>
-        /// Override DisplayRectangle to exclude the caption bar area.
-        /// This ensures controls added to the form don't overlap the caption.
+        /// Override DisplayRectangle to exclude the caption bar area and borders.
+        /// This ensures controls added to the form don't overlap the caption or borders.
         /// </summary>
         public override Rectangle DisplayRectangle
         {
             get
             {
                 var rect = base.DisplayRectangle;
-                
-                // If caption bar is shown and we're in a custom form style (not Classic), reduce the display area
-                if (ShowCaptionBar )
+
+                // Get border width from metrics
+                int borderWidth = 0;
+                if (ActivePainter != null)
                 {
-                    int captionHeight = Math.Max(ScaleDpi(CaptionHeight), (int)(Font.Height * 2.5f));
+                    var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null);
+                    borderWidth = metrics?.BorderWidth ?? 1;
+                }
+
+                // Shrink by border width on all sides (left, top, right, bottom)
+                rect.X += borderWidth;
+                rect.Y += borderWidth;
+                rect.Width -= borderWidth * 2;
+                rect.Height -= borderWidth * 2;
+
+                // If caption bar is shown, reduce the display area further
+                if (ShowCaptionBar)
+                {
+                    int captionHeight = Math.Max(CaptionHeight, (int)(Font.Height * 2.5f));
                     rect.Y += captionHeight;
                     rect.Height -= captionHeight;
                 }
-                
+
                 return rect;
+            }
+        }
+
+        /// <summary>
+        /// Gets the GraphicsPath for the form's border shape.
+        /// This path is used by painters to draw borders with the correct shape (rounded, etc.).
+        /// IMPORTANT: The path is INSET by half the border width because DrawPath centers the pen
+        /// on the path line. This ensures the entire border is visible inside the client area.
+        /// Uses GraphicsExtensions methods exclusively - NO rectangles!
+        /// </summary>
+        [System.ComponentModel.Browsable(false)]
+        [System.ComponentModel.DesignerSerializationVisibility(System.ComponentModel.DesignerSerializationVisibility.Hidden)]
+        public GraphicsPath BorderShape
+        {
+            get
+            {
+                // Always create fresh path based on current size and painter
+                if (ActivePainter != null)
+                {
+                    // Get the corner radius from the active painter
+                    var radius = ActivePainter.GetCornerRadius(this);
+                    
+                    // Get border width from metrics
+                    var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null);
+                    int borderWidth = metrics?.BorderWidth ?? 1;
+
+                    // Create the outer path using GraphicsExtensions
+                    GraphicsPath outerPath;
+                    if (radius.TopLeft == radius.TopRight &&
+                        radius.TopLeft == radius.BottomLeft &&
+                        radius.TopLeft == radius.BottomRight)
+                    {
+                        // Uniform radius - use simple method
+                        outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle, radius.TopLeft);
+                    }
+                    else
+                    {
+                        // Different radii per corner - use full method
+                        outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle,
+                            radius.TopLeft, radius.TopRight, radius.BottomLeft, radius.BottomRight);
+                    }
+                    
+                    // CRITICAL: Inset the path by HALF the border width using GraphicsExtensions
+                    // This ensures the pen draws centered and the entire border is visible
+                    float inset = borderWidth / 2f;
+                    var insetPath = outerPath.CreateInsetPath(inset, radius.TopLeft);
+                    
+                    outerPath.Dispose(); // Clean up the temporary outer path
+                    return insetPath;
+                }
+                else
+                {
+                    // Fallback: create simple path and inset it
+                    var outerPath = GraphicsExtensions.CreateRoundedRectanglePath(ClientRectangle, 0);
+                    var insetPath = outerPath.CreateInsetPath(0.5f, 0); // Inset by 0.5 for 1px border
+                    outerPath.Dispose();
+                    return insetPath;
+                }
             }
         }
     }

@@ -244,8 +244,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 Alignment = PenAlignment.Inset
             };
             
-            var rect = new Rectangle(0, 0, owner.ClientSize.Width - 1, owner.ClientSize.Height - 1);
-            using var path = CreateRoundedPath(rect, cornerRadius);
+             using var path = owner.BorderShape;
             
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);

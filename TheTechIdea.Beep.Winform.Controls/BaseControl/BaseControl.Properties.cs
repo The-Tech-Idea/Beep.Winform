@@ -7,8 +7,7 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Report;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
- 
-using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
@@ -21,23 +20,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     public partial class BaseControl
     {
         #region Painter strategy
-        public enum BaseControlPainterKind
-        {
-            None,           // NEW - No painting, for controls that handle their own rendering
-            Auto,
-            Classic,
-            Material,
-            Card,
-            NeoBrutalist,
-            ReadingCard,
-            SimpleButton,
-            KeyboardShortcut,
-            Minimalist,
-            Glassmorphism,
-            Neumorphism,
-            FluentAcrylic // NEW
-        }
       
+
         private BeepControlStyle _borderPainterStyle = BeepControlStyle.None;
         [Browsable(true)]
         [Category("Appearance")]
@@ -127,178 +111,6 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 _originalLocation = Location; 
             } 
         }
-        #endregion
-
-        #region DPI Scaling Support - .NET 8/9+ Framework Approach
-        // REMOVED: Manual DPI scaling helpers (DisableDpiAndScaling, DpiScaleFactor, ScaleValue, etc.)
-        // .NET 8/9+ handles DPI automatically via AutoScaleMode.Inherit and DeviceDpi property.
-        // 
-        // If you need DPI information at runtime, use:
-        //   - this.DeviceDpi (property available in .NET Core 3.0+)
-        //   - Graphics.DpiX / Graphics.DpiY
-        //
-        // The framework automatically scales controls, fonts, and layouts.
-        // Reference: https://learn.microsoft.com/en-us/dotnet/desktop/winforms/high-dpi-support-in-windows-forms
-        
-        /// <summary>
-        /// Gets the current device DPI for this control.
-        /// This is a framework property available in .NET Core 3.0+
-        /// </summary>
-        [Browsable(false)]
-        public float CurrentDeviceDpi => this.DeviceDpi;
-
-        /// <summary>
-        /// Gets the DPI scale factor relative to 96 DPI (1.0 = 96 DPI, 1.5 = 144 DPI, 2.0 = 192 DPI)
-        /// </summary>
-        [Browsable(false)]
-        public float CurrentDpiScaleFactor => this.DeviceDpi / 96.0f;
-
-        // REMOVED: ScaleValue, ScaleSize, GetScaledFont methods
-        // The .NET 8/9+ framework handles all DPI scaling automatically.
-        // No manual scaling methods should be used.
-
-        #endregion
-
-        #region Image Scaling Support
-        /// <summary>
-        /// Returns a scaled image size based on the current DPI scale.
-        /// Uses framework's DeviceDpi property for accurate scaling.
-        /// </summary>
-        public Size GetScaledImageSize(Size baseSize)
-        {
-            float scaleFactor = CurrentDpiScaleFactor;
-            if (Math.Abs(scaleFactor - 1.0f) < 0.01f) return baseSize;
-            return new Size(
-                (int)Math.Round(baseSize.Width * scaleFactor),
-                (int)Math.Round(baseSize.Height * scaleFactor)
-            );
-        }
-
-        /// <summary>
-        /// Returns a scaled image size based on the current DPI scale.
-        /// </summary>
-        public Size GetScaledImageSize(int width, int height) => GetScaledImageSize(new Size(width, height));
-
-        /// <summary>
-        /// Sets an ImageList's ImageSize to a DPI-scaled size derived from a base design-time size.
-        /// Note: This only updates ImageSize; callers are responsible for providing images at appropriate resolutions if needed.
-        /// </summary>
-        public void SetImageListScaledSize(System.Windows.Forms.ImageList imageList, Size baseImageSize)
-        {
-            if (imageList == null) return;
-            var scaled = GetScaledImageSize(baseImageSize);
-            if (imageList.ImageSize != scaled)
-            {
-                imageList.ImageSize = scaled;
-            }
-        }
-
-        /// <summary>
-        /// Sets an ImageList's ImageSize to a DPI-scaled size using width/height.
-        /// </summary>
-        public void SetImageListScaledSize(System.Windows.Forms.ImageList imageList, int width, int height)
-        {
-            SetImageListScaledSize(imageList, new Size(width, height));
-        }
-
-        /// <summary>
-        /// Rescales the images currently in the ImageList to the specified target size using high-quality resampling,
-        /// preserving image keys when possible. This helps avoid blurring when DPI increases.
-        /// </summary>
-        public void RescaleImageListImages(System.Windows.Forms.ImageList imageList, Size targetSize)
-        {
-            if (imageList == null) return;
-            if (targetSize.Width <= 0 || targetSize.Height <= 0) return;
-
-            // Capture existing images and keys
-            var count = imageList.Images?.Count ?? 0;
-            if (count == 0)
-            {
-                imageList.ImageSize = targetSize;
-                return;
-            }
-
-            var keys = imageList.Images.Keys;
-            var originals = new System.Drawing.Image[count];
-            for (int i = 0; i < count; i++)
-            {
-                try { originals[i] = (System.Drawing.Image)imageList.Images[i]?.Clone(); } catch { originals[i] = imageList.Images[i]; }
-            }
-
-            // Adjust list settings first so newly added images follow the target size
-            var originalColorDepth = imageList.ColorDepth;
-            var originalTransparentColor = imageList.TransparentColor;
-            imageList.ImageSize = targetSize;
-            imageList.ColorDepth = originalColorDepth; // preserve
-            imageList.TransparentColor = originalTransparentColor;
-
-            // Rebuild images at the new size
-            imageList.Images.Clear();
-            for (int i = 0; i < count; i++)
-            {
-                var src = originals[i];
-                if (src == null)
-                {
-                    imageList.Images.Add(new System.Drawing.Bitmap(targetSize.Width, targetSize.Height));
-                    continue;
-                }
-
-                using (var bmp = new System.Drawing.Bitmap(targetSize.Width, targetSize.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb))
-                using (var g = System.Drawing.Graphics.FromImage(bmp))
-                {
-                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                    g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
-                    g.Clear(System.Drawing.Color.Transparent);
-                    g.DrawImage(src, new System.Drawing.Rectangle(0, 0, targetSize.Width, targetSize.Height));
-
-                    var key = (keys != null && i < keys.Count) ? keys[i] : null;
-                    if (!string.IsNullOrEmpty(key))
-                    {
-                        imageList.Images.Add(key, (System.Drawing.Image)bmp.Clone());
-                    }
-                    else
-                    {
-                        imageList.Images.Add((System.Drawing.Image)bmp.Clone());
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// Rescales ImageList images based on a base design-time size and current DPI.
-        /// </summary>
-        public void RescaleImageListImagesForCurrentDpi(System.Windows.Forms.ImageList imageList, Size baseImageSize)
-        {
-            var target = GetScaledImageSize(baseImageSize);
-            RescaleImageListImages(imageList, target);
-        }
-
-    /// <summary>
-    /// Gets the current DPI of the control using framework's DeviceDpi property.
-    /// Returns 96 (100% scaling) if DeviceDpi is not available.
-    /// </summary>
-    [Category("DPI/Scaling")]
-    [Browsable(false)]
-    public int CurrentDpi => this.DeviceDpi > 0 ? this.DeviceDpi : 96;
-
-    /// <summary>
-    /// Raised when the DPI scaling factor changes (per-monitor DPI changes, window moved between monitors, etc.).
-    /// Override OnDpiChanged in derived controls to react directly.
-    /// Hidden from the designer's Events list; intended for runtime use.
-    /// </summary>
-    [Category("DPI/Scaling")]
-    [Browsable(false)]
-    public event EventHandler DpiChanged;
-
-        protected virtual void OnDpiChanged()
-        {
-            DpiChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        // REMOVED: OnDpiChangedInternal() - no longer needed without ControlDpiHelper
-        // The framework handles DPI change events via OnDpiChangedAfterParent
         #endregion
 
         #region Theme Management
@@ -816,6 +628,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         }
         private bool _floatingLabel = true;
 
+        private bool _showLabelText = false;
+        public bool LabelTextOn
+        {
+            get => _showLabelText;
+            set { if (_showLabelText == value) return; _showLabelText = value; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+        }
+
+
         [Browsable(true)]
         public string LabelText
         {
@@ -823,6 +643,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             set { if (string.Equals(_labelText, value, StringComparison.Ordinal)) return; _labelText = value ?? string.Empty; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
         }
         private string _labelText = string.Empty;
+
+        private bool _showHelperText = false;
+        public bool HelperTextOn
+        {
+            get => _showHelperText;
+            set { if (_showHelperText == value) return; _showHelperText = value; OnMaterialPropertyChanged(); UpdateMaterialLayout(); Invalidate(); }
+        }
 
         [Browsable(true)]
         public string HelperText
@@ -1034,7 +861,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
         private Rectangle _drawingRect;
-
+        private Rectangle _borderRect;
+        private Rectangle _contentRect;
         private GraphicsPath _innerShape;
         // Drawing rect and offsets
         [Browsable(false)]

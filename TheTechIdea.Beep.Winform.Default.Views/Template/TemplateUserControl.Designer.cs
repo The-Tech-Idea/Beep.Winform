@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Template
@@ -64,7 +64,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             MainTemplatePanel.DisabledBackColor = Color.FromArgb(200, 200, 200);
             MainTemplatePanel.DisabledBorderColor = Color.LightGray;
             MainTemplatePanel.DisabledForeColor = Color.Gray;
-            MainTemplatePanel.DisableDpiAndScaling = false;
+            //MainTemplatePanel.DisableDpiAndScaling = false;
             MainTemplatePanel.Dock = DockStyle.Fill;
             MainTemplatePanel.DrawingRect = new Rectangle(0, 0, 770, 432);
             MainTemplatePanel.Easing = EasingType.Linear;

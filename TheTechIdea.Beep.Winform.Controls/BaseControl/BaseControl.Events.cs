@@ -5,6 +5,8 @@ using System.Windows.Forms;
 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -46,7 +48,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Early out for safety during design-time removal/dispose
             if (IsDisposed || !IsHandleCreated)
                 return;
-
+            base.OnPaint(e);
+            
+            // Don't call UpdateDrawingRect for BeepGridPro - it handles its own layout
+            if (!(this is GridX.BeepGridPro))
+            {
+                UpdateDrawingRect();
+            }
+            
             try
             {
                 if (IsChild)
@@ -65,10 +74,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 // Only clear the background when a painter is active. When PainterKind == None
                 // we let the control's own drawing (PaintInnerShape/DrawContent) handle the fill to
                 // avoid double-drawing or incorrect framed areas (designer previews, etc.).
-               // if (PainterKind != BaseControlPainterKind.None && _painter != null)
-               // {
+                // DON'T clear for complex controls that handle their own rendering (like grids)
+                if (PainterKind != BaseControlPainterKind.None && _painter != null && !(this is GridX.BeepGridPro))
+                {
                     e.Graphics.Clear(BackColor);
-               // }
+                }
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {
@@ -76,8 +86,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 System.Diagnostics.Debug.WriteLine($"BaseControl.OnPaint color error: {ex.Message}");
             }
 
-            base.OnPaint(e);
-            UpdateDrawingRect();
+          
+          
             // Always ensure clip rectangle is valid
             var clipRect = EnsureValidRectangle(e.ClipRectangle);
 
@@ -197,10 +207,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
             try
             {
-                UpdateDrawingRect();
-                UpdateControlRegion();
-                UpdateRegionForBadge();
-                Invalidate();
+                // Skip expensive operations for BeepGridPro - it manages its own layout
+                bool isGrid = this is GridX.BeepGridPro;
+                
+                if (!isGrid)
+                {
+                    UpdateDrawingRect();
+                    UpdateControlRegion();
+                    UpdateRegionForBadge();
+                    Invalidate();
+                }
+                // For BeepGridPro, ResizeRedraw style automatically triggers repaint
             }
             catch (Exception ex) when (ex is ArgumentException || ex is InvalidOperationException)
             {
@@ -459,7 +476,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             if (g == null || _painter == null) return;
 
             // Skip for Material painter (handled inside its painter)
-            if (_painter is Helpers.Painters.MaterialBaseControlPainter) return;
+            if (_painter is MaterialBaseControlPainter) return;
 
             // Nothing to draw
             bool hasLabel = !string.IsNullOrEmpty(LabelText);

@@ -450,6 +450,50 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             get => _destroyOnClose;
             set => _destroyOnClose = value;
         }
+        
+        /// <summary>
+        /// Gets or sets the maximum height before scrolling is enabled
+        /// </summary>
+        [Category("Beep")]
+        [Description("Maximum height of the context menu before scrolling is enabled")]
+        [Browsable(true)]
+        [DefaultValue(600)]
+        public int MaxHeight
+        {
+            get => _maxHeight;
+            set
+            {
+                if (_maxHeight != value && value >= _minHeight)
+                {
+                    _maxHeight = value;
+                    RecalculateSize();
+                    Invalidate();
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Gets the minimum height of the context menu (calculated as one item height + padding)
+        /// </summary>
+        [Category("Beep")]
+        [Description("Minimum height of the context menu (automatically calculated as one item + padding)")]
+        [Browsable(false)]
+        public int MinHeight
+        {
+            get => PreferredItemHeight + 8;
+        }
+        
+        /// <summary>
+        /// Gets whether the menu currently needs scrolling
+        /// </summary>
+        [Browsable(false)]
+        public bool NeedsScrolling => _needsScrolling;
+        
+        /// <summary>
+        /// Gets the current scroll offset
+        /// </summary>
+        [Browsable(false)]
+        public int ScrollOffset => _scrollOffset;
      
 
         #endregion

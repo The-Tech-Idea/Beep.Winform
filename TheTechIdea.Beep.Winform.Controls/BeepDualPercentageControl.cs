@@ -188,7 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (SolidBrush sectionBrush = new SolidBrush(LeftSectionColor))
             {
                 int leftSectionWidth = Width / 2; // Split the control into two halves
-                using (GraphicsPath path = GetRoundedRectPath(new Rectangle(0, 0, leftSectionWidth, Height), BorderRadius))
+                using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(new Rectangle(0, 0, leftSectionWidth, Height), BorderRadius))
                 {
                     e.Graphics.FillPath(sectionBrush, path);
                 }

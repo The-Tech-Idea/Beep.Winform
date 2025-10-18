@@ -212,8 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+            using var path = owner.BorderShape; 
             // GruvBox: warm-tinted border (thicker for retro feel)
             using var pen = new Pen(Color.FromArgb(80, 251, 184, 108), 2);
             

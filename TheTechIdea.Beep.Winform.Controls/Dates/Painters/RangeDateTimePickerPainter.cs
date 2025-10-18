@@ -118,18 +118,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
+        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
         {
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var rangeColor = Color.FromArgb(50, accentColor);
+            
+            // Define distinct colors for start and end dates
+            var startDateColor = Color.FromArgb(34, 139, 34);  // Forest Green
+            var endDateColor = accentColor;  // Blue (accent)
 
             cellBounds.Inflate(-2, -2);
 
-            // Paint range background
-            if (isInRange && !isSelected)
+            // Paint range background (but not on start/end dates)
+            if (isInRange && !isStartDate && !isEndDate)
             {
                 using (var brush = new SolidBrush(rangeColor))
                 {
@@ -137,8 +141,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 }
             }
 
-            // Paint selection (start or end of range)
-            if (isSelected)
+            // Paint start date with green
+            if (isStartDate)
+            {
+                using (var brush = new SolidBrush(startDateColor))
+                {
+                    g.FillEllipse(brush, cellBounds);
+                }
+                textColor = Color.White;
+            }
+            // Paint end date with blue
+            else if (isEndDate)
+            {
+                using (var brush = new SolidBrush(endDateColor))
+                {
+                    g.FillEllipse(brush, cellBounds);
+                }
+                textColor = Color.White;
+            }
+            // Paint selection (start or end of range) - fallback
+            else if (isSelected)
             {
                 using (var brush = new SolidBrush(accentColor))
                 {
@@ -163,7 +185,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
 
             // Today indicator
-            if (isToday && !isSelected)
+            if (isToday && !isSelected && !isStartDate && !isEndDate)
             {
                 using (var pen = new Pen(todayColor, 2))
                 {
@@ -275,58 +297,89 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintCalendarGrid(Graphics g, DateTimePickerLayout layout, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState)
         {
+            // Use DayCellMatrix directly for consistent access with hit handler
+            var cells = layout.DayCellMatrix;
+            if (cells == null)
+            {
+                if (layout.DayCellRects == null || layout.DayCellRects.Count != 42)
+                {
+                    return;
+                }
+
+                cells = new Rectangle[6, 7];
+                for (int i = 0; i < layout.DayCellRects.Count; i++)
+                {
+                    cells[i / 7, i % 7] = layout.DayCellRects[i];
+                }
+                layout.DayCellMatrix = cells;
+            }
+
             var firstDayOfMonth = new DateTime(displayMonth.Year, displayMonth.Month, 1);
             var daysInMonth = DateTime.DaysInMonth(displayMonth.Year, displayMonth.Month);
-            
+
             int firstDayOfWeek = (int)properties.FirstDayOfWeek;
             int dayOffset = ((int)firstDayOfMonth.DayOfWeek - firstDayOfWeek + 7) % 7;
 
             var prevMonth = displayMonth.AddMonths(-1);
             var daysInPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
 
-            int row = 0, col = 0;
+            int row = 0;
+            int col = 0;
 
+            // Paint previous month days
             for (int i = 0; i < dayOffset; i++)
             {
-                var day = daysInPrevMonth - dayOffset + i + 1;
+                int day = daysInPrevMonth - dayOffset + i + 1;
                 var date = new DateTime(prevMonth.Year, prevMonth.Month, day);
-                var cellRect = layout.DayCellRects[row, col];
+                var cellRect = cells[row, col];
                 bool isInRange = IsInRange(date, _owner.RangeStartDate, _owner.RangeEndDate);
                 PaintDayCell(g, cellRect, date, false, false, true, false, false, isInRange);
                 col++;
-                if (col >= 7) { col = 0; row++; }
+                if (col >= 7)
+                {
+                    col = 0;
+                    row++;
+                }
             }
 
+            // Paint current month days
             for (int day = 1; day <= daysInMonth; day++)
             {
                 var date = new DateTime(displayMonth.Year, displayMonth.Month, day);
-                var cellRect = layout.DayCellRects[row, col];
-                
-                bool isStartOrEnd = (_owner.RangeStartDate.HasValue && _owner.RangeStartDate.Value.Date == date.Date) ||
-                                   (_owner.RangeEndDate.HasValue && _owner.RangeEndDate.Value.Date == date.Date);
+                var cellRect = cells[row, col];
+
+                bool isStartDate = _owner.RangeStartDate.HasValue && _owner.RangeStartDate.Value.Date == date.Date;
+                bool isEndDate = _owner.RangeEndDate.HasValue && _owner.RangeEndDate.Value.Date == date.Date;
+                bool isStartOrEnd = isStartDate || isEndDate;
                 bool isToday = date.Date == DateTime.Today;
                 bool isDisabled = date < properties.MinDate || date > properties.MaxDate;
                 bool isHovered = hoverState.IsDateHovered(date);
                 bool isPressed = hoverState.IsDatePressed(date);
                 bool isInRange = IsInRange(date, _owner.RangeStartDate, _owner.RangeEndDate);
-                
-                PaintDayCell(g, cellRect, date, isStartOrEnd, isToday, isDisabled, isHovered, isPressed, isInRange);
-                
+
+                PaintDayCell(g, cellRect, date, isStartOrEnd, isToday, isDisabled, isHovered, isPressed, isInRange, isStartDate, isEndDate);
+
                 col++;
-                if (col >= 7) { col = 0; row++; }
+                if (col >= 7)
+                {
+                    col = 0;
+                    row++;
+                }
             }
 
+            // Paint next month days
             var nextMonth = displayMonth.AddMonths(1);
             while (row < 6)
             {
                 for (int day = 1; col < 7; day++)
                 {
                     var date = new DateTime(nextMonth.Year, nextMonth.Month, day);
-                    var cellRect = layout.DayCellRects[row, col];
+                    var cellRect = cells[row, col];
                     bool isInRange = IsInRange(date, _owner.RangeStartDate, _owner.RangeEndDate);
                     PaintDayCell(g, cellRect, date, false, false, true, false, false, isInRange);
                     col++;
                 }
+
                 col = 0;
                 row++;
             }
@@ -355,38 +408,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             int padding = 10;
             int currentY = bounds.Y + padding;
 
-            layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2 - 72, 40);
+            // Ensure minimum bounds
+            int minWidth = Math.Max(bounds.Width, 300);
+            int effectiveWidth = bounds.Width > 0 ? bounds.Width : minWidth;
+
+            layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, effectiveWidth - padding * 2 - 72, 40);
             
             int navButtonSize = 28;
-            layout.PreviousButtonRect = new Rectangle(bounds.Right - padding - navButtonSize * 2 - 8, currentY + 4, navButtonSize, navButtonSize);
-            layout.NextButtonRect = new Rectangle(bounds.Right - padding - navButtonSize, currentY + 4, navButtonSize, navButtonSize);
+            layout.PreviousButtonRect = new Rectangle(bounds.X + effectiveWidth - padding - navButtonSize * 2 - 8, currentY + 4, navButtonSize, navButtonSize);
+            layout.NextButtonRect = new Rectangle(bounds.X + effectiveWidth - padding - navButtonSize, currentY + 4, navButtonSize, navButtonSize);
 
             currentY += 40;
 
-            layout.DayNamesRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 24);
+            layout.DayNamesRect = new Rectangle(bounds.X + padding, currentY, effectiveWidth - padding * 2, 24);
             currentY += 28;
 
-            int gridWidth = bounds.Width - padding * 2;
+            int gridWidth = effectiveWidth - padding * 2;
             int availableHeight = bounds.Bottom - currentY - padding - 26; // leave room for range info
             int gridHeight = Math.Max(132, Math.Min(availableHeight, 252));
             layout.CalendarGridRect = new Rectangle(bounds.X + padding, currentY, gridWidth, gridHeight);
 
-            layout.CellWidth = gridWidth / 7;
-            layout.CellHeight = gridHeight / 6;
-            layout.DayCellRects = new Rectangle[6, 7];
+            // Calculate cell dimensions with minimum size guarantee
+            layout.CellWidth = Math.Max(gridWidth / 7, 30);
+            layout.CellHeight = Math.Max(gridHeight / 6, 30);
+
+            // Create both matrix and list for compatibility
+            layout.DayCellMatrix = new Rectangle[6, 7];
+            layout.DayCellRects = new List<Rectangle>(42);
 
             for (int row = 0; row < 6; row++)
             {
                 for (int col = 0; col < 7; col++)
                 {
-                    layout.DayCellRects[row, col] = new Rectangle(
+                    var cellRect = new Rectangle(
                         layout.CalendarGridRect.X + col * layout.CellWidth,
                         layout.CalendarGridRect.Y + row * layout.CellHeight,
                         layout.CellWidth,
                         layout.CellHeight
                     );
+                    
+                    layout.DayCellMatrix[row, col] = cellRect;
+                    layout.DayCellRects.Add(cellRect);
                 }
             }
+
+            // Register all hit areas with BaseControl's hit test system
+            _owner.HitTestHelper?.RegisterHitAreas(layout, properties, _owner.DisplayMonth);
 
             return layout;
         }
@@ -397,33 +464,60 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             if (layout.PreviousButtonRect.Contains(location))
             {
+                result.IsHit = true;
                 result.HitArea = DateTimePickerHitArea.PreviousButton;
+                result.NavigationButton = DatePickerNavigationButton.Previous;
                 result.HitBounds = layout.PreviousButtonRect;
                 return result;
             }
 
             if (layout.NextButtonRect.Contains(location))
             {
+                result.IsHit = true;
                 result.HitArea = DateTimePickerHitArea.NextButton;
+                result.NavigationButton = DatePickerNavigationButton.Next;
                 result.HitBounds = layout.NextButtonRect;
                 return result;
             }
 
-            if (layout.CalendarGridRect.Contains(location))
+            if (!layout.CalendarGridRect.Contains(location))
             {
-                for (int row = 0; row < 6; row++)
+                return result;
+            }
+
+            var cells = layout.DayCellMatrix;
+            if (cells == null)
+            {
+                if (layout.DayCellRects == null || layout.DayCellRects.Count != 42)
                 {
-                    for (int col = 0; col < 7; col++)
+                    return result;
+                }
+
+                cells = new Rectangle[6, 7];
+                for (int i = 0; i < layout.DayCellRects.Count; i++)
+                {
+                    cells[i / 7, i % 7] = layout.DayCellRects[i];
+                }
+                layout.DayCellMatrix = cells;
+            }
+
+            for (int row = 0; row < 6; row++)
+            {
+                for (int col = 0; col < 7; col++)
+                {
+                    var cellRect = cells[row, col];
+                    if (!cellRect.Contains(location))
                     {
-                        if (layout.DayCellRects[row, col].Contains(location))
-                        {
-                            var date = GetDateFromCell(row, col, displayMonth, _owner.FirstDayOfWeek);
-                            result.HitArea = DateTimePickerHitArea.DayCell;
-                            result.Date = date;
-                            result.HitBounds = layout.DayCellRects[row, col];
-                            return result;
-                        }
+                        continue;
                     }
+
+                    var date = GetDateFromCell(row, col, displayMonth, _owner.FirstDayOfWeek);
+                    result.IsHit = true;
+                    result.HitArea = DateTimePickerHitArea.DayCell;
+                    result.Date = date;
+                    result.CellIndex = row * 7 + col;
+                    result.HitBounds = cellRect;
+                    return result;
                 }
             }
 

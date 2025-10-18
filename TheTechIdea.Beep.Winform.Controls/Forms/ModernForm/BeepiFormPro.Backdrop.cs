@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             base.OnHandleCreated(e);
             // Update DPI scale AFTER handle is created and form is initialized
             // This ensures we don't interfere with AutoScale initialization
-            UpdateDpiScale();
+         
             // Apply backdrop effects
             //ApplyBackdrop();
             //ApplyAcrylicEffectIfNeeded();

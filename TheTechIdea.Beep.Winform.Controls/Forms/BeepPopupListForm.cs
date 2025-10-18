@@ -133,76 +133,107 @@ namespace TheTechIdea.Beep.Winform.Controls
         public BeepPopupListForm() : base()
         {
             InitializeComponent();
-            _beepListBox.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
-            _beepListBox.CanBeFocused = false;
-            _beepListBox.CanBeSelected = false;
-            _beepListBox.CanBeHovered = false;
-            _beepListBox.CanBePressed = false;
+            InitializePopupListBox();
         }
-        public BeepPopupListForm(List<SimpleItem> items)
+        
+        public BeepPopupListForm(List<SimpleItem> items) : base()
         {
             InitializeComponent();
-            _beepListBox.PainterKind = Base.BaseControl.BaseControlPainterKind.Classic;
-            _beepListBox.CanBeFocused = false;
-            _beepListBox.CanBeSelected = false;
-            _beepListBox.CanBeHovered = false;
-            _beepListBox.CanBePressed = false;
-            //   _beepListBox.EnableMaterialStyle= false;
-            _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
-            _beepListBox.ItemClicked += BeepListBox_ItemClicked;
-       //     OnLeave += BeepPopupListForm_OnLeave;
-            if (items.Count > 0)
+            InitializePopupListBox();
+            
+            if (items != null && items.Count > 0)
             {
                 InitializeMenu(items);
             }
         }
-        public void InitializeMenu(List<SimpleItem> items)
+        
+        private void InitializePopupListBox()
         {
-            _beepListBox.TextFont = _textFont;
-            _beepListBox.ListItems = new BindingList<SimpleItem>(items);
-            _beepListBox.Theme = Theme;
-            _beepListBox.ApplyThemeOnImage = false;
-            _beepListBox.IsRoundedAffectedByTheme = false;
-            _beepListBox.IsRounded = false;
-            _beepListBox.ShowTitle = false;
-            _beepListBox.ShowTitleLine = false;
-            _beepListBox.IsShadowAffectedByTheme = false;
-            _beepListBox.ShowShadow = false;
-            _beepListBox.IsBorderAffectedByTheme = false;
-            _beepListBox.ShowAllBorders = false;
-            _beepListBox.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
-            _beepListBox.IsFrameless = true;
+            // Configure the form for popup mode
+            ShowCaptionBar = false;
+            FormBorderStyle = FormBorderStyle.None;
+            
+            // No padding needed - BeepiFormPro.Drawing.cs now handles border spacing correctly
+            // by shrinking the background fill area instead of relying on padding
+            
+            // Configure the BeepListBox
+            _beepListBox.PainterKind = BaseControlPainterKind.Classic;
             _beepListBox.CanBeFocused = false;
             _beepListBox.CanBeSelected = false;
             _beepListBox.CanBeHovered = false;
             _beepListBox.CanBePressed = false;
+            
+            // Event handlers
+            _beepListBox.SelectedItemChanged += BeepListBox_SelectedItemChanged;
+            _beepListBox.ItemClicked += BeepListBox_ItemClicked;
+        }
+        public void InitializeMenu(List<SimpleItem> items)
+        {
+            if (items == null || items.Count == 0) return;
+             // Add padding to prevent listbox from overlapping the form's painted border
+            // The form draws its own border, so we need space for it
+            this.Padding = new Padding(2); // 2px on all sides for border visibility
+            
+            // Set list items first
+            _beepListBox.ListItems = new BindingList<SimpleItem>(items);
+            _beepListBox.TextFont = _textFont;
+            _beepListBox.Theme = Theme;
+            
+            // Configure listbox appearance - NO BORDERS on the listbox itself
+            _beepListBox.ApplyThemeOnImage = false;
+            _beepListBox.IsRoundedAffectedByTheme = false;
+            _beepListBox.IsRounded = false;
+            _beepListBox.ShowTitle = _showtitle;
+            _beepListBox.ShowTitleLine = false;
+            _beepListBox.IsShadowAffectedByTheme = false;
+            _beepListBox.ShowShadow = false;
+            _beepListBox.IsBorderAffectedByTheme = false;
+            _beepListBox.ShowAllBorders = false; // Critical: no borders on listbox
+            _beepListBox.IsFrameless = true;
             _beepListBox.ShowHilightBox = false;
-           // _beepListBox.MenuItemHeight = Math.Max(Menuitemheight, 20); // Ensure minimum height
-
+            _beepListBox.Padding = new Padding(2); // 2px padding on all sides
+          
+            // Calculate required size
+            CalculateAndSetSize(items);
+        }
+        
+        private void CalculateAndSetSize(List<SimpleItem> items)
+        {
+            if (items == null || items.Count == 0) return;
+            
             // Get the actual needed height from BeepListBox
             int neededHeight = _beepListBox.GetMaxHeight();
+            neededHeight = Math.Max(neededHeight, 40); // Minimum height for at least one item
 
-            // Calculate max width with proper scaling
+            // Calculate required width
             int calculatedMaxWidth = 150; // Minimum width
-            foreach (var item in items)
-            {
-                if (!string.IsNullOrEmpty(item.Text))
-                {
-                    int textWidth = TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width;
-                    calculatedMaxWidth = Math.Max(calculatedMaxWidth, textWidth + 40); // Add padding
-                }
-            }
 
-            // Ensure reasonable bounds - allow much larger height or no limit
-            calculatedMaxWidth = Math.Min(calculatedMaxWidth, 400); // Max width
-            // Remove the height cap to allow all items to be displayed
-            // neededHeight = Math.Min(neededHeight, 300); // <- REMOVED: This was preventing all items from showing
-            neededHeight = neededHeight;// Math.Max(neededHeight, 60);  // Keep minimum height
-            Debug.WriteLine($"output hieght {neededHeight}");
-            // Set the form size
-            Size = new Size(calculatedMaxWidth, neededHeight);
-            _beepListBox.Padding = new Padding(5);
-            _beepListBox.Dock = DockStyle.Fill;
+                foreach (var item in items)
+                {
+                    if (!string.IsNullOrEmpty(item.Text))
+                    {
+                        SizeF textSize = TextUtils.MeasureText(item.Text, _beepListBox.TextFont);
+                        int textWidth = (int)Math.Ceiling(textSize.Width);
+                        calculatedMaxWidth = Math.Max(calculatedMaxWidth, textWidth + 60); // Add padding for icon + margins
+                    }
+                }
+            
+
+            // Apply reasonable bounds
+            calculatedMaxWidth = Math.Min(calculatedMaxWidth, 500); // Max width
+            calculatedMaxWidth = Math.Max(calculatedMaxWidth, 150); // Min width
+            
+            // Cap height if needed
+            if (neededHeight > MaxHeight && MaxHeight > 0)
+            {
+                neededHeight = MaxHeight;
+            }
+            
+            Debug.WriteLine($"[BeepPopupListForm] Final size: {calculatedMaxWidth}x{neededHeight}");
+            
+            // Set the client size directly - border is now handled by the form painter
+            ClientSize = new Size(calculatedMaxWidth, neededHeight);
+            
             _beepListBox.Invalidate();
         }
         public void Filter(string searchText)
@@ -295,36 +326,11 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public void SetSizeBasedonItems()
         {
-            if (_beepListBox.ListItems == null) return ;
-            if (_beepListBox.ListItems.Count == 0) return ;
+            if (_beepListBox.ListItems == null || _beepListBox.ListItems.Count == 0) 
+                return;
 
-          
             _beepListBox.TitleText = Text;
-
-            // Get the actual needed height
-            int neededHeight = _beepListBox.GetMaxHeight();
-
-            // Calculate max width with proper bounds
-            int calculatedMaxWidth = 150;
-            foreach (var item in _beepListBox.ListItems)
-            {
-                if (!string.IsNullOrEmpty(item.Text))
-                {
-                    int textWidth = TextRenderer.MeasureText(item.Text, _beepListBox.TextFont).Width;
-                    calculatedMaxWidth = Math.Max(calculatedMaxWidth, textWidth + 40);
-                }
-            }
-
-            // Apply reasonable bounds
-            calculatedMaxWidth = Math.Min(calculatedMaxWidth, 400);
-            //calculatedMaxWidth = Math.Max(calculatedMaxWidth, triggerControl.Width);
-            // Remove the height cap to allow all items to be displayed
-            // neededHeight = Math.Min(neededHeight, 300); // <- REMOVED: This was limiting the popup height
-            neededHeight = Math.Max(neededHeight, 60); // Keep minimum height
-
-            Size = new Size(calculatedMaxWidth, neededHeight);
-            _beepListBox.Dock = DockStyle.Fill;
-            _beepListBox.Invalidate();
+            CalculateAndSetSize(_beepListBox.ListItems.ToList());
         }
         public SimpleItem ShowPopup(string Title, Control triggerControl, BeepPopupFormPosition position, bool showtitle = false)
         {
@@ -375,15 +381,27 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         public override void ApplyTheme()
         {
-            if(Theme == null)
+            if(Theme == null || _currentTheme == null)
             {
                 return;
             }
-            BackColor =_currentTheme.ListBackColor;
-            //beepPanel1.MenuStyle = beepuiManager1.MenuStyle;
-            BorderColor = _currentTheme.ListBorderColor;
+            
+            // Form-level styling
+            BackColor = _currentTheme.ListBackColor;
             ForeColor = _currentTheme.ListForeColor;
-            if (_beepListBox != null) _beepListBox.Theme = Theme;
+            BorderColor = _currentTheme.ListBorderColor;
+            
+            // Ensure form border is visible and properly styled
+            // The form itself should have a border for popup appearance
+            FormBorderStyle = FormBorderStyle.None; // We'll draw our own border
+            
+            // Apply theme to the BeepListBox
+            if (_beepListBox != null)
+            {
+                _beepListBox.Theme = Theme;
+                _beepListBox.BackColor = _currentTheme.ListBackColor;
+                _beepListBox.ForeColor = _currentTheme.ListForeColor;
+            }
 
             Invalidate();
         }

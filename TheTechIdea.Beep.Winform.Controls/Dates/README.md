@@ -382,6 +382,11 @@ DateRange range3 = quarterly.DateRangeValue;
 | **FilteredRange** | `DateTimeRange` | Range with filter sidebar |
 | **Header** | `Date` | Prominent header calendar |
 
+#### RangeWithTime Mode Highlights
+- Dual calendar layout computes dedicated rectangles for start/end hour and minute spinners, enabling precise hit registration through `BeepDateTimePickerHitTestHelper`.
+- `RangeWithTimeHitHandler` now responds to spinner hit areas (e.g., `time_start_hour_up`) to wrap hours/minutes and preserve an ordered range while users adjust times.
+- Hover state surfaces spinner focus using `DateTimePickerHoverState.QuickButton`, keeping visual feedback consistent with other interactive elements.
+
 ### Properties
 
 #### Core Properties

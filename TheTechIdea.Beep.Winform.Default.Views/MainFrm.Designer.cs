@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers;
@@ -82,7 +82,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepMenuAppBar1.DisabledBorderColor = Color.LightGray;
             beepMenuAppBar1.DisabledForeColor = Color.Gray;
-            beepMenuAppBar1.DisableDpiAndScaling = false;
+            //beepMenuAppBar1.DisableDpiAndScaling = false;
             beepMenuAppBar1.Dock = DockStyle.Top;
             beepMenuAppBar1.DrawingRect = new Rectangle(1, 1, 1434, 67);
             beepMenuAppBar1.Easing = EasingType.Linear;
@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepMenuAppBar1.Name = "beepMenuAppBar1";
             beepMenuAppBar1.OverrideFontSize = TypeStyleFontSize.None;
             beepMenuAppBar1.Padding = new Padding(1);
-            beepMenuAppBar1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Classic;
+            beepMenuAppBar1.PainterKind = BaseControlPainterKind.Classic;
             beepMenuAppBar1.ParentBackColor = Color.Empty;
             beepMenuAppBar1.ParentControl = null;
             beepMenuAppBar1.PressedBackColor = Color.Gray;
@@ -254,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepAppTree1.DisabledBorderColor = Color.LightGray;
             beepAppTree1.DisabledForeColor = Color.Gray;
-            beepAppTree1.DisableDpiAndScaling = false;
+            //beepAppTree1.DisableDpiAndScaling = false;
             beepAppTree1.DMEEditor = null;
             beepAppTree1.Dock = DockStyle.Left;
             beepAppTree1.DrawingRect = new Rectangle(0, 0, 400, 931);
@@ -343,7 +343,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepAppTree1.ObjectType = "Beep";
             beepAppTree1.OverrideFontSize = TypeStyleFontSize.None;
             beepAppTree1.Padding = new Padding(1);
-            beepAppTree1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.None;
+            beepAppTree1.PainterKind = BaseControlPainterKind.None;
             beepAppTree1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepAppTree1.ParentControl = null;
             beepAppTree1.PressedBackColor = Color.Gray;
@@ -437,7 +437,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.DisabledBackColor = Color.LightGray;
             beepDisplayContainer1.DisabledBorderColor = Color.Gray;
             beepDisplayContainer1.DisabledForeColor = Color.DarkGray;
-            beepDisplayContainer1.DisableDpiAndScaling = false;
+            //beepDisplayContainer1.DisableDpiAndScaling = false;
             beepDisplayContainer1.Dock = DockStyle.Fill;
             beepDisplayContainer1.DrawingRect = new Rectangle(0, 0, 1036, 931);
             beepDisplayContainer1.Easing = EasingType.Linear;
@@ -522,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDisplayContainer1.Name = "beepDisplayContainer1";
             beepDisplayContainer1.OverrideFontSize = TypeStyleFontSize.None;
             beepDisplayContainer1.Padding = new Padding(2);
-            beepDisplayContainer1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.None;
+            beepDisplayContainer1.PainterKind = BaseControlPainterKind.None;
             beepDisplayContainer1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepDisplayContainer1.ParentControl = null;
             beepDisplayContainer1.PressedBackColor = Color.Gray;

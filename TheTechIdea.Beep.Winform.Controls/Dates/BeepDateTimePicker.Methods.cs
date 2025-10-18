@@ -47,6 +47,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
             _rangeStartDate = startDate;
             _rangeEndDate = endDate;
+            _rangeStartTime = null;
+            _rangeEndTime = null;
             _displayMonth = new DateTime(startDate.Year, startDate.Month, 1);
             OnRangeChanged(startDate, endDate);
             Invalidate();
@@ -58,6 +60,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             _selectedTime = null;
             _rangeStartDate = null;
             _rangeEndDate = null;
+            _rangeStartTime = null;
+            _rangeEndTime = null;
             _selectedDates?.Clear();
             
             OnDateChanged(null);
@@ -119,6 +123,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 _displayMonth = newMonth;
                 Invalidate();
             }
+        }
+
+        public void NavigateToPreviousYear()
+        {
+            _displayMonth = _displayMonth.AddYears(-1);
+            if (_displayMonth < _minDate)
+            {
+                _displayMonth = new DateTime(_minDate.Year, _minDate.Month, 1);
+            }
+            Invalidate();
+        }
+
+        public void NavigateToNextYear()
+        {
+            _displayMonth = _displayMonth.AddYears(1);
+            if (_displayMonth > _maxDate)
+            {
+                _displayMonth = new DateTime(_maxDate.Year, _maxDate.Month, 1);
+            }
+            Invalidate();
         }
 
         #endregion
@@ -210,6 +234,55 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         #region Helper Methods - Multiple Date Selection
 
+        public void ToggleMultipleDateSelection(DateTime date)
+        {
+            if (date < _minDate || date > _maxDate) return;
+            date = date.Date;
+
+            int idx = _selectedDates.FindIndex(d => d == date);
+            if (idx >= 0)
+            {
+                _selectedDates.RemoveAt(idx);
+            }
+            else
+            {
+                _selectedDates.Add(date);
+                _selectedDates.Sort();
+            }
+            OnDateChanged(date);
+            Invalidate();
+        }
+
+        public void HandleRangeDateSelection(DateTime date)
+        {
+            if (date < _minDate || date > _maxDate) return;
+            date = date.Date;
+
+            // If no start date, or both start and end are set, start a new range
+            if (!_rangeStartDate.HasValue || (_rangeStartDate.HasValue && _rangeEndDate.HasValue))
+            {
+                _rangeStartDate = date;
+                _rangeEndDate = null;
+            }
+            // If start date is set but no end date, set the end date
+            else if (_rangeStartDate.HasValue && !_rangeEndDate.HasValue)
+            {
+                if (date >= _rangeStartDate.Value)
+                {
+                    _rangeEndDate = date;
+                }
+                else
+                {
+                    // Swap if end is before start
+                    _rangeEndDate = _rangeStartDate;
+                    _rangeStartDate = date;
+                }
+                OnRangeChanged(_rangeStartDate, _rangeEndDate);
+            }
+            
+            Invalidate();
+        }
+
         private void ToggleMultipleDate(DateTime date)
         {
             if (date < _minDate || date > _maxDate) return;
@@ -231,6 +304,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         private bool IsMultipleDateSelected(DateTime date)
         {
             return _selectedDates?.Any(d => d.Date == date.Date) == true;
+        }
+
+        #endregion
+
+        #region Time Scrolling Methods (Appointment Mode)
+
+        /// <summary>
+        /// Scroll the time list up (used by AppointmentHitHandler)
+        /// </summary>
+        public void ScrollTimeListUp()
+        {
+            // This would typically adjust a scroll offset in the painter
+            // For now, just trigger a repaint
+            Invalidate();
+        }
+
+        /// <summary>
+        /// Scroll the time list down (used by AppointmentHitHandler)
+        /// </summary>
+        public void ScrollTimeListDown()
+        {
+            // This would typically adjust a scroll offset in the painter
+            // For now, just trigger a repaint
+            Invalidate();
         }
 
         #endregion

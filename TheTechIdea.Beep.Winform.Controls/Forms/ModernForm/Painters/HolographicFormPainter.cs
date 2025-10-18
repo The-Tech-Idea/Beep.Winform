@@ -280,8 +280,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+            using var path = owner.BorderShape;
             // Holographic: rainbow iridescent border
             using (var rainbowBrush = new LinearGradientBrush(
                 owner.ClientRectangle,

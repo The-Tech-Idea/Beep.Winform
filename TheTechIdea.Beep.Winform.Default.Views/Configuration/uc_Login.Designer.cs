@@ -1,4 +1,4 @@
-﻿
+
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
@@ -77,7 +77,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DisabledBackColor = Color.LightGray;
             beepLabel1.DisabledBorderColor = Color.Empty;
             beepLabel1.DisabledForeColor = Color.Gray;
-            beepLabel1.DisableDpiAndScaling = false;
+            //beepLabel1.DisableDpiAndScaling = false;
             beepLabel1.DrawingRect = new Rectangle(1, 1, 298, 84);
             beepLabel1.Easing = Vis.Modules.EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
@@ -146,7 +146,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.IsSelectedOptionOn = false;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsValid = true;
-            beepLabel1.IsVisible = false;
+            beepLabel1.IsVisible = true;
             beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
             beepLabel1.LabelBackColor = Color.Empty;
             beepLabel1.LabelErrorText = "";
@@ -256,7 +256,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLogin1.DisabledBackColor = Color.White;
             beepLogin1.DisabledBorderColor = Color.Empty;
             beepLogin1.DisabledForeColor = Color.Black;
-            beepLogin1.DisableDpiAndScaling = true;
+            //beepLogin1.DisableDpiAndScaling = true;
             beepLogin1.DrawingRect = new Rectangle(2, 2, 296, 296);
             beepLogin1.Easing = Vis.Modules.EasingType.Linear;
             beepLogin1.EnableHighQualityRendering = true;
@@ -309,7 +309,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLogin1.IsSelected = false;
             beepLogin1.IsSelectedOptionOn = false;
             beepLogin1.IsShadowAffectedByTheme = true;
-            beepLogin1.IsVisible = false;
+            beepLogin1.IsVisible = true;
             beepLogin1.Items = (List<object>)resources.GetObject("beepLogin1.Items");
             beepLogin1.LabelText = "";
             beepLogin1.LeftoffsetForDrawingRect = 0;
@@ -407,10 +407,10 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ComponentName = "BeepControl";
             CancelbeepButton.DataSourceProperty = null;
             CancelbeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
-            CancelbeepButton.DisabledBorderColor = Color.Empty;
+            CancelbeepButton.DisabledBorderColor = Color.Gray;
             CancelbeepButton.DisabledForeColor = Color.Gray;
-            CancelbeepButton.DisableDpiAndScaling = false;
-            CancelbeepButton.DrawingRect = new Rectangle(24, 8, 52, 24);
+            //CancelbeepButton.DisableDpiAndScaling = false;
+            CancelbeepButton.DrawingRect = new Rectangle(18, 26, 85, 14);
             CancelbeepButton.Easing = Vis.Modules.EasingType.Linear;
             CancelbeepButton.EmbeddedImagePath = null;
             CancelbeepButton.EnableHighQualityRendering = true;
@@ -485,7 +485,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.IsSideMenuChild = false;
             CancelbeepButton.IsStillButton = false;
             CancelbeepButton.IsValid = true;
-            CancelbeepButton.IsVisible = false;
+            CancelbeepButton.IsVisible = true;
             CancelbeepButton.Items = (List<object>)resources.GetObject("CancelbeepButton.Items");
             CancelbeepButton.LabelText = "";
             CancelbeepButton.LeadingIconPath = "";

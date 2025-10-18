@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
+namespace TheTechIdea.Beep.Winform.Default.Views.DataSource_Connection_Controls
 {
     partial class uc_FileProperties
     {

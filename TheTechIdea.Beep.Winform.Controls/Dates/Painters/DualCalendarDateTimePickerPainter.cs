@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
+using TheTechIdea.Beep.Winform.Controls.Dates.Helpers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 {
@@ -27,6 +28,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             _theme = theme;
         }
 
+        // Helper method to convert row,col to flat list index
+        private int GetCellIndex(int row, int col)
+        {
+            return row * 7 + col;
+        }
+
         public void PaintCalendar(Graphics g, Rectangle bounds, DateTimePickerProperties properties, DateTime displayMonth, DateTimePickerHoverState hoverState)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -35,31 +42,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Paint background
             PaintBackground(g, bounds);
 
-            int padding = 16;
-            int gap = 12;
-            int calendarWidth = (bounds.Width - padding * 2 - gap) / 2;
+            // Calculate master layout once
+            var layout = CalculateLayout(bounds, properties);
+            
+            if (layout.MonthGrids == null || layout.MonthGrids.Count < 2)
+                return;
 
-            // Left calendar (current month)
-            var leftCalendarBounds = new Rectangle(bounds.X + padding, bounds.Y + padding, calendarWidth, bounds.Height - padding * 2);
-            PaintSingleCalendar(g, leftCalendarBounds, displayMonth, properties, hoverState, true);
+            var leftGrid = layout.MonthGrids[0];
+            var rightGrid = layout.MonthGrids[1];
+
+            // Paint left calendar (current month) - gridIndex 0
+            PaintSingleCalendarFromGrid(g, leftGrid, displayMonth, properties, hoverState, true, 0);
 
             // Separator
             var borderColor = _theme?.BorderColor ?? Color.FromArgb(230, 230, 230);
             using (var pen = new Pen(borderColor, 1))
             {
+                int padding = 16;
+                int gap = 12;
+                int calendarWidth = (bounds.Width - padding * 2 - gap) / 2;
                 int separatorX = bounds.X + padding + calendarWidth + gap / 2;
                 g.DrawLine(pen, separatorX, bounds.Y + padding + 10, separatorX, bounds.Bottom - padding - 10);
             }
 
-            // Right calendar (next month)
-            var rightCalendarBounds = new Rectangle(bounds.X + padding + calendarWidth + gap, bounds.Y + padding, calendarWidth, bounds.Height - padding * 2);
-            PaintSingleCalendar(g, rightCalendarBounds, displayMonth.AddMonths(1), properties, hoverState, false);
+            // Paint right calendar (next month) - gridIndex 1
+            PaintSingleCalendarFromGrid(g, rightGrid, displayMonth.AddMonths(1), properties, hoverState, false, 1);
 
             // Range info at bottom
             if (_owner.RangeStartDate.HasValue && _owner.RangeEndDate.HasValue)
             {
-                var rangeInfoRect = new Rectangle(bounds.X + padding, bounds.Bottom - 50, bounds.Width - padding * 2, 34);
+                int padding = 16;
+                var rangeInfoRect = new Rectangle(bounds.X + padding, bounds.Bottom - 90, bounds.Width - padding * 2, 34);
                 PaintRangeInfo(g, rangeInfoRect);
+            }
+
+            // Reset button (below range info or centered if no range)
+            if (!layout.ResetButtonRect.IsEmpty)
+            {
+                bool resetHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.ResetButton) == true;
+                bool resetPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.ResetButton) == true;
+                PaintActionButton(g, layout.ResetButtonRect, "Reset", false, resetHovered, resetPressed);
             }
         }
 
@@ -79,27 +101,126 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        private void PaintSingleCalendar(Graphics g, Rectangle bounds, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState, bool showNavigation)
+        private void PaintSingleCalendar(Graphics g, Rectangle bounds, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState, bool showNavigation, int gridIndex)
         {
-            var layout = CalculateSingleCalendarLayout(bounds, properties);
-
-            // Header
-            PaintHeader(g, layout.HeaderRect, displayMonth.ToString("MMM yyyy"), false, false);
+            // Get the grid from the master layout
+            var masterLayout = CalculateLayout(new Rectangle(bounds.X - (gridIndex == 0 ? 16 : bounds.Width + 12), bounds.Y - 16, bounds.Width * 2 + 44, bounds.Height + 32), properties);
+            if (masterLayout.MonthGrids == null || gridIndex >= masterLayout.MonthGrids.Count)
+                return;
+            
+            var grid = masterLayout.MonthGrids[gridIndex];
 
             // Navigation only on left calendar
-            if (showNavigation)
+            if (showNavigation && gridIndex == 0)
             {
-                PaintNavigationButton(g, layout.PreviousButtonRect, false,
+                PaintNavigationButton(g, grid.PreviousButtonRect, false,
                     hoverState.IsAreaHovered(DateTimePickerHitArea.PreviousButton),
                     hoverState.IsAreaPressed(DateTimePickerHitArea.PreviousButton));
 
-                PaintNavigationButton(g, layout.NextButtonRect, true,
+                PaintNavigationButton(g, grid.NextButtonRect, true,
                     hoverState.IsAreaHovered(DateTimePickerHitArea.NextButton),
                     hoverState.IsAreaPressed(DateTimePickerHitArea.NextButton));
             }
 
-            PaintDayNamesHeader(g, layout.DayNamesRect, properties.FirstDayOfWeek);
-            PaintCalendarGrid(g, layout, displayMonth, properties, hoverState);
+            // Year combo box in header - check if THIS specific combo box is hovered/pressed
+            PaintYearComboBox(g, grid.YearComboBoxRect, displayMonth.Year, hoverState, gridIndex);
+
+            PaintDayNamesHeader(g, grid.DayNamesRect, properties.FirstDayOfWeek);
+            PaintCalendarGridFromGrid(g, grid, displayMonth, properties, hoverState);
+        }
+
+        private void PaintSingleCalendarFromGrid(Graphics g, CalendarMonthGrid grid, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState, bool showNavigation, int gridIndex)
+        {
+            if (grid == null)
+                return;
+
+            // Navigation only on left calendar
+            if (showNavigation && gridIndex == 0)
+            {
+                if (!grid.PreviousButtonRect.IsEmpty)
+                {
+                    PaintNavigationButton(g, grid.PreviousButtonRect, false,
+                        hoverState.IsAreaHovered(DateTimePickerHitArea.PreviousButton),
+                        hoverState.IsAreaPressed(DateTimePickerHitArea.PreviousButton));
+                }
+
+                if (!grid.NextButtonRect.IsEmpty)
+                {
+                    PaintNavigationButton(g, grid.NextButtonRect, true,
+                        hoverState.IsAreaHovered(DateTimePickerHitArea.NextButton),
+                        hoverState.IsAreaPressed(DateTimePickerHitArea.NextButton));
+                }
+            }
+
+            // Year combo box in header - check if THIS specific combo box is hovered/pressed
+            if (!grid.YearComboBoxRect.IsEmpty)
+            {
+                PaintYearComboBox(g, grid.YearComboBoxRect, displayMonth.Year, hoverState, gridIndex);
+            }
+
+            // Day names header
+            if (!grid.DayNamesRect.IsEmpty)
+            {
+                PaintDayNamesHeader(g, grid.DayNamesRect, properties.FirstDayOfWeek);
+            }
+
+            // Calendar grid with day cells
+            PaintCalendarGridFromGrid(g, grid, displayMonth, properties, hoverState);
+        }
+
+        private void PaintYearComboBox(Graphics g, Rectangle bounds, int selectedYear, DateTimePickerHoverState hoverState, int gridIndex)
+        {
+            var textColor = _theme?.CalendarTitleForColor ?? Color.Black;
+            var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
+            var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
+            var font = new Font(_theme?.FontName ?? "Segoe UI", 10f, FontStyle.Bold);
+
+            // Check if THIS specific combo box (by gridIndex) is hovered/pressed
+            bool isHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.YearComboBox) == true && 
+                           hoverState?.HoveredGridIndex == gridIndex;
+            bool isPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.YearComboBox) == true && 
+                           hoverState?.PressedGridIndex == gridIndex;
+
+            // Background
+            if (isPressed || isHovered)
+            {
+                using (var brush = new SolidBrush(hoverColor))
+                {
+                    g.FillRoundedRectangle(brush, bounds, 4);
+                }
+            }
+
+            // Border
+            using (var pen = new Pen(borderColor, 1))
+            {
+                DrawRoundedRectangle(g, pen, bounds, 4);
+            }
+
+            // Year text
+            using (var brush = new SolidBrush(textColor))
+            {
+                var textRect = new Rectangle(bounds.X + 8, bounds.Y, bounds.Width - 24, bounds.Height);
+                var format = new StringFormat
+                {
+                    Alignment = StringAlignment.Near,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString(selectedYear.ToString(), font, brush, textRect, format);
+            }
+
+            // Dropdown arrow
+            using (var pen = new Pen(textColor, 2))
+            {
+                pen.StartCap = LineCap.Round;
+                pen.EndCap = LineCap.Round;
+
+                int arrowX = bounds.Right - 14;
+                int arrowY = bounds.Y + bounds.Height / 2;
+                int arrowSize = 3;
+
+                g.DrawLine(pen, arrowX - arrowSize, arrowY - 2, arrowX, arrowY + 2);
+                g.DrawLine(pen, arrowX, arrowY + 2, arrowX + arrowSize, arrowY - 2);
+            }
         }
 
         private void PaintRangeInfo(Graphics g, Rectangle bounds)
@@ -133,18 +254,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
+        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
         {
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(240, 240, 240);
             var todayColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var rangeColor = Color.FromArgb(50, accentColor);
+            
+            // Define distinct colors for start and end dates
+            var startDateColor = Color.FromArgb(34, 139, 34);  // Forest Green
+            var endDateColor = accentColor;  // Blue (accent)
 
             cellBounds.Inflate(-1, -1);
 
             // Range background
-            if (isInRange && !isSelected)
+            if (isInRange && !isSelected && !isStartDate && !isEndDate)
             {
                 using (var brush = new SolidBrush(rangeColor))
                 {
@@ -152,8 +277,26 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 }
             }
 
-            // Selection (start or end)
-            if (isSelected)
+            // Paint start date with green
+            if (isStartDate)
+            {
+                using (var brush = new SolidBrush(startDateColor))
+                {
+                    g.FillEllipse(brush, cellBounds);
+                }
+                textColor = Color.White;
+            }
+            // Paint end date with blue
+            else if (isEndDate)
+            {
+                using (var brush = new SolidBrush(endDateColor))
+                {
+                    g.FillEllipse(brush, cellBounds);
+                }
+                textColor = Color.White;
+            }
+            // Selection (start or end) - fallback for old code paths
+            else if (isSelected)
             {
                 using (var brush = new SolidBrush(accentColor))
                 {
@@ -178,7 +321,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
 
             // Today indicator
-            if (isToday && !isSelected)
+            if (isToday && !isSelected && !isStartDate && !isEndDate)
             {
                 using (var pen = new Pen(todayColor, 2))
                 {
@@ -305,7 +448,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             {
                 var day = daysInPrevMonth - dayOffset + i + 1;
                 var date = new DateTime(prevMonth.Year, prevMonth.Month, day);
-                var cellRect = layout.DayCellRects[row, col];
+                var cellRect = layout.DayCellRects[GetCellIndex(row, col)];
                 bool isInRange = IsInRange(date);
                 PaintDayCell(g, cellRect, date, false, false, true, false, false, isInRange);
                 col++;
@@ -315,17 +458,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             for (int day = 1; day <= daysInMonth; day++)
             {
                 var date = new DateTime(displayMonth.Year, displayMonth.Month, day);
-                var cellRect = layout.DayCellRects[row, col];
+                var cellRect = layout.DayCellRects[GetCellIndex(row, col)];
 
-                bool isStartOrEnd = (_owner.RangeStartDate.HasValue && _owner.RangeStartDate.Value.Date == date.Date) ||
-                                   (_owner.RangeEndDate.HasValue && _owner.RangeEndDate.Value.Date == date.Date);
+                bool isStartDate = _owner.RangeStartDate.HasValue && _owner.RangeStartDate.Value.Date == date.Date;
+                bool isEndDate = _owner.RangeEndDate.HasValue && _owner.RangeEndDate.Value.Date == date.Date;
+                bool isStartOrEnd = isStartDate || isEndDate;
                 bool isToday = date.Date == DateTime.Today;
                 bool isDisabled = date < properties.MinDate || date > properties.MaxDate;
                 bool isHovered = hoverState.IsDateHovered(date);
                 bool isPressed = hoverState.IsDatePressed(date);
                 bool isInRange = IsInRange(date);
 
-                PaintDayCell(g, cellRect, date, isStartOrEnd, isToday, isDisabled, isHovered, isPressed, isInRange);
+                PaintDayCell(g, cellRect, date, isStartOrEnd, isToday, isDisabled, isHovered, isPressed, isInRange, isStartDate, isEndDate);
 
                 col++;
                 if (col >= 7) { col = 0; row++; }
@@ -337,7 +481,73 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 for (int day = 1; col < 7; day++)
                 {
                     var date = new DateTime(nextMonth.Year, nextMonth.Month, day);
-                    var cellRect = layout.DayCellRects[row, col];
+                    var cellRect = layout.DayCellRects[GetCellIndex(row, col)];
+                    bool isInRange = IsInRange(date);
+                    PaintDayCell(g, cellRect, date, false, false, true, false, false, isInRange);
+                    col++;
+                }
+                col = 0;
+                row++;
+            }
+        }
+
+        private void PaintCalendarGridFromGrid(Graphics g, CalendarMonthGrid grid, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState)
+        {
+            if (grid.DayCellRects == null || grid.DayCellRects.Count == 0)
+                return;
+
+            var firstDayOfMonth = new DateTime(displayMonth.Year, displayMonth.Month, 1);
+            var daysInMonth = DateTime.DaysInMonth(displayMonth.Year, displayMonth.Month);
+
+            int firstDayOfWeek = (int)properties.FirstDayOfWeek;
+            int dayOffset = ((int)firstDayOfMonth.DayOfWeek - firstDayOfWeek + 7) % 7;
+
+            var prevMonth = displayMonth.AddMonths(-1);
+            var daysInPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
+
+            int row = 0, col = 0;
+
+            // Previous month days
+            for (int i = 0; i < dayOffset; i++)
+            {
+                var day = daysInPrevMonth - dayOffset + i + 1;
+                var date = new DateTime(prevMonth.Year, prevMonth.Month, day);
+                var cellRect = grid.DayCellRects[GetCellIndex(row, col)];
+                bool isInRange = IsInRange(date);
+                PaintDayCell(g, cellRect, date, false, false, true, false, false, isInRange);
+                col++;
+                if (col >= 7) { col = 0; row++; }
+            }
+
+            // Current month days
+            for (int day = 1; day <= daysInMonth; day++)
+            {
+                var date = new DateTime(displayMonth.Year, displayMonth.Month, day);
+                var cellRect = grid.DayCellRects[GetCellIndex(row, col)];
+
+                bool isStartDate = _owner.RangeStartDate.HasValue && _owner.RangeStartDate.Value.Date == date.Date;
+                bool isEndDate = _owner.RangeEndDate.HasValue && _owner.RangeEndDate.Value.Date == date.Date;
+                bool isStartOrEnd = isStartDate || isEndDate;
+                bool isToday = date.Date == DateTime.Today;
+                bool isDisabled = date < properties.MinDate || date > properties.MaxDate;
+                bool isHovered = hoverState.IsDateHovered(date);
+                bool isPressed = hoverState.IsDatePressed(date);
+                bool isInRange = IsInRange(date);
+
+                PaintDayCell(g, cellRect, date, isStartOrEnd, isToday, isDisabled, isHovered, isPressed, isInRange, isStartDate, isEndDate);
+
+                col++;
+                if (col >= 7) { col = 0; row++; }
+            }
+
+            // Next month days
+            var nextMonth = displayMonth.AddMonths(1);
+            while (row < 6)
+            {
+                for (int day = 1; col < 7; day++)
+                {
+                    var date = new DateTime(nextMonth.Year, nextMonth.Month, day);
+                    var cellRect = grid.DayCellRects[GetCellIndex(row, col)];
                     bool isInRange = IsInRange(date);
                     PaintDayCell(g, cellRect, date, false, false, true, false, false, isInRange);
                     col++;
@@ -353,17 +563,24 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             return date >= _owner.RangeStartDate.Value && date <= _owner.RangeEndDate.Value;
         }
 
-        private DateTimePickerLayout CalculateSingleCalendarLayout(Rectangle bounds, DateTimePickerProperties properties)
+        private DateTimePickerLayout CalculateSingleCalendarLayout(Rectangle bounds, DateTimePickerProperties properties, bool showNavigation)
         {
             var layout = new DateTimePickerLayout();
             int padding = 8;
             int currentY = bounds.Y;
 
-            layout.HeaderRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2 - 60, 32);
+            // Year combo box in center of header
+            int comboWidth = 100;
+            int comboHeight = 28;
+            int comboX = bounds.X + (bounds.Width - comboWidth) / 2;
+            layout.YearComboBoxRect = new Rectangle(comboX, currentY + 2, comboWidth, comboHeight);
 
             int navButtonSize = 28;
-            layout.PreviousButtonRect = new Rectangle(bounds.X + 2, currentY + 2, navButtonSize, navButtonSize);
-            layout.NextButtonRect = new Rectangle(bounds.Right - navButtonSize - 2, currentY + 2, navButtonSize, navButtonSize);
+            if (showNavigation)
+            {
+                layout.PreviousButtonRect = new Rectangle(bounds.X + 2, currentY + 2, navButtonSize, navButtonSize);
+                layout.NextButtonRect = new Rectangle(bounds.Right - navButtonSize - 2, currentY + 2, navButtonSize, navButtonSize);
+            }
 
             currentY += 38;
 
@@ -376,18 +593,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             layout.CellWidth = gridWidth / 7;
             layout.CellHeight = gridHeight / 6;
-            layout.DayCellRects = new Rectangle[6, 7];
+            layout.DayCellRects = new List<Rectangle>();
 
             for (int row = 0; row < 6; row++)
             {
                 for (int col = 0; col < 7; col++)
                 {
-                    layout.DayCellRects[row, col] = new Rectangle(
+                    layout.DayCellRects.Add(new Rectangle(
                         layout.CalendarGridRect.X + col * layout.CellWidth,
                         layout.CalendarGridRect.Y + row * layout.CellHeight,
                         layout.CellWidth,
                         layout.CellHeight
-                    );
+                    ));
                 }
             }
 
@@ -401,18 +618,140 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         public void PaintQuickSelectionButtons(Graphics g, Rectangle buttonAreaBounds, DateTimePickerProperties properties, DateTimePickerHoverState hoverState) { }
         public void PaintQuickButton(Graphics g, Rectangle buttonBounds, string text, bool isHovered, bool isPressed) { }
         public void PaintActionButtons(Graphics g, Rectangle actionAreaBounds, bool showApply, bool showCancel, DateTimePickerHoverState hoverState) { }
-        public void PaintActionButton(Graphics g, Rectangle buttonBounds, string text, bool isPrimary, bool isHovered, bool isPressed) { }
+        
+        public void PaintActionButton(Graphics g, Rectangle buttonBounds, string text, bool isPrimary, bool isHovered, bool isPressed)
+        {
+            if (buttonBounds.IsEmpty || buttonBounds.Width <= 0 || buttonBounds.Height <= 0)
+                return;
+
+            var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
+            var textColor = isPrimary ? Color.White : (_theme?.ForeColor ?? Color.Black);
+            var borderColor = _theme?.BorderColor ?? Color.FromArgb(200, 200, 200);
+            var bgColor = isPrimary ? accentColor : (_theme?.BackgroundColor ?? Color.White);
+            var hoverColor = isPrimary ? ControlPaint.Light(accentColor, 0.1f) : Color.FromArgb(240, 240, 240);
+            var pressedColor = isPrimary ? ControlPaint.Dark(accentColor, 0.1f) : Color.FromArgb(230, 230, 230);
+            var font = new Font(_theme?.FontName ?? "Segoe UI", 9f);
+
+            // Background
+            Color currentBgColor = bgColor;
+            if (isPressed)
+                currentBgColor = pressedColor;
+            else if (isHovered)
+                currentBgColor = hoverColor;
+
+            using (var brush = new SolidBrush(currentBgColor))
+            {
+                g.FillRoundedRectangle(brush, buttonBounds, 4);
+            }
+
+            // Border
+            using (var pen = new Pen(isPrimary && !isHovered && !isPressed ? currentBgColor : borderColor, 1))
+            {
+                DrawRoundedRectangle(g, pen, buttonBounds, 4);
+            }
+
+            // Text
+            using (var brush = new SolidBrush(textColor))
+            {
+                var format = new StringFormat
+                {
+                    Alignment = StringAlignment.Center,
+                    LineAlignment = StringAlignment.Center
+                };
+                g.DrawString(text, font, brush, buttonBounds, format);
+            }
+        }
         public void PaintWeekNumbers(Graphics g, Rectangle weekColumnBounds, DateTime displayMonth, DatePickerFirstDayOfWeek firstDayOfWeek, DateTimePickerHoverState hoverState) { }
         public void PaintWeekNumber(Graphics g, Rectangle weekBounds, int weekNumber, bool isHovered) { }
 
         public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
-            return new DateTimePickerLayout();
+            var layout = new DateTimePickerLayout();
+            
+            int padding = 16;
+            int gap = 12;
+            int calendarWidth = (bounds.Width - padding * 2 - gap) / 2;
+            
+            // Create MonthGrids for dual calendar display
+            layout.MonthGrids = new List<CalendarMonthGrid>();
+            
+            // Left calendar (Month 0)
+            var leftCalendarBounds = new Rectangle(bounds.X + padding, bounds.Y + padding, calendarWidth, bounds.Height - padding * 2 - 90);
+            var leftGrid = CreateCalendarGrid(leftCalendarBounds, properties, true);
+            layout.MonthGrids.Add(leftGrid);
+            
+            // Right calendar (Month 1)
+            var rightCalendarBounds = new Rectangle(bounds.X + padding + calendarWidth + gap, bounds.Y + padding, calendarWidth, bounds.Height - padding * 2 - 90);
+            var rightGrid = CreateCalendarGrid(rightCalendarBounds, properties, false);
+            layout.MonthGrids.Add(rightGrid);
+            
+            // Reset button at bottom (centered)
+            int resetButtonWidth = 100;
+            int resetButtonHeight = 32;
+            layout.ResetButtonRect = new Rectangle(
+                bounds.X + (bounds.Width - resetButtonWidth) / 2,  // Centered horizontally
+                bounds.Bottom - 50,                                 // Near bottom
+                resetButtonWidth,
+                resetButtonHeight
+            );
+            
+            // Register all hit areas with BaseControl's hit test system
+            _owner.HitTestHelper?.RegisterHitAreas(layout, properties, _owner.DisplayMonth);
+            
+            return layout;
         }
 
-        public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
+        private CalendarMonthGrid CreateCalendarGrid(Rectangle bounds, DateTimePickerProperties properties, bool showNavigation)
         {
-            return new DateTimePickerHitTestResult();
+            var grid = new CalendarMonthGrid();
+            
+            int padding = 4;
+            int currentY = bounds.Y;
+            
+            // Year combo box in center of header
+            int comboWidth = 100;
+            int comboHeight = 28;
+            int comboX = bounds.X + (bounds.Width - comboWidth) / 2;
+            grid.YearComboBoxRect = new Rectangle(comboX, currentY + 2, comboWidth, comboHeight);
+            
+            // Navigation buttons (only on left calendar)
+            if (showNavigation)
+            {
+                int navButtonSize = 28;
+                grid.PreviousButtonRect = new Rectangle(bounds.X + 2, currentY + 2, navButtonSize, navButtonSize);
+                grid.NextButtonRect = new Rectangle(bounds.Right - navButtonSize - 2, currentY + 2, navButtonSize, navButtonSize);
+            }
+            
+            currentY += 38;
+            
+            // Day names
+            grid.DayNamesRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 22);
+            currentY += 26;
+            
+            // Calendar grid
+            int gridWidth = bounds.Width - padding * 2;
+            int gridHeight = bounds.Height - (currentY - bounds.Y) - padding;
+            grid.GridRect = new Rectangle(bounds.X + padding, currentY, gridWidth, gridHeight);
+            
+            // Calculate cells
+            int cellWidth = gridWidth / 7;
+            int cellHeight = gridHeight / 6;
+            grid.DayCellRects = new List<Rectangle>();
+            
+            for (int row = 0; row < 6; row++)
+            {
+                for (int col = 0; col < 7; col++)
+                {
+                    grid.DayCellRects.Add(new Rectangle(
+                        grid.GridRect.X + col * cellWidth,
+                        grid.GridRect.Y + row * cellHeight,
+                        cellWidth,
+                        cellHeight
+                    ));
+                }
+            }
+            
+            return grid;
         }
 
         public Size GetPreferredSize(DateTimePickerProperties properties)
@@ -427,6 +766,40 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             // Minimum for two readable calendars side-by-side
             // Each calendar: ~240px, Gap: 16px, Padding: 32px = 528px
             return new Size(560, 280);
+        }
+    
+
+        private          void DrawRoundedRectangle(Graphics g, Pen pen, Rectangle bounds, int radius)
+        {
+            using (var path = GetRoundedRectanglePath(bounds, radius))
+            {
+                g.DrawPath(pen, path);
+            }
+        }
+
+        private  GraphicsPath GetRoundedRectanglePath(Rectangle bounds, int radius)
+        {
+            int diameter = radius * 2;
+            var path = new GraphicsPath();
+            var arc = new Rectangle(bounds.Location, new Size(diameter, diameter));
+
+            // Top left
+            path.AddArc(arc, 180, 90);
+
+            // Top right
+            arc.X = bounds.Right - diameter;
+            path.AddArc(arc, 270, 90);
+
+            // Bottom right
+            arc.Y = bounds.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+
+            // Bottom left
+            arc.X = bounds.Left;
+            path.AddArc(arc, 90, 90);
+
+            path.CloseFigure();
+            return path;
         }
     }
 }

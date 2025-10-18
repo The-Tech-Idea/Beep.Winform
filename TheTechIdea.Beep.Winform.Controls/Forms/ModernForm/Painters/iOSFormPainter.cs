@@ -149,8 +149,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+             using var path = owner.BorderShape;
             // iOS: Thin or borderless with ultra smooth edges
             using var pen = new Pen(Color.FromArgb(40, metrics.BorderColor), 1);
             g.SmoothingMode = SmoothingMode.AntiAlias;

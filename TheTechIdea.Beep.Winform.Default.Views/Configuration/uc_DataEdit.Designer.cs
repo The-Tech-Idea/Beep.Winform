@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -60,7 +60,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.IsNew = false;
             beepRowConfig1.IsReadOnly = false;
             beepRowConfig1.IsSelected = false;
-            beepRowConfig1.IsVisible = false;
+            beepRowConfig1.IsVisible = true;
             beepRowConfig1.OldDisplayIndex = 0;
             beepRowConfig1.RowCheckRect = new Rectangle(0, 0, 0, 0);
             beepRowConfig1.RowData = null;
@@ -252,7 +252,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DisabledBackColor = Color.White;
             beepSimpleGrid1.DisabledBorderColor = Color.Empty;
             beepSimpleGrid1.DisabledForeColor = Color.Black;
-            beepSimpleGrid1.DisableDpiAndScaling = true;
+            //beepSimpleGrid1.DisableDpiAndScaling = true;
             beepSimpleGrid1.Dock = DockStyle.Fill;
             beepSimpleGrid1.DrawInBlackAndWhite = false;
             beepSimpleGrid1.DrawingRect = new Rectangle(0, 0, 918, 707);
@@ -312,7 +312,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.IsSelected = false;
             beepSimpleGrid1.IsSelectedOptionOn = false;
             beepSimpleGrid1.IsShadowAffectedByTheme = true;
-            beepSimpleGrid1.IsVisible = false;
+            beepSimpleGrid1.IsVisible = true;
             beepSimpleGrid1.Items = null;
             beepSimpleGrid1.LabelText = "";
             beepSimpleGrid1.LeftoffsetForDrawingRect = 0;
@@ -384,17 +384,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.TitleText = "Simple BeepGrid";
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
             beepSimpleGrid1.ToolTipText = "";
-            beepSimpleGrid1.TopoffsetForDrawingRect = 0;
-            beepSimpleGrid1.UIAnimation = ReactUIAnimation.None;
-            beepSimpleGrid1.UIColor = ReactUIColor.Primary;
-            beepSimpleGrid1.UICustomElevation = 0;
-            beepSimpleGrid1.UIDensity = ReactUIDensity.Standard;
-            beepSimpleGrid1.UIDisabled = false;
-            beepSimpleGrid1.UIElevation = ReactUIElevation.None;
-            beepSimpleGrid1.UIFullWidth = false;
-            beepSimpleGrid1.UIShape = ReactUIShape.Rounded;
-            beepSimpleGrid1.UISize = ReactUISize.Medium;
-            beepSimpleGrid1.UIVariant = ReactUIVariant.Default;
+          
             beepSimpleGrid1.UpdateLog = null;
             beepSimpleGrid1.UseExternalBufferedGraphics = false;
             beepSimpleGrid1.UseGlassmorphism = false;

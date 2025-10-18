@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Template
+namespace TheTechIdea.Beep.Winform.Default.Views.Template
 {
     partial class TemplateForm
     {

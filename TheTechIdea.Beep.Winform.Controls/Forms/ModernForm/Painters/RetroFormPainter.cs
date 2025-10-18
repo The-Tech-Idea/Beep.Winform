@@ -81,11 +81,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            
+
             // Retro: Multi-line 3D border (inset/outset style)
             g.SmoothingMode = SmoothingMode.None;
-            var rect = owner.ClientRectangle;
-            
+
+            var rect = owner.BorderShape.GetBounds();
+
             var lightColor = ControlPaint.Light(metrics.BorderColor);
             var darkColor = ControlPaint.Dark(metrics.BorderColor);
             
@@ -105,7 +106,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             }
             
             // Inner border line (classic Win95 double border)
-            var innerRect = new Rectangle(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Height - 6);
+            var innerRect = new RectangleF(rect.X + 3, rect.Y + 3, rect.Width - 6, rect.Height - 6);
             using (var borderPen = new Pen(metrics.BorderColor, 1))
             {
                 g.DrawRectangle(borderPen, innerRect);

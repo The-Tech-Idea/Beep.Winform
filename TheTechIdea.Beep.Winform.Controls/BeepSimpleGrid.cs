@@ -12,6 +12,7 @@ using TheTechIdea.Beep.DataBase;
 using TheTechIdea.Beep.Editor;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Numerics;
@@ -28,7 +29,7 @@ namespace TheTechIdea.Beep.Winform.Controls
     [Category("Data")]
     [Description("A grid control that displays data in a simple table format with scrollbars.")]
     [DisplayName("Beep Simple Grid")]
-    public class BeepSimpleGrid : BeepControl
+    public class BeepSimpleGrid : BaseControl
     {
         #region Properties
         #region Fields
@@ -876,20 +877,11 @@ namespace TheTechIdea.Beep.Winform.Controls
                      ControlStyles.UserPaint |
                      ControlStyles.DoubleBuffer |
                      ControlStyles.ResizeRedraw |
-                     ControlStyles.OptimizedDoubleBuffer, true);
+                     ControlStyles.OptimizedDoubleBuffer|ControlStyles.SupportsTransparentBackColor, true);
             // Add high-DPI specific optimizations
-            if (DpiScaleFactor > 1.5f)
-            {
-                SetStyle(ControlStyles.AllPaintingInWmPaint |
-                         ControlStyles.OptimizedDoubleBuffer, true);
-
-                // Reduce scroll timer frequency for high DPI
-                _scrollTimer = new Timer { Interval = 32 }; // Slower for high DPI
-            }
-            else
-            {
+       
                 _scrollTimer = new Timer { Interval = 16 }; // Normal
-            }
+           
             UpdateStyles();
 
             // Check for design mode to prevent unnecessary operations
@@ -3216,10 +3208,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Add padding for DPI scaling
                 var invalidRect = cell.Rect;
-                if (DpiScaleFactor > 1.0f)
-                {
-                    invalidRect.Inflate(1, 1);
-                }
+               
                 Invalidate(invalidRect);
                 Update(); // Force immediate update for better responsiveness
             }
@@ -3230,10 +3219,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 var row = Rows[rowIndex];
                 Rectangle rowRect = new Rectangle(gridRect.Left, row.UpperY, gridRect.Width, row.Height);
-                if (DpiScaleFactor > 1.0f)
-                {
-                    rowRect.Inflate(0, 1);
-                }
+               
                 Invalidate(rowRect);
                 Update(); // Force immediate update
             }
@@ -4308,13 +4294,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             base.DrawContent(g);
             // Set rendering hints based on DPI
-            if (DpiScaleFactor > 1.5f)
-            {
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.NearestNeighbor;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighSpeed;
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
-            }
+           
             // Cache rectangles to avoid recalculation
             if (_layoutDirty)
             {
@@ -4405,18 +4385,12 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 DrawRowsBorders(g, gridRect);
             }
-            // Update DPI cache if needed
-            UpdateDpiCache();
+          
 
             // Rest of existing DrawContent code...
             PositionScrollBars();
             // Reset quality at the end
-            if (DpiScaleFactor > 1.5f)
-            {
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
-                g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.Default;
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
-            }
+          
 
         }
         private void DrawFilterPanel(Graphics g, Rectangle filterPanelRect)
@@ -4989,11 +4963,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             using (var brush = new SolidBrush(cellBackColor))
             {
                 // Use faster fill for high DPI
-                if (DpiScaleFactor > 1.5f)
-                {
-                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighSpeed;
-                    g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighSpeed;
-                }
+                
 
                 g.FillRectangle(brush, cellRect);
             }
@@ -5057,11 +5027,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     if (checkCustomDraw.Cancel)
                     {
-                        if (DpiScaleFactor > 1.5f)
-                        {
-                            g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
-                            g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Default;
-                        }
+                      
                         return;
                     }
 
@@ -5157,12 +5123,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
 
-            // Reset quality settings
-            if (DpiScaleFactor > 1.5f)
-            {
-                g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.Default;
-                g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.Default;
-            }
+          
         }
         private void DrawRowsBorders(Graphics g, Rectangle bounds)
         {
@@ -5774,7 +5735,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         private BeepCellConfig GetCellAtLocation(Point location)
         {
             // Use cached DPI values
-            UpdateDpiCache();
+            
 
             if (!gridRect.Contains(location))
                 return null;
@@ -5785,7 +5746,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             // Use binary search for row finding in high DPI scenarios
             int rowIndex = -1;
-            if (Rows.Count > 50 && DpiScaleFactor > 1.5f)
+            if (Rows.Count > 50 )
             {
                 rowIndex = BinarySearchRow(yRelative);
             }
@@ -6645,7 +6606,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             if (_resizeTimer == null)
             {
                 _resizeTimer = new System.Windows.Forms.Timer();
-                _resizeTimer.Interval = DpiScaleFactor > 1.5f ? 350 : 250;
+                _resizeTimer.Interval = 250;
                 _resizeTimer.Tick += ResizeTimer_Tick;
                 _resizeTimer.Stop();
                 _resizeTimer.Start();
@@ -6656,21 +6617,12 @@ namespace TheTechIdea.Beep.Winform.Controls
 
          
 
-            // Suspend layout during resize for high DPI
-            if (DpiScaleFactor > 1.5f)
-            {
-                SuspendLayout();
-            }
+          
 
             // Position scrollbars without full recalculation
             PositionScrollBars();
 
          
-
-            if (DpiScaleFactor > 1.5f)
-            {
-                ResumeLayout(false);
-            }
             _resizeTimer.Stop();
             // Now call base
             base.OnResize(e);
@@ -9145,7 +9097,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // Cap the maximum width to prevent extremely wide columns
             return Math.Min(maxWidth, 300);
         }
-        public override void SuspendFormLayout()
+        public  void SuspendFormLayout()
         {
             
           base.SuspendFormLayout();
@@ -9164,7 +9116,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         }
-        public override void ResumeFormLayout()
+        public  void ResumeFormLayout()
         {
             
             base.ResumeFormLayout();
@@ -9859,35 +9811,10 @@ namespace TheTechIdea.Beep.Winform.Controls
         private bool _dpiCacheValid = false;
 
         // Add this method to update cached DPI values
-        private void UpdateDpiCache()
-        {
-            if (_dpiCacheValid && Math.Abs(_cachedDpiScale - DpiScaleFactor) < 0.01f)
-                return;
-
-            _cachedDpiScale = DpiScaleFactor;
-            _scaledRowHeight = ScaleValue(_rowHeight);
-            _scaledColumnHeaderHeight = ScaleValue(_defaultcolumnheaderheight);
-            _scaledDefaultColumnWidth = ScaleValue(_defaultcolumnheaderwidth);
-
-            // Cache scaled column widths
-            _scaledColumnWidths.Clear();
-            foreach (var col in Columns)
-            {
-                _scaledColumnWidths[col.Index] = ScaleValue(col.Width);
-            }
-
-            _dpiCacheValid = true;
-        }
+      
 
         // Override DPI change handler
-        protected override void OnDpiChangedAfterParent(EventArgs e)
-        {
-            base.OnDpiChangedAfterParent(e);
-            _dpiCacheValid = false;
-            UpdateDpiCache();
-            _layoutDirty = true;
-            Invalidate();
-        }
+      
         #endregion "High DPI Support"
         #region Column Color Management
 

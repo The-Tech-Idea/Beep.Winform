@@ -173,7 +173,30 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         {
             PaintStyleBackground(g, path, style, UseThemeColors);
         }
-        
+        public static int GetRadius(BeepControlStyle style)
+        {
+            return StyleBorders.GetRadius(style);
+        }
+        public static float GetBorderThickness(BeepControlStyle style)
+        {
+            return StyleBorders.GetBorderWidth(style);
+        }
+        public static int GetPadding(BeepControlStyle style)
+        {
+            return StyleSpacing.GetPadding(style);
+        }
+        public static Color GetBackgroundColor(BeepControlStyle style)
+        {
+            return GetColor(style, StyleColors.GetBackground, "Background");
+        }
+        public static Color GetForegroundColor(BeepControlStyle style)
+        {
+            return GetColor(style, StyleColors.GetForeground, "Foreground");
+        }
+        public static Color GetBorderColor(BeepControlStyle style)
+        {
+            return GetColor(style, StyleColors.GetBorder, "Border");
+        }
         /// <summary>
         /// Paint background for a specific style with GraphicsPath
         /// </summary>

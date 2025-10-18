@@ -366,7 +366,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         {
             int alpha = pressed ? 48 : 24; // stronger when pressed
             using var brush = new SolidBrush(Color.FromArgb(alpha, baseColor));
-            using var path = GetRoundedRectPath(rect, Math.Min(rect.Width, rect.Height) / 3);
+            using var path = GraphicsExtensions.GetRoundedRectPath(rect, Math.Min(rect.Width, rect.Height) / 3);
             g.FillPath(brush, path);
         }
 
@@ -491,7 +491,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 if (isSelected)
                 {
                     Rectangle selectionRect = Rectangle.Inflate(cellRect, -6, -6);
-                    using (GraphicsPath path = GetRoundedRectPath(selectionRect, 8))
+                    using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(selectionRect, 8))
                     using (SolidBrush brush = new SolidBrush(_currentTheme?.CalendarSelectedDateBackColor ?? Color.FromArgb(66, 133, 244)))
                     {
                         g.FillPath(brush, path);
@@ -500,7 +500,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 else if (isToday)
                 {
                     Rectangle todayRect = Rectangle.Inflate(cellRect, -6, -6);
-                    using (GraphicsPath path = GetRoundedRectPath(todayRect, 8))
+                    using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(todayRect, 8))
                     using (Pen pen = new Pen(_currentTheme?.CalendarTodayForeColor ?? Color.FromArgb(66, 133, 244), 1))
                     {
                         g.DrawPath(pen, path);
@@ -552,7 +552,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Blue rounded background
                 using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(66, 133, 244)))
-                using (GraphicsPath path = GetRoundedRectPath(_selectedDateDisplayRect, 8))
+                using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(_selectedDateDisplayRect, 8))
                 {
                     g.FillPath(bgBrush, path);
                 }

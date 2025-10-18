@@ -880,7 +880,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                 case ImageClipShape.RoundedRect:
                     // Create a rounded rectangle path
-                    path = GetRoundedRectPath(bounds, (int)_cornerRadius);
+                    path = GraphicsExtensions.GetRoundedRectPath(bounds, (int)_cornerRadius);
                     break;
 
                 case ImageClipShape.Ellipse:

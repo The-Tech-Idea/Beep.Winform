@@ -426,13 +426,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             Color backColor = _state == CheckBoxState.Checked ? _currentTheme.CheckBoxCheckedBackColor :
                              (_state == CheckBoxState.Indeterminate ? _currentTheme.CheckBoxBackColor : _currentTheme.CheckBoxBackColor);
             using (Brush backBrush = new SolidBrush(backColor))
-            using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
+            using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(checkBoxRect, 4))
             {
                 graphics.FillPath(backBrush, path);
             }
 
             using (Pen borderPen = new Pen(_currentTheme.CheckBoxBorderColor, 2))
-            using (GraphicsPath path = GetRoundedRectPath(checkBoxRect, 4))
+            using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(checkBoxRect, 4))
             {
                 graphics.DrawPath(borderPen, path);
             }

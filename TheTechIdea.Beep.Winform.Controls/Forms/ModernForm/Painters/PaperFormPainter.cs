@@ -358,8 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+             using var path = owner.BorderShape; 
             // Material Paper: subtle elevated border (1px with alpha)
             using var pen = new Pen(Color.FromArgb(40, metrics.BorderColor), 1);
             

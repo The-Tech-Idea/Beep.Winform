@@ -192,7 +192,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            using var path = owner.BorderShape;
             using var pen = new Pen(Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 60), metrics.BorderColor), 1);
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
@@ -237,7 +237,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            using var path = GraphicsExtensions.CreateRoundedRectanglePath(owner.ClientRectangle, radius);
             g.Clip = new Region(path);
             g.Clip = originalClip;
 
@@ -260,34 +260,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 rect.Height + shadow.Blur * 2);
             if (shadowRect.Width <= 0 || shadowRect.Height <= 0) return;
             using var brush = new SolidBrush(shadow.Color);
-            using var path = CreateRoundedRectanglePath(shadowRect, radius);
+            using var path = GraphicsExtensions.CreateRoundedRectanglePath(shadowRect, radius);
             g.FillPath(brush, path);
-        }
-
-        private GraphicsPath CreateRoundedRectanglePath(Rectangle rect, CornerRadius radius)
-        {
-            var path = new GraphicsPath();
-            if (rect.Width <= 0 || rect.Height <= 0)
-            {
-                path.AddRectangle(new Rectangle(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height)));
-                return path;
-            }
-            int maxRadius = Math.Min(rect.Width, rect.Height) / 2;
-            int tl = Math.Max(0, Math.Min(radius.TopLeft, maxRadius));
-            int tr = Math.Max(0, Math.Min(radius.TopRight, maxRadius));
-            int br = Math.Max(0, Math.Min(radius.BottomRight, maxRadius));
-            int bl = Math.Max(0, Math.Min(radius.BottomLeft, maxRadius));
-            if (tl == 0 && tr == 0 && br == 0 && bl == 0)
-            {
-                path.AddRectangle(rect);
-                return path;
-            }
-            if (tl > 0) path.AddArc(rect.X, rect.Y, tl * 2, tl * 2, 180, 90); else path.AddLine(rect.X, rect.Y, rect.X, rect.Y);
-            if (tr > 0) path.AddArc(rect.Right - tr * 2, rect.Y, tr * 2, tr * 2, 270, 90); else path.AddLine(rect.Right, rect.Y, rect.Right, rect.Y);
-            if (br > 0) path.AddArc(rect.Right - br * 2, rect.Bottom - br * 2, br * 2, br * 2, 0, 90); else path.AddLine(rect.Right, rect.Bottom, rect.Right, rect.Bottom);
-            if (bl > 0) path.AddArc(rect.X, rect.Bottom - bl * 2, bl * 2, bl * 2, 90, 90); else path.AddLine(rect.X, rect.Bottom, rect.X, rect.Bottom);
-            path.CloseFigure();
-            return path;
         }
 
         public void CalculateLayoutAndHitAreas(BeepiFormPro owner)
@@ -373,8 +347,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            var outer = new Rectangle(0, 0, owner.Width, owner.Height);
-            using var path = CreateRoundedRectanglePath(outer, radius);
+            var outer = owner.BorderShape.GetBounds();
+            using var path = GraphicsExtensions.CreateRoundedRectanglePath(outer, radius);
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, borderThickness))
             {
                 Alignment = PenAlignment.Inset

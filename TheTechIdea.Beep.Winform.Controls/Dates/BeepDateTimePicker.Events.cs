@@ -3,11 +3,13 @@ using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 using TheTechIdea.Beep.Winform.Controls.Dates.Painters;
+using TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
     /// <summary>
     /// BeepDateTimePicker - Events partial: Mouse, keyboard, and dropdown event handlers
+    /// Uses IDateTimePickerHitHandler for mode-specific interaction logic
     /// </summary>
     public partial class BeepDateTimePicker
     {
@@ -17,29 +19,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             base.OnMouseMove(e);
 
-            if (_currentPainter == null) return;
+            if (_hitHandler == null || _currentPainter == null) return;
 
-            // Perform hit test on the painted calendar
+            // Use hit handler for mode-specific hit testing
             var layout = _currentPainter.CalculateLayout(DrawingRect, GetCurrentProperties());
             if (layout != null)
             {
-                var hitResult = _currentPainter.HitTest(e.Location, layout, _displayMonth);
-                if (hitResult != null)
-                {
-                    _hoverState.HoverArea = hitResult.HitArea;
-                    _hoverState.HoveredDate = hitResult.Date;
-                    _hoverState.HoveredTime = hitResult.Time;
-                    _hoverState.HoverBounds = hitResult.HitBounds;
-                    Invalidate();
-                }
-                else
-                {
-                    if (_hoverState.HoverArea != DateTimePickerHitArea.None)
-                    {
-                        _hoverState.ClearHover();
-                        Invalidate();
-                    }
-                }
+                var hitResult = _hitHandler.HitTest(e.Location, layout, _displayMonth, GetCurrentProperties());
+                
+                // Update hover state through handler
+                _hitHandler.UpdateHoverState(hitResult, _hoverState);
+                Invalidate();
             }
         }
 
@@ -70,93 +60,29 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             base.OnMouseClick(e);
 
-            if (_currentPainter == null) return;
+            if (_hitHandler == null || _currentPainter == null) return;
 
-            // Perform hit test and handle click
+            // Use hit handler for mode-specific click handling
             var layout = _currentPainter.CalculateLayout(DrawingRect, GetCurrentProperties());
             if (layout != null)
             {
-                var hitResult = _currentPainter.HitTest(e.Location, layout, _displayMonth);
-                if (hitResult != null)
+                var hitResult = _hitHandler.HitTest(e.Location, layout, _displayMonth, GetCurrentProperties());
+                
+                // Let handler process the click
+                bool shouldClose = _hitHandler.HandleClick(hitResult, this);
+                
+                // Sync handler state back to control
+                _hitHandler.SyncToControl(this);
+                
+                // Refresh UI
+                Invalidate();
+                
+                // If this is in a dropdown and selection is complete, close it
+                if (shouldClose && this.Parent is ToolStripDropDown dropdown)
                 {
-                    HandleClick(hitResult);
+                    dropdown.Close();
                 }
             }
-        }
-
-        private void HandleClick(DateTimePickerHitTestResult hitResult)
-        {
-            switch (hitResult.HitArea)
-            {
-                case DateTimePickerHitArea.DayCell:
-                    if (hitResult.Date.HasValue && IsDateInRange(hitResult.Date.Value))
-                    {
-                        if (_mode == DatePickerMode.Multiple)
-                        {
-                            ToggleMultipleDate(hitResult.Date.Value);
-                            Invalidate();
-                        }
-                        else
-                        {
-                            SetDate(hitResult.Date.Value);
-                        }
-                    }
-                    break;
-
-                case DateTimePickerHitArea.PreviousButton:
-                    NavigateToPreviousMonth();
-                    Invalidate();
-                    break;
-
-                case DateTimePickerHitArea.NextButton:
-                    NavigateToNextMonth();
-                    Invalidate();
-                    break;
-
-                case DateTimePickerHitArea.TimeSlot:
-                    if (hitResult.Time.HasValue && IsTimeInRange(hitResult.Time.Value))
-                    {
-                        SetTime(hitResult.Time.Value);
-                    }
-                    break;
-
-                case DateTimePickerHitArea.QuickButton:
-                    HandleQuickButton(hitResult.QuickButtonText);
-                    break;
-
-                case DateTimePickerHitArea.ClearButton:
-                    if (_allowClear)
-                    {
-                        ClearSelection();
-                    }
-                    break;
-            }
-        }
-
-        private void HandleQuickButton(string buttonText)
-        {
-            if (string.IsNullOrEmpty(buttonText)) return;
-
-            switch (buttonText.ToLower())
-            {
-                case "today":
-                    SelectToday();
-                    break;
-                case "tomorrow":
-                    SelectTomorrow();
-                    break;
-                case "yesterday":
-                    SelectYesterday();
-                    break;
-                case "this week":
-                    SelectThisWeek();
-                    break;
-                case "this month":
-                    SelectThisMonth();
-                    break;
-            }
-
-            Invalidate();
         }
 
         #endregion

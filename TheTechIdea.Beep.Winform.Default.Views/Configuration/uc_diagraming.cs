@@ -60,9 +60,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             viewModel = new DriversConfigViewModel(beepService.DMEEditor, beepService.vis);
 
             // Wire grid events
-            beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;
+            //beepGridPro1.SaveCalled += beepGridPro1_SaveCalled;
+            CycleBeepDataTimePickerModebeepButton.Click += CycleBeepDataTimePickerModebeepButton_Click;
+          //  CalendarnamebeepLabel.Text =  beepDateTimePicker1.Mode.ToString();
         }
 
+        private void CycleBeepDataTimePickerModebeepButton_Click(object? sender, EventArgs e)
+        {
+           // beepDateTimePicker1.Mode = Winform.Controls.Dates.Models.DatePickerMode.Timeline;
+            // Cycle through DatePickerMode enum values
+            //            var modes = Enum.GetValues(typeof(Winform.Controls.Dates.Models.DatePickerMode));
+            //int currentIndex = Array.IndexOf(modes, beepDateTimePicker1.Mode);
+            //int nextIndex = (currentIndex + 1) % modes.Length;
+            //beepDateTimePicker1.Mode = (Winform.Controls.Dates.Models.DatePickerMode)modes.GetValue(nextIndex);
+            //CalendarnamebeepLabel.Text = beepDateTimePicker1.Mode.ToString();
+        }
 
         private void beepGridPro1_SaveCalled(object? sender, EventArgs e)
         {
@@ -73,25 +85,21 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
         {
             base.OnNavigatedTo(parameters);
             beepGridPro1.DataSource = viewModel.DBWork.Units;
-            BeepColumnConfig classhandlers = beepGridPro1.GetColumnByName("ClassHandler");
-            classhandlers.CellEditor = BeepColumnType.ComboBox;
-            int idx = 0;
-            foreach (var item in viewModel.DBAssemblyClasses)
-            {
-                SimpleItem item1 = new SimpleItem();
-                item1.DisplayField = item.className;
-                item1.Value = idx++;
-                item1.Text = item.className;
-                item1.Name = item.className;
-                classhandlers.Items.Add(item1);
-                beepComboBox1.ListItems.Add(item1);
-            }
+            //BeepColumnConfig classhandlers = beepGridPro1.GetColumnByName("ClassHandler");
+            //classhandlers.CellEditor = BeepColumnType.ComboBox;
+            //int idx = 0;
+            //foreach (var item in viewModel.DBAssemblyClasses)
+            //{
+            //    SimpleItem item1 = new SimpleItem();
+            //    item1.DisplayField = item.className;
+            //    item1.Value = idx++;
+            //    item1.Text = item.className;
+            //    item1.Name = item.className;
+            //    classhandlers.Items.Add(item1);
+            //}
 
         }
 
-        private void MainTemplatePanel_Click(object sender, EventArgs e)
-        {
-
-        }
+     
     }
 }

@@ -176,7 +176,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            using var path = owner.BorderShape;
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);

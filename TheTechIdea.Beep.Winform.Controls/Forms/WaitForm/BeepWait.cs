@@ -13,30 +13,30 @@ namespace TheTechIdea.Beep.Winform.Controls
     [ToolboxItem(false)]
     public partial class BeepWait : BeepiFormPro, IWaitForm
     {
-        public  Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
-        public BeepWait():base()
+        public Progress<PassedArgs> Progress { get; } = new Progress<PassedArgs>();
+        public BeepWait() : base()
         {
-           
+
             InitializeComponent();
-            
+
             Progress.ProgressChanged += (sender, args) =>
             {
-                    UpdateProgress(args.Progress, args.Messege);
+                UpdateProgress(args.Progress, args.Messege);
             };
-            
+
             _spinnerImage.IsChild = true;
             LogopictureBox.IsChild = true;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
-            
+
             StartSpinner();
-            Theme=BeepThemesManager.CurrentThemeName;
+            Theme = BeepThemesManager.CurrentThemeName;
             ApplyTheme();
-            
+
             // NOTE: messege control configuration moved to OnShown event for safety
-            
-           // _spinnerImage.ApplyThemeOnImage = true;
-          //  _spinnerImage.MenuStyle = MenuStyle;
+
+            // _spinnerImage.ApplyThemeOnImage = true;
+            //  _spinnerImage.MenuStyle = MenuStyle;
             _spinnerImage.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.loading.svg";
             LogopictureBox.ImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.simpleinfoapps.svg";
 
@@ -45,7 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            
+
             // Configure messege control after form is fully shown and initialized
             if (messege != null)
             {
@@ -55,7 +55,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     messege.AcceptsReturn = true;
                     messege.WordWrap = true;
                     messege.ScrollBars = ScrollBars.Vertical;
-                    
+
                     System.Diagnostics.Debug.WriteLine("Successfully configured messege control in OnShown");
                 }
                 catch (Exception ex)
@@ -74,14 +74,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
             }
         }
-       
+
         private void StartSpinner()
         {
             SafeInvoke(() =>
             {
-               
+
                 _spinnerImage.IsSpinning = true;
-              
+
             });
         }
 
@@ -187,11 +187,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public IErrorsInfo Config(PassedArgs Passedarguments)
         {
-  
+
             this.TopMost = true;
             this.ShowInTaskbar = false;
             this.StartPosition = FormStartPosition.CenterScreen;
-         
+
             SafeInvoke(() =>
             {
                 StartSpinner();
@@ -225,20 +225,21 @@ namespace TheTechIdea.Beep.Winform.Controls
                     return;
                 }
 
-                InvokeAction(messege, () => {
+                InvokeAction(messege, () =>
+                {
                     // Debug: Check current multiline setting
                     System.Diagnostics.Debug.WriteLine($"Multiline: {messege.Multiline}, AcceptsReturn: {messege.AcceptsReturn}");
                     System.Diagnostics.Debug.WriteLine($"Current text length: {messege.Text.Length}");
                     System.Diagnostics.Debug.WriteLine($"Adding text: '{text}'");
-                    
+
                     // Alternative approach: Direct text manipulation instead of AppendText
                     string currentText = messege.Text ?? "";
                     string newText = currentText + text + Environment.NewLine;
                     messege.Text = newText;
-                    
+
                     messege.SelectionStart = messege.Text.Length;
                     messege.ScrollToCaret();
-                    
+
                     System.Diagnostics.Debug.WriteLine($"Final text length: {messege.Text.Length}");
                     System.Diagnostics.Debug.WriteLine($"Text contains newlines: {messege.Text.Contains('\n')}");
                     System.Diagnostics.Debug.WriteLine($"Text preview: '{messege.Text.Substring(Math.Max(0, messege.Text.Length - 50))}'");
@@ -269,11 +270,11 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public override void ApplyTheme()
         {
-              base.ApplyTheme();
+            base.ApplyTheme();
             if (_currentTheme == null) return;
             if (_spinnerImage == null) return;
-         
-           // _spinnerImage.MenuStyle = MenuStyle;
+
+            // _spinnerImage.MenuStyle = MenuStyle;
             BackColor = _currentTheme.BackColor;
             ForeColor = _currentTheme.TextBoxForeColor;
             messege.Theme = Theme;
@@ -281,7 +282,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Theme = Theme;
             LogopictureBox.Theme = Theme;
             beepLabel1.Theme = Theme;
-          
+
 
         }
         public static void InvokeAction(Control control, MethodInvoker action)
@@ -294,6 +295,11 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 action();
             }
+        }
+
+        private void _spinnerImage_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

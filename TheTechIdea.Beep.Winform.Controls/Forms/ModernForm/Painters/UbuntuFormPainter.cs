@@ -258,8 +258,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+          using var path = owner.BorderShape; 
             // Thin border with subtle Ubuntu orange tint
             var borderColor = Color.FromArgb(Math.Max(0, metrics.BorderColor.A - 50), 
                 Math.Min(255, metrics.BorderColor.R + 20),

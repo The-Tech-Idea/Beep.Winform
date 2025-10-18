@@ -168,7 +168,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
-            g.DrawRectangle(pen, new Rectangle(0, 0, owner.ClientSize.Width - 1, owner.ClientSize.Height - 1));
+            using var path = owner.BorderShape;
+              
+            g.DrawPath(pen, path);
         }
 
         public ShadowEffect GetShadowEffect(BeepiFormPro owner)

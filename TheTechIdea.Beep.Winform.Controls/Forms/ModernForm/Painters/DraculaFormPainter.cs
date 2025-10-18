@@ -227,8 +227,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+             using var path = owner.BorderShape;
             g.SmoothingMode = SmoothingMode.AntiAlias;
             
             // Dracula purple glow effect (3 layers: blur 12, blur 6, solid)

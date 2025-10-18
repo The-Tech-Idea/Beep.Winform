@@ -172,7 +172,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 int weekNum = GetWeekNumber(weekDate);
                 var weekRect = new Rectangle(weekColumnBounds.X, currentY, weekColumnBounds.Width, cellHeight);
 
-                PaintWeekNumber(g, weekRect, weekNum, false);
+                // Check if this specific week number is hovered
+                bool isHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.WeekNumber) == true &&
+                                hoverState.HoveredWeekNumber == weekNum;
+
+                PaintWeekNumber(g, weekRect, weekNum, isHovered);
                 currentY += cellHeight;
             }
         }
@@ -222,10 +226,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 for (int c = 0; c < 7; c++)
                 {
                     adjustedCellRects[r, c] = new Rectangle(
-                        layout.DayCellRects[r, c].X + 44,
-                        layout.DayCellRects[r, c].Y,
-                        layout.DayCellRects[r, c].Width,
-                        layout.DayCellRects[r, c].Height
+                        layout.DayCellMatrix[r, c].X + 44,
+                        layout.DayCellMatrix[r, c].Y,
+                        layout.DayCellMatrix[r, c].Width,
+                        layout.DayCellMatrix[r, c].Height
                     );
                 }
             }
@@ -249,7 +253,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 bool isSelected = _owner.SelectedDate.HasValue && _owner.SelectedDate.Value.Date == date.Date;
                 bool isToday = date.Date == DateTime.Today;
                 bool isDisabled = date < properties.MinDate || date > properties.MaxDate;
-                bool isHovered = hoverState.IsDateHovered(date);
+                
+                // Check individual cell hover OR check if we're in the hovered week row
+                bool isWeekRowHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.WeekRow) == true &&
+                                       hoverState.HoveredDate.HasValue &&
+                                       IsSameWeek(date, hoverState.HoveredDate.Value);
+                bool isHovered = hoverState.IsDateHovered(date) || isWeekRowHovered;
                 bool isPressed = hoverState.IsDatePressed(date);
                 bool isInWeek = IsInSelectedWeek(date);
 
@@ -283,6 +292,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var weekEnd = _owner.RangeEndDate ?? weekStart.AddDays(6);
 
             return date >= weekStart && date <= weekEnd;
+        }
+
+        private bool IsSameWeek(DateTime date1, DateTime date2)
+        {
+            // Get start of week for both dates (assuming Sunday start)
+            DayOfWeek firstDayOfWeek = DayOfWeek.Sunday;
+            int daysToSubtract1 = ((int)date1.DayOfWeek - (int)firstDayOfWeek + 7) % 7;
+            int daysToSubtract2 = ((int)date2.DayOfWeek - (int)firstDayOfWeek + 7) % 7;
+            
+            DateTime weekStart1 = date1.AddDays(-daysToSubtract1).Date;
+            DateTime weekStart2 = date2.AddDays(-daysToSubtract2).Date;
+            
+            return weekStart1 == weekStart2;
         }
 
         private void PaintWeekDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInWeek)
@@ -347,7 +369,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             }
         }
 
-        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
+        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
         {
             PaintWeekDayCell(g, cellBounds, date, isSelected, isToday, isDisabled, isHovered, isPressed, isInRange);
         }
@@ -465,13 +487,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             layout.CellWidth = gridWidth / 7;
             layout.CellHeight = 252 / 6;
-            layout.DayCellRects = new Rectangle[6, 7];
+            layout.DayCellMatrix = new Rectangle[6, 7];
 
             for (int row = 0; row < 6; row++)
             {
                 for (int col = 0; col < 7; col++)
                 {
-                    layout.DayCellRects[row, col] = new Rectangle(
+                    layout.DayCellMatrix[row, col] = new Rectangle(
                         layout.CalendarGridRect.X + col * layout.CellWidth,
                         layout.CalendarGridRect.Y + row * layout.CellHeight,
                         layout.CellWidth,
@@ -479,6 +501,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     );
                 }
             }
+
+            // Register all hit areas with BaseControl's hit test system
+            _owner.HitTestHelper?.RegisterHitAreas(layout, properties, _owner.DisplayMonth);
 
             return layout;
         }

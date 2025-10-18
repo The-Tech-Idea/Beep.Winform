@@ -23,7 +23,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (BorderRadius > 0)
                 {
-                    using (var path = GetRoundedRectPath(focusRect, BorderRadius))
+                    using (var path = GraphicsExtensions.GetRoundedRectPath(focusRect, BorderRadius))
                     {
                         g.DrawPath(pen, path);
                     }
@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
 
             Rectangle textRect = rectangle;
-            if (PainterKind == Base.BaseControl.BaseControlPainterKind.Material)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 var padding = GetMaterialStylePadding();
                 var effects = GetMaterialEffectsSpace();

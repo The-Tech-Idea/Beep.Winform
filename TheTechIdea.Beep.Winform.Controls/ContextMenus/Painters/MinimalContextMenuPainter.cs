@@ -215,9 +215,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         {
             if (!owner.ShowSeparators) return;
             
-            int lineY = y + owner.ScaleDpi(4);
-            int x = owner.ScaleDpi(8);
-            int width = owner.Width - owner.ScaleDpi(16);
+            int lineY = y + 4;
+            int x = 8;
+            int width = owner.Width - 16;
             
             using (var pen = new Pen(metrics.SeparatorColor, 1))
             {

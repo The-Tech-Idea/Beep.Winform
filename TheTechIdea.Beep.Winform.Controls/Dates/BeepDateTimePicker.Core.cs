@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.Dates.Painters;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
+using TheTechIdea.Beep.Winform.Controls.Dates.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Dates.HitHandlers;
 
 namespace TheTechIdea.Beep.Winform.Controls.Dates
 {
@@ -19,11 +21,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         // Mode and painter
         private DatePickerMode _mode = DatePickerMode.Single;
         private IDateTimePickerPainter _currentPainter;
+        
+        // Hit test helper and handler for BaseControl integration
+        private BeepDateTimePickerHitTestHelper _hitHelper;
+        private IDateTimePickerHitHandler _hitHandler;
+        
+        // Internal property to expose HitTestHelper to painters
+        internal BeepDateTimePickerHitTestHelper HitTestHelper => _hitHelper;
 
         // Date/Time values
         private DateTime? _selectedDate;
-        private DateTime? _rangeStartDate;
-        private DateTime? _rangeEndDate;
+    private DateTime? _rangeStartDate;
+    private DateTime? _rangeEndDate;
+    private TimeSpan? _rangeStartTime;
+    private TimeSpan? _rangeEndTime;
         private TimeSpan? _selectedTime;
         private DateTime _displayMonth = DateTime.Today;
         private List<DateTime> _selectedDates = new List<DateTime>();
@@ -96,15 +107,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             // Prevent WinForms default black border from showing in addition to our painter border
             BorderStyle = System.Windows.Forms.BorderStyle.None;
             
-            // Control configuration
+            // Control configuration - CRITICAL: Make it focusable and handle clicks properly
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | 
                      ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw | 
-                     ControlStyles.Selectable, true);
+                     ControlStyles.Selectable | ControlStyles.StandardClick | ControlStyles.StandardDoubleClick, true);
             UpdateStyles();
             DoubleBuffered = true;
+            TabStop = true; // Allow tab navigation
 
             // Initialize font
             _textFont = new Font("Segoe UI", 9.75f);
+
+            // Initialize hit test helper for BaseControl integration
+            _hitHelper = new BeepDateTimePickerHitTestHelper(this);
 
             // Initialize painter - this will set default size
             InitializePainter();
@@ -145,6 +160,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             // Create painter based on current mode
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
             
+            // Initialize hit handler for this mode
+            InitializeHitHandler();
+            
             // Set size based on painter requirements
             if (_currentPainter != null)
             {
@@ -157,6 +175,76 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             }
             
             UpdateLayout();
+        }
+
+        /// <summary>
+        /// Initialize the appropriate hit handler based on current mode
+        /// </summary>
+        private void InitializeHitHandler()
+        {
+            switch (_mode)
+            {
+                case DatePickerMode.Single:
+                    _hitHandler = new HitHandlers.SingleDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.SingleWithTime:
+                    _hitHandler = new HitHandlers.SingleWithTimeDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Range:
+                    _hitHandler = new HitHandlers.RangeDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.RangeWithTime:
+                    _hitHandler = new HitHandlers.RangeWithTimeDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Multiple:
+                    _hitHandler = new HitHandlers.MultipleDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Appointment:
+                    _hitHandler = new HitHandlers.AppointmentDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Timeline:
+                    _hitHandler = new HitHandlers.TimelineDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Quarterly:
+                    _hitHandler = new HitHandlers.QuarterlyDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Compact:
+                    _hitHandler = new HitHandlers.CompactDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.ModernCard:
+                    _hitHandler = new HitHandlers.ModernCardDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.DualCalendar:
+                    _hitHandler = new HitHandlers.DualCalendarDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.WeekView:
+                    _hitHandler = new HitHandlers.WeekViewDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.MonthView:
+                    _hitHandler = new HitHandlers.MonthViewDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.YearView:
+                    _hitHandler = new HitHandlers.YearViewDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.SidebarEvent:
+                    _hitHandler = new HitHandlers.SidebarEventDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.FlexibleRange:
+                    _hitHandler = new HitHandlers.FlexibleRangeDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.FilteredRange:
+                    _hitHandler = new HitHandlers.FilteredRangeDateTimePickerHitHandler();
+                    break;
+                case DatePickerMode.Header:
+                    _hitHandler = new HitHandlers.HeaderDateTimePickerHitHandler();
+                    break;
+                default:
+                    _hitHandler = new HitHandlers.SingleDateTimePickerHitHandler();
+                    break;
+            }
+            
+            // Sync initial state from control to handler
+            _hitHandler?.SyncFromControl(this);
         }
 
         /// <summary>
@@ -176,6 +264,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
             // Create painter based on mode - theme provides visual styling
             _currentPainter = DateTimePickerPainterFactory.CreatePainter(_mode, this, _currentTheme);
+            
+            // Re-initialize hit handler for new mode
+            InitializeHitHandler();
             
             // Update size based on painter requirements
             if (_currentPainter != null)
@@ -212,7 +303,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
             _layout = _currentPainter.CalculateLayout(bounds, GetCurrentProperties());
         }
 
-        private DateTimePickerProperties GetCurrentProperties()
+        public DateTimePickerProperties GetCurrentProperties()
         {
             return new DateTimePickerProperties
             {
@@ -222,6 +313,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 AllowClear = _allowClear,
                 FirstDayOfWeek = _firstDayOfWeek,
                 TimeInterval = TimeSpan.FromMinutes(_timeIntervalMinutes),
+                TimeIntervalMinutes = _timeIntervalMinutes,
+                TimeStartHour = TimeStartHour,
+                MinTime = _minTime,
+                MaxTime = _maxTime,
                 MinDate = _minDate,
                 MaxDate = _maxDate,
                 ShowTodayButton = true,

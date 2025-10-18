@@ -2,7 +2,6 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
-using TheTechIdea.Beep.Winform.Controls; // BeepFormStyle, BeepFormStyleMetricsDefaults
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 {

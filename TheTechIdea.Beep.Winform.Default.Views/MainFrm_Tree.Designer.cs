@@ -1,4 +1,4 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers;

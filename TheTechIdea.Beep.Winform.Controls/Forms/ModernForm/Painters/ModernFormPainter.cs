@@ -195,8 +195,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            // Use BorderShape property - this returns the correct GraphicsPath for the form's shape
+            using var path = owner.BorderShape;
             using var pen = new Pen(metrics.BorderColor, Math.Max(1, metrics.BorderWidth));
             g.SmoothingMode = SmoothingMode.AntiAlias;
             g.DrawPath(pen, path);
@@ -238,7 +238,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
             PaintBackground(g, owner);
 
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
+            // Use BorderShape for clipping region
+            using var path = owner.BorderShape;
             g.Clip = new Region(path);
             g.Clip = originalClip;
 

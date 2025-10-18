@@ -25,19 +25,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int y = _owner.ScaleDpi(4); // Top padding
+            int y = 4; // Top padding
             
             foreach (var menuItem in _owner.MenuItems)
             {
                 if (menuItem == item)
                 {
-                    int height = IsSeparator(item) ? _owner.ScaleDpi(8) : _owner.PreferredItemHeight;
+                    int height = IsSeparator(item) ? 8 : _owner.PreferredItemHeight;
                     return new Rectangle(0, y, _owner.Width, height);
                 }
                 
                 if (IsSeparator(menuItem))
                 {
-                    y += _owner.ScaleDpi(8);
+                    y += 8;
                 }
                 else
                 {
@@ -64,8 +64,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int size = _owner.ScaleDpi(16);
-            int x = _owner.ScaleDpi(8);
+            int size = 16;
+            int x = 8;
             int y = itemRect.Top + (itemRect.Height - size) / 2;
             
             return new Rectangle(x, y, size, size);
@@ -87,10 +87,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int x = _owner.ScaleDpi(8);
+            int x =8;
             if (_owner.ShowCheckBox)
             {
-                x += _owner.ScaleDpi(20); // After checkbox
+                x += 20; // After checkbox
             }
             
             int size = _owner.ImageSize;
@@ -115,20 +115,20 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int x = _owner.ScaleDpi(8);
+            int x =8;
             
             if (_owner.ShowCheckBox)
             {
-                x += _owner.ScaleDpi(20); // After checkbox
+                x += 20; // After checkbox
             }
             
             if (_owner.ShowImage)
             {
-                x += _owner.ImageSize + _owner.ScaleDpi(4); // After icon
+                x += _owner.ImageSize + 4; // After icon
             }
             
             // Calculate width (leave space for shortcut or arrow)
-            int rightMargin = _owner.ScaleDpi(8);
+            int rightMargin =8;
             
             if (_owner.ShowShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
             {
@@ -136,12 +136,12 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 using (var g = _owner.CreateGraphics())
                 {
                     var shortcutSize = TextRenderer.MeasureText(g, item.KeyCombination, _owner.ShortcutFont);
-                    rightMargin += shortcutSize.Width + _owner.ScaleDpi(16);
+                    rightMargin += shortcutSize.Width + 16;
                 }
             }
             else if (item.Children != null && item.Children.Count > 0)
             {
-                rightMargin += _owner.ScaleDpi(20); // Submenu arrow
+                rightMargin += 20; // Submenu arrow
             }
             
             int width = _owner.Width - x - rightMargin;
@@ -170,7 +170,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
             {
                 var shortcutSize = TextRenderer.MeasureText(g, item.KeyCombination, _owner.ShortcutFont);
                 int width = shortcutSize.Width;
-                int x = _owner.Width - width - _owner.ScaleDpi(24); // Leave space for arrow if submenu
+                int x = _owner.Width - width - 24; // Leave space for arrow if submenu
                 
                 return new Rectangle(x, itemRect.Top, width, itemRect.Height);
             }
@@ -192,8 +192,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int size = _owner.ScaleDpi(16);
-            int x = _owner.Width - size - _owner.ScaleDpi(8);
+            int size = 16;
+            int x = _owner.Width - size -8;
             int y = itemRect.Top + (itemRect.Height - size) / 2;
             
             return new Rectangle(x, y, size, size);
@@ -215,8 +215,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return Rectangle.Empty;
             }
             
-            int x = _owner.ScaleDpi(8);
-            int width = _owner.Width - _owner.ScaleDpi(16);
+            int x =8;
+            int width = _owner.Width - 16;
             int y = itemRect.Top + itemRect.Height / 2;
             
             return new Rectangle(x, y, width, 1);

@@ -90,8 +90,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var prevYearRect = new Rectangle(bounds.X, bounds.Y, buttonSize, buttonSize);
             var nextYearRect = new Rectangle(bounds.Right - buttonSize, bounds.Y, buttonSize, buttonSize);
 
-            PaintYearNavButton(g, prevYearRect, false, false, false);
-            PaintYearNavButton(g, nextYearRect, true, false, false);
+            bool prevHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.PreviousYearButton) == true;
+            bool prevPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.PreviousYearButton) == true;
+            bool nextHovered = hoverState?.IsAreaHovered(DateTimePickerHitArea.NextYearButton) == true;
+            bool nextPressed = hoverState?.IsAreaPressed(DateTimePickerHitArea.NextYearButton) == true;
+
+            PaintYearNavButton(g, prevYearRect, false, prevHovered, prevPressed);
+            PaintYearNavButton(g, nextYearRect, true, nextHovered, nextPressed);
 
             // Subtitle
             using (var brush = new SolidBrush(secondaryTextColor))
@@ -336,7 +341,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
         }
 
         // Stub implementations
-        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange) { }
+        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false) { }
         public void PaintHeader(Graphics g, Rectangle headerBounds, string headerText, bool showNavigation, bool isHovered) { }
         public void PaintNavigationButton(Graphics g, Rectangle buttonBounds, bool isNext, bool isHovered, bool isPressed) { }
         public void PaintDayNamesHeader(Graphics g, Rectangle headerBounds, DatePickerFirstDayOfWeek firstDayOfWeek) { }
@@ -352,7 +357,46 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         public DateTimePickerLayout CalculateLayout(Rectangle bounds, DateTimePickerProperties properties)
         {
-            return new DateTimePickerLayout();
+            var layout = new DateTimePickerLayout();
+            
+            int padding = 20;
+            int currentY = bounds.Y + padding;
+            
+            // Header area
+            var headerRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 50);
+            layout.HeaderRect = headerRect;
+            
+            // Year navigation buttons
+            int buttonSize = 32;
+            layout.PreviousButtonRect = new Rectangle(headerRect.X, headerRect.Y, buttonSize, buttonSize);
+            layout.NextButtonRect = new Rectangle(headerRect.Right - buttonSize, headerRect.Y, buttonSize, buttonSize);
+            
+            currentY += 70;
+            
+            // Quarter grid (2x2)
+            var quarterGridRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 240);
+            int gap = 16;
+            int cardWidth = (quarterGridRect.Width - gap) / 2;
+            int cardHeight = (quarterGridRect.Height - gap) / 2;
+            
+            // Store quarter button bounds in QuickDateButtons
+            layout.QuickDateButtons = new List<(string Key, Rectangle Bounds)>
+            {
+                ("Q1", new Rectangle(quarterGridRect.X, quarterGridRect.Y, cardWidth, cardHeight)),
+                ("Q2", new Rectangle(quarterGridRect.X + cardWidth + gap, quarterGridRect.Y, cardWidth, cardHeight)),
+                ("Q3", new Rectangle(quarterGridRect.X, quarterGridRect.Y + cardHeight + gap, cardWidth, cardHeight)),
+                ("Q4", new Rectangle(quarterGridRect.X + cardWidth + gap, quarterGridRect.Y + cardHeight + gap, cardWidth, cardHeight))
+            };
+            
+            currentY += 260;
+            
+            // Selected range display area (non-interactive)
+            var rangeRect = new Rectangle(bounds.X + padding, currentY, bounds.Width - padding * 2, 80);
+            
+            // Register all hit areas with BaseControl's hit test system
+            _owner.HitTestHelper?.RegisterHitAreas(layout, properties, _owner.DisplayMonth);
+            
+            return layout;
         }
 
         public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)

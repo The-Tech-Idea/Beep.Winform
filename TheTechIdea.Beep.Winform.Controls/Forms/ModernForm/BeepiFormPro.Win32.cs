@@ -179,15 +179,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         m.Result = (IntPtr)1;
                         return;
                     case WM_NCPAINT:
-                        // When the client area is fully extended (normal state), draw all chrome in the client area.
-                        // Only draw a thin NC border in maximized state to preserve resize/grab behavior and avoid artifacts.
-                        if (WindowState == FormWindowState.Maximized)
-                        {
-                            PaintNonClientBorder();
-                            m.Result = IntPtr.Zero;
-                            return;
-                        }
-                        // Normal state: suppress default NC painting and do nothing here.
+                        // CRITICAL: Always paint non-client border to cover rectangular corners
+                        // that Windows draws by default. Without this, rounded forms show
+                        // rectangular corners behind the rounded shape.
+                        PaintNonClientBorder();
                         m.Result = IntPtr.Zero;
                         return;
                 }
@@ -251,16 +246,45 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 using var g = Graphics.FromHdc(hdc);
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 
-                // Delegate to active painter - painter owns the entire shape rendering
+                // CRITICAL: Paint the entire form background with the correct shape
+                // to cover Windows' rectangular default NC area that shows behind rounded corners
                 var painter = ActivePainter;
-                if (painter is TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters.IFormNonClientPainter ncPainter)
+                if (painter != null)
                 {
-                    // Painter will render its shape-based border (could be rounded, heart, custom, etc.)
-                    ncPainter.PaintNonClientBorder(g, this, bt);
+                    // Get the form's actual shape (rounded corners, etc.)
+                    var radius = painter.GetCornerRadius(this);
+                    var formRect = new Rectangle(0, 0, Width, Height);
+                    
+                    // Fill the entire form with the background color using the correct shape
+                    using (var bgBrush = new SolidBrush(BackColor))
+                    {
+                        using (var shapePath = CreateRoundedRectanglePath(formRect, radius))
+                        {
+                            g.FillPath(bgBrush, shapePath);
+                        }
+                    }
+                    
+                    // Now draw the border using painter's method (if available)
+                    if (painter is TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters.IFormNonClientPainter ncPainter)
+                    {
+                        ncPainter.PaintNonClientBorder(g, this, bt);
+                    }
+                    else
+                    {
+                        // Fallback: draw border using the form's shape
+                        var metrics = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? _currentTheme : null);
+                        using (var borderPen = new Pen(metrics.BorderColor, bt))
+                        {
+                            using (var shapePath = CreateRoundedRectanglePath(formRect, radius))
+                            {
+                                g.DrawPath(borderPen, shapePath);
+                            }
+                        }
+                    }
                 }
                 else
                 {
-                    // Fallback: simple rectangle border
+                    // Fallback: simple rectangle border (no painter available)
                     using var br = new SolidBrush(BorderColor);
                     g.FillRectangle(br, new Rectangle(0, 0, Width, bt));
                     g.FillRectangle(br, new Rectangle(0, Height - bt, Width, bt));
@@ -271,6 +295,65 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             finally
             {
                 ReleaseDC(this.Handle, hdc);
+            }
+        }
+
+        /// <summary>
+        /// Updates the window region to match the form's shape (rounded corners, etc.)
+        /// This clips the window so rectangular corners don't show through
+        /// </summary>
+        private void UpdateWindowRegion()
+        {
+            if (!IsHandleCreated || !_drawCustomWindowBorder) return;
+            if (WindowState == FormWindowState.Maximized) return; // Don't clip when maximized
+            
+            var painter = ActivePainter;
+            if (painter == null) return;
+            
+            var radius = painter.GetCornerRadius(this);
+            
+            // Check if all corners have the same radius (simple rounded rectangle)
+            if (radius.TopLeft == radius.TopRight && 
+                radius.TopLeft == radius.BottomLeft && 
+                radius.TopLeft == radius.BottomRight)
+            {
+                // Use fast CreateRoundRectRgn for uniform corners
+                int cornerRadius = radius.TopLeft * 2; // Windows uses diameter
+                IntPtr hRgn = CreateRoundRectRgn(0, 0, Width + 1, Height + 1, cornerRadius, cornerRadius);
+                
+                if (hRgn != IntPtr.Zero)
+                {
+                    SetWindowRgn(this.Handle, hRgn, true);
+                    // Note: SetWindowRgn takes ownership of the region, no need to DeleteObject
+                }
+            }
+            else if (radius.TopLeft == 0 && radius.TopRight == 0 && 
+                     radius.BottomLeft == 0 && radius.BottomRight == 0)
+            {
+                // No rounded corners - use rectangular region
+                IntPtr hRgn = CreateRectRgn(0, 0, Width, Height);
+                if (hRgn != IntPtr.Zero)
+                {
+                    SetWindowRgn(this.Handle, hRgn, true);
+                }
+            }
+            else
+            {
+                // Complex corners - use GDI+ region from GraphicsPath
+                using (var path = CreateRoundedRectanglePath(new Rectangle(0, 0, Width, Height), radius))
+                {
+                    using (var region = new System.Drawing.Region(path))
+                    {
+                        // Get the HRGN from the region
+                        IntPtr hRgn = region.GetHrgn(Graphics.FromHwnd(this.Handle));
+                        if (hRgn != IntPtr.Zero)
+                        {
+                            SetWindowRgn(this.Handle, hRgn, true);
+                            // SetWindowRgn takes ownership, but we got it from GetHrgn, so we should delete it
+                            DeleteObject(hRgn);
+                        }
+                    }
+                }
             }
         }
 
@@ -291,8 +374,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         [DllImport("user32.dll")] private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
         [DllImport("user32.dll")] private static extern bool RedrawWindow(IntPtr hWnd, IntPtr lprcUpdate, IntPtr hrgnUpdate, uint flags);
         [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, uint uFlags);
-    [DllImport("gdi32.dll")] private static extern int SetBkMode(IntPtr hdc, int mode);
-    [DllImport("gdi32.dll")] private static extern IntPtr GetStockObject(int fnObject);
+        [DllImport("user32.dll")] private static extern int SetWindowRgn(IntPtr hWnd, IntPtr hRgn, bool bRedraw);
+        [DllImport("gdi32.dll")] private static extern int SetBkMode(IntPtr hdc, int mode);
+        [DllImport("gdi32.dll")] private static extern IntPtr GetStockObject(int fnObject);
+        [DllImport("gdi32.dll")] private static extern IntPtr CreateRoundRectRgn(int x1, int y1, int x2, int y2, int cx, int cy);
+        [DllImport("gdi32.dll")] private static extern IntPtr CreateRectRgn(int x1, int y1, int x2, int y2);
+        [DllImport("gdi32.dll")] private static extern bool DeleteObject(IntPtr hObject);
 
         private const uint RDW_FRAME = 0x0400;
         private const uint RDW_INVALIDATE = 0x0001;
@@ -335,7 +422,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (raw <= 0) raw = m?.BorderWidth ?? 0; // fall back to border width
             if (raw <= 0) raw = _resizeMarginWin32;   // legacy default
             raw = Math.Max(2, raw);                  // enforce minimum sensible size
-            return ScaleDpi(raw);
+            return raw;
         }
 
         private int GetEffectiveBorderThicknessDpi()
@@ -345,7 +432,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             if (raw <= 0) raw = _customBorderThickness; // fallback to property if set
             if (raw <= 0) raw = 1;                      // final fallback
             raw = Math.Max(1, raw);
-            return ScaleDpi(raw);
+            return raw;
         }
     }
 }

@@ -52,10 +52,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             {
                 // Always start with an opaque base in the client area when custom skinning is enabled
                 // to avoid any blending artifacts with GDI-based child controls (e.g., Label, TextBox).
-                if (DrawCustomWindowBorder)
+                // CRITICAL: Use the painter's shape (rounded corners, etc.) not a plain rectangle
+                if (DrawCustomWindowBorder && ActivePainter != null)
                 {
                     using var bg = new SolidBrush(this.BackColor);
-                    e.Graphics.FillRectangle(bg, this.ClientRectangle);
+                    
+                    // Get the painter's corner radius to match the form's actual shape
+                    var radius = ActivePainter.GetCornerRadius(this);
+                    
+                    // Fill using the same rounded shape as the border to avoid rectangular corners showing
+                    using var shapePath = CreateRoundedRectanglePath(this.ClientRectangle, radius);
+                    e.Graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                    e.Graphics.FillPath(bg, shapePath);
                 }
 
                 SetupGraphicsQuality(e.Graphics);

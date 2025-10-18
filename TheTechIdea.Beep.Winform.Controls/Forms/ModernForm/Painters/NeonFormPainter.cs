@@ -323,8 +323,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+            using var path = owner.BorderShape;  
             // Neon: vibrant RGB border with multi-color gradient
             using (var neonBrush = new LinearGradientBrush(owner.ClientRectangle,
                 Color.FromArgb(200, 255, 0, 200),  // Magenta

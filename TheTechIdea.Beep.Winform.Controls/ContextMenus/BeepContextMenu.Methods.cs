@@ -176,21 +176,28 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         /// </summary>
         private void RecalculateSize()
         {
+            // Calculate minimum height as one item + padding
+            int calculatedMinHeight = PreferredItemHeight + 8; // One item + top/bottom padding
+            
             if (_menuItems == null || _menuItems.Count == 0)
             {
                 Width = _menuWidth;
-                Height = ScaleDpi(10); // Minimum height
+                Height = calculatedMinHeight;
+                _needsScrolling = false;
+                _scrollBar.Visible = false;
+                _totalContentHeight = Height;
+                _scrollOffset = 0;
                 return;
             }
             
             // Calculate required height
-            int totalHeight = ScaleDpi(4); // Top padding
+            int totalHeight = 4; // Top padding
             
             foreach (var item in _menuItems)
             {
                 if (IsSeparator(item))
                 {
-                    totalHeight += ScaleDpi(8); // Separator height
+                    totalHeight += 8; // Separator height
                 }
                 else
                 {
@@ -198,7 +205,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                 }
             }
             
-            totalHeight += ScaleDpi(4); // Bottom padding
+            totalHeight += 4; // Bottom padding
+            
+            // Store total content height for scrolling
+            _totalContentHeight = totalHeight;
             
             // Calculate required width
             int maxWidth = _menuWidth;
@@ -211,32 +221,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
                     
                     // Calculate text width
                     var textSize = TextRenderer.MeasureText(g, item.DisplayField ?? "", _textFont);
-                    int itemWidth = ScaleDpi(8); // Left margin
+                    int itemWidth =     8; // Left margin
                     
                     if (_showCheckBox)
                     {
-                        itemWidth += ScaleDpi(20); // Checkbox width
+                        itemWidth += 20; // Checkbox width
                     }
                     
                     if (_showImage)
                     {
-                        itemWidth += _imageSize + ScaleDpi(4); // Image + spacing
+                        itemWidth += _imageSize + 4; // Image + spacing
                     }
                     
-                    itemWidth += textSize.Width + ScaleDpi(8); // Text + spacing
+                    itemWidth += textSize.Width + 8; // Text + spacing
                     
                     // Shortcut or submenu arrow
                     if (_showShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
                     {
                         var shortcutSize = TextRenderer.MeasureText(g, item.KeyCombination, _shortcutFont);
-                        itemWidth += shortcutSize.Width + ScaleDpi(16);
+                        itemWidth += shortcutSize.Width + 16;
                     }
                     else if (item.Children != null && item.Children.Count > 0)
                     {
-                        itemWidth += ScaleDpi(20); // Submenu arrow
+                        itemWidth += 20; // Submenu arrow
                     }
                     
-                    itemWidth += ScaleDpi(8); // Right margin
+                    itemWidth += 8; // Right margin
                     
                     if (itemWidth > maxWidth)
                     {
@@ -249,9 +259,45 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             maxWidth = Math.Max(maxWidth, _minWidth);
             maxWidth = Math.Min(maxWidth, _maxWidth);
             
-            Width = maxWidth;
-            Height = totalHeight;
-            _contentAreaRect = new Rectangle(0, 0, Width, Height);
+            // Determine if scrolling is needed
+            _needsScrolling = _totalContentHeight > _maxHeight;
+            
+            if (_needsScrolling)
+            {
+                // Calculate height with scrolling - ensure at least one item is visible
+                Height = Math.Min(_totalContentHeight, _maxHeight);
+                Height = Math.Max(Height, calculatedMinHeight);
+                
+                // Add space for scrollbar
+                Width = maxWidth + SCROLL_BAR_WIDTH;
+                
+                // Configure scrollbar
+                _scrollBar.Visible = true;
+                _scrollBar.Left = maxWidth;
+                _scrollBar.Top = 0;
+                _scrollBar.Height = Height;
+                _scrollBar.Minimum = 0;
+                _scrollBar.Maximum = _totalContentHeight - 1;
+                _scrollBar.LargeChange = Math.Max(1, Height);
+                _scrollBar.SmallChange = PreferredItemHeight;
+                
+                // Clamp scroll offset to valid range
+                int maxScroll = Math.Max(0, _totalContentHeight - Height);
+                _scrollOffset = Math.Min(_scrollOffset, maxScroll);
+                _scrollBar.Value = Math.Min(_scrollOffset, Math.Max(0, _scrollBar.Maximum - _scrollBar.LargeChange + 1));
+
+                _contentAreaRect = new Rectangle(0, 0, maxWidth , Height);
+            }
+            else
+            {
+                // No scrolling needed
+                Width = maxWidth + 10;
+                Height = _totalContentHeight;
+                _scrollBar.Visible = false;
+                _scrollOffset = 0;
+                
+                _contentAreaRect = new Rectangle(0, 0, Width, Height);
+            }
         }
         
         /// <summary>

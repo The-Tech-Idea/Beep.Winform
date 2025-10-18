@@ -181,4 +181,70 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
         FilteredRange,      // Range picker with quick filter sidebar + dual calendar + time
         Header              // Prominent header calendar with large formatted date display
     }
+
+
+
+
+    /// <summary>
+    /// Hit test area
+    /// </summary>
+    public enum DateTimePickerHitArea
+    {
+        None,
+        Header,
+        HeaderTitle,
+        PreviousButton,
+        NextButton,
+        PreviousYearButton,
+        NextYearButton,
+        PreviousDecadeButton,
+        NextDecadeButton,
+        DayCell,
+        TimeSlot,
+        QuickButton,
+        TimeButton,
+        TimeSpinner,
+        SpinnerUpButton,
+        SpinnerDownButton,
+        StartHourUpButton,
+        StartHourDownButton,
+        StartMinuteUpButton,
+        StartMinuteDownButton,
+        EndHourUpButton,
+        EndHourDownButton,
+        EndMinuteUpButton,
+        EndMinuteDownButton,
+        ApplyButton,
+        CancelButton,
+        WeekNumber,
+        DropdownButton,
+        ClearButton,
+        ActionButton,
+        Handle,
+        TimelineTrack,
+        FilterButton,
+        CreateButton,
+        MonthButton,
+        YearButton,
+        QuarterButton,
+        WeekRow,
+        GridButton,
+        FlexibleRangeButton,
+        TodayButton,
+        TabButton,
+        YearDropdown,
+        TimeInput,
+        ResetButton,
+        ShowResultsButton,
+        YearCell,
+        MonthCell,
+        StartHandle,
+        EndHandle,
+        YearComboBox,
+        MonthComboBox,
+        HourComboBox,
+        MinuteComboBox,
+        DecadeComboBox,
+        FiscalYearComboBox
+    }
 }

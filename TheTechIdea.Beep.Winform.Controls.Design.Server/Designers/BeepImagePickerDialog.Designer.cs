@@ -171,7 +171,7 @@
             _preview.DisabledBackColor = Color.White;
             _preview.DisabledBorderColor = Color.Empty;
             _preview.DisabledForeColor = Color.Black;
-            _preview.DisableDpiAndScaling = true;
+          
             _preview.Dock = DockStyle.Fill;
             _preview.DrawingRect = new Rectangle(0, 0, 254, 685);
             _preview.Easing = Vis.Modules.EasingType.Linear;

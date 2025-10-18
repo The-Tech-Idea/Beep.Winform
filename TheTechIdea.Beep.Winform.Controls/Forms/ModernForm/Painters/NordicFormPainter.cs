@@ -221,8 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+           using var path = owner.BorderShape;  
             // Nordic: Thin, clean border - minimalist
             using var pen = new Pen(metrics.BorderColor, 1);
             g.SmoothingMode = SmoothingMode.AntiAlias;

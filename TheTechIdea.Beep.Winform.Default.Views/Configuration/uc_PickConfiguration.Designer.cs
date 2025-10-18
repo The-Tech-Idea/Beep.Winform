@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
+namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 {
     partial class uc_PickConfiguration
     {

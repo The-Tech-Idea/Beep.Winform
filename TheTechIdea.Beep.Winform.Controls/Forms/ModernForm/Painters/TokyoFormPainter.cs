@@ -253,8 +253,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+            using var path = owner.BorderShape;
             // Tokyo Night: vibrant neon border with cyan glow
             using var pen = new Pen(Color.FromArgb(100, 125, 207, 255), 2);
             

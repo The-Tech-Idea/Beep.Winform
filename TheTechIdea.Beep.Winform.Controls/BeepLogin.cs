@@ -221,7 +221,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 Text = "Remember Me",
                 AutoSize = false,
                 IsChild = true,
-                PainterKind= BaseControl.BaseControlPainterKind.Classic,
+                PainterKind= BaseControlPainterKind.Classic,
                 IsFrameless=true,
                 Font = new Font("Segoe UI", 11, FontStyle.Regular), // Increased from 9
                 Anchor = AnchorStyles.None

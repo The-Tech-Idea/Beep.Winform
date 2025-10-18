@@ -44,6 +44,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 if (_selectedDate != value)
                 {
                     _selectedDate = value;
+                    _hitHandler?.SyncFromControl(this);
                     OnDateChanged(value);
                     Invalidate();
                 }
@@ -64,6 +65,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                     .Distinct()
                     .OrderBy(d => d)
                     .ToList();
+                _hitHandler?.SyncFromControl(this);
                 Invalidate();
             }
         }
@@ -78,6 +80,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 if (_selectedTime != value)
                 {
                     _selectedTime = value;
+                    _hitHandler?.SyncFromControl(this);
                     OnTimeChanged(value);
                     Invalidate();
                 }
@@ -94,6 +97,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 if (_rangeStartDate != value)
                 {
                     _rangeStartDate = value;
+                    _hitHandler?.SyncFromControl(this);
                     OnRangeChanged(_rangeStartDate, _rangeEndDate);
                     Invalidate();
                 }
@@ -110,6 +114,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 if (_rangeEndDate != value)
                 {
                     _rangeEndDate = value;
+                    _hitHandler?.SyncFromControl(this);
+                    OnRangeChanged(_rangeStartDate, _rangeEndDate);
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Data")]
+        [Description("Start time for range selection mode")]
+        public TimeSpan? RangeStartTime
+        {
+            get => _rangeStartTime;
+            set
+            {
+                if (_rangeStartTime != value)
+                {
+                    _rangeStartTime = value;
+                    _hitHandler?.SyncFromControl(this);
+                    OnRangeChanged(_rangeStartDate, _rangeEndDate);
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Data")]
+        [Description("End time for range selection mode")]
+        public TimeSpan? RangeEndTime
+        {
+            get => _rangeEndTime;
+            set
+            {
+                if (_rangeEndTime != value)
+                {
+                    _rangeEndTime = value;
+                    _hitHandler?.SyncFromControl(this);
                     OnRangeChanged(_rangeStartDate, _rangeEndDate);
                     Invalidate();
                 }
@@ -378,6 +417,62 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
 
         [Browsable(false)]
         public DateTime DisplayMonth => _displayMonth;
+
+        #endregion
+
+        #region Additional Properties for Hit Handlers
+
+        // These properties support handler-specific functionality
+
+        [Category("Behavior")]
+        [Description("Maximum number of dates that can be selected in Multiple mode")]
+        public int? MaxMultipleSelectionCount { get; set; }
+
+        [Category("Data")]
+        [Description("Combined date and time value (used in Appointment mode)")]
+        public DateTime? SelectedDateTime
+        {
+            get
+            {
+                if (_selectedDate.HasValue && _selectedTime.HasValue)
+                    return _selectedDate.Value.Date + _selectedTime.Value;
+                return _selectedDate;
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    _selectedDate = value.Value.Date;
+                    _selectedTime = value.Value.TimeOfDay;
+                    _hitHandler?.SyncFromControl(this);
+                    OnDateChanged(_selectedDate);
+                    OnTimeChanged(_selectedTime);
+                    Invalidate();
+                }
+            }
+        }
+
+        [Category("Behavior")]
+        [Description("Indicates if flexible range mode is active (FlexibleRange mode)")]
+        public bool IsFlexibleRangeMode { get; set; }
+
+        [Category("Data")]
+        [Description("List of filtered/disabled dates (FilteredRange mode)")]
+        public List<DateTime> FilteredDates { get; set; } = new List<DateTime>();
+
+        [Category("Data")]
+        [Description("Active date filters (FilteredRange mode)")]
+        public List<string> ActiveDateFilters { get; set; } = new List<string>();
+
+        [Category("Data")]
+        [Description("Holiday dates for filtering (FilteredRange mode)")]
+        public List<DateTime> Holidays { get; set; } = new List<DateTime>();
+
+        [Category("Behavior")]
+        [Description("Start hour for time slots (Appointment mode, 0-23)")]
+        public int TimeStartHour { get; set; } = 0;
+
+       
 
         #endregion
     }

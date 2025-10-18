@@ -9,9 +9,11 @@ using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis.Modules;
  
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
-using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+using TheTechIdea.Beep.Winform.Controls.Models;
+
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
+
 
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
@@ -144,6 +146,96 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     // Fallback to a default style if unsupported
                     _borderPainterStyle = BeepControlStyle.Minimal;
                 }
+                // update _currentBorderPainter based use BorderPainterFactory
+                switch (_borderPainterStyle)
+                {
+                    case BeepControlStyle.Material3:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Material3);
+                        break;
+                    case BeepControlStyle.iOS15:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.iOS15);
+                        break;
+                    case BeepControlStyle.AntDesign:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.AntDesign);
+                        break;
+                    case BeepControlStyle.Fluent2:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Fluent2);
+                        break;
+                    case BeepControlStyle.MaterialYou:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.MaterialYou);
+                        break;
+                    case BeepControlStyle.Windows11Mica:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Windows11Mica);
+                        break;
+                    case BeepControlStyle.MacOSBigSur:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.MacOSBigSur);
+                        break;
+                    case BeepControlStyle.ChakraUI:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.ChakraUI);
+                        break;
+                    case BeepControlStyle.TailwindCard:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.TailwindCard);
+                        break;
+                    case BeepControlStyle.NotionMinimal:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.NotionMinimal);
+                        break;
+                    case BeepControlStyle.Minimal:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Minimal);
+                        break;
+                    case BeepControlStyle.VercelClean:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.VercelClean);
+                        break;
+                    case BeepControlStyle.StripeDashboard:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.StripeDashboard);
+                        break;
+                    case BeepControlStyle.DarkGlow:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.DarkGlow);
+                        break;
+                    case BeepControlStyle.DiscordStyle:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.DiscordStyle);
+                        break;
+                    case BeepControlStyle.GradientModern:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.GradientModern);
+                        break;
+                        case BeepControlStyle.GlassAcrylic:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.GlassAcrylic);
+                        break;
+                        case BeepControlStyle.Neumorphism:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Neumorphism);
+                        break;
+                        case BeepControlStyle.Bootstrap:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Bootstrap);
+                        break;
+                        case BeepControlStyle.FigmaCard:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.FigmaCard);
+                        break;
+                        case BeepControlStyle.PillRail:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.PillRail);
+                        break;
+                        case BeepControlStyle.Apple:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Apple);
+                        break;
+                        case BeepControlStyle.Fluent:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Fluent);
+                        break;
+                        case BeepControlStyle.Material:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Material);
+                        break;
+                        case BeepControlStyle.WebFramework:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.WebFramework);
+                        break;
+                        case BeepControlStyle.Effect:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Effect);
+                        break;
+                    default:
+                        _currentBorderPainter = BorderPainterFactory.CreatePainter(BeepControlStyle.Minimal);
+                        break;
+
+
+                }
+                BorderRadius = BeepStyling.GetRadius(_borderPainterStyle);
+                BorderThickness = (int)BeepStyling.GetBorderThickness(_borderPainterStyle);
+                BorderColor = BeepStyling.GetBorderColor(_borderPainterStyle);
             }
 
             // Trigger a repaint if the border style changed
@@ -611,7 +703,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         {
             // DPI is automatically handled by the framework in .NET 8/9+
             // No manual UpdateDpiScaling needed
-            g.Clear(BackColor);
+            
+            // Allow derived controls to opt-out of background clearing
+            if (AllowBaseControlClear)
+            {
+                g.Clear(BackColor);
+            }
+            
             if (EnableHighQualityRendering)
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
@@ -1050,29 +1148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
 
 
         #endregion
-        protected GraphicsPath GetRoundedRectPath(Rectangle rect, int radius)
-        {
-            return ControlPaintHelper.GetRoundedRectPath(rect, radius);
-        }
-        //// REMOVED: Manual DPI handling via WM_DPICHANGED message
-        //// .NET 8/9+ handles per-monitor DPI changes automatically via OnDpiChangedAfterParent
-        //private const int WM_DPICHANGED = 0x02E0;
-        //protected override void WndProc(ref Message m)
-        //{
-        //    if (m.Msg == WM_DPICHANGED)
-        //    {
-        //        try
-        //        {
-        //            // Framework handles this automatically
-        //                // Refresh layout dependent on DPI
-        //                //  ;
-        //                // UpdateMaterialLayout();
-        //                Invalidate();
-        //            }
-        //        }
-        //        catch { /* best-effort */ }
-        //    }
-        //    base.WndProc(ref m);
-        //}
+    
+     
     }
 }

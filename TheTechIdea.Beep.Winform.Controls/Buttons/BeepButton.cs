@@ -917,7 +917,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 // Clip the drawing to the button bounds for clean edges
                 if (IsRounded && BorderRadius > 0)
                 {
-                    using (GraphicsPath clipPath = GetRoundedRectPath(contentRect, BorderRadius))
+                    using (GraphicsPath clipPath = GraphicsExtensions.GetRoundedRectPath(contentRect, BorderRadius))
                     {
                         g.SetClip(clipPath);
                         g.FillEllipse(rippleBrush, rippleRect);
@@ -960,7 +960,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 if (IsRounded && BorderRadius > 0)
                 {
-                    using (GraphicsPath path = GetRoundedRectPath(contentRect, BorderRadius))
+                    using (GraphicsPath path = GraphicsExtensions.GetRoundedRectPath(contentRect, BorderRadius))
                     {
                         g.FillPath(overlayBrush, path);
                     }
@@ -1175,7 +1175,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             }
 
             // If Material style is enabled, expand by Material paddings/effects properly
-            if (PainterKind ==Base.BaseControl.BaseControlPainterKind.Material)
+            if (PainterKind ==BaseControlPainterKind.Material)
             {
                 // Ask BaseControl to compute effective minimum including Material paddings, icons, effects, DPI, etc.
                 var materialMin = GetEffectiveMaterialMinimum(baseContentSize);

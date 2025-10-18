@@ -542,15 +542,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             Invalidate();
         }
 
-        private void UpdateDpiScale()
-        {
-            using (var g = CreateGraphics())
-            {
-                _dpiScale = g.DpiX / 96f; // 96 DPI is the baseline (100% scaling)
-            }
-        }
-
-        public int ScaleDpi(int value) => (int)(value * _dpiScale);
+     
 
         private void InitializeBuiltInRegions()
         {

@@ -32,22 +32,5 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Models
     /// First day of week - MOVED to enums.cs
     /// </summary>
 
-    /// <summary>
-    /// Hit test area
-    /// </summary>
-    public enum DateTimePickerHitArea
-    {
-        None,
-        Header,
-        PreviousButton,
-        NextButton,
-        DayCell,
-        TimeSlot,
-        QuickButton,
-        ApplyButton,
-        CancelButton,
-        WeekNumber,
-        DropdownButton,
-        ClearButton
-    }
+  
 }

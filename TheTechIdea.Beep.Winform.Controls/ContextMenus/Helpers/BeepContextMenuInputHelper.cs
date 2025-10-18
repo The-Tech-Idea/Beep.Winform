@@ -26,20 +26,27 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Helpers
                 return null;
             }
             
-            int y = _owner.ScaleDpi(4); // Top padding
-            
+            // Adjust location for scroll offset
+            Point adjustedLocation = location;
+            if (_owner.NeedsScrolling)
+            {
+                adjustedLocation = new Point(location.X, location.Y + _owner.ScrollOffset);
+            }
+
+            int y = 4; // Top padding
+
             foreach (var item in _owner.MenuItems)
             {
                 if (IsSeparator(item))
                 {
-                    y += _owner.ScaleDpi(8); // Separator height
+                    y += 8; // Separator height
                     continue;
                 }
                 
                 int itemHeight = _owner.PreferredItemHeight;
                 var itemRect = new Rectangle(0, y, _owner.Width, itemHeight);
                 
-                if (itemRect.Contains(location))
+                if (itemRect.Contains(adjustedLocation))
                 {
                     return item;
                 }

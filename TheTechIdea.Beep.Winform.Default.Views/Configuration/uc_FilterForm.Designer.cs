@@ -1,4 +1,4 @@
-﻿
+
 
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls;
@@ -85,7 +85,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.DisabledBackColor = Color.LightGray;
             beepLabel1.DisabledBorderColor = Color.Empty;
             beepLabel1.DisabledForeColor = Color.Gray;
-            beepLabel1.DisableDpiAndScaling = false;
+            //beepLabel1.DisableDpiAndScaling = false;
             beepLabel1.DrawingRect = new Rectangle(1, 1, 220, 54);
             beepLabel1.Easing = EasingType.Linear;
             beepLabel1.EnableHighQualityRendering = true;
@@ -155,7 +155,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepLabel1.IsSelectedOptionOn = true;
             beepLabel1.IsShadowAffectedByTheme = true;
             beepLabel1.IsValid = true;
-            beepLabel1.IsVisible = false;
+            beepLabel1.IsVisible = true;
             beepLabel1.Items = (List<object>)resources.GetObject("beepLabel1.Items");
             beepLabel1.LabelBackColor = Color.Empty;
             beepLabel1.LabelErrorText = "";
@@ -271,7 +271,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepTextBox1.DisabledBorderColor = Color.LightGray;
             beepTextBox1.DisabledForeColor = Color.Gray;
-            beepTextBox1.DisableDpiAndScaling = false;
+            //beepTextBox1.DisableDpiAndScaling = false;
             beepTextBox1.DrawingRect = new Rectangle(4, 4, 192, 20);
             beepTextBox1.Easing = EasingType.Linear;
             beepTextBox1.EnableHighQualityRendering = true;
@@ -340,7 +340,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepTextBox1.IsSelectedOptionOn = false;
             beepTextBox1.IsShadowAffectedByTheme = false;
             beepTextBox1.IsValid = true;
-            beepTextBox1.IsVisible = false;
+            beepTextBox1.IsVisible = true;
             beepTextBox1.Items = (List<object>)resources.GetObject("beepTextBox1.Items");
             beepTextBox1.LabelText = "";
             beepTextBox1.LeadingIconPath = "";
@@ -441,7 +441,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepRowConfig1.IsNew = false;
             beepRowConfig1.IsReadOnly = false;
             beepRowConfig1.IsSelected = false;
-            beepRowConfig1.IsVisible = false;
+            beepRowConfig1.IsVisible = true;
             beepRowConfig1.OldDisplayIndex = 0;
             beepRowConfig1.RowCheckRect = new Rectangle(0, 0, 0, 0);
             beepRowConfig1.RowData = null;
@@ -633,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.DisabledBackColor = Color.White;
             beepSimpleGrid1.DisabledBorderColor = Color.Empty;
             beepSimpleGrid1.DisabledForeColor = Color.Black;
-            beepSimpleGrid1.DisableDpiAndScaling = true;
+            //beepSimpleGrid1.DisableDpiAndScaling = true;
             beepSimpleGrid1.Dock = DockStyle.Fill;
             beepSimpleGrid1.DrawInBlackAndWhite = false;
             beepSimpleGrid1.DrawingRect = new Rectangle(0, 0, 1044, 738);
@@ -693,7 +693,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.IsSelected = false;
             beepSimpleGrid1.IsSelectedOptionOn = false;
             beepSimpleGrid1.IsShadowAffectedByTheme = true;
-            beepSimpleGrid1.IsVisible = false;
+            beepSimpleGrid1.IsVisible = true;
             beepSimpleGrid1.Items = null;
             beepSimpleGrid1.LabelText = "";
             beepSimpleGrid1.LeftoffsetForDrawingRect = 0;
@@ -766,16 +766,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepSimpleGrid1.TitleTextFont = new Font("Segoe UI", 9F);
             beepSimpleGrid1.ToolTipText = "";
             beepSimpleGrid1.TopoffsetForDrawingRect = 0;
-            beepSimpleGrid1.UIAnimation = ReactUIAnimation.None;
-            beepSimpleGrid1.UIColor = ReactUIColor.Primary;
-            beepSimpleGrid1.UICustomElevation = 0;
-            beepSimpleGrid1.UIDensity = ReactUIDensity.Standard;
-            beepSimpleGrid1.UIDisabled = false;
-            beepSimpleGrid1.UIElevation = ReactUIElevation.None;
-            beepSimpleGrid1.UIFullWidth = false;
-            beepSimpleGrid1.UIShape = ReactUIShape.Rounded;
-            beepSimpleGrid1.UISize = ReactUISize.Medium;
-            beepSimpleGrid1.UIVariant = ReactUIVariant.Default;
+          
             beepSimpleGrid1.UpdateLog = null;
             beepSimpleGrid1.UseExternalBufferedGraphics = false;
             beepSimpleGrid1.UseGlassmorphism = false;

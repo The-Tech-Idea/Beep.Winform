@@ -19,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             base.UpdateDrawingRect();
 
             Rectangle contentArea;
-            if (PainterKind == Base.BaseControl.BaseControlPainterKind.Material)
+            if (PainterKind == BaseControlPainterKind.Material)
             {
                 contentArea = GetMaterialContentRectangle();
 

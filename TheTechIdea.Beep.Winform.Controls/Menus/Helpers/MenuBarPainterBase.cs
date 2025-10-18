@@ -334,15 +334,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
             return font;
         }
 
-        /// <summary>
-        /// Gets the current DPI from owner control
-        /// </summary>
-        protected float CurrentDpi => (Owner?.CurrentDeviceDpi ?? 96);
-
-        /// <summary>
-        /// Gets the DPI scale factor from owner control - framework handles DPI scaling
-        /// </summary>
-        protected float DpiScaleFactor => 1.0f;
+      
         #endregion
         #endregion
 

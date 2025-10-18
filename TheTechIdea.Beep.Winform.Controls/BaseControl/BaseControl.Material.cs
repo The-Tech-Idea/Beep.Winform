@@ -7,7 +7,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Models;
-using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Base
 {

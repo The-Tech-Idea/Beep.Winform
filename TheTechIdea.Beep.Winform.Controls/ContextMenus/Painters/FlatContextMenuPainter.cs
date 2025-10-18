@@ -37,19 +37,19 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         {
             if (items == null || items.Count == 0) return;
             
-            int y = owner.ScaleDpi(4);
+            int y = 4;
             
             foreach (var item in items)
             {
                 if (IsSeparator(item))
                 {
                 DrawSeparator(g, owner, item, y, metrics, theme);
-                y += owner.ScaleDpi(8);
+                y += 8;
                 continue;
             }
             
             int itemHeight = metrics.ItemHeight;
-            var itemRect = new Rectangle(owner.ScaleDpi(2), y, owner.Width - owner.ScaleDpi(4), itemHeight);
+            var itemRect = new Rectangle(2, y, owner.Width - 4, itemHeight);
             
             DrawItem(g, owner, item, itemRect, item == selectedItem, item == hoveredItem, metrics, theme);                y += itemHeight;
             }
@@ -112,15 +112,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
                 textColor = metrics.ItemForeColor;
             }
             
-            int x = itemRect.X + owner.ScaleDpi(12);
+            int x = itemRect.X + 12;
             
             // Draw checkbox if checkable
             if (owner.ShowCheckBox && item.IsCheckable)
             {
-                var checkRect = new Rectangle(x, itemRect.Y + (itemRect.Height - owner.ScaleDpi(16)) / 2, 
-                    owner.ScaleDpi(16), owner.ScaleDpi(16));
+                var checkRect = new Rectangle(x, itemRect.Y + (itemRect.Height - 16) / 2, 
+                    16, 16);
                 DrawCheckbox(g, checkRect, item.IsChecked, !item.IsEnabled, metrics, theme);
-                x += owner.ScaleDpi(24);
+                x += 24;
             }
             
             // Draw icon
@@ -129,11 +129,11 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
                 var iconRect = new Rectangle(x, itemRect.Y + (itemRect.Height - owner.ImageSize) / 2, 
                     owner.ImageSize, owner.ImageSize);
                 DrawIcon(g, iconRect, item.ImagePath, !item.IsEnabled);
-                x += owner.ImageSize + owner.ScaleDpi(12);
+                x += owner.ImageSize + 12;
             }
             
             // Draw text
-            var textRect = new Rectangle(x, itemRect.Y, itemRect.Width - x - owner.ScaleDpi(12), itemRect.Height);
+            var textRect = new Rectangle(x, itemRect.Y, itemRect.Width - x - 12, itemRect.Height);
             
             TextRenderer.DrawText(g, item.DisplayField ?? "", owner.TextFont, textRect, textColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPrefix);
@@ -141,7 +141,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             // Draw submenu arrow
             if (item.Children != null && item.Children.Count > 0)
             {
-                var arrowRect = new Rectangle(itemRect.Right - owner.ScaleDpi(20), 
+                var arrowRect = new Rectangle(itemRect.Right - 20, 
                     itemRect.Y + (itemRect.Height - 16) / 2, 16, 16);
                 DrawBoldArrow(g, arrowRect, !item.IsEnabled, isHovered || isSelected, metrics, theme);
             }
@@ -225,9 +225,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         {
             if (!owner.ShowSeparators) return;
             
-            int lineY = y + owner.ScaleDpi(4);
-            int x = owner.ScaleDpi(12);
-            int width = owner.Width - owner.ScaleDpi(24);
+            int lineY = y + 4;
+            int x = 12;
+            int width = owner.Width - 24;
             
             using (var pen = new Pen(metrics.SeparatorColor, 1))
             {

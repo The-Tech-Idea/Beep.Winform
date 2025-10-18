@@ -62,17 +62,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         public void PaintBorders(Graphics g, BeepiFormPro owner)
         {
             var metrics = GetMetrics(owner);
-            
+            using var path = owner.BorderShape;
             // Brutalist: Thick, sharp borders - no anti-aliasing
             g.SmoothingMode = SmoothingMode.None;
             using var pen = new Pen(metrics.BorderColor, 5); // Thick 5px border
-            g.DrawRectangle(pen, 0, 0, owner.ClientRectangle.Width - 1, owner.ClientRectangle.Height - 1);
+            
+            // Draw outer border using path
+            g.DrawPath(pen, path);
             
             // Additional accent lines for brutalist geometric style
             using (var accentPen = new Pen(metrics.BorderColor, 2))
             {
-                // Inner rectangle
-                g.DrawRectangle(accentPen, 8, 8, owner.ClientRectangle.Width - 17, owner.ClientRectangle.Height - 17);
+                // Inner rectangle using path
+                var innerRect = new Rectangle(8, 8, owner.ClientRectangle.Width - 17, owner.ClientRectangle.Height - 17);
+                using var innerPath = CreateRoundedRectanglePath(innerRect, new CornerRadius(0));
+                g.DrawPath(accentPen, innerPath);
             }
         }
 

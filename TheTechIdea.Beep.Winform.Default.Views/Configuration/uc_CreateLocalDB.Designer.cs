@@ -1,7 +1,8 @@
-﻿using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+
 
 
 namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
@@ -113,7 +114,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
             CancelbeepButton.DisabledBorderColor = Color.Gray;
             CancelbeepButton.DisabledForeColor = Color.Gray;
-            CancelbeepButton.DisableDpiAndScaling = false;
+            //CancelbeepButton.DisableDpiAndScaling = false;
             CancelbeepButton.DrawingRect = new Rectangle(0, 0, 216, 62);
             CancelbeepButton.Easing = EasingType.Linear;
             CancelbeepButton.EmbeddedImagePath = null;
@@ -209,7 +210,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CancelbeepButton.ModernGradientType = ModernGradientType.None;
             CancelbeepButton.Name = "CancelbeepButton";
             CancelbeepButton.OverrideFontSize = TypeStyleFontSize.None;
-            CancelbeepButton.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
+            CancelbeepButton.PainterKind = BaseControlPainterKind.Auto;
             CancelbeepButton.ParentBackColor = Color.Empty;
             CancelbeepButton.ParentControl = null;
             CancelbeepButton.PopPosition = BeepPopupFormPosition.Bottom;
@@ -305,7 +306,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.DisabledBackColor = Color.FromArgb(200, 200, 200);
             SavebeepButton.DisabledBorderColor = Color.Gray;
             SavebeepButton.DisabledForeColor = Color.Gray;
-            SavebeepButton.DisableDpiAndScaling = false;
+            //SavebeepButton.DisableDpiAndScaling = false;
             SavebeepButton.DrawingRect = new Rectangle(0, 0, 216, 58);
             SavebeepButton.Easing = EasingType.Linear;
             SavebeepButton.EmbeddedImagePath = null;
@@ -401,7 +402,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SavebeepButton.ModernGradientType = ModernGradientType.None;
             SavebeepButton.Name = "SavebeepButton";
             SavebeepButton.OverrideFontSize = TypeStyleFontSize.None;
-            SavebeepButton.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
+            SavebeepButton.PainterKind = BaseControlPainterKind.Auto;
             SavebeepButton.ParentBackColor = Color.Empty;
             SavebeepButton.ParentControl = null;
             SavebeepButton.PopPosition = BeepPopupFormPosition.Bottom;
@@ -489,7 +490,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             SystemFolderbeepComboBox.DisabledBorderColor = Color.LightGray;
             SystemFolderbeepComboBox.DisabledForeColor = Color.Gray;
-            SystemFolderbeepComboBox.DisableDpiAndScaling = true;
+            //SystemFolderbeepComboBox.DisableDpiAndScaling = true;
             SystemFolderbeepComboBox.DrawingRect = new Rectangle(9, 9, 217, 38);
             SystemFolderbeepComboBox.Easing = EasingType.Linear;
             SystemFolderbeepComboBox.EnableHighQualityRendering = true;
@@ -575,7 +576,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             SystemFolderbeepComboBox.ModernGradientType = ModernGradientType.None;
             SystemFolderbeepComboBox.Name = "SystemFolderbeepComboBox";
             SystemFolderbeepComboBox.OverrideFontSize = TypeStyleFontSize.None;
-            SystemFolderbeepComboBox.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Minimalist;
+            SystemFolderbeepComboBox.PainterKind = BaseControlPainterKind.Minimalist;
             SystemFolderbeepComboBox.ParentBackColor = Color.White;
             SystemFolderbeepComboBox.ParentControl = null;
             SystemFolderbeepComboBox.PlaceholderText = "Select an Folder";
@@ -662,7 +663,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             databaseTextBox.DisabledBorderColor = Color.LightGray;
             databaseTextBox.DisabledForeColor = Color.Gray;
-            databaseTextBox.DisableDpiAndScaling = true;
+            //databaseTextBox.DisableDpiAndScaling = true;
             databaseTextBox.DrawingRect = new Rectangle(9, 9, 217, 38);
             databaseTextBox.Easing = EasingType.Linear;
             databaseTextBox.EnableHighQualityRendering = true;
@@ -757,7 +758,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             databaseTextBox.OnlyDigits = false;
             databaseTextBox.OverrideFontSize = TypeStyleFontSize.None;
             databaseTextBox.Padding = new Padding(3);
-            databaseTextBox.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Minimalist;
+            databaseTextBox.PainterKind = BaseControlPainterKind.Minimalist;
             databaseTextBox.ParentBackColor = Color.White;
             databaseTextBox.ParentControl = null;
             databaseTextBox.PasswordChar = '\0';
@@ -857,7 +858,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             PasswordbeepTextBox.DisabledBorderColor = Color.LightGray;
             PasswordbeepTextBox.DisabledForeColor = Color.Gray;
-            PasswordbeepTextBox.DisableDpiAndScaling = true;
+            //PasswordbeepTextBox.DisableDpiAndScaling = true;
             PasswordbeepTextBox.DrawingRect = new Rectangle(9, 9, 217, 38);
             PasswordbeepTextBox.Easing = EasingType.Linear;
             PasswordbeepTextBox.EnableHighQualityRendering = true;
@@ -952,7 +953,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             PasswordbeepTextBox.OnlyDigits = false;
             PasswordbeepTextBox.OverrideFontSize = TypeStyleFontSize.None;
             PasswordbeepTextBox.Padding = new Padding(3);
-            PasswordbeepTextBox.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Minimalist;
+            PasswordbeepTextBox.PainterKind = BaseControlPainterKind.Minimalist;
             PasswordbeepTextBox.ParentBackColor = Color.White;
             PasswordbeepTextBox.ParentControl = null;
             PasswordbeepTextBox.PasswordChar = '*';
@@ -1052,7 +1053,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             OtherFolderbeepTextBox.DisabledBorderColor = Color.LightGray;
             OtherFolderbeepTextBox.DisabledForeColor = Color.Gray;
-            OtherFolderbeepTextBox.DisableDpiAndScaling = true;
+            //OtherFolderbeepTextBox.DisableDpiAndScaling = true;
             OtherFolderbeepTextBox.DrawingRect = new Rectangle(9, 9, 217, 38);
             OtherFolderbeepTextBox.Easing = EasingType.Linear;
             OtherFolderbeepTextBox.EnableHighQualityRendering = true;
@@ -1147,7 +1148,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             OtherFolderbeepTextBox.OnlyDigits = false;
             OtherFolderbeepTextBox.OverrideFontSize = TypeStyleFontSize.None;
             OtherFolderbeepTextBox.Padding = new Padding(3);
-            OtherFolderbeepTextBox.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Minimalist;
+            OtherFolderbeepTextBox.PainterKind = BaseControlPainterKind.Minimalist;
             OtherFolderbeepTextBox.ParentBackColor = Color.White;
             OtherFolderbeepTextBox.ParentControl = null;
             OtherFolderbeepTextBox.PasswordChar = '\0';
@@ -1240,7 +1241,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.DisabledBackColor = Color.FromArgb(200, 200, 200);
             LocalDbTypebeepComboBox.DisabledBorderColor = Color.LightGray;
             LocalDbTypebeepComboBox.DisabledForeColor = Color.Gray;
-            LocalDbTypebeepComboBox.DisableDpiAndScaling = true;
+            //LocalDbTypebeepComboBox.DisableDpiAndScaling = true;
             LocalDbTypebeepComboBox.DrawingRect = new Rectangle(9, 9, 217, 38);
             LocalDbTypebeepComboBox.Easing = EasingType.Linear;
             LocalDbTypebeepComboBox.EnableHighQualityRendering = true;
@@ -1326,7 +1327,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             LocalDbTypebeepComboBox.ModernGradientType = ModernGradientType.None;
             LocalDbTypebeepComboBox.Name = "LocalDbTypebeepComboBox";
             LocalDbTypebeepComboBox.OverrideFontSize = TypeStyleFontSize.None;
-            LocalDbTypebeepComboBox.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Minimalist;
+            LocalDbTypebeepComboBox.PainterKind = BaseControlPainterKind.Minimalist;
             LocalDbTypebeepComboBox.ParentBackColor = Color.White;
             LocalDbTypebeepComboBox.ParentControl = null;
             LocalDbTypebeepComboBox.PlaceholderText = "Select an Local DB Type";
@@ -1414,7 +1415,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepButton1.DisabledBorderColor = Color.Gray;
             beepButton1.DisabledForeColor = Color.Gray;
-            beepButton1.DisableDpiAndScaling = false;
+            //beepButton1.DisableDpiAndScaling = false;
             beepButton1.DrawingRect = new Rectangle(0, 0, 49, 38);
             beepButton1.Easing = EasingType.Linear;
             beepButton1.EmbeddedImagePath = "TheTechIdea.Beep.Winform.Controls.GFX.SVG.addressbook.svg";
@@ -1512,7 +1513,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepButton1.ModernGradientType = ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = TypeStyleFontSize.None;
-            beepButton1.PainterKind = Winform.Controls.Base.BaseControl.BaseControlPainterKind.Auto;
+            beepButton1.PainterKind = BaseControlPainterKind.Auto;
             beepButton1.ParentBackColor = Color.Empty;
             beepButton1.ParentControl = null;
             beepButton1.PopPosition = BeepPopupFormPosition.Bottom;

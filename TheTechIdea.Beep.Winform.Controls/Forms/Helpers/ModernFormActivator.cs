@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
- 
+
 
 namespace TheTechIdea.Beep.Winform.Controls.Forms.Helpers
 {

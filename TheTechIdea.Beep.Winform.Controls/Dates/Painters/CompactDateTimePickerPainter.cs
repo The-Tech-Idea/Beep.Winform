@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Globalization;
-using System.Linq;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Dates.Models;
 
@@ -17,8 +16,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
     /// </summary>
     public class CompactDateTimePickerPainter : IDateTimePickerPainter
     {
-    private readonly BeepDateTimePicker _owner;
-    private readonly IBeepTheme _theme;
+        private readonly BeepDateTimePicker _owner;
+        private readonly IBeepTheme _theme;
 
         public DatePickerMode Mode => DatePickerMode.Compact;
 
@@ -42,23 +41,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             PaintCompactHeader(g, layout.HeaderRect, displayMonth.ToString("MMM yyyy"), hoverState);
             
             PaintNavigationButton(g, layout.PreviousButtonRect, false, 
-                hoverState.IsAreaHovered(DateTimePickerHitArea.PreviousButton),
-                hoverState.IsAreaPressed(DateTimePickerHitArea.PreviousButton));
+                hoverState?.IsAreaHovered(DateTimePickerHitArea.PreviousButton) == true,
+                hoverState?.IsAreaPressed(DateTimePickerHitArea.PreviousButton) == true);
             
             PaintNavigationButton(g, layout.NextButtonRect, true,
-                hoverState.IsAreaHovered(DateTimePickerHitArea.NextButton),
-                hoverState.IsAreaPressed(DateTimePickerHitArea.NextButton));
+                hoverState?.IsAreaHovered(DateTimePickerHitArea.NextButton) == true,
+                hoverState?.IsAreaPressed(DateTimePickerHitArea.NextButton) == true);
 
             PaintDayNamesHeader(g, layout.DayNamesRect, properties.FirstDayOfWeek);
             PaintCalendarGrid(g, layout, displayMonth, properties, hoverState);
 
-            // Compact today button (clamped to bounds)
-            int bottomSpace = bounds.Bottom - (layout.CalendarGridRect.Bottom + 4);
-            if (bottomSpace >= 20)
+            if (!layout.TodayButtonRect.IsEmpty)
             {
-                int btnHeight = Math.Min(28, bottomSpace);
-                var todayButtonRect = new Rectangle(bounds.X + 8, layout.CalendarGridRect.Bottom + 4, bounds.Width - 16, btnHeight);
-                PaintTodayButton(g, todayButtonRect, hoverState, properties);
+                PaintTodayButton(g, layout.TodayButtonRect, hoverState, properties);
             }
         }
 
@@ -94,10 +89,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
             var accentColor = _theme?.CalendarTodayForeColor ?? Color.FromArgb(0, 120, 215);
             var hoverColor = _theme?.CalendarHoverBackColor ?? Color.FromArgb(245, 245, 245);
+            var pressedColor = ControlPaint.Dark(accentColor, 0.1f);
             var font = new Font(_theme?.FontName ?? "Segoe UI", 8.5f);
 
-            bool isHovered = false; // TODO: Add hit area
-            
+            bool isHovered = hoverState?.HoverArea == DateTimePickerHitArea.TodayButton;
+            bool isPressed = hoverState?.PressedArea == DateTimePickerHitArea.TodayButton;
+
             if (isHovered)
             {
                 using (var brush = new SolidBrush(hoverColor))
@@ -106,6 +103,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 }
             }
 
+            if (isPressed)
+            {
+                using (var brush = new SolidBrush(pressedColor))
+                {
+                    g.FillRectangle(brush, bounds);
+                }
+            }
+
+            string buttonText = properties?.TodayButtonText ?? "Today";
+
             using (var brush = new SolidBrush(accentColor))
             {
                 var format = new StringFormat
@@ -113,11 +120,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                     Alignment = StringAlignment.Center,
                     LineAlignment = StringAlignment.Center
                 };
-                g.DrawString(properties?.TodayButtonText ?? "Today", font, brush, bounds, format);
+                g.DrawString(buttonText, font, brush, bounds, format);
             }
         }
 
-        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange)
+        public void PaintDayCell(Graphics g, Rectangle cellBounds, DateTime date, bool isSelected, bool isToday, bool isDisabled, bool isHovered, bool isPressed, bool isInRange, bool isStartDate = false, bool isEndDate = false)
         {
             var accentColor = _theme?.CalendarSelectedDateBackColor ?? Color.FromArgb(0, 120, 215);
             var textColor = _theme?.CalendarForeColor ?? Color.Black;
@@ -257,59 +264,54 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
         private void PaintCalendarGrid(Graphics g, DateTimePickerLayout layout, DateTime displayMonth, DateTimePickerProperties properties, DateTimePickerHoverState hoverState)
         {
-            var firstDayOfMonth = new DateTime(displayMonth.Year, displayMonth.Month, 1);
-            var daysInMonth = DateTime.DaysInMonth(displayMonth.Year, displayMonth.Month);
-            
-            int firstDayOfWeek = (int)properties.FirstDayOfWeek;
-            int dayOffset = ((int)firstDayOfMonth.DayOfWeek - firstDayOfWeek + 7) % 7;
-
-            var prevMonth = displayMonth.AddMonths(-1);
-            var daysInPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-
-            int row = 0, col = 0;
-
-            // Previous month days
-            for (int i = 0; i < dayOffset; i++)
+            var cellMatrix = layout.DayCellMatrix;
+            if (cellMatrix == null)
             {
-                var day = daysInPrevMonth - dayOffset + i + 1;
-                var date = new DateTime(prevMonth.Year, prevMonth.Month, day);
-                var cellRect = layout.DayCellRects[row, col];
-                PaintDayCell(g, cellRect, date, false, false, true, false, false, false);
-                col++;
-                if (col >= 7) { col = 0; row++; }
-            }
-
-            // Current month days
-            for (int day = 1; day <= daysInMonth; day++)
-            {
-                var date = new DateTime(displayMonth.Year, displayMonth.Month, day);
-                var cellRect = layout.DayCellRects[row, col];
-                
-                bool isSelected = _owner.SelectedDate.HasValue && _owner.SelectedDate.Value.Date == date.Date;
-                bool isToday = date.Date == DateTime.Today;
-                bool isDisabled = date < properties.MinDate || date > properties.MaxDate;
-                bool isHovered = hoverState.IsDateHovered(date);
-                bool isPressed = hoverState.IsDatePressed(date);
-                
-                PaintDayCell(g, cellRect, date, isSelected, isToday, isDisabled, isHovered, isPressed, false);
-                
-                col++;
-                if (col >= 7) { col = 0; row++; }
-            }
-
-            // Next month days
-            var nextMonth = displayMonth.AddMonths(1);
-            while (row < 6)
-            {
-                for (int day = 1; col < 7; day++)
+                if (layout.DayCellRects != null && layout.DayCellRects.Count == 42)
                 {
-                    var date = new DateTime(nextMonth.Year, nextMonth.Month, day);
-                    var cellRect = layout.DayCellRects[row, col];
-                    PaintDayCell(g, cellRect, date, false, false, true, false, false, false);
-                    col++;
+                    cellMatrix = new Rectangle[6, 7];
+                    for (int index = 0; index < layout.DayCellRects.Count; index++)
+                    {
+                        int r = index / 7;
+                        int c = index % 7;
+                        cellMatrix[r, c] = layout.DayCellRects[index];
+                    }
+                    layout.DayCellMatrix = cellMatrix;
                 }
-                col = 0;
-                row++;
+                else
+                {
+                    return;
+                }
+            }
+
+            int rows = cellMatrix.GetLength(0);
+            int cols = cellMatrix.GetLength(1);
+
+            for (int row = 0; row < rows; row++)
+            {
+                for (int col = 0; col < cols; col++)
+                {
+                    Rectangle cellRect = cellMatrix[row, col];
+                    if (cellRect.Width <= 0 || cellRect.Height <= 0)
+                    {
+                        continue;
+                    }
+
+                    DateTime cellDate = GetDateFromCell(row, col, displayMonth, properties.FirstDayOfWeek);
+
+                    bool isOtherMonth = cellDate.Month != displayMonth.Month || cellDate.Year != displayMonth.Year;
+                    bool isOutOfRange = (properties.MinDate.HasValue && cellDate.Date < properties.MinDate.Value.Date) ||
+                                        (properties.MaxDate.HasValue && cellDate.Date > properties.MaxDate.Value.Date);
+                    bool isDisabled = isOtherMonth || isOutOfRange;
+
+                    bool isSelected = !isOtherMonth &&
+                        _owner.SelectedDate.HasValue && _owner.SelectedDate.Value.Date == cellDate.Date;
+                    bool isToday = cellDate.Date == DateTime.Today;
+                    bool isHovered = !isDisabled && hoverState != null && hoverState.IsDateHovered(cellDate);
+                    bool isPressed = !isDisabled && hoverState != null && hoverState.IsDatePressed(cellDate);
+
+                    PaintDayCell(g, cellRect, cellDate, isSelected, isToday, isDisabled, isHovered, isPressed, false);
+                }
             }
         }
 
@@ -351,13 +353,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
 
             layout.CellWidth = gridWidth / 7;
             layout.CellHeight = gridHeight / 6;
-            layout.DayCellRects = new Rectangle[6, 7];
+            var cellMatrix = new Rectangle[6, 7];
 
             for (int row = 0; row < 6; row++)
             {
                 for (int col = 0; col < 7; col++)
                 {
-                    layout.DayCellRects[row, col] = new Rectangle(
+                    cellMatrix[row, col] = new Rectangle(
                         layout.CalendarGridRect.X + col * layout.CellWidth,
                         layout.CalendarGridRect.Y + row * layout.CellHeight,
                         layout.CellWidth,
@@ -366,70 +368,39 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates.Painters
                 }
             }
 
+            layout.DayCellMatrix = cellMatrix;
+
+            // Compute today button area when there is available vertical space
+            int bottomSpace = bounds.Bottom - (layout.CalendarGridRect.Bottom + padding);
+            if (bottomSpace >= 20)
+            {
+                int buttonHeight = Math.Min(28, bottomSpace);
+                layout.TodayButtonRect = new Rectangle(
+                    bounds.X + padding,
+                    layout.CalendarGridRect.Bottom + 4,
+                    bounds.Width - padding * 2,
+                    buttonHeight);
+            }
+            else
+            {
+                layout.TodayButtonRect = Rectangle.Empty;
+            }
+
+            // Register all hit areas with BaseControl's hit test system
+            _owner.HitTestHelper?.RegisterHitAreas(layout, properties, _owner.DisplayMonth);
+
             return layout;
-        }
-        public DateTimePickerHitTestResult HitTest(Point location, DateTimePickerLayout layout, DateTime displayMonth)
-        {
-            var result = new DateTimePickerHitTestResult();
-
-            if (layout.PreviousButtonRect.Contains(location))
-            {
-                result.HitArea = DateTimePickerHitArea.PreviousButton;
-                result.HitBounds = layout.PreviousButtonRect;
-                return result;
-            }
-
-            if (layout.NextButtonRect.Contains(location))
-            {
-                result.HitArea = DateTimePickerHitArea.NextButton;
-                result.HitBounds = layout.NextButtonRect;
-                return result;
-            }
-
-            if (layout.CalendarGridRect.Contains(location))
-            {
-                for (int row = 0; row < 6; row++)
-                {
-                    for (int col = 0; col < 7; col++)
-                    {
-                        if (layout.DayCellRects[row, col].Contains(location))
-                        {
-                            var date = GetDateFromCell(row, col, displayMonth, _owner.FirstDayOfWeek);
-                            result.HitArea = DateTimePickerHitArea.DayCell;
-                            result.Date = date;
-                            result.HitBounds = layout.DayCellRects[row, col];
-                            return result;
-                        }
-                    }
-                }
-            }
-
-            return result;
         }
 
         private DateTime GetDateFromCell(int row, int col, DateTime displayMonth, DatePickerFirstDayOfWeek firstDayOfWeek)
         {
-            var firstDayOfMonth = new DateTime(displayMonth.Year, displayMonth.Month, 1);
-            int firstDayOfWeekNum = (int)firstDayOfWeek;
-            int dayOffset = ((int)firstDayOfMonth.DayOfWeek - firstDayOfWeekNum + 7) % 7;
-            
-            int dayIndex = row * 7 + col - dayOffset + 1;
-            
-            if (dayIndex < 1)
-            {
-                var prevMonth = displayMonth.AddMonths(-1);
-                var daysInPrevMonth = DateTime.DaysInMonth(prevMonth.Year, prevMonth.Month);
-                return new DateTime(prevMonth.Year, prevMonth.Month, daysInPrevMonth + dayIndex);
-            }
-            
-            var daysInMonth = DateTime.DaysInMonth(displayMonth.Year, displayMonth.Month);
-            if (dayIndex > daysInMonth)
-            {
-                var nextMonth = displayMonth.AddMonths(1);
-                return new DateTime(nextMonth.Year, nextMonth.Month, dayIndex - daysInMonth);
-            }
-            
-            return new DateTime(displayMonth.Year, displayMonth.Month, dayIndex);
+            DateTime firstDayOfMonth = new DateTime(displayMonth.Year, displayMonth.Month, 1);
+            DayOfWeek startOfWeek = (DayOfWeek)(int)firstDayOfWeek;
+
+            int daysFromStart = ((int)firstDayOfMonth.DayOfWeek - (int)startOfWeek + 7) % 7;
+            int dayOffset = row * 7 + col - daysFromStart;
+
+            return firstDayOfMonth.AddDays(dayOffset);
         }
 
         public Size GetPreferredSize(DateTimePickerProperties properties)

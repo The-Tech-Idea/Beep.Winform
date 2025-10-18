@@ -92,6 +92,15 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private int _minWidth = 150;
         private int _maxWidth = 400;
         
+        // Scrolling support
+        private int _maxHeight = 600; // Maximum height before scrolling
+        private int _minHeight = 0; // Will be calculated as one item height + padding
+        private VScrollBar _scrollBar;
+        private int _scrollOffset = 0;
+        private bool _needsScrolling = false;
+        private int _totalContentHeight = 0;
+        private const int SCROLL_BAR_WIDTH = 17;
+        
         // Visual state
         private SimpleItem _hoveredItem = null;
         private int _hoveredIndex = -1;
@@ -139,7 +148,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         
         #region Initialization
         
-        public BeepContextMenu()
+        public BeepContextMenu():base()
         {
             InitializeComponent();
             InitializeControl();
@@ -148,22 +157,26 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
         private void InitializeControl()
         {
             // Form setup
+            AutoScaleMode = AutoScaleMode.Inherit;
             FormBorderStyle = FormBorderStyle.None;
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;
             BackColor = Color.White;
-          //  ShowCaptionBar = false;
-            // Double buffering for smooth rendering
-            SetStyle(ControlStyles.AllPaintingInWmPaint | 
-                     ControlStyles.UserPaint | 
-                     ControlStyles.OptimizedDoubleBuffer | 
-                     ControlStyles.ResizeRedraw, true);
-            UpdateStyles();
-            
+          
+
+            Padding = new Padding(1);
+            //Double buffering for smooth rendering
+
+           SetStyle(ControlStyles.AllPaintingInWmPaint |
+                    ControlStyles.UserPaint |
+                    ControlStyles.OptimizedDoubleBuffer |
+                    ControlStyles.ResizeRedraw, true);
+           UpdateStyles();
+
             // DPI awareness
-            UpdateDpiScale();
-            
+
+
             // Initialize helpers
             _inputHelper = new BeepContextMenuInputHelper(this);
             _layoutHelper = new BeepContextMenuLayoutHelper(this);
@@ -181,12 +194,22 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             _fadeTimer.Interval = FADE_INTERVAL;
             _fadeTimer.Tick += FadeTimer_Tick;
             
+            // Initialize scrollbar
+            _scrollBar = new VScrollBar();
+            _scrollBar.Dock = DockStyle.Right;
+            _scrollBar.Width = SCROLL_BAR_WIDTH;
+            _scrollBar.Visible = false;
+            _scrollBar.Scroll += ScrollBar_Scroll;
+            _scrollBar.TabStop = false;
+            this.Controls.Add(_scrollBar);
+            
             // Event handlers
             this.MouseMove += BeepContextMenu_MouseMove;
             this.MouseClick += BeepContextMenu_MouseClick;
             this.MouseLeave += BeepContextMenu_MouseLeave;
             this.Deactivate += BeepContextMenu_Deactivate;
             this.VisibleChanged += BeepContextMenu_VisibleChanged;
+            this.MouseWheel += BeepContextMenu_MouseWheel;
 
             // Initialize theme based on BeepThemesManager
             try
@@ -200,15 +223,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             catch { /* best-effort */ }
         }
 
-        public void UpdateDpiScale()
-        {
-            using (var g = CreateGraphics())
-            {
-                _scaleFactor = g.DpiX / 96f;
-            }
-        }
-        
-        public int ScaleDpi(int value) => (int)(value * _scaleFactor);
+   
 
         public void SetPainter(FormStyle type)
         {

@@ -1059,14 +1059,17 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BaseImage\Helpers\" />
+    <Folder Include="BeepDateTimePicker\" />
     <Folder Include="ComboBoxes\Helpers\" />
     <Folder Include="ComboBoxes\Painters\" />
     <Folder Include="ContextMenus\Helpers\" />
+    <Folder Include="Dates\Internal\DaysPainters\" />
     <Folder Include="DialogsManagers\Forms\" />
     <Folder Include="DialogsManagers\Helpers\" />
     <Folder Include="DialogsManagers\Models\" />
     <Folder Include="Examples\" />
     <Folder Include="Forms\BeepMainForm\" />
+    <Folder Include="Forms\Enums\" />
     <Folder Include="Forms\PopUpForm\" />
     <Folder Include="Forms\Properties\" />
     <Folder Include="GridX\Layouts\FooterLayouts\" />

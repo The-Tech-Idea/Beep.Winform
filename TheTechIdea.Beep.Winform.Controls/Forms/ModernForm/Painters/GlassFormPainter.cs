@@ -212,9 +212,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
 
-            // Create rounded rectangle path for border
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-
+             using var path = owner.BorderShape;
             // Draw subtle glass border
             using var borderPen = new Pen(Color.FromArgb(40, 255, 255, 255), 1);
             g.DrawPath(borderPen, path);

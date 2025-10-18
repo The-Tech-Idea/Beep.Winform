@@ -35,9 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         // Add spacing between header and subheader
     private int _headerSubheaderSpacing = 2;
     // Constants - framework handles DPI scaling
-    private int DpiOffset => offset;
-    private int DpiHeaderSubheaderSpacing => _headerSubheaderSpacing;
-    private Size DpiMaxImageSize => GetScaledImageSize(_maxImageSize);
+   
         #endregion "Fields"
 
         #region "Properties"
@@ -376,7 +374,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var subFont = SubHeaderFont ?? Font;
                 var subHeaderMeasuredSize = System.Windows.Forms.TextRenderer.MeasureText(SubHeaderText, subFont);
                 textSize.Width = Math.Max(textSize.Width, subHeaderMeasuredSize.Width);
-                textSize.Height += DpiHeaderSubheaderSpacing + subHeaderMeasuredSize.Height;
+                textSize.Height +=  subHeaderMeasuredSize.Height;
             }
             
             // Use a reasonable default content size if no text
@@ -445,14 +443,14 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 int textWidth = Math.Max(headerSize.Width, hasSub ? subSize.Width : 0);
-                int textHeight = headerSize.Height + (hasSub ? DpiHeaderSubheaderSpacing + subSize.Height : 0);
+                int textHeight = headerSize.Height + (hasSub ? subSize.Height : 0);
 
                 // 3) Image size (if any) limited by MaxImageSize
                 Size imgSize = Size.Empty;
                 if (beepImage?.HasImage == true)
                 {
                     imgSize = beepImage.GetImageSize();
-                    var maxSz = DpiMaxImageSize;
+                    var maxSz = MaxImageSize;
                     if (imgSize.Width > maxSz.Width || imgSize.Height > maxSz.Height)
                     {
                         float scale = Math.Min(
@@ -465,7 +463,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
 
                 // 4) Combine content sizes; account for image+text spacing if both exist
-                int contentW = textWidth + (imgSize != Size.Empty ? (DpiOffset + imgSize.Width) : 0);
+                int contentW = textWidth + (imgSize != Size.Empty ? (imgSize.Width) : 0);
                 int contentH = Math.Max(textHeight, imgSize.Height);
 
                 // Include control padding
@@ -641,7 +639,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (imageSize.Width > _maxImageSize.Width || imageSize.Height > _maxImageSize.Height)
             {
-                var maxSz = DpiMaxImageSize;
+                var maxSz = MaxImageSize;
                 float scaleFactor = Math.Min(
                     (float)maxSz.Width / Math.Max(1, imageSize.Width),
                     (float)maxSz.Height / Math.Max(1, imageSize.Height));
@@ -685,7 +683,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             int combinedTextHeight = headerTextSize.Height;
             if (hasSubHeader)
             {
-                combinedTextHeight += DpiHeaderSubheaderSpacing + subHeaderTextSize.Height;
+                combinedTextHeight += subHeaderTextSize.Height;
             }
 
             // Define text area rect (total area needed for all text)
@@ -734,7 +732,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 {
                     Rectangle subHeaderTextRect = new Rectangle(
                         textAreaRect.X,
-                        headerTextRect.Bottom + DpiHeaderSubheaderSpacing,
+                        headerTextRect.Bottom ,
                         textAreaRect.Width,
                         subHeaderTextSize.Height);
 
@@ -745,17 +743,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         }
 
-        // Ensure label updates layout when DPI changes
-        protected override void OnDpiChanged()
-        {
-            base.OnDpiChanged();
-            UpdateMinimumSize();
-            if (AutoSize)
-            {
-                this.Size = GetPreferredSize(new Size(this.Width, 0));
-            }
-            Invalidate();
-        }
+      
 
         #endregion "Painting"
 
@@ -891,7 +879,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             if (hasSubHeader)
             {
-                textHeight += DpiHeaderSubheaderSpacing + subHeaderTextSize.Height;
+                textHeight += subHeaderTextSize.Height;
             }
 
             Size imageSize = beepImage?.HasImage == true ? beepImage.GetImageSize() : Size.Empty;
@@ -958,7 +946,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     textSize = TextRenderer.MeasureText(Text, _textFont, new Size(contentRect.Width, int.MaxValue), GetTextFormatFlags(TextAlign) | TextFormatFlags.WordBreak);
                 }
                 // Calculate the total width required for text, image, and spacing
-                int totalWidth = textSize.Width + DpiOffset + imageSize.Width;
+                int totalWidth = textSize.Width +  imageSize.Width;
                 int totalHeight = Math.Max(textSize.Height, imageSize.Height);
 
                 // Adjust contentRect to fit the total content
@@ -973,29 +961,29 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     case TextImageRelation.ImageBeforeText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, imageSize.Width, contentRect.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width + DpiOffset, contentRect.Top, contentRect.Width - imageSize.Width - DpiOffset, contentRect.Height), textSize, TextAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left + imageSize.Width  , contentRect.Top, contentRect.Width - imageSize.Width  , contentRect.Height), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextBeforeImage:
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, textSize.Width, contentRect.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width + DpiOffset, contentRect.Top, contentRect.Width - textSize.Width - DpiOffset, contentRect.Height), imageSize, ImageAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left + textSize.Width  , contentRect.Top, contentRect.Width - textSize.Width  , contentRect.Height), imageSize, ImageAlign);
                         break;
 
                     case TextImageRelation.ImageAboveText:
                         imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, imageSize.Height), imageSize, ImageAlign);
-                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height + DpiOffset, contentRect.Width, contentRect.Height - imageSize.Height - DpiOffset), textSize, TextAlign);
+                        textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + imageSize.Height  , contentRect.Width, contentRect.Height - imageSize.Height  ), textSize, TextAlign);
                         break;
 
                     case TextImageRelation.TextAboveImage:
                         textRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top, contentRect.Width, textSize.Height), textSize, TextAlign);
-                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height + DpiOffset, contentRect.Width, contentRect.Height - textSize.Height - DpiOffset), imageSize, ImageAlign);
+                        imageRect = AlignRectangle(new Rectangle(contentRect.Left, contentRect.Top + textSize.Height  , contentRect.Width, contentRect.Height - textSize.Height  ), imageSize, ImageAlign);
                         break;
                 }
                 // Adjust positions based on TextAlign and ImageAlign within the contentRect
                 if (TextImageRelation == TextImageRelation.TextBeforeImage)
                 {
                     // Recalculate the total content width and adjust positions
-                    int contentWidth = textRect.Width + DpiOffset + imageRect.Width;
+                    int contentWidth = textRect.Width   + imageRect.Width;
                     int contentHeight = Math.Max(textRect.Height, imageRect.Height);
 
                     // Center the entire content (text + image) within the contentRect based on TextAlign
@@ -1042,7 +1030,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
                     // Adjust text and image positions within the content area
                     textRect = new Rectangle(contentX, contentY + (contentHeight - textRect.Height) / 2, textRect.Width, textRect.Height);
-                    imageRect = new Rectangle(contentX + textRect.Width + DpiOffset, contentY + (contentHeight - imageRect.Height) / 2, imageRect.Width, imageRect.Height);
+                    imageRect = new Rectangle(contentX + textRect.Width  , contentY + (contentHeight - imageRect.Height) / 2, imageRect.Width, imageRect.Height);
                 }
             }
         }
@@ -1220,7 +1208,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         /// </summary>
         public string GetMaterialSizeInfo()
         {
-            if (PainterKind != Base.BaseControl.BaseControlPainterKind.Material)
+            if (PainterKind != BaseControlPainterKind.Material)
                 return "Material Design is disabled";
                 
             var padding = GetMaterialStylePadding();

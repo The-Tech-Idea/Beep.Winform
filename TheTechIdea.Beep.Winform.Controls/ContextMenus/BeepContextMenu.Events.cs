@@ -248,6 +248,32 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus
             Opacity = _opacity;
         }
         
+        private void ScrollBar_Scroll(object sender, ScrollEventArgs e)
+        {
+            _scrollOffset = e.NewValue;
+            Invalidate();
+        }
+        
+        private void BeepContextMenu_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (!_needsScrolling) return;
+            
+            // Calculate new scroll position
+            int delta = e.Delta / 120; // Standard mouse wheel delta
+            int scrollAmount = delta * _scrollBar.SmallChange;
+            int newValue = _scrollBar.Value - scrollAmount;
+            
+            // Clamp to valid range
+            newValue = Math.Max(_scrollBar.Minimum, Math.Min(newValue, _scrollBar.Maximum - _scrollBar.LargeChange + 1));
+            
+            if (newValue != _scrollBar.Value)
+            {
+                _scrollBar.Value = newValue;
+                _scrollOffset = newValue;
+                Invalidate();
+            }
+        }
+        
         #endregion
     }
     

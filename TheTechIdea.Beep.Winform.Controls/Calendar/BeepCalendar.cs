@@ -776,7 +776,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             using (var brush = new SolidBrush(eventColor))
             {
-                using (var path = GetRoundedRectPath(rect, 3))
+                using (var path = GraphicsExtensions.GetRoundedRectPath(rect, 3))
                 {
                     g.FillPath(brush, path);
                 }
@@ -886,7 +886,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             using (var brush = new SolidBrush(Color.FromArgb(200, eventColor)))
             {
-                using (var path = GetRoundedRectPath(rect, 5))
+                using (var path = GraphicsExtensions.GetRoundedRectPath(rect, 5))
                 {
                     g.FillPath(brush, path);
                 }
@@ -894,7 +894,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Calendar
 
             using (var pen = new Pen(eventColor, 2))
             {
-                using (var path = GetRoundedRectPath(rect, 5))
+                using (var path = GraphicsExtensions.GetRoundedRectPath(rect, 5))
                 {
                     g.DrawPath(pen, path);
                 }

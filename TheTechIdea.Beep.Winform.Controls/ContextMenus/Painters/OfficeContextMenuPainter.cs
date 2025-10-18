@@ -36,7 +36,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             }
             
             // Draw icon column background
-            int iconColumnWidth = owner.ScaleDpi(32);
+            int iconColumnWidth = 32;
             var iconColumnRect = new Rectangle(0, 0, iconColumnWidth, bounds.Height);
             using (var brush = new SolidBrush(Color.FromArgb(240, metrics.BackgroundColor)))
             {
@@ -50,14 +50,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         {
             if (items == null || items.Count == 0) return;
             
-            int y = owner.ScaleDpi(2);
+            int y = 2;
             
             foreach (var item in items)
             {
                 if (IsSeparator(item))
                 {
                     DrawSeparator(g, owner, item, y, metrics, theme);
-                    y += owner.ScaleDpi(6);
+                    y += 6;
                     continue;
                 }
                 
@@ -86,7 +86,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         private void DrawItem(Graphics g, BeepContextMenu owner, SimpleItem item, Rectangle itemRect, 
             bool isSelected, bool isHovered, ContextMenuMetrics metrics, IBeepTheme theme)
         {
-            int iconColumnWidth = owner.ScaleDpi(32);
+            int iconColumnWidth = 32;
             
             // Draw hover/selection background (only in text area, not icon column)
             var textAreaRect = new Rectangle(iconColumnWidth, itemRect.Top, 
@@ -122,25 +122,25 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             // Draw checkbox in icon column
             if (owner.ShowCheckBox)
             {
-                var checkRect = new Rectangle(owner.ScaleDpi(8), 
-                    itemRect.Y + (itemRect.Height - owner.ScaleDpi(16)) / 2, 
-                    owner.ScaleDpi(16), owner.ScaleDpi(16));
+                var checkRect = new Rectangle(8, 
+                    itemRect.Y + (itemRect.Height - 16) / 2, 
+                    16, 16);
                 DrawOfficeCheckBox(g, checkRect, item.IsChecked, !item.IsEnabled, theme);
             }
             
             // Draw icon in icon column
             if (owner.ShowImage && !string.IsNullOrEmpty(item.ImagePath))
             {
-                int iconSize = owner.ScaleDpi(16);
-                var iconRect = new Rectangle(owner.ScaleDpi(8), 
+                int iconSize = 16;
+                var iconRect = new Rectangle(8, 
                     itemRect.Y + (itemRect.Height - iconSize) / 2, iconSize, iconSize);
                 DrawIcon(g, iconRect, item.ImagePath, !item.IsEnabled);
             }
             
             // Draw text with proper color states
-            int textX = iconColumnWidth + owner.ScaleDpi(6);
+            int textX = iconColumnWidth + 6;
             var textRect = new Rectangle(textX, itemRect.Y, 
-                itemRect.Width - textX - owner.ScaleDpi(6), itemRect.Height);
+                itemRect.Width - textX - 6, itemRect.Height);
             
             Color textColor;
             if (!item.IsEnabled)
@@ -166,8 +166,8 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             // Draw shortcut using KeyCombination
             if (owner.ShowShortcuts && !string.IsNullOrEmpty(item.KeyCombination))
             {
-                var shortcutRect = new Rectangle(itemRect.Right - owner.ScaleDpi(80), itemRect.Y, 
-                    owner.ScaleDpi(70), itemRect.Height);
+                var shortcutRect = new Rectangle(itemRect.Right - 80, itemRect.Y, 
+                        70, itemRect.Height);
                 var shortcutColor = !item.IsEnabled ? theme.DisabledForeColor : 
                     Color.FromArgb(120, theme.MenuItemForeColor);
                 
@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             // Draw submenu arrow
             if (item.Children != null && item.Children.Count > 0)
             {
-                var arrowRect = new Rectangle(itemRect.Right - owner.ScaleDpi(16), 
+                var arrowRect = new Rectangle(itemRect.Right - 16, 
                     itemRect.Y + (itemRect.Height - 8) / 2, 8, 8);
                 DrawOfficeArrow(g, arrowRect, !item.IsEnabled, theme);
             }
@@ -253,10 +253,10 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         {
             if (!owner.ShowSeparators) return;
             
-            int lineY = y + owner.ScaleDpi(3);
-            int iconColumnWidth = owner.ScaleDpi(32);
-            int x = iconColumnWidth + owner.ScaleDpi(2);
-            int width = owner.Width - x - owner.ScaleDpi(4);
+            int lineY = y + 3;
+            int iconColumnWidth = 32;
+            int x = iconColumnWidth + 2;
+            int width = owner.Width - x - 4;
             
             using (var pen = new Pen(metrics.SeparatorColor, 1))
             {

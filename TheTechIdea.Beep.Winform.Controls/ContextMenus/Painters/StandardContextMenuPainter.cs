@@ -49,7 +49,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
                 if (IsSeparator(item))
                 {
                     DrawSeparator(g, owner, item, y, metrics, theme);
-                    y += owner.ScaleDpi(8);
+                    y += 8;
                     continue;
                 }
                 
@@ -97,14 +97,14 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
                 }
             }
             
-            int x = owner.ScaleDpi(8);
+            int x = 8;
             
             // Draw checkbox
             if (owner.ShowCheckBox)
             {
                 var checkRect = owner.LayoutHelper.GetCheckBoxRect(item);
                 DrawCheckBox(g, checkRect, item.IsChecked, !item.IsEnabled, theme);
-                x += owner.ScaleDpi(20);
+                x += 20;
             }
             
             // Draw icon
@@ -112,7 +112,7 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
             {
                 var iconRect = owner.LayoutHelper.GetIconRect(item);
                 DrawIcon(g, iconRect, item.ImagePath, !item.IsEnabled);
-                x += owner.ImageSize + owner.ScaleDpi(4);
+                x += owner.ImageSize + 4;
             }
             
             // Draw text with proper Menu colors
@@ -225,9 +225,9 @@ namespace TheTechIdea.Beep.Winform.Controls.ContextMenus.Painters
         {
             if (!owner.ShowSeparators) return;
             
-            int lineY = y + owner.ScaleDpi(4);
-            int x = owner.ScaleDpi(8);
-            int width = owner.Width - owner.ScaleDpi(16);
+            int lineY = y + 4;
+            int x = 8;
+            int width = owner.Width - 16;
             
             using (var pen = new Pen(metrics.SeparatorColor, 1))
             {

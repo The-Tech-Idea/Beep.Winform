@@ -1,6 +1,7 @@
 
 using System.ComponentModel;
 using System.ComponentModel.Design;
+using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
@@ -80,6 +81,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
     [ComplexBindingProperties("DataSource", "DataMember")] // Enable designer complex data binding support
     public  class BeepGridPro : BaseControl
     {
+        // Windows API for preventing flicker
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, int wMsg, bool wParam, int lParam);
+        
+        private const int WM_SETREDRAW = 0x000B;
+        private const int WM_ERASEBKGND = 0x0014;
 
         // Dedicated host layer for in-place editors (DevExpress-like practice)
        // private readonly Panel _editorHost;
@@ -184,6 +191,76 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal void SetEntityType(Type entityType)
         {
             _entityType = entityType;
+        }
+
+        // Track update suspension for flicker-free bulk operations
+        private int _updateCount = 0;
+
+        /// <summary>
+        /// Suspends painting to allow multiple operations without flickering
+        /// Uses Windows API WM_SETREDRAW for maximum effectiveness
+        /// </summary>
+        public void BeginUpdate()
+        {
+            if (_updateCount == 0 && IsHandleCreated)
+            {
+                SendMessage(Handle, WM_SETREDRAW, false, 0);
+            }
+            _updateCount++;
+        }
+
+        /// <summary>
+        /// Resumes painting after BeginUpdate and refreshes the control
+        /// </summary>
+        public void EndUpdate()
+        {
+            if (_updateCount > 0)
+            {
+                _updateCount--;
+                if (_updateCount == 0 && IsHandleCreated)
+                {
+                    SendMessage(Handle, WM_SETREDRAW, true, 0);
+                    Invalidate(true); // true = invalidate children too
+                    Update(); // Force immediate repaint
+                }
+            }
+        }
+
+        /// <summary>
+        /// Override WndProc to handle WM_ERASEBKGND and prevent background flicker
+        /// Since we use double buffering, we don't need Windows to erase the background
+        /// </summary>
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == WM_ERASEBKGND)
+            {
+                // Always prevent erasing background - we handle all painting ourselves with double buffering
+                m.Result = (IntPtr)1;
+                return;
+            }
+            base.WndProc(ref m);
+        }
+
+        /// <summary>
+        /// Override OnPaintBackground to prevent any background painting
+        /// </summary>
+        protected override void OnPaintBackground(PaintEventArgs e)
+        {
+            // Don't call base - we handle all painting in OnPaint/DrawContent
+            // This prevents flicker from background erase
+        }
+
+        /// <summary>
+        /// Override CreateParams to add WS_EX_COMPOSITED style for better flicker reduction
+        /// </summary>
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.ExStyle |= 0x02000000; // WS_EX_COMPOSITED - reduces flicker by compositing all children
+                return cp;
+            }
         }
 
         [Browsable(true)]
@@ -537,17 +614,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             if (!DesignMode)
             {
                 ScrollBars?.UpdateBars();
-                Invalidate();
+                // Don't call Invalidate() here - ResizeRedraw style already triggers repaint
+                // Calling Invalidate() here causes flicker because it forces an extra paint cycle
             }
         }
 
         protected override void DrawContent(Graphics g)
         {
-           // Console.WriteLine("BeepGridPro DrawContent START");
+            // Console.WriteLine("BeepGridPro DrawContent START");
 
             // Call base for graphics setup and UpdateDrawingRect (now handled by BaseControl)
-            base.DrawContent(g);
-
+            //  base.DrawContent(g);
+            UpdateDrawingRect();
             // Clip to the DrawingRect to ensure grid draws within the intended area
             var drawingRect = DrawingRect;
             if (drawingRect.Width <= 0 || drawingRect.Height <= 0)
@@ -559,23 +637,23 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
            // Console.WriteLine("BeepGridPro DrawContent - DrawingRect: " + drawingRect.ToString());
 
             // Save the current graphics state
-            var graphicsState = g.Save();
+          //  var graphicsState = g.Save();
 
             try
             {
                 // Set clipping region to DrawingRect
-                g.SetClip(drawingRect);
+           //     g.SetClip(drawingRect);
 
                 // Now do our custom grid drawing within the clipped area
                // Console.WriteLine("BeepGridPro DrawContent called");
                // Console.WriteLine("BeepGridPro DrawContent - Starting layout calculation");
-                Layout?.EnsureCalculated();
+               // Layout?.EnsureCalculated();
                // Console.WriteLine("BeepGridPro Layout calculated");
-                Render?.Draw(g);
+               Render?.Draw(g);
                // Console.WriteLine("BeepGridPro Render completed");
 
                 // Draw custom scrollbars after grid content
-                ScrollBars?.DrawScrollBars(g);
+               // ScrollBars?.DrawScrollBars(g);
                // Console.WriteLine("BeepGridPro ScrollBars drawn");
             }
             catch (Exception ex)
@@ -585,14 +663,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             finally
             {
                 // Always restore the graphics state
-                g.Restore(graphicsState);
+               // g.Restore(graphicsState);
             }
 
             // Keep scrollbars in sync after rendering (outside clipping)
-            if (!DesignMode)
-            {
-                ScrollBars?.UpdateBars();
-            }
+            //if (!DesignMode)
+            //{
+            //    ScrollBars?.UpdateBars();
+            //}
 
            // Console.WriteLine("BeepGridPro DrawContent END");
         }

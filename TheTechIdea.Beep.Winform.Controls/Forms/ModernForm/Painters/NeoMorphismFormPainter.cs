@@ -171,8 +171,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
         {
             var metrics = GetMetrics(owner);
             var radius = GetCornerRadius(owner);
-            using var path = CreateRoundedRectanglePath(owner.ClientRectangle, radius);
-            
+             using var path = owner.BorderShape;
             // NeoMorphism: Very thin border (1px) or nearly invisible
             using var pen = new Pen(metrics.BorderColor, 1);
             pen.Color = Color.FromArgb(30, metrics.BorderColor); // Very subtle

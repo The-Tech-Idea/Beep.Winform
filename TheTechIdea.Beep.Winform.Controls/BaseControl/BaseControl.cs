@@ -6,7 +6,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers;
- 
+
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Base.Helpers.Painters;
@@ -25,6 +25,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         protected bool IsReadyForDrawing => !IsDisposed && IsHandleCreated && Width > 0 && Height > 0 && !_isInitializing;
 
         protected static bool IsValidRectangle(Rectangle rect) => rect.Width > 0 && rect.Height > 0;
+
+        /// <summary>
+        /// When true, BaseControl will clear the graphics context before drawing.
+        /// Override to false in derived controls that handle their own complete rendering (e.g., grids)
+        /// </summary>
+        protected virtual bool AllowBaseControlClear => true;
 
         private string _themeName;
         internal IBeepTheme _currentTheme; // defer initialization to runtime-safe paths

@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Helpers
@@ -11,6 +12,58 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
     /// </summary>
     public static class GraphicsExtensions
     {
+        public static GraphicsPath CreateRoundedRectanglePath(RectangleF     rect, CornerRadius radius)
+        {
+            var path = new GraphicsPath();
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                path.AddRectangle(new RectangleF(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height)));
+                return path;
+            }
+            int maxRadius = (int)(Math.Min(rect.Width, rect.Height) / 2);
+            int tl = Math.Max(0, Math.Min(radius.TopLeft, maxRadius));
+            int tr = Math.Max(0, Math.Min(radius.TopRight, maxRadius));
+            int br = Math.Max(0, Math.Min(radius.BottomRight, maxRadius));
+            int bl = Math.Max(0, Math.Min(radius.BottomLeft, maxRadius));
+            if (tl == 0 && tr == 0 && br == 0 && bl == 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+            if (tl > 0) path.AddArc(rect.X, rect.Y, tl * 2, tl * 2, 180, 90); else path.AddLine(rect.X, rect.Y, rect.X, rect.Y);
+            if (tr > 0) path.AddArc(rect.Right - tr * 2, rect.Y, tr * 2, tr * 2, 270, 90); else path.AddLine(rect.Right, rect.Y, rect.Right, rect.Y);
+            if (br > 0) path.AddArc(rect.Right - br * 2, rect.Bottom - br * 2, br * 2, br * 2, 0, 90); else path.AddLine(rect.Right, rect.Bottom, rect.Right, rect.Bottom);
+            if (bl > 0) path.AddArc(rect.X, rect.Bottom - bl * 2, bl * 2, bl * 2, 90, 90); else path.AddLine(rect.X, rect.Bottom, rect.X, rect.Bottom);
+            path.CloseFigure();
+            return path;
+        }
+
+        public static GraphicsPath CreateRoundedRectanglePath(Rectangle rect, CornerRadius radius)
+        {
+            var path = new GraphicsPath();
+            if (rect.Width <= 0 || rect.Height <= 0)
+            {
+                path.AddRectangle(new Rectangle(rect.X, rect.Y, Math.Max(1, rect.Width), Math.Max(1, rect.Height)));
+                return path;
+            }
+            int maxRadius = (int)(Math.Min(rect.Width, rect.Height) / 2);
+            int tl = Math.Max(0, Math.Min(radius.TopLeft, maxRadius));
+            int tr = Math.Max(0, Math.Min(radius.TopRight, maxRadius));
+            int br = Math.Max(0, Math.Min(radius.BottomRight, maxRadius));
+            int bl = Math.Max(0, Math.Min(radius.BottomLeft, maxRadius));
+            if (tl == 0 && tr == 0 && br == 0 && bl == 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+            if (tl > 0) path.AddArc(rect.X, rect.Y, tl * 2, tl * 2, 180, 90); else path.AddLine(rect.X, rect.Y, rect.X, rect.Y);
+            if (tr > 0) path.AddArc(rect.Right - tr * 2, rect.Y, tr * 2, tr * 2, 270, 90); else path.AddLine(rect.Right, rect.Y, rect.Right, rect.Y);
+            if (br > 0) path.AddArc(rect.Right - br * 2, rect.Bottom - br * 2, br * 2, br * 2, 0, 90); else path.AddLine(rect.Right, rect.Bottom, rect.Right, rect.Bottom);
+            if (bl > 0) path.AddArc(rect.X, rect.Bottom - bl * 2, bl * 2, bl * 2, 90, 90); else path.AddLine(rect.X, rect.Bottom, rect.X, rect.Bottom);
+            path.CloseFigure();
+            return path;
+        }
+
         public static GraphicsPath CreateInsetPath(GraphicsPath originalPath, int inset)
         {
            

@@ -114,41 +114,41 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void Draw(Graphics g)
         {
-            Console.WriteLine("GridRenderHelper.Draw called.");
+           /// Console.WriteLine("GridRenderHelper.Draw called.");
             // Validate graphics object and grid state
             if (g == null || _grid == null || _grid.Layout == null)
             {
-                Console.WriteLine("Draw skipped: Invalid graphics or grid state.");
+              //  Console.WriteLine("Draw skipped: Invalid graphics or grid state.");
 
                 return;
             }
               
-            Console.WriteLine("Drawing grid...");
+          //  Console.WriteLine("Drawing grid...");
             var rowsRect = _grid.Layout.RowsRect;
             if (rowsRect.Width <= 0 || rowsRect.Height <= 0)
             {
-                Console.WriteLine("Draw skipped: Invalid rows rectangle.");
+            //    Console.WriteLine("Draw skipped: Invalid rows rectangle.");
                 return;
             }
                
-            Console.WriteLine($"RowsRect: {rowsRect}");
+          //  Console.WriteLine($"RowsRect: {rowsRect}");
             // Draw background
             using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
             {
                 g.FillRectangle(brush, rowsRect);
             }
-            Console.WriteLine("Background drawn.");
+          //  Console.WriteLine("Background drawn.");
             // Draw column headers
             if (_grid.ShowColumnHeaders)
             {
                 try
                 {
-                    Console.WriteLine("Drawing column headers...");
+           //         Console.WriteLine("Drawing column headers...");
                     DrawColumnHeaders(g);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Error drawing column headers.");
+             //       Console.WriteLine("Error drawing column headers.");
                     // Silently handle header drawing errors to prevent crashes
                 }
             }
@@ -156,12 +156,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw data rows
             try
             {
-                Console.WriteLine("Drawing rows...");
+            ///    Console.WriteLine("Drawing rows...");
                 DrawRows(g);
             }
             catch (Exception)
             {
-                Console.WriteLine("Error drawing rows.");
+           //     Console.WriteLine("Error drawing rows.");
                 // Silently handle row drawing errors to prevent crashes
             }
 
@@ -170,12 +170,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try
                 {
-                    Console.WriteLine("Drawing navigator...");
+                    //          Console.WriteLine("Drawing navigator...");
                     DrawNavigatorArea(g);
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Error drawing navigator.");
+             //       Console.WriteLine("Error drawing navigator.");
                     // Silently handle navigator drawing errors
                 }
             }
@@ -183,8 +183,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             // Draw selection indicators
             try
             {
-                Console.WriteLine("Drawing selection indicators...");
-                DrawSelectionIndicators(g);
+               // Console.WriteLine("Drawing selection indicators...");
+               DrawSelectionIndicators(g);
             }
             catch (Exception)
             {
@@ -486,29 +486,33 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void DrawRows(Graphics g)
         {
             var rowsRect = _grid.Layout.RowsRect;
-            using var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark);
-            pen.DashStyle = GridLineStyle; // Apply the grid line style
+            
+            // Pre-cache theme colors to avoid repeated lookups
+            var gridBackColor = Theme?.GridBackColor ?? SystemColors.Window;
+            var gridForeColor = Theme?.GridForeColor ?? SystemColors.WindowText;
+            var gridLineColor = Theme?.GridLineColor ?? SystemColors.ControlDark;
+            var selectedBackColor = Theme?.GridRowSelectedBackColor == Color.Empty ? (Theme?.SelectedRowBackColor ?? SystemColors.Highlight) : Theme.GridRowSelectedBackColor;
+            var hoverBackColor = Theme?.GridRowHoverBackColor == Color.Empty ? SystemColors.ControlLight : Theme.GridRowHoverBackColor;
+            var altRowBackColor = Theme?.AltRowBackColor ?? Color.FromArgb(250, 250, 250);
+         
+            // Pre-create reusable pens and brushes
+            using var gridLinePen = new Pen(gridLineColor);
+            gridLinePen.DashStyle = GridLineStyle;
+            
+            using var shadowPen = UseElevation ? new Pen(Color.FromArgb(30, 0, 0, 0), 1) : null;
+            using var cardPen = CardStyle ? new Pen(Color.FromArgb(40, gridLineColor), 1) : null;
 
-            // Calculate sticky regions EXACTLY like BeepSimpleGrid.PaintRows()
-            var selColumn = _grid.Data.Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
-            if (_grid.ShowCheckBox && selColumn != null)
-            {
-                selColumn.Visible = true;
-            }
-            else if (selColumn != null)
-            {
-                selColumn.Visible = false;
-            }
-
+            // Calculate sticky regions (don't modify column.Visible during paint - causes flicker!)
             var stickyColumns = _grid.Data.Columns.Where(c => c.Sticked && c.Visible).ToList();
             int stickyWidth = stickyColumns.Sum(c => Math.Max(20, c.Width));
-            stickyWidth = Math.Min(stickyWidth, rowsRect.Width); // Prevent overflow
+            stickyWidth = Math.Min(stickyWidth, rowsRect.Width);
 
-            // calculate Y offset properly
+            // Calculate Y offset
             int currentY = rowsRect.Top;
             int firstVisibleRowIndex = _grid.Scroll.FirstVisibleRowIndex;
-            
+
             int totalRowsHeight = 0;
+           
             for (int i = 0; i < firstVisibleRowIndex && i < _grid.Data.Rows.Count; i++)
             {
                 var row = _grid.Data.Rows[i];
@@ -518,19 +522,17 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             int pixelOffset = _grid.Scroll.VerticalOffset;
             currentY = rowsRect.Top - (pixelOffset - totalRowsHeight);
 
-            // Calculate which rows are actually visible
+            // Calculate visible rows
             int visibleRowStart = firstVisibleRowIndex;
             int visibleRowEnd = Math.Min(_grid.Data.Rows.Count - 1, 
                 visibleRowStart + GetVisibleRowCount(_grid.Data.Rows, rowsRect.Height, visibleRowStart, pixelOffset));
 
-            // Define sticky and scrolling regions
+            // Define regions
             Rectangle stickyRegion = new Rectangle(rowsRect.Left, rowsRect.Top, stickyWidth, rowsRect.Height);
             Rectangle scrollingRegion = new Rectangle(rowsRect.Left + stickyWidth, rowsRect.Top, 
                                                      Math.Max(0, rowsRect.Width - stickyWidth), rowsRect.Height);
 
-            // Draw scrolling columns first
-            var state1 = g.Save();
-            g.SetClip(scrollingRegion);
+            // Draw scrolling columns (without expensive clipping - use bounds checking)
             var scrollCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                                                .Where(x => x.Col.Visible && !x.Col.Sticked)
                                                .ToList();
@@ -543,8 +545,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 
                 if (drawY + rowHeight > rowsRect.Top && drawY < rowsRect.Bottom)
                 {
-                    bool isActiveRow = (_grid.Selection?.RowIndex ?? -1) == r; // highlight only
-                    bool isSelectedRow = row.IsSelected; // selection only from checkbox
+                    bool isActiveRow = (_grid.Selection?.RowIndex ?? -1) == r;
+                    bool isSelectedRow = row.IsSelected;
 
                     int x = scrollingRegion.Left - _grid.Scroll.HorizontalOffset;
                     
@@ -557,52 +559,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                             {
                                 var cell = row.Cells[sc.Index];
                                 var rect = new Rectangle(x, drawY, colW, rowHeight);
-
-                                // Store rect for hit-testing and editor placement
                                 cell.Rect = rect;
 
-                                // Determine background color based on row stripes and selection
-                                Color back;
-                                if (isSelectedRow)
+                                // Determine colors (using cached theme colors)
+                                Color back = isSelectedRow ? selectedBackColor : 
+                                           isActiveRow ? hoverBackColor :
+                                           ShowRowStripes && r % 2 == 1 ? altRowBackColor :
+                                           sc.Col.HasCustomBackColor && sc.Col.UseCustomColors ? sc.Col.ColumnBackColor : gridBackColor;
+
+                                Color fore = sc.Col.HasCustomForeColor && sc.Col.UseCustomColors ? sc.Col.ColumnForeColor : gridForeColor;
+
+                                using (var bg = new SolidBrush(back)) 
+                                    g.FillRectangle(bg, rect);
+
+                                if (shadowPen != null && !isSelectedRow && !isActiveRow)
                                 {
-                                    back = Theme?.GridRowSelectedBackColor == Color.Empty ? (Theme?.SelectedRowBackColor ?? SystemColors.Highlight) : Theme.GridRowSelectedBackColor;
-                                }
-                                else if (isActiveRow)
-                                {
-                                    back = Theme?.GridRowHoverBackColor == Color.Empty ? SystemColors.ControlLight : Theme.GridRowHoverBackColor;
-                                }
-                                else if (ShowRowStripes && r % 2 == 1)
-                                {
-                                    // Alternate row color for stripes
-                                    back = Theme?.AltRowBackColor ?? Color.FromArgb(250, 250, 250);
-                                }
-                                else
-                                {
-                                    back = sc.Col.HasCustomBackColor && sc.Col.UseCustomColors ? sc.Col.ColumnBackColor : (Theme?.GridBackColor ?? SystemColors.Window);
+                                    g.DrawLine(shadowPen, rect.Left + 1, rect.Bottom, rect.Right - 1, rect.Bottom);
+                                    g.DrawLine(shadowPen, rect.Right, rect.Top + 1, rect.Right, rect.Bottom - 1);
                                 }
 
-                                var fore = sc.Col.HasCustomForeColor && sc.Col.UseCustomColors ? sc.Col.ColumnForeColor : (Theme?.GridForeColor ?? SystemColors.WindowText);
-
-                                using (var bg = new SolidBrush(back)) g.FillRectangle(bg, rect);
-
-                                // Add elevation effect if enabled
-                                if (UseElevation && !isSelectedRow && !isActiveRow)
+                                if (cardPen != null && !isSelectedRow && !isActiveRow)
                                 {
-                                    using (var shadowPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1))
-                                    {
-                                        // Draw subtle shadow at bottom
-                                        g.DrawLine(shadowPen, rect.Left + 1, rect.Bottom, rect.Right - 1, rect.Bottom);
-                                        g.DrawLine(shadowPen, rect.Right, rect.Top + 1, rect.Right, rect.Bottom - 1);
-                                    }
-                                }
-
-                                // Add card-style effect if enabled
-                                if (CardStyle && !isSelectedRow && !isActiveRow)
-                                {
-                                    using (var cardPen = new Pen(Color.FromArgb(40, Theme?.GridLineColor ?? SystemColors.ControlDark), 1))
-                                    {
-                                        g.DrawRectangle(cardPen, rect);
-                                    }
+                                    g.DrawRectangle(cardPen, rect);
                                 }
 
                                 if (sc.Col.IsSelectionCheckBox && _grid.ShowCheckBox)
@@ -616,10 +594,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                     DrawCellContent(g, sc.Col, cell, rect, fore, back);
                                 }
 
-                                // Draw grid lines only if enabled
                                 if (ShowGridLines)
                                 {
-                                    g.DrawRectangle(pen, rect);
+                                    g.DrawRectangle(gridLinePen, rect);
                                 }
                             }
                         }
@@ -629,11 +606,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 drawY += rowHeight;
             }
-            g.Restore(state1);
 
-            // Draw sticky columns last
-            var state2 = g.Save();
-            g.SetClip(stickyRegion);
+            // Draw sticky columns last (without expensive clipping - use bounds checking)
             var stickyCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                                                .Where(x => x.Col.Visible && x.Col.Sticked)
                                                .ToList();
@@ -657,52 +631,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
                             var cell = row.Cells[st.Index];
                             var rect = new Rectangle(startX, drawY, colW, rowHeight);
-
-                            // Store rect for hit-testing and editor placement
                             cell.Rect = rect;
 
-                            // Determine background color based on row stripes and selection
-                            Color back;
-                            if (isSelectedRow)
+                            // Determine colors (using cached theme colors)
+                            Color back = isSelectedRow ? selectedBackColor : 
+                                       isActiveRow ? hoverBackColor :
+                                       ShowRowStripes && r % 2 == 1 ? altRowBackColor :
+                                       st.Col.HasCustomBackColor && st.Col.UseCustomColors ? st.Col.ColumnBackColor : gridBackColor;
+
+                            Color fore = st.Col.HasCustomForeColor && st.Col.UseCustomColors ? st.Col.ColumnForeColor : gridForeColor;
+
+                            using (var bg = new SolidBrush(back)) 
+                                g.FillRectangle(bg, rect);
+
+                            if (shadowPen != null && !isSelectedRow && !isActiveRow)
                             {
-                                back = Theme?.GridRowSelectedBackColor == Color.Empty ? (Theme?.SelectedRowBackColor ?? SystemColors.Highlight) : Theme.GridRowSelectedBackColor;
-                            }
-                            else if (isActiveRow)
-                            {
-                                back = Theme?.GridRowHoverBackColor == Color.Empty ? SystemColors.ControlLight : Theme.GridRowHoverBackColor;
-                            }
-                            else if (ShowRowStripes && r % 2 == 1)
-                            {
-                                // Alternate row color for stripes
-                                back = Theme?.AltRowBackColor ?? Color.FromArgb(250, 250, 250);
-                            }
-                            else
-                            {
-                                back = st.Col.HasCustomBackColor && st.Col.UseCustomColors ? st.Col.ColumnBackColor : (Theme?.GridBackColor ?? SystemColors.Window);
+                                g.DrawLine(shadowPen, rect.Left + 1, rect.Bottom, rect.Right - 1, rect.Bottom);
+                                g.DrawLine(shadowPen, rect.Right, rect.Top + 1, rect.Right, rect.Bottom - 1);
                             }
 
-                            var fore = st.Col.HasCustomForeColor && st.Col.UseCustomColors ? st.Col.ColumnForeColor : (Theme?.GridForeColor ?? SystemColors.WindowText);
-
-                            using (var bg = new SolidBrush(back)) g.FillRectangle(bg, rect);
-
-                            // Add elevation effect if enabled
-                            if (UseElevation && !isSelectedRow && !isActiveRow)
+                            if (cardPen != null && !isSelectedRow && !isActiveRow)
                             {
-                                using (var shadowPen = new Pen(Color.FromArgb(30, 0, 0, 0), 1))
-                                {
-                                    // Draw subtle shadow at bottom
-                                    g.DrawLine(shadowPen, rect.Left + 1, rect.Bottom, rect.Right - 1, rect.Bottom);
-                                    g.DrawLine(shadowPen, rect.Right, rect.Top + 1, rect.Right, rect.Bottom - 1);
-                                }
-                            }
-
-                            // Add card-style effect if enabled
-                            if (CardStyle && !isSelectedRow && !isActiveRow)
-                            {
-                                using (var cardPen = new Pen(Color.FromArgb(40, Theme?.GridLineColor ?? SystemColors.ControlDark), 1))
-                                {
-                                    g.DrawRectangle(cardPen, rect);
-                                }
+                                g.DrawRectangle(cardPen, rect);
                             }
 
                             if (st.Col.IsSelectionCheckBox && _grid.ShowCheckBox)
@@ -722,10 +672,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                                 DrawCellContent(g, st.Col, cell, rect, fore, back);
                             }
 
-                            // Draw grid lines only if enabled
                             if (ShowGridLines)
                             {
-                                g.DrawRectangle(pen, rect);
+                                g.DrawRectangle(gridLinePen, rect);
                             }
                         }
                     }
@@ -733,11 +682,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 startX += colW;
             }
-            g.Restore(state2);
         }
 
         private void DrawCellContent(Graphics g, BeepColumnConfig column, BeepCellConfig cell, Rectangle rect, Color foreColor, Color backColor)
         {
+            
             if (g == null || column == null || cell == null || rect.Width <= 0 || rect.Height <= 0)
                 return;
 
@@ -928,7 +877,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (navRect.IsEmpty) return;
 
             // Clear existing navigator hit tests
-            _grid.ClearHitList();
+          //  
 
             // Fill navigator background
             using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))

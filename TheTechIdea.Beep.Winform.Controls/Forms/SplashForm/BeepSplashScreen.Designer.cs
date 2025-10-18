@@ -234,7 +234,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _titleLabel.DrawingRect = new Rectangle(1, 1, 441, 52);
             _titleLabel.Easing = EasingType.Linear;
             _titleLabel.EnableHighQualityRendering = true;
-            _titleLabel.PainterKind= Base.BaseControl.BaseControlPainterKind.Classic;
+            _titleLabel.PainterKind= BaseControlPainterKind.Classic;
             _titleLabel.EnableRippleEffect = false;
             _titleLabel.EnableSplashEffect = false;
             _titleLabel.ErrorColor = Color.FromArgb(176, 0, 32);

@@ -5,11 +5,10 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.ConfigUtil;
- 
+
 using TheTechIdea.Beep.Vis.Modules;
- 
+
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
-using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Converters;
 using TheTechIdea.Beep.Winform.Controls.Forms.Caption;
 using TheTechIdea.Beep.Winform.Controls.Forms.Helpers;

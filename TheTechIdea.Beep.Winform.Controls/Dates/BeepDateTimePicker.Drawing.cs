@@ -34,9 +34,22 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
                 UpdateLayout();
             }
 
-            // Let painter draw the complete calendar/picker interface
+            // Register hit areas with BaseControl's hit test system
+            // This maps all interactive calendar elements to BaseControl's input handling
             var props = GetCurrentProperties();
-           
+            if (_layout != null && _hitHelper != null)
+            {
+                try
+                {
+                    _hitHelper.RegisterHitAreas(_layout, props, _displayMonth);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Hit area registration error: {ex.Message}");
+                }
+            }
+
+            // Let painter draw the complete calendar/picker interface
             _currentPainter.PaintCalendar(g, drawingRect, props, _displayMonth, _hoverState);
         }
 

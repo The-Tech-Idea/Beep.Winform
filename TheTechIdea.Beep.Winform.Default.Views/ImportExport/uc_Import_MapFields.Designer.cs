@@ -1,4 +1,4 @@
-﻿namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
+namespace TheTechIdea.Beep.Winform.Default.Views.ImportExport
 {
     partial class uc_Import_MapFields
     {

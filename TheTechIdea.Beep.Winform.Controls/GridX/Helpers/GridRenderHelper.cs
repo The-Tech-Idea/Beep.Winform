@@ -79,6 +79,355 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         internal IBeepTheme Theme => _grid.Theme != null ? BeepThemesManager.GetTheme(_grid.Theme) : BeepThemesManager.GetDefaultTheme();
 
+        #region Visible Row Calculations
+
+        /// <summary>
+        /// Gets the number of rows that can fit in the current viewport (RowsRect height / RowHeight)
+        /// This is the "page size" for pagination calculations
+        /// </summary>
+        public int GetVisibleRowCapacity()
+        {
+            if (_grid?.Layout == null) return 10; // Default fallback
+            
+            var rowsRect = _grid.Layout.RowsRect;
+            if (rowsRect.Height <= 0) return 10;
+            
+            int rowHeight = _grid.RowHeight;
+            if (rowHeight <= 0) rowHeight = 24; // Safety fallback
+            
+            return System.Math.Max(1, rowsRect.Height / rowHeight);
+        }
+
+        /// <summary>
+        /// Gets the index of the first fully or partially visible row
+        /// </summary>
+        public int GetFirstVisibleRowIndex()
+        {
+            return _grid?.Scroll?.FirstVisibleRowIndex ?? 0;
+        }
+
+        /// <summary>
+        /// Gets the index of the last visible row (may be partially visible)
+        /// </summary>
+        public int GetLastVisibleRowIndex()
+        {
+            if (_grid?.Data?.Rows == null || _grid.Layout == null) return 0;
+            
+            int firstVisible = GetFirstVisibleRowIndex();
+            int capacity = GetVisibleRowCapacity();
+            int lastPossible = System.Math.Min(firstVisible + capacity - 1, _grid.Data.Rows.Count - 1);
+            
+            return System.Math.Max(0, lastPossible);
+        }
+
+        /// <summary>
+        /// Gets the actual count of visible rows (handles variable row heights)
+        /// </summary>
+        public int GetActualVisibleRowCount()
+        {
+            if (_grid?.Data?.Rows == null || _grid.Layout == null) return 0;
+            
+            var rowsRect = _grid.Layout.RowsRect;
+            int firstVisible = GetFirstVisibleRowIndex();
+            int verticalOffset = _grid?.Scroll?.VerticalOffset ?? 0;
+            
+            return GetVisibleRowCount(_grid.Data.Rows, rowsRect.Height, firstVisible, verticalOffset);
+        }
+
+        #endregion
+
+        #region Pagination Calculations
+
+        /// <summary>
+        /// Gets the current page number based on the selected row index
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <returns>Current page number (1-based)</returns>
+        public int GetCurrentPage(BeepGridPro grid)
+        {
+            if (grid?.Selection == null || grid.Data?.Rows == null) return 1;
+            if (grid.Data.Rows.Count == 0) return 1;
+            
+            int pageSize = GetVisibleRowCapacity();
+            if (pageSize <= 0) pageSize = 10; // Safety fallback
+            
+            int currentRow = System.Math.Max(0, System.Math.Min(grid.Selection.RowIndex, grid.Data.Rows.Count - 1));
+            return (currentRow / pageSize) + 1;
+        }
+
+        /// <summary>
+        /// Gets the total number of pages based on total records and visible row capacity
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <returns>Total number of pages</returns>
+        public int GetTotalPages(BeepGridPro grid)
+        {
+            if (grid?.Data?.Rows == null) return 1;
+            
+            int totalRecords = grid.Data.Rows.Count;
+            if (totalRecords == 0) return 1;
+            
+            int pageSize = GetVisibleRowCapacity();
+            if (pageSize <= 0) pageSize = 10; // Safety fallback
+            
+            return System.Math.Max(1, (int)System.Math.Ceiling(totalRecords / (double)pageSize));
+        }
+
+        /// <summary>
+        /// Gets the total number of pages for a specific record count
+        /// </summary>
+        /// <param name="totalRecords">Total number of records</param>
+        /// <returns>Total number of pages</returns>
+        public int GetTotalPages(int totalRecords)
+        {
+            if (totalRecords <= 0) return 1;
+            
+            int pageSize = GetVisibleRowCapacity();
+            if (pageSize <= 0) pageSize = 10; // Safety fallback
+            
+            return System.Math.Max(1, (int)System.Math.Ceiling(totalRecords / (double)pageSize));
+        }
+
+        /// <summary>
+        /// Gets the range of page numbers to display in pagination controls
+        /// Centers the current page within the visible range
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <param name="maxVisiblePages">Maximum number of page buttons to show</param>
+        /// <returns>Tuple of (startPage, endPage) both inclusive and 1-based</returns>
+        public (int startPage, int endPage) GetVisiblePageRange(BeepGridPro grid, int maxVisiblePages = 5)
+        {
+            int currentPage = GetCurrentPage(grid);
+            int totalPages = GetTotalPages(grid);
+            
+            return CalculatePageRange(currentPage, totalPages, maxVisiblePages);
+        }
+
+        /// <summary>
+        /// Calculates the range of page numbers to display
+        /// </summary>
+        /// <param name="currentPage">Current page (1-based)</param>
+        /// <param name="totalPages">Total number of pages</param>
+        /// <param name="maxVisiblePages">Maximum number of page buttons to show</param>
+        /// <returns>Tuple of (startPage, endPage) both inclusive and 1-based</returns>
+        public (int startPage, int endPage) CalculatePageRange(int currentPage, int totalPages, int maxVisiblePages = 5)
+        {
+            if (totalPages <= maxVisiblePages)
+            {
+                // Show all pages if total is less than max
+                return (1, totalPages);
+            }
+            
+            // Center current page in visible range
+            int halfVisible = maxVisiblePages / 2;
+            int startPage = System.Math.Max(1, currentPage - halfVisible);
+            int endPage = System.Math.Min(totalPages, startPage + maxVisiblePages - 1);
+            
+            // Adjust start if we're near the end
+            if (endPage - startPage < maxVisiblePages - 1)
+            {
+                startPage = System.Math.Max(1, endPage - maxVisiblePages + 1);
+            }
+            
+            return (startPage, endPage);
+        }
+
+        /// <summary>
+        /// Gets the first row index (0-based) for a specific page
+        /// </summary>
+        /// <param name="pageNumber">Page number (1-based)</param>
+        /// <returns>Row index (0-based) for the first row of the page</returns>
+        public int GetPageStartRow(int pageNumber)
+        {
+            if (pageNumber < 1) pageNumber = 1;
+            
+            int pageSize = GetVisibleRowCapacity();
+            if (pageSize <= 0) pageSize = 10; // Safety fallback
+            
+            return (pageNumber - 1) * pageSize;
+        }
+
+        /// <summary>
+        /// Gets the last row index (0-based) for a specific page
+        /// </summary>
+        /// <param name="pageNumber">Page number (1-based)</param>
+        /// <param name="totalRecords">Total number of records</param>
+        /// <returns>Row index (0-based) for the last row of the page</returns>
+        public int GetPageEndRow(int pageNumber, int totalRecords)
+        {
+            int startRow = GetPageStartRow(pageNumber);
+            int pageSize = GetVisibleRowCapacity();
+            if (pageSize <= 0) pageSize = 10; // Safety fallback
+            
+            int endRow = startRow + pageSize - 1;
+            return System.Math.Min(endRow, totalRecords - 1);
+        }
+
+        /// <summary>
+        /// Gets the row range for a specific page
+        /// </summary>
+        /// <param name="pageNumber">Page number (1-based)</param>
+        /// <param name="totalRecords">Total number of records</param>
+        /// <returns>Tuple of (startRow, endRow) both 0-based and inclusive</returns>
+        public (int startRow, int endRow) GetPageRowRange(int pageNumber, int totalRecords)
+        {
+            int startRow = GetPageStartRow(pageNumber);
+            int endRow = GetPageEndRow(pageNumber, totalRecords);
+            return (startRow, endRow);
+        }
+
+        /// <summary>
+        /// Navigates the grid to a specific page by selecting the first row of that page
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <param name="pageNumber">Page number to navigate to (1-based)</param>
+        public void GoToPage(BeepGridPro grid, int pageNumber)
+        {
+            if (grid?.Data?.Rows == null || grid.Selection == null) return;
+            
+            int totalPages = GetTotalPages(grid);
+            
+            // Clamp page number to valid range
+            pageNumber = Math.Max(1, Math.Min(pageNumber, totalPages));
+            
+            // Calculate target row index
+            int targetRow = GetPageStartRow(pageNumber);
+            targetRow = System.Math.Max(0, System.Math.Min(targetRow, grid.Data.Rows.Count - 1));
+            
+            // Select the first row of the page
+            int currentColumn = System.Math.Max(0, grid.Selection.ColumnIndex);
+            grid.Selection.SelectCell(targetRow, currentColumn);
+            
+            // Ensure the row is visible by scrolling
+            grid.Scroll?.SetVerticalIndex(targetRow);
+            
+            grid.Invalidate();
+        }
+
+        /// <summary>
+        /// Gets pagination information as a formatted string
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <param name="format">Format string: {0}=currentPage, {1}=totalPages, {2}=currentRow, {3}=totalRecords</param>
+        /// <returns>Formatted pagination string</returns>
+        public string GetPaginationInfo(BeepGridPro grid, string format = "Page {0} of {1} (Row {2} of {3})")
+        {
+            if (grid?.Data?.Rows == null) return "No data";
+            
+            int currentPage = GetCurrentPage(grid);
+            int totalPages = GetTotalPages(grid);
+            int currentRow = grid.Selection?.RowIndex ?? 0;
+            int totalRecords = grid.Data.Rows.Count;
+            
+            return string.Format(format, currentPage, totalPages, currentRow + 1, totalRecords);
+        }
+
+        /// <summary>
+        /// Gets simple pagination info showing current position
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <returns>String like "27 of 213"</returns>
+        public string GetSimplePaginationInfo(BeepGridPro grid)
+        {
+            if (grid?.Data?.Rows == null) return "0 of 0";
+            
+            int currentRow = grid.Selection?.RowIndex ?? 0;
+            int totalRecords = grid.Data.Rows.Count;
+            
+            return $"{currentRow + 1} of {totalRecords}";
+        }
+
+        /// <summary>
+        /// Gets page-based pagination info
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <returns>String like "Page 3 of 18"</returns>
+        public string GetPagePaginationInfo(BeepGridPro grid)
+        {
+            int currentPage = GetCurrentPage(grid);
+            int totalPages = GetTotalPages(grid);
+            
+            return $"Page {currentPage} of {totalPages}";
+        }
+
+        /// <summary>
+        /// Checks if a specific page number is valid
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <param name="pageNumber">Page number to check (1-based)</param>
+        /// <returns>True if the page number is valid</returns>
+        public bool IsValidPage(BeepGridPro grid, int pageNumber)
+        {
+            int totalPages = GetTotalPages(grid);
+            return pageNumber >= 1 && pageNumber <= totalPages;
+        }
+
+        /// <summary>
+        /// Checks if there is a previous page
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <returns>True if previous page exists</returns>
+        public bool HasPreviousPage(BeepGridPro grid)
+        {
+            return GetCurrentPage(grid) > 1;
+        }
+
+        /// <summary>
+        /// Checks if there is a next page
+        /// </summary>
+        /// <param name="grid">The grid instance</param>
+        /// <returns>True if next page exists</returns>
+        public bool HasNextPage(BeepGridPro grid)
+        {
+            int currentPage = GetCurrentPage(grid);
+            int totalPages = GetTotalPages(grid);
+            return currentPage < totalPages;
+        }
+
+        /// <summary>
+        /// Navigates to the first page
+        /// </summary>
+        public void GoToFirstPage(BeepGridPro grid)
+        {
+            GoToPage(grid, 1);
+        }
+
+        /// <summary>
+        /// Navigates to the last page
+        /// </summary>
+        public void GoToLastPage(BeepGridPro grid)
+        {
+            int totalPages = GetTotalPages(grid);
+            GoToPage(grid, totalPages);
+        }
+
+        /// <summary>
+        /// Navigates to the previous page
+        /// </summary>
+        public void GoToPreviousPage(BeepGridPro grid)
+        {
+            int currentPage = GetCurrentPage(grid);
+            if (currentPage > 1)
+            {
+                GoToPage(grid, currentPage - 1);
+            }
+        }
+
+        /// <summary>
+        /// Navigates to the next page
+        /// </summary>
+        public void GoToNextPage(BeepGridPro grid)
+        {
+            int currentPage = GetCurrentPage(grid);
+            int totalPages = GetTotalPages(grid);
+            if (currentPage < totalPages)
+            {
+                GoToPage(grid, currentPage + 1);
+            }
+        }
+
+        #endregion
+
         // Create or get cached drawer for a given column
         private IBeepUIComponent GetDrawerForColumn(BeepColumnConfig col)
         {
@@ -170,12 +519,12 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 try
                 {
-                    //          Console.WriteLine("Drawing navigator...");
+                    Console.WriteLine($"Drawing navigator... Rect: {_grid.Layout.NavigatorRect}, UsePainter: {_grid.NavigatorPainter.UsePainterNavigation}, Style: {_grid.NavigationStyle}");
                     DrawNavigatorArea(g);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-             //       Console.WriteLine("Error drawing navigator.");
+                    Console.WriteLine($"Error drawing navigator: {ex.Message}");
                     // Silently handle navigator drawing errors
                 }
             }
@@ -275,21 +624,41 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private void DrawFilterIcon(Graphics g, Rectangle rect, bool active)
         {
             Color iconColor = active ? Color.DodgerBlue : (Theme?.GridHeaderForeColor ?? SystemColors.ControlText);
-            using (var pen = new Pen(iconColor, 2))
+            
+            using (Pen pen = new Pen(active ? iconColor : Color.FromArgb(100, iconColor), active ? 1.5f : 1f))
+            using (Brush brush = new SolidBrush(active ? iconColor : Color.FromArgb(100, iconColor)))
             {
-                Point[] funnel = new[]
-                {
-                    new Point(rect.Left + rect.Width / 8, rect.Top + rect.Height / 4),
-                    new Point(rect.Right - rect.Width / 8, rect.Top + rect.Height / 4),
-                    new Point(rect.Left + rect.Width / 2, rect.Bottom - rect.Height / 8)
+                // Draw a more compact filter funnel shape
+                int padding = 1;
+                int funnelWidth = rect.Width - (padding * 2);
+                int funnelHeight = rect.Height - (padding * 2);
+
+                Point[] funnel = {
+                    new Point(rect.X + padding, rect.Y + padding),
+                    new Point(rect.Right - padding, rect.Y + padding),
+                    new Point(rect.X + rect.Width / 2 + 2, rect.Y + funnelHeight / 2),
+                    new Point(rect.X + rect.Width / 2 + 2, rect.Bottom - padding),
+                    new Point(rect.X + rect.Width / 2 - 2, rect.Bottom - padding),
+                    new Point(rect.X + rect.Width / 2 - 2, rect.Y + funnelHeight / 2)
                 };
-                g.DrawLines(pen, funnel);
-                // Draw handle
-                g.DrawLine(pen,
-                    rect.Left + rect.Width / 2,
-                    rect.Bottom - rect.Height / 8,
-                    rect.Left + rect.Width / 2,
-                    rect.Bottom - rect.Height / 4);
+
+                if (active)
+                    g.FillPolygon(brush, funnel);
+                else
+                    g.DrawPolygon(pen, funnel);
+
+                // Add a small circle or dot to indicate active filter
+                if (active)
+                {
+                    using (Brush dotBrush = new SolidBrush(Color.FromArgb(200, Color.White)))
+                    {
+                        int dotSize = 2;
+                        g.FillEllipse(dotBrush,
+                            rect.X + rect.Width / 2 - dotSize / 2,
+                            rect.Y + rect.Height / 2 - dotSize / 2,
+                            dotSize, dotSize);
+                    }
+                }
             }
         }
 
@@ -300,32 +669,51 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
             var color = Theme?.GridHeaderForeColor ?? SystemColors.ControlText;
 
-            using (var pen = new Pen(color, 2f))
+            using (Pen pen = new Pen(color, 1.5f))
+            using (Brush brush = new SolidBrush(color))
             {
-                int centerX = rect.Left + rect.Width / 2;
-                int centerY = rect.Top + rect.Height / 2;
+                int centerX = rect.X + rect.Width / 2;
+                int centerY = rect.Y + rect.Height / 2;
+                int arrowSize = Math.Min(rect.Width, rect.Height) / 3; // Smaller arrows
 
                 if (sortDirection == TheTechIdea.Beep.Vis.Modules.SortDirection.Ascending)
                 {
-                    // Draw up arrow
-                    var points = new Point[]
-                    {
-                        new Point(centerX, rect.Top + 2),
-                        new Point(centerX - 4, rect.Bottom - 2),
-                        new Point(centerX + 4, rect.Bottom - 2)
+                    // Draw up arrow (smaller and more refined)
+                    Point[] upArrowAsc = {
+                        new Point(centerX, rect.Y + 2),
+                        new Point(centerX - arrowSize, centerY + 1),
+                        new Point(centerX + arrowSize, centerY + 1)
                     };
-                    g.DrawPolygon(pen, points);
+                    g.FillPolygon(brush, upArrowAsc);
                 }
                 else if (sortDirection == TheTechIdea.Beep.Vis.Modules.SortDirection.Descending)
                 {
-                    // Draw down arrow
-                    var points = new Point[]
-                    {
+                    // Draw down arrow (smaller and more refined)
+                    Point[] downArrowDesc = {
                         new Point(centerX, rect.Bottom - 2),
-                        new Point(centerX - 4, rect.Top + 2),
-                        new Point(centerX + 4, rect.Top + 2)
+                        new Point(centerX - arrowSize, centerY - 1),
+                        new Point(centerX + arrowSize, centerY - 1)
                     };
-                    g.DrawPolygon(pen, points);
+                    g.FillPolygon(brush, downArrowDesc);
+                }
+                else if (sortDirection == TheTechIdea.Beep.Vis.Modules.SortDirection.None)
+                {
+                    // Draw both arrows (inactive, lighter)
+                    using (Pen lightPen = new Pen(Color.FromArgb(100, color), 1))
+                    {
+                        Point[] upArrowNone = {
+                            new Point(centerX, rect.Y + 2),
+                            new Point(centerX - arrowSize + 1, centerY),
+                            new Point(centerX + arrowSize - 1, centerY)
+                        };
+                        Point[] downArrowNone = {
+                            new Point(centerX, rect.Bottom - 2),
+                            new Point(centerX - arrowSize + 1, centerY),
+                            new Point(centerX + arrowSize - 1, centerY)
+                        };
+                        g.DrawPolygon(lightPen, upArrowNone);
+                        g.DrawPolygon(lightPen, downArrowNone);
+                    }
                 }
             }
         }
@@ -532,10 +920,14 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             Rectangle scrollingRegion = new Rectangle(rowsRect.Left + stickyWidth, rowsRect.Top, 
                                                      Math.Max(0, rowsRect.Width - stickyWidth), rowsRect.Height);
 
-            // Draw scrolling columns (without expensive clipping - use bounds checking)
+            // Draw scrolling columns WITH CLIPPING to prevent overflow outside grid bounds
             var scrollCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                                                .Where(x => x.Col.Visible && !x.Col.Sticked)
                                                .ToList();
+            
+            // Save graphics state and set clipping for scrolling region
+            var scrollState = g.Save();
+            g.SetClip(scrollingRegion);
             
             int drawY = currentY;
             for (int r = visibleRowStart; r <= visibleRowEnd && r < _grid.Data.Rows.Count; r++)
@@ -606,11 +998,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 drawY += rowHeight;
             }
+            
+            // Restore graphics state after scrolling columns
+            g.Restore(scrollState);
 
-            // Draw sticky columns last (without expensive clipping - use bounds checking)
+            // Draw sticky columns WITH CLIPPING on top to prevent overflow
             var stickyCols = _grid.Data.Columns.Select((c, idx) => new { Col = c, Index = idx })
                                                .Where(x => x.Col.Visible && x.Col.Sticked)
                                                .ToList();
+            
+            // Save graphics state and set clipping for sticky region
+            var stickyState = g.Save();
+            g.SetClip(stickyRegion);
+            
             int startX = rowsRect.Left;
             foreach (var st in stickyCols)
             {
@@ -682,6 +1082,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
                 startX += colW;
             }
+            
+            // Restore graphics state after sticky columns
+            g.Restore(stickyState);
         }
 
         private void DrawCellContent(Graphics g, BeepColumnConfig column, BeepCellConfig cell, Rectangle rect, Color foreColor, Color backColor)
@@ -873,306 +1276,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void DrawNavigatorArea(Graphics g)
         {
-            var navRect = _grid.Layout.NavigatorRect;
-            if (navRect.IsEmpty) return;
-
-            // Clear existing navigator hit tests
-          //  
-
-            // Fill navigator background
-            using (var brush = new SolidBrush(Theme?.GridHeaderBackColor ?? SystemColors.Control))
-            {
-                g.FillRectangle(brush, navRect);
-            }
-
-            // Top border - only draw if grid lines are enabled
-            if (ShowGridLines)
-            {
-                using (var pen = new Pen(Theme?.GridLineColor ?? SystemColors.ControlDark))
-                {
-                    pen.DashStyle = GridLineStyle;
-                    g.DrawLine(pen, navRect.Left, navRect.Top, navRect.Right, navRect.Top);
-                }
-            }
-
-            // Ensure buttons exist and are themed
-            EnsureNavigatorButtons();
-            foreach (var btn in new[] { _btnFirst, _btnPrev, _btnNext, _btnLast, _btnInsert, _btnDelete, _btnSave, _btnCancel,
-                                       _btnQuery, _btnFilter, _btnPrint })
-            {
-                if (btn == null) continue;
-                btn.Theme = _grid.Theme;
-                ConfigureIconButton(btn);
-            }
-
-            // Configure paging controls (only page info remains)
-            if (_lblPageInfo != null) _lblPageInfo.Theme = _grid.Theme;
-
-            // Improved layout constants for better alignment
-            const int buttonWidth = 28;
-            const int buttonHeight = 24;
-            const int padding = 8;
-            const int spacing = 6;
-            const int sectionSpacing = 16;
-
-            int y = navRect.Top + (navRect.Height - buttonHeight) / 2;
-
-            // Check if navigator is wide enough for all controls
-            int minRequiredWidth = (buttonWidth * 10) + (spacing * 9) + (padding * 2) + (sectionSpacing * 2) + 200; // Extra for text/page controls
-            bool compactMode = navRect.Width < minRequiredWidth;
-
-            // Let GridStyle presets influence navigator layout and visibility
-            bool forceCompact = false;
-            bool hideUtilities = false;
-            bool hidePageInfo = false;
-            switch (_grid.GridStyle)
-            {
-                case BeepGridStyle.Compact:
-                    forceCompact = true;
-                    break;
-                case BeepGridStyle.Minimal:
-                case BeepGridStyle.Borderless:
-                    // Minimal and borderless favor very compact navigator with minimal chrome
-                    forceCompact = true;
-                    hideUtilities = true;
-                    hidePageInfo = true;
-                    break;
-                case BeepGridStyle.Corporate:
-                    // Corporate keeps full professional layout
-                    break;
-                default:
-                    // Other styles keep default behavior
-                    break;
-            }
-
-            compactMode = forceCompact || compactMode;
-
-            if (compactMode)
-            {
-                // Compact mode: Show only essential controls
-                DrawCompactNavigator(g, navRect, buttonWidth, buttonHeight, padding, spacing, y, !hideUtilities);
-            }
-            else
-            {
-                // Full mode: Show all controls with proper spacing
-                DrawFullNavigator(g, navRect, buttonWidth, buttonHeight, padding, spacing, sectionSpacing, y, !hideUtilities, !hidePageInfo);
-            }
-        }
-
-    private void DrawCompactNavigator(Graphics g, Rectangle navRect, int buttonWidth, int buttonHeight, int padding, int spacing, int y, bool showUtilities)
-        {
-            // Left section: Essential CRUD buttons
-            int leftX = navRect.Left + padding;
-            var insertRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            var deleteRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            var saveRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            var cancelRect = new Rectangle(leftX, y, buttonWidth, buttonHeight);
-
-            // Register CRUD button hit tests
-            _grid.AddHitArea("Insert", insertRect, _btnInsert, () => _grid.InsertNew());
-            _grid.AddHitArea("Delete", deleteRect, _btnDelete, () => _grid.DeleteCurrent());
-            _grid.AddHitArea("Save", saveRect, _btnSave, () => _grid.Save());
-            _grid.AddHitArea("Cancel", cancelRect, _btnCancel, () => _grid.Cancel());
-
-            foreach (var tuple in new[] { (_btnInsert, insertRect), (_btnDelete, deleteRect), (_btnSave, saveRect), (_btnCancel, cancelRect) })
-            {
-                var b = tuple.Item1; var r = tuple.Item2;
-                b.Size = r.Size; b.MaxImageSize = new Size(r.Width - 4, r.Height - 4);
-                b.Draw(g, r);
-            }
-
-            // Center section: Navigation buttons and counter
-            string recordCounter = (_grid.Rows.Count > 0 && _grid.Selection?.RowIndex >= 0)
-                ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
-                : "0 - 0";
-            var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
-            Size textSize = TextRenderer.MeasureText(recordCounter, headerFont);
-
-            // Calculate center position. There are 4 nav buttons and 4 internal spacings between items.
-            int compactCenterTotal = buttonWidth * 4 + textSize.Width + spacing * 4;
-            int centerStart = (navRect.Left + navRect.Right) / 2 - compactCenterTotal / 2;
-
-            // Clamp centerStart so the center group won't overlap left CRUD or right utilities in compact mode.
-            int leftOccupied = cancelRect.Right + spacing;
-            int rightX = navRect.Right - padding;
-            int rightOccupiedStart = rightX - (buttonWidth * 2 + spacing); // filter+print estimate
-            int minCenter = leftOccupied + spacing;
-            int maxCenter = Math.Max(minCenter, rightOccupiedStart - compactCenterTotal - spacing);
-            centerStart = Math.Min(Math.Max(centerStart, minCenter), maxCenter);
-            var firstRect = new Rectangle(centerStart, y, buttonWidth, buttonHeight);
-            var prevRect = new Rectangle(firstRect.Right + spacing, y, buttonWidth, buttonHeight);
-            var counterRect = new Rectangle(prevRect.Right + spacing, y, textSize.Width, buttonHeight);
-            var nextRect = new Rectangle(counterRect.Right + spacing, y, buttonWidth, buttonHeight);
-            var lastRect = new Rectangle(nextRect.Right + spacing, y, buttonWidth, buttonHeight);
-
-            // Register navigation button hit tests
-            _grid.AddHitArea("First", firstRect, _btnFirst, () => _grid.MoveFirst());
-            _grid.AddHitArea("Prev", prevRect, _btnPrev, () => _grid.MovePrevious());
-            _grid.AddHitArea("Next", nextRect, _btnNext, () => _grid.MoveNext());
-            _grid.AddHitArea("Last", lastRect, _btnLast, () => _grid.MoveLast());
-
-            foreach (var tuple in new[] { (_btnFirst, firstRect), (_btnPrev, prevRect), (_btnNext, nextRect), (_btnLast, lastRect) })
-            {
-                var b = tuple.Item1; var r = tuple.Item2;
-                b.Size = r.Size; b.MaxImageSize = new Size(r.Width - 4, r.Height - 4);
-                b.Draw(g, r);
-            }
-
-            // Draw record counter
-            TextRenderer.DrawText(g, recordCounter, headerFont, counterRect,
-                Theme?.GridHeaderForeColor ?? SystemColors.ControlText,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-
-            // Right section: Essential utility buttons (optional per style)
-            if (showUtilities)
-            {
-                rightX = navRect.Right - padding;
-                var filterRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight); rightX = filterRect.Left - spacing;
-                var printRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight);
-
-                // Register utility button hit tests
-                _grid.AddHitArea("Filter", filterRect, _btnFilter);
-                _grid.AddHitArea("Print", printRect, _btnPrint);
-
-                foreach (var tuple in new[] { (_btnFilter, filterRect), (_btnPrint, printRect) })
-                {
-                    var b = tuple.Item1; var r = tuple.Item2;
-                    b.Size = r.Size; b.MaxImageSize = new Size(r.Width - 4, r.Height - 4);
-                    b.Draw(g, r);
-                }
-            }
-        }
-
-    private void DrawFullNavigator(Graphics g, Rectangle navRect, int buttonWidth, int buttonHeight, int padding, int spacing, int sectionSpacing, int y, bool showUtilities, bool showPageInfo)
-        {
-            // Left section: CRUD buttons
-            int leftX = navRect.Left + padding;
-            var insertRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            var deleteRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            var saveRect = new Rectangle(leftX, y, buttonWidth, buttonHeight); leftX += buttonWidth + spacing;
-            var cancelRect = new Rectangle(leftX, y, buttonWidth, buttonHeight);
-
-            // Register CRUD button hit tests
-            _grid.AddHitArea("Insert", insertRect, _btnInsert, () => _grid.InsertNew());
-            _grid.AddHitArea("Delete", deleteRect, _btnDelete, () => _grid.DeleteCurrent());
-            _grid.AddHitArea("Save", saveRect, _btnSave, () => _grid.Save());
-            _grid.AddHitArea("Cancel", cancelRect, _btnCancel, () => _grid.Cancel());
-
-            foreach (var tuple in new[] { (_btnInsert, insertRect), (_btnDelete, deleteRect), (_btnSave, saveRect), (_btnCancel, cancelRect) })
-            {
-                var b = tuple.Item1; var r = tuple.Item2;
-                b.Size = r.Size; b.MaxImageSize = new Size(r.Width - 4, r.Height - 4);
-                b.Draw(g, r);
-            }
-
-            // Center section: Navigation buttons and counter
-            string recordCounter = (_grid.Rows.Count > 0 && _grid.Selection?.RowIndex >= 0)
-                ? $"{_grid.Selection.RowIndex + 1} - {_grid.Rows.Count}"
-                : "0 - 0";
-            var headerFont = BeepThemesManager.ToFont(_grid._currentTheme.GridCellFont) ?? SystemFonts.DefaultFont;
-            Size textSize = TextRenderer.MeasureText(recordCounter, headerFont);
-
-            // Reserve space used by left CRUD (we already placed them) and compute their right edge
-            int leftOccupied = cancelRect.Right + spacing;
-
-            // Simulate right section consumption to find leftmost X of right area
-            int rightTemp = navRect.Right - padding;
-            if (showPageInfo && _lblPageInfo != null)
-            {
-                Size pageInfoSize = TextRenderer.MeasureText(_lblPageInfo.Text, headerFont);
-                rightTemp -= pageInfoSize.Width + sectionSpacing;
-            }
-            // page-jump textbox and small page buttons removed — no reserved space
-            // page size selector removed — don't reserve space
-            // utilities (query, filter, print)
-            rightTemp -= (buttonWidth * 3 + spacing * 2);
-
-            int rightOccupiedStart = rightTemp;
-
-            // Total width needed by center controls (four nav buttons + counter + internal spacings)
-            // There are 4 spacings between the 5 elements (btn,btn,counter,btn,btn)
-            int totalCenterWidth = buttonWidth * 4 + textSize.Width + spacing * 4;
-
-            int availableWidth = Math.Max(0, rightOccupiedStart - leftOccupied - sectionSpacing * 2);
-            int centerStart;
-            if (availableWidth >= totalCenterWidth)
-            {
-                centerStart = leftOccupied + sectionSpacing + (availableWidth - totalCenterWidth) / 2;
-            }
-            else
-            {
-                // fallback to using full navRect center if not enough space
-                centerStart = (int)(navRect.Left + (navRect.Width - totalCenterWidth) / 2.0);
-            }
-
-            // Clamp centerStart so the center group never overlaps the left or right occupied areas.
-            // This keeps placement deterministic even when the simulated right-side width estimate
-            // is slightly off due to varying text/button sizes.
-            int minCenter = leftOccupied + sectionSpacing;
-            int maxCenter = Math.Max(minCenter, rightOccupiedStart - totalCenterWidth - sectionSpacing);
-            centerStart = Math.Min(Math.Max(centerStart, minCenter), maxCenter);
-
-            var firstRect = new Rectangle(centerStart, y, buttonWidth, buttonHeight);
-            var prevRect = new Rectangle(firstRect.Right + spacing, y, buttonWidth, buttonHeight);
-            var counterRect = new Rectangle(prevRect.Right + spacing, y, textSize.Width, buttonHeight);
-            var nextRect = new Rectangle(counterRect.Right + spacing, y, buttonWidth, buttonHeight);
-            var lastRect = new Rectangle(nextRect.Right + spacing, y, buttonWidth, buttonHeight);
-
-            // Register navigation button hit tests
-            _grid.AddHitArea("First", firstRect, _btnFirst, () => _grid.MoveFirst());
-            _grid.AddHitArea("Prev", prevRect, _btnPrev, () => _grid.MovePrevious());
-            _grid.AddHitArea("Next", nextRect, _btnNext, () => _grid.MoveNext());
-            _grid.AddHitArea("Last", lastRect, _btnLast, () => _grid.MoveLast());
-
-            foreach (var tuple in new[] { (_btnFirst, firstRect), (_btnPrev, prevRect), (_btnNext, nextRect), (_btnLast, lastRect) })
-            {
-                var b = tuple.Item1; var r = tuple.Item2;
-                b.Size = r.Size; b.MaxImageSize = new Size(r.Width - 4, r.Height - 4);
-                b.Draw(g, r);
-            }
-
-            // Draw record counter
-            TextRenderer.DrawText(g, recordCounter, headerFont, counterRect,
-                Theme?.GridHeaderForeColor ?? SystemColors.ControlText,
-                TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
-
-            // Right section: Page controls and utilities
-            int rightX = navRect.Right - padding;
-
-            // Page info label (rightmost)
-            if (showPageInfo && _lblPageInfo != null)
-            {
-                Size pageInfoSize = TextRenderer.MeasureText(_lblPageInfo.Text, headerFont);
-                var pageInfoRect = new Rectangle(rightX - pageInfoSize.Width, y, pageInfoSize.Width, buttonHeight);
-                _grid.AddHitArea("PageInfo", pageInfoRect, _lblPageInfo);
-                _lblPageInfo.Draw(g, pageInfoRect);
-                rightX = pageInfoRect.Left - sectionSpacing;
-            }
-
-            // Secondary page controls removed — rely on main navigation buttons and page info only
-
-            // Page size selector removed by request
-
-            // Utility buttons (left of paging controls)
-            // Utility buttons (left of paging controls) - optional per style
-            if (showUtilities)
-            {
-                var queryRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight); rightX -= buttonWidth + spacing;
-                var filterRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight); rightX -= buttonWidth + spacing;
-                var printRect = new Rectangle(rightX - buttonWidth, y, buttonWidth, buttonHeight);
-
-                // Register utility button hit tests
-                _grid.AddHitArea("Query", queryRect, _btnQuery);
-                _grid.AddHitArea("Filter", filterRect, _btnFilter);
-                _grid.AddHitArea("Print", printRect, _btnPrint);
-
-                foreach (var tuple in new[] { (_btnQuery, queryRect), (_btnFilter, filterRect), (_btnPrint, printRect) })
-                {
-                    var b = tuple.Item1; var r = tuple.Item2;
-                    b.Size = r.Size; b.MaxImageSize = new Size(r.Width - 4, r.Height - 4);
-                    b.Draw(g, r);
-                }
-            }
+            // Delegate to GridNavigationPainterHelper
+            _grid.NavigatorPainter.DrawNavigatorArea(g);
         }
 
         private void DrawSelectionIndicators(Graphics g)

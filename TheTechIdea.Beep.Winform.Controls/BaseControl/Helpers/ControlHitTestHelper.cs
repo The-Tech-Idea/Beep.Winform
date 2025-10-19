@@ -262,7 +262,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                 {
                     HitTestControl.IsHovered = true;
                     SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseEnter, _owner.PointToScreen(location));
-                    HitTestControl.HitAction?.Invoke();
+                    // Do NOT invoke HitAction here - only on Click to prevent duplicate actions
                 }
        
             }
@@ -354,7 +354,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     if (HitTestControl.uIComponent != null)
                     {
                         SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseDown, _owner.PointToScreen(location));
-                        HitTestControl.HitAction?.Invoke();
+                        // Do NOT invoke HitAction here - only on Click to prevent duplicate actions
                     }
                 }
             }
@@ -369,7 +369,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
                     if (HitTestControl.uIComponent != null)
                     {
                         SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseUp, _owner.PointToScreen(location));
-                        HitTestControl.HitAction?.Invoke();
+                        // Do NOT invoke HitAction here - only on Click to prevent duplicate actions
                     }
                 }
             }
@@ -394,7 +394,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base.Helpers
             {
                 HitTestControl.IsHovered = true;
                 SendMouseEvent(HitTestControl.uIComponent, MouseEventType.MouseHover, _owner.PointToScreen(location));
-                HitTestControl.HitAction?.Invoke();
+                // Do NOT invoke HitAction here - only on Click to prevent duplicate actions
             }
         }
 

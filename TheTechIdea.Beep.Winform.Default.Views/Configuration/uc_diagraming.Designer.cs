@@ -87,7 +87,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             MainTemplatePanel.Margin = new Padding(6);
             MainTemplatePanel.PainterKind = BaseControlPainterKind.None;
             MainTemplatePanel.Size = new Size(1326, 718);
-        
+            // 
             // driversConfigViewModelBindingSource
             // 
             driversConfigViewModelBindingSource.DataMember = "ConnectionDriversConfigs";
@@ -1847,7 +1847,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.DisabledBackColor = Color.FromArgb(200, 200, 200);
             beepGridPro1.DisabledBorderColor = Color.LightGray;
             beepGridPro1.DisabledForeColor = Color.Gray;
-            beepGridPro1.DrawingRect = new Rectangle(0, 0, 598, 368);
+            beepGridPro1.DrawingRect = new Rectangle(0, 0, 954, 363);
             beepGridPro1.Easing = EasingType.Linear;
             beepGridPro1.EnableHighQualityRendering = true;
             beepGridPro1.EnableMaterialStyle = false;
@@ -1916,7 +1916,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.LeadingImagePath = "";
             beepGridPro1.LeftoffsetForDrawingRect = 0;
             beepGridPro1.LinkedProperty = null;
-            beepGridPro1.Location = new Point(229, 214);
+            beepGridPro1.Location = new Point(37, 222);
             beepGridPro1.MaterialBorderVariant = MaterialTextFieldVariant.Standard;
             beepGridPro1.MaterialCustomPadding = new Padding(0);
             beepGridPro1.MaterialFillColor = Color.FromArgb(245, 245, 245);
@@ -1928,6 +1928,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.MenuStyle = Winform.Controls.Forms.ModernForm.FormStyle.Modern;
             beepGridPro1.ModernGradientType = ModernGradientType.None;
             beepGridPro1.Name = "beepGridPro1";
+            beepGridPro1.NavigationStyle = Winform.Controls.GridX.Painters.navigationStyle.Bootstrap;
             beepGridPro1.OverrideFontSize = TypeStyleFontSize.None;
             beepGridPro1.PainterKind = BaseControlPainterKind.None;
             beepGridPro1.ParentBackColor = Color.White;
@@ -1956,7 +1957,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             beepGridPro1.ShowRightBorder = false;
             beepGridPro1.ShowShadow = false;
             beepGridPro1.ShowTopBorder = false;
-            beepGridPro1.Size = new Size(598, 368);
+            beepGridPro1.Size = new Size(954, 363);
             beepGridPro1.SlideFrom = SlideDirection.Left;
             beepGridPro1.StaticNotMoving = false;
             beepGridPro1.TabIndex = 4;

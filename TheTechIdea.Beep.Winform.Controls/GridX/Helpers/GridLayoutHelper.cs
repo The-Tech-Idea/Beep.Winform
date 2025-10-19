@@ -37,9 +37,11 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         {
             if (IsCalculating) return;
             IsCalculating = true;
+            _grid.UpdateDrawingRect();
+            Rectangle r = Rectangle.Inflate(_grid.DrawingRect, -_grid.BorderThickness, -_grid.BorderThickness); // Account for border thickness
             try
             {
-                var r = _grid.DrawingRect;
+                
                 
                 // Validate the drawing rectangle
                 if (r.Width <= 0 || r.Height <= 0)
@@ -63,10 +65,19 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
 
                 int bottomReserve = 0;
-                if (_grid.ShowNavigator && r.Height > NavigatorHeight)
+                if (_grid.ShowNavigator && NavigatorHeight > 0)
                 {
-                    bottomReserve = NavigatorHeight;
-                    NavigatorRect = new Rectangle(r.Left, r.Bottom - NavigatorHeight, r.Width, NavigatorHeight);
+                    // Clamp navigator height to available space
+                    int actualNavHeight = Math.Min(NavigatorHeight, Math.Max(0, r.Height - (ShowColumnHeaders ? ColumnHeaderHeight : 0)));
+                    if (actualNavHeight > 0)
+                    {
+                        bottomReserve = actualNavHeight;
+                        NavigatorRect = new Rectangle(r.Left, r.Bottom - actualNavHeight, r.Width, actualNavHeight);
+                    }
+                    else
+                    {
+                        NavigatorRect = Rectangle.Empty;
+                    }
                 }
                 else
                 {
@@ -101,16 +112,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            // Ensure system columns are present and visible/invisible as needed exactly like BeepSimpleGrid
-            var selColumn = _grid.Data.Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
-            if (_grid.ShowCheckBox && selColumn != null)
-            {
-                selColumn.Visible = true;
-            }
-            else if (selColumn != null)
-            {
-                selColumn.Visible = false;
-            }
+            //// Ensure system columns are present and visible/invisible as needed exactly like BeepSimpleGrid
+            //var selColumn = _grid.Data.Columns.FirstOrDefault(c => c.IsSelectionCheckBox);
+            //if (_grid.ShowCheckBox && selColumn != null)
+            //{
+            //    selColumn.Visible = true;
+            //}
+            //else if (selColumn != null)
+            //{
+            //    selColumn.Visible = false;
+            //}
 
             // Calculate sticky columns width exactly like BeepSimpleGrid
             var stickyColumns = _grid.Data.Columns.Where(c => c.Visible && c.Sticked).ToList();
@@ -154,7 +165,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             }
 
             // Calculate SelectAllCheckRect exactly like BeepSimpleGrid
-            if (_grid.ShowCheckBox && ShowColumnHeaders && selColumn != null)
+            if (_grid.ShowCheckBox && ShowColumnHeaders && _grid.SelectionCheckBoxColumn != null)
             {
                 int size = CheckBoxColumnWidth - 8;
                 SelectAllCheckRect = new Rectangle(RowsRect.Left + 4, HeaderRect.Top + (HeaderRect.Height - size) / 2, size, size);
@@ -243,7 +254,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 int h = row.Height > 0 ? row.Height : RowHeight; // Use individual row height
                 
                 // Calculate checkbox rect exactly like BeepSimpleGrid
-                if (_grid.ShowCheckBox && selColumn != null && selColumn.Visible)
+                if (_grid.ShowCheckBox && _grid.SelectionCheckBoxColumn != null && _grid.SelectionCheckBoxColumn.Visible)
                 {
                     int cbSize = Math.Min(h - 6, CheckBoxColumnWidth - 6);
                     row.RowCheckRect = new Rectangle(RowsRect.Left + 4, y + (h - cbSize) / 2, cbSize, cbSize);

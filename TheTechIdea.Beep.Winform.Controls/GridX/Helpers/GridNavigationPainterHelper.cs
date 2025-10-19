@@ -6,29 +6,57 @@ using TheTechIdea.Beep.Icons;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Helpers;
 using TheTechIdea.Beep.Winform.Controls.Models;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
  
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 {
     /// <summary>
     /// Helper class responsible for rendering the navigation/paging area at the bottom of BeepGridPro.
-    /// Handles CRUD buttons, record navigation, paging controls, and utility buttons.
+    /// Supports both legacy button-based navigation and modern painter-based styles.
     /// </summary>
     public sealed class GridNavigationPainterHelper
     {
         private readonly BeepGridPro _grid;
 
-        // Navigator button controls
+        // Navigator button controls (legacy mode)
         private BeepButton? _btnInsert, _btnDelete, _btnSave, _btnCancel;
         private BeepButton? _btnFirst, _btnPrev, _btnNext, _btnLast;
         private BeepButton? _btnQuery, _btnFilter, _btnPrint;
         private BeepLabel? _lblPageInfo;
 
+        // Painter-based navigation
+        private INavigationPainter? _currentPainter;
+        private navigationStyle _navigationStyle = navigationStyle.Material;
+
         // Configuration properties
         public bool ShowGridLines { get; set; } = true;
         public DashStyle GridLineStyle { get; set; } = DashStyle.Solid;
+        public bool UsePainterNavigation { get; set; } = true; // Default to new painter system
 
         private IBeepTheme? Theme => _grid?._currentTheme;
+
+        /// <summary>
+        /// Gets or sets the navigation style when using painter-based navigation
+        /// </summary>
+        public navigationStyle NavigationStyle
+        {
+            get => _navigationStyle;
+            set
+            {
+                if (_navigationStyle != value)
+                {
+                    _navigationStyle = value;
+                    _currentPainter = null; // Force recreation on next draw
+                    
+                    // Force immediate recreation of painter
+                    if (value != navigationStyle.None)
+                    {
+                        _currentPainter = NavigationPainterFactory.CreatePainter(value);
+                    }
+                }
+            }
+        }
 
         public GridNavigationPainterHelper(BeepGridPro grid)
         {
@@ -41,8 +69,92 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void DrawNavigatorArea(Graphics g)
         {
             var navRect = _grid.Layout.NavigatorRect;
+            
             if (navRect.IsEmpty) return;
 
+            // Use painter-based navigation if enabled
+            if (UsePainterNavigation)
+            {
+                DrawPainterNavigation(g, navRect);
+                return;
+            }
+
+            // Legacy button-based navigation
+            DrawLegacyNavigation(g, navRect);
+        }
+
+        /// <summary>
+        /// Draws navigation using the modern painter system
+        /// </summary>
+        private void DrawPainterNavigation(Graphics g, Rectangle navRect)
+        {
+            try
+            {
+                Console.WriteLine($"DrawPainterNavigation called - Style: {_navigationStyle}, Painter null: {_currentPainter == null}, Rect: {navRect}");
+                
+                // Handle None style - paint blank background only
+                if (_navigationStyle == navigationStyle.None)
+                {
+                    using (var brush = new SolidBrush(Theme?.GridBackColor ?? SystemColors.Window))
+                    {
+                        g.FillRectangle(brush, navRect);
+                    }
+                    return;
+                }
+                
+                // Ensure we have a theme
+                if (_grid._currentTheme == null)
+                {
+                    Console.WriteLine("Theme was null, getting default");
+                    _grid._currentTheme = BeepThemesManager.GetTheme(_grid.Theme) ?? BeepThemesManager.GetDefaultTheme();
+                }
+                
+                // ALWAYS create painter to ensure it exists
+                if (_currentPainter == null || _currentPainter.Style != _navigationStyle)
+                {
+                    Console.WriteLine($"Creating painter for style: {_navigationStyle}");
+                    _currentPainter = NavigationPainterFactory.CreatePainter(_navigationStyle);
+                    Console.WriteLine($"Painter created: {_currentPainter != null}, Type: {_currentPainter?.GetType().Name}");
+                }
+
+                if (_currentPainter == null)
+                {
+                    Console.WriteLine("ERROR: Painter is still null after creation!");
+                    // Fallback - paint a red background so we know there's an issue
+                    using (var brush = new SolidBrush(Color.Red))
+                    {
+                        g.FillRectangle(brush, navRect);
+                    }
+                    return;
+                }
+
+                // Delegate to painter with guaranteed theme
+                IBeepTheme theme = _grid._currentTheme  ;
+                Console.WriteLine($"Calling painter PaintNavigation with theme: {theme != null}");
+                _currentPainter.PaintNavigation(g, navRect, _grid, theme);
+                Console.WriteLine("Painter PaintNavigation completed");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ERROR in DrawPainterNavigation: {ex.Message}\n{ex.StackTrace}");
+                // Paint error indicator
+                using (var brush = new SolidBrush(Color.Orange))
+                {
+                    g.FillRectangle(brush, navRect);
+                }
+                using (var font = new Font("Arial", 8))
+                using (var textBrush = new SolidBrush(Color.Black))
+                {
+                    g.DrawString($"Error: {ex.Message}", font, textBrush, navRect);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Draws navigation using the legacy button system
+        /// </summary>
+        private void DrawLegacyNavigation(Graphics g, Rectangle navRect)
+        {
             // Clear existing navigator hit tests
             _grid.ClearHitList();
 
@@ -106,6 +218,18 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             {
                 DrawFullNavigator(g, navRect, buttonWidth, buttonHeight, padding, spacing, sectionSpacing, y, !hideUtilities, !hidePageInfo);
             }
+        }
+
+        /// <summary>
+        /// Gets the recommended height for the current navigation style
+        /// </summary>
+        public int GetRecommendedNavigatorHeight()
+        {
+            if (UsePainterNavigation)
+            {
+                return NavigationPainterFactory.GetRecommendedHeight(_navigationStyle);
+            }
+            return 32; // Legacy default height
         }
 
         private void EnsureNavigatorButtons()

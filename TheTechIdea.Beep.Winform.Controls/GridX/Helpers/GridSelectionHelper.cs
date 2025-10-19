@@ -37,6 +37,10 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     rr.Cells[c].IsSelected = (r == row && c == col);
                 }
             }
+            
+            // Ensure the selected row is visible
+            EnsureVisible();
+            
             // Do not raise RowSelectionChanged on highlight-only changes
         }
 
@@ -48,6 +52,36 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         public void EnsureVisible()
         {
             if (!HasSelection) return;
+            
+            // Calculate the pixel offset for the selected row
+            int targetY = 0;
+            for (int i = 0; i < RowIndex && i < _grid.Data.Rows.Count; i++)
+            {
+                var row = _grid.Data.Rows[i];
+                targetY += row.Height > 0 ? row.Height : _grid.RowHeight;
+            }
+            
+            // Get current viewport
+            var rowsRect = _grid.Layout.RowsRect;
+            int viewportTop = _grid.Scroll.VerticalOffset;
+            int viewportBottom = viewportTop + rowsRect.Height;
+            int selectedRowHeight = _grid.Data.Rows[RowIndex].Height > 0 ? _grid.Data.Rows[RowIndex].Height : _grid.RowHeight;
+            int targetBottom = targetY + selectedRowHeight;
+            
+            // Check if row is above viewport - scroll up
+            if (targetY < viewportTop)
+            {
+                _grid.Scroll.SetVerticalOffset(targetY);
+                _grid.Scroll.SetVerticalIndex(RowIndex);
+            }
+            // Check if row is below viewport - scroll down
+            else if (targetBottom > viewportBottom)
+            {
+                int newOffset = targetBottom - rowsRect.Height;
+                _grid.Scroll.SetVerticalOffset(newOffset);
+                _grid.Scroll.SetVerticalIndex(RowIndex);
+            }
+            // Row is already visible - no scroll needed
         }
     }
 }

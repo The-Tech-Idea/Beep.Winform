@@ -19,6 +19,7 @@ using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.TextFields;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.ComboBoxes;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 
 
 // Add enum for sort direction
@@ -181,7 +182,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         private Dictionary<int, SortDirection> _columnSortStates = new Dictionary<int, SortDirection>();
         private Dictionary<int, bool> _columnFilterStates = new Dictionary<int, bool>();
         private int _hoveredHeaderColumn = -1;
-        private BeepGridStyle _gridStyle = BeepGridStyle.Classic;
+        private BeepGridStyle _gridStyle = BeepGridStyle.Default;
 
         // Row Selection Checkbox Fields
         private bool _showCheckboxes = false;
@@ -623,7 +624,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         // Grid ProgressBarStyle Properties
         [Browsable(true)]
         [Category("Appearance")]
-        [DefaultValue(BeepGridStyle.Classic)]
+        [DefaultValue(BeepGridStyle.Default)]
         [Description("Visual style of the grid")]
         public BeepGridStyle GridStyle
         {
@@ -3384,18 +3385,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Grid
         {
             switch (_gridStyle)
             {
-                case BeepGridStyle.Modern:
-                    ApplyModernStyle();
-                    break;
+                
                 case BeepGridStyle.Flat:
                     ApplyFlatStyle();
                     break;
                 case BeepGridStyle.Material:
                     ApplyMaterialStyle();
                     break;
-                case BeepGridStyle.Dark:
-                    ApplyDarkStyle();
-                    break;
+              
                 default:
                     ApplyClassicStyle();
                     break;

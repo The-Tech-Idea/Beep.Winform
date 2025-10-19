@@ -13,6 +13,9 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
         private Point _mouseDown;
         private bool _resizingColumn;
         private int _resizingColIndex = -1;
+        private bool _resizingHeaderRow;
+        private bool _resizingDataRow;
+        private int _resizingRowIndex = -1;
         private int _resizeMargin = 3;
 
         // Cached nav button rects per paint (computed in render). We recompute on the fly here for simplicity
@@ -27,6 +30,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseMove(MouseEventArgs e)
         {
+            // Handle column resize
             if (_resizingColumn && _resizingColIndex >= 0)
             {
                 int dx = e.X - _mouseDown.X;
@@ -36,6 +40,34 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 _grid.Layout.Recalculate();
                 _grid.ScrollBars?.UpdateBars();
                 _grid.Invalidate();
+                _grid.Cursor = Cursors.SizeWE;
+                return;
+            }
+
+            // Handle header row height resize
+            if (_resizingHeaderRow)
+            {
+                int dy = e.Y - _mouseDown.Y;
+                _grid.ColumnHeaderHeight = Math.Max(22, _grid.ColumnHeaderHeight + dy);
+                _mouseDown = e.Location;
+                _grid.Layout.Recalculate();
+                _grid.Invalidate();
+                _grid.Cursor = Cursors.SizeNS;
+                return;
+            }
+
+            // Handle data row height resize
+            if (_resizingDataRow && _resizingRowIndex >= 0)
+            {
+                int dy = e.Y - _mouseDown.Y;
+                var row = _grid.Data.Rows[_resizingRowIndex];
+                int newHeight = Math.Max(18, (row.Height > 0 ? row.Height : _grid.RowHeight) + dy);
+                row.Height = newHeight;
+                _mouseDown = e.Location;
+                _grid.Layout.Recalculate();
+                _grid.ScrollBars?.UpdateBars();
+                _grid.Invalidate();
+                _grid.Cursor = Cursors.SizeNS;
                 return;
             }
 
@@ -191,6 +223,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
+            // Resize header row height
+            if (_grid.Layout.ShowColumnHeaders && HitTestHeaderRowBorder(e.Location))
+            {
+                _resizingHeaderRow = true;
+                _grid.Cursor = Cursors.SizeNS;
+                return;
+            }
+
+            // Resize data row height
+            int rowBorderIdx = HitTestRowBorder(e.Location);
+            if (rowBorderIdx >= 0)
+            {
+                _resizingDataRow = true;
+                _resizingRowIndex = rowBorderIdx;
+                _grid.Cursor = Cursors.SizeNS;
+                return;
+            }
+
             // Highlight active cell; do not toggle selection here
             var (rrow, rcol) = HitTestCell(e.Location);
             if (rrow >= 0 && rcol >= 0)
@@ -203,10 +253,28 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void HandleMouseUp(MouseEventArgs e)
         {
+            // Reset column resizing
             if (_resizingColumn)
             {
                 _resizingColumn = false;
                 _resizingColIndex = -1;
+                _grid.Cursor = Cursors.Default;
+                return;
+            }
+
+            // Reset header row resizing
+            if (_resizingHeaderRow)
+            {
+                _resizingHeaderRow = false;
+                _grid.Cursor = Cursors.Default;
+                return;
+            }
+
+            // Reset data row resizing
+            if (_resizingDataRow)
+            {
+                _resizingDataRow = false;
+                _resizingRowIndex = -1;
                 _grid.Cursor = Cursors.Default;
                 return;
             }
@@ -468,19 +536,76 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             return -1;
         }
 
+        private bool HitTestHeaderRowBorder(Point p)
+        {
+            // Check if we're near the bottom edge of the header row
+            if (!_grid.Layout.ShowColumnHeaders) return false;
+            
+            var headerRect = _grid.Layout.HeaderRect;
+            if (headerRect.IsEmpty) return false;
+
+            // Check if point is within the header horizontally and near the bottom edge
+            if (p.X >= headerRect.Left && p.X <= headerRect.Right)
+            {
+                if (Math.Abs(p.Y - headerRect.Bottom) <= _resizeMargin)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private int HitTestRowBorder(Point p)
+        {
+            // Check if we're near the bottom edge of any data row
+            var rowsRect = _grid.Layout.RowsRect;
+            if (!rowsRect.Contains(p)) return -1;
+
+            int firstVisibleRowIndex = _grid.Scroll.FirstVisibleRowIndex;
+            int currentY = rowsRect.Top;
+            
+            // Calculate pixel offset for positioning
+            int totalRowsHeight = 0;
+            for (int i = 0; i < firstVisibleRowIndex && i < _grid.Data.Rows.Count; i++)
+            {
+                var row = _grid.Data.Rows[i];
+                totalRowsHeight += row.Height > 0 ? row.Height : _grid.RowHeight;
+            }
+            
+            int pixelOffset = _grid.Scroll.VerticalOffset;
+            currentY = rowsRect.Top - (pixelOffset - totalRowsHeight);
+
+            // Check each visible row
+            for (int i = firstVisibleRowIndex; i < _grid.Data.Rows.Count; i++)
+            {
+                var row = _grid.Data.Rows[i];
+                int rowHeight = row.Height > 0 ? row.Height : _grid.RowHeight;
+                
+                // Check if we're near the bottom edge of this row
+                if (Math.Abs(p.Y - (currentY + rowHeight)) <= _resizeMargin)
+                {
+                    return i;
+                }
+                
+                currentY += rowHeight;
+                
+                // Stop if we're past the visible area
+                if (currentY > rowsRect.Bottom) break;
+            }
+
+            return -1;
+        }
+
         private bool HitTestNavigator(Point p)
         {
             var navRect = _grid.Layout.GetType().GetProperty("NavigatorRect")?.GetValue(_grid.Layout) as Rectangle? ?? Rectangle.Empty;
             if (navRect == Rectangle.Empty || !navRect.Contains(p)) return false;
 
-            // Use the centralized hit test system
+            // Use the centralized hit test system - DO NOT invoke HitAction here
+            // The BaseControl's hit test system will handle the click action automatically
             if (_grid.HitTest(p))
             {
-                // Execute the hit action if one exists
-                if (_grid.HitTestControl?.HitAction != null)
-                {
-                    _grid.HitTestControl.HitAction.Invoke();
-                }
                 return true;
             }
 
@@ -489,7 +614,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         private void UpdateCursorForLocation(Point p)
         {
-            // 1) Column border -> resize cursor
+            // 1) Column border -> resize cursor (horizontal)
             int borderIdx = HitTestColumnBorder(p);
             if (borderIdx >= 0 && _grid.AllowUserToResizeColumns)
             {
@@ -497,7 +622,22 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 return;
             }
 
-            // 2) Navigator buttons -> hand cursor
+            // 2) Header row border -> resize cursor (vertical)
+            if (_grid.Layout.ShowColumnHeaders && HitTestHeaderRowBorder(p))
+            {
+                _grid.Cursor = Cursors.SizeNS;
+                return;
+            }
+
+            // 3) Data row border -> resize cursor (vertical)
+            int rowBorderIdx = HitTestRowBorder(p);
+            if (rowBorderIdx >= 0)
+            {
+                _grid.Cursor = Cursors.SizeNS;
+                return;
+            }
+
+            // 4) Navigator buttons -> hand cursor
             if (_grid.ShowNavigator)
             {
                 var navRect = _grid.Layout.GetType().GetProperty("NavigatorRect")?.GetValue(_grid.Layout) as Rectangle? ?? Rectangle.Empty;
@@ -512,7 +652,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // 3) Header icons (filter/sort) and sortable header -> hand cursor
+            // 5) Header icons (filter/sort) and sortable header -> hand cursor
             if (_grid.Layout.ShowColumnHeaders && _grid.Layout.HeaderRect.Contains(p))
             {
                 int colIdx = _grid.Layout.HoveredHeaderColumnIndex;
@@ -537,7 +677,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                 }
             }
 
-            // 4) Row/selection checkbox -> hand cursor
+            // 6) Row/selection checkbox -> hand cursor
             if (_grid.ShowCheckBox)
             {
                 int checkCol = _grid.Data.Columns.ToList().FindIndex(c => c.IsSelectionCheckBox && c.Visible);

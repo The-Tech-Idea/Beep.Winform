@@ -139,18 +139,38 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
 
         public void DeleteCurrent()
         {
-
-
             if (_bindingSource != null)
             {
                 try
                 {
+                    // Sync BindingSource position with the currently selected row in the grid
+                    if (_grid.Selection.HasSelection && _grid.Selection.RowIndex >= 0)
+                    {
+                        _bindingSource.Position = _grid.Selection.RowIndex;
+                    }
+
+                    // Store the position before deletion
+                    int positionBeforeDelete = _bindingSource.Position;
+                    
+                    // Remove the current item
                     _bindingSource.RemoveCurrent();
+                    
+                    // Rebind and recalculate
+                    _grid.Data.Bind(_bindingSource);
+                    _grid.Layout.Recalculate();
+                    
+                    // Select the same position or the previous one if we deleted the last item
+                    int newRowCount = _grid.Data.Rows.Count;
+                    if (newRowCount > 0)
+                    {
+                        int newRow = Math.Min(positionBeforeDelete, newRowCount - 1);
+                        _grid.SelectCell(newRow, _grid.Selection.HasSelection ? _grid.Selection.ColumnIndex : 0);
+                        _bindingSource.Position = newRow;
+                    }
+                    
+                    _grid.Invalidate();
                 }
                 catch { }
-                _grid.Data.Bind(_bindingSource);
-                _grid.Layout.Recalculate();
-                _grid.Invalidate();
                 return;
             }
         }

@@ -354,16 +354,16 @@ namespace TheTechIdea.Beep.Winform.Controls
                 var parentGrid = this.Parent as TheTechIdea.Beep.Winform.Controls.Grid.BeepGrid;
                 if (parentGrid != null)
                 {
-                    var style = (GridX.BeepGridStyle)parentGrid.GridStyle;
+                    var style = (BeepGridStyle)parentGrid.GridStyle;
                     professionalStyle = (
-                        style == GridX.BeepGridStyle.Corporate ||
-                        style == GridX.BeepGridStyle.Minimal ||
-                        style == GridX.BeepGridStyle.Clean ||
-                        style == GridX.BeepGridStyle.Flat ||
-                        style == GridX.BeepGridStyle.Material ||
-                        style == GridX.BeepGridStyle.Compact ||
-                        style == GridX.BeepGridStyle.Card ||
-                        style == GridX.BeepGridStyle.Borderless);
+                        style == BeepGridStyle.Corporate ||
+                        style == BeepGridStyle.Minimal ||
+                        style == BeepGridStyle.Clean ||
+                        style == BeepGridStyle.Flat ||
+                        style == BeepGridStyle.Material ||
+                        style == BeepGridStyle.Compact ||
+                        style == BeepGridStyle.Card ||
+                        style == BeepGridStyle.Borderless);
                 }
             }
             catch { professionalStyle = false; }

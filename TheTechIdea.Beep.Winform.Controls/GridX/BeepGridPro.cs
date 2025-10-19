@@ -4,6 +4,7 @@ using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.GridX.Helpers;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Controls.Converters;
  
@@ -13,66 +14,7 @@ using TheTechIdea.Beep.Winform.Controls.GridX.Layouts;
 
 namespace TheTechIdea.Beep.Winform.Controls.GridX
 {
-    /// <summary>
-    /// Grid style presets inspired by popular JavaScript frameworks and design systems
-    /// </summary>
-    public enum BeepGridStyle
-    {
-        /// <summary>
-        /// Default Beep grid styling
-        /// </summary>
-        Default,
-
-        /// <summary>
-        /// Clean, minimal styling with subtle borders
-        /// </summary>
-        Clean,
-
-        /// <summary>
-        /// Bootstrap-inspired table styling with striped rows
-        /// </summary>
-        Bootstrap,
-
-        /// <summary>
-        /// Material Design table styling
-        /// </summary>
-        Material,
-
-        /// <summary>
-        /// Modern flat design with minimal borders
-        /// </summary>
-        Flat,
-
-        /// <summary>
-        /// Dark-optimized styling for data-heavy grids
-        /// </summary>
-        Dark,
-
-        /// <summary>
-        /// Compact styling for dense data display
-        /// </summary>
-        Compact,
-
-        /// <summary>
-        /// Professional corporate styling
-        /// </summary>
-        Corporate,
-
-        /// <summary>
-        /// Minimalist styling with focus on content
-        /// </summary>
-        Minimal,
-
-        /// <summary>
-        /// Card-based styling for modern UIs
-        /// </summary>
-        Card,
-
-        /// <summary>
-        /// Borderless modern styling
-        /// </summary>
-        Borderless
-    }
+    
 
     [ToolboxItem(true)]
     [Category("Beep Controls")]
@@ -103,6 +45,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
         internal Helpers.GridEditHelper Edit { get; }
         internal Helpers.GridThemeHelper ThemeHelper { get; }
         internal Helpers.GridNavigatorHelper Navigator { get; }
+        internal Helpers.GridNavigationPainterHelper NavigatorPainter { get; }
         internal Helpers.GridSizingHelper Sizing { get; }
         internal Helpers.GridDialogHelper Dialog { get; }
 
@@ -184,6 +127,15 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
 
         [Browsable(false)]
         public BindingList<BeepRowConfig> Rows => Data.Rows;
+
+        /// <summary>
+        /// Gets the number of rows that can fit in the current visible area (viewport).
+        /// This is dynamically calculated based on RowsRect.Height / RowHeight.
+        /// Used for pagination calculations - represents the "page size" for navigation.
+        /// </summary>
+        [Browsable(false)]
+        [Description("The number of rows that can fit in the current visible area (dynamic page size for pagination)")]
+        public int VisibleRowCapacity => Render?.GetVisibleRowCapacity() ?? 10;
 
         [Browsable(false)]
         internal Type EntityType => _entityType;
@@ -353,6 +305,68 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             }
         }
 
+        private navigationStyle _navigationStyle = navigationStyle.Standard;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Navigation bar style - choose from 12 framework-inspired designs")]
+        [DefaultValue(navigationStyle.Standard)]
+        [RefreshProperties(RefreshProperties.Repaint)]
+        public navigationStyle NavigationStyle
+        {
+            get => _navigationStyle;
+            set
+            {
+                if (_navigationStyle != value)
+                {
+                    _navigationStyle = value;
+                    NavigatorPainter.NavigationStyle = value;
+                    
+                    // Update navigator height based on the new style
+                    if (_usePainterNavigation)
+                    {
+                        if (value == navigationStyle.None)
+                        {
+                            Layout.NavigatorHeight = 0; // No height for None
+                        }
+                        else
+                        {
+                            Layout.NavigatorHeight = NavigatorPainter.GetRecommendedNavigatorHeight();
+                        }
+                        Layout.Recalculate();
+                    }
+                    
+                    Invalidate();
+                    Refresh();
+
+                    // Notify designer of the change
+                    if (DesignMode && Site != null)
+                    {
+                        IComponentChangeService changeService = (IComponentChangeService)GetService(typeof(IComponentChangeService));
+                        changeService?.OnComponentChanged(this, null, null, null);
+                    }
+                }
+            }
+        }
+
+        private bool _usePainterNavigation = true;
+        [Browsable(true)]
+        [Category("Appearance")]
+        [Description("Use modern painter-based navigation (true) or legacy button-based navigation (false)")]
+        [DefaultValue(true)]
+        public bool UsePainterNavigation
+        {
+            get => _usePainterNavigation;
+            set
+            {
+                if (_usePainterNavigation != value)
+                {
+                    _usePainterNavigation = value;
+                    NavigatorPainter.UsePainterNavigation = value;
+                    Invalidate();
+                }
+            }
+        }
+
         private GridLayoutPreset _layoutPreset = GridLayoutPreset.Default;
         [Browsable(true)]
         [Category("Layout")]
@@ -439,7 +453,57 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                 }
             }
         }
-
+        private BeepColumnConfig _selectioncheckboxColumn;
+        public BeepColumnConfig SelectionCheckBoxColumn
+        {
+            get
+            {
+                if (_selectioncheckboxColumn == null)
+                {
+                    _selectioncheckboxColumn = Data.Columns.FirstOrDefault(r => r.IsSelectionCheckBox);
+                    if (_selectioncheckboxColumn == null)
+                    {
+                        Data.EnsureSystemColumns();
+                        _selectioncheckboxColumn = Data.Columns.FirstOrDefault(r => r.IsSelectionCheckBox);
+                    }
+                }
+                return _selectioncheckboxColumn;
+            }
+        }
+        private BeepColumnConfig _rowIDColumn;
+        public BeepColumnConfig RowIDColumn
+        {
+            get
+            {
+                if (_rowIDColumn == null)
+                {
+                    _rowIDColumn = Data.Columns.FirstOrDefault(c => c.IsRowID);
+                    if (_rowIDColumn == null)
+                    {
+                        Data.EnsureSystemColumns();
+                        _rowIDColumn = Data.Columns.FirstOrDefault(c => c.IsRowID);
+                    }
+                }
+                return _rowIDColumn;
+            }
+        }
+        private BeepColumnConfig _rowNumberColumn;
+        public BeepColumnConfig RowNumberColumn
+        {
+            get
+            {
+                if (_rowNumberColumn == null)
+                {
+                    _rowNumberColumn = Data.Columns.FirstOrDefault(c => c.IsRowNumColumn);
+                    if (_rowNumberColumn == null)
+                    {
+                        Data.EnsureSystemColumns();
+                        _rowNumberColumn = Data.Columns.FirstOrDefault(c => c.IsRowNumColumn);
+                    }
+                }
+                return _rowNumberColumn;
+            }
+        }
         [Browsable(true)]
         [Category("Layout")]
         [DefaultValue(DataGridViewAutoSizeColumnsMode.None)]
@@ -504,6 +568,26 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
            // Console.WriteLine("BeepGridPro theme helper created");
             Navigator = new Helpers.GridNavigatorHelper(this);
            // Console.WriteLine("BeepGridPro navigator helper created");
+            NavigatorPainter = new Helpers.GridNavigationPainterHelper(this);
+           // Console.WriteLine("BeepGridPro navigator painter helper created");
+            
+            // Sync navigation painter properties
+            NavigatorPainter.UsePainterNavigation = _usePainterNavigation;
+            NavigatorPainter.NavigationStyle = _navigationStyle;
+            
+            // Set initial navigator height based on style
+            if (_usePainterNavigation)
+            {
+                if (_navigationStyle == navigationStyle.None)
+                {
+                    Layout.NavigatorHeight = 0;
+                }
+                else
+                {
+                    Layout.NavigatorHeight = NavigatorPainter.GetRecommendedNavigatorHeight();
+                }
+            }
+            
             Sizing = new Helpers.GridSizingHelper(this);
            // Console.WriteLine("BeepGridPro sizing helper created");
             Dialog = new Helpers.GridDialogHelper(this);
@@ -637,24 +721,24 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
            // Console.WriteLine("BeepGridPro DrawContent - DrawingRect: " + drawingRect.ToString());
 
             // Save the current graphics state
-          //  var graphicsState = g.Save();
+            var graphicsState = g.Save();
 
             try
             {
                 // Set clipping region to DrawingRect
-           //     g.SetClip(drawingRect);
+               g.SetClip(drawingRect);
 
                 // Now do our custom grid drawing within the clipped area
                // Console.WriteLine("BeepGridPro DrawContent called");
                // Console.WriteLine("BeepGridPro DrawContent - Starting layout calculation");
-               // Layout?.EnsureCalculated();
+                Layout?.EnsureCalculated();
                // Console.WriteLine("BeepGridPro Layout calculated");
                Render?.Draw(g);
-               // Console.WriteLine("BeepGridPro Render completed");
+                // Console.WriteLine("BeepGridPro Render completed");
 
                 // Draw custom scrollbars after grid content
-               // ScrollBars?.DrawScrollBars(g);
-               // Console.WriteLine("BeepGridPro ScrollBars drawn");
+                ScrollBars?.DrawScrollBars(g);
+                // Console.WriteLine("BeepGridPro ScrollBars drawn");
             }
             catch (Exception ex)
             {
@@ -663,16 +747,16 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
             finally
             {
                 // Always restore the graphics state
-               // g.Restore(graphicsState);
+                g.Restore(graphicsState);
             }
 
             // Keep scrollbars in sync after rendering (outside clipping)
-            //if (!DesignMode)
-            //{
-            //    ScrollBars?.UpdateBars();
-            //}
+            if (!DesignMode)
+            {
+               ScrollBars?.UpdateBars();
+            }
 
-           // Console.WriteLine("BeepGridPro DrawContent END");
+            // Console.WriteLine("BeepGridPro DrawContent END");
         }
 
 
@@ -767,19 +851,6 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX
                     Render.HeaderCellPadding = 2;
                     break;
 
-                case BeepGridStyle.Dark:
-                    // Dark theme: optimized for data-heavy grids (structure only)
-                    RowHeight = 22;
-                    ColumnHeaderHeight = 24;
-                    Render.ShowGridLines = true;
-                    Render.ShowRowStripes = true;
-                    Render.GridLineStyle = System.Drawing.Drawing2D.DashStyle.Dot;
-                    Render.UseHeaderGradient = false;
-                    Render.ShowSortIndicators = true;
-                    Render.UseHeaderHoverEffects = true;
-                    Render.UseBoldHeaderText = true;
-                    Render.HeaderCellPadding = 1;
-                    break;
 
                 case BeepGridStyle.Compact:
                     // Compact: smaller padding, tighter spacing

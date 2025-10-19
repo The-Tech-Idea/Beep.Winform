@@ -4,6 +4,7 @@ using TheTechIdea.Beep.MVVM.ViewModels.BeepConfig;
 using TheTechIdea.Beep.Utilities;
 using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Winform.Controls.DialogsManagers;
+using TheTechIdea.Beep.Winform.Controls.GridX.Painters;
 using TheTechIdea.Beep.Winform.Controls.Models;
 using TheTechIdea.Beep.Winform.Default.Views.Template;
 
@@ -67,13 +68,20 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
 
         private void CycleBeepDataTimePickerModebeepButton_Click(object? sender, EventArgs e)
         {
-           // beepDateTimePicker1.Mode = Winform.Controls.Dates.Models.DatePickerMode.Timeline;
+            // beepDateTimePicker1.Mode = Winform.Controls.Dates.Models.DatePickerMode.Timeline;
             // Cycle through DatePickerMode enum values
             //            var modes = Enum.GetValues(typeof(Winform.Controls.Dates.Models.DatePickerMode));
             //int currentIndex = Array.IndexOf(modes, beepDateTimePicker1.Mode);
             //int nextIndex = (currentIndex + 1) % modes.Length;
             //beepDateTimePicker1.Mode = (Winform.Controls.Dates.Models.DatePickerMode)modes.GetValue(nextIndex);
             //CalendarnamebeepLabel.Text = beepDateTimePicker1.Mode.ToString();
+            
+            // Cycle through navigationStyle enum values
+            var modes = Enum.GetValues(typeof(navigationStyle));
+            int currentIndex = Array.IndexOf(modes, beepGridPro1.NavigationStyle);
+            int nextIndex = (currentIndex + 1) % modes.Length;
+            beepGridPro1.NavigationStyle = (navigationStyle)modes.GetValue(nextIndex);
+            CalendarnamebeepLabel.Text = beepGridPro1.NavigationStyle.ToString();
         }
 
         private void beepGridPro1_SaveCalled(object? sender, EventArgs e)

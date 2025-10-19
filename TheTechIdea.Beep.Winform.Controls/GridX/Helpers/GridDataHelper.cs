@@ -81,6 +81,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     CellEditor = BeepColumnType.CheckBoxBool,
                     GuidID = Guid.NewGuid().ToString(),
                     SortMode = DataGridViewColumnSortMode.NotSortable,
+                    AllowSort = false,
                     Resizable = DataGridViewTriState.False,
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                 };
@@ -106,7 +107,8 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     PropertyTypeName = typeof(int).AssemblyQualifiedName,
                     CellEditor = BeepColumnType.Text,
                     GuidID = Guid.NewGuid().ToString(),
-                    SortMode = DataGridViewColumnSortMode.NotSortable,
+                    SortMode = DataGridViewColumnSortMode.Automatic,
+                    AllowSort = true,
                     Resizable = DataGridViewTriState.False,
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                     AggregationType = AggregationType.Count
@@ -134,6 +136,7 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
                     CellEditor = BeepColumnType.Text,
                     GuidID = Guid.NewGuid().ToString(),
                     SortMode = DataGridViewColumnSortMode.NotSortable,
+                    AllowSort = false,
                     Resizable = DataGridViewTriState.False,
                     AutoSizeMode = DataGridViewAutoSizeColumnMode.None
                 };

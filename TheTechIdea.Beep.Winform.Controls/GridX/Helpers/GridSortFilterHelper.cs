@@ -17,7 +17,31 @@ namespace TheTechIdea.Beep.Winform.Controls.GridX.Helpers
             if (col == null) return;
             col.SortDirection = direction;
 
-            Func<BeepRowConfig, object?> key = r => r.RowData?.GetType().GetProperty(col.ColumnName)?.GetValue(r.RowData);
+            // Handle unbound/system columns differently
+            Func<BeepRowConfig, object?> key;
+            
+            if (col.IsRowNumColumn)
+            {
+                // For RowNum column, sort by the actual row number value in the cell
+                key = r => {
+                    var cell = r.Cells.FirstOrDefault(c => c.ColumnName == columnName);
+                    return cell?.CellValue;
+                };
+            }
+            else if (col.IsUnbound)
+            {
+                // For other unbound columns, get value from the cell
+                key = r => {
+                    var cell = r.Cells.FirstOrDefault(c => c.ColumnName == columnName);
+                    return cell?.CellValue;
+                };
+            }
+            else
+            {
+                // For bound columns, get from RowData
+                key = r => r.RowData?.GetType().GetProperty(col.ColumnName)?.GetValue(r.RowData);
+            }
+
             var ordered = direction switch
             {
                 SortDirection.Ascending => _grid.Data.Rows.OrderBy(key).ToList(),

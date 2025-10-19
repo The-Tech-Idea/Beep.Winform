@@ -16,7 +16,59 @@ namespace TheTechIdea.Beep.Vis.Modules
         public bool IsSelected { get; set; }
     }
 
-   
+    public enum BeepGridStyle
+    {
+        /// <summary>
+        /// Default Beep grid styling
+        /// </summary>
+        Default,
+
+        /// <summary>
+        /// Clean, minimal styling with subtle borders
+        /// </summary>
+        Clean,
+
+        /// <summary>
+        /// Bootstrap-inspired table styling with striped rows
+        /// </summary>
+        Bootstrap,
+
+        /// <summary>
+        /// Material Design table styling
+        /// </summary>
+        Material,
+
+        /// <summary>
+        /// Modern flat design with minimal borders
+        /// </summary>
+        Flat,
+
+
+        /// <summary>
+        /// Compact styling for dense data display
+        /// </summary>
+        Compact,
+
+        /// <summary>
+        /// Professional corporate styling
+        /// </summary>
+        Corporate,
+
+        /// <summary>
+        /// Minimalist styling with focus on content
+        /// </summary>
+        Minimal,
+
+        /// <summary>
+        /// Card-based styling for modern UIs
+        /// </summary>
+        Card,
+
+        /// <summary>
+        /// Borderless modern styling
+        /// </summary>
+        Borderless
+    }
 
     public enum ButtonType
     {
@@ -68,15 +120,6 @@ namespace TheTechIdea.Beep.Vis.Modules
         Descending
     }
 
-    // Add enum for grid styles
-    public enum BeepGridStyle
-    {
-        Classic,
-        Modern,
-        Flat,
-        Material,
-        Dark
-    }
     /// <summary>
     /// Enum for modern gradient types
     /// </summary>

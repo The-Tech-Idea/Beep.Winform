@@ -1,9 +1,10 @@
 ﻿using System.Drawing.Printing;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepPrintPreviewForm : BeepiForm
+    public partial class BeepPrintPreviewForm : BeepiFormPro
     {
         private ToolStrip toolStrip;
         private ToolStripButton btnPrev, btnNext, btnPrint, btnClose;

@@ -34,11 +34,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _logoImage = new BeepImage();
             _titleLabel = new BeepLabel();
             SuspendLayout();
-            // 
-            // beepuiManager1
-            // 
-            beepuiManager1.IsRounded = false;
-            beepuiManager1.ShowBorder = false;
+         
             // 
             // _logoImage
             // 
@@ -384,20 +380,18 @@ namespace TheTechIdea.Beep.Winform.Controls
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BorderColor = Color.FromArgb(200, 200, 200);
-            BorderRadius = 4;
+           
             ClientSize = new Size(715, 637);
             Controls.Add(_titleLabel);
             Controls.Add(_logoImage);
-            EnableGlow = false;
-            FormStyle = BeepFormStyle.Office;
-            GlowColor = Color.FromArgb(90, 50, 100, 200);
-            GlowSpread = 0F;
+          
+         
             Name = "BeepSplashScreen";
             Opacity = 0.1D;
-            ShadowDepth = 4;
+        
             ShowCaptionBar = false;
             StartPosition = FormStartPosition.CenterScreen;
-            StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepSplashScreen.StylePresets.Presets");
+          
             Theme = "DefaultType";
             TopMost = true;
             ResumeLayout(false);

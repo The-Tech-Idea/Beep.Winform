@@ -5,7 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls;
-using TheTechIdea.Beep.Winform.Controls.Forms.Helpers;
+
 
 namespace TheTechIdea.Beep.Winform.Controls.MDI
 {

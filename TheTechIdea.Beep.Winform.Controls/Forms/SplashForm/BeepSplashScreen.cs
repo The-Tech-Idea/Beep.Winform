@@ -8,13 +8,14 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
     [ToolboxItem(true)]
     [Category("Beep Controls")]
     [Description("Splash Screen with fade-in and fade-out effects")]
-    public partial class BeepSplashScreen : BeepiForm
+    public partial class BeepSplashScreen : BeepiFormPro
     {
         private System.Windows.Forms.Timer _fadeTimer;
         private bool _isFadingIn = true;

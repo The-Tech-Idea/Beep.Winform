@@ -4,6 +4,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
  
 using TheTechIdea.Beep.Winform.Controls.DataControls.Helpers;
+using TheTechIdea.Beep.Winform.Controls.GridX;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
@@ -351,7 +352,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             bool professionalStyle = false;
             try
             {
-                var parentGrid = this.Parent as TheTechIdea.Beep.Winform.Controls.Grid.BeepGrid;
+                var parentGrid = this.Parent as BeepGridPro;
                 if (parentGrid != null)
                 {
                     var style = (BeepGridStyle)parentGrid.GridStyle;

@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -36,7 +37,7 @@ namespace TheTechIdea.Beep.Winform.Controls
         None
 
     }
-    public partial class BeepDialogModal : BeepiForm
+    public partial class BeepDialogModal : BeepiFormPro
     {
         private static readonly Dictionary<DialogType, string> dialogIcons = new()
 {
@@ -194,8 +195,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             this.MinimizeBox = false;
             this.ShowInTaskbar = false;
             this.TopMost = true;
-            BorderRadius = 20;
-            BorderThickness = 1;
+           
             
 
         }

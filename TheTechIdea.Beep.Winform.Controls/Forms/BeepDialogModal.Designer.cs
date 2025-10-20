@@ -52,7 +52,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             // 
             // beepuiManager1
             // 
-            beepuiManager1.BeepiForm = this;
+       
             // 
             // panel1
             // 

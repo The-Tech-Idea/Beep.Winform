@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.BaseImage;
 using TheTechIdea.Beep.Winform.Controls.Common;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.BorderPainters;
 using TheTechIdea.Beep.Winform.Controls.Styling.Borders;
@@ -160,91 +161,102 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         #region Form Style to Control Style Mapping
         
         /// <summary>
-        /// Maps BeepFormStyle enum values to appropriate BeepControlStyle enum values
+        /// Maps FormStyle enum values to appropriate BeepControlStyle enum values
         /// This provides a consistent way to map form-level styling to control-level styling
         /// </summary>
-        /// <param name="formStyle">The BeepFormStyle to map</param>
+        /// <param name="formStyle">The FormStyle to map</param>
         /// <returns>The corresponding BeepControlStyle</returns>
-        public static BeepControlStyle MapFormStyleToControlStyle(BeepFormStyle formStyle)
+        public static BeepControlStyle MapFormStyleToControlStyle(FormStyle formStyle)
         {
             switch (formStyle)
             {
-                // Classic Windows → Minimal
-                case BeepFormStyle.Classic:
-                case BeepFormStyle.Windows:
-                    return BeepControlStyle.Minimal;
-                
                 // Modern styles → Material Design family
-                case BeepFormStyle.Modern:
+                case FormStyle.Modern:
                     return BeepControlStyle.Material3;
                 
-                case BeepFormStyle.Material:
+                case FormStyle.Material:
                     return BeepControlStyle.MaterialYou;
                 
-                case BeepFormStyle.ModernDark:
-                    return BeepControlStyle.DarkGlow;
+                case FormStyle.Minimal:
+                    return BeepControlStyle.Minimal;
                 
                 // Metro/Microsoft → Fluent family
-                case BeepFormStyle.Metro:
-                case BeepFormStyle.Office:
+                case FormStyle.Metro:
+                case FormStyle.Metro2:
                     return BeepControlStyle.Fluent2;
                 
-                case BeepFormStyle.Fluent:
+                case FormStyle.Fluent:
                     return BeepControlStyle.Fluent2;
                 
                 // Glass/Acrylic effects
-                case BeepFormStyle.Glass:
+                case FormStyle.Glass:
+                case FormStyle.Glassmorphism:
                     return BeepControlStyle.GlassAcrylic;
                 
+                // Apple Design
+                case FormStyle.MacOS:
+                case FormStyle.iOS:
+                    return BeepControlStyle.MacOSBigSur;
+                
                 // Linux Desktop Environments
-                case BeepFormStyle.Gnome:
-                case BeepFormStyle.Minimal:
+                case FormStyle.GNOME:
                     return BeepControlStyle.Minimal;
                 
-                case BeepFormStyle.Kde:
+                case FormStyle.KDE:
                     return BeepControlStyle.Fluent2;
                 
-                case BeepFormStyle.Cinnamon:
+                case FormStyle.Ubuntu:
                     return BeepControlStyle.NotionMinimal;
                 
-                case BeepFormStyle.Elementary:
+                case FormStyle.ArcLinux:
                     return BeepControlStyle.MacOSBigSur;
                 
                 // Special Effects
-                case BeepFormStyle.NeoBrutalist:
-                    return BeepControlStyle.Bootstrap;  // Bold, structured
-                
-                case BeepFormStyle.Neon:
-                    return BeepControlStyle.DarkGlow;
-                
-                case BeepFormStyle.Retro:
-                    return BeepControlStyle.GradientModern;
-                
-                case BeepFormStyle.Gaming:
-                    return BeepControlStyle.DarkGlow;
-                
-                case BeepFormStyle.Soft:
+                case FormStyle.NeoMorphism:
                     return BeepControlStyle.Neumorphism;
                 
-                // Professional/Corporate
-                case BeepFormStyle.Corporate:
-                    return BeepControlStyle.StripeDashboard;
+                case FormStyle.Brutalist:
+                    return BeepControlStyle.Bootstrap;  // Bold, structured
                 
-                case BeepFormStyle.Artistic:
+                case FormStyle.Neon:
+                    return BeepControlStyle.DarkGlow;
+                
+                case FormStyle.Retro:
+                    return BeepControlStyle.GradientModern;
+                
+                case FormStyle.Cyberpunk:
+                    return BeepControlStyle.DarkGlow;
+                
+                // Design Themes
+                case FormStyle.Dracula:
+                case FormStyle.OneDark:
+                case FormStyle.Tokyo:
+                    return BeepControlStyle.DarkGlow;
+                
+                case FormStyle.Solarized:
+                case FormStyle.GruvBox:
+                case FormStyle.Nord:
+                case FormStyle.Nordic:
+                    return BeepControlStyle.NotionMinimal;
+                
+                // Modern Effects
+                case FormStyle.Paper:
+                    return BeepControlStyle.Material3;
+                
+                case FormStyle.Holographic:
+                    return BeepControlStyle.GradientModern;
+                
+                // Cartoon/Playful
+                case FormStyle.Cartoon:
+                case FormStyle.ChatBubble:
                     return BeepControlStyle.FigmaCard;
                 
-                case BeepFormStyle.HighContrast:
-                    return BeepControlStyle.Minimal;
-                
-                case BeepFormStyle.Industrial:
-                    return BeepControlStyle.AntDesign;
-                
                 // Terminal/Console
-                case BeepFormStyle.Terminal:
+                case FormStyle.Terminal:
                     return BeepControlStyle.Terminal;
                 
                 // Custom → Use current style
-                case BeepFormStyle.Custom:
+                case FormStyle.Custom:
                     return CurrentControlStyle;
                 
                 // Default fallback
@@ -254,10 +266,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         /// <summary>
-        /// Maps BeepFormStyle to BeepControlStyle and sets it as the current control style
+        /// Maps FormStyle to BeepControlStyle and sets it as the current control style
         /// </summary>
-        /// <param name="formStyle">The BeepFormStyle to apply</param>
-        public static void ApplyFormStyle(BeepFormStyle formStyle)
+        /// <param name="formStyle">The FormStyle to apply</param>
+        public static void ApplyFormStyle(FormStyle formStyle)
         {
             BeepControlStyle controlStyle = MapFormStyleToControlStyle(formStyle);
             SetControlStyle(controlStyle);
@@ -438,26 +450,41 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
             RectangleF boundsF = path.GetBounds();
             Rectangle bounds = Rectangle.Round(boundsF);
             
-            // Delegate to appropriate text painter
+            // Delegate to appropriate enhanced design system text painter
             switch (style)
             {
                 case BeepControlStyle.Material3:
                 case BeepControlStyle.MaterialYou:
-                    MaterialTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
+                    MaterialDesignTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
                     break;
                 
                 case BeepControlStyle.iOS15:
                 case BeepControlStyle.MacOSBigSur:
-                    AppleTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
+                    AppleDesignTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+
+                case BeepControlStyle.Fluent2:
+                case BeepControlStyle.Windows11Mica:
+                    MicrosoftDesignTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+
+                case BeepControlStyle.TailwindCard:
+                case BeepControlStyle.Bootstrap:
+                case BeepControlStyle.ChakraUI:
+                case BeepControlStyle.NotionMinimal:
+                case BeepControlStyle.VercelClean:
+                case BeepControlStyle.FigmaCard:
+                    WebFrameworkTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
                     break;
                 
                 case BeepControlStyle.DarkGlow:
-                    MonospaceTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
+                case BeepControlStyle.Terminal:
+                    MonospaceDesignTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
                     break;
                 
                 default:
-                    // All other styles use standard text painter
-                    StandardTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
+                    // All other styles use enhanced standard text painter
+                    StandardDesignTextPainter.Paint(g, bounds, text, isFocused, style, CurrentTheme, UseThemeColors);
                     break;
             }
         }

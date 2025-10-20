@@ -1,9 +1,10 @@
 ﻿using System.ComponentModel;
 using TheTechIdea.Beep.Addin;
 using TheTechIdea.Beep.ConfigUtil;
-using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Vis;
+using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 
@@ -201,7 +202,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                 }
                 else if (view is Control control)
                 {
-                    var popupForm = new BeepiForm
+                    var popupForm = new BeepiFormPro
                     {
                         StartPosition = FormStartPosition.CenterParent,
                         AutoSize = true
@@ -212,7 +213,7 @@ namespace TheTechIdea.Beep.Winform.Controls
                     popupForm.StartPosition = FormStartPosition.CenterParent;
                     popupForm.ShowCaptionBar=true;
                     popupForm.Theme = Theme;
-                    popupForm.Title = view.Details?.AddinName ?? view.Details .ObjectName;
+                    popupForm.Text = view.Details?.AddinName ?? view.Details .ObjectName;
                     // Ensure the dialog is shown on the UI thread
                   
                     popupForm.OnFormClose += (s, e) =>

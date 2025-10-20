@@ -5,6 +5,7 @@ using System.ComponentModel;
 
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
@@ -18,7 +19,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
     {
         // ---------------------------- Fields
         private Form _form;               // host form (runtime or design root)
-        private BeepiForm _beepiForm;     // strongly-typed reference (if host inherits BeepiForm)
+        private BeepiFormPro _beepiForm;     // strongly-typed reference (if host inherits BeepiForm)
         private BeepSideMenu _beepSideMenu;
         private BeepAppBar _beepAppBar;
         private BeepDisplayContainer _displayContainer;
@@ -136,7 +137,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         {
             _form = runtimeForm ?? throw new ArgumentNullException(nameof(runtimeForm));
             _invoker = _form as ISynchronizeInvoke;
-            _beepiForm = _form as BeepiForm;
+            _beepiForm = _form as BeepiFormPro;
 
             if (!_themeSubscribed)
             {
@@ -155,7 +156,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
             AttachContainer(_form);
         }
 
-        public void AttachTo(BeepiForm form)
+        public void AttachTo(BeepiFormPro form)
         {
             Initialize(form);
         }
@@ -357,7 +358,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
                 {
                     _functionsPanel = fnPanel;
                 }
-                else if (control is BeepiForm beepi)
+                else if (control is BeepiFormPro beepi)
                 {
                     BeepiForm = beepi;
 
@@ -390,21 +391,17 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
 
             void Set<T>(Action<T> setter, T? value) where T : struct { if (value.HasValue) setter(value.Value); }
 
-            Set<bool>(v => _beepiForm.ShowSystemButtons = v, ShowSystemButtons);
+            Set<bool>(v => _beepiForm.ShowMinMaxButtons = v, ShowSystemButtons);
             Set<bool>(v => _beepiForm.ShowCaptionBar = v, ShowCaptionBar);
             Set<int>(v => _beepiForm.CaptionHeight = v, CaptionHeight);
-            if (CaptionPadding.HasValue) _beepiForm.CaptionPadding = CaptionPadding.Value;
-            Set<bool>(v => _beepiForm.ShowIconInCaption = v, ShowIconInCaption);
-            Set<bool>(v => _beepiForm.EnableCaptionGradient = v, EnableCaptionGradient);
-            Set<int>(v => _beepiForm.BorderRadius = v, BorderRadius);
-            Set<int>(v => _beepiForm.BorderThickness = v, BorderThickness);
-            Set<bool>(v => _beepiForm.UseImmersiveDarkMode = v, UseImmersiveDarkMode);
+         
+           
             if (Backdrop.HasValue) _beepiForm.Backdrop = Backdrop.Value;
         }
 
         // ---------------------------- Attach / Detach from a BeepiForm
         [Browsable(false)]
-        public BeepiForm BeepiForm
+        public BeepiFormPro BeepiForm
         {
             get => _beepiForm;
             set

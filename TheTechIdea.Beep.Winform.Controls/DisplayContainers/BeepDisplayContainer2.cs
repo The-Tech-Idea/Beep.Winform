@@ -10,6 +10,7 @@ using TheTechIdea.Beep.Vis;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Base;
 using TheTechIdea.Beep.Winform.Controls.DisplayContainers.Helpers;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 
 namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
@@ -657,7 +658,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
                 }
                 else if (view is Control control)
                 {
-                    var popupForm = new BeepiForm
+                    var popupForm = new BeepiFormPro
                     {
                         StartPosition = FormStartPosition.CenterParent,
                         AutoSize = true
@@ -665,7 +666,7 @@ namespace TheTechIdea.Beep.Winform.Controls.DisplayContainers
 
                     popupForm.Controls.Add(control);
                     control.Dock = DockStyle.Fill;
-                    popupForm.Title = view.Details.AddinName;
+                    popupForm.Text = view.Details.AddinName;
                     popupForm.OnFormClose += (s, e) =>
                     {
                         try

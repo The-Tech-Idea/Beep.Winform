@@ -6,6 +6,7 @@ using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.AppBars;
 using TheTechIdea.Beep.Winform.Controls.Editors;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 
@@ -26,7 +27,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
 
         private Size _buttonSize = new Size(100, 20);
-        public BeepiForm BeepForm { get; set; }
+        public BeepiFormPro BeepForm { get; set; }
         private bool isCollapsed = false;
         private Timer animationTimer;
         private BeepButton toggleButton;
@@ -382,7 +383,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
                 // Optimize rendering during animation
                 this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
-                if (this.Parent is BeepiForm parentForm)
+                if (this.Parent is BeepiFormPro parentForm)
                 {
                     // Temporarily disable window updates to reduce flickering
                     //  parentForm.BeginUpdate();
@@ -391,7 +392,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             else
             {
                 // Restore normal rendering after animation
-                if (this.Parent is BeepiForm parentForm)
+                if (this.Parent is BeepiFormPro parentForm)
                 {
                     // Re-enable window updates
                     //  parentForm.EndUpdate();

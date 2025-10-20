@@ -1,10 +1,11 @@
 using System.Windows.Forms;
 using TheTechIdea.Beep.Winform.Controls.Common;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls.MDI.Designers
 {
-    internal class BeepMdiManagerDesignerDialog : BeepiForm
+    internal class BeepMdiManagerDesignerDialog : BeepiFormPro
     {
         public BeepMdiManagerDesignerDialog()
         {
@@ -21,11 +22,10 @@ namespace TheTechIdea.Beep.Winform.Controls.MDI.Designers
             // 
             AutoScaleDimensions = new SizeF(96F, 96F);
             ClientSize = new Size(619, 579);
-            FormStyle = BeepFormStyle.Office;
+            FormStyle = FormStyle.Modern;
             IsMdiContainer = false;
             Name = "BeepMdiManagerDesignerDialog";
-            StylePresets.Presets = (Dictionary<string, BeepFormStyleMetrics>)resources.GetObject("BeepMdiManagerDesignerDialog.StylePresets.Presets");
-            ResumeLayout(false);
+           ResumeLayout(false);
 
         }
     }

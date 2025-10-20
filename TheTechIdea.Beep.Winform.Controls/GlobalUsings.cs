@@ -16,5 +16,3 @@ global using TheTechIdea.Beep.Winform.Controls.Styling;
 global using  TheTechIdea.Beep.Icons;
 global using TheTechIdea.Beep.Winform.Controls.Trees.Helpers;
 global using TheTechIdea.Beep.Winform.Controls.Trees.Models;
-global using TheTechIdea.Beep.Winform.Controls.Forms.Helpers;
-global using TheTechIdea.Beep.Winform.Controls.Common;

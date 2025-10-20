@@ -115,6 +115,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
     Gaming,             // 35 - Angular, aggressive, neon accents
     HighContrast,       // 36 - WCAG AAA accessibility
     Neon,               // 37 - Vibrant neon glow (distinct from DarkGlow)
-    Fluent              // 38 - Original Fluent (vs Fluent2)
+        RetroConsole,
+        NeonGlow
     }
 }

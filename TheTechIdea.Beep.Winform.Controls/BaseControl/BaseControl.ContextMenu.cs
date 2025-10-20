@@ -73,7 +73,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         /// <param name="screenLocation">Screen coordinates where the menu should appear</param>
         /// <param name="multiSelect">Enable multi-select mode</param>
         /// <returns>The selected item, or null if no selection was made</returns>
-        public SimpleItem ShowContextMenu(List<SimpleItem> items, Point screenLocation, bool multiSelect = false,FormStyle style= FormStyle.Modern)
+        public SimpleItem ShowContextMenu(List<SimpleItem> items, Point screenLocation, bool multiSelect = false, FormStyle style = FormStyle.Modern)
         {
             if (items == null || items.Count == 0)
                 return null;

@@ -64,11 +64,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             splitContainer3.Panel2.SuspendLayout();
             splitContainer3.SuspendLayout();
             SuspendLayout();
-            // 
-            // beepuiManager1
-            // 
-            beepuiManager1.BeepiForm = this;
-            beepuiManager1.Theme = "DefaultType";
+          
             // 
             // splitContainer1
             // 

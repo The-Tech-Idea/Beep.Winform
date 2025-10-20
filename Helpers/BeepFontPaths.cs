@@ -103,6 +103,102 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         public static readonly string RobotoSemiCondensedThinItalic = $"{RobotoNamespace}.Roboto_SemiCondensed-ThinItalic.ttf";
         #endregion
 
+        #region "Lato Font Family"
+        private const string LatoNamespace = BaseNamespace + ".Lato";
+        public static readonly string LatoThin = $"{LatoNamespace}.Lato-Thin.ttf";
+        public static readonly string LatoThinItalic = $"{LatoNamespace}.Lato-ThinItalic.ttf";
+        public static readonly string LatoLight = $"{LatoNamespace}.Lato-Light.ttf";
+        public static readonly string LatoLightItalic = $"{LatoNamespace}.Lato-LightItalic.ttf";
+        public static readonly string LatoRegular = $"{LatoNamespace}.Lato-Regular.ttf";
+        public static readonly string LatoItalic = $"{LatoNamespace}.Lato-Italic.ttf";
+        public static readonly string LatoBold = $"{LatoNamespace}.Lato-Bold.ttf";
+        public static readonly string LatoBoldItalic = $"{LatoNamespace}.Lato-BoldItalic.ttf";
+        public static readonly string LatoBlack = $"{LatoNamespace}.Lato-Black.ttf";
+        public static readonly string LatoBlackItalic = $"{LatoNamespace}.Lato-BlackItalic.ttf";
+        #endregion
+
+        #region "Ubuntu Font Family"
+        private const string UbuntuNamespace = BaseNamespace + ".Ubuntu";
+        public static readonly string UbuntuLight = $"{UbuntuNamespace}.Ubuntu-Light.ttf";
+        public static readonly string UbuntuLightItalic = $"{UbuntuNamespace}.Ubuntu-LightItalic.ttf";
+        public static readonly string UbuntuRegular = $"{UbuntuNamespace}.Ubuntu-Regular.ttf";
+        public static readonly string UbuntuItalic = $"{UbuntuNamespace}.Ubuntu-Italic.ttf";
+        public static readonly string UbuntuMedium = $"{UbuntuNamespace}.Ubuntu-Medium.ttf";
+        public static readonly string UbuntuMediumItalic = $"{UbuntuNamespace}.Ubuntu-MediumItalic.ttf";
+        public static readonly string UbuntuBold = $"{UbuntuNamespace}.Ubuntu-Bold.ttf";
+        public static readonly string UbuntuBoldItalic = $"{UbuntuNamespace}.Ubuntu-BoldItalic.ttf";
+        #endregion
+
+        #region "Noto Sans Font Family"
+        private const string NotoSansNamespace = BaseNamespace + ".Noto_Sans";
+        public static readonly string NotoSansThin = $"{NotoSansNamespace}.NotoSans-Thin.ttf";
+        public static readonly string NotoSansThinItalic = $"{NotoSansNamespace}.NotoSans-ThinItalic.ttf";
+        public static readonly string NotoSansExtraLight = $"{NotoSansNamespace}.NotoSans-ExtraLight.ttf";
+        public static readonly string NotoSansExtraLightItalic = $"{NotoSansNamespace}.NotoSans-ExtraLightItalic.ttf";
+        public static readonly string NotoSansLight = $"{NotoSansNamespace}.NotoSans-Light.ttf";
+        public static readonly string NotoSansLightItalic = $"{NotoSansNamespace}.NotoSans-LightItalic.ttf";
+        public static readonly string NotoSansRegular = $"{NotoSansNamespace}.NotoSans-Regular.ttf";
+        public static readonly string NotoSansItalic = $"{NotoSansNamespace}.NotoSans-Italic.ttf";
+        public static readonly string NotoSansMedium = $"{NotoSansNamespace}.NotoSans-Medium.ttf";
+        public static readonly string NotoSansMediumItalic = $"{NotoSansNamespace}.NotoSans-MediumItalic.ttf";
+        public static readonly string NotoSansSemiBold = $"{NotoSansNamespace}.NotoSans-SemiBold.ttf";
+        public static readonly string NotoSansSemiBoldItalic = $"{NotoSansNamespace}.NotoSans-SemiBoldItalic.ttf";
+        public static readonly string NotoSansBold = $"{NotoSansNamespace}.NotoSans-Bold.ttf";
+        public static readonly string NotoSansBoldItalic = $"{NotoSansNamespace}.NotoSans-BoldItalic.ttf";
+        public static readonly string NotoSansExtraBold = $"{NotoSansNamespace}.NotoSans-ExtraBold.ttf";
+        public static readonly string NotoSansExtraBoldItalic = $"{NotoSansNamespace}.NotoSans-ExtraBoldItalic.ttf";
+        public static readonly string NotoSansBlack = $"{NotoSansNamespace}.NotoSans-Black.ttf";
+        public static readonly string NotoSansBlackItalic = $"{NotoSansNamespace}.NotoSans-BlackItalic.ttf";
+        #endregion
+
+        #region "Open Sans Font Family"
+        private const string OpenSansNamespace = BaseNamespace + ".Open_Sans";
+        public static readonly string OpenSansLight = $"{OpenSansNamespace}.OpenSans-Light.ttf";
+        public static readonly string OpenSansLightItalic = $"{OpenSansNamespace}.OpenSans-LightItalic.ttf";
+        public static readonly string OpenSansRegular = $"{OpenSansNamespace}.OpenSans-Regular.ttf";
+        public static readonly string OpenSansItalic = $"{OpenSansNamespace}.OpenSans-Italic.ttf";
+        public static readonly string OpenSansMedium = $"{OpenSansNamespace}.OpenSans-Medium.ttf";
+        public static readonly string OpenSansMediumItalic = $"{OpenSansNamespace}.OpenSans-MediumItalic.ttf";
+        public static readonly string OpenSansSemiBold = $"{OpenSansNamespace}.OpenSans-SemiBold.ttf";
+        public static readonly string OpenSansSemiBoldItalic = $"{OpenSansNamespace}.OpenSans-SemiBoldItalic.ttf";
+        public static readonly string OpenSansBold = $"{OpenSansNamespace}.OpenSans-Bold.ttf";
+        public static readonly string OpenSansBoldItalic = $"{OpenSansNamespace}.OpenSans-BoldItalic.ttf";
+        public static readonly string OpenSansExtraBold = $"{OpenSansNamespace}.OpenSans-ExtraBold.ttf";
+        public static readonly string OpenSansExtraBoldItalic = $"{OpenSansNamespace}.OpenSans-ExtraBoldItalic.ttf";
+        #endregion
+
+        #region "Oswald Font Family"
+        private const string OswaldNamespace = BaseNamespace + ".Oswald";
+        public static readonly string OswaldExtraLight = $"{OswaldNamespace}.Oswald-ExtraLight.ttf";
+        public static readonly string OswaldLight = $"{OswaldNamespace}.Oswald-Light.ttf";
+        public static readonly string OswaldRegular = $"{OswaldNamespace}.Oswald-Regular.ttf";
+        public static readonly string OswaldMedium = $"{OswaldNamespace}.Oswald-Medium.ttf";
+        public static readonly string OswaldSemiBold = $"{OswaldNamespace}.Oswald-SemiBold.ttf";
+        public static readonly string OswaldBold = $"{OswaldNamespace}.Oswald-Bold.ttf";
+        #endregion
+
+        #region "Poppins Font Family"
+        private const string PoppinsNamespace = BaseNamespace + ".Poppins";
+        public static readonly string PoppinsThin = $"{PoppinsNamespace}.Poppins-Thin.ttf";
+        public static readonly string PoppinsThinItalic = $"{PoppinsNamespace}.Poppins-ThinItalic.ttf";
+        public static readonly string PoppinsExtraLight = $"{PoppinsNamespace}.Poppins-ExtraLight.ttf";
+        public static readonly string PoppinsExtraLightItalic = $"{PoppinsNamespace}.Poppins-ExtraLightItalic.ttf";
+        public static readonly string PoppinsLight = $"{PoppinsNamespace}.Poppins-Light.ttf";
+        public static readonly string PoppinsLightItalic = $"{PoppinsNamespace}.Poppins-LightItalic.ttf";
+        public static readonly string PoppinsRegular = $"{PoppinsNamespace}.Poppins-Regular.ttf";
+        public static readonly string PoppinsItalic = $"{PoppinsNamespace}.Poppins-Italic.ttf";
+        public static readonly string PoppinsMedium = $"{PoppinsNamespace}.Poppins-Medium.ttf";
+        public static readonly string PoppinsMediumItalic = $"{PoppinsNamespace}.Poppins-MediumItalic.ttf";
+        public static readonly string PoppinsSemiBold = $"{PoppinsNamespace}.Poppins-SemiBold.ttf";
+        public static readonly string PoppinsSemiBoldItalic = $"{PoppinsNamespace}.Poppins-SemiBoldItalic.ttf";
+        public static readonly string PoppinsBold = $"{PoppinsNamespace}.Poppins-Bold.ttf";
+        public static readonly string PoppinsBoldItalic = $"{PoppinsNamespace}.Poppins-BoldItalic.ttf";
+        public static readonly string PoppinsExtraBold = $"{PoppinsNamespace}.Poppins-ExtraBold.ttf";
+        public static readonly string PoppinsExtraBoldItalic = $"{PoppinsNamespace}.Poppins-ExtraBoldItalic.ttf";
+        public static readonly string PoppinsBlack = $"{PoppinsNamespace}.Poppins-Black.ttf";
+        public static readonly string PoppinsBlackItalic = $"{PoppinsNamespace}.Poppins-BlackItalic.ttf";
+        #endregion
+
         #region "Individual Font Files"
         public static readonly string CaprasimoRegular = $"{BaseNamespace}.Caprasimo-Regular.ttf";
         public static readonly string Consolas = $"{BaseNamespace}.consolas.ttf";
@@ -220,6 +316,234 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
             }
 
             /// <summary>
+            /// Lato font family paths grouped by weight/style.
+            /// </summary>
+            public static class Lato
+            {
+                public static readonly string Thin = LatoThin;
+                public static readonly string ThinItalic = LatoThinItalic;
+                public static readonly string Light = LatoLight;
+                public static readonly string LightItalic = LatoLightItalic;
+                public static readonly string Regular = LatoRegular;
+                public static readonly string Italic = LatoItalic;
+                public static readonly string Bold = LatoBold;
+                public static readonly string BoldItalic = LatoBoldItalic;
+                public static readonly string Black = LatoBlack;
+                public static readonly string BlackItalic = LatoBlackItalic;
+
+                public static Dictionary<string, string> GetAllStyles()
+                {
+                    return new Dictionary<string, string>
+                    {
+                        { "Thin", Thin },
+                        { "ThinItalic", ThinItalic },
+                        { "Light", Light },
+                        { "LightItalic", LightItalic },
+                        { "Regular", Regular },
+                        { "Italic", Italic },
+                        { "Bold", Bold },
+                        { "BoldItalic", BoldItalic },
+                        { "Black", Black },
+                        { "BlackItalic", BlackItalic }
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Ubuntu font family paths grouped by weight/style.
+            /// </summary>
+            public static class Ubuntu
+            {
+                public static readonly string Light = UbuntuLight;
+                public static readonly string LightItalic = UbuntuLightItalic;
+                public static readonly string Regular = UbuntuRegular;
+                public static readonly string Italic = UbuntuItalic;
+                public static readonly string Medium = UbuntuMedium;
+                public static readonly string MediumItalic = UbuntuMediumItalic;
+                public static readonly string Bold = UbuntuBold;
+                public static readonly string BoldItalic = UbuntuBoldItalic;
+
+                public static Dictionary<string, string> GetAllStyles()
+                {
+                    return new Dictionary<string, string>
+                    {
+                        { "Light", Light },
+                        { "LightItalic", LightItalic },
+                        { "Regular", Regular },
+                        { "Italic", Italic },
+                        { "Medium", Medium },
+                        { "MediumItalic", MediumItalic },
+                        { "Bold", Bold },
+                        { "BoldItalic", BoldItalic }
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Noto Sans font family paths grouped by weight/style.
+            /// </summary>
+            public static class NotoSans
+            {
+                public static readonly string Thin = NotoSansThin;
+                public static readonly string ThinItalic = NotoSansThinItalic;
+                public static readonly string ExtraLight = NotoSansExtraLight;
+                public static readonly string ExtraLightItalic = NotoSansExtraLightItalic;
+                public static readonly string Light = NotoSansLight;
+                public static readonly string LightItalic = NotoSansLightItalic;
+                public static readonly string Regular = NotoSansRegular;
+                public static readonly string Italic = NotoSansItalic;
+                public static readonly string Medium = NotoSansMedium;
+                public static readonly string MediumItalic = NotoSansMediumItalic;
+                public static readonly string SemiBold = NotoSansSemiBold;
+                public static readonly string SemiBoldItalic = NotoSansSemiBoldItalic;
+                public static readonly string Bold = NotoSansBold;
+                public static readonly string BoldItalic = NotoSansBoldItalic;
+                public static readonly string ExtraBold = NotoSansExtraBold;
+                public static readonly string ExtraBoldItalic = NotoSansExtraBoldItalic;
+                public static readonly string Black = NotoSansBlack;
+                public static readonly string BlackItalic = NotoSansBlackItalic;
+
+                public static Dictionary<string, string> GetAllStyles()
+                {
+                    return new Dictionary<string, string>
+                    {
+                        { "Thin", Thin },
+                        { "ThinItalic", ThinItalic },
+                        { "ExtraLight", ExtraLight },
+                        { "ExtraLightItalic", ExtraLightItalic },
+                        { "Light", Light },
+                        { "LightItalic", LightItalic },
+                        { "Regular", Regular },
+                        { "Italic", Italic },
+                        { "Medium", Medium },
+                        { "MediumItalic", MediumItalic },
+                        { "SemiBold", SemiBold },
+                        { "SemiBoldItalic", SemiBoldItalic },
+                        { "Bold", Bold },
+                        { "BoldItalic", BoldItalic },
+                        { "ExtraBold", ExtraBold },
+                        { "ExtraBoldItalic", ExtraBoldItalic },
+                        { "Black", Black },
+                        { "BlackItalic", BlackItalic }
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Open Sans font family paths grouped by weight/style.
+            /// </summary>
+            public static class OpenSans
+            {
+                public static readonly string Light = OpenSansLight;
+                public static readonly string LightItalic = OpenSansLightItalic;
+                public static readonly string Regular = OpenSansRegular;
+                public static readonly string Italic = OpenSansItalic;
+                public static readonly string Medium = OpenSansMedium;
+                public static readonly string MediumItalic = OpenSansMediumItalic;
+                public static readonly string SemiBold = OpenSansSemiBold;
+                public static readonly string SemiBoldItalic = OpenSansSemiBoldItalic;
+                public static readonly string Bold = OpenSansBold;
+                public static readonly string BoldItalic = OpenSansBoldItalic;
+                public static readonly string ExtraBold = OpenSansExtraBold;
+                public static readonly string ExtraBoldItalic = OpenSansExtraBoldItalic;
+
+                public static Dictionary<string, string> GetAllStyles()
+                {
+                    return new Dictionary<string, string>
+                    {
+                        { "Light", Light },
+                        { "LightItalic", LightItalic },
+                        { "Regular", Regular },
+                        { "Italic", Italic },
+                        { "Medium", Medium },
+                        { "MediumItalic", MediumItalic },
+                        { "SemiBold", SemiBold },
+                        { "SemiBoldItalic", SemiBoldItalic },
+                        { "Bold", Bold },
+                        { "BoldItalic", BoldItalic },
+                        { "ExtraBold", ExtraBold },
+                        { "ExtraBoldItalic", ExtraBoldItalic }
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Oswald font family paths grouped by weight/style.
+            /// </summary>
+            public static class Oswald
+            {
+                public static readonly string ExtraLight = OswaldExtraLight;
+                public static readonly string Light = OswaldLight;
+                public static readonly string Regular = OswaldRegular;
+                public static readonly string Medium = OswaldMedium;
+                public static readonly string SemiBold = OswaldSemiBold;
+                public static readonly string Bold = OswaldBold;
+
+                public static Dictionary<string, string> GetAllStyles()
+                {
+                    return new Dictionary<string, string>
+                    {
+                        { "ExtraLight", ExtraLight },
+                        { "Light", Light },
+                        { "Regular", Regular },
+                        { "Medium", Medium },
+                        { "SemiBold", SemiBold },
+                        { "Bold", Bold }
+                    };
+                }
+            }
+
+            /// <summary>
+            /// Poppins font family paths grouped by weight/style.
+            /// </summary>
+            public static class Poppins
+            {
+                public static readonly string Thin = PoppinsThin;
+                public static readonly string ThinItalic = PoppinsThinItalic;
+                public static readonly string ExtraLight = PoppinsExtraLight;
+                public static readonly string ExtraLightItalic = PoppinsExtraLightItalic;
+                public static readonly string Light = PoppinsLight;
+                public static readonly string LightItalic = PoppinsLightItalic;
+                public static readonly string Regular = PoppinsRegular;
+                public static readonly string Italic = PoppinsItalic;
+                public static readonly string Medium = PoppinsMedium;
+                public static readonly string MediumItalic = PoppinsMediumItalic;
+                public static readonly string SemiBold = PoppinsSemiBold;
+                public static readonly string SemiBoldItalic = PoppinsSemiBoldItalic;
+                public static readonly string Bold = PoppinsBold;
+                public static readonly string BoldItalic = PoppinsBoldItalic;
+                public static readonly string ExtraBold = PoppinsExtraBold;
+                public static readonly string ExtraBoldItalic = PoppinsExtraBoldItalic;
+                public static readonly string Black = PoppinsBlack;
+                public static readonly string BlackItalic = PoppinsBlackItalic;
+
+                public static Dictionary<string, string> GetAllStyles()
+                {
+                    return new Dictionary<string, string>
+                    {
+                        { "Thin", Thin },
+                        { "ThinItalic", ThinItalic },
+                        { "ExtraLight", ExtraLight },
+                        { "ExtraLightItalic", ExtraLightItalic },
+                        { "Light", Light },
+                        { "LightItalic", LightItalic },
+                        { "Regular", Regular },
+                        { "Italic", Italic },
+                        { "Medium", Medium },
+                        { "MediumItalic", MediumItalic },
+                        { "SemiBold", SemiBold },
+                        { "SemiBoldItalic", SemiBoldItalic },
+                        { "Bold", Bold },
+                        { "BoldItalic", BoldItalic },
+                        { "ExtraBold", ExtraBold },
+                        { "ExtraBoldItalic", ExtraBoldItalic },
+                        { "Black", Black },
+                        { "BlackItalic", BlackItalic }
+                    };
+                }
+            }
+
+            /// <summary>
             /// Individual fonts that are not part of a family.
             /// </summary>
             public static class Individual
@@ -263,6 +587,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 { "Cairo", Families.Cairo.GetAllWeights() },
                 { "ComicNeue", Families.ComicNeue.GetAllStyles() },
                 { "Roboto", Families.Roboto.GetAllStyles() },
+                { "Lato", Families.Lato.GetAllStyles() },
+                { "Ubuntu", Families.Ubuntu.GetAllStyles() },
+                { "NotoSans", Families.NotoSans.GetAllStyles() },
+                { "OpenSans", Families.OpenSans.GetAllStyles() },
+                { "Oswald", Families.Oswald.GetAllStyles() },
+                { "Poppins", Families.Poppins.GetAllStyles() },
                 { "Individual", new Dictionary<string, string>
                     {
                         { "Caprasimo", Families.Individual.Caprasimo },
@@ -303,7 +633,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
         /// <returns>Full file system path</returns>
         public static string GetFileSystemPath(string fontFileName, string subfolder = null)
         {
-            string baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string baseDirectory = AppContext.BaseDirectory;
             if (string.IsNullOrEmpty(subfolder))
             {
                 return Path.Combine(baseDirectory, "..", "..", "..", "Fonts", fontFileName);
@@ -445,6 +775,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Helpers
                 return "Roboto";
             if (fileName.StartsWith("ComicNeue"))
                 return "Comic Neue";
+            if (fileName.StartsWith("Lato-"))
+                return "Lato";
+            if (fileName.StartsWith("Ubuntu-"))
+                return "Ubuntu";
+            if (fileName.StartsWith("NotoSans-"))
+                return "Noto Sans";
+            if (fileName.StartsWith("OpenSans-"))
+                return "Open Sans";
+            if (fileName.StartsWith("Oswald-"))
+                return "Oswald";
+            if (fileName.StartsWith("Poppins-"))
+                return "Poppins";
             if (fileName.Contains("Caprasimo"))
                 return "Caprasimo";
             if (fileName.Contains("consolas"))

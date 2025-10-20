@@ -231,6 +231,119 @@ namespace TheTechIdea.Beep.Winform.Controls.FontManagement
         {
             return (float)weight / 1000f;
         }
+
+        /// <summary>
+        /// Gets a font from embedded resources using the BeepFontPaths system.
+        /// </summary>
+        /// <param name="familyName">Font family name (e.g., "Roboto", "Cairo", "SourceSansPro")</param>
+        /// <param name="size">Font size in points</param>
+        /// <param name="style">Font style (Regular, Bold, Italic, etc.)</param>
+        /// <returns>Font object or null if not found</returns>
+        public static Font GetEmbeddedFont(string familyName, float size, FontStyle style = FontStyle.Regular)
+        {
+            if (string.IsNullOrEmpty(familyName))
+                return null;
+
+            try
+            {
+                // Map FontStyle to BeepFontPaths style string
+                string styleString = MapFontStyleToString(style);
+
+                // Get the font path from BeepFontPaths
+                string fontPath = BeepFontPaths.GetFontPath(familyName, styleString);
+                
+                if (string.IsNullOrEmpty(fontPath))
+                {
+                    // Try with Regular style as fallback
+                    fontPath = BeepFontPaths.GetFontPath(familyName, "Regular");
+                }
+
+                if (!string.IsNullOrEmpty(fontPath))
+                {
+                    // Use the extension method to create font from resource
+                    var font = BeepFontPathsExtensions.CreateFontFromResource(fontPath, size, style);
+                    if (font != null)
+                        return font;
+                }
+
+                // Fallback to regular GetFont method
+                return GetFont(familyName, size, style);
+            }
+            catch
+            {
+                // Return fallback font
+                return GetFont(familyName, size, style);
+            }
+        }
+
+        /// <summary>
+        /// Gets a font from embedded resources using the BeepFontPaths system with a specific font path.
+        /// </summary>
+        /// <param name="fontResourcePath">The full resource path from BeepFontPaths (e.g., BeepFontPaths.RobotoRegular)</param>
+        /// <param name="size">Font size in points</param>
+        /// <returns>Font object or null if not found</returns>
+        public static Font GetEmbeddedFont(string fontResourcePath, float size)
+        {
+            if (string.IsNullOrEmpty(fontResourcePath))
+                return null;
+
+            try
+            {
+                return BeepFontPathsExtensions.CreateFontFromResource(fontResourcePath, size);
+            }
+            catch
+            {
+                return DefaultFont;
+            }
+        }
+
+        /// <summary>
+        /// Maps System.Drawing.FontStyle to BeepFontPaths style string.
+        /// </summary>
+        private static string MapFontStyleToString(FontStyle style)
+        {
+            return style switch
+            {
+                FontStyle.Bold => "Bold",
+                FontStyle.Italic => "Italic",
+                FontStyle.Bold | FontStyle.Italic => "BoldItalic",
+                FontStyle.Underline => "Regular",
+                FontStyle.Strikeout => "Regular",
+                _ => "Regular"
+            };
+        }
+
+        /// <summary>
+        /// Checks if an embedded font is available.
+        /// </summary>
+        /// <param name="familyName">Font family name</param>
+        /// <returns>True if the embedded font exists</returns>
+        public static bool IsEmbeddedFontAvailable(string familyName)
+        {
+            if (string.IsNullOrEmpty(familyName))
+                return false;
+
+            return BeepFontPaths.GetFontFamilyNames().Contains(familyName);
+        }
+
+        /// <summary>
+        /// Gets all available embedded font family names.
+        /// </summary>
+        /// <returns>List of embedded font family names</returns>
+        public static List<string> GetEmbeddedFontFamilies()
+        {
+            return BeepFontPaths.GetFontFamilyNames();
+        }
+
+        /// <summary>
+        /// Gets all available styles for a specific embedded font family.
+        /// </summary>
+        /// <param name="familyName">Font family name</param>
+        /// <returns>List of available styles</returns>
+        public static List<string> GetEmbeddedFontStyles(string familyName)
+        {
+            return BeepFontPaths.GetFontFamilyStyles(familyName);
+        }
         #endregion
 
         #region "Cleanup"

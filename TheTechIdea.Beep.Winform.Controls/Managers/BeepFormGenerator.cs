@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
 using TheTechIdea.Beep.Winform.Controls.Forms;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls.Managers
 {
@@ -12,7 +13,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Managers
         private const int BorderRadius = 20;
         private const int ButtonSize = 30;
 
-        private static BeepiForm StandardForm { get; set; } = new BeepiForm();
+        private static BeepiFormPro StandardForm { get; set; } = new BeepiFormPro();
         // Dictionary to store original form properties for restoration
         private static readonly Dictionary<Form, FormState> originalFormStates = new Dictionary<Form, FormState>();
 

@@ -2,10 +2,11 @@
 using System.Drawing;
 using System.Windows.Forms;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
-    public partial class BeepDialogForm : BeepiForm
+    public partial class BeepDialogForm : BeepiFormPro
     {
         private const int DEFAULT_WIDTH = 400;
         private const int DEFAULT_HEIGHT = 200;

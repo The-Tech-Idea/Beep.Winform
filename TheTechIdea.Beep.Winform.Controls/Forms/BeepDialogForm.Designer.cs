@@ -34,9 +34,6 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepDialogBox1 = new BeepDialogBox();
             SuspendLayout();
             // 
-            // beepuiManager1
-            // 
-            beepuiManager1.BeepiForm = this;
           
             // 
             // beepDialogBox1

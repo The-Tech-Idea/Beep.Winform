@@ -1,11 +1,12 @@
 ﻿using System.Data;
 using TheTechIdea.Beep.Vis.Modules;
+using TheTechIdea.Beep.Winform.Controls.Forms.ModernForm;
 using TheTechIdea.Beep.Winform.Controls.Models;
 
 namespace TheTechIdea.Beep.Winform.Controls
 {
 
-    public partial class BeepFileDialog : BeepiForm
+    public partial class BeepFileDialog : BeepiFormPro
     {
         public List<string> SelectedFiles { get; private set; } = new List<string>();
         public string Filter { get; set; } = "All Files (*.*)|*.*";

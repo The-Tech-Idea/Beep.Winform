@@ -44,7 +44,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         Neon,           // Vibrant neon glow effects
         Holographic,    // Iridescent holographic effects
         
-        Custom          // Fully custom rendering by user
+        Custom,          // Fully custom rendering by user
+        Terminal
     }
 
     public sealed class FormRegion

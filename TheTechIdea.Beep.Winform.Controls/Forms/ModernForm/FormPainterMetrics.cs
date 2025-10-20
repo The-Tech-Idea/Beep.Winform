@@ -379,6 +379,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     m.BorderRadius = 8;
                     m.AccentBarWidth = 3;
                     break;
+                case FormStyle.Terminal:
+                    m.CaptionHeight = 28;
+                    m.ButtonWidth = 36;
+                    m.IconSize = 16;
+                    m.ButtonsPlacement = SystemButtonsSide.Right;
+                    m.BorderWidth = 2;
+                    m.BorderRadius = 0;
+                    m.AccentBarWidth = 0;
+                    break;
                 case FormStyle.Custom:
                     m.CaptionHeight = 32;
                     m.ButtonWidth = 32;
@@ -544,6 +553,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         break;
                     case FormStyle.Holographic:
                         // Dark theme, keep as-is
+                        break;
+                    case FormStyle.Terminal:
+                        // Dark theme, keep as-is (terminal aesthetic)
                         break;
                     case FormStyle.Custom:
                         // Custom uses theme as-is without forcing luminance
@@ -1067,6 +1079,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                         m.MinimizeButtonColor = Color.FromArgb(255, 200, 255, 200);
                         m.MaximizeButtonColor = Color.FromArgb(255, 255, 200, 255);
                         m.CloseButtonColor = Color.FromArgb(255, 255, 150, 200);
+                        break;
+                    case FormStyle.Terminal:
+                        m.BorderColor = Color.FromArgb(255, 0, 255, 0);
+                        m.CaptionColor = Color.FromArgb(255, 10, 10, 10);
+                        m.CaptionTextColor = Color.FromArgb(255, 0, 255, 0);
+                        m.CaptionTextColorInactive = Color.FromArgb(255, 0, 128, 0);
+                        m.CaptionTextColorMaximized = Color.FromArgb(255, 0, 255, 0);
+                        m.CaptionButtonColor = Color.FromArgb(255, 0, 255, 0);
+                        m.CaptionButtonHoverColor = Color.FromArgb(255, 100, 255, 100);
+                        m.CaptionButtonPressedColor = Color.FromArgb(255, 0, 200, 0);
+                        m.CaptionButtonInactiveColor = Color.FromArgb(255, 0, 128, 0);
+                        m.CaptionButtonMaximizedColor = Color.FromArgb(255, 0, 255, 0);
+                        m.ForegroundColor = Color.FromArgb(255, 0, 255, 0);
+                        m.BackgroundColor = Color.FromArgb(255, 0, 0, 0);
+                        m.MinimizeButtonColor = Color.FromArgb(255, 255, 255, 80);
+                        m.MaximizeButtonColor = Color.FromArgb(255, 80, 255, 80);
+                        m.CloseButtonColor = Color.FromArgb(255, 255, 80, 80);
                         break;
                     case FormStyle.Custom:
                         m.BorderColor = Color.FromArgb(255, 100, 100, 100);

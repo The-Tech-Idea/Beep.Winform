@@ -82,6 +82,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         {
             switch (FormStyle)
             {
+                case FormStyle.Terminal:
+                    FormBorderStyle = FormBorderStyle.Sizable;
+                    ActivePainter = new TerminalFormPainter();
+                    break;
                 case FormStyle.Modern:
                     FormBorderStyle = FormBorderStyle.None;
                     ActivePainter = new ModernFormPainter();

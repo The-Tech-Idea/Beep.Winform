@@ -119,6 +119,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         Windows,
 
         /// <summary>
+        /// Terminal/Console style with monospace font, ASCII characters, and minimal UI elements
+        /// </summary>
+        Terminal,
+
+        /// <summary>
         /// Custom style defined by theme
         /// </summary>
         Custom

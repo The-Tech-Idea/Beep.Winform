@@ -156,6 +156,115 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
         }
         
         #endregion
+        
+        #region Form Style to Control Style Mapping
+        
+        /// <summary>
+        /// Maps BeepFormStyle enum values to appropriate BeepControlStyle enum values
+        /// This provides a consistent way to map form-level styling to control-level styling
+        /// </summary>
+        /// <param name="formStyle">The BeepFormStyle to map</param>
+        /// <returns>The corresponding BeepControlStyle</returns>
+        public static BeepControlStyle MapFormStyleToControlStyle(BeepFormStyle formStyle)
+        {
+            switch (formStyle)
+            {
+                // Classic Windows → Minimal
+                case BeepFormStyle.Classic:
+                case BeepFormStyle.Windows:
+                    return BeepControlStyle.Minimal;
+                
+                // Modern styles → Material Design family
+                case BeepFormStyle.Modern:
+                    return BeepControlStyle.Material3;
+                
+                case BeepFormStyle.Material:
+                    return BeepControlStyle.MaterialYou;
+                
+                case BeepFormStyle.ModernDark:
+                    return BeepControlStyle.DarkGlow;
+                
+                // Metro/Microsoft → Fluent family
+                case BeepFormStyle.Metro:
+                case BeepFormStyle.Office:
+                    return BeepControlStyle.Fluent2;
+                
+                case BeepFormStyle.Fluent:
+                    return BeepControlStyle.Fluent2;
+                
+                // Glass/Acrylic effects
+                case BeepFormStyle.Glass:
+                    return BeepControlStyle.GlassAcrylic;
+                
+                // Linux Desktop Environments
+                case BeepFormStyle.Gnome:
+                case BeepFormStyle.Minimal:
+                    return BeepControlStyle.Minimal;
+                
+                case BeepFormStyle.Kde:
+                    return BeepControlStyle.Fluent2;
+                
+                case BeepFormStyle.Cinnamon:
+                    return BeepControlStyle.NotionMinimal;
+                
+                case BeepFormStyle.Elementary:
+                    return BeepControlStyle.MacOSBigSur;
+                
+                // Special Effects
+                case BeepFormStyle.NeoBrutalist:
+                    return BeepControlStyle.Bootstrap;  // Bold, structured
+                
+                case BeepFormStyle.Neon:
+                    return BeepControlStyle.DarkGlow;
+                
+                case BeepFormStyle.Retro:
+                    return BeepControlStyle.GradientModern;
+                
+                case BeepFormStyle.Gaming:
+                    return BeepControlStyle.DarkGlow;
+                
+                case BeepFormStyle.Soft:
+                    return BeepControlStyle.Neumorphism;
+                
+                // Professional/Corporate
+                case BeepFormStyle.Corporate:
+                    return BeepControlStyle.StripeDashboard;
+                
+                case BeepFormStyle.Artistic:
+                    return BeepControlStyle.FigmaCard;
+                
+                case BeepFormStyle.HighContrast:
+                    return BeepControlStyle.Minimal;
+                
+                case BeepFormStyle.Industrial:
+                    return BeepControlStyle.AntDesign;
+                
+                // Terminal/Console
+                case BeepFormStyle.Terminal:
+                    return BeepControlStyle.Terminal;
+                
+                // Custom → Use current style
+                case BeepFormStyle.Custom:
+                    return CurrentControlStyle;
+                
+                // Default fallback
+                default:
+                    return BeepControlStyle.Material3;
+            }
+        }
+        
+        /// <summary>
+        /// Maps BeepFormStyle to BeepControlStyle and sets it as the current control style
+        /// </summary>
+        /// <param name="formStyle">The BeepFormStyle to apply</param>
+        public static void ApplyFormStyle(BeepFormStyle formStyle)
+        {
+            BeepControlStyle controlStyle = MapFormStyleToControlStyle(formStyle);
+            SetControlStyle(controlStyle);
+        }
+        
+        #endregion
+        
         #region Style Painting Methods
         
         /// <summary>

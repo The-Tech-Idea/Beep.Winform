@@ -16,7 +16,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
             Neumorphism,
             FluentAcrylic // NEW
         }
-      
+
     /// <summary>
     /// Unified visual styles for all Beep navigation controls
     /// Used by BeepSideBar, TopNavBar, BottomNavBar, and other navigation components
@@ -102,6 +102,19 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
         WebFramework = 24,
 
         /// <summary>Effect-based borders with custom animations and visual effects</summary>
-        Effect = 25
+        Effect = 25,
+        Terminal = 26,
+ // NEW ADDITIONS (11 values)
+    Metro,              // 28 - Sharp edges, flat, bold colors
+    Office,             // 29 - Office ribbon UI inspired
+    Gnome,              // 30 - GNOME/Adwaita aesthetic
+    Kde,                // 31 - KDE/Breeze with glow
+    Cinnamon,           // 32 - Cinnamon desktop environment
+    Elementary,         // 33 - elementary OS Pantheon
+    NeoBrutalist,       // 34 - Thick borders, no shadows, bold
+    Gaming,             // 35 - Angular, aggressive, neon accents
+    HighContrast,       // 36 - WCAG AAA accessibility
+    Neon,               // 37 - Vibrant neon glow (distinct from DarkGlow)
+    Fluent              // 38 - Original Fluent (vs Fluent2)
     }
 }

@@ -1,0 +1,197 @@
+# UIElements Enum
+Button|https://icon-sets.iconify.design/mdi/button-pointer.svg
+TextBox|https://icon-sets.iconify.design/mdi/form-textbox.svg
+Label|https://icon-sets.iconify.design/mdi/label-outline.svg
+CheckBox|https://icon-sets.iconify.design/mdi/checkbox-marked-outline.svg
+RadioButton|https://icon-sets.iconify.design/mdi/radiobox-marked.svg
+ComboBox|https://icon-sets.iconify.design/mdi/form-dropdown.svg
+ListBox|https://icon-sets.iconify.design/mdi/format-list-bulleted.svg
+DataGrid|https://icon-sets.iconify.design/mdi/table.svg
+TreeView|https://icon-sets.iconify.design/mdi/folder-tree.svg
+TabControl|https://icon-sets.iconify.design/mdi/tab.svg
+GroupBox|https://icon-sets.iconify.design/mdi/checkbox-multiple-marked-outline.svg
+Panel|https://icon-sets.iconify.design/mdi/view-dashboard-outline.svg
+PictureBox|https://icon-sets.iconify.design/mdi/image-outline.svg
+ProgressBar|https://icon-sets.iconify.design/mdi/progress-bar.svg
+TrackBar|https://icon-sets.iconify.design/mdi/slider.svg
+DateTimePicker|https://icon-sets.iconify.design/mdi/calendar-clock.svg
+RichTextBox|https://icon-sets.iconify.design/mdi/form-textbox.svg
+MaskedTextBox|https://icon-sets.iconify.design/mdi/form-textbox.svg
+Splitter|https://icon-sets.iconify.design/mdi/drag-horizontal.svg
+MenuStrip|https://icon-sets.iconify.design/mdi/menu.svg
+ToolStrip|https://icon-sets.iconify.design/mdi/toolbox-outline.svg
+StatusStrip|https://icon-sets.iconify.design/mdi/information-outline.svg
+NotifyIcon|https://icon-sets.iconify.design/mdi/bell-outline.svg
+Timer|https://icon-sets.iconify.design/mdi/timer-outline.svg
+
+# Toolbar Elements
+ToolStripButton|https://icon-sets.iconify.design/mdi/button-pointer.svg
+ToolStripLabel|https://icon-sets.iconify.design/mdi/label-outline.svg
+ToolStripTextBox|https://icon-sets.iconify.design/mdi/form-textbox.svg
+ToolStripComboBox|https://icon-sets.iconify.design/mdi/form-dropdown.svg
+ToolStripDropDownButton|https://icon-sets.iconify.design/mdi/chevron-down.svg
+ToolStripSplitButton|https://icon-sets.iconify.design/mdi/chevron-down.svg
+ToolStripSeparator|https://icon-sets.iconify.design/mdi/minus.svg
+ToolStripProgressBar|https://icon-sets.iconify.design/mdi/progress-bar.svg
+ToolStripStatusLabel|https://icon-sets.iconify.design/mdi/label-outline.svg
+ToolStripContainer|https://icon-sets.iconify.design/mdi/view-dashboard-outline.svg
+
+# CRUD UI Elements
+AddButton|https://icon-sets.iconify.design/mdi/plus-box.svg
+EditButton|https://icon-sets.iconify.design/mdi/pencil-box-outline.svg
+DeleteButton|https://icon-sets.iconify.design/mdi/delete-outline.svg
+SaveButton|https://icon-sets.iconify.design/mdi/content-save-outline.svg
+CancelButton|https://icon-sets.iconify.design/mdi/cancel.svg
+RefreshButton|https://icon-sets.iconify.design/mdi/refresh.svg
+SearchButton|https://icon-sets.iconify.design/mdi/magnify.svg
+ExportButton|https://icon-sets.iconify.design/mdi/export-variant.svg
+ImportButton|https://icon-sets.iconify.design/mdi/import.svg
+PrintButton|https://icon-sets.iconify.design/mdi/printer.svg
+NewRecord|https://icon-sets.iconify.design/mdi/plus-circle-outline.svg
+Duplicate|https://icon-sets.iconify.design/mdi/content-copy.svg
+Undo|https://icon-sets.iconify.design/mdi/undo.svg
+Redo|https://icon-sets.iconify.design/mdi/redo.svg
+Cut|https://icon-sets.iconify.design/mdi/content-cut.svg
+Copy|https://icon-sets.iconify.design/mdi/content-copy.svg
+Paste|https://icon-sets.iconify.design/mdi/content-paste.svg
+SelectAll|https://icon-sets.iconify.design/mdi/select-all.svg
+
+# Navigation Elements
+Home|https://icon-sets.iconify.design/mdi/home.svg
+Back|https://icon-sets.iconify.design/mdi/arrow-left.svg
+Forward|https://icon-sets.iconify.design/mdi/arrow-right.svg
+Menu|https://icon-sets.iconify.design/mdi/menu.svg
+Sidebar|https://icon-sets.iconify.design/mdi/sidebar.svg
+Breadcrumb|https://icon-sets.iconify.design/mdi/breadcrumb.svg
+
+# User Elements
+User|https://icon-sets.iconify.design/mdi/account.svg
+Login|https://icon-sets.iconify.design/mdi/login.svg
+Logout|https://icon-sets.iconify.design/mdi/logout.svg
+Profile|https://icon-sets.iconify.design/mdi/account-circle.svg
+Settings|https://icon-sets.iconify.design/mdi/cog.svg
+Password|https://icon-sets.iconify.design/mdi/lock.svg
+
+# Other Common Elements
+Help|https://icon-sets.iconify.design/mdi/help-circle.svg
+About|https://icon-sets.iconify.design/mdi/information-outline.svg
+Exit|https://icon-sets.iconify.design/mdi/exit-to-app.svg
+Filter|https://icon-sets.iconify.design/mdi/filter.svg
+Sort|https://icon-sets.iconify.design/mdi/sort.svg
+Fullscreen|https://icon-sets.iconify.design/mdi/fullscreen.svg
+Minimize|https://icon-sets.iconify.design/mdi/window-minimize.svg
+Maximize|https://icon-sets.iconify.design/mdi/window-maximize.svg
+Close|https://icon-sets.iconify.design/mdi/window-close.svg
+Notification|https://icon-sets.iconify.design/mdi/bell.svg
+Favorite|https://icon-sets.iconify.design/mdi/star.svg
+Bookmark|https://icon-sets.iconify.design/mdi/bookmark.svg
+Download|https://icon-sets.iconify.design/mdi/download.svg
+Upload|https://icon-sets.iconify.design/mdi/upload.svg
+Share|https://icon-sets.iconify.design/mdi/share.svg
+Link|https://icon-sets.iconify.design/mdi/link.svg
+Attachment|https://icon-sets.iconify.design/mdi/paperclip.svg
+
+# Dialog and Message Icons
+Alert|https://icon-sets.iconify.design/mdi/alert.svg
+Warning|https://icon-sets.iconify.design/mdi/alert-outline.svg
+Error|https://icon-sets.iconify.design/mdi/alert-circle.svg
+Info|https://icon-sets.iconify.design/mdi/information.svg
+Success|https://icon-sets.iconify.design/mdi/check-circle.svg
+Question|https://icon-sets.iconify.design/mdi/help-circle.svg
+Confirmation|https://icon-sets.iconify.design/mdi/check.svg
+Critical|https://icon-sets.iconify.design/mdi/alert-octagon.svg
+
+# Dialog Controls
+OpenFileDialog|https://icon-sets.iconify.design/mdi/file-open-outline.svg
+SaveFileDialog|https://icon-sets.iconify.design/mdi/content-save-outline.svg
+FolderBrowserDialog|https://icon-sets.iconify.design/mdi/folder-open.svg
+ColorDialog|https://icon-sets.iconify.design/mdi/eyedropper.svg
+FontDialog|https://icon-sets.iconify.design/mdi/font.svg
+PrintDialog|https://icon-sets.iconify.design/mdi/printer.svg
+PrintPreviewDialog|https://icon-sets.iconify.design/mdi/printer-preview.svg
+PageSetupDialog|https://icon-sets.iconify.design/mdi/page-layout-header.svg
+
+# Layout Elements
+FlowLayoutPanel|https://icon-sets.iconify.design/mdi/view-grid-outline.svg
+TableLayoutPanel|https://icon-sets.iconify.design/mdi/table.svg
+SplitContainer|https://icon-sets.iconify.design/mdi/dock-left.svg
+TabPage|https://icon-sets.iconify.design/mdi/tab.svg
+GroupBox|https://icon-sets.iconify.design/mdi/checkbox-multiple-marked-outline.svg
+ScrollBar|https://icon-sets.iconify.design/mdi/arrow-expand-vertical.svg
+HScrollBar|https://icon-sets.iconify.design/mdi/arrow-expand-horizontal.svg
+VScrollBar|https://icon-sets.iconify.design/mdi/arrow-expand-vertical.svg
+
+# Multimedia Elements
+WebBrowser|https://icon-sets.iconify.design/mdi/web.svg
+MediaPlayer|https://icon-sets.iconify.design/mdi/play-circle.svg
+PictureBox|https://icon-sets.iconify.design/mdi/image-outline.svg
+Chart|https://icon-sets.iconify.design/mdi/chart-line.svg
+ReportViewer|https://icon-sets.iconify.design/mdi/file-chart.svg
+VideoPlayer|https://icon-sets.iconify.design/mdi/video.svg
+AudioPlayer|https://icon-sets.iconify.design/mdi/music.svg
+
+# Advanced Elements
+PropertyGrid|https://icon-sets.iconify.design/mdi/cog-outline.svg
+ListView|https://icon-sets.iconify.design/mdi/view-list.svg
+TreeView|https://icon-sets.iconify.design/mdi/folder-tree.svg
+DataGridView|https://icon-sets.iconify.design/mdi/table.svg
+BindingNavigator|https://icon-sets.iconify.design/mdi/navigation.svg
+ErrorProvider|https://icon-sets.iconify.design/mdi/alert-circle-outline.svg
+ToolTip|https://icon-sets.iconify.design/mdi/tooltip-outline.svg
+ContextMenuStrip|https://icon-sets.iconify.design/mdi/menu.svg
+
+# System Button Icons
+Minimize|https://icon-sets.iconify.design/mdi/window-minimize.svg
+Maximize|https://icon-sets.iconify.design/mdi/window-maximize.svg
+Close|https://icon-sets.iconify.design/mdi/window-close.svg
+Restore|https://icon-sets.iconify.design/mdi/window-restore.svg
+
+# MacOS Traffic Lights
+CloseMac|https://icon-sets.iconify.design/mdi/record.svg
+MinimizeMac|https://icon-sets.iconify.design/mdi/record.svg
+MaximizeMac|https://icon-sets.iconify.design/mdi/record.svg
+
+# Windows Style
+MinimizeWin|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeWin|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseWin|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# GNOME Style
+MinimizeGnome|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeGnome|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseGnome|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# KDE Style
+MinimizeKde|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeKde|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseKde|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# Ubuntu Style
+MinimizeUbuntu|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeUbuntu|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseUbuntu|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# iOS Style
+MinimizeIOS|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeIOS|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseIOS|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# Material Style
+MinimizeMaterial|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeMaterial|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseMaterial|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# Fluent Style
+MinimizeFluent|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeFluent|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseFluent|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# Metro Style
+MinimizeMetro|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeMetro|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseMetro|https://icon-sets.iconify.design/mdi/window-close.svg
+
+# Other Styles (use standard)
+MinimizeOther|https://icon-sets.iconify.design/mdi/window-minimize.svg
+MaximizeOther|https://icon-sets.iconify.design/mdi/window-maximize.svg
+CloseOther|https://icon-sets.iconify.design/mdi/window-close.svg

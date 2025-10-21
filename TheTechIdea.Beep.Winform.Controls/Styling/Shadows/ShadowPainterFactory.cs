@@ -56,6 +56,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Material => new MaterialStyleShadowPainterWrapper(),
                 BeepControlStyle.WebFramework => new WebFrameworkStyleShadowPainterWrapper(),
                 BeepControlStyle.Effect => new EffectStyleShadowPainterWrapper(),
+                BeepControlStyle.Metro => null, // Metro: NO shadows (flat design)
+                BeepControlStyle.Office => new CardShadowPainterWrapper(CardShadowStyle.Small), // Office: Subtle shadows
+                BeepControlStyle.NeoBrutalist => null, // NeoBrutalist: NO shadows (signature)
+                BeepControlStyle.HighContrast => null, // HighContrast: NO shadows (WCAG AAA)
+                BeepControlStyle.Gnome => new AmbientShadowPainterWrapper(4, 0.3f), // Gnome: Subtle ambient
+                BeepControlStyle.Kde => new NeonGlowPainterWrapper(Color.FromArgb(61, 174, 233), 0.6f, 12), // Kde: Blue glow
+                BeepControlStyle.Cinnamon => new CardShadowPainterWrapper(CardShadowStyle.Medium), // Cinnamon: Standard card
+                BeepControlStyle.Elementary => new CardShadowPainterWrapper(CardShadowStyle.Small), // Elementary: Subtle
+                BeepControlStyle.Gaming => new NeonGlowPainterWrapper(Color.FromArgb(0, 255, 127), 1.0f, 16), // Gaming: Green glow
+                BeepControlStyle.Neon => new NeonGlowPainterWrapper(Color.FromArgb(0, 255, 255), 1.0f, 24), // Neon: Cyan glow
                 _ => null
             };
         }

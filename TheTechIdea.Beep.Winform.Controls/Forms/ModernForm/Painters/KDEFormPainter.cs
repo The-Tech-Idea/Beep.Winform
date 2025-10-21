@@ -143,42 +143,81 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 }
             }
 
-            // Draw icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
+            // Draw icon with improved clarity and contrast
+            // IMPROVED: Thicker lines (2px), larger icons (8px), subtle shadow for depth
+            int iconSize = 8;
+            int iconCenterX = rect.X + rect.Width / 2;
+            int iconCenterY = rect.Y + rect.Height / 2;
+            
+            // Subtle shadow for icon depth (KDE Breeze signature)
+            using (var shadowPen = new Pen(Color.FromArgb(40, 0, 0, 0), 2.5f))
             {
-                int iconSize = 7;
-                int iconCenterX = rect.X + rect.Width / 2;
-                int iconCenterY = rect.Y + rect.Height / 2;
+                shadowPen.StartCap = LineCap.Round;
+                shadowPen.EndCap = LineCap.Round;
+                
+                switch (buttonType)
+                {
+                    case "close":
+                        g.DrawLine(shadowPen, iconCenterX - iconSize / 2 + 1, iconCenterY - iconSize / 2 + 1,
+                            iconCenterX + iconSize / 2 + 1, iconCenterY + iconSize / 2 + 1);
+                        g.DrawLine(shadowPen, iconCenterX + iconSize / 2 + 1, iconCenterY - iconSize / 2 + 1,
+                            iconCenterX - iconSize / 2 + 1, iconCenterY + iconSize / 2 + 1);
+                        break;
+                    case "maximize":
+                        g.DrawRectangle(shadowPen, iconCenterX - iconSize / 2 + 1, iconCenterY - iconSize / 2 + 1, iconSize, iconSize);
+                        break;
+                    case "minimize":
+                        g.DrawLine(shadowPen, iconCenterX - iconSize / 2 + 1, iconCenterY + 1, iconCenterX + iconSize / 2 + 1, iconCenterY + 1);
+                        break;
+                }
+            }
+            
+            // Draw crisp icon (improved 2px thickness)
+            using (var iconPen = new Pen(Color.White, 2f))
+            {
+                iconPen.StartCap = LineCap.Round;
+                iconPen.EndCap = LineCap.Round;
+                iconPen.LineJoin = LineJoin.Round;
 
                 switch (buttonType)
                 {
                     case "close":
+                        // Clean X with rounded ends
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
                             iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
                         g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
                             iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
                         break;
                     case "maximize":
+                        // Perfect square outline
                         g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
                         break;
                     case "minimize":
+                        // Horizontal line
                         g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
                         break;
                     case "style":
-                        // Palette icon
+                        // Simplified palette icon with color dots
                         g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
-                        g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY - 1, 2, 2);
+                        // Three color indicator dots
+                        g.FillEllipse(Brushes.White, iconCenterX - 2, iconCenterY - 2, 2, 2);
+                        g.FillEllipse(Brushes.White, iconCenterX + 1, iconCenterY - 1, 2, 2);
+                        g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY + 1, 2, 2);
                         break;
                     case "theme":
-                        // Gear icon
-                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 3, 
-                            iconSize * 2 / 3, iconSize * 2 / 3);
-                        for (int i = 0; i < 6; i++)
+                        // Improved 8-tooth gear icon
+                        using (var thinPen = new Pen(Color.White, 1.5f))
                         {
-                            double angle = Math.PI * 2 * i / 6;
-                            int x = iconCenterX + (int)(Math.Cos(angle) * iconSize / 2);
-                            int y = iconCenterY + (int)(Math.Sin(angle) * iconSize / 2);
-                            g.FillRectangle(Brushes.White, x - 1, y - 1, 2, 2);
+                            g.DrawEllipse(thinPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 3, 
+                                iconSize * 2 / 3, iconSize * 2 / 3);
+                            // 8 gear teeth evenly distributed
+                            for (int i = 0; i < 8; i++)
+                            {
+                                double angle = Math.PI * 2 * i / 8;
+                                int x = iconCenterX + (int)(Math.Cos(angle) * iconSize / 2);
+                                int y = iconCenterY + (int)(Math.Sin(angle) * iconSize / 2);
+                                g.FillRectangle(Brushes.White, x - 1, y - 1, 2, 2);
+                            }
                         }
                         break;
                 }
@@ -187,13 +226,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
 
         /// <summary>
         /// Draw KDE Plasma wave pattern (animated energy effect)
+        /// IMPROVED: Reduced opacity from 30 to 15 for less busy appearance
         /// </summary>
         private void DrawPlasmaWave(Graphics g, Rectangle rect, Color baseColor)
         {
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
-            // Draw 3 sine wave layers for plasma effect
-            using (var plasmaPen = new Pen(Color.FromArgb(30, baseColor), 1))
+            // Draw 3 sine wave layers for plasma effect (subtle background pattern)
+            using (var plasmaPen = new Pen(Color.FromArgb(15, baseColor), 1))
             {
                 for (int i = 0; i < 3; i++)
                 {

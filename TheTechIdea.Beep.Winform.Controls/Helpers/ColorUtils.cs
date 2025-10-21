@@ -159,6 +159,25 @@ namespace  TheTechIdea.Beep.Winform.Controls.Helpers
 
         }
 
+        public static Color Lighten(Color breezeBlue, float v)
+        {
+            // Clamp to [0,1] and use positive value to lighten via ChangeColorBrightness
+            float amount = Math.Clamp(v, 0f, 1f);
+            return ChangeColorBrightness(breezeBlue, amount);
+        }
+
+        public static Color Darken(Color breezeBlue, float v)
+        {
+            // Clamp to [0,1] and use negative value to darken via ChangeColorBrightness
+            float amount = -Math.Clamp(v, 0f, 1f);
+            return ChangeColorBrightness(breezeBlue, amount);
+        }
+
+        internal static Color Desaturate(Color warmGray, float v)
+        {
+            throw new NotImplementedException();
+        }
+
         // Example usage
     }
 

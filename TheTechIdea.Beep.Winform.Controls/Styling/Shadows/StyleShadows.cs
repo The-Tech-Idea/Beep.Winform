@@ -42,6 +42,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Material => true,              // Material elevation
                 BeepControlStyle.WebFramework => true,          // Web box-shadow
                 BeepControlStyle.Effect => true,                // Effect dramatic shadow
+                BeepControlStyle.Metro => false,                // Metro flat (no shadow)
+                BeepControlStyle.Office => true,                // Office subtle elevation
+                BeepControlStyle.Gnome => true,                 // Gnome subtle shadow
+                BeepControlStyle.Kde => true,                   // KDE glow + shadow
+                BeepControlStyle.Cinnamon => true,              // Cinnamon soft shadow
+                BeepControlStyle.Elementary => true,            // Elementary subtle shadow
+                BeepControlStyle.NeoBrutalist => false,         // Neo-Brutalist NO shadows (signature)
+                BeepControlStyle.Gaming => true,                // Gaming dramatic glow
+                BeepControlStyle.HighContrast => false,         // High contrast flat (no shadow)
+                BeepControlStyle.Neon => true,                  // Neon strong glow
                 _ => false
             };
         }
@@ -71,6 +81,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Material => 12,                // Material soft
                 BeepControlStyle.WebFramework => 8,             // Web standard
                 BeepControlStyle.Effect => 20,                  // Effect dramatic
+                BeepControlStyle.Office => 8,                   // Office subtle
+                BeepControlStyle.Gnome => 6,                    // Gnome very subtle
+                BeepControlStyle.Kde => 10,                     // KDE soft glow
+                BeepControlStyle.Cinnamon => 10,                // Cinnamon moderate
+                BeepControlStyle.Elementary => 8,               // Elementary subtle
+                BeepControlStyle.Gaming => 20,                  // Gaming dramatic glow
+                BeepControlStyle.Neon => 24,                    // Neon large glow
                 _ => 8
             };
         }
@@ -100,6 +117,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Material => -2,                // Inset slightly
                 BeepControlStyle.WebFramework => 1,             // Slight spread
                 BeepControlStyle.Effect => 4,                   // Effect expands
+                BeepControlStyle.Office => 0,                   // No spread
+                BeepControlStyle.Gnome => 0,                    // No spread
+                BeepControlStyle.Kde => 2,                      // KDE glow spreads
+                BeepControlStyle.Cinnamon => 0,                 // No spread
+                BeepControlStyle.Elementary => 0,               // No spread
+                BeepControlStyle.Gaming => 6,                   // Gaming glow expands
+                BeepControlStyle.Neon => 8,                     // Neon glow expands
                 _ => 0
             };
         }
@@ -129,6 +153,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Material => 4,                 // Below
                 BeepControlStyle.WebFramework => 2,             // Subtle below
                 BeepControlStyle.Effect => 8,                   // Dramatic below
+                BeepControlStyle.Office => 2,                   // Office subtle below
+                BeepControlStyle.Gnome => 2,                    // Gnome subtle below
+                BeepControlStyle.Kde => 0,                      // KDE glow all around
+                BeepControlStyle.Cinnamon => 3,                 // Cinnamon below
+                BeepControlStyle.Elementary => 2,               // Elementary subtle below
+                BeepControlStyle.Gaming => 0,                   // Gaming glow all around
+                BeepControlStyle.Neon => 0,                     // Neon glow all around
                 _ => 2
             };
         }
@@ -170,6 +201,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
                 BeepControlStyle.Material => Color.FromArgb(60, 0, 0, 0),       // Material soft
                 BeepControlStyle.WebFramework => Color.FromArgb(30, 0, 0, 0),   // Web subtle
                 BeepControlStyle.Effect => Color.FromArgb(100, 80, 120, 255),   // Effect blue-purple glow
+                BeepControlStyle.Office => Color.FromArgb(30, 0, 0, 0),         // Office subtle black
+                BeepControlStyle.Gnome => Color.FromArgb(35, 0, 0, 0),          // Gnome soft black
+                BeepControlStyle.Kde => Color.FromArgb(100, 61, 174, 233),      // KDE blue glow
+                BeepControlStyle.Cinnamon => Color.FromArgb(40, 0, 0, 0),       // Cinnamon soft black
+                BeepControlStyle.Elementary => Color.FromArgb(30, 0, 0, 0),     // Elementary subtle black
+                BeepControlStyle.Gaming => Color.FromArgb(150, 0, 255, 127),    // Gaming green glow
+                BeepControlStyle.Neon => Color.FromArgb(180, 0, 255, 255),      // Neon cyan glow
                 _ => Color.FromArgb(40, 0, 0, 0)
             };
         }
@@ -199,7 +237,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Shadows
         /// </summary>
         public static bool UsesGlow(BeepControlStyle style)
         {
-            return style == BeepControlStyle.DarkGlow;
+            return style switch
+            {
+                BeepControlStyle.DarkGlow => true,
+                BeepControlStyle.Kde => true,                   // KDE Breeze glow
+                BeepControlStyle.Gaming => true,                // Gaming RGB glow
+                BeepControlStyle.Neon => true,                  // Neon glow
+                _ => false
+            };
         }
     }
 }

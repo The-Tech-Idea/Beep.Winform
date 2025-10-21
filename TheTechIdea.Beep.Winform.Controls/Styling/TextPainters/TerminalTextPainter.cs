@@ -89,7 +89,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
                         PaintModernTerminal(g, bounds, text, font, textColor, isFocused);
                         break;
 
-                    case BeepControlStyle.RetroConsole:
+                    case BeepControlStyle.Retro:
                         PaintRetroTerminal(g, bounds, text, font, textColor, backgroundColor, isFocused);
                         break;
 
@@ -337,7 +337,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             
             string[] fontFamily = style switch
             {
-                BeepControlStyle.RetroConsole => ClassicTerminalFonts,
+                BeepControlStyle.Retro => ClassicTerminalFonts,
                 _ => TerminalFonts
             };
 
@@ -379,7 +379,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             return style switch
             {
                 BeepControlStyle.Terminal => isFocused ? TerminalGreenVariants[0] : TerminalGreenVariants[3],
-                BeepControlStyle.RetroConsole => isFocused ? TerminalAmberVariants[0] : TerminalAmberVariants[2],
+                BeepControlStyle.Retro => isFocused ? TerminalAmberVariants[0] : TerminalAmberVariants[2],
                 BeepControlStyle.DarkGlow => isFocused ? Color.FromArgb(0, 255, 150) : Color.FromArgb(0, 200, 120),
                 _ => isFocused ? Color.FromArgb(220, 220, 220) : Color.FromArgb(180, 180, 180)
             };
@@ -395,7 +395,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             return style switch
             {
                 BeepControlStyle.Terminal => Color.FromArgb(0, 0, 0),      // Pure black
-                BeepControlStyle.RetroConsole => Color.FromArgb(20, 20, 0), // Dark amber tint
+                BeepControlStyle.Retro => Color.FromArgb(20, 20, 0), // Dark amber tint
                 BeepControlStyle.DarkGlow => Color.FromArgb(5, 5, 10),     // Very dark blue
                 _ => Color.FromArgb(12, 12, 12)                            // Very dark gray
             };
@@ -411,7 +411,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.TextPainters
             return style switch
             {
                 BeepControlStyle.Terminal => Color.FromArgb(0, 200, 255),  // Cyan
-                BeepControlStyle.RetroConsole => Color.FromArgb(255, 215, 0), // Gold
+                BeepControlStyle.Retro => Color.FromArgb(255, 215, 0), // Gold
                 BeepControlStyle.DarkGlow => Color.FromArgb(255, 100, 255),   // Magenta
                 _ => Color.FromArgb(100, 200, 100)                            // Light green
             };

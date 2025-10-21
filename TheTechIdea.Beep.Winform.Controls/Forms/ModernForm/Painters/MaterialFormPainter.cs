@@ -62,8 +62,138 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
             TextRenderer.DrawText(g, owner.Text ?? string.Empty, owner.Font, textRect, metrics.CaptionTextColor,
                 TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
 
-                // Built-in caption elements
-                owner.PaintBuiltInCaptionElements(g);
+            // Paint Material 3 buttons (custom implementation)
+            PaintMaterial3Buttons(g, owner, captionRect, metrics);
+            
+            // Paint icon only (not system buttons - we handle those custom)
+            owner._iconRegion?.OnPaint?.Invoke(g, owner.CurrentLayout.IconRect);
+        }
+        
+        /// <summary>
+        /// Paint Material Design 3 buttons with proper state layers and icons
+        /// Following Material 3 guidelines: 40dp touch targets, 24dp icons, rounded ends
+        /// </summary>
+        private void PaintMaterial3Buttons(Graphics g, BeepiFormPro owner, Rectangle captionRect, FormPainterMetrics metrics)
+        {
+            var closeRect = owner.CurrentLayout.CloseButtonRect;
+            var maxRect = owner.CurrentLayout.MaximizeButtonRect;
+            var minRect = owner.CurrentLayout.MinimizeButtonRect;
+            
+            // Material 3: 40dp (40px) touch targets with 24dp (24px) icon areas
+            int touchTarget = 40;
+            int iconArea = 24;
+            int padding = (captionRect.Height - touchTarget) / 2;
+            
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // Close button: Error color with state layer
+            PaintMaterial3Button(g, closeRect, Color.FromArgb(186, 26, 26), padding, touchTarget, iconArea, "close", metrics);
+            
+            // Maximize button: On-surface variant with state layer
+            PaintMaterial3Button(g, maxRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "maximize", metrics);
+            
+            // Minimize button: On-surface variant with state layer
+            PaintMaterial3Button(g, minRect, Color.FromArgb(73, 69, 79), padding, touchTarget, iconArea, "minimize", metrics);
+            
+            // Theme/Style buttons if shown
+            if (owner.ShowStyleButton)
+            {
+                var styleRect = owner.CurrentLayout.StyleButtonRect;
+                PaintMaterial3Button(g, styleRect, Color.FromArgb(103, 80, 164), padding, touchTarget, iconArea, "style", metrics);
+            }
+
+            if (owner.ShowThemeButton)
+            {
+                var themeRect = owner.CurrentLayout.ThemeButtonRect;
+                PaintMaterial3Button(g, themeRect, Color.FromArgb(230, 74, 25), padding, touchTarget, iconArea, "theme", metrics);
+            }
+        }
+        
+        private void PaintMaterial3Button(Graphics g, Rectangle buttonRect, Color baseColor, int padding, int touchTarget, int iconArea, string buttonType, FormPainterMetrics metrics)
+        {
+            int centerX = buttonRect.X + buttonRect.Width / 2;
+            int centerY = buttonRect.Y + buttonRect.Height / 2;
+            var touchRect = new Rectangle(centerX - touchTarget / 2, centerY - touchTarget / 2, touchTarget, touchTarget);
+            var iconRect = new Rectangle(centerX - iconArea / 2, centerY - iconArea / 2, iconArea, iconArea);
+            
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // Material 3 state layer (8% opacity for hover state)
+            using (var stateBrush = new SolidBrush(Color.FromArgb(20, baseColor)))
+            {
+                g.FillEllipse(stateBrush, touchRect);
+            }
+            
+            // Draw icon with Material 3 style (2dp stroke, round caps)
+            int iconSize = 12; // 12px actual icon within 24px icon area
+            int iconCenterX = iconRect.X + iconRect.Width / 2;
+            int iconCenterY = iconRect.Y + iconRect.Height / 2;
+            
+            using (var iconPen = new Pen(baseColor, 2f))
+            {
+                iconPen.StartCap = LineCap.Round;
+                iconPen.EndCap = LineCap.Round;
+                iconPen.LineJoin = LineJoin.Round;
+                
+                switch (buttonType)
+                {
+                    case "close":
+                        // Material X with rounded ends
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
+                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
+                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
+                        break;
+                        
+                    case "maximize":
+                        // Outlined square with 2px rounded corners
+                        using (var path = new GraphicsPath())
+                        {
+                            int halfSize = iconSize / 2;
+                            var sqRect = new Rectangle(iconCenterX - halfSize, iconCenterY - halfSize, iconSize, iconSize);
+                            int radius = 2;
+                            
+                            path.AddArc(sqRect.X, sqRect.Y, radius * 2, radius * 2, 180, 90);
+                            path.AddArc(sqRect.Right - radius * 2, sqRect.Y, radius * 2, radius * 2, 270, 90);
+                            path.AddArc(sqRect.Right - radius * 2, sqRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+                            path.AddArc(sqRect.X, sqRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+                            path.CloseFigure();
+                            
+                            g.DrawPath(iconPen, path);
+                        }
+                        break;
+                        
+                    case "minimize":
+                        // Horizontal line with round caps
+                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
+                        break;
+                        
+                    case "style":
+                        // Grid icon (Material style)
+                        int gridSize = 3;
+                        int spacing = 5;
+                        for (int i = 0; i < 2; i++)
+                        {
+                            for (int j = 0; j < 2; j++)
+                            {
+                                int x = iconCenterX - spacing / 2 + i * spacing;
+                                int y = iconCenterY - spacing / 2 + j * spacing;
+                                g.FillEllipse(new SolidBrush(baseColor), x - gridSize / 2, y - gridSize / 2, gridSize, gridSize);
+                            }
+                        }
+                        break;
+                        
+                    case "theme":
+                        // Contrast icon (Material accessibility)
+                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
+                        using (var fillBrush = new SolidBrush(baseColor))
+                        {
+                            g.FillPie(fillBrush, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, 
+                                iconSize, iconSize, 270, 180);
+                        }
+                        break;
+                }
+            }
         }
 
         /// <summary>

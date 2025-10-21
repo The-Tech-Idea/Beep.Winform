@@ -37,6 +37,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(255, 255, 255),        // White
                 BeepControlStyle.FigmaCard => Color.FromArgb(255, 255, 255),        // Pure white
                 BeepControlStyle.PillRail => Color.FromArgb(245, 245, 247),         // Light gray-blue
+                BeepControlStyle.Metro => Color.FromArgb(240, 240, 240),            // Flat gray
+                BeepControlStyle.Office => Color.FromArgb(255, 255, 255),           // Clean white
+                BeepControlStyle.Gnome => Color.FromArgb(246, 245, 244),            // Warm light gray (Adwaita)
+                BeepControlStyle.Kde => Color.FromArgb(239, 240, 241),              // Cool light gray (Breeze)
+                BeepControlStyle.Cinnamon => Color.FromArgb(245, 245, 245),         // Light gray
+                BeepControlStyle.Elementary => Color.FromArgb(250, 250, 250),       // Off-white
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(255, 255, 0),       // Bold yellow
+                BeepControlStyle.Gaming => Color.FromArgb(18, 18, 18),              // Dark charcoal
+                BeepControlStyle.HighContrast => Color.FromArgb(255, 255, 255),     // Pure white (WCAG AAA)
+                BeepControlStyle.Neon => Color.FromArgb(10, 10, 20),                // Deep dark blue
                 _ => Color.FromArgb(250, 250, 250)
             };
         }
@@ -69,6 +79,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(13, 110, 253),         // Bootstrap Primary Blue
                 BeepControlStyle.FigmaCard => Color.FromArgb(24, 160, 251),         // Figma Blue
                 BeepControlStyle.PillRail => Color.FromArgb(0, 122, 255),           // iOS Blue
+                BeepControlStyle.Metro => Color.FromArgb(0, 120, 212),              // Windows Blue
+                BeepControlStyle.Office => Color.FromArgb(0, 120, 212),             // Office Blue
+                BeepControlStyle.Gnome => Color.FromArgb(53, 132, 228),             // Gnome Blue (Adwaita)
+                BeepControlStyle.Kde => Color.FromArgb(61, 174, 233),               // KDE Blue (Breeze)
+                BeepControlStyle.Cinnamon => Color.FromArgb(115, 210, 22),          // Cinnamon Green
+                BeepControlStyle.Elementary => Color.FromArgb(100, 125, 255),       // Elementary Blue
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(0, 0, 0),           // Black
+                BeepControlStyle.Gaming => Color.FromArgb(0, 255, 127),             // Bright green
+                BeepControlStyle.HighContrast => Color.FromArgb(0, 0, 0),           // Pure black (WCAG AAA)
+                BeepControlStyle.Neon => Color.FromArgb(0, 255, 255),               // Cyan neon
                 _ => Color.FromArgb(0, 120, 215)
             };
         }
@@ -101,6 +121,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(108, 117, 125),        // Bootstrap Secondary
                 BeepControlStyle.FigmaCard => Color.FromArgb(242, 242, 242),        // Light gray
                 BeepControlStyle.PillRail => Color.FromArgb(209, 213, 219),         // Medium gray
+                BeepControlStyle.Metro => Color.FromArgb(230, 230, 230),            // Light flat gray
+                BeepControlStyle.Office => Color.FromArgb(243, 242, 241),           // Office gray
+                BeepControlStyle.Gnome => Color.FromArgb(220, 218, 214),            // Warm gray
+                BeepControlStyle.Kde => Color.FromArgb(239, 240, 241),              // Breeze gray
+                BeepControlStyle.Cinnamon => Color.FromArgb(235, 235, 235),         // Light gray
+                BeepControlStyle.Elementary => Color.FromArgb(245, 245, 245),       // Light gray
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(255, 0, 255),       // Magenta
+                BeepControlStyle.Gaming => Color.FromArgb(30, 30, 30),              // Dark gray
+                BeepControlStyle.HighContrast => Color.FromArgb(240, 240, 240),     // Light gray
+                BeepControlStyle.Neon => Color.FromArgb(255, 0, 255),               // Magenta neon
                 _ => Color.FromArgb(240, 240, 240)
             };
         }
@@ -133,6 +163,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(33, 37, 41),           // Dark
                 BeepControlStyle.FigmaCard => Color.FromArgb(0, 0, 0),              // Black
                 BeepControlStyle.PillRail => Color.FromArgb(55, 65, 81),            // Gray 700
+                BeepControlStyle.Metro => Color.FromArgb(0, 0, 0),                  // Black
+                BeepControlStyle.Office => Color.FromArgb(68, 68, 68),              // Dark gray
+                BeepControlStyle.Gnome => Color.FromArgb(36, 31, 49),               // Dark (Adwaita)
+                BeepControlStyle.Kde => Color.FromArgb(35, 38, 41),                 // Dark (Breeze)
+                BeepControlStyle.Cinnamon => Color.FromArgb(50, 50, 50),            // Dark gray
+                BeepControlStyle.Elementary => Color.FromArgb(51, 51, 51),          // Dark gray
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(0, 0, 0),           // Black
+                BeepControlStyle.Gaming => Color.FromArgb(255, 255, 255),           // White
+                BeepControlStyle.HighContrast => Color.FromArgb(0, 0, 0),           // Pure black (WCAG AAA)
+                BeepControlStyle.Neon => Color.FromArgb(255, 255, 255),             // White
                 _ => Color.FromArgb(50, 50, 50)
             };
         }
@@ -165,6 +205,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(222, 226, 230),        // Border color
                 BeepControlStyle.FigmaCard => Color.FromArgb(229, 229, 229),        // Border
                 BeepControlStyle.PillRail => Color.FromArgb(209, 213, 219),         // Gray 300
+                BeepControlStyle.Metro => Color.FromArgb(200, 200, 200),            // Medium gray
+                BeepControlStyle.Office => Color.FromArgb(0, 120, 212),             // Office blue
+                BeepControlStyle.Gnome => Color.FromArgb(205, 199, 194),            // Warm border
+                BeepControlStyle.Kde => Color.FromArgb(189, 195, 199),              // Breeze border
+                BeepControlStyle.Cinnamon => Color.FromArgb(210, 210, 210),         // Medium gray
+                BeepControlStyle.Elementary => Color.FromArgb(220, 220, 220),       // Light gray
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(0, 0, 0),           // Black (thick)
+                BeepControlStyle.Gaming => Color.FromArgb(0, 255, 127),             // Bright green
+                BeepControlStyle.HighContrast => Color.FromArgb(0, 0, 0),           // Pure black (WCAG AAA)
+                BeepControlStyle.Neon => Color.FromArgb(0, 255, 255),               // Cyan neon
                 _ => Color.FromArgb(200, 200, 200)
             };
         }
@@ -197,6 +247,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(233, 236, 239),        // Light
                 BeepControlStyle.FigmaCard => Color.FromArgb(248, 248, 248),        // Very light gray
                 BeepControlStyle.PillRail => Color.FromArgb(229, 231, 235),         // Gray 200
+                BeepControlStyle.Metro => Color.FromArgb(0, 103, 192),              // Darker Windows blue
+                BeepControlStyle.Office => Color.FromArgb(0, 103, 192),             // Darker Office blue
+                BeepControlStyle.Gnome => Color.FromArgb(26, 95, 180),              // Darker Gnome blue
+                BeepControlStyle.Kde => Color.FromArgb(41, 128, 185),               // Darker KDE blue
+                BeepControlStyle.Cinnamon => Color.FromArgb(78, 154, 6),            // Darker green
+                BeepControlStyle.Elementary => Color.FromArgb(64, 78, 237),         // Darker elementary blue
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(230, 230, 0),       // Darker yellow
+                BeepControlStyle.Gaming => Color.FromArgb(0, 200, 100),             // Darker green
+                BeepControlStyle.HighContrast => Color.FromArgb(200, 200, 200),     // Light gray
+                BeepControlStyle.Neon => Color.FromArgb(0, 200, 200),               // Darker cyan
                 _ => Color.FromArgb(240, 240, 240)
             };
         }
@@ -229,6 +289,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(13, 110, 253),         // Primary
                 BeepControlStyle.FigmaCard => Color.FromArgb(24, 160, 251),         // Figma blue
                 BeepControlStyle.PillRail => Color.FromArgb(59, 130, 246),          // Blue 500
+                BeepControlStyle.Metro => Color.FromArgb(0, 120, 212),              // Windows blue
+                BeepControlStyle.Office => Color.FromArgb(200, 0, 120, 212),        // Semi-transparent Office blue
+                BeepControlStyle.Gnome => Color.FromArgb(200, 53, 132, 228),        // Semi-transparent Gnome blue
+                BeepControlStyle.Kde => Color.FromArgb(200, 61, 174, 233),          // Semi-transparent KDE blue
+                BeepControlStyle.Cinnamon => Color.FromArgb(200, 115, 210, 22),     // Semi-transparent green
+                BeepControlStyle.Elementary => Color.FromArgb(200, 100, 125, 255),  // Semi-transparent elementary blue
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(255, 0, 255),       // Magenta
+                BeepControlStyle.Gaming => Color.FromArgb(0, 255, 127),             // Bright green
+                BeepControlStyle.HighContrast => Color.FromArgb(255, 255, 0),       // Yellow (WCAG AAA)
+                BeepControlStyle.Neon => Color.FromArgb(0, 255, 255),               // Cyan neon
                 _ => Color.FromArgb(220, 220, 220)
             };
         }
@@ -258,11 +328,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.Bootstrap => Color.FromArgb(13, 110, 253),         // Primary
                 BeepControlStyle.FigmaCard => Color.FromArgb(24, 160, 251),         // Figma blue
                 BeepControlStyle.PillRail => Color.FromArgb(59, 130, 246),          // Blue 500
+                BeepControlStyle.Metro => Color.FromArgb(0, 90, 158),               // Darkest Windows blue
+                BeepControlStyle.Office => Color.FromArgb(0, 90, 158),              // Darkest Office blue
+                BeepControlStyle.Gnome => Color.FromArgb(30, 80, 150),              // Darkest Gnome blue
+                BeepControlStyle.Kde => Color.FromArgb(30, 100, 140),               // Darkest KDE blue
+                BeepControlStyle.Cinnamon => Color.FromArgb(55, 110, 6),            // Darkest green
+                BeepControlStyle.Elementary => Color.FromArgb(50, 60, 180),         // Darkest elementary blue
+                BeepControlStyle.NeoBrutalist => Color.FromArgb(200, 0, 200),       // Darker magenta
+                BeepControlStyle.Gaming => Color.FromArgb(0, 150, 75),              // Darkest green
+                BeepControlStyle.HighContrast => Color.FromArgb(180, 180, 0),       // Darker yellow
+                BeepControlStyle.Neon => Color.FromArgb(0, 180, 180),               // Darkest cyan
                 _ => Color.FromArgb(220, 220, 220)
             };
         }
 
-        internal static object GetSurface(BeepControlStyle style)
+        internal static Color GetSurface(BeepControlStyle style)
         {
             return style switch
             {
@@ -283,7 +363,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Colors
                 BeepControlStyle.DiscordStyle => Color.FromArgb(47, 49, 54),        // Dark slate gray
                 BeepControlStyle.GradientModern => Color.FromArgb(58, 123, 213),    // Blue (gradient start)
                 BeepControlStyle.GlassAcrylic => Color.FromArgb(240, 255, 255, 255), // Translucent white
-                BeepControlStyle.Neumorphism => Color.FromArgb(225, 227, 230),      // Soft
+                BeepControlStyle.Neumorphism => Color.FromArgb(225, 227, 230),      // Soft gray
+                BeepControlStyle.Bootstrap => Color.FromArgb(255, 255, 255),        // White
+                BeepControlStyle.FigmaCard => Color.FromArgb(255, 255, 255),        // Pure white
+                BeepControlStyle.PillRail => Color.FromArgb(245, 245, 247),         // Light gray-blue
+                _ => Color.FromArgb(250, 250, 250)
             };
         }
 

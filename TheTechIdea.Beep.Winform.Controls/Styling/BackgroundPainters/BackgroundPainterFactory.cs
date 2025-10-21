@@ -46,6 +46,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
                 BeepControlStyle.Material => new MaterialBackgroundPainterWrapper(),
                 BeepControlStyle.WebFramework => new WebFrameworkBackgroundPainterWrapper(),
                 BeepControlStyle.Effect => new EffectBackgroundPainterWrapper(),
+                BeepControlStyle.Metro => new MetroBackgroundPainterWrapper(),
+                BeepControlStyle.Office => new OfficeBackgroundPainterWrapper(),
+                BeepControlStyle.NeoBrutalist => new NeoBrutalistBackgroundPainterWrapper(),
+                BeepControlStyle.HighContrast => new HighContrastBackgroundPainterWrapper(),
+                BeepControlStyle.Gnome => new GnomeBackgroundPainterWrapper(),
+                BeepControlStyle.Kde => new KdeBackgroundPainterWrapper(),
+                BeepControlStyle.Cinnamon => new CinnamonBackgroundPainterWrapper(),
+                BeepControlStyle.Elementary => new ElementaryBackgroundPainterWrapper(),
+                BeepControlStyle.Gaming => new GamingBackgroundPainterWrapper(),
+                BeepControlStyle.Neon => new NeonBackgroundPainterWrapper(),
                 _ => null
             };
         }
@@ -334,6 +344,96 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.BackgroundPainters
         protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
         {
             EffectBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class MetroBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public MetroBackgroundPainterWrapper() : base(BeepControlStyle.Metro) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            MetroBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class OfficeBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public OfficeBackgroundPainterWrapper() : base(BeepControlStyle.Office) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            OfficeBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NeoBrutalistBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public NeoBrutalistBackgroundPainterWrapper() : base(BeepControlStyle.NeoBrutalist) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            NeoBrutalistBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class HighContrastBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public HighContrastBackgroundPainterWrapper() : base(BeepControlStyle.HighContrast) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            HighContrastBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class GnomeBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public GnomeBackgroundPainterWrapper() : base(BeepControlStyle.Gnome) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            GnomeBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class KdeBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public KdeBackgroundPainterWrapper() : base(BeepControlStyle.Kde) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            KdeBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class CinnamonBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public CinnamonBackgroundPainterWrapper() : base(BeepControlStyle.Cinnamon) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            CinnamonBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class ElementaryBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public ElementaryBackgroundPainterWrapper() : base(BeepControlStyle.Elementary) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            ElementaryBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class GamingBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public GamingBackgroundPainterWrapper() : base(BeepControlStyle.Gaming) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            GamingBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
+        }
+    }
+
+    public class NeonBackgroundPainterWrapper : BackgroundPainterWrapperBase
+    {
+        public NeonBackgroundPainterWrapper() : base(BeepControlStyle.Neon) { }
+        protected override void PaintStatic(Graphics g, GraphicsPath path, BeepControlStyle style, IBeepTheme theme, bool useThemeColors, ControlState state)
+        {
+            NeonBackgroundPainter.Paint(g, path, style, theme, useThemeColors, state);
         }
     }
     #endregion

@@ -37,6 +37,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Bootstrap => 4,                // Bootstrap subtle
                 BeepControlStyle.FigmaCard => 6,                // Figma subtle
                 BeepControlStyle.PillRail => 20,                // Pill very rounded
+                BeepControlStyle.Metro => 0,                    // Metro sharp edges (no radius)
+                BeepControlStyle.Office => 4,                   // Office subtle rounded
+                BeepControlStyle.Gnome => 6,                    // Gnome gentle (Adwaita)
+                BeepControlStyle.Kde => 5,                      // KDE moderate (Breeze)
+                BeepControlStyle.Cinnamon => 8,                 // Cinnamon rounded
+                BeepControlStyle.Elementary => 6,               // Elementary subtle
+                BeepControlStyle.NeoBrutalist => 0,             // Neo-Brutalist sharp (no radius)
+                BeepControlStyle.Gaming => 0,                   // Gaming angular (no radius)
+                BeepControlStyle.HighContrast => 0,             // High contrast sharp for clarity
+                BeepControlStyle.Neon => 12,                    // Neon rounded for glow
                 _ => 4
             };
         }
@@ -69,6 +79,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Bootstrap => 4,                // Subtle
                 BeepControlStyle.FigmaCard => 6,                // Subtle
                 BeepControlStyle.PillRail => 100,               // Full pill
+                BeepControlStyle.Metro => 0,                    // Metro sharp (no radius)
+                BeepControlStyle.Office => 4,                   // Office subtle
+                BeepControlStyle.Gnome => 6,                    // Gnome gentle
+                BeepControlStyle.Kde => 5,                      // KDE moderate
+                BeepControlStyle.Cinnamon => 8,                 // Cinnamon rounded
+                BeepControlStyle.Elementary => 6,               // Elementary subtle
+                BeepControlStyle.NeoBrutalist => 0,             // Neo-Brutalist sharp
+                BeepControlStyle.Gaming => 0,                   // Gaming angular
+                BeepControlStyle.HighContrast => 0,             // High contrast sharp
+                BeepControlStyle.Neon => 12,                    // Neon rounded
                 _ => 4
             };
         }
@@ -101,6 +121,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Bootstrap => 1.0f,             // Standard
                 BeepControlStyle.FigmaCard => 1.0f,             // Standard
                 BeepControlStyle.PillRail => 0.0f,              // No border
+                BeepControlStyle.Metro => 2.0f,                 // Metro thick flat borders
+                BeepControlStyle.Office => 1.0f,                // Office standard
+                BeepControlStyle.Gnome => 1.0f,                 // Gnome standard
+                BeepControlStyle.Kde => 1.0f,                   // KDE standard
+                BeepControlStyle.Cinnamon => 1.0f,              // Cinnamon standard
+                BeepControlStyle.Elementary => 1.0f,            // Elementary standard
+                BeepControlStyle.NeoBrutalist => 4.0f,          // Neo-Brutalist very thick (signature)
+                BeepControlStyle.Gaming => 2.0f,                // Gaming thick borders
+                BeepControlStyle.HighContrast => 2.0f,          // High contrast thick for visibility
+                BeepControlStyle.Neon => 2.0f,                  // Neon thick for glow effect
                 _ => 1.0f
             };
         }
@@ -133,6 +163,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Bootstrap => false,            // Outlined
                 BeepControlStyle.FigmaCard => false,            // Outlined
                 BeepControlStyle.PillRail => true,              // Filled pills
+                BeepControlStyle.Metro => true,                 // Metro filled tiles
+                BeepControlStyle.Office => true,                // Office filled (ribbon)
+                BeepControlStyle.Gnome => true,                 // Gnome filled
+                BeepControlStyle.Kde => true,                   // KDE filled
+                BeepControlStyle.Cinnamon => true,              // Cinnamon filled
+                BeepControlStyle.Elementary => true,            // Elementary filled
+                BeepControlStyle.NeoBrutalist => true,          // Neo-Brutalist bold filled
+                BeepControlStyle.Gaming => true,                // Gaming filled
+                BeepControlStyle.HighContrast => false,         // High contrast outlined for clarity
+                BeepControlStyle.Neon => true,                  // Neon filled with glow
                 _ => false
             };
         }
@@ -148,6 +188,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
                 BeepControlStyle.Windows11Mica => 3,            // Windows bar
                 BeepControlStyle.StripeDashboard => 4,          // Stripe thicker
                 BeepControlStyle.Bootstrap => 4,                // Bootstrap bar
+                BeepControlStyle.Office => 3,                   // Office ribbon accent bar
                 _ => 0                                          // No accent bar
             };
         }
@@ -161,6 +202,8 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
             {
                 BeepControlStyle.DarkGlow => 2.0f,              // Dark glow signature
                 BeepControlStyle.GlassAcrylic => 1.5f,          // Subtle glass glow
+                BeepControlStyle.Kde => 1.0f,                   // KDE subtle glow (Breeze)
+                BeepControlStyle.Neon => 3.0f,                  // Neon strong glow
                 _ => 0.0f                                       // No glow
             };
         }
@@ -174,6 +217,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
             {
                 BeepControlStyle.TailwindCard => 3.0f,          // Tailwind ring
                 BeepControlStyle.ChakraUI => 2.0f,              // Chakra ring
+                BeepControlStyle.HighContrast => 3.0f,          // High contrast focus ring
                 _ => 0.0f                                       // No ring
             };
         }
@@ -187,6 +231,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Borders
             {
                 BeepControlStyle.TailwindCard => 2.0f,          // Tailwind offset
                 BeepControlStyle.ChakraUI => 1.5f,              // Chakra offset
+                BeepControlStyle.HighContrast => 2.0f,          // High contrast ring offset
                 _ => 0.0f                                       // No offset
             };
         }

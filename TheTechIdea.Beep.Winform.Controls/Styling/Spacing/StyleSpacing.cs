@@ -41,6 +41,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Material => 16,                // Material 8dp grid
                 BeepControlStyle.WebFramework => 16,            // Web standard
                 BeepControlStyle.Effect => 20,                  // Effect generous
+                BeepControlStyle.Metro => 8,                    // Metro compact (flat tiles)
+                BeepControlStyle.Office => 12,                  // Office balanced (ribbon spacing)
+                BeepControlStyle.Gnome => 12,                   // Gnome comfortable (Adwaita)
+                BeepControlStyle.Kde => 16,                     // KDE spacious (Breeze)
+                BeepControlStyle.Cinnamon => 16,                // Cinnamon generous spacing
+                BeepControlStyle.Elementary => 12,              // Elementary comfortable
+                BeepControlStyle.NeoBrutalist => 20,            // Neo-Brutalist extra space for borders
+                BeepControlStyle.Gaming => 12,                  // Gaming compact
+                BeepControlStyle.HighContrast => 16,            // High contrast generous for accessibility
+                BeepControlStyle.Neon => 16,                    // Neon spacious for glow
                 _ => 12
             };
         }
@@ -78,6 +88,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Material => 4,                 // Material tight
                 BeepControlStyle.WebFramework => 8,             // Web comfortable
                 BeepControlStyle.Effect => 8,                   // Effect spacious
+                BeepControlStyle.Metro => 2,                    // Metro very tight (flat grid)
+                BeepControlStyle.Office => 4,                   // Office tight (ribbon items)
+                BeepControlStyle.Gnome => 4,                    // Gnome comfortable
+                BeepControlStyle.Kde => 6,                      // KDE moderate
+                BeepControlStyle.Cinnamon => 8,                 // Cinnamon generous
+                BeepControlStyle.Elementary => 4,               // Elementary comfortable
+                BeepControlStyle.NeoBrutalist => 8,             // Neo-Brutalist spacious
+                BeepControlStyle.Gaming => 6,                   // Gaming moderate
+                BeepControlStyle.HighContrast => 8,             // High contrast spacious for accessibility
+                BeepControlStyle.Neon => 8,                     // Neon spacious for glow effect
                 _ => 4
             };
         }
@@ -115,6 +135,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Material => 24,                // Material standard
                 BeepControlStyle.WebFramework => 20,            // Web standard
                 BeepControlStyle.Effect => 24,                  // Effect larger
+                BeepControlStyle.Metro => 20,                   // Metro standard (flat icons)
+                BeepControlStyle.Office => 16,                  // Office compact (ribbon icons)
+                BeepControlStyle.Gnome => 24,                   // Gnome symbolic icons
+                BeepControlStyle.Kde => 22,                     // KDE standard
+                BeepControlStyle.Cinnamon => 24,                // Cinnamon larger icons
+                BeepControlStyle.Elementary => 24,              // Elementary standard
+                BeepControlStyle.NeoBrutalist => 28,            // Neo-Brutalist large bold icons
+                BeepControlStyle.Gaming => 32,                  // Gaming large icons
+                BeepControlStyle.HighContrast => 28,            // High contrast large for visibility
+                BeepControlStyle.Neon => 24,                    // Neon standard with glow
                 _ => 20
             };
         }
@@ -152,6 +182,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Material => 24,                // Material generous
                 BeepControlStyle.WebFramework => 20,            // Web standard
                 BeepControlStyle.Effect => 24,                  // Effect spacious
+                BeepControlStyle.Metro => 16,                   // Metro compact hierarchy
+                BeepControlStyle.Office => 20,                  // Office standard (ribbon groups)
+                BeepControlStyle.Gnome => 20,                   // Gnome standard
+                BeepControlStyle.Kde => 24,                     // KDE spacious
+                BeepControlStyle.Cinnamon => 24,                // Cinnamon generous
+                BeepControlStyle.Elementary => 20,              // Elementary standard
+                BeepControlStyle.NeoBrutalist => 28,            // Neo-Brutalist extra space
+                BeepControlStyle.Gaming => 24,                  // Gaming spacious
+                BeepControlStyle.HighContrast => 28,            // High contrast generous for accessibility
+                BeepControlStyle.Neon => 24,                    // Neon spacious
                 _ => 20
             };
         }
@@ -189,6 +229,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling.Spacing
                 BeepControlStyle.Material => 48,                // Material touch target
                 BeepControlStyle.WebFramework => 40,            // Web standard
                 BeepControlStyle.Effect => 48,                  // Effect generous
+                BeepControlStyle.Metro => 40,                   // Metro standard (flat tiles)
+                BeepControlStyle.Office => 32,                  // Office compact (ribbon height)
+                BeepControlStyle.Gnome => 40,                   // Gnome standard
+                BeepControlStyle.Kde => 44,                     // KDE comfortable
+                BeepControlStyle.Cinnamon => 48,                // Cinnamon generous
+                BeepControlStyle.Elementary => 40,              // Elementary standard
+                BeepControlStyle.NeoBrutalist => 56,            // Neo-Brutalist extra height for borders
+                BeepControlStyle.Gaming => 48,                  // Gaming comfortable
+                BeepControlStyle.HighContrast => 48,            // High contrast large touch target
+                BeepControlStyle.Neon => 48,                    // Neon standard with glow space
                 _ => 40
             };
         }

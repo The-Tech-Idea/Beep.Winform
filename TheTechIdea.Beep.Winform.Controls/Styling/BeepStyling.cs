@@ -404,6 +404,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 case BeepControlStyle.PillRail:
                     PillRailBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
                     break;
+                case BeepControlStyle.Metro:
+                    MetroBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Office:
+                    OfficeBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.NeoBrutalist:
+                    NeoBrutalistBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.HighContrast:
+                    HighContrastBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Gnome:
+                    GnomeBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Kde:
+                    KdeBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Cinnamon:
+                    CinnamonBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Elementary:
+                    ElementaryBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Gaming:
+                    GamingBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
+                case BeepControlStyle.Neon:
+                    NeonBackgroundPainter.Paint(g, path, style, CurrentTheme, useThemeColors);
+                    break;
             }
         }
         
@@ -575,6 +605,36 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     break;
                 case BeepControlStyle.PillRail:
                     PillRailButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Metro:
+                    MetroButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Office:
+                    OfficeButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.NeoBrutalist:
+                    NeoBrutalistButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.HighContrast:
+                    HighContrastButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Gnome:
+                    GnomeButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Kde:
+                    KdeButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Cinnamon:
+                    CinnamonButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Elementary:
+                    ElementaryButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Gaming:
+                    GamingButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
+                    break;
+                case BeepControlStyle.Neon:
+                    NeonButtonPainter.PaintButtons(g, upButtonRect, downButtonRect, isFocused, style, CurrentTheme, UseThemeColors);
                     break;
             }
         }

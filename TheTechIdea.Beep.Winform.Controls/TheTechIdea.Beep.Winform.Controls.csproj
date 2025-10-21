@@ -62,6 +62,7 @@
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*.ttf" />
     <EmbeddedResource Include="Fonts\**\*.otf" />
+	<EmbeddedResource Include="GFX\**\*.*" />
   </ItemGroup>
 
   <ItemGroup>
@@ -137,13 +138,7 @@
     <Folder Include="Widgets\Helpers\Painters\Notification\" />
     <Folder Include="Widgets\Helpers\Painters\Social\" />
   </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="GFX\SVG\square-minus.svg" />
-    <EmbeddedResource Include="GFX\SVG\square-plus.svg" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="GFX\SVG\NAV\005-back arrow.svg" />
-  </ItemGroup>
+ 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Svg" Version="3.4.7" />

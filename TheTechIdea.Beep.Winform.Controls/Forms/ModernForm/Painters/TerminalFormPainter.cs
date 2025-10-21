@@ -172,57 +172,61 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawRectangle(innerPen, rect.X + 2, rect.Y + 2, rect.Width - 4, rect.Height - 4);
             }
 
-            // Draw ASCII icons using Font
-            Font asciiFont;
-            try
+            // Draw terminal-style icons using GDI+ primitives instead of Unicode
+            // FIXED: Was using Unicode characters that might not render properly
+            using (var iconPen = new Pen(baseColor, 2f))
             {
-                asciiFont = new Font("Consolas", 10f, FontStyle.Bold);
-            }
-            catch
-            {
-                try
+                int iconSize = 8;
+                 centerX = rect.X + rect.Width / 2;
+                 centerY = rect.Y + rect.Height / 2;
+
+                switch (buttonType)
                 {
-                    asciiFont = new Font("Courier New", 10f, FontStyle.Bold);
+                    case "close":
+                        // X icon
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY - iconSize / 2,
+                            centerX + iconSize / 2, centerY + iconSize / 2);
+                        g.DrawLine(iconPen, centerX + iconSize / 2, centerY - iconSize / 2,
+                            centerX - iconSize / 2, centerY + iconSize / 2);
+                        break;
+                        
+                    case "maximize":
+                        // Square icon (was Unicode □)
+                        g.DrawRectangle(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        break;
+                        
+                    case "minimize":
+                        // Underscore/line icon
+                        g.DrawLine(iconPen, centerX - iconSize / 2, centerY, centerX + iconSize / 2, centerY);
+                        break;
+                        
+                    case "style":
+                        // Palette icon (was Unicode ◘) - circle with dots
+                        g.DrawEllipse(iconPen, centerX - iconSize / 2, centerY - iconSize / 2, iconSize, iconSize);
+                        using (var dotBrush = new SolidBrush(baseColor))
+                        {
+                            g.FillEllipse(dotBrush, centerX - 2, centerY - 2, 2, 2);
+                            g.FillEllipse(dotBrush, centerX + 1, centerY - 1, 2, 2);
+                        }
+                        break;
+                        
+                    case "theme":
+                        // Sun/brightness icon (was Unicode ☼) - circle with rays
+                        g.DrawEllipse(iconPen, centerX - iconSize / 3, centerY - iconSize / 3, 
+                            iconSize * 2 / 3, iconSize * 2 / 3);
+                        // Draw 8 rays around the circle
+                        for (int i = 0; i < 8; i++)
+                        {
+                            double angle = Math.PI * 2 * i / 8;
+                            int innerX = centerX + (int)(Math.Cos(angle) * iconSize / 3);
+                            int innerY = centerY + (int)(Math.Sin(angle) * iconSize / 3);
+                            int outerX = centerX + (int)(Math.Cos(angle) * iconSize / 2);
+                            int outerY = centerY + (int)(Math.Sin(angle) * iconSize / 2);
+                            g.DrawLine(iconPen, innerX, innerY, outerX, outerY);
+                        }
+                        break;
                 }
-                catch
-                {
-                    asciiFont = new Font(FontFamily.GenericMonospace, 10f, FontStyle.Bold);
-                }
             }
-
-            string icon = "";
-            switch (buttonType)
-            {
-                case "close":
-                    icon = "X";
-                    break;
-                case "maximize":
-                    icon = "□";
-                    break;
-                case "minimize":
-                    icon = "_";
-                    break;
-                case "style":
-                    icon = "◘"; // ASCII character for palette
-                    break;
-                case "theme":
-                    icon = "☼"; // ASCII character for sun/brightness
-                    break;
-            }
-
-            // Draw ASCII character centered
-            using (var iconBrush = new SolidBrush(baseColor))
-            {
-                var iconRect = new Rectangle(rect.X, rect.Y, rect.Width, rect.Height);
-                var sf = new StringFormat
-                {
-                    Alignment = StringAlignment.Center,
-                    LineAlignment = StringAlignment.Center
-                };
-                g.DrawString(icon, asciiFont, iconBrush, iconRect, sf);
-            }
-
-            asciiFont.Dispose();
         }
 
         public void PaintBorders(Graphics g, BeepiFormPro owner)
@@ -240,27 +244,28 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawRectangle(borderPen, rect.X, rect.Y, rect.Width - 1, rect.Height - 1);
             }
 
-            // Optional: ASCII corner characters for terminal aesthetic
-            Font cornerFont;
-            try
+            // Draw terminal ASCII corner characters using GDI+ primitives
+            // FIXED: Was using Unicode box-drawing characters that might not render properly
+            using (var cornerPen = new Pen(metrics.BorderColor, 2))
             {
-                cornerFont = new Font("Consolas", 8f, FontStyle.Bold);
+                int cornerSize = 8;
+                
+                // Top-left corner (was ┌)
+                g.DrawLine(cornerPen, rect.Left, rect.Top + cornerSize, rect.Left, rect.Top);
+                g.DrawLine(cornerPen, rect.Left, rect.Top, rect.Left + cornerSize, rect.Top);
+                
+                // Top-right corner (was ┐)
+                g.DrawLine(cornerPen, rect.Right - cornerSize, rect.Top, rect.Right, rect.Top);
+                g.DrawLine(cornerPen, rect.Right, rect.Top, rect.Right, rect.Top + cornerSize);
+                
+                // Bottom-left corner (was └)
+                g.DrawLine(cornerPen, rect.Left, rect.Bottom - cornerSize, rect.Left, rect.Bottom);
+                g.DrawLine(cornerPen, rect.Left, rect.Bottom, rect.Left + cornerSize, rect.Bottom);
+                
+                // Bottom-right corner (was ┘)
+                g.DrawLine(cornerPen, rect.Right - cornerSize, rect.Bottom, rect.Right, rect.Bottom);
+                g.DrawLine(cornerPen, rect.Right, rect.Bottom - cornerSize, rect.Right, rect.Bottom);
             }
-            catch
-            {
-                cornerFont = new Font(FontFamily.GenericMonospace, 8f, FontStyle.Bold);
-            }
-
-            using (var cornerBrush = new SolidBrush(metrics.BorderColor))
-            {
-                // Draw corner characters
-                g.DrawString("┌", cornerFont, cornerBrush, rect.Left, rect.Top);
-                g.DrawString("┐", cornerFont, cornerBrush, rect.Right - 10, rect.Top);
-                g.DrawString("└", cornerFont, cornerBrush, rect.Left, rect.Bottom - 12);
-                g.DrawString("┘", cornerFont, cornerBrush, rect.Right - 10, rect.Bottom - 12);
-            }
-
-            cornerFont.Dispose();
         }
 
         public ShadowEffect GetShadowEffect(BeepiFormPro owner)

@@ -103,19 +103,42 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
 
         /// <summary>Effect-based borders with custom animations and visual effects</summary>
         Effect = 25,
+        
+        /// <summary>Terminal/Console style with monospace font and ASCII characters</summary>
         Terminal = 26,
- // NEW ADDITIONS (11 values)
-    Metro,              // 28 - Sharp edges, flat, bold colors
-    Office,             // 29 - Office ribbon UI inspired
-    Gnome,              // 30 - GNOME/Adwaita aesthetic
-    Kde,                // 31 - KDE/Breeze with glow
-    Cinnamon,           // 32 - Cinnamon desktop environment
-    Elementary,         // 33 - elementary OS Pantheon
-    NeoBrutalist,       // 34 - Thick borders, no shadows, bold
-    Gaming,             // 35 - Angular, aggressive, neon accents
-    HighContrast,       // 36 - WCAG AAA accessibility
-    Neon,               // 37 - Vibrant neon glow (distinct from DarkGlow)
-        RetroConsole,
-        NeonGlow
+        
+        // NEW ADDITIONS - Form Style Mapping (11 values)
+        
+        /// <summary>Metro style with sharp edges, flat design, and bold colors (Windows 8/10)</summary>
+        Metro = 27,
+        
+        /// <summary>Microsoft Office ribbon UI inspired with professional gradients</summary>
+        Office = 28,
+        
+        /// <summary>GNOME/Adwaita aesthetic with flat design and subtle shadows</summary>
+        Gnome = 29,
+        
+        /// <summary>KDE/Breeze with subtle glow and rounded corners</summary>
+        Kde = 30,
+        
+        /// <summary>Cinnamon desktop environment with larger spacing</summary>
+        Cinnamon = 31,
+        
+        /// <summary>elementary OS Pantheon with clean, minimalist design</summary>
+        Elementary = 32,
+        
+        /// <summary>Neo-brutalist with thick borders, no shadows, and bold colors</summary>
+        NeoBrutalist = 33,
+        
+        /// <summary>Gaming style with angular edges, aggressive design, and RGB effects</summary>
+        Gaming = 34,
+        
+        /// <summary>High contrast accessibility mode with WCAG AAA compliance</summary>
+        HighContrast = 35,
+        
+        /// <summary>Vibrant neon glow with bright saturated colors (distinct from DarkGlow)</summary>
+        Neon = 36,
+        Retro = 37,
+        NeonGlow = 38
     }
 }

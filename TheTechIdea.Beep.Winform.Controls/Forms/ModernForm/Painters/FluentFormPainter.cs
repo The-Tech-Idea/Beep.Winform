@@ -144,38 +144,90 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm.Painters
                 g.DrawLine(frostPen, rect.X, rect.Y + 1, rect.X, rect.Bottom - 1);
             }
 
-            // Draw icon
-            using (var iconPen = new Pen(Color.White, 1.5f))
+            // Draw icon AFTER all acrylic effects for maximum clarity
+            // IMPROVED: Smaller 7px icons, pure white, dark outline for definition
+            int iconSize = 7;
+            int iconCenterX = rect.X + rect.Width / 2;
+            int iconCenterY = rect.Y + rect.Height / 2;
+            
+            // Dark outline for icon definition (Fluent contrast enhancement)
+            using (var outlinePen = new Pen(Color.FromArgb(80, 0, 0, 0), 2.5f))
             {
-                int iconSize = 7;
-                int iconCenterX = rect.X + rect.Width / 2;
-                int iconCenterY = rect.Y + rect.Height / 2;
-
-                switch (buttonType)
-                {
-                    case "close":
-                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2,
-                            iconCenterX + iconSize / 2, iconCenterY + iconSize / 2);
-                        g.DrawLine(iconPen, iconCenterX + iconSize / 2, iconCenterY - iconSize / 2,
-                            iconCenterX - iconSize / 2, iconCenterY + iconSize / 2);
-                        break;
-                    case "maximize":
-                        g.DrawRectangle(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
-                        break;
-                    case "minimize":
-                        g.DrawLine(iconPen, iconCenterX - iconSize / 2, iconCenterY, iconCenterX + iconSize / 2, iconCenterY);
-                        break;
-                    case "style":
-                        // Palette icon
-                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 2, iconCenterY - iconSize / 2, iconSize, iconSize);
-                        g.FillEllipse(Brushes.White, iconCenterX - 1, iconCenterY - 1, 2, 2);
-                        break;
-                    case "theme":
-                        // Light bulb icon
-                        g.DrawEllipse(iconPen, iconCenterX - iconSize / 3, iconCenterY - iconSize / 2, iconSize * 2 / 3, iconSize * 2 / 3);
-                        g.DrawLine(iconPen, iconCenterX, iconCenterY + iconSize / 3, iconCenterX, iconCenterY + iconSize / 2);
-                        break;
-                }
+                outlinePen.StartCap = LineCap.Round;
+                outlinePen.EndCap = LineCap.Round;
+                outlinePen.LineJoin = LineJoin.Round;
+                
+                DrawFluentIcon(g, outlinePen, buttonType, iconCenterX + 1, iconCenterY + 1, iconSize);
+            }
+            
+            // Pure white icon for maximum contrast
+            using (var iconPen = new Pen(Color.FromArgb(255, 255, 255, 255), 2f))
+            {
+                iconPen.StartCap = LineCap.Round;
+                iconPen.EndCap = LineCap.Round;
+                iconPen.LineJoin = LineJoin.Round;
+                
+                DrawFluentIcon(g, iconPen, buttonType, iconCenterX, iconCenterY, iconSize);
+            }
+        }
+        
+        /// <summary>
+        /// Draw Fluent Design icon with clean geometry
+        /// </summary>
+        private void DrawFluentIcon(Graphics g, Pen pen, string buttonType, int centerX, int centerY, int iconSize)
+        {
+            switch (buttonType)
+            {
+                case "close":
+                    // Clean X with 45° angles, 8x8px area
+                    g.DrawLine(pen, centerX - iconSize / 2, centerY - iconSize / 2,
+                        centerX + iconSize / 2, centerY + iconSize / 2);
+                    g.DrawLine(pen, centerX + iconSize / 2, centerY - iconSize / 2,
+                        centerX - iconSize / 2, centerY + iconSize / 2);
+                    break;
+                    
+                case "maximize":
+                    // Rounded square with 2px corner radius
+                    using (var path = new GraphicsPath())
+                    {
+                        int halfSize = iconSize / 2;
+                        var iconRect = new Rectangle(centerX - halfSize, centerY - halfSize, iconSize, iconSize);
+                        int radius = 2;
+                        
+                        path.AddArc(iconRect.X, iconRect.Y, radius * 2, radius * 2, 180, 90);
+                        path.AddArc(iconRect.Right - radius * 2, iconRect.Y, radius * 2, radius * 2, 270, 90);
+                        path.AddArc(iconRect.Right - radius * 2, iconRect.Bottom - radius * 2, radius * 2, radius * 2, 0, 90);
+                        path.AddArc(iconRect.X, iconRect.Bottom - radius * 2, radius * 2, radius * 2, 90, 90);
+                        path.CloseFigure();
+                        
+                        g.DrawPath(pen, path);
+                    }
+                    break;
+                    
+                case "minimize":
+                    // Horizontal line with round caps, 9px wide
+                    g.DrawLine(pen, centerX - iconSize / 2 - 1, centerY, centerX + iconSize / 2 + 1, centerY);
+                    break;
+                    
+                case "style":
+                    // Paint brush icon
+                    // Brush handle
+                    g.DrawLine(pen, centerX - 2, centerY - 2, centerX + 2, centerY + 2);
+                    // Brush bristles
+                    for (int i = -1; i <= 1; i++)
+                    {
+                        g.DrawLine(pen, centerX + 2 + i, centerY + 2, centerX + 3 + i, centerY + 4);
+                    }
+                    break;
+                    
+                case "theme":
+                    // Color wheel with 4 segments
+                    int wheelRadius = iconSize / 2;
+                    g.DrawEllipse(pen, centerX - wheelRadius, centerY - wheelRadius, iconSize, iconSize);
+                    // Cross dividing into 4 segments
+                    g.DrawLine(pen, centerX - wheelRadius, centerY, centerX + wheelRadius, centerY);
+                    g.DrawLine(pen, centerX, centerY - wheelRadius, centerX, centerY + wheelRadius);
+                    break;
             }
         }
 

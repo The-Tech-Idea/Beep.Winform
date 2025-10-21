@@ -1,0 +1,94 @@
+# Alternative Icon Sources for Failed Downloads
+# Format: Key|URL
+# Using diverse icon repositories: jsdelivr CDN, unpkg CDN, GitHub raw, and vectorwiki
+
+# ============================================
+# 404 Not Found - Alternative Sources
+# ============================================
+
+# Database Icons
+Oracle|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/oracle.svg
+SqlServer|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoftsqlserver.svg
+AzureSQL|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoftazure.svg
+AWSRDS|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonrds.svg
+CouchDB|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/apachecouchdb.svg
+GoogleBigQuery|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/googlebigquery.svg
+H2Database|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/h2.svg
+
+# Google Services
+GoogleAnalytics|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/googleanalytics.svg
+Gmail|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/gmail.svg
+GoogleCloudStorage|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/googlecloud.svg
+
+# E-commerce
+Magento|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/magento.svg
+
+# Project Management
+Monday|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/monday-icon.svg
+Wrike|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/wrike-icon.svg
+Smartsheet|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/smartsheet.svg
+
+# Communication
+MicrosoftTeams|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/microsoftteams.svg
+RocketChat|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/rocketdotchat.svg
+
+# Cloud Storage
+OneDrive|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/microsoft-onedrive.svg
+AmazonS3|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazons3.svg
+
+# Generic Category Icons (using Material Design Icons from GitHub)
+RDBMS|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database.svg
+NOSQL|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database-outline.svg
+CLOUD|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/cloud.svg
+GraphDB|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/graph.svg
+TimeSeriesDB|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chart-timeline-variant.svg
+MessageQueue|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/message-arrow-right.svg
+BigData|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database-cog.svg
+DocumentDB|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-document-multiple.svg
+KeyValueDB|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/key-variant.svg
+MLModel|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/brain.svg
+SearchEngine|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/magnify.svg
+StreamProcessing|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/stream.svg
+AnalyticsPlatform|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chart-bar.svg
+DataWarehouse|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/warehouse.svg
+Blockchain|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/cube-outline.svg
+
+# ============================================
+# 429 Rate Limited - Using jsdelivr and unpkg CDN
+# ============================================
+
+# Databases (Rate Limited)
+RavenDB|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/ravendb-icon.svg
+ArangoDB|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/arangodb.svg
+ClickHouse|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/clickhouse.svg
+InfluxDB|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/influxdb.svg
+
+# CRM Systems
+Pipedrive|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/pipedrive-icon.svg
+MicrosoftDynamics365|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/dynamics365.svg
+Freshsales|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/freshworks-icon.svg
+SugarCRM|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/sugarcrm.svg
+Insightly|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chart-box-outline.svg
+Copper|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/account-cash.svg
+
+# Marketing Tools
+Marketo|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/marketo.svg
+ActiveCampaign|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/activecampaign.svg
+ConstantContact|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/constantcontact.svg
+Klaviyo|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/klaviyo.svg
+Sendinblue|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/brevo.svg
+CampaignMonitor|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/campaignmonitor.svg
+ConvertKit|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/convertkit.svg
+Drip|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/water.svg
+MailerLite|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mailerlite.svg
+
+# E-commerce Platforms
+OpenCart|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/opencart.svg
+Ecwid|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/shopping.svg
+
+# Project Management (Rate Limited)
+Teamwork|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/teamwork.svg
+Podio|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/podio.svg
+
+# Communication (Rate Limited)
+GoogleChat|https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/googlechat.svg

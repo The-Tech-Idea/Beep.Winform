@@ -75,7 +75,20 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             // Force layout recalculation for custom chrome elements
             if (ActivePainter != null)
                 ActivePainter.CalculateLayoutAndHitAreas(this);
+            
+            // Update window region for new DPI
+            UpdateWindowRegion();
+            
             Invalidate();
+        }
+        
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
+            
+            // CRITICAL: Ensure window region is set when form is first shown
+            // This prevents rectangular corners from showing through on initial display
+            UpdateWindowRegion();
         }
 
         private void ApplyFormStyle()
@@ -224,6 +237,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 PerformLayout();
             }
             BackColor = FormPainterMetrics.DefaultFor(FormStyle, UseThemeColors ? CurrentTheme : null).BackgroundColor;
+            
+            // CRITICAL: Update window region to match new style's corner radius
+            UpdateWindowRegion();
+            
             Invalidate();
         }
 

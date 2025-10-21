@@ -1,0 +1,33 @@
+# Brand Asset and Public Logo Sources for Niche B2B SaaS Tools
+# Format: Key|URL
+# Using verified working URLs from logo repositories
+
+# Database
+H2Database|https://raw.githubusercontent.com/aadrian/media/master/h2/h2-logo.svg
+RavenDB|https://www.svgrepo.com/show/373338/ravendb.svg
+
+# Project Management
+Wrike|https://seeklogo.com/images/W/wrike-inc-logo-71A3A71624-seeklogo.com.svg
+Smartsheet|https://worldvectorlogo.com/download/smartsheet-logo.svg
+Teamwork|https://worldvectorlogo.com/download/teamwork-2.svg
+Podio|https://worldvectorlogo.com/download/podio.svg
+
+# CRM Systems
+Pipedrive|https://worldvectorlogo.com/download/pipedrive.svg
+Freshsales|https://worldvectorlogo.com/download/freshsales-1.svg
+SugarCRM|https://seekvectorlogo.com/wp-content/uploads/2022/01/sugarcrm-logo-vector.svg
+
+# Marketing Automation
+ActiveCampaign|https://seeklogo.com/images/A/activecampaign-logo-6DDE792D2E-seeklogo.com.svg
+ConstantContact|https://worldvectorlogo.com/download/constant-contact.svg
+Klaviyo|https://seeklogo.com/images/K/klaviyo-logo-D2497FF0BD-seeklogo.com.svg
+ConvertKit|https://seeklogo.com/images/C/convertkit-logo-31E56E1555-seeklogo.com.svg
+MailerLite|https://seeklogo.com/images/M/mailerlite-logo-0ADB5C7F1E-seeklogo.com.svg
+
+# E-commerce
+OpenCart|https://worldvectorlogo.com/download/opencart.svg
+
+# Generic Icons (fallback Material Design)
+StreamProcessing|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/waves.svg
+
+

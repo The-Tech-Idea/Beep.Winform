@@ -1,0 +1,58 @@
+# Corrected URLs for missing icons
+# Format: Key|URL
+
+# Simple Icons - Corrected slugs
+MicrosoftTeams|https://cdn.simpleicons.org/microsoftteams
+OneDrive|https://cdn.simpleicons.org/onedrive
+Tableau|https://cdn.simpleicons.org/tableau
+MongoDB|https://cdn.simpleicons.org/mongodb
+MariaDB|https://cdn.simpleicons.org/mariadb
+PostgreSQL|https://cdn.simpleicons.org/postgresql
+Redis|https://cdn.simpleicons.org/redis
+SQLite|https://cdn.simpleicons.org/sqlite
+Druid|https://cdn.simpleicons.org/apachedruid
+Microsoft365|https://cdn.simpleicons.org/microsoft365
+Marketo|https://cdn.simpleicons.org/adobemarketo
+Mailchimp|https://cdn.simpleicons.org/mailchimp
+Zendesk|https://cdn.simpleicons.org/zendesk
+Freshdesk|https://cdn.simpleicons.org/freshdesk
+Magento|https://cdn.simpleicons.org/magento
+Jira|https://cdn.simpleicons.org/jira
+Asana|https://cdn.simpleicons.org/asana
+AmazonS3|https://cdn.simpleicons.org/amazons3
+Shopify|https://cdn.simpleicons.org/shopify
+
+# Material Design Icons from GitHub (for Office file types and missing icons)
+SqlServer|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database.svg
+FireBird|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database-outline.svg
+RavenDB|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database-search.svg
+AWSIoT|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chip.svg
+AWSIoTAnalytics|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chart-line.svg
+AWSIoTEvents|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/bell-ring.svg
+AzureBoards|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/trello.svg
+Weaviate|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/vector-triangle.svg
+Twist|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chat.svg
+pCloud|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/cloud-upload.svg
+MicrosoftDynamics365|https://cdn.simpleicons.org/dynamics365
+ActiveCampaign|https://cdn.simpleicons.org/activecampaign
+Klaviyo|https://cdn.simpleicons.org/klaviyo
+ConvertKit|https://cdn.simpleicons.org/convertkit
+MailerLite|https://cdn.simpleicons.org/mailerlite
+Jotform|https://cdn.simpleicons.org/jotform
+OpenCart|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/cart.svg
+Monday|https://cdn.simpleicons.org/monday
+Podio|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/calendar-check.svg
+Drift|https://cdn.simpleicons.org/drift
+Particle|https://cdn.simpleicons.org/particle
+Hyperledger|https://cdn.simpleicons.org/hyperledger
+GRPC|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/api.svg
+AnalyticsPlatform|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/chart-bar.svg
+
+# Microsoft Office File Types - Using Material Design Icons
+Xls|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-excel.svg
+Xlsx|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-excel-box.svg
+PDF|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-pdf-box.svg
+Doc|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-word.svg
+Docx|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-word-box.svg
+PPT|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-powerpoint.svg
+PPTX|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/file-powerpoint-box.svg

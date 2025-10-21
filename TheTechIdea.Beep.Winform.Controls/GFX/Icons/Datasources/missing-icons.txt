@@ -1,0 +1,79 @@
+# Missing Icons from Simple Icons CDN
+# Format: Key|URL
+# Alternative sources for the 58 failed downloads
+
+# Database Systems - Use alternative sources
+Oracle|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/oracle.svg
+SqlServer|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/microsoft-sql-server.svg
+SqlCompact|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/microsoft-sql-server.svg
+FireBird|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/firebird.svg
+DB2|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/ibm.svg
+Vertica|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database.svg
+AzureSQL|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/microsoft-azure.svg
+AWSRDS|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-rds.svg
+RavenDB|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/ravendb.svg
+Kudu|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/database.svg
+Druid|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/druid-icon.svg
+Memcached|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/memcached.svg
+
+# AWS Services
+AWSGlue|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-glue.svg
+AWSAthena|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-athena.svg
+AWSKinesis|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-kinesis.svg
+AWSSQS|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-sqs.svg
+AWSSNS|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-sns.svg
+AWSIoT|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-iot.svg
+AWSIoTCore|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-iot.svg
+AWSIoTAnalytics|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/aws-iot.svg
+
+# Azure Services
+AzureServiceBus|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/microsoft-azure.svg
+AzureIoTHub|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/microsoft-azure.svg
+AzureBoards|https://raw.githubusercontent.com/gilbarbara/logos/main/logos/azure-devops.svg
+
+# Vector Databases
+Weaviate|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/weaviate.svg
+
+# Business Tools
+Twist|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/twist.svg
+pCloud|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/pcloud.svg
+Pipedrive|https://worldvectorlogo.com/download/pipedrive.svg
+MicrosoftDynamics365|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/dynamics365.svg
+Freshsales|https://worldvectorlogo.com/download/freshsales-1.svg
+Marketo|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/marketo.svg
+ActiveCampaign|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/activecampaign.svg
+Klaviyo|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/klaviyo.svg
+ConvertKit|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/convertkit.svg
+MicrosoftPowerAutomate|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/powerautomate.svg
+MailerLite|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/mailerlite.svg
+Jotform|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/jotform.svg
+Freshdesk|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/freshdesk.svg
+Magento|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/magento.svg
+OpenCart|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/opencart.svg
+Nest|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/nestjs.svg
+Monday|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/monday.svg
+Podio|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/podio.svg
+MicrosoftTeams|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftteams.svg
+Drift|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/drift.svg
+Particle|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/particle.svg
+Hyperledger|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/hyperledger.svg
+
+# Protocols
+GRPC|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/grpc.svg
+
+# Cloud Storage
+OneDrive|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/onedrive.svg
+AmazonS3|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/amazons3.svg
+
+# Categories
+CLOUD|https://raw.githubusercontent.com/Templarian/MaterialDesign-SVG/master/svg/cloud.svg
+AnalyticsPlatform|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/tableau.svg
+
+# Microsoft Office File Types
+Xls|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftexcel.svg
+Xlsx|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftexcel.svg
+PDF|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/adobeacrobatreader.svg
+Doc|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftword.svg
+Docx|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftword.svg
+PPT|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftpowerpoint.svg
+PPTX|https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/microsoftpowerpoint.svg

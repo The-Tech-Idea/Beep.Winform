@@ -301,25 +301,52 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         /// <summary>
         /// Updates the window region to match the form's shape (rounded corners, etc.)
         /// This clips the window so rectangular corners don't show through
+        /// CRITICAL: This must be called whenever the form size changes or style changes
         /// </summary>
         private void UpdateWindowRegion()
         {
-            if (!IsHandleCreated || !_drawCustomWindowBorder) return;
-            if (WindowState == FormWindowState.Maximized) return; // Don't clip when maximized
+            if (!IsHandleCreated || !_drawCustomWindowBorder)
+            {
+                // Clear region if custom drawing is disabled
+                if (IsHandleCreated)
+                {
+                    SetWindowRgn(this.Handle, IntPtr.Zero, true);
+                }
+                return;
+            }
+            
+            // When maximized, clear the region to avoid edge clipping issues
+            if (WindowState == FormWindowState.Maximized)
+            {
+                SetWindowRgn(this.Handle, IntPtr.Zero, true);
+                return;
+            }
             
             var painter = ActivePainter;
-            if (painter == null) return;
+            if (painter == null)
+            {
+                // No painter - use rectangular region
+                IntPtr hRgn = CreateRectRgn(0, 0, Width, Height);
+                if (hRgn != IntPtr.Zero)
+                {
+                    SetWindowRgn(this.Handle, hRgn, true);
+                }
+                return;
+            }
             
             var radius = painter.GetCornerRadius(this);
             
             // Check if all corners have the same radius (simple rounded rectangle)
             if (radius.TopLeft == radius.TopRight && 
                 radius.TopLeft == radius.BottomLeft && 
-                radius.TopLeft == radius.BottomRight)
+                radius.TopLeft == radius.BottomRight &&
+                radius.TopLeft > 0)
             {
                 // Use fast CreateRoundRectRgn for uniform corners
-                int cornerRadius = radius.TopLeft * 2; // Windows uses diameter
-                IntPtr hRgn = CreateRoundRectRgn(0, 0, Width + 1, Height + 1, cornerRadius, cornerRadius);
+                // IMPORTANT: CreateRoundRectRgn uses diameter, not radius
+                // IMPORTANT: Add 1 to width/height to ensure full coverage
+                int cornerDiameter = radius.TopLeft * 2;
+                IntPtr hRgn = CreateRoundRectRgn(0, 0, Width + 1, Height + 1, cornerDiameter, cornerDiameter);
                 
                 if (hRgn != IntPtr.Zero)
                 {
@@ -339,18 +366,21 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             }
             else
             {
-                // Complex corners - use GDI+ region from GraphicsPath
+                // Complex corners with different radii - use GDI+ region from GraphicsPath
                 using (var path = CreateRoundedRectanglePath(new Rectangle(0, 0, Width, Height), radius))
                 {
                     using (var region = new System.Drawing.Region(path))
                     {
-                        // Get the HRGN from the region
-                        IntPtr hRgn = region.GetHrgn(Graphics.FromHwnd(this.Handle));
-                        if (hRgn != IntPtr.Zero)
+                        using (var g = Graphics.FromHwnd(this.Handle))
                         {
-                            SetWindowRgn(this.Handle, hRgn, true);
-                            // SetWindowRgn takes ownership, but we got it from GetHrgn, so we should delete it
-                            DeleteObject(hRgn);
+                            // Get the HRGN from the region
+                            IntPtr hRgn = region.GetHrgn(g);
+                            if (hRgn != IntPtr.Zero)
+                            {
+                                SetWindowRgn(this.Handle, hRgn, true);
+                                // SetWindowRgn takes ownership, but we got it from GetHrgn, so we should delete it
+                                DeleteObject(hRgn);
+                            }
                         }
                     }
                 }

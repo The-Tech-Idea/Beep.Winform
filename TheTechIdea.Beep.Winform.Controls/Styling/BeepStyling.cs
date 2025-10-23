@@ -183,7 +183,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 // Metro/Microsoft → Fluent family
                 case FormStyle.Metro:
                 case FormStyle.Metro2:
-                    return BeepControlStyle.Fluent2;
+                    return BeepControlStyle.Metro;
                 
                 case FormStyle.Fluent:
                     return BeepControlStyle.Fluent2;
@@ -200,10 +200,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                 
                 // Linux Desktop Environments
                 case FormStyle.GNOME:
-                    return BeepControlStyle.Minimal;
+                    return BeepControlStyle.Gnome;
                 
                 case FormStyle.KDE:
-                    return BeepControlStyle.Fluent2;
+                    return BeepControlStyle.Kde;
                 
                 case FormStyle.Ubuntu:
                     return BeepControlStyle.NotionMinimal;
@@ -216,13 +216,13 @@ namespace TheTechIdea.Beep.Winform.Controls.Styling
                     return BeepControlStyle.Neumorphism;
                 
                 case FormStyle.Brutalist:
-                    return BeepControlStyle.Bootstrap;  // Bold, structured
+                    return BeepControlStyle.NeoBrutalist;  // Bold, structured
                 
                 case FormStyle.Neon:
-                    return BeepControlStyle.DarkGlow;
+                    return BeepControlStyle.Neon;
                 
                 case FormStyle.Retro:
-                    return BeepControlStyle.GradientModern;
+                    return BeepControlStyle.Retro;
                 
                 case FormStyle.Cyberpunk:
                     return BeepControlStyle.DarkGlow;

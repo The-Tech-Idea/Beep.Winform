@@ -3,18 +3,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Common
       public enum BaseControlPainterKind
         {
             None,           // NEW - No painting, for controls that handle their own rendering
-            Auto,
             Classic,
-            Material,
-            Card,
-            NeoBrutalist,
-            ReadingCard,
-            SimpleButton,
-            KeyboardShortcut,
-            Minimalist,
-            Glassmorphism,
-            Neumorphism,
-            FluentAcrylic // NEW
+            Material
+          
         }
 
     /// <summary>

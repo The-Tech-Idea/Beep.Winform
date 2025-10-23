@@ -38,7 +38,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             }
         }
         private IBorderPainter _currentBorderPainter = null;
-        private BaseControlPainterKind _painterKind = BaseControlPainterKind.Auto;
+        private BaseControlPainterKind _painterKind = BaseControlPainterKind.Classic;
         [Browsable(true)]
         [Category("Appearance")]
         [Description("Select the painter (renderer) used to draw the control. Auto picks Material when Material ProgressBarStyle is enabled, otherwise Classic.")]

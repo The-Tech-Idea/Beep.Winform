@@ -106,11 +106,11 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
     // Performance toggles
     [Category("Performance")]
     [Description("If true, uses an extra BufferedGraphics layer in OnPaint. When false, relies on built-in DoubleBuffered drawing.")]
-    public bool UseExternalBufferedGraphics { get; set; } = true;
+    public bool UseExternalBufferedGraphics { get; set; } = false;
 
     [Category("Performance")]
     [Description("If true, sets high-quality smoothing/text rendering. Turn off to favor speed.")]
-    public bool EnableHighQualityRendering { get; set; } = true;
+    public bool EnableHighQualityRendering { get; set; } = false;
 
     [Category("Performance")]
     [Description("Automatically draws components in HitList during OnPaint.")]
@@ -136,7 +136,23 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
         public BaseControl()
         {
             _isInitializing = true;
-          
+            this.AutoScaleMode = AutoScaleMode.Inherit; // or Font
+            //this.AutoScaleDimensions = new SizeF(96f, 96f); // ensure design baseline
+                                                            // Avoid manual scaling of sizes/locations/fonts.
+            DoubleBuffered = true;
+            this.SetStyle(ControlStyles.ContainerControl, true);
+           
+            this.SetStyle(ControlStyles.UserPaint, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer | ControlStyles.SupportsTransparentBackColor, true);
+
+            // Consider adding for large datasets:
+            SetStyle(ControlStyles.ResizeRedraw, false);  // Don't redraw on resize
+
+            // Ensure _columns is only initialized once
+            SetStyle(ControlStyles.Selectable | ControlStyles.UserMouse, true);
+            this.UpdateStyles();
+            
             // Critical: Check if we're in design mode to prevent designer issues
             bool isDesignMode = LicenseManager.UsageMode == LicenseUsageMode.Designtime ||
                                DesignMode ||
@@ -522,18 +538,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
             // Let base handle standard scaling
             base.ScaleControl(factor, specified);
             
-            // If we have painter, notify it of scale change
-            try
-            {
-                if (_painter != null && IsHandleCreated && !IsDisposed)
-                {
-                    _painter.UpdateLayout(this);
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"BaseControl.ScaleControl painter update error: {ex.Message}");
-            }
+            //// If we have painter, notify it of scale change
+            //try
+            //{
+            //    if (_painter != null && IsHandleCreated && !IsDisposed)
+            //    {
+            //        _painter.UpdateLayout(this);
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    System.Diagnostics.Debug.WriteLine($"BaseControl.ScaleControl painter update error: {ex.Message}");
+            //}
         }
         
         #endregion

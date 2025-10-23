@@ -202,7 +202,9 @@ namespace TheTechIdea.Beep.Winform.Controls.Menus.Helpers
                 Trimming = StringTrimming.EllipsisCharacter
             };
 
-            g.DrawString(text, font, brush, textRect, format);
+          //  g.DrawString(text, font, brush, textRect, format);
+            TextRenderer.DrawText(g, text, font, textRect, color, 
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
         }
 
         /// <summary>

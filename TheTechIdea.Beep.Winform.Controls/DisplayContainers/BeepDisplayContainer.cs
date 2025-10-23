@@ -41,7 +41,7 @@ namespace TheTechIdea.Beep.Winform.Controls
 
         public TabPage? currenttab { get; private set; }
 
-        public BeepDisplayContainer()
+        public BeepDisplayContainer():base()
         {
             // Container controls handle their own rendering - no BaseControl painting needed
             PainterKind = BaseControlPainterKind.None;
@@ -58,13 +58,13 @@ namespace TheTechIdea.Beep.Winform.Controls
             UpdateContainerLayout();
         }
 
-        // Override to prevent BaseControl from clearing the background
-        // This allows child controls (TabControl, Panel) to be visible
-        protected override void OnPaintBackground(PaintEventArgs e)
-        {
-            // Don't call base - container controls should not paint their own background
-            // Child controls (TabControl/Panel) handle their own painting
-        }
+        //// Override to prevent BaseControl from clearing the background
+        //// This allows child controls (TabControl, Panel) to be visible
+        //protected override void OnPaintBackground(PaintEventArgs e)
+        //{
+        //    // Don't call base - container controls should not paint their own background
+        //    // Child controls (TabControl/Panel) handle their own painting
+        //}
      
 
         private void InitializeComponent()
@@ -497,37 +497,37 @@ namespace TheTechIdea.Beep.Winform.Controls
          //  ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 1");
           //  Console.WriteLine("Applying theme to BeepDisplayContainer 1");
 
-            // Apply theme to single panel addin if present
-            if (_singlePanelAddin != null)
-            {
-                try
-                {
-                    //_singlePanelAddin.
-                    _singlePanelAddin.ApplyTheme();
-                }
-                catch (Exception ex)
-                {
-                   ////MiscFunctions.SendLog($"Error applying theme to _singlePanelAddin: {ex.Message}");
-                }
-            }
+       //     // Apply theme to single panel addin if present
+       //     if (_singlePanelAddin != null)
+       //     {
+       //         try
+       //         {
+       //             //_singlePanelAddin.
+       //             _singlePanelAddin.ApplyTheme();
+       //         }
+       //         catch (Exception ex)
+       //         {
+       //            ////MiscFunctions.SendLog($"Error applying theme to _singlePanelAddin: {ex.Message}");
+       //         }
+       //     }
 
-       //    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 2");
-       //     Console.WriteLine("Applying theme to BeepDisplayContainer 2");
-            // Apply theme to all addins in _controls
-            foreach (var entry in _controls)
-            {
-                if (entry.Value.Addin != null)
-                {
-                    try
-                    {
-                        entry.Value.Addin.ApplyTheme();
-                    }
-                    catch (Exception ex)
-                    {
-                        ////MiscFunctions.SendLog($"Error applying theme to addin {entry.Key}: {ex.Message}");
-                    }
-                }
-            }
+       ////    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 2");
+       ////     Console.WriteLine("Applying theme to BeepDisplayContainer 2");
+       //     // Apply theme to all addins in _controls
+       //     foreach (var entry in _controls)
+       //     {
+       //         if (entry.Value.Addin != null)
+       //         {
+       //             try
+       //             {
+       //                 entry.Value.Addin.ApplyTheme();
+       //             }
+       //             catch (Exception ex)
+       //             {
+       //                 ////MiscFunctions.SendLog($"Error applying theme to addin {entry.Key}: {ex.Message}");
+       //             }
+       //         }
+       //     }
 
        //    ////MiscFunctions.SendLog("Applying theme to BeepDisplayContainer 3");
        //     Console.WriteLine("Applying theme to BeepDisplayContainer 3");
@@ -539,7 +539,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             {
              //   TabContainerPanel.BackColor = _currentTheme.PanelBackColor;
                 TabContainerPanel.Theme = Theme;
-                TabContainerPanel.ApplyTheme();
+                //TabContainerPanel.ApplyTheme();
             }
             // Ensure DPI scaling is applied after theme changes
             //UpdateContainerLayoutForDpi();
@@ -567,71 +567,8 @@ namespace TheTechIdea.Beep.Winform.Controls
 
             }
         }
+   
        
-        protected override void OnResize(EventArgs e)
-        {
-            //this.SuspendLayout();
-            base.OnResize(e);
-
-            //try
-            //{
-            //    // Invalidate and update the entire client region to force a full redraw cascade
-            //    this.Invalidate(true);
-            //    this.Update();
-
-            //    if (ContainerPanel != null && ContainerPanel.Visible)
-            //    {
-            //        ContainerPanel.PerformLayout();
-            //        ContainerPanel.Invalidate(true);
-            //        ContainerPanel.Update();
-            //    }
-            //    if (TabContainerPanel != null && TabContainerPanel.Visible)
-            //    {
-            //        TabContainerPanel.PerformLayout();
-            //        TabContainerPanel.Invalidate(true);
-            //        TabContainerPanel.Update();
-            //        var sel = TabContainerPanel.SelectedTab;
-            //        if (sel != null)
-            //        {
-            //            sel.Invalidate(true);
-            //            sel.Update();
-            //            foreach (Control child in sel.Controls)
-            //            {
-            //                child.Invalidate(true);
-            //                child.Update();
-            //            }
-            //        }
-            //    }
-            //}
-            //finally
-            //{
-            //    this.ResumeLayout(true);
-            //}
-        }
-
-        //protected override void OnPaint(PaintEventArgs e)
-        //{
-        //    // Create a buffer for drawing:
-        //    BufferedGraphicsContext context = BufferedGraphicsManager.Current;
-        //    using (BufferedGraphics buffer = context.Allocate(e.Graphics, this.ClientRectangle))
-        //    {
-        //        Graphics g = buffer.Graphics;
-        //        g.Clear(this.BackColor);
-
-        //        // Option 1: Call base.OnPaint if it draws your composite scene
-        //        // Option 2: Manually draw child controls if you have custom painting routines
-        //        // For example:
-        //        foreach (Control child in this.Controls)
-        //        {
-        //            // You might call child.DrawToBitmap if available, or
-        //            // let the child control paint itself on the buffer
-        //            child.DrawToBitmap(new Bitmap(child.Width, child.Height), new Rectangle(0, 0, child.Width, child.Height));
-        //        }
-
-        //        // Finally, render the off-screen buffer to the screen:
-        //        buffer.Render(e.Graphics);
-        //    }
-        //}
 
         protected override void OnMouseClick(MouseEventArgs e)
         {

@@ -20,8 +20,18 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 _hits.HitTest(p, out var area);
                 if (!System.Object.Equals(area, _hover))
                 {
+                    var oldHover = _hover;
                     _hover = area;
-                    _owner.Invalidate();
+
+                    // Invalidate only the changed regions
+                    if (oldHover != null)
+                    {
+                        _owner.Invalidate(oldHover.Bounds);
+                    }
+                    if (_hover != null)
+                    {
+                        _owner.Invalidate(_hover.Bounds);
+                    }
 
                     // Raise hover event
                     if (_hover != null)
@@ -34,9 +44,12 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
             public void OnMouseDown(Point p)
             {
                 _hits.HitTest(p, out _pressed);
-                _owner.Invalidate();
 
-             
+                // Invalidate only the pressed region
+                if (_pressed != null)
+                {
+                    _owner.Invalidate(_pressed.Bounds);
+                }
             }
             public void OnMouseUp(Point p)
             {
@@ -47,8 +60,14 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     // Raise event hook (future extension) or command
                     _owner.OnRegionClicked(released);
                 }
+
+                // Invalidate only the released region
+                if (released != null)
+                {
+                    _owner.Invalidate(released.Bounds);
+                }
+
                 _pressed = null;
-                _owner.Invalidate();
             }
             public bool IsHovered(HitArea a) => a != null && _hover != null && string.Equals(_hover.Name, a.Name);
             public bool IsPressed(HitArea a) => a != null && _pressed != null && string.Equals(_pressed.Name, a.Name);

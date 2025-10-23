@@ -177,7 +177,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepComboBox1.Name = "beepComboBox1";
             beepComboBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepComboBox1.Padding = new Padding(1);
-            beepComboBox1.PainterKind = BaseControlPainterKind.Minimalist;
+            beepComboBox1.PainterKind =  BaseControlPainterKind.Classic;
             beepComboBox1.ParentBackColor = Color.White;
             beepComboBox1.ParentControl = null;
             beepComboBox1.PlaceholderText = "Select an item...";
@@ -651,7 +651,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepListBox1.Name = "beepListBox1";
             beepListBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepListBox1.Padding = new Padding(1);
-            beepListBox1.PainterKind = BaseControlPainterKind.Auto;
+            beepListBox1.PainterKind = BaseControlPainterKind.Classic;
             beepListBox1.ParentBackColor = Color.Empty;
             beepListBox1.ParentControl = null;
             beepListBox1.PressedBackColor = Color.FromArgb(21, 101, 192);
@@ -1020,7 +1020,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepCard1.Name = "beepCard1";
             beepCard1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepCard1.Padding = new Padding(3);
-            beepCard1.PainterKind = BaseControlPainterKind.Glassmorphism;
+            beepCard1.PainterKind = BaseControlPainterKind.Classic;
             beepCard1.ParagraphText = "Card Description";
             beepCard1.ParentBackColor = Color.White;
             beepCard1.ParentControl = null;
@@ -1388,7 +1388,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepNavBar1.Name = "beepNavBar1";
             beepNavBar1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepNavBar1.Padding = new Padding(1);
-            beepNavBar1.PainterKind = BaseControlPainterKind.Auto;
+            beepNavBar1.PainterKind = BaseControlPainterKind.Classic;
             beepNavBar1.ParentBackColor = Color.White;
             beepNavBar1.ParentControl = null;
             beepNavBar1.PressedBackColor = Color.Gray;
@@ -1551,7 +1551,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Template
             beepSideBar1.Name = "beepSideBar1";
             beepSideBar1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepSideBar1.Padding = new Padding(1);
-            beepSideBar1.PainterKind = BaseControlPainterKind.Auto;
+            beepSideBar1.PainterKind = BaseControlPainterKind.Classic;
             beepSideBar1.ParentBackColor = Color.White;
             beepSideBar1.ParentControl = null;
             beepSideBar1.PressedBackColor = Color.Gray;

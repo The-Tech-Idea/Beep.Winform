@@ -423,7 +423,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showThemeButton != value)
                 {
                     _showThemeButton = value;
-                    Invalidate();
+                  
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
                 }
             }
@@ -442,7 +442,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showStyleButton != value)
                 {
                     _showStyleButton = value;
-                    Invalidate();
+                   
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
                 }
             }
@@ -462,7 +462,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showProfileButton != value)
                 {
                     _showProfileButton = value;
-                    Invalidate();
+                  
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
                 }
             }
@@ -482,7 +482,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showSearchBox != value)
                 {
                     _showSearchBox = value;
-                    Invalidate();
+                  
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
                 }
             }
@@ -502,7 +502,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showCloseButton != value)
                 {
                     _showCloseButton = value;
-                    Invalidate();
+                 
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
                 }
             }
@@ -522,7 +522,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                 if (_showMinMaxButtons != value)
                 {
                     _showMinMaxButtons = value;
-                    Invalidate();
+                   
                     if (!DesignMode) RecalculateLayoutAndHitAreas();
                 }
             }
@@ -837,15 +837,16 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
                     var item = new ToolStripMenuItem(theme);
                     item.Click += (s, e) =>
                     {
-                        try
-                        {
-                            // Set global current theme like AppBar does
-                            BeepThemesManager.SetCurrentTheme(theme);
-                            Theme =theme;
-                            // Set the host's MenuStyle property, which triggers ApplyTheme()
-                            //_host.AsForm.GetType().GetProperty("Theme")?.SetValue(_host.AsForm, theme);
-                        }
-                        catch { }
+                         // Defer theme change to avoid repaints during menu interaction
+                BeginInvoke(new Action(() =>
+                {
+                    try
+                    {
+                        BeepThemesManager.SetCurrentTheme(theme);
+                        Theme = theme; // This will handle invalidation smartly
+                    }
+                    catch { }
+                }));
                     };
                     menu.Items.Add(item);
                 }

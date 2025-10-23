@@ -553,7 +553,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             messege.OnlyDigits = false;
             messege.OverrideFontSize = TypeStyleFontSize.None;
             messege.Padding = new Padding(1, 0, 1, 0);
-            messege.PainterKind = BaseControlPainterKind.Auto;
+            messege.PainterKind = BaseControlPainterKind.Classic;
             messege.ParentBackColor = Color.FromArgb(255, 255, 255);
             messege.ParentControl = null;
             messege.PasswordChar = '\0';
@@ -749,7 +749,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             LogopictureBox.Opacity = 1F;
             LogopictureBox.OverrideFontSize = TypeStyleFontSize.None;
             LogopictureBox.Padding = new Padding(1, 0, 1, 0);
-            LogopictureBox.PainterKind = BaseControlPainterKind.Auto;
+         
             LogopictureBox.ParentBackColor = Color.FromArgb(255, 255, 255);
             LogopictureBox.ParentControl = null;
             LogopictureBox.PreserveSvgBackgrounds = false;
@@ -935,7 +935,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             _spinnerImage.Opacity = 1F;
             _spinnerImage.OverrideFontSize = TypeStyleFontSize.None;
             _spinnerImage.Padding = new Padding(1, 0, 1, 0);
-            _spinnerImage.PainterKind = BaseControlPainterKind.Auto;
+            _spinnerImage.PainterKind = BaseControlPainterKind.Classic;
             _spinnerImage.ParentBackColor = Color.FromArgb(255, 255, 255);
             _spinnerImage.ParentControl = null;
             _spinnerImage.PreserveSvgBackgrounds = false;
@@ -1122,7 +1122,7 @@ namespace TheTechIdea.Beep.Winform.Controls
             beepImage1.Opacity = 1F;
             beepImage1.OverrideFontSize = TypeStyleFontSize.None;
             beepImage1.Padding = new Padding(1);
-            beepImage1.PainterKind = BaseControlPainterKind.Auto;
+            beepImage1.PainterKind = BaseControlPainterKind.Classic;
             beepImage1.ParentBackColor = SystemColors.Control;
             beepImage1.ParentControl = null;
             beepImage1.PreserveSvgBackgrounds = false;

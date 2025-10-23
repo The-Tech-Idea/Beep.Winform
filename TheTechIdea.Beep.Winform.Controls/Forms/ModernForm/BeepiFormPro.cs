@@ -38,14 +38,15 @@ namespace TheTechIdea.Beep.Winform.Controls.Forms.ModernForm
         public BeepiFormPro()
         {
 
+            AutoScaleMode = AutoScaleMode.Font;
 
             InitializeComponent();
-
+this.DoubleBuffered = true;
             // Enable double buffering and optimized painting
-            SetStyle(ControlStyles.AllPaintingInWmPaint |
+            SetStyle(
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw |
-                     ControlStyles.UserPaint | ControlStyles.SupportsTransparentBackColor, true);
+                      ControlStyles.SupportsTransparentBackColor, true);
             UpdateStyles();
             BackColor = Color.Transparent; // we paint everything   
             _layout = new BeepiFormProLayoutManager(this);

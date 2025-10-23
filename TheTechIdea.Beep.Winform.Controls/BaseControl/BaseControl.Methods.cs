@@ -35,7 +35,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 }
                 
                 // Auto defaults to Classic
-                if (desired == BaseControlPainterKind.Auto)
+                if (desired == BaseControlPainterKind.Classic)
                 {
                     desired = BaseControlPainterKind.Classic;
                 }
@@ -48,9 +48,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     {
                         BaseControlPainterKind.Classic => _painter is not ClassicBaseControlPainter,
                         BaseControlPainterKind.Material => _painter is not MaterialBaseControlPainter,
-                        BaseControlPainterKind.Card => _painter is not CardBaseControlPainter,
-                        BaseControlPainterKind.NeoBrutalist => _painter is not NeoBrutalistBaseControlPainter,
-                        BaseControlPainterKind.ReadingCard => _painter is not ReadingCardBaseControlPainter,
+                      
                         _ => _painter is null
                     };
                 }
@@ -61,9 +59,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                     {
                         BaseControlPainterKind.Classic => new ClassicBaseControlPainter(),
                         BaseControlPainterKind.Material => new MaterialBaseControlPainter(),
-                        BaseControlPainterKind.Card => new CardBaseControlPainter(),
-                        BaseControlPainterKind.NeoBrutalist => new NeoBrutalistBaseControlPainter(),
-                        BaseControlPainterKind.ReadingCard => new ReadingCardBaseControlPainter(),
+                       
                         _ => new ClassicBaseControlPainter()
                     };
                 }
@@ -83,37 +79,10 @@ namespace TheTechIdea.Beep.Winform.Controls.Base
                 case BaseControlPainterKind.Material:
                     _painter = new MaterialBaseControlPainter();
                     break;
-                case BaseControlPainterKind.Card:
-                    _painter = new CardBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.NeoBrutalist:
-                    _painter = new NeoBrutalistBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.ReadingCard:
-                    _painter = new ReadingCardBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Minimalist:
-                    _painter = new MinimalistBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Glassmorphism:
-                    _painter = new GlassmorphismBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Neumorphism:
-                    _painter = new NeumorphismBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.FluentAcrylic:
-                    _painter = new FluentAcrylicBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.SimpleButton:
-                    _painter = new ButtonBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.KeyboardShortcut:
-                    _painter = new ShortcutCardBaseControlPainter();
-                    break;
-                case BaseControlPainterKind.Auto:
+             
                 default:
                     // Auto defaults to Classic painter
-                    _painter = new MinimalistBaseControlPainter();
+                    _painter = new ClassicBaseControlPainter();
                     break;
             }
         }

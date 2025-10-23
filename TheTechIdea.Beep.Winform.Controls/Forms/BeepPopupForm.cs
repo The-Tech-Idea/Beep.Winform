@@ -106,6 +106,8 @@ namespace TheTechIdea.Beep.Winform.Controls
         }
         private void InitializePopupForm()
         {
+           
+            
             StartPosition = FormStartPosition.Manual;
             ShowInTaskbar = false;
             TopMost = true;

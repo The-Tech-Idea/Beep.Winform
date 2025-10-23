@@ -103,7 +103,7 @@ namespace TheTechIdea.Beep.Winform.Controls.Dates
         {
             // Use BaseControl's Minimalist painter to render the outer container (subtle 1px border, card-like)
             // Our internal calendar UI is still painted by IDateTimePickerPainter inside DrawingRect.
-            PainterKind = BaseControlPainterKind.Minimalist;
+            PainterKind = BaseControlPainterKind.Classic;
             // Prevent WinForms default black border from showing in addition to our painter border
             BorderStyle = System.Windows.Forms.BorderStyle.None;
             

@@ -231,7 +231,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CycleBeepDataTimePickerModebeepButton.ModernGradientType = ModernGradientType.None;
             CycleBeepDataTimePickerModebeepButton.Name = "CycleBeepDataTimePickerModebeepButton";
             CycleBeepDataTimePickerModebeepButton.OverrideFontSize = TypeStyleFontSize.None;
-            CycleBeepDataTimePickerModebeepButton.PainterKind = BaseControlPainterKind.SimpleButton;
+            CycleBeepDataTimePickerModebeepButton.PainterKind =  BaseControlPainterKind.Classic;
             CycleBeepDataTimePickerModebeepButton.ParentBackColor = Color.Empty;
             CycleBeepDataTimePickerModebeepButton.ParentControl = null;
             CycleBeepDataTimePickerModebeepButton.PopPosition = BeepPopupFormPosition.Bottom;
@@ -413,7 +413,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views.Configuration
             CalendarnamebeepLabel.Name = "CalendarnamebeepLabel";
             CalendarnamebeepLabel.OverrideFontSize = TypeStyleFontSize.None;
             CalendarnamebeepLabel.Padding = new Padding(1);
-            CalendarnamebeepLabel.PainterKind = BaseControlPainterKind.SimpleButton;
+            CalendarnamebeepLabel.PainterKind =  BaseControlPainterKind.Classic;
             CalendarnamebeepLabel.ParentBackColor = Color.White;
             CalendarnamebeepLabel.ParentControl = null;
             CalendarnamebeepLabel.PressedBackColor = Color.Gray;

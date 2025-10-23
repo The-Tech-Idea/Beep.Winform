@@ -178,7 +178,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepButton1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepButton1.Name = "beepButton1";
             beepButton1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
-            beepButton1.PainterKind = BaseControlPainterKind.SimpleButton;
+            beepButton1.PainterKind =  BaseControlPainterKind.Classic;
             beepButton1.ParentBackColor = Color.Empty;
             beepButton1.ParentControl = null;
             beepButton1.PopPosition = Vis.Modules.BeepPopupFormPosition.Bottom;
@@ -548,7 +548,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTextBox1.OnlyDigits = false;
             beepTextBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepTextBox1.Padding = new Padding(1);
-            beepTextBox1.PainterKind = BaseControlPainterKind.Auto;
+            beepTextBox1.PainterKind = BaseControlPainterKind.Classic;
             beepTextBox1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepTextBox1.ParentControl = null;
             beepTextBox1.PasswordChar = '\0';
@@ -725,7 +725,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepTree1.Nodes.Add((Controls.Models.SimpleItem)resources.GetObject("beepTree1.Nodes2"));
             beepTree1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepTree1.Padding = new Padding(5);
-            beepTree1.PainterKind = BaseControlPainterKind.Auto;
+            beepTree1.PainterKind = BaseControlPainterKind.Classic;
             beepTree1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepTree1.ParentControl = null;
             beepTree1.PressedBackColor = Color.Gray;
@@ -894,7 +894,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepListBox1.Name = "beepListBox1";
             beepListBox1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
             beepListBox1.Padding = new Padding(1);
-            beepListBox1.PainterKind = BaseControlPainterKind.Card;
+            beepListBox1.PainterKind = BaseControlPainterKind.Classic;
             beepListBox1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepListBox1.ParentControl = null;
             beepListBox1.PressedBackColor = Color.Gray;
@@ -1069,7 +1069,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDatePicker1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepDatePicker1.Name = "beepDatePicker1";
             beepDatePicker1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
-            beepDatePicker1.PainterKind = BaseControlPainterKind.Auto;
+            beepDatePicker1.PainterKind = BaseControlPainterKind.Classic;
             beepDatePicker1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepDatePicker1.ParentControl = null;
             beepDatePicker1.PressedBackColor = Color.Gray;
@@ -1237,7 +1237,7 @@ namespace TheTechIdea.Beep.Winform.Default.Views
             beepDateTimePicker1.ModernGradientType = Vis.Modules.ModernGradientType.None;
             beepDateTimePicker1.Name = "beepDateTimePicker1";
             beepDateTimePicker1.OverrideFontSize = Vis.Modules.TypeStyleFontSize.None;
-            beepDateTimePicker1.PainterKind = BaseControlPainterKind.Auto;
+            beepDateTimePicker1.PainterKind = BaseControlPainterKind.Classic;
             beepDateTimePicker1.ParentBackColor = Color.FromArgb(255, 255, 255);
             beepDateTimePicker1.ParentControl = null;
             beepDateTimePicker1.PressedBackColor = Color.Gray;
